@@ -1,8 +1,32 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Label, Input, Textarea, Select, AIDisclosure } from '@ims/ui';
-import { Plus, Calendar, Clock, CheckCircle, XCircle, AlertCircle, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+  Label,
+  Input,
+  Textarea,
+  Select,
+  AIDisclosure,
+} from '@ims/ui';
+import {
+  Plus,
+  Calendar,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  ThumbsUp,
+  ThumbsDown,
+  Sparkles,
+} from 'lucide-react';
 import { api, aiApi } from '@/lib/api';
 import Link from 'next/link';
 
@@ -172,9 +196,10 @@ export default function LeavePage() {
     setActionError('');
 
     try {
-      const endpoint = actionType === 'APPROVED'
-        ? `/leave/requests/${actionRequestId}/approve`
-        : `/leave/requests/${actionRequestId}/reject`;
+      const endpoint =
+        actionType === 'APPROVED'
+          ? `/leave/requests/${actionRequestId}/approve`
+          : `/leave/requests/${actionRequestId}/reject`;
 
       await api.put(endpoint, {
         comments: actionComments || undefined,
@@ -183,7 +208,11 @@ export default function LeavePage() {
       loadRequests();
     } catch (error: unknown) {
       const msg = error.response?.data?.error?.message;
-      setActionError(typeof msg === 'string' ? msg : `Failed to ${actionType === 'APPROVED' ? 'approve' : 'reject'} request.`);
+      setActionError(
+        typeof msg === 'string'
+          ? msg
+          : `Failed to ${actionType === 'APPROVED' ? 'approve' : 'reject'} request.`
+      );
     } finally {
       setActionSubmitting(false);
     }
@@ -222,9 +251,9 @@ export default function LeavePage() {
   }
 
   const stats = {
-    pending: requests.filter(r => r.status === 'PENDING').length,
-    approved: requests.filter(r => r.status === 'APPROVED').length,
-    rejected: requests.filter(r => r.status === 'REJECTED').length,
+    pending: requests.filter((r) => r.status === 'PENDING').length,
+    approved: requests.filter((r) => r.status === 'APPROVED').length,
+    rejected: requests.filter((r) => r.status === 'REJECTED').length,
     total: requests.length,
   };
 
@@ -234,7 +263,7 @@ export default function LeavePage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-24 bg-gray-200 rounded" />
             ))}
           </div>
@@ -249,11 +278,20 @@ export default function LeavePage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Leave Management</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage leave requests and approvals</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Leave Management
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Manage leave requests and approvals
+            </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={analyzeLeavePatterns} disabled={aiLoading || requests.length === 0} className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={analyzeLeavePatterns}
+              disabled={aiLoading || requests.length === 0}
+              className="flex items-center gap-2"
+            >
               <Sparkles className="h-4 w-4" /> {aiLoading ? 'Analyzing...' : 'Analyze Patterns'}
             </Button>
             <Button className="flex items-center gap-2" onClick={openCreateModal}>
@@ -316,25 +354,48 @@ export default function LeavePage() {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle className="text-blue-900">AI Leave Analysis</CardTitle>
-                <Button variant="ghost" size="sm" onClick={() => setAiAnalysis(null)}>Dismiss</Button>
+                <Button variant="ghost" size="sm" onClick={() => setAiAnalysis(null)}>
+                  Dismiss
+                </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <AIDisclosure variant="inline" provider="claude" analysisType="Leave Analysis" confidence={0.85} />
+              <AIDisclosure
+                variant="inline"
+                provider="claude"
+                analysisType="Leave Analysis"
+                confidence={0.85}
+              />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-3">
                 <div>
                   <div className="flex items-center gap-3 mb-3">
                     <span className="text-2xl font-bold">{aiAnalysis.bradfordFactor ?? 'N/A'}</span>
                     <div>
                       <p className="text-sm font-medium">Bradford Factor</p>
-                      <Badge className={aiAnalysis.bradfordRisk === 'LOW' ? 'bg-green-100 text-green-700' : aiAnalysis.bradfordRisk === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}>{aiAnalysis.bradfordRisk || 'N/A'}</Badge>
+                      <Badge
+                        className={
+                          aiAnalysis.bradfordRisk === 'LOW'
+                            ? 'bg-green-100 text-green-700'
+                            : aiAnalysis.bradfordRisk === 'MEDIUM'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : 'bg-red-100 text-red-700'
+                        }
+                      >
+                        {aiAnalysis.bradfordRisk || 'N/A'}
+                      </Badge>
                     </div>
                   </div>
                   {aiAnalysis.patterns?.length > 0 && (
                     <div>
-                      <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-1">Patterns</h4>
+                      <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Patterns
+                      </h4>
                       <ul className="text-sm space-y-1">
-                        {aiAnalysis.patterns.map((p: string, i: number) => <li key={i}>{'\u2022'} {p}</li>)}
+                        {aiAnalysis.patterns.map((p: string, i: number) => (
+                          <li key={i}>
+                            {'\u2022'} {p}
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   )}
@@ -342,9 +403,15 @@ export default function LeavePage() {
                 <div>
                   {aiAnalysis.recommendations?.length > 0 && (
                     <div>
-                      <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-1">Recommendations</h4>
+                      <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Recommendations
+                      </h4>
                       <ul className="text-sm space-y-1">
-                        {aiAnalysis.recommendations.map((r: string, i: number) => <li key={i}>{'\u2022'} {r}</li>)}
+                        {aiAnalysis.recommendations.map((r: string, i: number) => (
+                          <li key={i}>
+                            {'\u2022'} {r}
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   )}
@@ -352,14 +419,20 @@ export default function LeavePage() {
                     <div className="mt-3">
                       <h4 className="font-medium text-amber-700 mb-1">Wellbeing Flags</h4>
                       <ul className="text-sm space-y-1">
-                        {aiAnalysis.wellbeingFlags.map((w: string, i: number) => <li key={i} className="text-amber-600">{'\u26A0'} {w}</li>)}
+                        {aiAnalysis.wellbeingFlags.map((w: string, i: number) => (
+                          <li key={i} className="text-amber-600">
+                            {'\u26A0'} {w}
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   )}
                 </div>
               </div>
               {aiAnalysis.comparisonToAverage && (
-                <p className="text-sm text-gray-600 mt-4 pt-4 border-t">{aiAnalysis.comparisonToAverage}</p>
+                <p className="text-sm text-gray-600 mt-4 pt-4 border-t">
+                  {aiAnalysis.comparisonToAverage}
+                </p>
               )}
             </CardContent>
           </Card>
@@ -393,8 +466,14 @@ export default function LeavePage() {
             {requests.length > 0 ? (
               <div className="space-y-4">
                 {requests.map((request) => (
-                  <div key={request.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                    <Link href={`/leave/${request.id}`} className="flex items-center gap-4 flex-1 cursor-pointer">
+                  <div
+                    key={request.id}
+                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <Link
+                      href={`/leave/${request.id}`}
+                      className="flex items-center gap-4 flex-1 cursor-pointer"
+                    >
                       <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
                         <Calendar className="h-5 w-5 text-purple-600" />
                       </div>
@@ -403,7 +482,11 @@ export default function LeavePage() {
                           <span className="font-medium">
                             {request.employee.firstName} {request.employee.lastName}
                           </span>
-                          <Badge className={statusColors[request.status] || 'bg-gray-100 dark:bg-gray-800'}>
+                          <Badge
+                            className={
+                              statusColors[request.status] || 'bg-gray-100 dark:bg-gray-800'
+                            }
+                          >
                             {request.status}
                           </Badge>
                         </div>
@@ -419,23 +502,32 @@ export default function LeavePage() {
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <p className="font-medium">
-                          {new Date(request.startDate).toLocaleDateString()} - {new Date(request.endDate).toLocaleDateString()}
+                          {new Date(request.startDate).toLocaleDateString()} -{' '}
+                          {new Date(request.endDate).toLocaleDateString()}
                         </p>
                         {request.reason && (
-                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px]">{request.reason}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
+                            {request.reason}
+                          </p>
                         )}
                       </div>
                       {request.status === 'PENDING' && (
                         <div className="flex items-center gap-1 ml-4">
                           <button
-                            onClick={(e) => { e.preventDefault(); openActionModal(request.id, 'APPROVED'); }}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              openActionModal(request.id, 'APPROVED');
+                            }}
                             className="p-2 rounded-md hover:bg-green-100 text-green-600 transition-colors"
                             title="Approve"
                           >
                             <ThumbsUp className="h-4 w-4" />
                           </button>
                           <button
-                            onClick={(e) => { e.preventDefault(); openActionModal(request.id, 'REJECTED'); }}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              openActionModal(request.id, 'REJECTED');
+                            }}
                             className="p-2 rounded-md hover:bg-red-100 text-red-600 transition-colors"
                             title="Reject"
                           >
@@ -458,7 +550,12 @@ export default function LeavePage() {
       </div>
 
       {/* Create Leave Request Modal */}
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="New Leave Request" size="lg">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="New Leave Request"
+        size="lg"
+      >
         <div className="space-y-4 max-h-[70vh] overflow-y-auto">
           {createError && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
@@ -637,9 +734,7 @@ export default function LeavePage() {
             disabled={actionSubmitting}
             className={actionType === 'APPROVED' ? '' : 'bg-red-600 hover:bg-red-700'}
           >
-            {actionSubmitting
-              ? 'Processing...'
-              : actionType === 'APPROVED' ? 'Approve' : 'Reject'}
+            {actionSubmitting ? 'Processing...' : actionType === 'APPROVED' ? 'Approve' : 'Reject'}
           </Button>
         </ModalFooter>
       </Modal>

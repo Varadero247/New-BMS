@@ -78,7 +78,16 @@ export default function TrainingPage() {
 
   function openAddModal() {
     setEditingRecord(null);
-    setForm({ title: '', description: '', type: 'ONLINE', status: 'SCHEDULED', completionRate: 0, dueDate: '', participants: '', facilitator: '' });
+    setForm({
+      title: '',
+      description: '',
+      type: 'ONLINE',
+      status: 'SCHEDULED',
+      completionRate: 0,
+      dueDate: '',
+      participants: '',
+      facilitator: '',
+    });
     setModalOpen(true);
   }
 
@@ -143,7 +152,12 @@ export default function TrainingPage() {
   const filtered = records.filter((r) => {
     if (filterStatus && r.status !== filterStatus) return false;
     if (filterType && r.type !== filterType) return false;
-    if (search && !r.title.toLowerCase().includes(search.toLowerCase()) && !(r.participants || '').toLowerCase().includes(search.toLowerCase())) return false;
+    if (
+      search &&
+      !r.title.toLowerCase().includes(search.toLowerCase()) &&
+      !(r.participants || '').toLowerCase().includes(search.toLowerCase())
+    )
+      return false;
     return true;
   });
 
@@ -151,7 +165,10 @@ export default function TrainingPage() {
   const inProgressCount = records.filter((r) => r.status === 'IN_PROGRESS').length;
   const completedCount = records.filter((r) => r.status === 'COMPLETED').length;
   const overdueCount = records.filter((r) => isOverdue(r)).length;
-  const avgCompletion = records.length > 0 ? Math.round(records.reduce((sum, r) => sum + r.completionRate, 0) / records.length) : 0;
+  const avgCompletion =
+    records.length > 0
+      ? Math.round(records.reduce((sum, r) => sum + r.completionRate, 0) / records.length)
+      : 0;
 
   if (loading) {
     return (
@@ -170,15 +187,26 @@ export default function TrainingPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Anti-Bribery Training</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Track anti-bribery training records and completion rates</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Anti-Bribery Training
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Track anti-bribery training records and completion rates
+            </p>
           </div>
-          <button onClick={openAddModal} className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors">
+          <button
+            onClick={openAddModal}
+            className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+          >
             Schedule Training
           </button>
         </div>
 
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
@@ -186,7 +214,10 @@ export default function TrainingPage() {
             <p className="text-sm text-gray-500 dark:text-gray-400">Avg. Completion</p>
             <p className="text-2xl font-bold text-rose-600">{avgCompletion}%</p>
             <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
-              <div className={`rounded-full h-1.5 ${getCompletionColor(avgCompletion)}`} style={{ width: `${avgCompletion}%` }} />
+              <div
+                className={`rounded-full h-1.5 ${getCompletionColor(avgCompletion)}`}
+                style={{ width: `${avgCompletion}%` }}
+              />
             </div>
           </div>
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
@@ -206,7 +237,11 @@ export default function TrainingPage() {
           </div>
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-500 dark:text-gray-400">Overdue</p>
-            <p className={`text-2xl font-bold ${overdueCount > 0 ? 'text-red-600' : 'text-gray-600'}`}>{overdueCount}</p>
+            <p
+              className={`text-2xl font-bold ${overdueCount > 0 ? 'text-red-600' : 'text-gray-600'}`}
+            >
+              {overdueCount}
+            </p>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">past due date</p>
           </div>
         </div>
@@ -216,18 +251,37 @@ export default function TrainingPage() {
           <div className="flex flex-wrap gap-4">
             <input
               type="text"
-              aria-label="Search by title or participants..." placeholder="Search by title or participants..."
+              aria-label="Search by title or participants..."
+              placeholder="Search by title or participants..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 min-w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
             />
-            <select aria-label="Filter by type" value={filterType} onChange={(e) => setFilterType(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <select
+              aria-label="Filter by type"
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+            >
               <option value="">All Types</option>
-              {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+              {typeOptions.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
             </select>
-            <select aria-label="Filter by status" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <select
+              aria-label="Filter by status"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+            >
               <option value="">All Statuses</option>
-              {statusOptions.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
+              {statusOptions.map((s) => (
+                <option key={s} value={s}>
+                  {s.replace(/_/g, ' ')}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -237,13 +291,27 @@ export default function TrainingPage() {
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Training</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Completion Rate</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Due Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Participants</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Training
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Completion Rate
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Due Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Participants
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -251,29 +319,55 @@ export default function TrainingPage() {
                 filtered.map((record) => {
                   const overdue = isOverdue(record);
                   return (
-                    <tr key={record.id} className={`hover:bg-gray-50 dark:bg-gray-800 ${overdue ? 'bg-red-50' : ''}`}>
+                    <tr
+                      key={record.id}
+                      className={`hover:bg-gray-50 dark:bg-gray-800 ${overdue ? 'bg-red-50' : ''}`}
+                    >
                       <td className="px-6 py-4">
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{record.title}</p>
-                        {record.description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate max-w-xs">{record.description}</p>}
-                        {record.facilitator && <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Facilitator: {record.facilitator}</p>}
-                        {overdue && <span className="inline-flex mt-1 px-1.5 py-0.5 bg-red-100 text-red-600 text-xs font-medium rounded">OVERDUE</span>}
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {record.title}
+                        </p>
+                        {record.description && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate max-w-xs">
+                            {record.description}
+                          </p>
+                        )}
+                        {record.facilitator && (
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                            Facilitator: {record.facilitator}
+                          </p>
+                        )}
+                        {overdue && (
+                          <span className="inline-flex mt-1 px-1.5 py-0.5 bg-red-100 text-red-600 text-xs font-medium rounded">
+                            OVERDUE
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${typeColors[record.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${typeColors[record.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                        >
                           {record.type}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[record.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[record.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                        >
                           {record.status.replace(/_/g, ' ')}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <div className="w-20 bg-gray-200 rounded-full h-2">
-                            <div className={`rounded-full h-2 ${getCompletionColor(record.completionRate)}`} style={{ width: `${Math.min(100, record.completionRate)}%` }} />
+                            <div
+                              className={`rounded-full h-2 ${getCompletionColor(record.completionRate)}`}
+                              style={{ width: `${Math.min(100, record.completionRate)}%` }}
+                            />
                           </div>
-                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{record.completionRate}%</span>
+                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                            {record.completionRate}%
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
@@ -284,18 +378,38 @@ export default function TrainingPage() {
                       </td>
                       <td className="px-6 py-4 text-right whitespace-nowrap">
                         {record.status !== 'COMPLETED' && (
-                          <button onClick={() => handleMarkComplete(record.id)} className="text-green-600 hover:text-green-700 text-sm mr-2">Complete</button>
+                          <button
+                            onClick={() => handleMarkComplete(record.id)}
+                            className="text-green-600 hover:text-green-700 text-sm mr-2"
+                          >
+                            Complete
+                          </button>
                         )}
-                        <button onClick={() => openEditModal(record)} className="text-rose-600 hover:text-rose-700 text-sm mr-2">Edit</button>
-                        <button onClick={() => handleDelete(record.id)} className="text-red-600 hover:text-red-700 text-sm">Delete</button>
+                        <button
+                          onClick={() => openEditModal(record)}
+                          className="text-rose-600 hover:text-rose-700 text-sm mr-2"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(record.id)}
+                          className="text-red-600 hover:text-red-700 text-sm"
+                        >
+                          Delete
+                        </button>
                       </td>
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                    {records.length === 0 ? 'No training records found. Schedule one to get started.' : 'No training records match your filters.'}
+                  <td
+                    colSpan={7}
+                    className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
+                  >
+                    {records.length === 0
+                      ? 'No training records found. Schedule one to get started.'
+                      : 'No training records match your filters.'}
                   </td>
                 </tr>
               )}
@@ -308,17 +422,34 @@ export default function TrainingPage() {
       {modalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4">
-            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setModalOpen(false)} />
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50"
+              onClick={() => setModalOpen(false)}
+            />
             <div className="relative bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{editingRecord ? 'Edit Training' : 'Schedule Training'}</h2>
-                <button onClick={() => setModalOpen(false)} className="text-gray-400 dark:text-gray-500 hover:text-gray-600">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  {editingRecord ? 'Edit Training' : 'Schedule Training'}
+                </h2>
+                <button
+                  onClick={() => setModalOpen(false)}
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-600"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
                 </button>
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Title <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     value={form.title}
@@ -329,7 +460,9 @@ export default function TrainingPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Description
+                  </label>
                   <textarea
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -340,19 +473,41 @@ export default function TrainingPage() {
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
-                    <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
-                      {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Type
+                    </label>
+                    <select
+                      value={form.type}
+                      onChange={(e) => setForm({ ...form, type: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    >
+                      {typeOptions.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-                    <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
-                      {statusOptions.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={form.status}
+                      onChange={(e) => setForm({ ...form, status: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    >
+                      {statusOptions.map((s) => (
+                        <option key={s} value={s}>
+                          {s.replace(/_/g, ' ')}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Due Date
+                    </label>
                     <input
                       type="date"
                       value={form.dueDate}
@@ -362,7 +517,9 @@ export default function TrainingPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Completion Rate (%)</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Completion Rate (%)
+                  </label>
                   <div className="flex items-center gap-3">
                     <input
                       type="range"
@@ -370,18 +527,27 @@ export default function TrainingPage() {
                       max="100"
                       step="5"
                       value={form.completionRate}
-                      onChange={(e) => setForm({ ...form, completionRate: parseInt(e.target.value) })}
+                      onChange={(e) =>
+                        setForm({ ...form, completionRate: parseInt(e.target.value) })
+                      }
                       className="flex-1 accent-rose-600"
                     />
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 w-12 text-right">{form.completionRate}%</span>
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 w-12 text-right">
+                      {form.completionRate}%
+                    </span>
                   </div>
                   <div className="mt-1 w-full bg-gray-200 rounded-full h-2">
-                    <div className={`rounded-full h-2 transition-all ${getCompletionColor(form.completionRate)}`} style={{ width: `${form.completionRate}%` }} />
+                    <div
+                      className={`rounded-full h-2 transition-all ${getCompletionColor(form.completionRate)}`}
+                      style={{ width: `${form.completionRate}%` }}
+                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Participants</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Participants
+                    </label>
                     <input
                       type="text"
                       value={form.participants}
@@ -391,7 +557,9 @@ export default function TrainingPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Facilitator</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Facilitator
+                    </label>
                     <input
                       type="text"
                       value={form.facilitator}
@@ -401,8 +569,17 @@ export default function TrainingPage() {
                   </div>
                 </div>
                 <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
-                  <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
-                  <button type="submit" className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700">
+                  <button
+                    type="button"
+                    onClick={() => setModalOpen(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700"
+                  >
                     {editingRecord ? 'Update' : 'Create'}
                   </button>
                 </div>

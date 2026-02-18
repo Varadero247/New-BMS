@@ -12,7 +12,12 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN', orgId: 'org-001' };
+    req.user = {
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'test@test.com',
+      role: 'ADMIN',
+      orgId: 'org-001',
+    };
     next();
   }),
 }));
@@ -131,7 +136,9 @@ describe('POST /api/defra-factors', () => {
   });
 
   it('should return 500 when database create fails', async () => {
-    (prisma.esgDefraFactor.create as jest.Mock).mockRejectedValue(new Error('Unique constraint violation'));
+    (prisma.esgDefraFactor.create as jest.Mock).mockRejectedValue(
+      new Error('Unique constraint violation')
+    );
 
     const res = await request(app).post('/api/defra-factors').send({
       category: 'Electricity',

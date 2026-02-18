@@ -18,7 +18,10 @@ router.get('/cycles', scopeToUser, async (req: Request, res: Response) => {
     const { year, status } = req.query;
 
     const where: any = { deletedAt: null };
-    if (year) { const n = parseInt(year as string, 10); if (!isNaN(n)) where.year = n; }
+    if (year) {
+      const n = parseInt(year as string, 10);
+      if (!isNaN(n)) where.year = n;
+    }
     if (status) where.status = status as any;
 
     const cycles = await prisma.performanceCycle.findMany({
@@ -33,7 +36,10 @@ router.get('/cycles', scopeToUser, async (req: Request, res: Response) => {
     res.json({ success: true, data: cycles });
   } catch (error) {
     logger.error('Error fetching performance cycles', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch cycles' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch cycles' },
+    });
   }
 });
 
@@ -44,8 +50,8 @@ router.post('/cycles', async (req: Request, res: Response) => {
       name: z.string().trim().min(1).max(200),
       year: z.number().int().min(2000).max(2100),
       cycleType: z.enum(['ANNUAL', 'SEMI_ANNUAL', 'QUARTERLY', 'CONTINUOUS']),
-      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-      endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      endDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       goalSettingStart: z.string().optional(),
       goalSettingEnd: z.string().optional(),
       midYearReviewStart: z.string().optional(),
@@ -75,10 +81,15 @@ router.post('/cycles', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: cycle });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating cycle', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create cycle' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create cycle' },
+    });
   }
 });
 
@@ -102,7 +113,15 @@ router.get('/reviews', scopeToUser, async (req: Request, res: Response) => {
         where,
         include: {
           cycle: { select: { name: true, year: true } },
-          employee: { select: { id: true, firstName: true, lastName: true, employeeNumber: true, jobTitle: true } },
+          employee: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              employeeNumber: true,
+              jobTitle: true,
+            },
+          },
           reviewer: { select: { id: true, firstName: true, lastName: true } },
         },
         skip,
@@ -119,45 +138,61 @@ router.get('/reviews', scopeToUser, async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching reviews', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch reviews' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch reviews' },
+    });
   }
 });
 
 // GET /api/performance/reviews/:id - Get single review
-router.get('/reviews/:id', checkOwnership(prisma.performanceReview), async (req: Request, res: Response) => {
-  try {
-    const review = await prisma.performanceReview.findUnique({
-      where: { id: req.params.id },
-      include: {
-        cycle: true,
-        employee: {
-          select: {
-            id: true, firstName: true, lastName: true, employeeNumber: true, jobTitle: true,
-            department: true,
+router.get(
+  '/reviews/:id',
+  checkOwnership(prisma.performanceReview),
+  async (req: Request, res: Response) => {
+    try {
+      const review = await prisma.performanceReview.findUnique({
+        where: { id: req.params.id },
+        include: {
+          cycle: true,
+          employee: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              employeeNumber: true,
+              jobTitle: true,
+              department: true,
+            },
           },
+          reviewer: { select: { id: true, firstName: true, lastName: true } },
+          feedbacks: true,
         },
-        reviewer: { select: { id: true, firstName: true, lastName: true } },
-        feedbacks: true,
-      },
-    });
+      });
 
-    if (!review) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Review not found' } });
+      if (!review) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Review not found' } });
+      }
+
+      // Get employee's goals for this cycle
+      const goals = await prisma.performanceGoal.findMany({
+        where: { cycleId: review.cycleId, employeeId: review.employeeId, deletedAt: null } as any,
+        include: { updates: { orderBy: { createdAt: 'desc' }, take: 5 } },
+        take: 100,
+      });
+
+      res.json({ success: true, data: { ...review, goals } });
+    } catch (error) {
+      logger.error('Error fetching review', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch review' },
+      });
     }
-
-    // Get employee's goals for this cycle
-    const goals = await prisma.performanceGoal.findMany({
-      where: { cycleId: review.cycleId, employeeId: review.employeeId, deletedAt: null } as any,
-      include: { updates: { orderBy: { createdAt: 'desc' }, take: 5 } },
-      take: 100,
-    });
-
-    res.json({ success: true, data: { ...review, goals } });
-  } catch (error) {
-    logger.error('Error fetching review', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch review' } });
   }
-});
+);
 
 // POST /api/performance/reviews - Create review
 router.post('/reviews', async (req: Request, res: Response) => {
@@ -167,8 +202,16 @@ router.post('/reviews', async (req: Request, res: Response) => {
       employeeId: z.string().trim().uuid(),
       reviewerId: z.string().trim().uuid(),
       reviewType: z.enum(['ANNUAL', 'MID_YEAR', 'QUARTERLY', 'PROBATION', 'PROJECT_END', 'AD_HOC']),
-      periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-      periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      periodStart: z
+        .string()
+        .trim()
+        .min(1)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      periodEnd: z
+        .string()
+        .trim()
+        .min(1)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
     });
 
     const data = schema.parse(req.body);
@@ -190,51 +233,74 @@ router.post('/reviews', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: review });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating review', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create review' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create review' },
+    });
   }
 });
 
 // PUT /api/performance/reviews/:id - Update review
-router.put('/reviews/:id', checkOwnership(prisma.performanceReview), async (req: Request, res: Response) => {
-  try {
-    const schema = z.object({
-      selfAssessment: z.string().optional(),
-      selfRating: z.number().optional(),
-      managerAssessment: z.string().optional(),
-      managerRating: z.number().nonnegative().optional(),
-      competencyRatings: z.record(z.number()).optional(),
-      overallRating: z.number().optional(),
-      overallComments: z.string().optional(),
-      strengths: z.string().optional(),
-      improvementAreas: z.string().optional(),
-      developmentPlan: z.string().optional(),
-      status: z.enum(['DRAFT', 'SELF_ASSESSMENT', 'MANAGER_REVIEW', 'CALIBRATION', 'ACKNOWLEDGED', 'COMPLETED']).optional(),
-    });
+router.put(
+  '/reviews/:id',
+  checkOwnership(prisma.performanceReview),
+  async (req: Request, res: Response) => {
+    try {
+      const schema = z.object({
+        selfAssessment: z.string().optional(),
+        selfRating: z.number().optional(),
+        managerAssessment: z.string().optional(),
+        managerRating: z.number().nonnegative().optional(),
+        competencyRatings: z.record(z.number()).optional(),
+        overallRating: z.number().optional(),
+        overallComments: z.string().optional(),
+        strengths: z.string().optional(),
+        improvementAreas: z.string().optional(),
+        developmentPlan: z.string().optional(),
+        status: z
+          .enum([
+            'DRAFT',
+            'SELF_ASSESSMENT',
+            'MANAGER_REVIEW',
+            'CALIBRATION',
+            'ACKNOWLEDGED',
+            'COMPLETED',
+          ])
+          .optional(),
+      });
 
-    const data = schema.parse(req.body);
+      const data = schema.parse(req.body);
 
-    const updateData = { ...data } as Record<string, unknown>;
-    if (data.selfRating !== undefined) updateData.selfRatingDate = new Date();
-    if (data.managerRating !== undefined) updateData.managerRatingDate = new Date();
+      const updateData = { ...data } as Record<string, unknown>;
+      if (data.selfRating !== undefined) updateData.selfRatingDate = new Date();
+      if (data.managerRating !== undefined) updateData.managerRatingDate = new Date();
 
-    const review = await prisma.performanceReview.update({
-      where: { id: req.params.id },
-      data: updateData,
-      include: { cycle: true, employee: true, reviewer: true },
-    });
+      const review = await prisma.performanceReview.update({
+        where: { id: req.params.id },
+        data: updateData,
+        include: { cycle: true, employee: true, reviewer: true },
+      });
 
-    res.json({ success: true, data: review });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      res.json({ success: true, data: review });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res
+          .status(400)
+          .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      }
+      logger.error('Error updating review', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update review' },
+      });
     }
-    logger.error('Error updating review', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update review' } });
   }
-});
+);
 
 // Goals
 // GET /api/performance/goals - Get goals
@@ -262,7 +328,10 @@ router.get('/goals', scopeToUser, async (req: Request, res: Response) => {
     res.json({ success: true, data: goals });
   } catch (error) {
     logger.error('Error fetching goals', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch goals' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch goals' },
+    });
   }
 });
 
@@ -279,8 +348,11 @@ router.post('/goals', async (req: Request, res: Response) => {
       measurementCriteria: z.string(),
       targetValue: z.string().optional(),
       unit: z.string().optional(),
-      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      startDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      dueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       alignedToObjective: z.string().optional(),
     });
 
@@ -299,44 +371,60 @@ router.post('/goals', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: goal });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating goal', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create goal' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create goal' },
+    });
   }
 });
 
 // PUT /api/performance/goals/:id - Update goal
-router.put('/goals/:id', checkOwnership(prisma.performanceGoal), async (req: Request, res: Response) => {
-  try {
-    const schema = z.object({
-      title: z.string().optional(),
-      description: z.string().optional(),
-      progress: z.number().min(0).max(100).optional(),
-      actualValue: z.string().optional(),
-      status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'AT_RISK', 'COMPLETED', 'EXCEEDED', 'CANCELLED']).optional(),
-      selfRating: z.number().optional(),
-      managerRating: z.number().nonnegative().optional(),
-      finalRating: z.number().optional(),
-      ratingComments: z.string().optional(),
-    });
+router.put(
+  '/goals/:id',
+  checkOwnership(prisma.performanceGoal),
+  async (req: Request, res: Response) => {
+    try {
+      const schema = z.object({
+        title: z.string().optional(),
+        description: z.string().optional(),
+        progress: z.number().min(0).max(100).optional(),
+        actualValue: z.string().optional(),
+        status: z
+          .enum(['NOT_STARTED', 'IN_PROGRESS', 'AT_RISK', 'COMPLETED', 'EXCEEDED', 'CANCELLED'])
+          .optional(),
+        selfRating: z.number().optional(),
+        managerRating: z.number().nonnegative().optional(),
+        finalRating: z.number().optional(),
+        ratingComments: z.string().optional(),
+      });
 
-    const data = schema.parse(req.body);
+      const data = schema.parse(req.body);
 
-    const goal = await prisma.performanceGoal.update({
-      where: { id: req.params.id },
-      data,
-    });
+      const goal = await prisma.performanceGoal.update({
+        where: { id: req.params.id },
+        data,
+      });
 
-    res.json({ success: true, data: goal });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      res.json({ success: true, data: goal });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res
+          .status(400)
+          .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      }
+      logger.error('Error updating goal', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update goal' },
+      });
     }
-    logger.error('Error updating goal', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update goal' } });
   }
-});
+);
 
 // POST /api/performance/goals/:id/update - Add goal progress update
 router.post('/goals/:id/update', async (req: Request, res: Response) => {
@@ -352,7 +440,9 @@ router.post('/goals/:id/update', async (req: Request, res: Response) => {
 
     const goal = await prisma.performanceGoal.findUnique({ where: { id: req.params.id } });
     if (!goal) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Goal not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Goal not found' } });
     }
 
     const [update] = await Promise.all([
@@ -370,7 +460,12 @@ router.post('/goals/:id/update', async (req: Request, res: Response) => {
         where: { id: req.params.id },
         data: {
           progress: data.progressAfter,
-          status: data.progressAfter >= 100 ? 'COMPLETED' : data.progressAfter > 0 ? 'IN_PROGRESS' : 'NOT_STARTED',
+          status:
+            data.progressAfter >= 100
+              ? 'COMPLETED'
+              : data.progressAfter > 0
+                ? 'IN_PROGRESS'
+                : 'NOT_STARTED',
         },
       }),
     ]);
@@ -378,10 +473,14 @@ router.post('/goals/:id/update', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: update });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error adding goal update', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add update' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add update' } });
   }
 });
 

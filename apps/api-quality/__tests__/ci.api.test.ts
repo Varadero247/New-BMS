@@ -165,9 +165,7 @@ describe('Quality Continuous Improvement (CI) API Routes', () => {
     });
 
     it('should return 400 for missing required fields', async () => {
-      const res = await request(app)
-        .post('/api/ci')
-        .send({ title: 'Missing description' });
+      const res = await request(app).post('/api/ci').send({ title: 'Missing description' });
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -259,7 +257,10 @@ describe('Quality Continuous Improvement (CI) API Routes', () => {
   describe('DELETE /api/ci/:id', () => {
     it('should soft delete a CI item', async () => {
       mockPrisma.qualContinuousImprovement.findFirst.mockResolvedValue(mockCI);
-      mockPrisma.qualContinuousImprovement.update.mockResolvedValue({ ...mockCI, deletedAt: new Date() });
+      mockPrisma.qualContinuousImprovement.update.mockResolvedValue({
+        ...mockCI,
+        deletedAt: new Date(),
+      });
 
       const res = await request(app).delete('/api/ci/00000000-0000-0000-0000-000000000001');
 

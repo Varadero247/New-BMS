@@ -1,7 +1,12 @@
 import { Router, Request, Response } from 'express';
-import { authenticate , type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
-import { NotificationBellState, WSNotification, WSNotificationType, WSNotificationSeverity } from '@ims/notifications';
+import {
+  NotificationBellState,
+  WSNotification,
+  WSNotificationType,
+  WSNotificationSeverity,
+} from '@ims/notifications';
 import { validateIdParam } from '@ims/shared';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
@@ -29,7 +34,9 @@ router.get('/', authenticate, (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: unknown) {
-    logger.error('Failed to list notifications', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list notifications', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list notifications' },
@@ -50,7 +57,9 @@ router.get('/unread', authenticate, (req: Request, res: Response) => {
       data: { unreadCount: count },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get unread count', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get unread count', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get unread count' },
@@ -71,7 +80,9 @@ router.put('/read-all', authenticate, (req: Request, res: Response) => {
       data: { markedCount: count },
     });
   } catch (error: unknown) {
-    logger.error('Failed to mark all as read', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to mark all as read', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to mark all as read' },
@@ -108,7 +119,9 @@ router.put('/:id/read', authenticate, (req: Request, res: Response) => {
       data: { id: notificationId, read: true },
     });
   } catch (error: unknown) {
-    logger.error('Failed to mark notification as read', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to mark notification as read', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to mark notification as read' },
@@ -122,7 +135,9 @@ router.put('/:id/read', authenticate, (req: Request, res: Response) => {
 const testNotificationSchema = z.object({
   title: z.string({ required_error: 'title is required' }).trim().min(1, 'title is required'),
   message: z.string({ required_error: 'message is required' }).trim().min(1, 'message is required'),
-  type: z.enum(['ALERT', 'WARNING', 'INFO', 'SUCCESS', 'OVERDUE', 'DUE_SOON', 'ESCALATION']).default('INFO'),
+  type: z
+    .enum(['ALERT', 'WARNING', 'INFO', 'SUCCESS', 'OVERDUE', 'DUE_SOON', 'ESCALATION'])
+    .default('INFO'),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('LOW'),
   module: z.string().optional(),
   targetUserId: z.string().optional(),
@@ -134,7 +149,11 @@ router.post('/test', authenticate, (req: Request, res: Response) => {
     const roles: string[] = (user as any).roles || [(user as any).role] || [];
 
     // Admin only
-    if (!roles.includes('SUPER_ADMIN') && !roles.includes('ORG_ADMIN') && !roles.includes('ADMIN')) {
+    if (
+      !roles.includes('SUPER_ADMIN') &&
+      !roles.includes('ORG_ADMIN') &&
+      !roles.includes('ADMIN')
+    ) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'Admin role required to send test notifications' },
@@ -180,7 +199,9 @@ router.post('/test', authenticate, (req: Request, res: Response) => {
       data: notification,
     });
   } catch (error: unknown) {
-    logger.error('Failed to send test notification', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to send test notification', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to send test notification' },

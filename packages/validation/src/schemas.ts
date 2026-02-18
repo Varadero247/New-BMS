@@ -6,10 +6,7 @@ import { sanitizeString, sanitizeEmail } from './sanitize';
  * Custom Zod preprocessor for sanitizing strings
  */
 export const sanitizedString = () =>
-  z.preprocess(
-    (val) => (typeof val === 'string' ? sanitizeString(val) : val),
-    z.string()
-  );
+  z.preprocess((val) => (typeof val === 'string' ? sanitizeString(val) : val), z.string());
 
 /**
  * Email schema with sanitization
@@ -27,18 +24,9 @@ export const passwordSchema = z
   .string()
   .min(8, 'Password must be at least 8 characters')
   .max(128, 'Password must be less than 128 characters')
-  .refine(
-    (val) => /[A-Z]/.test(val),
-    'Password must contain at least one uppercase letter'
-  )
-  .refine(
-    (val) => /[a-z]/.test(val),
-    'Password must contain at least one lowercase letter'
-  )
-  .refine(
-    (val) => /[0-9]/.test(val),
-    'Password must contain at least one number'
-  )
+  .refine((val) => /[A-Z]/.test(val), 'Password must contain at least one uppercase letter')
+  .refine((val) => /[a-z]/.test(val), 'Password must contain at least one lowercase letter')
+  .refine((val) => /[0-9]/.test(val), 'Password must contain at least one number')
   .refine(
     (val) => /[^A-Za-z0-9]/.test(val),
     'Password must contain at least one special character'
@@ -50,10 +38,7 @@ export const passwordSchema = z
 export const idSchema = z
   .string()
   .min(1, 'ID is required')
-  .refine(
-    (val) => validator.isUUID(val) || /^c[a-z0-9]{24}$/.test(val),
-    'Invalid ID format'
-  );
+  .refine((val) => validator.isUUID(val) || /^c[a-z0-9]{24}$/.test(val), 'Invalid ID format');
 
 /**
  * Phone number schema
@@ -61,10 +46,7 @@ export const idSchema = z
 export const phoneSchema = z
   .string()
   .optional()
-  .refine(
-    (val) => !val || validator.isMobilePhone(val, 'any'),
-    'Invalid phone number'
-  );
+  .refine((val) => !val || validator.isMobilePhone(val, 'any'), 'Invalid phone number');
 
 /**
  * URL schema with sanitization
@@ -107,10 +89,8 @@ export const paginationSchema = z.object({
  * Common risk schema
  */
 export const riskSchema = z.object({
-  title: sanitizedString()
-    .pipe(z.string().min(3, 'Title must be at least 3 characters').max(200)),
-  description: sanitizedString()
-    .pipe(z.string().max(5000).optional()),
+  title: sanitizedString().pipe(z.string().min(3, 'Title must be at least 3 characters').max(200)),
+  description: sanitizedString().pipe(z.string().max(5000).optional()),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
   likelihood: z.enum(['RARE', 'UNLIKELY', 'POSSIBLE', 'LIKELY', 'ALMOST_CERTAIN']).optional(),
   status: z.enum(['OPEN', 'IN_PROGRESS', 'MITIGATED', 'CLOSED']).optional(),
@@ -124,10 +104,8 @@ export const riskSchema = z.object({
  * Incident schema
  */
 export const incidentSchema = z.object({
-  title: sanitizedString()
-    .pipe(z.string().min(3, 'Title must be at least 3 characters').max(200)),
-  description: sanitizedString()
-    .pipe(z.string().max(10000)),
+  title: sanitizedString().pipe(z.string().min(3, 'Title must be at least 3 characters').max(200)),
+  description: sanitizedString().pipe(z.string().max(10000)),
   type: z.enum(['ACCIDENT', 'NEAR_MISS', 'HAZARD', 'ENVIRONMENTAL', 'QUALITY']),
   severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL']),
   status: z.enum(['REPORTED', 'INVESTIGATING', 'RESOLVED', 'CLOSED']).optional(),
@@ -142,8 +120,7 @@ export const incidentSchema = z.object({
 export const registrationSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
-  name: sanitizedString()
-    .pipe(z.string().min(2, 'Name must be at least 2 characters').max(100)),
+  name: sanitizedString().pipe(z.string().min(2, 'Name must be at least 2 characters').max(100)),
   role: z.enum(['ADMIN', 'MANAGER', 'USER', 'VIEWER']).optional(),
 });
 
@@ -160,9 +137,7 @@ export const loginSchema = z.object({
  * Update profile schema
  */
 export const updateProfileSchema = z.object({
-  name: sanitizedString()
-    .pipe(z.string().min(2).max(100))
-    .optional(),
+  name: sanitizedString().pipe(z.string().min(2).max(100)).optional(),
   phone: phoneSchema,
   department: sanitizedString().pipe(z.string().max(100).optional()),
   title: sanitizedString().pipe(z.string().max(100).optional()),
@@ -186,8 +161,7 @@ export const changePasswordSchema = z
  * Search schema
  */
 export const searchSchema = z.object({
-  q: sanitizedString()
-    .pipe(z.string().min(1).max(200)),
+  q: sanitizedString().pipe(z.string().min(1).max(200)),
   type: z.enum(['all', 'risks', 'incidents', 'documents', 'users']).optional(),
   ...paginationSchema.shape,
 });

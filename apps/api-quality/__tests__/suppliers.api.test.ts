@@ -161,9 +161,7 @@ describe('Quality Suppliers API Routes', () => {
       (mockPrisma.qualSupplier.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualSupplier.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/suppliers?search=acme')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/suppliers?search=acme').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualSupplier.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -178,9 +176,7 @@ describe('Quality Suppliers API Routes', () => {
       (mockPrisma.qualSupplier.findMany as jest.Mock).mockResolvedValueOnce(mockSuppliers);
       (mockPrisma.qualSupplier.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/suppliers')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/suppliers').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualSupplier.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -244,7 +240,9 @@ describe('Quality Suppliers API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualSupplier.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualSupplier.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/suppliers/25000000-0000-4000-a000-000000000001')
@@ -449,7 +447,9 @@ describe('Quality Suppliers API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualSupplier.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualSupplier.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/suppliers/25000000-0000-4000-a000-000000000001')
@@ -466,7 +466,9 @@ describe('Quality Suppliers API Routes', () => {
   // ============================================
   describe('DELETE /api/suppliers/:id', () => {
     it('should delete supplier successfully', async () => {
-      (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce({ id: '25000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '25000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualSupplier.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
@@ -492,7 +494,9 @@ describe('Quality Suppliers API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualSupplier.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualSupplier.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/suppliers/25000000-0000-4000-a000-000000000001')

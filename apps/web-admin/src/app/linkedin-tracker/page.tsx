@@ -49,7 +49,14 @@ const TEMPLATES = [
 export default function LinkedInTrackerPage() {
   const [records, setRecords] = useState<OutreachRecord[]>([]);
   const [dailyCount, setDailyCount] = useState(0);
-  const [funnelStats, setFunnelStats] = useState<FunnelStats>({ sent: 0, connected: 0, replied: 0, meeting: 0, closedWon: 0, closedLost: 0 });
+  const [funnelStats, setFunnelStats] = useState<FunnelStats>({
+    sent: 0,
+    connected: 0,
+    replied: 0,
+    meeting: 0,
+    closedWon: 0,
+    closedLost: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -81,7 +88,9 @@ export default function LinkedInTrackerPage() {
         setRecords(data);
         // Calculate daily count
         const today = new Date().toDateString();
-        const todayCount = data.filter((r: OutreachRecord) => new Date(r.createdAt).toDateString() === today).length;
+        const todayCount = data.filter(
+          (r: OutreachRecord) => new Date(r.createdAt).toDateString() === today
+        ).length;
         setDailyCount(todayCount);
       }
 
@@ -89,9 +98,21 @@ export default function LinkedInTrackerPage() {
         setFunnelStats(statsRes.value.data.data || funnelStats);
       } else {
         // Calculate from records
-        const stats: FunnelStats = { sent: 0, connected: 0, replied: 0, meeting: 0, closedWon: 0, closedLost: 0 };
+        const stats: FunnelStats = {
+          sent: 0,
+          connected: 0,
+          replied: 0,
+          meeting: 0,
+          closedWon: 0,
+          closedLost: 0,
+        };
         records.forEach((r) => {
-          const key = r.status === 'CLOSED_WON' ? 'closedWon' : r.status === 'CLOSED_LOST' ? 'closedLost' : r.status.toLowerCase();
+          const key =
+            r.status === 'CLOSED_WON'
+              ? 'closedWon'
+              : r.status === 'CLOSED_LOST'
+                ? 'closedLost'
+                : r.status.toLowerCase();
           if (key in stats) (stats as any)[key]++;
         });
         setFunnelStats(stats);
@@ -141,16 +162,21 @@ export default function LinkedInTrackerPage() {
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
       await api.patch(`/api/marketing/linkedin/outreach/${id}`, { status: newStatus });
-      setRecords((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r))
-      );
+      setRecords((prev) => prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r)));
     } catch {
       setError('Failed to update status');
     }
   };
 
-  const totalFunnel = funnelStats.sent + funnelStats.connected + funnelStats.replied + funnelStats.meeting + funnelStats.closedWon + funnelStats.closedLost;
-  const conversionRate = totalFunnel > 0 ? ((funnelStats.closedWon / totalFunnel) * 100).toFixed(1) : '0.0';
+  const totalFunnel =
+    funnelStats.sent +
+    funnelStats.connected +
+    funnelStats.replied +
+    funnelStats.meeting +
+    funnelStats.closedWon +
+    funnelStats.closedLost;
+  const conversionRate =
+    totalFunnel > 0 ? ((funnelStats.closedWon / totalFunnel) * 100).toFixed(1) : '0.0';
 
   return (
     <div className="min-h-screen bg-[#080B12]">
@@ -158,7 +184,9 @@ export default function LinkedInTrackerPage() {
       <main className="ml-64 p-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-white">LinkedIn Outreach Tracker</h1>
-          <p className="text-gray-400 dark:text-gray-500 mt-1">Track and manage LinkedIn outreach campaigns</p>
+          <p className="text-gray-400 dark:text-gray-500 mt-1">
+            Track and manage LinkedIn outreach campaigns
+          </p>
         </div>
 
         {error && (
@@ -171,7 +199,9 @@ export default function LinkedInTrackerPage() {
         <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6 mb-6">
           <div className="flex items-center justify-between mb-3">
             <span className="text-white font-medium">Today&apos;s Outreach</span>
-            <span className={`text-sm font-bold ${dailyCount >= DAILY_LIMIT ? 'text-red-400' : 'text-blue-400'}`}>
+            <span
+              className={`text-sm font-bold ${dailyCount >= DAILY_LIMIT ? 'text-red-400' : 'text-blue-400'}`}
+            >
               {dailyCount} / {DAILY_LIMIT}
             </span>
           </div>
@@ -186,10 +216,30 @@ export default function LinkedInTrackerPage() {
         {/* Conversion Funnel Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
           <FunnelCard label="Sent" count={funnelStats.sent} icon={Send} color="text-gray-300" />
-          <FunnelCard label="Connected" count={funnelStats.connected} icon={Users} color="text-blue-400" />
-          <FunnelCard label="Replied" count={funnelStats.replied} icon={MessageSquare} color="text-cyan-400" />
-          <FunnelCard label="Meeting" count={funnelStats.meeting} icon={Calendar} color="text-yellow-400" />
-          <FunnelCard label="Won" count={funnelStats.closedWon} icon={TrendingUp} color="text-green-400" />
+          <FunnelCard
+            label="Connected"
+            count={funnelStats.connected}
+            icon={Users}
+            color="text-blue-400"
+          />
+          <FunnelCard
+            label="Replied"
+            count={funnelStats.replied}
+            icon={MessageSquare}
+            color="text-cyan-400"
+          />
+          <FunnelCard
+            label="Meeting"
+            count={funnelStats.meeting}
+            icon={Calendar}
+            color="text-yellow-400"
+          />
+          <FunnelCard
+            label="Won"
+            count={funnelStats.closedWon}
+            icon={TrendingUp}
+            color="text-green-400"
+          />
           <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-4 text-center">
             <p className="text-2xl font-bold text-white">{conversionRate}%</p>
             <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">Win Rate</p>
@@ -204,7 +254,9 @@ export default function LinkedInTrackerPage() {
           </h2>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">LinkedIn URL *</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                LinkedIn URL *
+              </label>
               <input
                 type="url"
                 value={linkedinUrl}
@@ -215,7 +267,9 @@ export default function LinkedInTrackerPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Prospect Name *</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Prospect Name *
+              </label>
               <input
                 type="text"
                 value={prospectName}
@@ -244,12 +298,16 @@ export default function LinkedInTrackerPage() {
                 className="w-full px-4 py-2.5 bg-[#080B12] border border-[#1B3A6B]/50 rounded-lg text-white focus:outline-none focus:border-blue-500"
               >
                 {TEMPLATES.map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Custom Context</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Custom Context
+              </label>
               <textarea
                 value={customContext}
                 onChange={(e) => setCustomContext(e.target.value)}
@@ -291,7 +349,9 @@ export default function LinkedInTrackerPage() {
               className="w-full px-4 py-3 bg-[#080B12] border border-[#1B3A6B]/50 rounded-lg text-gray-200 font-mono text-sm focus:outline-none focus:border-blue-500 resize-none"
             />
             <button
-              onClick={() => { navigator.clipboard.writeText(generatedMessage); }}
+              onClick={() => {
+                navigator.clipboard.writeText(generatedMessage);
+              }}
               className="mt-3 px-4 py-2 bg-[#1B3A6B] hover:bg-[#244d8a] text-white rounded-lg text-sm font-medium transition-colors"
             >
               Copy to Clipboard
@@ -305,29 +365,51 @@ export default function LinkedInTrackerPage() {
           {loading ? (
             <div className="text-gray-400 dark:text-gray-500 text-center py-8">Loading...</div>
           ) : records.length === 0 ? (
-            <div className="text-gray-500 dark:text-gray-400 text-center py-8">No outreach records yet.</div>
+            <div className="text-gray-500 dark:text-gray-400 text-center py-8">
+              No outreach records yet.
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#1B3A6B]/30">
-                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Prospect</th>
-                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Company</th>
-                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Template</th>
-                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Status</th>
-                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Date</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                      Prospect
+                    </th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                      Company
+                    </th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                      Template
+                    </th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                      Status
+                    </th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                      Date
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {records.map((record) => (
-                    <tr key={record.id} className="border-b border-[#1B3A6B]/10 hover:bg-[#1B3A6B]/10">
+                    <tr
+                      key={record.id}
+                      className="border-b border-[#1B3A6B]/10 hover:bg-[#1B3A6B]/10"
+                    >
                       <td className="py-3 px-4">
-                        <a href={record.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
+                        <a
+                          href={record.linkedinUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-400 hover:text-blue-300"
+                        >
                           {record.prospectName}
                         </a>
                       </td>
                       <td className="py-3 px-4 text-gray-300">{record.company}</td>
-                      <td className="py-3 px-4 text-gray-400 dark:text-gray-500">{record.template}</td>
+                      <td className="py-3 px-4 text-gray-400 dark:text-gray-500">
+                        {record.template}
+                      </td>
                       <td className="py-3 px-4">
                         <select
                           value={record.status}
@@ -335,11 +417,15 @@ export default function LinkedInTrackerPage() {
                           className={`px-2 py-1 rounded text-xs font-medium border-0 focus:outline-none cursor-pointer ${STATUS_COLORS[record.status] || 'bg-gray-500/20 text-gray-300'}`}
                         >
                           {STATUS_OPTIONS.map((s) => (
-                            <option key={s} value={s}>{s.replace('_', ' ')}</option>
+                            <option key={s} value={s}>
+                              {s.replace('_', ' ')}
+                            </option>
                           ))}
                         </select>
                       </td>
-                      <td className="py-3 px-4 text-gray-400 dark:text-gray-500">{new Date(record.createdAt).toLocaleDateString()}</td>
+                      <td className="py-3 px-4 text-gray-400 dark:text-gray-500">
+                        {new Date(record.createdAt).toLocaleDateString()}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -352,7 +438,17 @@ export default function LinkedInTrackerPage() {
   );
 }
 
-function FunnelCard({ label, count, icon: Icon, color }: { label: string; count: number; icon: ElementType; color: string }) {
+function FunnelCard({
+  label,
+  count,
+  icon: Icon,
+  color,
+}: {
+  label: string;
+  count: number;
+  icon: ElementType;
+  color: string;
+}) {
   return (
     <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-4 text-center">
       <Icon className={`w-5 h-5 mx-auto mb-2 ${color}`} />

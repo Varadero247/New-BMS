@@ -55,7 +55,10 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Failed to list expenses', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list expenses' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list expenses' },
+    });
   }
 });
 
@@ -105,7 +108,10 @@ router.get('/summary', async (req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Failed to get expense summary', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get expense summary' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get expense summary' },
+    });
   }
 });
 
@@ -119,13 +125,18 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!expense) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Expense not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Expense not found' } });
     }
 
     res.json({ success: true, data: expense });
   } catch (err) {
     logger.error('Failed to get expense', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get expense' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get expense' },
+    });
   }
 });
 
@@ -136,7 +147,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createExpenseSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { title, description, amount, category, vendor, receiptUrl } = parsed.data;
@@ -160,7 +174,10 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: expense });
   } catch (err) {
     logger.error('Failed to create expense', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create expense' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create expense' },
+    });
   }
 });
 
@@ -174,12 +191,17 @@ router.patch('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Expense not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Expense not found' } });
     }
 
     const parsed = updateExpenseSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { title, description, amount, category, vendor, receiptUrl } = parsed.data;
@@ -188,7 +210,9 @@ router.patch('/:id', async (req: Request, res: Response) => {
       data: {
         ...(title !== undefined && { title }),
         ...(description !== undefined && { description }),
-        ...(amount !== undefined && { amount: typeof amount === 'number' ? amount : parseFloat(String(amount)) }),
+        ...(amount !== undefined && {
+          amount: typeof amount === 'number' ? amount : parseFloat(String(amount)),
+        }),
         ...(category !== undefined && { category }),
         ...(vendor !== undefined && { vendor }),
         ...(receiptUrl !== undefined && { receiptUrl }),
@@ -199,7 +223,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: expense });
   } catch (err) {
     logger.error('Failed to update expense', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update expense' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update expense' },
+    });
   }
 });
 
@@ -213,7 +240,9 @@ router.post('/:id/submit', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Expense not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Expense not found' } });
     }
 
     if (existing.status !== 'DRAFT') {
@@ -232,7 +261,10 @@ router.post('/:id/submit', async (req: Request, res: Response) => {
     res.json({ success: true, data: expense });
   } catch (err) {
     logger.error('Failed to submit expense', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit expense' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to submit expense' },
+    });
   }
 });
 
@@ -246,7 +278,9 @@ router.post('/:id/approve', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Expense not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Expense not found' } });
     }
 
     if (existing.status !== 'SUBMITTED') {
@@ -270,7 +304,10 @@ router.post('/:id/approve', async (req: Request, res: Response) => {
     res.json({ success: true, data: expense });
   } catch (err) {
     logger.error('Failed to approve expense', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve expense' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve expense' },
+    });
   }
 });
 
@@ -284,7 +321,9 @@ router.post('/:id/reject', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Expense not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Expense not found' } });
     }
 
     if (existing.status !== 'SUBMITTED') {
@@ -303,7 +342,10 @@ router.post('/:id/reject', async (req: Request, res: Response) => {
     res.json({ success: true, data: expense });
   } catch (err) {
     logger.error('Failed to reject expense', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reject expense' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to reject expense' },
+    });
   }
 });
 

@@ -244,11 +244,15 @@ export default function PayrollPage() {
           >
             <div className="flex items-center space-x-2">
               <Sparkles className="h-5 w-5 text-purple-600" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">AI Payroll Validation</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                AI Payroll Validation
+              </h3>
               {aiResult.isValid !== undefined && (
-                <span className={`ml-2 inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                  aiResult.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
+                <span
+                  className={`ml-2 inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                    aiResult.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}
+                >
                   {aiResult.isValid ? 'Valid' : 'Issues Found'}
                 </span>
               )}
@@ -261,7 +265,12 @@ export default function PayrollPage() {
           </button>
           {aiExpanded && (
             <div className="mt-4 space-y-3">
-              <AIDisclosure variant="inline" provider="claude" analysisType="Payroll Analysis" confidence={0.85} />
+              <AIDisclosure
+                variant="inline"
+                provider="claude"
+                analysisType="Payroll Analysis"
+                confidence={0.85}
+              />
               {aiResult.averagePerEmployee !== undefined && (
                 <p className="text-sm text-gray-700 dark:text-gray-300">
                   <span className="font-medium">Average Per Employee:</span>{' '}
@@ -347,7 +356,9 @@ export default function PayrollPage() {
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center space-x-3">
                       {getStatusIcon(run.status)}
-                      <span className="font-medium text-gray-900 dark:text-gray-100">{run.runNumber}</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        {run.runNumber}
+                      </span>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
@@ -367,7 +378,9 @@ export default function PayrollPage() {
                     {formatCurrency(run.totalNet)}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(run.status)}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(run.status)}`}
+                    >
                       {run.status}
                     </span>
                   </td>
@@ -387,11 +400,18 @@ export default function PayrollPage() {
       </div>
 
       {/* Create Payroll Run Modal */}
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="New Payroll Run" size="lg">
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title="New Payroll Run"
+        size="lg"
+      >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Period Start</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Period Start
+              </label>
               <input
                 type="date"
                 value={formData.periodStart}
@@ -401,7 +421,9 @@ export default function PayrollPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Period End</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Period End
+              </label>
               <input
                 type="date"
                 value={formData.periodEnd}
@@ -413,7 +435,9 @@ export default function PayrollPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pay Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Pay Date
+              </label>
               <input
                 type="date"
                 value={formData.payDate}
@@ -423,7 +447,9 @@ export default function PayrollPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pay Frequency</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Pay Frequency
+              </label>
               <select
                 value={formData.payFrequency}
                 onChange={(e) => setFormData({ ...formData, payFrequency: e.target.value })}

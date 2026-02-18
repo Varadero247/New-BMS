@@ -23,10 +23,7 @@ export function AppNav({
 }: AppNavProps) {
   return (
     <header
-      className={cn(
-        'h-[50px] flex items-center justify-between px-4 shrink-0',
-        className
-      )}
+      className={cn('h-[50px] flex items-center justify-between px-4 shrink-0', className)}
       style={{
         background: 'var(--surface, #162032)',
         borderBottom: '1px solid var(--border, #1E2E48)',
@@ -44,9 +41,7 @@ export function AppNav({
       </div>
 
       {/* Centre: nav tabs (passed as children) */}
-      <nav className="hidden md:flex items-center gap-1">
-        {children}
-      </nav>
+      <nav className="hidden md:flex items-center gap-1">{children}</nav>
 
       {/* Right: notification + avatar */}
       <div className="flex items-center gap-3">
@@ -84,9 +79,7 @@ export function NavTab({ label, active, href, onClick }: NavTabProps) {
       onClick={onClick}
       className={cn(
         'px-3 py-2 text-[0.78rem] font-body transition-colors relative',
-        active
-          ? 'font-medium'
-          : 'hover:opacity-80'
+        active ? 'font-medium' : 'hover:opacity-80'
       )}
       style={{
         fontFamily: "'DM Sans', sans-serif",

@@ -55,7 +55,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List actions error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list actions' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list actions' },
+    });
   }
 });
 
@@ -63,11 +66,16 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest, res: Response) => {
   try {
     const action = await prisma.envAction.findUnique({ where: { id: req.params.id } });
-    if (!action) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
+    if (!action)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
     res.json({ success: true, data: action });
   } catch (error) {
     logger.error('Get action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get action' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get action' } });
   }
 });
 
@@ -81,7 +89,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       source: z.string().trim().min(1).max(200),
       description: z.string().trim().min(1).max(2000),
       assignedTo: z.string().trim().min(1).max(200),
-      dueDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      dueDate: z
+        .string()
+        .trim()
+        .min(1)
+        .max(200)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       sourceReference: z.string().optional(),
       expectedOutcome: z.string().optional(),
       linkedAspectId: z.string().optional(),
@@ -94,12 +107,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       resourcesRequired: z.string().optional(),
       status: z.string().optional(),
       progressNotes: z.string().optional(),
-      completionDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      completionDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       percentComplete: z.number().min(0).max(100).optional(),
       evidenceRefs: z.string().optional(),
       verificationMethod: z.string().optional(),
       verifiedBy: z.string().optional(),
-      verificationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      verificationDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       verificationNotes: z.string().optional(),
       effective: z.string().optional(),
       aiActionPlan: z.string().optional(),
@@ -155,10 +174,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: action });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create action' },
+    });
   }
 });
 
@@ -172,9 +201,18 @@ const actionUpdateSchema = z.object({
   assignedTo: z.string().optional(),
   department: z.string().optional(),
   priority: z.string().optional(),
-  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  completionDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  verificationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  dueDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  completionDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  verificationDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   verifiedBy: z.string().optional(),
   status: z.string().optional(),
   progress: z.number().min(0).max(100).optional(),
@@ -191,11 +229,21 @@ const actionUpdateSchema = z.object({
 router.put('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envAction.findUnique({ where: { id: req.params.id } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
 
     const parsed = actionUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: parsed.error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: parsed.error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     const data: Record<string, unknown> = { ...parsed.data };
 
@@ -205,9 +253,12 @@ router.put('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest, re
     }
 
     // Convert date strings to Date objects
-    if (data.dueDate && typeof data.dueDate === 'string') data.dueDate = new Date(data.dueDate as string);
-    if (data.completionDate && typeof data.completionDate === 'string') data.completionDate = new Date(data.completionDate as string);
-    if (data.verificationDate && typeof data.verificationDate === 'string') data.verificationDate = new Date(data.verificationDate as string);
+    if (data.dueDate && typeof data.dueDate === 'string')
+      data.dueDate = new Date(data.dueDate as string);
+    if (data.completionDate && typeof data.completionDate === 'string')
+      data.completionDate = new Date(data.completionDate as string);
+    if (data.verificationDate && typeof data.verificationDate === 'string')
+      data.verificationDate = new Date(data.verificationDate as string);
 
     const action = await prisma.envAction.update({
       where: { id: req.params.id },
@@ -217,7 +268,10 @@ router.put('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest, re
     res.json({ success: true, data: action });
   } catch (error) {
     logger.error('Update action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update action' },
+    });
   }
 });
 
@@ -225,12 +279,21 @@ router.put('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest, re
 router.delete('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envAction.findUnique({ where: { id: req.params.id } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
-    await prisma.envAction.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: req.user?.id } });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
+    await prisma.envAction.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date(), updatedBy: req.user?.id },
+    });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete action' },
+    });
   }
 });
 

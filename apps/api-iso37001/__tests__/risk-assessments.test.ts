@@ -92,7 +92,10 @@ describe('ISO 37001 Risk Assessments API', () => {
   // =========================================================================
   describe('GET /api/risk-assessments', () => {
     it('should return paginated list of risk assessments', async () => {
-      (mockPrisma.abRiskAssessment.findMany as jest.Mock).mockResolvedValueOnce([mockRisk, mockRisk2]);
+      (mockPrisma.abRiskAssessment.findMany as jest.Mock).mockResolvedValueOnce([
+        mockRisk,
+        mockRisk2,
+      ]);
       (mockPrisma.abRiskAssessment.count as jest.Mock).mockResolvedValueOnce(2);
 
       const res = await request(app).get('/api/risk-assessments');
@@ -167,7 +170,9 @@ describe('ISO 37001 Risk Assessments API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.abRiskAssessment.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.abRiskAssessment.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
       (mockPrisma.abRiskAssessment.count as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/risk-assessments');
@@ -213,11 +218,13 @@ describe('ISO 37001 Risk Assessments API', () => {
         riskLevel: 'LOW',
       });
 
-      await request(app).post('/api/risk-assessments').send({
-        ...validPayload,
-        likelihood: 1,
-        impact: 2,
-      });
+      await request(app)
+        .post('/api/risk-assessments')
+        .send({
+          ...validPayload,
+          likelihood: 1,
+          impact: 2,
+        });
 
       expect(mockPrisma.abRiskAssessment.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -236,11 +243,13 @@ describe('ISO 37001 Risk Assessments API', () => {
         riskLevel: 'CRITICAL',
       });
 
-      await request(app).post('/api/risk-assessments').send({
-        ...validPayload,
-        likelihood: 5,
-        impact: 5,
-      });
+      await request(app)
+        .post('/api/risk-assessments')
+        .send({
+          ...validPayload,
+          likelihood: 5,
+          impact: 5,
+        });
 
       expect(mockPrisma.abRiskAssessment.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -259,11 +268,13 @@ describe('ISO 37001 Risk Assessments API', () => {
         riskLevel: 'MEDIUM',
       });
 
-      await request(app).post('/api/risk-assessments').send({
-        ...validPayload,
-        likelihood: 3,
-        impact: 3,
-      });
+      await request(app)
+        .post('/api/risk-assessments')
+        .send({
+          ...validPayload,
+          likelihood: 3,
+          impact: 3,
+        });
 
       expect(mockPrisma.abRiskAssessment.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -284,20 +295,24 @@ describe('ISO 37001 Risk Assessments API', () => {
     });
 
     it('should return 400 when category is invalid', async () => {
-      const res = await request(app).post('/api/risk-assessments').send({
-        ...validPayload,
-        category: 'INVALID_CATEGORY',
-      });
+      const res = await request(app)
+        .post('/api/risk-assessments')
+        .send({
+          ...validPayload,
+          category: 'INVALID_CATEGORY',
+        });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
     });
 
     it('should return 400 when likelihood is out of range', async () => {
-      const res = await request(app).post('/api/risk-assessments').send({
-        ...validPayload,
-        likelihood: 6,
-      });
+      const res = await request(app)
+        .post('/api/risk-assessments')
+        .send({
+          ...validPayload,
+          likelihood: 6,
+        });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -312,7 +327,9 @@ describe('ISO 37001 Risk Assessments API', () => {
     });
 
     it('should return 500 on database create error', async () => {
-      (mockPrisma.abRiskAssessment.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.abRiskAssessment.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const res = await request(app).post('/api/risk-assessments').send(validPayload);
 
@@ -328,7 +345,9 @@ describe('ISO 37001 Risk Assessments API', () => {
     it('should return a risk assessment by ID', async () => {
       (mockPrisma.abRiskAssessment.findFirst as jest.Mock).mockResolvedValueOnce(mockRisk);
 
-      const res = await request(app).get('/api/risk-assessments/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).get(
+        '/api/risk-assessments/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -338,7 +357,9 @@ describe('ISO 37001 Risk Assessments API', () => {
     it('should return 404 when not found', async () => {
       (mockPrisma.abRiskAssessment.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/risk-assessments/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).get(
+        '/api/risk-assessments/00000000-0000-0000-0000-000000000099'
+      );
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -471,9 +492,14 @@ describe('ISO 37001 Risk Assessments API', () => {
   describe('DELETE /api/risk-assessments/:id', () => {
     it('should soft delete a risk assessment', async () => {
       (mockPrisma.abRiskAssessment.findFirst as jest.Mock).mockResolvedValueOnce(mockRisk);
-      (mockPrisma.abRiskAssessment.update as jest.Mock).mockResolvedValueOnce({ ...mockRisk, deletedAt: new Date() });
+      (mockPrisma.abRiskAssessment.update as jest.Mock).mockResolvedValueOnce({
+        ...mockRisk,
+        deletedAt: new Date(),
+      });
 
-      const res = await request(app).delete('/api/risk-assessments/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/risk-assessments/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -482,7 +508,9 @@ describe('ISO 37001 Risk Assessments API', () => {
     it('should return 404 when not found for deletion', async () => {
       (mockPrisma.abRiskAssessment.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).delete('/api/risk-assessments/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/risk-assessments/00000000-0000-0000-0000-000000000099'
+      );
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);

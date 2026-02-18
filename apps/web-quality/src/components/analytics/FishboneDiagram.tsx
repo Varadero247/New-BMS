@@ -43,11 +43,12 @@ export function FishboneDiagram({
   categories,
   title = 'Cause and Effect Analysis (Ishikawa)',
 }: FishboneDiagramProps) {
-  const categoriesWithColors = useMemo(() =>
-    categories.map((cat, i) => ({
-      ...cat,
-      color: cat.color || defaultColors[i % defaultColors.length],
-    })),
+  const categoriesWithColors = useMemo(
+    () =>
+      categories.map((cat, i) => ({
+        ...cat,
+        color: cat.color || defaultColors[i % defaultColors.length],
+      })),
     [categories]
   );
 
@@ -57,7 +58,9 @@ export function FishboneDiagram({
   return (
     <div className="w-full p-4">
       {title && (
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
+          {title}
+        </h3>
       )}
 
       <div className="relative min-h-[400px]">
@@ -68,7 +71,8 @@ export function FishboneDiagram({
         <div className="absolute right-0 top-1/2 transform -translate-y-1/2">
           <div className="relative">
             {/* Arrow head shape */}
-            <div className="w-0 h-0
+            <div
+              className="w-0 h-0
               border-t-[40px] border-t-transparent
               border-b-[40px] border-b-transparent
               border-l-[30px] border-l-gray-800
@@ -107,12 +111,9 @@ export function FishboneDiagram({
 
       {/* Legend */}
       <div className="mt-8 flex flex-wrap gap-4 justify-center">
-        {categoriesWithColors.map(cat => (
+        {categoriesWithColors.map((cat) => (
           <div key={cat.name} className="flex items-center gap-2">
-            <div
-              className="w-4 h-4 rounded"
-              style={{ backgroundColor: cat.color }}
-            />
+            <div className="w-4 h-4 rounded" style={{ backgroundColor: cat.color }} />
             <span className="text-sm text-gray-600">{cat.name}</span>
           </div>
         ))}
@@ -146,10 +147,7 @@ function CategoryBranch({ category, position, offset }: CategoryBranchProps) {
       </div>
 
       {/* Branch line */}
-      <div
-        className={`w-0.5 h-24 order-2`}
-        style={{ backgroundColor: category.color }}
-      />
+      <div className={`w-0.5 h-24 order-2`} style={{ backgroundColor: category.color }} />
 
       {/* Causes */}
       <div className={`absolute ${isTop ? 'top-12' : 'bottom-12'} left-0 right-0`}>

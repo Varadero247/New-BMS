@@ -14,7 +14,16 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // Valid WorkflowTaskType enum values
-const taskTypeEnum = z.enum(['REVIEW', 'APPROVE', 'COMPLETE_FORM', 'UPLOAD_DOCUMENT', 'VERIFICATION', 'DATA_ENTRY', 'NOTIFICATION', 'CUSTOM']);
+const taskTypeEnum = z.enum([
+  'REVIEW',
+  'APPROVE',
+  'COMPLETE_FORM',
+  'UPLOAD_DOCUMENT',
+  'VERIFICATION',
+  'DATA_ENTRY',
+  'NOTIFICATION',
+  'CUSTOM',
+]);
 
 // Valid WorkflowTaskStatus enum values
 const taskStatusEnum = z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'OVERDUE']);
@@ -43,7 +52,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: tasks });
   } catch (error) {
     logger.error('Error fetching tasks', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch tasks' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch tasks' },
+    });
   }
 });
 
@@ -78,7 +90,10 @@ router.get('/stats/summary', async (_req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching task stats', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' },
+    });
   }
 });
 
@@ -107,7 +122,10 @@ router.get('/my/:userId', async (req: Request, res: Response) => {
     res.json({ success: true, data: tasks });
   } catch (error) {
     logger.error('Error fetching my tasks', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch tasks' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch tasks' },
+    });
   }
 });
 
@@ -124,13 +142,17 @@ router.get('/:id', checkOwnership(prisma.workflowTask), async (req: AuthRequest,
     });
 
     if (!task) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Task not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Task not found' } });
     }
 
     res.json({ success: true, data: task });
   } catch (error) {
     logger.error('Error fetching task', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch task' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch task' } });
   }
 });
 
@@ -144,7 +166,10 @@ router.post('/', async (req: Request, res: Response) => {
       taskType: taskTypeEnum,
       title: z.string().trim().min(1).max(200),
       description: z.string().optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const data = schema.parse(req.body);
@@ -168,10 +193,15 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: task });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating task', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create task' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create task' },
+    });
   }
 });
 
@@ -181,70 +211,88 @@ const claimTaskSchema = z.object({
   userName: z.string().trim().min(1).max(200).optional(),
 });
 
-router.put('/:id/claim', checkOwnership(prisma.workflowTask), async (req: AuthRequest, res: Response) => {
-  try {
-    const data = claimTaskSchema.parse(req.body);
+router.put(
+  '/:id/claim',
+  checkOwnership(prisma.workflowTask),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const data = claimTaskSchema.parse(req.body);
 
-    const task = await prisma.workflowTask.update({
-      where: { id: req.params.id },
-      data: {
-        assignedToId: data.userId,
-        assignedToName: data.userName,
-        status: 'IN_PROGRESS',
-        startedAt: new Date(),
-      },
-    });
+      const task = await prisma.workflowTask.update({
+        where: { id: req.params.id },
+        data: {
+          assignedToId: data.userId,
+          assignedToName: data.userName,
+          status: 'IN_PROGRESS',
+          startedAt: new Date(),
+        },
+      });
 
-    res.json({ success: true, data: task });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      res.json({ success: true, data: task });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res
+          .status(400)
+          .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      }
+      logger.error('Error claiming task', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to claim task' },
+      });
     }
-    logger.error('Error claiming task', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to claim task' } });
   }
-});
+);
 
 // PUT /api/tasks/:id/complete - Complete task
-router.put('/:id/complete', checkOwnership(prisma.workflowTask), async (req: AuthRequest, res: Response) => {
-  try {
-    const schema = z.object({
-      outcome: z.string().optional(),
-      notes: z.string().optional(),
-      completedBy: z.string().optional(),
-    });
+router.put(
+  '/:id/complete',
+  checkOwnership(prisma.workflowTask),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const schema = z.object({
+        outcome: z.string().optional(),
+        notes: z.string().optional(),
+        completedBy: z.string().optional(),
+      });
 
-    const data = schema.parse(req.body);
+      const data = schema.parse(req.body);
 
-    const task = await prisma.workflowTask.update({
-      where: { id: req.params.id },
-      data: {
-        status: 'COMPLETED',
-        outcome: data.outcome,
-        notes: data.notes,
-        completedAt: new Date(),
-      },
-    });
+      const task = await prisma.workflowTask.update({
+        where: { id: req.params.id },
+        data: {
+          status: 'COMPLETED',
+          outcome: data.outcome,
+          notes: data.notes,
+          completedAt: new Date(),
+        },
+      });
 
-    // Record in workflow history
-    await prisma.workflowHistory.create({
-      data: {
-        instanceId: task.instanceId,
-        eventType: 'TASK_COMPLETED',
-        actorId: data.completedBy,
-        metadata: { taskId: task.id, outcome: data.outcome, notes: data.notes },
-      },
-    });
+      // Record in workflow history
+      await prisma.workflowHistory.create({
+        data: {
+          instanceId: task.instanceId,
+          eventType: 'TASK_COMPLETED',
+          actorId: data.completedBy,
+          metadata: { taskId: task.id, outcome: data.outcome, notes: data.notes },
+        },
+      });
 
-    res.json({ success: true, data: task });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      res.json({ success: true, data: task });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res
+          .status(400)
+          .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      }
+      logger.error('Error completing task', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to complete task' },
+      });
     }
-    logger.error('Error completing task', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete task' } });
   }
-});
+);
 
 // PUT /api/tasks/:id/reassign - Reassign task
 const reassignTaskSchema = z.object({
@@ -254,46 +302,57 @@ const reassignTaskSchema = z.object({
   reassignedBy: z.string().trim().min(1).max(200).optional(),
 });
 
-router.put('/:id/reassign', checkOwnership(prisma.workflowTask), async (req: AuthRequest, res: Response) => {
-  try {
-    const data = reassignTaskSchema.parse(req.body);
+router.put(
+  '/:id/reassign',
+  checkOwnership(prisma.workflowTask),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const data = reassignTaskSchema.parse(req.body);
 
-    const currentTask = await prisma.workflowTask.findUnique({ where: { id: req.params.id } });
-    if (!currentTask) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Task not found' } });
-    }
+      const currentTask = await prisma.workflowTask.findUnique({ where: { id: req.params.id } });
+      if (!currentTask) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Task not found' } });
+      }
 
-    const task = await prisma.workflowTask.update({
-      where: { id: req.params.id },
-      data: {
-        assignedToId: data.newAssigneeId,
-        assignedToName: data.newAssigneeName,
-      },
-    });
-
-    // Record history
-    await prisma.workflowHistory.create({
-      data: {
-        instanceId: task.instanceId,
-        eventType: 'DELEGATED',
-        actorId: data.reassignedBy,
-        metadata: {
-          taskId: task.id,
-          previousAssignee: currentTask.assignedToId,
-          newAssignee: data.newAssigneeId,
-          reason: data.reason,
+      const task = await prisma.workflowTask.update({
+        where: { id: req.params.id },
+        data: {
+          assignedToId: data.newAssigneeId,
+          assignedToName: data.newAssigneeName,
         },
-      },
-    });
+      });
 
-    res.json({ success: true, data: task });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      // Record history
+      await prisma.workflowHistory.create({
+        data: {
+          instanceId: task.instanceId,
+          eventType: 'DELEGATED',
+          actorId: data.reassignedBy,
+          metadata: {
+            taskId: task.id,
+            previousAssignee: currentTask.assignedToId,
+            newAssignee: data.newAssigneeId,
+            reason: data.reason,
+          },
+        },
+      });
+
+      res.json({ success: true, data: task });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res
+          .status(400)
+          .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      }
+      logger.error('Error reassigning task', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to reassign task' },
+      });
     }
-    logger.error('Error reassigning task', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reassign task' } });
   }
-});
+);
 
 export default router;

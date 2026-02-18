@@ -1,7 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+} from '@ims/ui';
 import { FileText, Download, Eye, Copy, Search } from 'lucide-react';
 import { gatewayApi } from '@/lib/gateway';
 
@@ -98,16 +107,26 @@ export default function TemplatesPage() {
     }
   }
 
-  const filteredTemplates = templates.filter(t =>
-    !searchTerm ||
-    t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (t.description || '').toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredTemplates = templates.filter(
+    (t) =>
+      !searchTerm ||
+      t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (t.description || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
     return (
-      <div className="p-8"><div className="animate-pulse space-y-4"><div className="h-8 bg-gray-200 rounded w-1/4" /><div className="grid grid-cols-3 gap-4">{[1,2,3].map(i => <div key={i} className="h-40 bg-gray-200 rounded" />)}</div></div></div>
+      <div className="p-8">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="grid grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-40 bg-gray-200 rounded" />
+            ))}
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -116,16 +135,29 @@ export default function TemplatesPage() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Templates</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Finance document templates and forms</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Finance document templates and forms
+          </p>
         </div>
 
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
 
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-              <input type="text" aria-label="Search templates..." placeholder="Search templates..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input
+                type="text"
+                aria-label="Search templates..."
+                placeholder="Search templates..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
             </div>
           </CardContent>
         </Card>
@@ -141,28 +173,52 @@ export default function TemplatesPage() {
                         <FileText className="h-5 w-5 text-indigo-600" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{template.name}</h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">{template.code}</p>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                          {template.name}
+                        </h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                          {template.code}
+                        </p>
                       </div>
                     </div>
-                    <Badge className={statusColors[template.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{template.status}</Badge>
+                    <Badge
+                      className={
+                        statusColors[template.status] ||
+                        'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                      }
+                    >
+                      {template.status}
+                    </Badge>
                   </div>
                   {template.description && (
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">{template.description}</p>
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                      {template.description}
+                    </p>
                   )}
                   <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 mb-4">
                     <span>v{template.version}</span>
-                    {template.isBuiltIn && <Badge className="bg-indigo-50 text-indigo-600">Built-in</Badge>}
+                    {template.isBuiltIn && (
+                      <Badge className="bg-indigo-50 text-indigo-600">Built-in</Badge>
+                    )}
                     {template.category && <span>{template.category}</span>}
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => viewTemplateDetails(template)} className="flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700">
+                    <button
+                      onClick={() => viewTemplateDetails(template)}
+                      className="flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700"
+                    >
                       <Eye className="h-3 w-3" /> View
                     </button>
-                    <button onClick={() => handleClone(template.id)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-700 dark:text-gray-300">
+                    <button
+                      onClick={() => handleClone(template.id)}
+                      className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-700 dark:text-gray-300"
+                    >
                       <Copy className="h-3 w-3" /> Clone
                     </button>
-                    <button onClick={() => handleExport(template.id)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-700 dark:text-gray-300">
+                    <button
+                      onClick={() => handleExport(template.id)}
+                      className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-700 dark:text-gray-300"
+                    >
                       <Download className="h-3 w-3" /> Export
                     </button>
                   </div>
@@ -183,15 +239,29 @@ export default function TemplatesPage() {
       </div>
 
       {/* View Modal */}
-      <Modal isOpen={viewModalOpen} onClose={() => setViewModalOpen(false)} title={viewTemplate?.name || 'Template'} size="lg">
+      <Modal
+        isOpen={viewModalOpen}
+        onClose={() => setViewModalOpen(false)}
+        title={viewTemplate?.name || 'Template'}
+        size="lg"
+      >
         {viewTemplate && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div><p className="text-sm text-gray-500 dark:text-gray-400">Code</p><p className="font-mono font-medium">{viewTemplate.code}</p></div>
-              <div><p className="text-sm text-gray-500 dark:text-gray-400">Version</p><p className="font-medium">v{viewTemplate.version}</p></div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Code</p>
+                <p className="font-mono font-medium">{viewTemplate.code}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Version</p>
+                <p className="font-medium">v{viewTemplate.version}</p>
+              </div>
             </div>
             {viewTemplate.description && (
-              <div><p className="text-sm text-gray-500 dark:text-gray-400">Description</p><p className="text-gray-700 dark:text-gray-300">{viewTemplate.description}</p></div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Description</p>
+                <p className="text-gray-700 dark:text-gray-300">{viewTemplate.description}</p>
+              </div>
             )}
             {templateContent && (
               <div>
@@ -204,9 +274,14 @@ export default function TemplatesPage() {
           </div>
         )}
         <ModalFooter>
-          <Button variant="outline" onClick={() => setViewModalOpen(false)}>Close</Button>
+          <Button variant="outline" onClick={() => setViewModalOpen(false)}>
+            Close
+          </Button>
           {viewTemplate && (
-            <Button onClick={() => handleExport(viewTemplate.id)} className="flex items-center gap-2">
+            <Button
+              onClick={() => handleExport(viewTemplate.id)}
+              className="flex items-center gap-2"
+            >
               <Download className="h-4 w-4" /> Export
             </Button>
           )}

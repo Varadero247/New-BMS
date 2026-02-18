@@ -38,7 +38,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/bcp', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockBcp = prisma.femBusinessContinuityPlan as any;
 const mockExercise = prisma.femBcpExercise as any;
@@ -107,7 +109,10 @@ describe('GET /api/bcp', () => {
 
 describe('GET /api/bcp/due-review', () => {
   it('returns BCPs due for review', async () => {
-    const dueBcp = { ...fakeBcp, reviewDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() };
+    const dueBcp = {
+      ...fakeBcp,
+      reviewDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    };
     mockBcp.findMany.mockResolvedValue([dueBcp]);
 
     const res = await request(app).get('/api/bcp/due-review');
@@ -162,11 +167,13 @@ describe('POST /api/bcp', () => {
     mockBcp.count.mockResolvedValue(0);
     mockBcp.create.mockResolvedValue(bcpWithTypes);
 
-    const res = await request(app).post('/api/bcp').send({
-      ...validCreateBody,
-      emergencyTypes: ['FIRE', 'FLOOD'],
-      crisisTeamLead: 'Alice',
-    });
+    const res = await request(app)
+      .post('/api/bcp')
+      .send({
+        ...validCreateBody,
+        emergencyTypes: ['FIRE', 'FLOOD'],
+        crisisTeamLead: 'Alice',
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.data.emergencyTypes).toContain('FIRE');
@@ -200,7 +207,9 @@ describe('PUT /api/bcp/:id', () => {
     mockBcp.findFirst.mockResolvedValue(fakeBcp);
     mockBcp.update.mockResolvedValue(updated);
 
-    const res = await request(app).put(`/api/bcp/${BCP_ID}`).send({ title: 'Updated BCP', status: 'APPROVED' });
+    const res = await request(app)
+      .put(`/api/bcp/${BCP_ID}`)
+      .send({ title: 'Updated BCP', status: 'APPROVED' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -210,7 +219,9 @@ describe('PUT /api/bcp/:id', () => {
   it('returns 404 when BCP does not exist on update', async () => {
     mockBcp.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/bcp/00000000-0000-0000-0000-000000000999').send({ title: 'Ghost' });
+    const res = await request(app)
+      .put('/api/bcp/00000000-0000-0000-0000-000000000999')
+      .send({ title: 'Ghost' });
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -277,11 +288,13 @@ describe('POST /api/bcp/:id/exercise', () => {
   it('returns 404 when BCP not found for exercise creation', async () => {
     mockBcp.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/bcp/00000000-0000-0000-0000-000000000999/exercise').send({
-      exerciseType: 'TABLETOP',
-      title: 'Test',
-      scheduledDate: '2026-06-01',
-    });
+    const res = await request(app)
+      .post('/api/bcp/00000000-0000-0000-0000-000000000999/exercise')
+      .send({
+        exerciseType: 'TABLETOP',
+        title: 'Test',
+        scheduledDate: '2026-06-01',
+      });
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -299,7 +312,11 @@ describe('PUT /api/bcp/:bcpId/exercise/:id', () => {
     };
     mockExercise.findFirst.mockResolvedValue({ id: EXERCISE_ID, bcpId: BCP_ID });
     mockExercise.update.mockResolvedValue(updatedExercise);
-    mockBcp.update.mockResolvedValue({ ...fakeBcp, lastTestedDate: new Date().toISOString(), lastTestOutcome: 'PASSED' });
+    mockBcp.update.mockResolvedValue({
+      ...fakeBcp,
+      lastTestedDate: new Date().toISOString(),
+      lastTestOutcome: 'PASSED',
+    });
 
     const res = await request(app).put(`/api/bcp/${BCP_ID}/exercise/${EXERCISE_ID}`).send({
       outcome: 'PASSED',
@@ -315,9 +332,11 @@ describe('PUT /api/bcp/:bcpId/exercise/:id', () => {
   it('returns 404 when exercise does not exist', async () => {
     mockExercise.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put(`/api/bcp/${BCP_ID}/exercise/00000000-0000-0000-0000-000000000999`).send({
-      outcome: 'PASSED',
-    });
+    const res = await request(app)
+      .put(`/api/bcp/${BCP_ID}/exercise/00000000-0000-0000-0000-000000000999`)
+      .send({
+        outcome: 'PASSED',
+      });
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');

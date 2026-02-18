@@ -73,7 +73,12 @@ export const WithIcons: Story = {
         id: '1',
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m0 0h6" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 6v6m0 0v6m0-6h6m0 0h6"
+            />
           </svg>
         ),
         title: 'Feature Added',
@@ -85,7 +90,12 @@ export const WithIcons: Story = {
         id: '2',
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
         ),
         title: 'Tests Passed',
@@ -97,7 +107,12 @@ export const WithIcons: Story = {
         id: '3',
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
           </svg>
         ),
         title: 'Code Reviewed',
@@ -117,10 +132,18 @@ export const WithBadges: Story = {
         title: 'Requirement Gathered',
         description: 'Collected and documented all business requirements.',
         timestamp: '2026-02-10 10:00',
-        badge: { label: 'Planning', className: 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' },
+        badge: {
+          label: 'Planning',
+          className: 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300',
+        },
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+            />
           </svg>
         ),
       },
@@ -129,10 +152,18 @@ export const WithBadges: Story = {
         title: 'Design Completed',
         description: 'UI/UX design finalized and handed off to development.',
         timestamp: '2026-02-11 15:00',
-        badge: { label: 'Design', className: 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300' },
+        badge: {
+          label: 'Design',
+          className: 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300',
+        },
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+            />
           </svg>
         ),
       },
@@ -141,10 +172,18 @@ export const WithBadges: Story = {
         title: 'Development Sprint 1',
         description: 'First sprint completed with core features implemented.',
         timestamp: '2026-02-12 17:00',
-        badge: { label: 'In Progress', className: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300' },
+        badge: {
+          label: 'In Progress',
+          className: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300',
+        },
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 10V3L4 14h7v7l9-11h-7z"
+            />
           </svg>
         ),
       },
@@ -153,10 +192,18 @@ export const WithBadges: Story = {
         title: 'Testing & QA',
         description: 'Quality assurance phase in progress.',
         timestamp: '2026-02-13 09:00',
-        badge: { label: 'Testing', className: 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300' },
+        badge: {
+          label: 'Testing',
+          className: 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300',
+        },
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
         ),
       },
@@ -171,14 +218,22 @@ export const WithUserAttributions: Story = {
         id: '1',
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"
+            />
           </svg>
         ),
         title: 'Issue Created',
         description: 'New bug reported: Login form validation not working on mobile.',
         timestamp: '2026-02-13 08:30',
         user: 'Emily Rodriguez',
-        badge: { label: 'Bug', className: 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300' },
+        badge: {
+          label: 'Bug',
+          className: 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300',
+        },
       },
       {
         id: '2',
@@ -196,27 +251,43 @@ export const WithUserAttributions: Story = {
         id: '3',
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
           </svg>
         ),
         title: 'Fix In Progress',
         description: 'Developer started working on the mobile validation fix.',
         timestamp: '2026-02-13 10:00',
         user: 'David Park',
-        badge: { label: 'In Progress', className: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300' },
+        badge: {
+          label: 'In Progress',
+          className: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300',
+        },
       },
       {
         id: '4',
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
         ),
         title: 'Issue Resolved',
         description: 'Pull request merged. Mobile form validation now working correctly.',
         timestamp: '2026-02-13 11:45',
         user: 'Lisa Anderson',
-        badge: { label: 'Resolved', className: 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300' },
+        badge: {
+          label: 'Resolved',
+          className: 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300',
+        },
       },
     ],
   },

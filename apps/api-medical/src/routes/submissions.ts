@@ -21,19 +21,31 @@ router.param('id', validateIdParam());
 // ============================================
 
 const REGULATORY_MARKETS = [
-  'FDA_510K', 'FDA_DE_NOVO', 'FDA_PMA',
-  'EU_CE_MDR', 'EU_CE_IVDR', 'UKCA',
-  'HEALTH_CANADA', 'TGA_AUSTRALIA', 'PMDA_JAPAN',
-  'NMPA_CHINA', 'ANVISA_BRAZIL',
+  'FDA_510K',
+  'FDA_DE_NOVO',
+  'FDA_PMA',
+  'EU_CE_MDR',
+  'EU_CE_IVDR',
+  'UKCA',
+  'HEALTH_CANADA',
+  'TGA_AUSTRALIA',
+  'PMDA_JAPAN',
+  'NMPA_CHINA',
+  'ANVISA_BRAZIL',
 ] as const;
 
-const SUBMISSION_TYPES = [
-  'INITIAL', 'SUPPLEMENT', 'RENEWAL', 'AMENDMENT', 'NOTIFICATION',
-] as const;
+const SUBMISSION_TYPES = ['INITIAL', 'SUPPLEMENT', 'RENEWAL', 'AMENDMENT', 'NOTIFICATION'] as const;
 
 const SUBMISSION_STATUSES = [
-  'PREPARATION', 'SUBMITTED', 'UNDER_REVIEW', 'ADDITIONAL_INFO_REQUESTED',
-  'APPROVED', 'CONDITIONALLY_APPROVED', 'REJECTED', 'WITHDRAWN', 'EXPIRED',
+  'PREPARATION',
+  'SUBMITTED',
+  'UNDER_REVIEW',
+  'ADDITIONAL_INFO_REQUESTED',
+  'APPROVED',
+  'CONDITIONALLY_APPROVED',
+  'REJECTED',
+  'WITHDRAWN',
+  'EXPIRED',
 ] as const;
 
 // ============================================
@@ -101,17 +113,28 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       },
     });
 
-    logger.info('Regulatory submission created', { refNumber, market: data.market, submissionType: data.submissionType });
+    logger.info('Regulatory submission created', {
+      refNumber,
+      market: data.market,
+      submissionType: data.submissionType,
+    });
     res.status(201).json({ success: true, data: submission });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create regulatory submission error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create regulatory submission' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create regulatory submission' },
+    });
   }
 });
 
@@ -152,7 +175,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List regulatory submissions error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list regulatory submissions' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list regulatory submissions' },
+    });
   }
 });
 
@@ -165,13 +191,19 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!submission || submission.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Regulatory submission not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Regulatory submission not found' },
+      });
     }
 
     res.json({ success: true, data: submission });
   } catch (error) {
     logger.error('Get regulatory submission error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get regulatory submission' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get regulatory submission' },
+    });
   }
 });
 
@@ -180,7 +212,10 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.regulatorySubmission.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Regulatory submission not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Regulatory submission not found' },
+      });
     }
 
     const data = updateSubmissionSchema.parse(req.body);
@@ -197,26 +232,41 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
       },
     });
 
-    logger.info('Regulatory submission updated', { id: req.params.id, refNumber: existing.refNumber });
+    logger.info('Regulatory submission updated', {
+      id: req.params.id,
+      refNumber: existing.refNumber,
+    });
     res.json({ success: true, data: submission });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update regulatory submission error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update regulatory submission' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update regulatory submission' },
+    });
   }
 });
 
 // POST /:id/changes — Log post-approval change notification
 router.post('/:id/changes', async (req: AuthRequest, res: Response) => {
   try {
-    const submission = await prisma.regulatorySubmission.findUnique({ where: { id: req.params.id } });
+    const submission = await prisma.regulatorySubmission.findUnique({
+      where: { id: req.params.id },
+    });
     if (!submission || submission.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Regulatory submission not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Regulatory submission not found' },
+      });
     }
 
     const data = createChangeSchema.parse(req.body);
@@ -231,17 +281,27 @@ router.post('/:id/changes', async (req: AuthRequest, res: Response) => {
       },
     });
 
-    logger.info('Submission change notification logged', { submissionId: req.params.id, changeType: data.changeType });
+    logger.info('Submission change notification logged', {
+      submissionId: req.params.id,
+      changeType: data.changeType,
+    });
     res.status(201).json({ success: true, data: change });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create submission change error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create submission change' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create submission change' },
+    });
   }
 });
 

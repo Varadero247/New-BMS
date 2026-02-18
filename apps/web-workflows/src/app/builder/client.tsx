@@ -144,21 +144,57 @@ const ISO_TEMPLATES: TemplateDefinition[] = [
     name: 'NCR Approval Chain',
     description: 'Non-conformance report approval with severity routing',
     nodes: [
-      { type: 'trigger', subType: 'record_created', config: { module: 'NCR', record_type: 'non_conformance' } },
-      { type: 'condition', subType: 'field_greater_than', config: { field: 'severity', value: 'HIGH', operator: '>=' } },
-      { type: 'action', subType: 'assign_user', config: { role: 'quality_manager', reason: 'NCR review assignment' } },
-      { type: 'notification', subType: 'email', config: { recipient: 'assigned_user', template: 'ncr_review_required' } },
-      { type: 'action', subType: 'create_task', config: { task_type: 'review', title: 'Review NCR', due_days: '5' } },
+      {
+        type: 'trigger',
+        subType: 'record_created',
+        config: { module: 'NCR', record_type: 'non_conformance' },
+      },
+      {
+        type: 'condition',
+        subType: 'field_greater_than',
+        config: { field: 'severity', value: 'HIGH', operator: '>=' },
+      },
+      {
+        type: 'action',
+        subType: 'assign_user',
+        config: { role: 'quality_manager', reason: 'NCR review assignment' },
+      },
+      {
+        type: 'notification',
+        subType: 'email',
+        config: { recipient: 'assigned_user', template: 'ncr_review_required' },
+      },
+      {
+        type: 'action',
+        subType: 'create_task',
+        config: { task_type: 'review', title: 'Review NCR', due_days: '5' },
+      },
     ],
   },
   {
     name: 'CAPA Lifecycle',
     description: 'Corrective/preventive action full lifecycle management',
     nodes: [
-      { type: 'trigger', subType: 'record_created', config: { module: 'CAPA', record_type: 'corrective_action' } },
-      { type: 'action', subType: 'assign_user', config: { role: 'capa_owner', reason: 'CAPA investigation assignment' } },
-      { type: 'condition', subType: 'custom_expression', config: { expression: 'due_date < NOW()', label: 'Overdue check' } },
-      { type: 'notification', subType: 'escalation', config: { recipient: 'manager', escalation_level: '1' } },
+      {
+        type: 'trigger',
+        subType: 'record_created',
+        config: { module: 'CAPA', record_type: 'corrective_action' },
+      },
+      {
+        type: 'action',
+        subType: 'assign_user',
+        config: { role: 'capa_owner', reason: 'CAPA investigation assignment' },
+      },
+      {
+        type: 'condition',
+        subType: 'custom_expression',
+        config: { expression: 'due_date < NOW()', label: 'Overdue check' },
+      },
+      {
+        type: 'notification',
+        subType: 'escalation',
+        config: { recipient: 'manager', escalation_level: '1' },
+      },
       { type: 'action', subType: 'update_field', config: { field: 'status', value: 'ESCALATED' } },
     ],
   },
@@ -166,40 +202,104 @@ const ISO_TEMPLATES: TemplateDefinition[] = [
     name: 'Audit Scheduling',
     description: 'Monthly automated audit creation and assignment',
     nodes: [
-      { type: 'trigger', subType: 'schedule_cron', config: { schedule: '0 9 1 * *', label: 'Monthly 1st at 09:00' } },
-      { type: 'action', subType: 'create_record', config: { module: 'audit', record_type: 'internal_audit' } },
-      { type: 'action', subType: 'assign_user', config: { role: 'lead_auditor', reason: 'Audit assignment' } },
-      { type: 'notification', subType: 'email', config: { recipient: 'assigned_user', template: 'audit_scheduled' } },
+      {
+        type: 'trigger',
+        subType: 'schedule_cron',
+        config: { schedule: '0 9 1 * *', label: 'Monthly 1st at 09:00' },
+      },
+      {
+        type: 'action',
+        subType: 'create_record',
+        config: { module: 'audit', record_type: 'internal_audit' },
+      },
+      {
+        type: 'action',
+        subType: 'assign_user',
+        config: { role: 'lead_auditor', reason: 'Audit assignment' },
+      },
+      {
+        type: 'notification',
+        subType: 'email',
+        config: { recipient: 'assigned_user', template: 'audit_scheduled' },
+      },
     ],
   },
   {
     name: 'PTW Approval',
     description: 'Permit to work risk-based approval routing',
     nodes: [
-      { type: 'trigger', subType: 'record_created', config: { module: 'permit', record_type: 'permit_to_work' } },
-      { type: 'condition', subType: 'field_greater_than', config: { field: 'risk_level', value: 'MEDIUM', operator: '>=' } },
-      { type: 'action', subType: 'assign_user', config: { role: 'hse_manager', reason: 'High risk PTW approval' } },
-      { type: 'notification', subType: 'in_app', config: { recipient: 'assigned_user', message: 'New PTW requires approval' } },
+      {
+        type: 'trigger',
+        subType: 'record_created',
+        config: { module: 'permit', record_type: 'permit_to_work' },
+      },
+      {
+        type: 'condition',
+        subType: 'field_greater_than',
+        config: { field: 'risk_level', value: 'MEDIUM', operator: '>=' },
+      },
+      {
+        type: 'action',
+        subType: 'assign_user',
+        config: { role: 'hse_manager', reason: 'High risk PTW approval' },
+      },
+      {
+        type: 'notification',
+        subType: 'in_app',
+        config: { recipient: 'assigned_user', message: 'New PTW requires approval' },
+      },
     ],
   },
   {
     name: 'Document Review',
     description: 'Automated document review cycle with escalation',
     nodes: [
-      { type: 'trigger', subType: 'date_reached', config: { field: 'review_due_date', offset_days: '0' } },
-      { type: 'notification', subType: 'email', config: { recipient: 'document_controller', template: 'review_due' } },
-      { type: 'condition', subType: 'field_greater_than', config: { field: 'days_overdue', value: '7', operator: '>' } },
-      { type: 'notification', subType: 'escalation', config: { recipient: 'manager', escalation_level: '1' } },
+      {
+        type: 'trigger',
+        subType: 'date_reached',
+        config: { field: 'review_due_date', offset_days: '0' },
+      },
+      {
+        type: 'notification',
+        subType: 'email',
+        config: { recipient: 'document_controller', template: 'review_due' },
+      },
+      {
+        type: 'condition',
+        subType: 'field_greater_than',
+        config: { field: 'days_overdue', value: '7', operator: '>' },
+      },
+      {
+        type: 'notification',
+        subType: 'escalation',
+        config: { recipient: 'manager', escalation_level: '1' },
+      },
     ],
   },
   {
     name: 'Incident Escalation',
     description: 'Major incident automatic escalation and investigation',
     nodes: [
-      { type: 'trigger', subType: 'record_created', config: { module: 'incident', record_type: 'safety_incident' } },
-      { type: 'condition', subType: 'field_greater_than', config: { field: 'severity', value: 'MAJOR', operator: '>=' } },
-      { type: 'notification', subType: 'email', config: { recipient: 'hse_manager', template: 'major_incident_alert' } },
-      { type: 'action', subType: 'create_task', config: { task_type: 'investigation', title: 'Investigate Incident', due_days: '3' } },
+      {
+        type: 'trigger',
+        subType: 'record_created',
+        config: { module: 'incident', record_type: 'safety_incident' },
+      },
+      {
+        type: 'condition',
+        subType: 'field_greater_than',
+        config: { field: 'severity', value: 'MAJOR', operator: '>=' },
+      },
+      {
+        type: 'notification',
+        subType: 'email',
+        config: { recipient: 'hse_manager', template: 'major_incident_alert' },
+      },
+      {
+        type: 'action',
+        subType: 'create_task',
+        config: { task_type: 'investigation', title: 'Investigate Incident', due_days: '3' },
+      },
     ],
   },
 ];
@@ -245,19 +345,25 @@ function TriggerProperties({
   return (
     <div className="space-y-4">
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Trigger Type</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+          Trigger Type
+        </label>
         <select
           value={node.subType}
           onChange={(e) => onChange({ ...node, subType: e.target.value })}
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none"
         >
           {PALETTE.trigger.subTypes.map((s) => (
-            <option key={s.value} value={s.value}>{s.label}</option>
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
           ))}
         </select>
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Module</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+          Module
+        </label>
         <input
           type="text"
           value={node.config.module || ''}
@@ -267,7 +373,9 @@ function TriggerProperties({
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Record Type</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+          Record Type
+        </label>
         <input
           type="text"
           value={node.config.record_type || ''}
@@ -276,9 +384,11 @@ function TriggerProperties({
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none"
         />
       </div>
-      {(node.subType === 'schedule_cron') && (
+      {node.subType === 'schedule_cron' && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cron Expression</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+            Cron Expression
+          </label>
           <input
             type="text"
             value={node.config.schedule || ''}
@@ -288,9 +398,11 @@ function TriggerProperties({
           />
         </div>
       )}
-      {(node.subType === 'date_reached') && (
+      {node.subType === 'date_reached' && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date Field</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+            Date Field
+          </label>
           <input
             type="text"
             value={node.config.field || ''}
@@ -300,9 +412,11 @@ function TriggerProperties({
           />
         </div>
       )}
-      {(node.subType === 'field_changed') && (
+      {node.subType === 'field_changed' && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Field Name</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+            Field Name
+          </label>
           <input
             type="text"
             value={node.config.field || ''}
@@ -329,19 +443,25 @@ function ConditionProperties({
   return (
     <div className="space-y-4">
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Condition Type</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+          Condition Type
+        </label>
         <select
           value={node.subType}
           onChange={(e) => onChange({ ...node, subType: e.target.value })}
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-yellow-500 focus:outline-none"
         >
           {PALETTE.condition.subTypes.map((s) => (
-            <option key={s.value} value={s.value}>{s.label}</option>
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
           ))}
         </select>
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Field</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+          Field
+        </label>
         <input
           type="text"
           value={node.config.field || ''}
@@ -351,7 +471,9 @@ function ConditionProperties({
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Operator</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+          Operator
+        </label>
         <select
           value={node.config.operator || '=='}
           onChange={(e) => setConfig('operator', e.target.value)}
@@ -367,7 +489,9 @@ function ConditionProperties({
         </select>
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Value</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+          Value
+        </label>
         <input
           type="text"
           value={node.config.value || ''}
@@ -378,7 +502,9 @@ function ConditionProperties({
       </div>
       {node.subType === 'custom_expression' && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Expression</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+            Expression
+          </label>
           <textarea
             value={node.config.expression || ''}
             onChange={(e) => setConfig('expression', e.target.value)}
@@ -405,21 +531,27 @@ function ActionProperties({
   return (
     <div className="space-y-4">
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Action Type</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+          Action Type
+        </label>
         <select
           value={node.subType}
           onChange={(e) => onChange({ ...node, subType: e.target.value })}
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
         >
           {PALETTE.action.subTypes.map((s) => (
-            <option key={s.value} value={s.value}>{s.label}</option>
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
           ))}
         </select>
       </div>
       {(node.subType === 'create_record' || node.subType === 'update_field') && (
         <>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Target Module</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              Target Module
+            </label>
             <input
               type="text"
               value={node.config.module || ''}
@@ -429,7 +561,9 @@ function ActionProperties({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Field</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              Field
+            </label>
             <input
               type="text"
               value={node.config.field || ''}
@@ -439,7 +573,9 @@ function ActionProperties({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Value</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              Value
+            </label>
             <input
               type="text"
               value={node.config.value || ''}
@@ -453,7 +589,9 @@ function ActionProperties({
       {node.subType === 'assign_user' && (
         <>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Role</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              Role
+            </label>
             <input
               type="text"
               value={node.config.role || ''}
@@ -463,7 +601,9 @@ function ActionProperties({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Reason</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              Reason
+            </label>
             <input
               type="text"
               value={node.config.reason || ''}
@@ -477,7 +617,9 @@ function ActionProperties({
       {node.subType === 'create_task' && (
         <>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Task Type</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              Task Type
+            </label>
             <input
               type="text"
               value={node.config.task_type || ''}
@@ -487,7 +629,9 @@ function ActionProperties({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              Title
+            </label>
             <input
               type="text"
               value={node.config.title || ''}
@@ -497,7 +641,9 @@ function ActionProperties({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Due (days)</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              Due (days)
+            </label>
             <input
               type="number"
               value={node.config.due_days || ''}
@@ -511,7 +657,9 @@ function ActionProperties({
       {(node.subType === 'send_email' || node.subType === 'send_notification') && (
         <>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Recipient</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              Recipient
+            </label>
             <input
               type="text"
               value={node.config.recipient || ''}
@@ -521,7 +669,9 @@ function ActionProperties({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Template</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              Template
+            </label>
             <input
               type="text"
               value={node.config.template || ''}
@@ -535,7 +685,9 @@ function ActionProperties({
       {node.subType === 'call_webhook' && (
         <>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">URL</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              URL
+            </label>
             <input
               type="text"
               value={node.config.url || ''}
@@ -545,7 +697,9 @@ function ActionProperties({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Method</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              Method
+            </label>
             <select
               value={node.config.method || 'POST'}
               onChange={(e) => setConfig('method', e.target.value)}
@@ -560,7 +714,9 @@ function ActionProperties({
       )}
       {node.subType === 'publish_event' && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Event Name</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+            Event Name
+          </label>
           <input
             type="text"
             value={node.config.event_name || ''}
@@ -587,19 +743,25 @@ function NotificationProperties({
   return (
     <div className="space-y-4">
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Channel</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+          Channel
+        </label>
         <select
           value={node.subType}
           onChange={(e) => onChange({ ...node, subType: e.target.value })}
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none"
         >
           {PALETTE.notification.subTypes.map((s) => (
-            <option key={s.value} value={s.value}>{s.label}</option>
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
           ))}
         </select>
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Recipient</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+          Recipient
+        </label>
         <input
           type="text"
           value={node.config.recipient || ''}
@@ -610,7 +772,9 @@ function NotificationProperties({
       </div>
       {(node.subType === 'email' || node.subType === 'sms') && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Message Template</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+            Message Template
+          </label>
           <input
             type="text"
             value={node.config.template || ''}
@@ -622,7 +786,9 @@ function NotificationProperties({
       )}
       {node.subType === 'in_app' && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Message</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+            Message
+          </label>
           <textarea
             value={node.config.message || ''}
             onChange={(e) => setConfig('message', e.target.value)}
@@ -634,7 +800,9 @@ function NotificationProperties({
       )}
       {node.subType === 'escalation' && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Escalation Level</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+            Escalation Level
+          </label>
           <select
             value={node.config.escalation_level || '1'}
             onChange={(e) => setConfig('escalation_level', e.target.value)}
@@ -666,7 +834,9 @@ export function WorkflowBuilderClient() {
   const [templateDropdownOpen, setTemplateDropdownOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const [draggedType, setDraggedType] = useState<{ type: NodeCategory; subType: string } | null>(null);
+  const [draggedType, setDraggedType] = useState<{ type: NodeCategory; subType: string } | null>(
+    null
+  );
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const selectedNode = workflow.nodes.find((n) => n.id === selectedNodeId) || null;
@@ -693,7 +863,7 @@ export function WorkflowBuilderClient() {
       }));
       setSelectedNodeId(newNode.id);
     },
-    [workflow.nodes.length],
+    [workflow.nodes.length]
   );
 
   const updateNode = useCallback((updated: WorkflowNode) => {
@@ -707,32 +877,33 @@ export function WorkflowBuilderClient() {
     (nodeId: string) => {
       setWorkflow((prev) => ({
         ...prev,
-        nodes: prev.nodes
-          .filter((n) => n.id !== nodeId)
-          .map((n, i) => ({ ...n, position: i })),
+        nodes: prev.nodes.filter((n) => n.id !== nodeId).map((n, i) => ({ ...n, position: i })),
       }));
       if (selectedNodeId === nodeId) setSelectedNodeId(null);
     },
-    [selectedNodeId],
+    [selectedNodeId]
   );
 
   // --- Templates ---
-  const loadTemplate = useCallback((template: TemplateDefinition) => {
-    const nodes: WorkflowNode[] = template.nodes.map((n, i) => ({
-      ...n,
-      id: createNodeId(),
-      position: i,
-    }));
-    setWorkflow({
-      name: template.name,
-      description: template.description,
-      nodes,
-      status: 'DRAFT',
-    });
-    setSelectedNodeId(null);
-    setTemplateDropdownOpen(false);
-    showToast(`Loaded template: ${template.name}`, 'success');
-  }, [showToast]);
+  const loadTemplate = useCallback(
+    (template: TemplateDefinition) => {
+      const nodes: WorkflowNode[] = template.nodes.map((n, i) => ({
+        ...n,
+        id: createNodeId(),
+        position: i,
+      }));
+      setWorkflow({
+        name: template.name,
+        description: template.description,
+        nodes,
+        status: 'DRAFT',
+      });
+      setSelectedNodeId(null);
+      setTemplateDropdownOpen(false);
+      showToast(`Loaded template: ${template.name}`, 'success');
+    },
+    [showToast]
+  );
 
   // --- Save ---
   const handleSave = useCallback(async () => {
@@ -819,7 +990,12 @@ export function WorkflowBuilderClient() {
         {/* Connector line */}
         {index > 0 && (
           <div className="flex justify-center py-1">
-            <svg width="24" height="32" viewBox="0 0 24 32" className="text-gray-400 dark:text-gray-500">
+            <svg
+              width="24"
+              height="32"
+              viewBox="0 0 24 32"
+              className="text-gray-400 dark:text-gray-500"
+            >
               <line x1="12" y1="0" x2="12" y2="24" stroke="currentColor" strokeWidth="2" />
               <polygon points="6,24 12,32 18,24" fill="currentColor" />
             </svg>
@@ -852,7 +1028,9 @@ export function WorkflowBuilderClient() {
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center space-x-2">
-                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold uppercase ${palette.bgLight} ${palette.textColor}`}>
+                <span
+                  className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold uppercase ${palette.bgLight} ${palette.textColor}`}
+                >
                   {node.type}
                 </span>
                 <span className="text-xs text-gray-400 dark:text-gray-500">#{index + 1}</span>
@@ -878,9 +1056,7 @@ export function WorkflowBuilderClient() {
       {toast && (
         <div
           className={`fixed right-4 top-4 z-50 flex items-center space-x-2 rounded-lg px-4 py-3 shadow-lg transition-all ${
-            toast.type === 'success'
-              ? 'bg-green-600 text-white'
-              : 'bg-red-600 text-white'
+            toast.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
           }`}
         >
           {toast.type === 'success' ? (
@@ -940,8 +1116,12 @@ export function WorkflowBuilderClient() {
                         onClick={() => loadTemplate(tpl)}
                         className="w-full rounded-md px-2 py-2 text-left hover:bg-indigo-50"
                       >
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{tpl.name}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{tpl.description}</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {tpl.name}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {tpl.description}
+                        </p>
                       </button>
                     ))}
                   </div>
@@ -1071,8 +1251,21 @@ export function WorkflowBuilderClient() {
 
                 {/* Add node button */}
                 <div className="flex justify-center py-4">
-                  <svg width="24" height="24" viewBox="0 0 24 24" className="text-gray-300 dark:text-gray-600">
-                    <line x1="12" y1="0" x2="12" y2="16" stroke="currentColor" strokeWidth="2" strokeDasharray="4 3" />
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    className="text-gray-300 dark:text-gray-600"
+                  >
+                    <line
+                      x1="12"
+                      y1="0"
+                      x2="12"
+                      y2="16"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeDasharray="4 3"
+                    />
                   </svg>
                 </div>
                 <div className="flex justify-center">
@@ -1104,7 +1297,9 @@ export function WorkflowBuilderClient() {
           {selectedNode ? (
             <div className="p-4">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Node Properties</h3>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  Node Properties
+                </h3>
                 <button
                   onClick={() => removeNode(selectedNode.id)}
                   className="rounded-lg p-1 text-red-500 hover:bg-red-50"
@@ -1158,7 +1353,9 @@ export function WorkflowBuilderClient() {
               <div className="rounded-full bg-gray-100 dark:bg-gray-800 p-3">
                 <Filter className="h-6 w-6 text-gray-400 dark:text-gray-500" />
               </div>
-              <p className="mt-3 text-sm font-medium text-gray-500 dark:text-gray-400">No Node Selected</p>
+              <p className="mt-3 text-sm font-medium text-gray-500 dark:text-gray-400">
+                No Node Selected
+              </p>
               <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
                 Click a node on the canvas to view and edit its properties.
               </p>

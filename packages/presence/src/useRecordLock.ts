@@ -46,41 +46,44 @@ export function useRecordLock(recordType: string, recordId: string): UseRecordLo
     }
   }, [recordType, recordId]);
 
-  const doAcquireLock = useCallback(async (force?: boolean): Promise<LockResult> => {
-    try {
-      const data = await fetchApi<LockResult>('/api/presence/lock', {
-        method: 'POST',
-        body: JSON.stringify({ recordType, recordId, force }),
-      });
+  const doAcquireLock = useCallback(
+    async (force?: boolean): Promise<LockResult> => {
+      try {
+        const data = await fetchApi<LockResult>('/api/presence/lock', {
+          method: 'POST',
+          body: JSON.stringify({ recordType, recordId, force }),
+        });
 
-      if (data.acquired) {
-        setIsLocked(false);
-        setLockedBy(null);
-        hasLockRef.current = true;
+        if (data.acquired) {
+          setIsLocked(false);
+          setLockedBy(null);
+          hasLockRef.current = true;
 
-        // Start refresh interval (every 20s)
-        if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
-        refreshIntervalRef.current = setInterval(async () => {
-          try {
-            await fetchApi('/api/presence/refresh', {
-              method: 'PUT',
-              body: JSON.stringify({ recordType, recordId }),
-            });
-          } catch {
-            // Silently ignore refresh failures
-          }
-        }, 20_000);
-      } else {
-        setIsLocked(true);
-        setLockedBy(data.lockedBy || null);
-        hasLockRef.current = false;
+          // Start refresh interval (every 20s)
+          if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
+          refreshIntervalRef.current = setInterval(async () => {
+            try {
+              await fetchApi('/api/presence/refresh', {
+                method: 'PUT',
+                body: JSON.stringify({ recordType, recordId }),
+              });
+            } catch {
+              // Silently ignore refresh failures
+            }
+          }, 20_000);
+        } else {
+          setIsLocked(true);
+          setLockedBy(data.lockedBy || null);
+          hasLockRef.current = false;
+        }
+
+        return data;
+      } catch {
+        return { acquired: false };
       }
-
-      return data;
-    } catch {
-      return { acquired: false };
-    }
-  }, [recordType, recordId]);
+    },
+    [recordType, recordId]
+  );
 
   const doReleaseLock = useCallback(async (): Promise<void> => {
     hasLockRef.current = false;
@@ -115,10 +118,7 @@ export function useRecordLock(recordType: string, recordId: string): UseRecordLo
         try {
           navigator.sendBeacon(
             `${API_BASE}/api/presence/lock?_method=DELETE`,
-            new Blob(
-              [JSON.stringify({ recordType, recordId })],
-              { type: 'application/json' }
-            )
+            new Blob([JSON.stringify({ recordType, recordId })], { type: 'application/json' })
           );
         } catch {
           // Best-effort cleanup, the TTL will handle it

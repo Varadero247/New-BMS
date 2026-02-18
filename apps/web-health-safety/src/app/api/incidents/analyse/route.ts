@@ -52,7 +52,9 @@ Rules:
     severity ? `Severity: ${severity}` : '',
     location ? `Location: ${location}` : '',
     injuryType ? `Injury Type: ${injuryType}` : '',
-  ].filter(Boolean).join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {

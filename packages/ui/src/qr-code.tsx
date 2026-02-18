@@ -66,12 +66,7 @@ export interface QRCodeDisplayProps {
   className?: string;
 }
 
-export function QRCodeDisplay({
-  value,
-  label,
-  size = 200,
-  className,
-}: QRCodeDisplayProps) {
+export function QRCodeDisplay({ value, label, size = 200, className }: QRCodeDisplayProps) {
   const gridSize = 25;
   const cellSize = size / gridSize;
   const matrix = generateQRMatrix(value, gridSize);
@@ -122,22 +117,16 @@ export function QRCodeDisplay({
       >
         {matrix.map((row, y) =>
           row.map((cell, x) =>
-            cell ? (
-              <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill="black" />
-            ) : null
+            cell ? <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill="black" /> : null
           )
         )}
       </svg>
 
       {/* Label */}
-      {label && (
-        <p className="text-sm font-medium text-foreground text-center">{label}</p>
-      )}
+      {label && <p className="text-sm font-medium text-foreground text-center">{label}</p>}
 
       {/* Value (truncated) */}
-      <p className="text-xs text-muted-foreground text-center max-w-[200px] truncate">
-        {value}
-      </p>
+      <p className="text-xs text-muted-foreground text-center max-w-[200px] truncate">{value}</p>
 
       {/* Print button */}
       <button
@@ -151,8 +140,18 @@ export function QRCodeDisplay({
         )}
       >
         {/* Printer icon */}
-        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+        <svg
+          className="h-3.5 w-3.5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+          />
         </svg>
         Print QR Label
       </button>
@@ -170,11 +169,7 @@ export interface QRScannerProps {
   className?: string;
 }
 
-export function QRScanner({
-  onScan,
-  onError,
-  className,
-}: QRScannerProps) {
+export function QRScanner({ onScan, onError, className }: QRScannerProps) {
   const [cameraActive, setCameraActive] = useState(false);
   const [manualInput, setManualInput] = useState('');
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -321,16 +316,24 @@ export function QRScanner({
           )}
         >
           {/* QR code icon */}
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+            />
           </svg>
           Scan QR Code
         </button>
       )}
 
-      {cameraError && (
-        <p className="text-xs text-amber-600 dark:text-amber-400">{cameraError}</p>
-      )}
+      {cameraError && <p className="text-xs text-amber-600 dark:text-amber-400">{cameraError}</p>}
 
       {/* Manual input fallback */}
       <form onSubmit={handleManualSubmit} className="flex items-center gap-2">

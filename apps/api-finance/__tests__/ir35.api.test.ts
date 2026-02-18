@@ -13,7 +13,12 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN', orgId: '00000000-0000-4000-a000-000000000100' };
+    req.user = {
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'test@test.com',
+      role: 'ADMIN',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    };
     next();
   }),
 }));
@@ -85,7 +90,10 @@ describe('GET /api/ir35', () => {
 
     expect((prisma as any).finIr35Assessment.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ orgId: '00000000-0000-4000-a000-000000000100', deletedAt: null }),
+        where: expect.objectContaining({
+          orgId: '00000000-0000-4000-a000-000000000100',
+          deletedAt: null,
+        }),
       })
     );
   });
@@ -190,7 +198,9 @@ describe('POST /api/ir35', () => {
     await request(app).post('/api/ir35').send(validAssessment);
 
     expect((prisma as any).finIr35Assessment.count).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ orgId: '00000000-0000-4000-a000-000000000100' }) })
+      expect.objectContaining({
+        where: expect.objectContaining({ orgId: '00000000-0000-4000-a000-000000000100' }),
+      })
     );
     expect((prisma as any).finIr35Assessment.create).toHaveBeenCalledWith(
       expect.objectContaining({

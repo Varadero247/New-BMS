@@ -72,7 +72,8 @@ export function parseMentions(body: string): string[] {
 // ============================================
 
 export async function createComment(params: CreateCommentParams): Promise<Comment> {
-  const { orgId, recordType, recordId, parentId, authorId, authorName, authorAvatar, body } = params;
+  const { orgId, recordType, recordId, parentId, authorId, authorName, authorAvatar, body } =
+    params;
 
   // Validate parent exists if parentId provided
   if (parentId) {
@@ -159,11 +160,7 @@ export async function getComments(
 // Update comment (author only, 15 min window)
 // ============================================
 
-export async function updateComment(
-  id: string,
-  authorId: string,
-  body: string
-): Promise<Comment> {
+export async function updateComment(id: string, authorId: string, body: string): Promise<Comment> {
   const comment = comments.get(id);
   if (!comment) {
     throw new Error('Comment not found');
@@ -196,11 +193,7 @@ export async function updateComment(
 // Delete comment (soft delete)
 // ============================================
 
-export async function deleteComment(
-  id: string,
-  userId: string,
-  isAdmin: boolean
-): Promise<void> {
+export async function deleteComment(id: string, userId: string, isAdmin: boolean): Promise<void> {
   const comment = comments.get(id);
   if (!comment) {
     throw new Error('Comment not found');
@@ -226,7 +219,13 @@ export async function deleteComment(
 // Reactions
 // ============================================
 
-const ALLOWED_EMOJIS = ['\uD83D\uDC4D', '\uD83D\uDC4E', '\u2764\uFE0F', '\uD83C\uDF89', '\u26A0\uFE0F'];
+const ALLOWED_EMOJIS = [
+  '\uD83D\uDC4D',
+  '\uD83D\uDC4E',
+  '\u2764\uFE0F',
+  '\uD83C\uDF89',
+  '\u26A0\uFE0F',
+];
 
 export function getAllowedEmojis(): string[] {
   return ALLOWED_EMOJIS;
@@ -243,9 +242,7 @@ export async function addReaction(
   }
 
   // Check for duplicate
-  const existing = comment.reactions.find(
-    (r) => r.userId === userId && r.emoji === emoji
-  );
+  const existing = comment.reactions.find((r) => r.userId === userId && r.emoji === emoji);
   if (existing) {
     return existing;
   }
@@ -274,9 +271,7 @@ export async function removeReaction(
     throw new Error('Comment not found');
   }
 
-  const idx = comment.reactions.findIndex(
-    (r) => r.userId === userId && r.emoji === emoji
-  );
+  const idx = comment.reactions.findIndex((r) => r.userId === userId && r.emoji === emoji);
   if (idx === -1) {
     throw new Error('Reaction not found');
   }

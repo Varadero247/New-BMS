@@ -304,7 +304,9 @@ describe('Quality Risk Register API Routes', () => {
       mockPrisma.qualRiskRegister.findFirst.mockResolvedValue(mockRisk);
       mockPrisma.qualRiskRegister.update.mockResolvedValue({ ...mockRisk, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/risk-register/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/risk-register/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -314,7 +316,9 @@ describe('Quality Risk Register API Routes', () => {
     it('should return 404 when risk not found', async () => {
       mockPrisma.qualRiskRegister.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/risk-register/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/risk-register/00000000-0000-0000-0000-000000000099'
+      );
 
       expect(res.status).toBe(404);
     });
@@ -323,7 +327,9 @@ describe('Quality Risk Register API Routes', () => {
       mockPrisma.qualRiskRegister.findFirst.mockResolvedValue(mockRisk);
       mockPrisma.qualRiskRegister.update.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/risk-register/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/risk-register/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(res.status).toBe(500);
     });

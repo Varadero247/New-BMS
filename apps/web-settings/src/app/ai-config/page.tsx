@@ -22,8 +22,22 @@ interface AISettings {
 
 export default function AIConfigPage() {
   const [providers, setProviders] = useState<AIProvider[]>([
-    { id: '1', name: 'OpenAI', provider: 'OPENAI', isActive: true, hasApiKey: true, model: 'gpt-4' },
-    { id: '2', name: 'Anthropic', provider: 'ANTHROPIC', isActive: false, hasApiKey: false, model: 'claude-3-opus' },
+    {
+      id: '1',
+      name: 'OpenAI',
+      provider: 'OPENAI',
+      isActive: true,
+      hasApiKey: true,
+      model: 'gpt-4',
+    },
+    {
+      id: '2',
+      name: 'Anthropic',
+      provider: 'ANTHROPIC',
+      isActive: false,
+      hasApiKey: false,
+      model: 'claude-3-opus',
+    },
     { id: '3', name: 'Grok', provider: 'GROK', isActive: false, hasApiKey: false, model: 'grok-1' },
   ]);
   const [settings, setSettings] = useState<AISettings>({
@@ -57,10 +71,10 @@ export default function AIConfigPage() {
 
     try {
       await aiApi.post('/settings/api-key', { provider, apiKey });
-      setProviders(prev => prev.map(p =>
-        p.provider === provider ? { ...p, hasApiKey: true } : p
-      ));
-      setApiKeyInput(prev => ({ ...prev, [provider]: '' }));
+      setProviders((prev) =>
+        prev.map((p) => (p.provider === provider ? { ...p, hasApiKey: true } : p))
+      );
+      setApiKeyInput((prev) => ({ ...prev, [provider]: '' }));
     } catch (error) {
       console.error('Failed to save API key:', error);
     }
@@ -69,11 +83,13 @@ export default function AIConfigPage() {
   async function setActiveProvider(provider: string) {
     try {
       await aiApi.post('/settings/provider', { provider });
-      setSettings(prev => ({ ...prev, defaultProvider: provider }));
-      setProviders(prev => prev.map(p => ({
-        ...p,
-        isActive: p.provider === provider,
-      })));
+      setSettings((prev) => ({ ...prev, defaultProvider: provider }));
+      setProviders((prev) =>
+        prev.map((p) => ({
+          ...p,
+          isActive: p.provider === provider,
+        }))
+      );
     } catch (error) {
       console.error('Failed to set active provider:', error);
     }
@@ -85,7 +101,9 @@ export default function AIConfigPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">AI Configuration</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Configure AI providers and analysis settings</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Configure AI providers and analysis settings
+          </p>
         </div>
 
         {/* AI Providers */}
@@ -102,23 +120,39 @@ export default function AIConfigPage() {
                 <div
                   key={provider.id}
                   className={`p-4 border rounded-lg ${
-                    provider.isActive ? 'border-purple-300 bg-purple-50' : 'border-gray-200 dark:border-gray-700'
+                    provider.isActive
+                      ? 'border-purple-300 bg-purple-50'
+                      : 'border-gray-200 dark:border-gray-700'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${
-                        provider.provider === 'OPENAI' ? 'bg-green-100' :
-                        provider.provider === 'ANTHROPIC' ? 'bg-orange-100' : 'bg-blue-100'
-                      }`}>
-                        <Sparkles className={`h-5 w-5 ${
-                          provider.provider === 'OPENAI' ? 'text-green-600' :
-                          provider.provider === 'ANTHROPIC' ? 'text-orange-600' : 'text-blue-600'
-                        }`} />
+                      <div
+                        className={`p-2 rounded-lg ${
+                          provider.provider === 'OPENAI'
+                            ? 'bg-green-100'
+                            : provider.provider === 'ANTHROPIC'
+                              ? 'bg-orange-100'
+                              : 'bg-blue-100'
+                        }`}
+                      >
+                        <Sparkles
+                          className={`h-5 w-5 ${
+                            provider.provider === 'OPENAI'
+                              ? 'text-green-600'
+                              : provider.provider === 'ANTHROPIC'
+                                ? 'text-orange-600'
+                                : 'text-blue-600'
+                          }`}
+                        />
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{provider.name}</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Model: {provider.model}</p>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                          {provider.name}
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Model: {provider.model}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -133,9 +167,7 @@ export default function AIConfigPage() {
                           No API Key
                         </Badge>
                       )}
-                      {provider.isActive && (
-                        <Badge variant="default">Active</Badge>
-                      )}
+                      {provider.isActive && <Badge variant="default">Active</Badge>}
                     </div>
                   </div>
 
@@ -147,10 +179,12 @@ export default function AIConfigPage() {
                           type="password"
                           placeholder={provider.hasApiKey ? '••••••••••••••••' : 'Enter API key'}
                           value={apiKeyInput[provider.provider] || ''}
-                          onChange={(e) => setApiKeyInput(prev => ({
-                            ...prev,
-                            [provider.provider]: e.target.value,
-                          }))}
+                          onChange={(e) =>
+                            setApiKeyInput((prev) => ({
+                              ...prev,
+                              [provider.provider]: e.target.value,
+                            }))
+                          }
                           className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                       </div>
@@ -188,13 +222,17 @@ export default function AIConfigPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-gray-900 dark:text-gray-100">Auto-Analysis</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Automatically analyze new incidents and risks</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Automatically analyze new incidents and risks
+                  </p>
                 </div>
                 <button
-                  onClick={() => setSettings(prev => ({
-                    ...prev,
-                    enableAutoAnalysis: !prev.enableAutoAnalysis,
-                  }))}
+                  onClick={() =>
+                    setSettings((prev) => ({
+                      ...prev,
+                      enableAutoAnalysis: !prev.enableAutoAnalysis,
+                    }))
+                  }
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     settings.enableAutoAnalysis ? 'bg-purple-600' : 'bg-gray-200'
                   }`}
@@ -208,28 +246,32 @@ export default function AIConfigPage() {
               </div>
 
               <div>
-                <p className="font-medium text-gray-900 dark:text-gray-100 mb-3">Enabled Analysis Types</p>
+                <p className="font-medium text-gray-900 dark:text-gray-100 mb-3">
+                  Enabled Analysis Types
+                </p>
                 <div className="flex flex-wrap gap-2">
-                  {['FIVE_WHYS', 'FISHBONE', 'BOW_TIE', 'PARETO', 'ROOT_CAUSE', 'TREND'].map((type) => (
-                    <button
-                      key={type}
-                      onClick={() => {
-                        setSettings(prev => ({
-                          ...prev,
-                          analysisTypes: prev.analysisTypes.includes(type)
-                            ? prev.analysisTypes.filter(t => t !== type)
-                            : [...prev.analysisTypes, type],
-                        }));
-                      }}
-                      className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                        settings.analysisTypes.includes(type)
-                          ? 'bg-purple-100 text-purple-700'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600'
-                      }`}
-                    >
-                      {type.replace('_', ' ')}
-                    </button>
-                  ))}
+                  {['FIVE_WHYS', 'FISHBONE', 'BOW_TIE', 'PARETO', 'ROOT_CAUSE', 'TREND'].map(
+                    (type) => (
+                      <button
+                        key={type}
+                        onClick={() => {
+                          setSettings((prev) => ({
+                            ...prev,
+                            analysisTypes: prev.analysisTypes.includes(type)
+                              ? prev.analysisTypes.filter((t) => t !== type)
+                              : [...prev.analysisTypes, type],
+                          }));
+                        }}
+                        className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                          settings.analysisTypes.includes(type)
+                            ? 'bg-purple-100 text-purple-700'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600'
+                        }`}
+                      >
+                        {type.replace('_', ' ')}
+                      </button>
+                    )
+                  )}
                 </div>
               </div>
             </div>

@@ -161,7 +161,9 @@ describe('Workflow Definitions API Routes', () => {
     it('should return single definition with instances', async () => {
       mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(mockDefinition as any);
 
-      const response = await request(app).get('/api/definitions/3b000000-0000-4000-a000-000000000001');
+      const response = await request(app).get(
+        '/api/definitions/3b000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -172,7 +174,9 @@ describe('Workflow Definitions API Routes', () => {
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff definition', async () => {
       mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/definitions/00000000-0000-4000-a000-ffffffffffff');
+      const response = await request(app).get(
+        '/api/definitions/00000000-0000-4000-a000-ffffffffffff'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -181,7 +185,9 @@ describe('Workflow Definitions API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.workflowDefinition.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/definitions/3b000000-0000-4000-a000-000000000001');
+      const response = await request(app).get(
+        '/api/definitions/3b000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -205,9 +211,7 @@ describe('Workflow Definitions API Routes', () => {
         version: 1,
       } as any);
 
-      const response = await request(app)
-        .post('/api/definitions')
-        .send(createPayload);
+      const response = await request(app).post('/api/definitions').send(createPayload);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -221,9 +225,7 @@ describe('Workflow Definitions API Routes', () => {
         version: 1,
       } as any);
 
-      await request(app)
-        .post('/api/definitions')
-        .send(createPayload);
+      await request(app).post('/api/definitions').send(createPayload);
 
       expect(mockPrisma.workflowDefinition.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -236,9 +238,7 @@ describe('Workflow Definitions API Routes', () => {
     it('should return 400 for missing code', async () => {
       const { code, ...payload } = createPayload;
 
-      const response = await request(app)
-        .post('/api/definitions')
-        .send(payload);
+      const response = await request(app).post('/api/definitions').send(payload);
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -247,9 +247,7 @@ describe('Workflow Definitions API Routes', () => {
     it('should return 400 for missing name', async () => {
       const { name, ...payload } = createPayload;
 
-      const response = await request(app)
-        .post('/api/definitions')
-        .send(payload);
+      const response = await request(app).post('/api/definitions').send(payload);
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -280,9 +278,7 @@ describe('Workflow Definitions API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.workflowDefinition.create.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .post('/api/definitions')
-        .send(createPayload);
+      const response = await request(app).post('/api/definitions').send(createPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -376,8 +372,9 @@ describe('Workflow Definitions API Routes', () => {
         publishedAt: new Date(),
       } as any);
 
-      const response = await request(app)
-        .put('/api/definitions/3b000000-0000-4000-a000-000000000001/activate');
+      const response = await request(app).put(
+        '/api/definitions/3b000000-0000-4000-a000-000000000001/activate'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -393,8 +390,9 @@ describe('Workflow Definitions API Routes', () => {
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff definition', async () => {
       mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(null);
 
-      const response = await request(app)
-        .put('/api/definitions/00000000-0000-4000-a000-ffffffffffff/activate');
+      const response = await request(app).put(
+        '/api/definitions/00000000-0000-4000-a000-ffffffffffff/activate'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -403,8 +401,9 @@ describe('Workflow Definitions API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.workflowDefinition.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .put('/api/definitions/3b000000-0000-4000-a000-000000000001/activate');
+      const response = await request(app).put(
+        '/api/definitions/3b000000-0000-4000-a000-000000000001/activate'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -418,8 +417,9 @@ describe('Workflow Definitions API Routes', () => {
         status: 'ARCHIVED',
       } as any);
 
-      const response = await request(app)
-        .put('/api/definitions/3b000000-0000-4000-a000-000000000001/archive');
+      const response = await request(app).put(
+        '/api/definitions/3b000000-0000-4000-a000-000000000001/archive'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -432,8 +432,9 @@ describe('Workflow Definitions API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.workflowDefinition.update.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .put('/api/definitions/3b000000-0000-4000-a000-000000000001/archive');
+      const response = await request(app).put(
+        '/api/definitions/3b000000-0000-4000-a000-000000000001/archive'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -465,8 +466,9 @@ describe('Workflow Definitions API Routes', () => {
         version: 1,
       } as any);
 
-      const response = await request(app)
-        .post('/api/definitions/3b000000-0000-4000-a000-000000000001/clone');
+      const response = await request(app).post(
+        '/api/definitions/3b000000-0000-4000-a000-000000000001/clone'
+      );
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -493,8 +495,9 @@ describe('Workflow Definitions API Routes', () => {
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff source', async () => {
       mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(null);
 
-      const response = await request(app)
-        .post('/api/definitions/00000000-0000-4000-a000-ffffffffffff/clone');
+      const response = await request(app).post(
+        '/api/definitions/00000000-0000-4000-a000-ffffffffffff/clone'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -503,8 +506,9 @@ describe('Workflow Definitions API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.workflowDefinition.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .post('/api/definitions/3b000000-0000-4000-a000-000000000001/clone');
+      const response = await request(app).post(
+        '/api/definitions/3b000000-0000-4000-a000-000000000001/clone'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');

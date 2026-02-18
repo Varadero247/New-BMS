@@ -50,7 +50,9 @@ export default function ResourcesPage() {
     try {
       await api.post('/resources', {
         ...form,
-        allocationPercentage: form.allocationPercentage ? parseFloat(form.allocationPercentage) : undefined,
+        allocationPercentage: form.allocationPercentage
+          ? parseFloat(form.allocationPercentage)
+          : undefined,
         costPerHour: form.costPerHour ? parseFloat(form.costPerHour) : undefined,
         plannedHours: form.plannedHours ? parseFloat(form.plannedHours) : undefined,
       });
@@ -103,7 +105,9 @@ export default function ResourcesPage() {
               <Users className="h-6 w-6 text-blue-600" />
               Resources
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Resource allocation and management</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+              Resource allocation and management
+            </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -118,7 +122,9 @@ export default function ResourcesPage() {
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-4 mb-6">
           <div className="flex items-center gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Filter by Project
+              </label>
               <select
                 value={filterProjectId}
                 onChange={(e) => setFilterProjectId(e.target.value)}
@@ -126,7 +132,9 @@ export default function ResourcesPage() {
               >
                 <option value="">All Projects</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
@@ -138,22 +146,44 @@ export default function ResourcesPage() {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Role</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">RACI</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Allocation %</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">From</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">To</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Role
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    RACI
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Allocation %
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    From
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    To
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {resources.map((resource) => (
                   <tr key={resource.id} className="hover:bg-gray-50 dark:bg-gray-800">
-                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{resource.resourceName}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{resource.resourceRole}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{resource.resourceType}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                      {resource.resourceName}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {resource.resourceRole}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {resource.resourceType}
+                    </td>
                     <td className="px-4 py-3">
                       <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">
                         {resource.responsibility}
@@ -167,17 +197,25 @@ export default function ResourcesPage() {
                             style={{ width: `${resource.allocationPercentage || 0}%` }}
                           />
                         </div>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{resource.allocationPercentage || 0}%</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {resource.allocationPercentage || 0}%
+                        </span>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                      {resource.allocatedFrom ? new Date(resource.allocatedFrom).toLocaleDateString() : '-'}
+                      {resource.allocatedFrom
+                        ? new Date(resource.allocatedFrom).toLocaleDateString()
+                        : '-'}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                      {resource.allocatedTo ? new Date(resource.allocatedTo).toLocaleDateString() : '-'}
+                      {resource.allocatedTo
+                        ? new Date(resource.allocatedTo).toLocaleDateString()
+                        : '-'}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${statusBadge(resource.status)}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${statusBadge(resource.status)}`}
+                      >
                         {resource.status}
                       </span>
                     </td>
@@ -185,7 +223,10 @@ export default function ResourcesPage() {
                 ))}
                 {resources.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={8}
+                      className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
+                    >
                       No resources found. Add your first resource.
                     </td>
                   </tr>
@@ -196,10 +237,17 @@ export default function ResourcesPage() {
         </div>
 
         {/* Create Modal */}
-        <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Add Resource" size="lg">
+        <Modal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          title="Add Resource"
+          size="lg"
+        >
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Project
+              </label>
               <select
                 required
                 value={form.projectId}
@@ -208,13 +256,17 @@ export default function ResourcesPage() {
               >
                 <option value="">Select Project</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Resource Name</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Resource Name
+                </label>
                 <input
                   type="text"
                   required
@@ -224,7 +276,9 @@ export default function ResourcesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Role
+                </label>
                 <input
                   type="text"
                   required
@@ -236,7 +290,9 @@ export default function ResourcesPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Resource Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Resource Type
+                </label>
                 <select
                   value={form.resourceType}
                   onChange={(e) => setForm({ ...form, resourceType: e.target.value })}
@@ -249,7 +305,9 @@ export default function ResourcesPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Responsibility (RACI)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Responsibility (RACI)
+                </label>
                 <select
                   value={form.responsibility}
                   onChange={(e) => setForm({ ...form, responsibility: e.target.value })}
@@ -264,7 +322,9 @@ export default function ResourcesPage() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Allocation %</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Allocation %
+                </label>
                 <input
                   type="number"
                   min={0}
@@ -275,7 +335,9 @@ export default function ResourcesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cost Per Hour</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Cost Per Hour
+                </label>
                 <input
                   type="number"
                   step="0.01"
@@ -285,7 +347,9 @@ export default function ResourcesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Planned Hours</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Planned Hours
+                </label>
                 <input
                   type="number"
                   value={form.plannedHours}
@@ -296,7 +360,9 @@ export default function ResourcesPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Allocated From</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Allocated From
+                </label>
                 <input
                   type="date"
                   value={form.allocatedFrom}
@@ -305,7 +371,9 @@ export default function ResourcesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Allocated To</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Allocated To
+                </label>
                 <input
                   type="date"
                   value={form.allocatedTo}

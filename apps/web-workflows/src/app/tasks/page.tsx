@@ -229,29 +229,41 @@ export default function TasksPage() {
                       <CheckSquare className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       <div>
                         <p className="font-medium text-gray-900 dark:text-gray-100">{task.title}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{task.taskNumber}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {task.taskNumber}
+                        </p>
                       </div>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <div>
-                      <p className="text-sm text-gray-900 dark:text-gray-100">{task.instance?.title || 'N/A'}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{task.instance?.instanceNumber}</p>
+                      <p className="text-sm text-gray-900 dark:text-gray-100">
+                        {task.instance?.title || 'N/A'}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {task.instance?.instanceNumber}
+                      </p>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getTaskTypeBadge(task.taskType)}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getTaskTypeBadge(task.taskType)}`}
+                    >
                       {task.taskType}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getPriorityBadge(task.priority)}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getPriorityBadge(task.priority)}`}
+                    >
                       {task.priority}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     {task.dueDate ? (
-                      <span className={`text-sm ${isOverdue(task.dueDate, task.status) ? 'font-medium text-red-600' : 'text-gray-500 dark:text-gray-400'}`}>
+                      <span
+                        className={`text-sm ${isOverdue(task.dueDate, task.status) ? 'font-medium text-red-600' : 'text-gray-500 dark:text-gray-400'}`}
+                      >
                         {new Date(task.dueDate).toLocaleDateString()}
                         {isOverdue(task.dueDate, task.status) && (
                           <AlertTriangle className="ml-1 inline h-4 w-4 text-red-500" />
@@ -262,7 +274,9 @@ export default function TasksPage() {
                     )}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(task.status)}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(task.status)}`}
+                    >
                       {task.status.replace(/_/g, ' ')}
                     </span>
                   </td>

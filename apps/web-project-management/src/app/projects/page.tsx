@@ -134,32 +134,62 @@ export default function ProjectsPage() {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Code</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Methodology</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Health</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Progress</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Priority</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Code
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Methodology
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Health
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Progress
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Priority
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {projects.map((project) => (
                   <tr key={project.id} className="hover:bg-gray-50 dark:bg-gray-800">
-                    <td className="px-4 py-3 text-sm font-mono text-gray-900 dark:text-gray-100">{project.projectCode}</td>
-                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{project.projectName}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{project.projectType}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{project.methodology}</td>
+                    <td className="px-4 py-3 text-sm font-mono text-gray-900 dark:text-gray-100">
+                      {project.projectCode}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                      {project.projectName}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {project.projectType}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {project.methodology}
+                    </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${statusBadge(project.status)}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${statusBadge(project.status)}`}
+                      >
                         {project.status}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       {project.projectHealth && (
-                        <span className={`text-xs px-2 py-1 rounded-full ${healthBadge(project.projectHealth)}`}>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full ${healthBadge(project.projectHealth)}`}
+                        >
                           {project.projectHealth}
                         </span>
                       )}
@@ -172,10 +202,14 @@ export default function ProjectsPage() {
                             style={{ width: `${project.completionPercentage || 0}%` }}
                           />
                         </div>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{project.completionPercentage || 0}%</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {project.completionPercentage || 0}%
+                        </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{project.priority}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {project.priority}
+                    </td>
                     <td className="px-4 py-3">
                       <button
                         onClick={() => handleAiCharter(project)}
@@ -190,7 +224,10 @@ export default function ProjectsPage() {
                 ))}
                 {projects.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={9}
+                      className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
+                    >
                       No projects found. Create your first project.
                     </td>
                   </tr>
@@ -201,10 +238,17 @@ export default function ProjectsPage() {
         </div>
 
         {/* Create Modal */}
-        <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Project" size="lg">
+        <Modal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          title="Create Project"
+          size="lg"
+        >
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Project Name
+              </label>
               <input
                 type="text"
                 required
@@ -215,7 +259,9 @@ export default function ProjectsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Project Type
+                </label>
                 <select
                   value={form.projectType}
                   onChange={(e) => setForm({ ...form, projectType: e.target.value })}
@@ -231,7 +277,9 @@ export default function ProjectsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Methodology</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Methodology
+                </label>
                 <select
                   value={form.methodology}
                   onChange={(e) => setForm({ ...form, methodology: e.target.value })}
@@ -247,7 +295,9 @@ export default function ProjectsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Priority
+                </label>
                 <select
                   value={form.priority}
                   onChange={(e) => setForm({ ...form, priority: e.target.value })}
@@ -260,7 +310,9 @@ export default function ProjectsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Planned Budget</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Planned Budget
+                </label>
                 <input
                   type="number"
                   step="0.01"
@@ -272,7 +324,9 @@ export default function ProjectsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Start Date
+                </label>
                 <input
                   type="date"
                   value={form.startDate}
@@ -281,7 +335,9 @@ export default function ProjectsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Planned End Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Planned End Date
+                </label>
                 <input
                   type="date"
                   value={form.plannedEndDate}
@@ -291,7 +347,9 @@ export default function ProjectsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Description
+              </label>
               <textarea
                 rows={3}
                 value={form.projectDescription}
@@ -318,9 +376,16 @@ export default function ProjectsPage() {
         </Modal>
 
         {/* AI Result Modal */}
-        <Modal isOpen={showAiModal} onClose={() => setShowAiModal(false)} title="AI Project Charter" size="lg">
+        <Modal
+          isOpen={showAiModal}
+          onClose={() => setShowAiModal(false)}
+          title="AI Project Charter"
+          size="lg"
+        >
           <div className="prose max-w-none">
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">{aiResult}</pre>
+            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+              {aiResult}
+            </pre>
           </div>
           <div className="flex justify-end pt-4">
             <button

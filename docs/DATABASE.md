@@ -36,20 +36,20 @@ Every Prisma command in this document uses `npx prisma@5.22.0`. Do not omit the 
 
 All domain schemas live in `packages/database/prisma/schemas/`:
 
-| File | Domain | Details |
-|------|--------|---------|
-| `health-safety.prisma` | ISO 45001 | hs_* tables |
-| `environment.prisma` | ISO 14001 | 8 models, env_* tables |
-| `automotive.prisma` | IATF 16949 | Automotive quality |
-| `aerospace.prisma` | AS9100 | Aerospace quality |
-| `esg.prisma` | ESG/CSRD | 15 models |
-| `cmms.prisma` | Asset Management | 16 models |
-| `portal.prisma` | Customer/Supplier Portals | 12 models |
-| `food-safety.prisma` | ISO 22001 | 14 models |
-| `energy.prisma` | ISO 50001 | 12 models |
-| `analytics.prisma` | Analytics | 10 models |
-| `field-service.prisma` | Field Service | 14 models |
-| `marketing.prisma` | Sales & Marketing | 13 models |
+| File                   | Domain                    | Details                  |
+| ---------------------- | ------------------------- | ------------------------ |
+| `health-safety.prisma` | ISO 45001                 | hs\_\* tables            |
+| `environment.prisma`   | ISO 14001                 | 8 models, env\_\* tables |
+| `automotive.prisma`    | IATF 16949                | Automotive quality       |
+| `aerospace.prisma`     | AS9100                    | Aerospace quality        |
+| `esg.prisma`           | ESG/CSRD                  | 15 models                |
+| `cmms.prisma`          | Asset Management          | 16 models                |
+| `portal.prisma`        | Customer/Supplier Portals | 12 models                |
+| `food-safety.prisma`   | ISO 22001                 | 14 models                |
+| `energy.prisma`        | ISO 50001                 | 12 models                |
+| `analytics.prisma`     | Analytics                 | 10 models                |
+| `field-service.prisma` | Field Service             | 14 models                |
+| `marketing.prisma`     | Sales & Marketing         | 13 models                |
 
 ---
 
@@ -98,10 +98,10 @@ npx prisma@5.22.0 generate --schema=packages/database/prisma/schemas/environment
 
 Generated client locations:
 
-| Schema | Output |
-|--------|--------|
-| Core (`schema.prisma`) | `node_modules/.prisma/client` |
-| Domain schemas | `packages/database/generated/<domain>/` |
+| Schema                 | Output                                  |
+| ---------------------- | --------------------------------------- |
+| Core (`schema.prisma`) | `node_modules/.prisma/client`           |
+| Domain schemas         | `packages/database/generated/<domain>/` |
 
 **Always restart the affected service after regenerating.** The running process uses a cached client.
 
@@ -117,9 +117,9 @@ npx tsx packages/database/prisma/seed.ts
 
 Default seed users:
 
-| Email | Password | Role |
-|-------|----------|------|
-| admin@ims.local | admin123 | ADMIN |
+| Email             | Password | Role    |
+| ----------------- | -------- | ------- |
+| admin@ims.local   | admin123 | ADMIN   |
 | manager@ims.local | admin123 | MANAGER |
 | auditor@ims.local | admin123 | AUDITOR |
 
@@ -127,13 +127,13 @@ Default seed users:
 
 ## Service-Specific DATABASE_URL Variables
 
-| Service | Env Variable |
-|---------|-------------|
+| Service           | Env Variable                 |
+| ----------------- | ---------------------------- |
 | api-health-safety | `HEALTH_SAFETY_DATABASE_URL` |
-| api-environment | `ENVIRONMENT_DATABASE_URL` |
-| api-inventory | `INVENTORY_DATABASE_URL` |
-| api-iso42001 | `ISO42001_DATABASE_URL` |
-| api-iso37001 | `ISO37001_DATABASE_URL` |
+| api-environment   | `ENVIRONMENT_DATABASE_URL`   |
+| api-inventory     | `INVENTORY_DATABASE_URL`     |
+| api-iso42001      | `ISO42001_DATABASE_URL`      |
+| api-iso37001      | `ISO37001_DATABASE_URL`      |
 
 All point to: `postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims?schema=public`
 

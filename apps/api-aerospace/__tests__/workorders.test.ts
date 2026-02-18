@@ -304,7 +304,9 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
 
     it('should return 500 on database error', async () => {
       (mockPrisma.workOrder.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.workOrder.create as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.workOrder.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
       const response = await request(app)
         .post('/api/workorders')
@@ -350,7 +352,7 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
       expect(mockPrisma.workOrder.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ status: 'OPEN' }),
-        }),
+        })
       );
     });
 
@@ -370,7 +372,7 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
               expect.objectContaining({ title: { contains: 'CFM56', mode: 'insensitive' } }),
             ]),
           }),
-        }),
+        })
       );
     });
 
@@ -458,7 +460,7 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data.taskNumber).toBe('TC-003');
       expect(mockPrisma.workOrder.update).toHaveBeenCalledWith(
-        expect.objectContaining({ data: { status: 'IN_PROGRESS' } }),
+        expect.objectContaining({ data: { status: 'IN_PROGRESS' } })
       );
     });
 
@@ -511,7 +513,9 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
   describe('PUT /api/workorders/:id/tasks/:tid/complete', () => {
     it('should complete a task card with technician sign-off', async () => {
       (mockPrisma.workOrder.findUnique as jest.Mock).mockResolvedValueOnce(mockWorkOrderWithTasks);
-      (mockPrisma.taskCard.findFirst as jest.Mock).mockResolvedValueOnce(mockWorkOrderWithTasks.tasks[1]);
+      (mockPrisma.taskCard.findFirst as jest.Mock).mockResolvedValueOnce(
+        mockWorkOrderWithTasks.tasks[1]
+      );
       (mockPrisma.taskCard.update as jest.Mock).mockResolvedValueOnce({
         ...mockWorkOrderWithTasks.tasks[1],
         status: 'COMPLETED',
@@ -535,7 +539,9 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
       (mockPrisma.workOrder.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/workorders/00000000-0000-0000-0000-000000000099/tasks/00000000-0000-0000-0000-000000000001/complete')
+        .put(
+          '/api/workorders/00000000-0000-0000-0000-000000000099/tasks/00000000-0000-0000-0000-000000000001/complete'
+        )
         .set('Authorization', 'Bearer token')
         .send(validCompleteTaskPayload);
 
@@ -558,7 +564,9 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
 
     it('should return 400 when task is already completed', async () => {
       (mockPrisma.workOrder.findUnique as jest.Mock).mockResolvedValueOnce(mockWorkOrderWithTasks);
-      (mockPrisma.taskCard.findFirst as jest.Mock).mockResolvedValueOnce(mockWorkOrderWithTasks.tasks[0]); // Already COMPLETED
+      (mockPrisma.taskCard.findFirst as jest.Mock).mockResolvedValueOnce(
+        mockWorkOrderWithTasks.tasks[0]
+      ); // Already COMPLETED
 
       const response = await request(app)
         .put(`/api/workorders/${mockWorkOrder.id}/tasks/task-001/complete`)
@@ -571,7 +579,9 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
 
     it('should return 400 when actualHours is missing', async () => {
       (mockPrisma.workOrder.findUnique as jest.Mock).mockResolvedValueOnce(mockWorkOrderWithTasks);
-      (mockPrisma.taskCard.findFirst as jest.Mock).mockResolvedValueOnce(mockWorkOrderWithTasks.tasks[1]);
+      (mockPrisma.taskCard.findFirst as jest.Mock).mockResolvedValueOnce(
+        mockWorkOrderWithTasks.tasks[1]
+      );
 
       const response = await request(app)
         .put(`/api/workorders/${mockWorkOrder.id}/tasks/task-002/complete`)

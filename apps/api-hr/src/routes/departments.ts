@@ -30,7 +30,8 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { includeInactive, tree } = req.query;
 
-    const where = includeInactive === 'true' ? { deletedAt: null } : { isActive: true, deletedAt: null };
+    const where =
+      includeInactive === 'true' ? { deletedAt: null } : { isActive: true, deletedAt: null };
 
     const departments = await prisma.hRDepartment.findMany({
       where,
@@ -48,8 +49,8 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
       // Build tree structure
       const buildTree = (parentId: string | null): unknown[] => {
         return departments
-          .filter(d => d.parentId === parentId)
-          .map(d => ({
+          .filter((d) => d.parentId === parentId)
+          .map((d) => ({
             ...d,
             children: buildTree(d.id),
           }));
@@ -61,7 +62,10 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     res.json({ success: true, data: departments });
   } catch (error) {
     logger.error('Error fetching departments', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch departments' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch departments' },
+    });
   }
 });
 
@@ -91,13 +95,18 @@ router.get('/:id', checkOwnership(prisma.hRDepartment), async (req: Request, res
     });
 
     if (!department) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Department not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Department not found' } });
     }
 
     res.json({ success: true, data: department });
   } catch (error) {
     logger.error('Error fetching department', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch department' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch department' },
+    });
   }
 });
 
@@ -114,10 +123,15 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: department });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating department', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create department' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create department' },
+    });
   }
 });
 
@@ -135,10 +149,15 @@ router.put('/:id', checkOwnership(prisma.hRDepartment), async (req: Request, res
     res.json({ success: true, data: department });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error updating department', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update department' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update department' },
+    });
   }
 });
 
@@ -153,7 +172,10 @@ router.delete('/:id', checkOwnership(prisma.hRDepartment), async (req: Request, 
     if (employeeCount > 0) {
       return res.status(400).json({
         success: false,
-        error: { code: 'HAS_EMPLOYEES', message: `Cannot delete department with ${employeeCount} active employees` },
+        error: {
+          code: 'HAS_EMPLOYEES',
+          message: `Cannot delete department with ${employeeCount} active employees`,
+        },
       });
     }
 
@@ -165,7 +187,10 @@ router.delete('/:id', checkOwnership(prisma.hRDepartment), async (req: Request, 
     res.status(204).send();
   } catch (error) {
     logger.error('Error deleting department', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete department' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete department' },
+    });
   }
 });
 
@@ -191,7 +216,10 @@ router.get('/positions/all', async (req: Request, res: Response) => {
     res.json({ success: true, data: positions });
   } catch (error) {
     logger.error('Error fetching positions', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch positions' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch positions' },
+    });
   }
 });
 
@@ -221,10 +249,15 @@ router.post('/positions', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: position });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating position', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create position' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create position' },
+    });
   }
 });
 

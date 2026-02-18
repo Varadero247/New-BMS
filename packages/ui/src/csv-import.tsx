@@ -29,16 +29,66 @@ export interface BulkImportWizardProps {
 // ─── Default Record Types ───────────────────────────────────────────────────
 
 const DEFAULT_RECORD_TYPES: RecordType[] = [
-  { recordType: 'risks', label: 'Risk Register', fieldCount: 8, requiredFields: ['title', 'category', 'likelihood', 'consequence', 'status'] },
-  { recordType: 'incidents', label: 'Incidents', fieldCount: 7, requiredFields: ['title', 'description', 'dateOccurred', 'severity', 'status'] },
-  { recordType: 'aspects', label: 'Environmental Aspects', fieldCount: 6, requiredFields: ['name', 'activity', 'impact', 'severity', 'probability'] },
-  { recordType: 'ncrs', label: 'Non-Conformance Reports', fieldCount: 6, requiredFields: ['title', 'description', 'source', 'severity', 'dateIdentified'] },
-  { recordType: 'capas', label: 'CAPAs', fieldCount: 7, requiredFields: ['title', 'description', 'type', 'priority', 'dueDate'] },
-  { recordType: 'assets', label: 'Assets', fieldCount: 7, requiredFields: ['name', 'assetTag', 'category', 'location', 'status'] },
-  { recordType: 'employees', label: 'Employees', fieldCount: 7, requiredFields: ['firstName', 'lastName', 'email', 'department', 'jobTitle', 'startDate'] },
-  { recordType: 'contacts', label: 'CRM Contacts', fieldCount: 6, requiredFields: ['firstName', 'lastName', 'email', 'type'] },
-  { recordType: 'audits', label: 'Audits', fieldCount: 6, requiredFields: ['title', 'type', 'standard', 'scheduledDate', 'leadAuditor'] },
-  { recordType: 'actions', label: 'Action Items', fieldCount: 6, requiredFields: ['title', 'priority', 'assignedTo', 'dueDate', 'status'] },
+  {
+    recordType: 'risks',
+    label: 'Risk Register',
+    fieldCount: 8,
+    requiredFields: ['title', 'category', 'likelihood', 'consequence', 'status'],
+  },
+  {
+    recordType: 'incidents',
+    label: 'Incidents',
+    fieldCount: 7,
+    requiredFields: ['title', 'description', 'dateOccurred', 'severity', 'status'],
+  },
+  {
+    recordType: 'aspects',
+    label: 'Environmental Aspects',
+    fieldCount: 6,
+    requiredFields: ['name', 'activity', 'impact', 'severity', 'probability'],
+  },
+  {
+    recordType: 'ncrs',
+    label: 'Non-Conformance Reports',
+    fieldCount: 6,
+    requiredFields: ['title', 'description', 'source', 'severity', 'dateIdentified'],
+  },
+  {
+    recordType: 'capas',
+    label: 'CAPAs',
+    fieldCount: 7,
+    requiredFields: ['title', 'description', 'type', 'priority', 'dueDate'],
+  },
+  {
+    recordType: 'assets',
+    label: 'Assets',
+    fieldCount: 7,
+    requiredFields: ['name', 'assetTag', 'category', 'location', 'status'],
+  },
+  {
+    recordType: 'employees',
+    label: 'Employees',
+    fieldCount: 7,
+    requiredFields: ['firstName', 'lastName', 'email', 'department', 'jobTitle', 'startDate'],
+  },
+  {
+    recordType: 'contacts',
+    label: 'CRM Contacts',
+    fieldCount: 6,
+    requiredFields: ['firstName', 'lastName', 'email', 'type'],
+  },
+  {
+    recordType: 'audits',
+    label: 'Audits',
+    fieldCount: 6,
+    requiredFields: ['title', 'type', 'standard', 'scheduledDate', 'leadAuditor'],
+  },
+  {
+    recordType: 'actions',
+    label: 'Action Items',
+    fieldCount: 6,
+    requiredFields: ['title', 'priority', 'assignedTo', 'dueDate', 'status'],
+  },
 ];
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -58,7 +108,7 @@ export function BulkImportWizard({
   const [importResult, setImportResult] = useState<{ imported: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const selectedLabel = recordTypes.find(r => r.recordType === selectedType)?.label || '';
+  const selectedLabel = recordTypes.find((r) => r.recordType === selectedType)?.label || '';
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -174,13 +224,25 @@ export function BulkImportWizard({
             >
               {step > s ? (
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               ) : (
                 s
               )}
             </div>
-            <span className={cn('text-sm', step >= s ? 'text-gray-900 dark:text-gray-100 font-medium' : 'text-gray-500 dark:text-gray-400')}>
+            <span
+              className={cn(
+                'text-sm',
+                step >= s
+                  ? 'text-gray-900 dark:text-gray-100 font-medium'
+                  : 'text-gray-500 dark:text-gray-400'
+              )}
+            >
               {s === 1 ? 'Select & Upload' : s === 2 ? 'Preview & Validate' : 'Complete'}
             </span>
             {s < 3 && <div className="w-12 h-px bg-gray-300 dark:bg-gray-600" />}
@@ -235,16 +297,36 @@ export function BulkImportWizard({
             />
             {csvData ? (
               <div>
-                <svg className="w-8 h-8 mx-auto text-brand-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <svg
+                  className="w-8 h-8 mx-auto text-brand-500 mb-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
                 </svg>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{fileName}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Click to replace</p>
               </div>
             ) : (
               <div>
-                <svg className="w-8 h-8 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                <svg
+                  className="w-8 h-8 mx-auto text-gray-400 mb-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
                 </svg>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Drop a CSV file here or click to browse
@@ -279,17 +361,42 @@ export function BulkImportWizard({
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Rows</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{validation.totalRows}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {validation.totalRows}
+              </p>
             </div>
             <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
               <p className="text-sm text-green-600 dark:text-green-400">Valid</p>
-              <p className="text-2xl font-bold text-green-700 dark:text-green-300">{validation.validCount}</p>
+              <p className="text-2xl font-bold text-green-700 dark:text-green-300">
+                {validation.validCount}
+              </p>
             </div>
-            <div className={cn('rounded-lg p-4', validation.errorCount > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-50 dark:bg-gray-800')}>
-              <p className={cn('text-sm', validation.errorCount > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400')}>
+            <div
+              className={cn(
+                'rounded-lg p-4',
+                validation.errorCount > 0
+                  ? 'bg-red-50 dark:bg-red-900/20'
+                  : 'bg-gray-50 dark:bg-gray-800'
+              )}
+            >
+              <p
+                className={cn(
+                  'text-sm',
+                  validation.errorCount > 0
+                    ? 'text-red-600 dark:text-red-400'
+                    : 'text-gray-500 dark:text-gray-400'
+                )}
+              >
                 Errors
               </p>
-              <p className={cn('text-2xl font-bold', validation.errorCount > 0 ? 'text-red-700 dark:text-red-300' : 'text-gray-900 dark:text-gray-100')}>
+              <p
+                className={cn(
+                  'text-2xl font-bold',
+                  validation.errorCount > 0
+                    ? 'text-red-700 dark:text-red-300'
+                    : 'text-gray-900 dark:text-gray-100'
+                )}
+              >
                 {validation.errorCount}
               </p>
             </div>
@@ -298,10 +405,14 @@ export function BulkImportWizard({
           {/* Error List */}
           {validation.errors.length > 0 && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 max-h-40 overflow-y-auto">
-              <p className="text-sm font-medium text-red-700 dark:text-red-400 mb-2">Validation Errors:</p>
+              <p className="text-sm font-medium text-red-700 dark:text-red-400 mb-2">
+                Validation Errors:
+              </p>
               <ul className="space-y-1">
                 {validation.errors.slice(0, 20).map((err, i) => (
-                  <li key={i} className="text-xs text-red-600 dark:text-red-400">{err}</li>
+                  <li key={i} className="text-xs text-red-600 dark:text-red-400">
+                    {err}
+                  </li>
                 ))}
                 {validation.errors.length > 20 && (
                   <li className="text-xs text-red-500 dark:text-red-400 font-medium">
@@ -319,9 +430,14 @@ export function BulkImportWizard({
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">#</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                        #
+                      </th>
                       {Object.keys(validation.valid[0]).map((key) => (
-                        <th key={key} className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                        <th
+                          key={key}
+                          className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
+                        >
                           {key}
                         </th>
                       ))}
@@ -330,10 +446,19 @@ export function BulkImportWizard({
                   <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                     {validation.valid.slice(0, 10).map((row, i) => (
                       <tr key={i}>
-                        <td className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400">{i + 1}</td>
+                        <td className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400">
+                          {i + 1}
+                        </td>
                         {Object.values(row).map((val, j) => (
-                          <td key={j} className="px-4 py-2 text-sm text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                            {val === null ? <span className="text-gray-400 italic">null</span> : String(val)}
+                          <td
+                            key={j}
+                            className="px-4 py-2 text-sm text-gray-900 dark:text-gray-100 whitespace-nowrap"
+                          >
+                            {val === null ? (
+                              <span className="text-gray-400 italic">null</span>
+                            ) : (
+                              String(val)
+                            )}
                           </td>
                         ))}
                       </tr>
@@ -376,11 +501,23 @@ export function BulkImportWizard({
       {step === 3 && importResult && (
         <div className="text-center py-8">
           <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <svg
+              className="w-8 h-8 text-green-600 dark:text-green-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Import Complete</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Import Complete
+          </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Successfully imported {importResult.imported} {selectedLabel.toLowerCase()} records.
           </p>

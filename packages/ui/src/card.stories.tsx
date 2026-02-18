@@ -47,7 +47,9 @@ export const WithFooter: Story = {
         <p>Card body content.</p>
       </CardContent>
       <CardFooter style={{ gap: '8px' }}>
-        <Button variant="outline" size="sm">Cancel</Button>
+        <Button variant="outline" size="sm">
+          Cancel
+        </Button>
         <Button size="sm">Confirm</Button>
       </CardFooter>
     </Card>

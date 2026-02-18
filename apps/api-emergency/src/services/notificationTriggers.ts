@@ -11,13 +11,23 @@ export interface NotificationPayload {
   premisesId?: string;
 }
 
-export function notifyEmergencyDeclared(incidentNumber: string, emergencyType: string, severity: string, premisesName?: string): void {
+export function notifyEmergencyDeclared(
+  incidentNumber: string,
+  emergencyType: string,
+  severity: string,
+  premisesName?: string
+): void {
   const payload: NotificationPayload = {
     type: 'EMERGENCY_DECLARED',
     title: `Emergency Declared: ${incidentNumber}`,
     message: `${emergencyType} emergency (${severity}) declared${premisesName ? ` at ${premisesName}` : ''}. Respond immediately.`,
     severity: 'critical',
-    recipientRoles: ['FIRE_WARDEN', 'INCIDENT_COMMANDER', 'HEALTH_SAFETY_MANAGER', 'SENIOR_MANAGEMENT'],
+    recipientRoles: [
+      'FIRE_WARDEN',
+      'INCIDENT_COMMANDER',
+      'HEALTH_SAFETY_MANAGER',
+      'SENIOR_MANAGEMENT',
+    ],
   };
   logger.info('Emergency notification triggered', { payload });
 }

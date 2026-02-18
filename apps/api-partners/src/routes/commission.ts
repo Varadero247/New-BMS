@@ -3,7 +3,6 @@ import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { type AuthRequest } from '@ims/auth';
 
-
 const logger = createLogger('api-partners:commission');
 const router = Router();
 
@@ -41,7 +40,7 @@ router.get('/summary', async (req: Request, res: Response) => {
 
     const pipelineValue = deals
       .filter((d) => ['SUBMITTED', 'IN_DEMO', 'NEGOTIATING'].includes(d.status))
-      .reduce((sum, d) => sum + ((d.estimatedACV || 0) * d.commissionRate), 0);
+      .reduce((sum, d) => sum + (d.estimatedACV || 0) * d.commissionRate, 0);
 
     res.json({
       success: true,

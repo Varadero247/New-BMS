@@ -1,8 +1,32 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@ims/ui';
-import { Package, Plus, Search, Filter, Edit, Trash2, Eye, Barcode, AlertTriangle } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Input,
+  Badge,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '@ims/ui';
+import {
+  Package,
+  Plus,
+  Search,
+  Filter,
+  Edit,
+  Trash2,
+  Eye,
+  Barcode,
+  AlertTriangle,
+} from 'lucide-react';
 import { inventoryApi } from '@/lib/api';
 import Link from 'next/link';
 
@@ -77,9 +101,16 @@ export default function ProductsPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Products</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage product catalog and inventory items</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Manage product catalog and inventory items
+            </p>
           </div>
-          <Button onClick={() => { setEditingProduct(null); setShowModal(true); }}>
+          <Button
+            onClick={() => {
+              setEditingProduct(null);
+              setShowModal(true);
+            }}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add Product
           </Button>
@@ -92,7 +123,8 @@ export default function ProductsPage() {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  aria-label="Search by SKU, barcode, or name..." placeholder="Search by SKU, barcode, or name..."
+                  aria-label="Search by SKU, barcode, or name..."
+                  placeholder="Search by SKU, barcode, or name..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-10"
@@ -121,7 +153,7 @@ export default function ProductsPage() {
           <CardContent>
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3, 4, 5].map(i => (
+                {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="h-12 bg-gray-200 rounded" />
                 ))}
               </div>
@@ -148,7 +180,9 @@ export default function ProductsPage() {
                           <div>
                             <p className="font-medium font-mono">{product.sku}</p>
                             {product.barcode && (
-                              <p className="text-xs text-gray-500 dark:text-gray-400">{product.barcode}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {product.barcode}
+                              </p>
                             )}
                           </div>
                         </TableCell>
@@ -156,7 +190,9 @@ export default function ProductsPage() {
                           <div>
                             <p className="font-medium">{product.name}</p>
                             {product.description && (
-                              <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">{product.description}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                                {product.description}
+                              </p>
                             )}
                           </div>
                         </TableCell>
@@ -196,7 +232,10 @@ export default function ProductsPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => { setEditingProduct(product); setShowModal(true); }}
+                              onClick={() => {
+                                setEditingProduct(product);
+                                setShowModal(true);
+                              }}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -244,7 +283,13 @@ export default function ProductsPage() {
               <div className="text-center py-12">
                 <Package className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">No products found</p>
-                <Button className="mt-4" onClick={() => { setEditingProduct(null); setShowModal(true); }}>
+                <Button
+                  className="mt-4"
+                  onClick={() => {
+                    setEditingProduct(null);
+                    setShowModal(true);
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Your First Product
                 </Button>
@@ -258,7 +303,10 @@ export default function ProductsPage() {
           <ProductModal
             product={editingProduct}
             onClose={() => setShowModal(false)}
-            onSave={() => { setShowModal(false); loadProducts(); }}
+            onSave={() => {
+              setShowModal(false);
+              loadProducts();
+            }}
           />
         )}
       </div>
@@ -270,7 +318,7 @@ export default function ProductsPage() {
 function ProductModal({
   product,
   onClose,
-  onSave
+  onSave,
 }: {
   product: Product | null;
   onClose: () => void;
@@ -312,14 +360,10 @@ function ProductModal({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-lg mx-4">
         <div className="p-6 border-b">
-          <h2 className="text-xl font-semibold">
-            {product ? 'Edit Product' : 'Add New Product'}
-          </h2>
+          <h2 className="text-xl font-semibold">{product ? 'Edit Product' : 'Add New Product'}</h2>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {error && (
-            <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>
-          )}
+          {error && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -368,7 +412,9 @@ function ProductModal({
                 step="0.01"
                 min="0"
                 value={formData.costPrice}
-                onChange={(e) => setFormData({ ...formData, costPrice: parseFloat(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({ ...formData, costPrice: parseFloat(e.target.value) || 0 })
+                }
               />
             </div>
             <div>
@@ -378,7 +424,9 @@ function ProductModal({
                 step="0.01"
                 min="0"
                 value={formData.sellingPrice}
-                onChange={(e) => setFormData({ ...formData, sellingPrice: parseFloat(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({ ...formData, sellingPrice: parseFloat(e.target.value) || 0 })
+                }
               />
             </div>
           </div>
@@ -390,7 +438,9 @@ function ProductModal({
                 type="number"
                 min="0"
                 value={formData.reorderPoint}
-                onChange={(e) => setFormData({ ...formData, reorderPoint: parseInt(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({ ...formData, reorderPoint: parseInt(e.target.value) || 0 })
+                }
               />
             </div>
             <div>
@@ -399,7 +449,9 @@ function ProductModal({
                 type="number"
                 min="0"
                 value={formData.reorderQuantity}
-                onChange={(e) => setFormData({ ...formData, reorderQuantity: parseInt(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({ ...formData, reorderQuantity: parseInt(e.target.value) || 0 })
+                }
               />
             </div>
           </div>
@@ -409,7 +461,7 @@ function ProductModal({
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : (product ? 'Update Product' : 'Create Product')}
+              {loading ? 'Saving...' : product ? 'Update Product' : 'Create Product'}
             </Button>
           </div>
         </form>

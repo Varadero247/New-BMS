@@ -48,12 +48,45 @@ interface Declaration {
 
 const statusOptions = ['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'PUBLISHED', 'EXPIRED'];
 
-const statusConfig: Record<string, { bg: string; text: string; icon: typeof Clock; label: string; dotColor: string }> = {
-  DRAFT: { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300', icon: Edit3, label: 'Draft', dotColor: 'bg-gray-400' },
-  UNDER_REVIEW: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-700 dark:text-yellow-300', icon: Clock, label: 'Under Review', dotColor: 'bg-yellow-500' },
-  APPROVED: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', icon: CheckCircle2, label: 'Approved', dotColor: 'bg-blue-500' },
-  PUBLISHED: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-700 dark:text-green-300', icon: Award, label: 'Published', dotColor: 'bg-green-500' },
-  EXPIRED: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', icon: XCircle, label: 'Expired', dotColor: 'bg-red-500' },
+const statusConfig: Record<
+  string,
+  { bg: string; text: string; icon: typeof Clock; label: string; dotColor: string }
+> = {
+  DRAFT: {
+    bg: 'bg-gray-100 dark:bg-gray-700',
+    text: 'text-gray-700 dark:text-gray-300',
+    icon: Edit3,
+    label: 'Draft',
+    dotColor: 'bg-gray-400',
+  },
+  UNDER_REVIEW: {
+    bg: 'bg-yellow-100 dark:bg-yellow-900/30',
+    text: 'text-yellow-700 dark:text-yellow-300',
+    icon: Clock,
+    label: 'Under Review',
+    dotColor: 'bg-yellow-500',
+  },
+  APPROVED: {
+    bg: 'bg-blue-100 dark:bg-blue-900/30',
+    text: 'text-blue-700 dark:text-blue-300',
+    icon: CheckCircle2,
+    label: 'Approved',
+    dotColor: 'bg-blue-500',
+  },
+  PUBLISHED: {
+    bg: 'bg-green-100 dark:bg-green-900/30',
+    text: 'text-green-700 dark:text-green-300',
+    icon: Award,
+    label: 'Published',
+    dotColor: 'bg-green-500',
+  },
+  EXPIRED: {
+    bg: 'bg-red-100 dark:bg-red-900/30',
+    text: 'text-red-700 dark:text-red-300',
+    icon: XCircle,
+    label: 'Expired',
+    dotColor: 'bg-red-500',
+  },
 };
 
 const workflowSteps = [
@@ -126,10 +159,19 @@ export default function SelfDeclarationsPage() {
   function openAddModal() {
     setEditingDeclaration(null);
     setForm({
-      title: '', version: '1.0', status: 'DRAFT', scope: '',
-      statement: '', exclusions: '', preparedBy: '', signedBy: '',
-      signatoryTitle: '', signatoryOrg: '',
-      validFrom: '', validTo: '', standardsCovered: ['ISO 42001:2023'],
+      title: '',
+      version: '1.0',
+      status: 'DRAFT',
+      scope: '',
+      statement: '',
+      exclusions: '',
+      preparedBy: '',
+      signedBy: '',
+      signatoryTitle: '',
+      signatoryOrg: '',
+      validFrom: '',
+      validTo: '',
+      standardsCovered: ['ISO 42001:2023'],
     });
     setModalOpen(true);
   }
@@ -269,7 +311,10 @@ export default function SelfDeclarationsPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Self-Declarations</h1>
-            <p className="text-muted-foreground mt-1">ISO 42001 conformance self-declarations with print-ready formatting and status tracking</p>
+            <p className="text-muted-foreground mt-1">
+              ISO 42001 conformance self-declarations with print-ready formatting and status
+              tracking
+            </p>
           </div>
           <button
             onClick={openAddModal}
@@ -372,7 +417,9 @@ export default function SelfDeclarationsPage() {
           <div className="bg-card rounded-xl border border-border p-12 text-center">
             <Award className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
             <p className="text-muted-foreground">No self-declarations found</p>
-            <p className="text-sm text-muted-foreground mt-1">Create a new declaration to get started</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Create a new declaration to get started
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -392,7 +439,9 @@ export default function SelfDeclarationsPage() {
                     {/* Title row */}
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-start gap-3 flex-1">
-                        <div className={`h-10 w-10 rounded-lg ${sc.bg} flex items-center justify-center shrink-0`}>
+                        <div
+                          className={`h-10 w-10 rounded-lg ${sc.bg} flex items-center justify-center shrink-0`}
+                        >
                           <StatusIcon className={`h-5 w-5 ${sc.text}`} />
                         </div>
                         <div className="min-w-0">
@@ -403,11 +452,15 @@ export default function SelfDeclarationsPage() {
                             {declaration.title}
                           </button>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full ${sc.bg} ${sc.text}`}>
+                            <span
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full ${sc.bg} ${sc.text}`}
+                            >
                               <StatusIcon className="h-3 w-3" />
                               {sc.label}
                             </span>
-                            <span className="text-xs text-muted-foreground">v{declaration.version}</span>
+                            <span className="text-xs text-muted-foreground">
+                              v{declaration.version}
+                            </span>
                             {expired && (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">
                                 <XCircle className="h-3 w-3" />
@@ -427,14 +480,19 @@ export default function SelfDeclarationsPage() {
 
                     {/* Scope preview */}
                     {declaration.scope && (
-                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{declaration.scope}</p>
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                        {declaration.scope}
+                      </p>
                     )}
 
                     {/* Standards covered */}
                     {declaration.standardsCovered && declaration.standardsCovered.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mb-3">
                         {declaration.standardsCovered.map((std) => (
-                          <span key={std} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300 rounded">
+                          <span
+                            key={std}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300 rounded"
+                          >
                             <Shield className="h-2.5 w-2.5" />
                             {std}
                           </span>
@@ -460,7 +518,10 @@ export default function SelfDeclarationsPage() {
                         <div className="flex items-center gap-1.5">
                           <Calendar className="h-3.5 w-3.5" />
                           <span>
-                            {new Date(declaration.validFrom).toLocaleDateString()} - {declaration.validTo ? new Date(declaration.validTo).toLocaleDateString() : 'Ongoing'}
+                            {new Date(declaration.validFrom).toLocaleDateString()} -{' '}
+                            {declaration.validTo
+                              ? new Date(declaration.validTo).toLocaleDateString()
+                              : 'Ongoing'}
                           </span>
                         </div>
                       )}
@@ -479,7 +540,9 @@ export default function SelfDeclarationsPage() {
                         const isCompleted = idx <= currentIdx;
                         return (
                           <div key={step.status} className="flex items-center flex-1">
-                            <div className={`h-1.5 flex-1 rounded-full ${isCompleted ? 'bg-indigo-500' : 'bg-gray-200 dark:bg-gray-700'}`} />
+                            <div
+                              className={`h-1.5 flex-1 rounded-full ${isCompleted ? 'bg-indigo-500' : 'bg-gray-200 dark:bg-gray-700'}`}
+                            />
                           </div>
                         );
                       })}
@@ -545,14 +608,23 @@ export default function SelfDeclarationsPage() {
       </div>
 
       {/* View / Print Modal */}
-      <Modal isOpen={viewModalOpen} onClose={() => setViewModalOpen(false)} title="Self-Declaration of Conformance" size="lg">
+      <Modal
+        isOpen={viewModalOpen}
+        onClose={() => setViewModalOpen(false)}
+        title="Self-Declaration of Conformance"
+        size="lg"
+      >
         {viewDeclaration && (
           <div ref={printRef}>
             {/* Print-ready header */}
             <div className={`${printMode ? 'border-2 border-gray-900 p-8' : ''}`}>
               <div className="text-center mb-6 border-b-2 border-indigo-500 pb-4">
-                <h2 className="text-xl font-bold text-foreground">SELF-DECLARATION OF CONFORMANCE</h2>
-                <p className="text-sm text-muted-foreground mt-1">In accordance with ISO 42001:2023 -- AI Management System</p>
+                <h2 className="text-xl font-bold text-foreground">
+                  SELF-DECLARATION OF CONFORMANCE
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  In accordance with ISO 42001:2023 -- AI Management System
+                </p>
               </div>
 
               {/* Meta badges */}
@@ -560,15 +632,22 @@ export default function SelfDeclarationsPage() {
                 {(() => {
                   const sc = statusConfig[viewDeclaration.status] || statusConfig.DRAFT;
                   return (
-                    <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full ${sc.bg} ${sc.text}`}>
+                    <span
+                      className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full ${sc.bg} ${sc.text}`}
+                    >
                       {sc.label}
                     </span>
                   );
                 })()}
-                <span className="text-sm text-muted-foreground">Version {viewDeclaration.version}</span>
+                <span className="text-sm text-muted-foreground">
+                  Version {viewDeclaration.version}
+                </span>
                 {viewDeclaration.validFrom && (
                   <span className="text-xs text-muted-foreground">
-                    Valid: {new Date(viewDeclaration.validFrom).toLocaleDateString()} - {viewDeclaration.validTo ? new Date(viewDeclaration.validTo).toLocaleDateString() : 'Ongoing'}
+                    Valid: {new Date(viewDeclaration.validFrom).toLocaleDateString()} -{' '}
+                    {viewDeclaration.validTo
+                      ? new Date(viewDeclaration.validTo).toLocaleDateString()
+                      : 'Ongoing'}
                   </span>
                 )}
               </div>
@@ -576,10 +655,15 @@ export default function SelfDeclarationsPage() {
               {/* Standards covered */}
               {viewDeclaration.standardsCovered && viewDeclaration.standardsCovered.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Standards Covered</h3>
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                    Standards Covered
+                  </h3>
                   <div className="flex flex-wrap gap-2">
                     {viewDeclaration.standardsCovered.map((std) => (
-                      <span key={std} className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                      <span
+                        key={std}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300 rounded-lg border border-indigo-200 dark:border-indigo-800"
+                      >
                         <Shield className="h-3 w-3" />
                         {std}
                       </span>
@@ -590,7 +674,9 @@ export default function SelfDeclarationsPage() {
 
               {/* Scope */}
               <div className="mb-6">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Scope of Declaration</h3>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  Scope of Declaration
+                </h3>
                 <div className="bg-gray-50 dark:bg-gray-800/50 border border-border rounded-lg p-4">
                   <p className="text-sm text-foreground whitespace-pre-wrap">
                     {viewDeclaration.scope || 'No scope defined.'}
@@ -600,7 +686,9 @@ export default function SelfDeclarationsPage() {
 
               {/* Statement of Conformance */}
               <div className="mb-6">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Statement of Conformance</h3>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  Statement of Conformance
+                </h3>
                 <div className="bg-gray-50 dark:bg-gray-800/50 border border-border rounded-lg p-4">
                   <p className="text-sm text-foreground whitespace-pre-wrap">
                     {viewDeclaration.statement || 'No conformance statement defined.'}
@@ -611,25 +699,35 @@ export default function SelfDeclarationsPage() {
               {/* Exclusions */}
               {viewDeclaration.exclusions && (
                 <div className="mb-6">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Exclusions</h3>
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                    Exclusions
+                  </h3>
                   <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                    <p className="text-sm text-foreground whitespace-pre-wrap">{viewDeclaration.exclusions}</p>
+                    <p className="text-sm text-foreground whitespace-pre-wrap">
+                      {viewDeclaration.exclusions}
+                    </p>
                   </div>
                 </div>
               )}
 
               {/* Signatory block */}
               <div className="border-t-2 border-border pt-6 mt-6">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Authorised Signatory</h3>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+                  Authorised Signatory
+                </h3>
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <div>
                       <p className="text-xs text-muted-foreground">Prepared By</p>
-                      <p className="text-sm font-medium text-foreground">{viewDeclaration.preparedBy || '-'}</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {viewDeclaration.preparedBy || '-'}
+                      </p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Signed By</p>
-                      <p className="text-sm font-medium text-foreground">{viewDeclaration.signedBy || '-'}</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {viewDeclaration.signedBy || '-'}
+                      </p>
                     </div>
                     {viewDeclaration.signatoryTitle && (
                       <div>
@@ -647,12 +745,16 @@ export default function SelfDeclarationsPage() {
                     )}
                     <div>
                       <p className="text-xs text-muted-foreground">Approved By</p>
-                      <p className="text-sm font-medium text-foreground">{viewDeclaration.approvedBy || '-'}</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {viewDeclaration.approvedBy || '-'}
+                      </p>
                     </div>
                     {viewDeclaration.approvedAt && (
                       <div>
                         <p className="text-xs text-muted-foreground">Approval Date</p>
-                        <p className="text-sm text-foreground">{new Date(viewDeclaration.approvedAt).toLocaleDateString()}</p>
+                        <p className="text-sm text-foreground">
+                          {new Date(viewDeclaration.approvedAt).toLocaleDateString()}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -704,10 +806,17 @@ export default function SelfDeclarationsPage() {
       </Modal>
 
       {/* Create/Edit Modal */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingDeclaration ? 'Edit Declaration' : 'New Declaration'} size="lg">
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingDeclaration ? 'Edit Declaration' : 'New Declaration'}
+        size="lg"
+      >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Declaration Title</label>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Declaration Title
+            </label>
             <input
               type="text"
               value={form.title}
@@ -736,7 +845,9 @@ export default function SelfDeclarationsPage() {
                 className="w-full px-3 py-2 border border-border bg-card text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 {statusOptions.map((s) => (
-                  <option key={s} value={s}>{statusConfig[s]?.label || s}</option>
+                  <option key={s} value={s}>
+                    {statusConfig[s]?.label || s}
+                  </option>
                 ))}
               </select>
             </div>
@@ -753,7 +864,9 @@ export default function SelfDeclarationsPage() {
 
           {/* Standards covered */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Standards Covered</label>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Standards Covered
+            </label>
             <div className="flex flex-wrap gap-2">
               {standardsOptions.map((std) => (
                 <button
@@ -786,7 +899,9 @@ export default function SelfDeclarationsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Signatory Title</label>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Signatory Title
+              </label>
               <input
                 type="text"
                 value={form.signatoryTitle}
@@ -819,7 +934,9 @@ export default function SelfDeclarationsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Statement of Conformance</label>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Statement of Conformance
+            </label>
             <textarea
               value={form.statement}
               onChange={(e) => setForm({ ...form, statement: e.target.value })}

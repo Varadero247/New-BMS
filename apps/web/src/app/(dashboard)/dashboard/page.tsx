@@ -133,9 +133,7 @@ export default function DashboardPage() {
             <ShieldCheck className="w-7 h-7 text-primary" />
             IMS Dashboard
           </h1>
-          <p className="text-muted-foreground">
-            Integrated Management System Overview
-          </p>
+          <p className="text-muted-foreground">Integrated Management System Overview</p>
         </div>
         <div className="flex gap-2">
           <Link
@@ -219,7 +217,9 @@ export default function DashboardPage() {
             </div>
             <div className="flex flex-col items-end text-xs">
               <span className="text-red-500">{stats?.actions.overdue || 0} Overdue</span>
-              <span className="text-yellow-500">{stats?.actions.dueThisWeek || 0} Due this week</span>
+              <span className="text-yellow-500">
+                {stats?.actions.dueThisWeek || 0} Due this week
+              </span>
             </div>
           </div>
         </Card>
@@ -272,9 +272,7 @@ export default function DashboardPage() {
                     {getStandardIcon(risk.standard)}
                     <div>
                       <p className="font-medium text-sm">{risk.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Score: {risk.riskScore}
-                      </p>
+                      <p className="text-xs text-muted-foreground">Score: {risk.riskScore}</p>
                     </div>
                   </div>
                   <span
@@ -380,9 +378,7 @@ export default function DashboardPage() {
                       {new Date(insight.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-sm">
-                    {insight.suggestedRootCause || 'Analysis completed'}
-                  </p>
+                  <p className="text-sm">{insight.suggestedRootCause || 'Analysis completed'}</p>
                   <button className="mt-2 text-xs text-primary hover:underline">
                     Apply Suggestions
                   </button>

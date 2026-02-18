@@ -20,13 +20,7 @@ export const MAX_FILE_SIZE_BY_TYPE: Record<string, number> = {
 // Allowed MIME types (whitelist)
 export const ALLOWED_MIME_TYPES: Record<string, string[]> = {
   // Images
-  images: [
-    'image/jpeg',
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'image/svg+xml',
-  ],
+  images: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'],
   // Documents
   documents: [
     'application/pdf',
@@ -40,11 +34,7 @@ export const ALLOWED_MIME_TYPES: Record<string, string[]> = {
     'text/csv',
   ],
   // Archives
-  archives: [
-    'application/zip',
-    'application/x-rar-compressed',
-    'application/x-7z-compressed',
-  ],
+  archives: ['application/zip', 'application/x-rar-compressed', 'application/x-7z-compressed'],
 };
 
 // Get all allowed MIME types as a flat array
@@ -55,11 +45,26 @@ export function getAllAllowedMimeTypes(): string[] {
 // Allowed file extensions (must match MIME type)
 export const ALLOWED_EXTENSIONS: string[] = [
   // Images
-  '.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg',
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.gif',
+  '.webp',
+  '.svg',
   // Documents
-  '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.csv',
+  '.pdf',
+  '.doc',
+  '.docx',
+  '.xls',
+  '.xlsx',
+  '.ppt',
+  '.pptx',
+  '.txt',
+  '.csv',
   // Archives
-  '.zip', '.rar', '.7z',
+  '.zip',
+  '.rar',
+  '.7z',
 ];
 
 // Extension to MIME type mapping
@@ -87,8 +92,8 @@ export const EXTENSION_TO_MIME: Record<string, string> = {
 // Dangerous file signatures (magic bytes) to block
 export const DANGEROUS_SIGNATURES = [
   // Executable files
-  { signature: [0x4D, 0x5A], description: 'Windows Executable (MZ)' }, // .exe, .dll
-  { signature: [0x7F, 0x45, 0x4C, 0x46], description: 'Linux Executable (ELF)' },
+  { signature: [0x4d, 0x5a], description: 'Windows Executable (MZ)' }, // .exe, .dll
+  { signature: [0x7f, 0x45, 0x4c, 0x46], description: 'Linux Executable (ELF)' },
   // Scripts that could be executed
   { signature: [0x23, 0x21], description: 'Shebang script (#!)' }, // Shell scripts
 ];
@@ -102,12 +107,12 @@ export const DANGEROUS_FILENAME_PATTERNS = [
   /\.sh$/i,
   /\.ps1$/i,
   /\.vbs$/i,
-  /\.js$/i,  // Blocking JS files for security
+  /\.js$/i, // Blocking JS files for security
   /\.jar$/i,
   /\.php$/i,
   /\.asp$/i,
   /\.aspx$/i,
   /\.jsp$/i,
-  /\.\./,     // Path traversal
-  /^\.ht/,    // htaccess files
+  /\.\./, // Path traversal
+  /^\.ht/, // htaccess files
 ];

@@ -39,9 +39,7 @@ const ACCENT = '#F04B5A';
 const navGroups: NavGroup[] = [
   {
     title: 'Overview',
-    items: [
-      { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    ],
+    items: [{ name: 'Dashboard', href: '/', icon: LayoutDashboard }],
   },
   {
     title: 'Premises & Assessment',
@@ -82,7 +80,7 @@ const externalLinks: NavItem[] = [
 
 function CollapsibleSection({ group, pathname }: { group: NavGroup; pathname: string }) {
   const hasActive = group.items.some(
-    (item) => pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href)),
+    (item) => pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
   );
   const [open, setOpen] = React.useState(hasActive || !group.collapsible);
 

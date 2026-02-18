@@ -73,8 +73,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing products', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list products' } });
+    logger.error('Error listing products', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list products' },
+    });
   }
 });
 
@@ -85,7 +90,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = productCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -101,8 +109,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Product created', { id: product.id, code: product.code });
     res.status(201).json({ success: true, data: product });
   } catch (error: unknown) {
-    logger.error('Error creating product', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create product' } });
+    logger.error('Error creating product', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create product' },
+    });
   }
 });
 
@@ -116,13 +129,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!product) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
     }
 
     res.json({ success: true, data: product });
   } catch (error: unknown) {
-    logger.error('Error fetching product', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch product' } });
+    logger.error('Error fetching product', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch product' },
+    });
   }
 });
 
@@ -131,14 +151,21 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsProduct.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsProduct.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
     }
 
     const parsed = productUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const product = await prisma.fsProduct.update({
@@ -149,8 +176,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Product updated', { id: product.id });
     res.json({ success: true, data: product });
   } catch (error: unknown) {
-    logger.error('Error updating product', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update product' } });
+    logger.error('Error updating product', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update product' },
+    });
   }
 });
 
@@ -159,9 +191,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsProduct.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsProduct.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
     }
 
     await prisma.fsProduct.update({
@@ -172,8 +208,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Product deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Product deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting product', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete product' } });
+    logger.error('Error deleting product', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete product' },
+    });
   }
 });
 

@@ -29,14 +29,45 @@ const MOCK_RESULTS: Record<string, NlqResult> = {
   default: {
     query: 'Show me the top 5 high-risk incidents this month',
     sql: `SELECT title, severity, status, date_occurred, assignee\nFROM incidents\nWHERE severity IN ('HIGH','CRITICAL')\n  AND date_occurred >= DATE_TRUNC('month', NOW())\nORDER BY severity DESC, date_occurred DESC\nLIMIT 5;`,
-    explanation: 'Fetches incidents with HIGH or CRITICAL severity created this calendar month, ordered by severity then date.',
+    explanation:
+      'Fetches incidents with HIGH or CRITICAL severity created this calendar month, ordered by severity then date.',
     columns: ['Title', 'Severity', 'Status', 'Date', 'Assignee'],
     rows: [
-      { Title: 'Fall from height — Warehouse B', Severity: 'CRITICAL', Status: 'OPEN', Date: '2026-02-12', Assignee: 'Bob Smith' },
-      { Title: 'Chemical spill — Lab 3', Severity: 'HIGH', Status: 'IN_PROGRESS', Date: '2026-02-10', Assignee: 'Carol Davis' },
-      { Title: 'Forklift near-miss — Loading bay', Severity: 'HIGH', Status: 'CLOSED', Date: '2026-02-08', Assignee: 'Alice Johnson' },
-      { Title: 'Electrical fault — Server room', Severity: 'HIGH', Status: 'OPEN', Date: '2026-02-06', Assignee: 'Frank Security' },
-      { Title: 'Slip hazard — Canteen floor', Severity: 'HIGH', Status: 'CLOSED', Date: '2026-02-03', Assignee: 'Eve Green' },
+      {
+        Title: 'Fall from height — Warehouse B',
+        Severity: 'CRITICAL',
+        Status: 'OPEN',
+        Date: '2026-02-12',
+        Assignee: 'Bob Smith',
+      },
+      {
+        Title: 'Chemical spill — Lab 3',
+        Severity: 'HIGH',
+        Status: 'IN_PROGRESS',
+        Date: '2026-02-10',
+        Assignee: 'Carol Davis',
+      },
+      {
+        Title: 'Forklift near-miss — Loading bay',
+        Severity: 'HIGH',
+        Status: 'CLOSED',
+        Date: '2026-02-08',
+        Assignee: 'Alice Johnson',
+      },
+      {
+        Title: 'Electrical fault — Server room',
+        Severity: 'HIGH',
+        Status: 'OPEN',
+        Date: '2026-02-06',
+        Assignee: 'Frank Security',
+      },
+      {
+        Title: 'Slip hazard — Canteen floor',
+        Severity: 'HIGH',
+        Status: 'CLOSED',
+        Date: '2026-02-03',
+        Assignee: 'Eve Green',
+      },
     ],
     executionTime: 48,
   },
@@ -66,13 +97,29 @@ export default function NlqPage() {
       const res = await api.post('/nlq/query', { query: q });
       const data = res.data.data;
       setResult(data);
-      setHistory(prev => [{ id: Date.now().toString(), query: q, timestamp: new Date(), rowCount: data.rows?.length || 0 }, ...prev.slice(0, 9)]);
+      setHistory((prev) => [
+        {
+          id: Date.now().toString(),
+          query: q,
+          timestamp: new Date(),
+          rowCount: data.rows?.length || 0,
+        },
+        ...prev.slice(0, 9),
+      ]);
     } catch {
       // Use mock result for demo
       const mock = MOCK_RESULTS.default;
       const mockResult = { ...mock, query: q };
       setResult(mockResult);
-      setHistory(prev => [{ id: Date.now().toString(), query: q, timestamp: new Date(), rowCount: mockResult.rows.length }, ...prev.slice(0, 9)]);
+      setHistory((prev) => [
+        {
+          id: Date.now().toString(),
+          query: q,
+          timestamp: new Date(),
+          rowCount: mockResult.rows.length,
+        },
+        ...prev.slice(0, 9),
+      ]);
     } finally {
       setLoading(false);
     }
@@ -92,7 +139,9 @@ export default function NlqPage() {
             <Sparkles className="h-8 w-8 text-purple-500" />
             Natural Language Query
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Ask questions about your IMS data in plain English — powered by AI</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Ask questions about your IMS data in plain English — powered by AI
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -107,8 +156,13 @@ export default function NlqPage() {
                       <Sparkles className="absolute left-3 top-3 h-5 w-5 text-purple-400" />
                       <textarea
                         value={query}
-                        onChange={e => setQuery(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); runQuery(query); } }}
+                        onChange={(e) => setQuery(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            runQuery(query);
+                          }
+                        }}
                         placeholder="Ask anything... e.g. 'Show me all overdue CAPAs by department'"
                         rows={3}
                         className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
@@ -119,7 +173,11 @@ export default function NlqPage() {
                       disabled={loading || !query.trim()}
                       className="flex-shrink-0 flex items-center gap-2 px-5 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:opacity-50 font-medium h-fit"
                     >
-                      {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                      {loading ? (
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
                       {loading ? 'Running...' : 'Run'}
                     </button>
                   </div>
@@ -127,9 +185,11 @@ export default function NlqPage() {
 
                 {/* Example queries */}
                 <div className="mt-4">
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mb-2 font-medium">Try an example:</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mb-2 font-medium">
+                    Try an example:
+                  </p>
                   <div className="flex flex-wrap gap-2">
-                    {EXAMPLE_QUERIES.slice(0, 4).map(eq => (
+                    {EXAMPLE_QUERIES.slice(0, 4).map((eq) => (
                       <button
                         key={eq}
                         onClick={() => runQuery(eq)}
@@ -177,8 +237,12 @@ export default function NlqPage() {
                   <CardContent className="pt-6">
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wide">AI Explanation</p>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{result.explanation}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wide">
+                          AI Explanation
+                        </p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
+                          {result.explanation}
+                        </p>
                       </div>
                       <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded whitespace-nowrap ml-4">
                         <Clock className="h-3.5 w-3.5" />
@@ -208,7 +272,9 @@ export default function NlqPage() {
                     <CardTitle className="flex items-center gap-2 text-base">
                       <Table className="h-4 w-4 text-purple-500" />
                       Results
-                      <span className="ml-1 text-xs font-normal text-gray-400 dark:text-gray-500">({result.rows.length} rows)</span>
+                      <span className="ml-1 text-xs font-normal text-gray-400 dark:text-gray-500">
+                        ({result.rows.length} rows)
+                      </span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
@@ -222,8 +288,11 @@ export default function NlqPage() {
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                              {result.columns.map(col => (
-                                <th key={col} className="text-left py-3 px-4 text-gray-500 dark:text-gray-400 font-medium text-xs uppercase tracking-wide">
+                              {result.columns.map((col) => (
+                                <th
+                                  key={col}
+                                  className="text-left py-3 px-4 text-gray-500 dark:text-gray-400 font-medium text-xs uppercase tracking-wide"
+                                >
                                   {col}
                                 </th>
                               ))}
@@ -231,24 +300,39 @@ export default function NlqPage() {
                           </thead>
                           <tbody>
                             {result.rows.map((row, i) => (
-                              <tr key={i} className="border-b border-gray-50 dark:border-gray-800 hover:bg-purple-50/30">
-                                {result.columns.map(col => (
-                                  <td key={col} className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                              <tr
+                                key={i}
+                                className="border-b border-gray-50 dark:border-gray-800 hover:bg-purple-50/30"
+                              >
+                                {result.columns.map((col) => (
+                                  <td
+                                    key={col}
+                                    className="py-3 px-4 text-gray-700 dark:text-gray-300"
+                                  >
                                     {col === 'Severity' ? (
-                                      <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
-                                        row[col] === 'CRITICAL' ? 'bg-red-100 text-red-700' :
-                                        row[col] === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                                        row[col] === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
-                                        'bg-gray-100 dark:bg-gray-800 text-gray-700'
-                                      }`}>
+                                      <span
+                                        className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
+                                          row[col] === 'CRITICAL'
+                                            ? 'bg-red-100 text-red-700'
+                                            : row[col] === 'HIGH'
+                                              ? 'bg-orange-100 text-orange-700'
+                                              : row[col] === 'MEDIUM'
+                                                ? 'bg-yellow-100 text-yellow-700'
+                                                : 'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                                        }`}
+                                      >
                                         {row[col]}
                                       </span>
                                     ) : col === 'Status' ? (
-                                      <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
-                                        row[col] === 'OPEN' ? 'bg-red-50 text-red-600' :
-                                        row[col] === 'CLOSED' ? 'bg-green-50 text-green-600' :
-                                        'bg-yellow-50 text-yellow-600'
-                                      }`}>
+                                      <span
+                                        className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
+                                          row[col] === 'OPEN'
+                                            ? 'bg-red-50 text-red-600'
+                                            : row[col] === 'CLOSED'
+                                              ? 'bg-green-50 text-green-600'
+                                              : 'bg-yellow-50 text-yellow-600'
+                                        }`}
+                                      >
                                         {row[col]}
                                       </span>
                                     ) : (
@@ -280,17 +364,23 @@ export default function NlqPage() {
               </CardHeader>
               <CardContent>
                 {history.length === 0 ? (
-                  <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-4">No queries yet</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-4">
+                    No queries yet
+                  </p>
                 ) : (
                   <div className="space-y-2">
-                    {history.map(item => (
+                    {history.map((item) => (
                       <button
                         key={item.id}
                         onClick={() => runQuery(item.query)}
                         className="w-full text-left p-2 rounded-lg hover:bg-purple-50 transition-colors group"
                       >
-                        <p className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2 group-hover:text-purple-700">{item.query}</p>
-                        <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{item.rowCount} rows · {item.timestamp.toLocaleTimeString()}</p>
+                        <p className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2 group-hover:text-purple-700">
+                          {item.query}
+                        </p>
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+                          {item.rowCount} rows · {item.timestamp.toLocaleTimeString()}
+                        </p>
                       </button>
                     ))}
                   </div>
@@ -308,7 +398,7 @@ export default function NlqPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {EXAMPLE_QUERIES.slice(4).map(eq => (
+                  {EXAMPLE_QUERIES.slice(4).map((eq) => (
                     <button
                       key={eq}
                       onClick={() => runQuery(eq)}

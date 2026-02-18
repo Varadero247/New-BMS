@@ -87,11 +87,13 @@ export class WebSocketNotificationServer {
       this.clients.get(user.userId)!.add(authWs);
 
       // Send connection confirmation
-      authWs.send(JSON.stringify({
-        type: 'connected',
-        userId: user.userId,
-        timestamp: new Date().toISOString(),
-      }));
+      authWs.send(
+        JSON.stringify({
+          type: 'connected',
+          userId: user.userId,
+          timestamp: new Date().toISOString(),
+        })
+      );
 
       // Handle pong for heartbeat
       authWs.on('pong', () => {

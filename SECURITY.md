@@ -42,7 +42,11 @@
 - Package: `@ims/service-auth`
 
 ```typescript
-import { generateServiceToken, requireServiceAuth, addServiceTokenToProxy } from '@ims/service-auth';
+import {
+  generateServiceToken,
+  requireServiceAuth,
+  addServiceTokenToProxy,
+} from '@ims/service-auth';
 
 // Generate token for outbound requests
 const token = generateServiceToken('api-hr', ['hr:read', 'hr:write']);

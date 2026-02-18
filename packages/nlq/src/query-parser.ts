@@ -50,10 +50,7 @@ export function sanitizeQuery(query: string): string {
  * @param context - User permission context for authorization checks
  * @returns Parsed query with SQL, params, and required modules
  */
-export function parseNaturalLanguage(
-  query: string,
-  context: NLQPermissionContext,
-): NLQQuery {
+export function parseNaturalLanguage(query: string, context: NLQPermissionContext): NLQQuery {
   const sanitized = sanitizeQuery(query);
 
   // Try to match against known patterns
@@ -62,10 +59,7 @@ export function parseNaturalLanguage(
       const match = sanitized.match(regex);
       if (match) {
         // Check permissions before returning
-        const hasPermission = validateQueryPermissions(
-          pattern.modules,
-          context.modulePermissions,
-        );
+        const hasPermission = validateQueryPermissions(pattern.modules, context.modulePermissions);
 
         if (!hasPermission) {
           return {
@@ -112,7 +106,7 @@ export function parseNaturalLanguage(
  */
 export function validateQueryPermissions(
   modules: string[],
-  userPermissions: Record<string, number>,
+  userPermissions: Record<string, number>
 ): boolean {
   if (modules.length === 0) return true;
 

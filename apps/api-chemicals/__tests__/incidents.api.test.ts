@@ -3,13 +3,26 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    chemIncident: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    chemIncident: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
     chemRegister: { findFirst: jest.fn() },
   },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/incidents';
 import { prisma } from '../src/prisma';
@@ -18,7 +31,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/incidents', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockChemical = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -39,7 +54,13 @@ const mockIncident = {
   immediateActions: 'Area ventilated, spill cleaned with absorbent',
   orgId: 'org-1',
   createdBy: 'user-1',
-  chemical: { id: '00000000-0000-0000-0000-000000000001', productName: 'Acetone', casNumber: '67-64-1', signalWord: 'DANGER', pictograms: ['GHS02_FLAMMABLE'] },
+  chemical: {
+    id: '00000000-0000-0000-0000-000000000001',
+    productName: 'Acetone',
+    casNumber: '67-64-1',
+    signalWord: 'DANGER',
+    pictograms: ['GHS02_FLAMMABLE'],
+  },
 };
 
 const validIncidentBody = {
@@ -111,7 +132,10 @@ describe('GET /api/incidents', () => {
 
 describe('GET /api/incidents/:id', () => {
   it('should return a single incident', async () => {
-    (prisma as any).chemIncident.findFirst.mockResolvedValue({ ...mockIncident, chemical: mockChemical });
+    (prisma as any).chemIncident.findFirst.mockResolvedValue({
+      ...mockIncident,
+      chemical: mockChemical,
+    });
 
     const res = await request(app).get('/api/incidents/00000000-0000-0000-0000-000000000050');
     expect(res.status).toBe(200);
@@ -161,14 +185,19 @@ describe('POST /api/incidents', () => {
 
   it('should create incident with exposure routes', async () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemIncident.create.mockResolvedValue({ ...mockIncident, exposureRoutes: ['INHALATION', 'SKIN_ABSORPTION'] });
-
-    const res = await request(app).post('/api/incidents').send({
-      ...validIncidentBody,
-      incidentType: 'EXPOSURE',
+    (prisma as any).chemIncident.create.mockResolvedValue({
+      ...mockIncident,
       exposureRoutes: ['INHALATION', 'SKIN_ABSORPTION'],
-      medicalAttentionGiven: true,
     });
+
+    const res = await request(app)
+      .post('/api/incidents')
+      .send({
+        ...validIncidentBody,
+        incidentType: 'EXPOSURE',
+        exposureRoutes: ['INHALATION', 'SKIN_ABSORPTION'],
+        medicalAttentionGiven: true,
+      });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });
@@ -200,20 +229,24 @@ describe('POST /api/incidents', () => {
   });
 
   it('should return 400 when incidentType is invalid', async () => {
-    const res = await request(app).post('/api/incidents').send({
-      ...validIncidentBody,
-      incidentType: 'INVALID_TYPE',
-    });
+    const res = await request(app)
+      .post('/api/incidents')
+      .send({
+        ...validIncidentBody,
+        incidentType: 'INVALID_TYPE',
+      });
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 
   it('should return 400 when severity is invalid', async () => {
-    const res = await request(app).post('/api/incidents').send({
-      ...validIncidentBody,
-      severity: 'INVALID_SEVERITY',
-    });
+    const res = await request(app)
+      .post('/api/incidents')
+      .send({
+        ...validIncidentBody,
+        severity: 'INVALID_SEVERITY',
+      });
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -222,10 +255,12 @@ describe('POST /api/incidents', () => {
   it('should return 404 when chemical does not exist', async () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/incidents').send({
-      ...validIncidentBody,
-      chemicalId: '00000000-0000-0000-0000-000000000099',
-    });
+    const res = await request(app)
+      .post('/api/incidents')
+      .send({
+        ...validIncidentBody,
+        chemicalId: '00000000-0000-0000-0000-000000000099',
+      });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -246,7 +281,11 @@ describe('POST /api/incidents', () => {
 describe('PUT /api/incidents/:id', () => {
   it('should update an existing incident', async () => {
     (prisma as any).chemIncident.findFirst.mockResolvedValue(mockIncident);
-    (prisma as any).chemIncident.update.mockResolvedValue({ ...mockIncident, rootCauseAnalysis: 'Improper handling', correctiveActions: 'Retrain staff' });
+    (prisma as any).chemIncident.update.mockResolvedValue({
+      ...mockIncident,
+      rootCauseAnalysis: 'Improper handling',
+      correctiveActions: 'Retrain staff',
+    });
 
     const res = await request(app).put('/api/incidents/00000000-0000-0000-0000-000000000050').send({
       rootCauseAnalysis: 'Improper handling',

@@ -29,8 +29,14 @@ const impactCreateSchema = z.object({
   systemId: z.string().trim().uuid(),
   title: z.string().trim().min(1).max(300),
   description: z.string().max(10000).optional().nullable(),
-  impactLevel: z.enum(['MINIMAL', 'LIMITED', 'SIGNIFICANT', 'HIGH', 'UNACCEPTABLE']).optional().default('LIMITED'),
-  assessmentType: z.enum(['INITIAL', 'PERIODIC', 'CHANGE_TRIGGERED', 'INCIDENT_TRIGGERED']).optional().default('INITIAL'),
+  impactLevel: z
+    .enum(['MINIMAL', 'LIMITED', 'SIGNIFICANT', 'HIGH', 'UNACCEPTABLE'])
+    .optional()
+    .default('LIMITED'),
+  assessmentType: z
+    .enum(['INITIAL', 'PERIODIC', 'CHANGE_TRIGGERED', 'INCIDENT_TRIGGERED'])
+    .optional()
+    .default('INITIAL'),
   scope: z.string().max(4000).optional().nullable(),
   methodology: z.string().max(4000).optional().nullable(),
   findings: z.string().max(10000).optional().nullable(),
@@ -41,7 +47,11 @@ const impactCreateSchema = z.object({
   mitigationMeasures: z.string().max(10000).optional().nullable(),
   residualRisk: z.string().max(4000).optional().nullable(),
   assessor: z.string().max(200).optional().nullable(),
-  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  reviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   notes: z.string().max(4000).optional().nullable(),
 });
 
@@ -50,7 +60,9 @@ const impactUpdateSchema = z.object({
   description: z.string().max(10000).optional().nullable(),
   impactLevel: z.enum(['MINIMAL', 'LIMITED', 'SIGNIFICANT', 'HIGH', 'UNACCEPTABLE']).optional(),
   status: z.enum(['DRAFT', 'IN_PROGRESS', 'REVIEW', 'APPROVED', 'ARCHIVED']).optional(),
-  assessmentType: z.enum(['INITIAL', 'PERIODIC', 'CHANGE_TRIGGERED', 'INCIDENT_TRIGGERED']).optional(),
+  assessmentType: z
+    .enum(['INITIAL', 'PERIODIC', 'CHANGE_TRIGGERED', 'INCIDENT_TRIGGERED'])
+    .optional(),
   scope: z.string().max(4000).optional().nullable(),
   methodology: z.string().max(4000).optional().nullable(),
   findings: z.string().max(10000).optional().nullable(),
@@ -61,7 +73,11 @@ const impactUpdateSchema = z.object({
   mitigationMeasures: z.string().max(10000).optional().nullable(),
   residualRisk: z.string().max(4000).optional().nullable(),
   assessor: z.string().max(200).optional().nullable(),
-  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  reviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   notes: z.string().max(4000).optional().nullable(),
 });
 
@@ -128,8 +144,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list impact assessments', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list impact assessments' } });
+    logger.error('Failed to list impact assessments', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list impact assessments' },
+    });
   }
 });
 
@@ -138,13 +159,24 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = impactCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     // Verify system exists
-    const system = await prisma.aiSystem.findFirst({ where: { id: parsed.data.systemId, deletedAt: null } as any });
+    const system = await prisma.aiSystem.findFirst({
+      where: { id: parsed.data.systemId, deletedAt: null } as any,
+    });
     if (!system) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -181,8 +213,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Impact assessment created', { assessmentId: assessment.id, reference });
     res.status(201).json({ success: true, data: assessment });
   } catch (error: unknown) {
-    logger.error('Failed to create impact assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create impact assessment' } });
+    logger.error('Failed to create impact assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create impact assessment' },
+    });
   }
 });
 
@@ -191,13 +228,21 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.aiImpactAssessment.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiImpactAssessment.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Impact assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Impact assessment not found' },
+      });
     }
 
     if (existing.status === 'APPROVED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_APPROVED', message: 'Impact assessment is already approved' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'ALREADY_APPROVED', message: 'Impact assessment is already approved' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -218,8 +263,14 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     logger.info('Impact assessment approved', { assessmentId: id });
     res.json({ success: true, data: assessment });
   } catch (error: unknown) {
-    logger.error('Failed to approve impact assessment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve impact assessment' } });
+    logger.error('Failed to approve impact assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve impact assessment' },
+    });
   }
 });
 
@@ -238,13 +289,22 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!assessment) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Impact assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Impact assessment not found' },
+      });
     }
 
     res.json({ success: true, data: assessment });
   } catch (error: unknown) {
-    logger.error('Failed to get impact assessment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get impact assessment' } });
+    logger.error('Failed to get impact assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get impact assessment' },
+    });
   }
 });
 
@@ -255,12 +315,24 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = impactUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.aiImpactAssessment.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiImpactAssessment.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Impact assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Impact assessment not found' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -268,9 +340,12 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       where: { id },
       data: {
         ...parsed.data,
-        reviewDate: parsed.data.reviewDate !== undefined
-          ? (parsed.data.reviewDate ? new Date(parsed.data.reviewDate) : null)
-          : undefined,
+        reviewDate:
+          parsed.data.reviewDate !== undefined
+            ? parsed.data.reviewDate
+              ? new Date(parsed.data.reviewDate)
+              : null
+            : undefined,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
       } as any,
@@ -282,8 +357,14 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     logger.info('Impact assessment updated', { assessmentId: id });
     res.json({ success: true, data: assessment });
   } catch (error: unknown) {
-    logger.error('Failed to update impact assessment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update impact assessment' } });
+    logger.error('Failed to update impact assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update impact assessment' },
+    });
   }
 });
 
@@ -293,9 +374,14 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.aiImpactAssessment.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiImpactAssessment.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Impact assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Impact assessment not found' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -310,8 +396,14 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     logger.info('Impact assessment soft-deleted', { assessmentId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete impact assessment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete impact assessment' } });
+    logger.error('Failed to delete impact assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete impact assessment' },
+    });
   }
 });
 

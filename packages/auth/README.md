@@ -31,21 +31,21 @@ const hash = await hashPassword('plaintext');
 
 ## Exports
 
-| Export | Description |
-|--------|-------------|
-| `generateToken` / `generateRefreshToken` | Create JWT access/refresh tokens |
-| `generateTokenPair` | Create both tokens at once |
-| `verifyToken` / `verifyRefreshToken` | Validate and decode tokens |
-| `hashPassword` / `comparePassword` | Bcrypt password operations |
-| `authenticate` | Express middleware — verifies Bearer token |
-| `requireRole` | Express middleware — checks user role |
-| `optionalAuth` | Express middleware — attaches user if token present |
-| `requirePermission` | RBAC middleware (from `@ims/rbac`) |
-| `attachPermissions` | RBAC middleware (from `@ims/rbac`) |
+| Export                                   | Description                                         |
+| ---------------------------------------- | --------------------------------------------------- |
+| `generateToken` / `generateRefreshToken` | Create JWT access/refresh tokens                    |
+| `generateTokenPair`                      | Create both tokens at once                          |
+| `verifyToken` / `verifyRefreshToken`     | Validate and decode tokens                          |
+| `hashPassword` / `comparePassword`       | Bcrypt password operations                          |
+| `authenticate`                           | Express middleware — verifies Bearer token          |
+| `requireRole`                            | Express middleware — checks user role               |
+| `optionalAuth`                           | Express middleware — attaches user if token present |
+| `requirePermission`                      | RBAC middleware (from `@ims/rbac`)                  |
+| `attachPermissions`                      | RBAC middleware (from `@ims/rbac`)                  |
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `JWT_SECRET` | Yes | Must match across all services |
-| `JWT_REFRESH_SECRET` | Yes | For refresh token signing |
+| Variable             | Required | Description                    |
+| -------------------- | -------- | ------------------------------ |
+| `JWT_SECRET`         | Yes      | Must match across all services |
+| `JWT_REFRESH_SECRET` | Yes      | For refresh token signing      |

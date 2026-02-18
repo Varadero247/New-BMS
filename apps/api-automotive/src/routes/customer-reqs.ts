@@ -32,18 +32,38 @@ const createSchema = z.object({
   customer: z.string().trim().min(1).max(200),
   requirementTitle: z.string().trim().min(1).max(200),
   requirementRef: z.string().optional(),
-  category: z.enum(['QUALITY', 'DELIVERY', 'PACKAGING', 'LABELING', 'DOCUMENTATION', 'PROCESS', 'ENVIRONMENTAL', 'SAFETY', 'OTHER']).optional(),
+  category: z
+    .enum([
+      'QUALITY',
+      'DELIVERY',
+      'PACKAGING',
+      'LABELING',
+      'DOCUMENTATION',
+      'PROCESS',
+      'ENVIRONMENTAL',
+      'SAFETY',
+      'OTHER',
+    ])
+    .optional(),
   description: z.string().trim().min(1).max(2000),
   applicableProducts: z.string().optional(),
   evidenceRef: z.string().optional(),
   reviewedBy: z.string().optional(),
-  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  reviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  nextReviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   notes: z.string().optional(),
 });
 
 const updateSchema = createSchema.partial().extend({
-  complianceStatus: z.enum(['COMPLIANT', 'NON_COMPLIANT', 'PARTIAL', 'UNDER_REVIEW', 'NOT_APPLICABLE']).optional(),
+  complianceStatus: z
+    .enum(['COMPLIANT', 'NON_COMPLIANT', 'PARTIAL', 'UNDER_REVIEW', 'NOT_APPLICABLE'])
+    .optional(),
 });
 
 // GET / - List customer requirements
@@ -85,7 +105,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List customer reqs error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list customer requirements' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list customer requirements' },
+    });
   }
 });
 
@@ -97,12 +120,16 @@ router.get('/customers', async (_req: AuthRequest, res: Response) => {
       select: { customer: true },
       distinct: ['customer'],
       orderBy: { customer: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
-    res.json({ success: true, data: customers.map(c => c.customer) });
+    res.json({ success: true, data: customers.map((c) => c.customer) });
   } catch (error) {
     logger.error('List customers error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list customers' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list customers' },
+    });
   }
 });
 
@@ -135,13 +162,19 @@ router.get('/compliance-summary', async (_req: AuthRequest, res: Response) => {
       data: {
         total,
         overdue,
-        byStatus: byStatus.map(s => ({ status: s.complianceStatus, count: s._count.id })),
-        byCustomer: byCustomer.sort((a, b) => b._count.id - a._count.id).slice(0, 10).map(c => ({ customer: c.customer, count: c._count.id })),
+        byStatus: byStatus.map((s) => ({ status: s.complianceStatus, count: s._count.id })),
+        byCustomer: byCustomer
+          .sort((a, b) => b._count.id - a._count.id)
+          .slice(0, 10)
+          .map((c) => ({ customer: c.customer, count: c._count.id })),
       },
     });
   } catch (error) {
     logger.error('Compliance summary error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance summary' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance summary' },
+    });
   }
 });
 
@@ -150,12 +183,18 @@ router.get('/:id', checkOwnership(prisma.customerReq), async (req: AuthRequest, 
   try {
     const req_ = await prisma.customerReq.findUnique({ where: { id: req.params.id } });
     if (!req_ || req_.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer requirement not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Customer requirement not found' },
+      });
     }
     res.json({ success: true, data: req_ });
   } catch (error) {
     logger.error('Get customer req error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get customer requirement' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get customer requirement' },
+    });
   }
 });
 
@@ -187,10 +226,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: customerReq });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create customer req error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create customer requirement' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create customer requirement' },
+    });
   }
 });
 
@@ -199,7 +248,10 @@ router.put('/:id', checkOwnership(prisma.customerReq), async (req: AuthRequest, 
   try {
     const existing = await prisma.customerReq.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer requirement not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Customer requirement not found' },
+      });
     }
 
     const data = updateSchema.parse(req.body);
@@ -215,31 +267,51 @@ router.put('/:id', checkOwnership(prisma.customerReq), async (req: AuthRequest, 
     res.json({ success: true, data: customerReq });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update customer req error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update customer requirement' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update customer requirement' },
+    });
   }
 });
 
 // DELETE /:id - Soft delete customer requirement
-router.delete('/:id', checkOwnership(prisma.customerReq), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.customerReq.findUnique({ where: { id: req.params.id } });
-    if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer requirement not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.customerReq),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.customerReq.findUnique({ where: { id: req.params.id } });
+      if (!existing || existing.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Customer requirement not found' },
+        });
+      }
+
+      await prisma.customerReq.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete customer req error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete customer requirement' },
+      });
     }
-
-    await prisma.customerReq.update({
-      where: { id: req.params.id },
-      data: { deletedAt: new Date() },
-    });
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete customer req error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete customer requirement' } });
   }
-});
+);
 
 export default router;

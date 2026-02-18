@@ -33,8 +33,8 @@ const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 // Sample event data
 const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days out
-const pastDate = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);    // 5 days ago
-const soonDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);    // 3 days out
+const pastDate = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000); // 5 days ago
+const soonDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000); // 3 days out
 
 const mockEvent = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -310,9 +310,7 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should group events by standard and type in summary', async () => {
-      mockPrisma.complianceEvent.findMany.mockResolvedValue([
-        mockEvent, mockDueSoonEvent,
-      ] as any);
+      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent, mockDueSoonEvent] as any);
 
       const response = await request(app)
         .get('/api/dashboard/compliance-calendar/upcoming')
@@ -599,7 +597,10 @@ describe('Compliance Calendar API Routes', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data).toEqual({ id: '00000000-0000-0000-0000-000000000001', deleted: true });
+      expect(response.body.data).toEqual({
+        id: '00000000-0000-0000-0000-000000000001',
+        deleted: true,
+      });
     });
 
     it('should return 404 for non-existent event', async () => {

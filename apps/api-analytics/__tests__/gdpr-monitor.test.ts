@@ -19,7 +19,10 @@ jest.mock('../src/prisma', () => ({
 }));
 
 jest.mock('@ims/auth', () => ({
-  authenticate: (_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', email: 'a@b.com' }; next(); },
+  authenticate: (_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', email: 'a@b.com' };
+    next();
+  },
 }));
 
 jest.mock('@ims/monitoring', () => ({
@@ -41,7 +44,12 @@ beforeEach(() => {
 describe('GET /api/gdpr/categories', () => {
   it('lists all GDPR data categories', async () => {
     (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([
-      { id: 'cat-1', category: 'Customer PII', legalBasis: 'CONTRACT', complianceStatus: 'COMPLIANT' },
+      {
+        id: 'cat-1',
+        category: 'Customer PII',
+        legalBasis: 'CONTRACT',
+        complianceStatus: 'COMPLIANT',
+      },
     ]);
 
     const res = await request(app).get('/api/gdpr/categories');
@@ -89,9 +97,15 @@ describe('GET /api/gdpr/report', () => {
 
 describe('POST /api/gdpr/categories', () => {
   it('creates a data category', async () => {
-    (prisma.gdprDataCategory.create as jest.Mock).mockResolvedValue({ id: 'cat-new', category: 'Marketing Data', legalBasis: 'CONSENT' });
+    (prisma.gdprDataCategory.create as jest.Mock).mockResolvedValue({
+      id: 'cat-new',
+      category: 'Marketing Data',
+      legalBasis: 'CONSENT',
+    });
 
-    const res = await request(app).post('/api/gdpr/categories').send({ category: 'Marketing Data', legalBasis: 'CONSENT' });
+    const res = await request(app)
+      .post('/api/gdpr/categories')
+      .send({ category: 'Marketing Data', legalBasis: 'CONSENT' });
     expect(res.status).toBe(201);
     expect(res.body.data.category.category).toBe('Marketing Data');
   });
@@ -104,9 +118,15 @@ describe('POST /api/gdpr/categories', () => {
 
 describe('POST /api/gdpr/dpas', () => {
   it('creates a DPA', async () => {
-    (prisma.dataProcessingAgreement.create as jest.Mock).mockResolvedValue({ id: 'dpa-new', processorName: 'Stripe', purpose: 'Payments' });
+    (prisma.dataProcessingAgreement.create as jest.Mock).mockResolvedValue({
+      id: 'dpa-new',
+      processorName: 'Stripe',
+      purpose: 'Payments',
+    });
 
-    const res = await request(app).post('/api/gdpr/dpas').send({ processorName: 'Stripe', purpose: 'Payments' });
+    const res = await request(app)
+      .post('/api/gdpr/dpas')
+      .send({ processorName: 'Stripe', purpose: 'Payments' });
     expect(res.status).toBe(201);
     expect(res.body.data.dpa.processorName).toBe('Stripe');
   });
@@ -123,7 +143,13 @@ describe('GDPR monitor job', () => {
     oldDate.setDate(oldDate.getDate() - 400);
 
     (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([
-      { id: 'cat-1', category: 'Old Data', retentionDays: 365, complianceStatus: 'COMPLIANT', createdAt: oldDate },
+      {
+        id: 'cat-1',
+        category: 'Old Data',
+        retentionDays: 365,
+        complianceStatus: 'COMPLIANT',
+        createdAt: oldDate,
+      },
     ]);
     (prisma.gdprDataCategory.update as jest.Mock).mockResolvedValue({});
 
@@ -139,7 +165,13 @@ describe('GDPR monitor job', () => {
 
   it('does not flag categories within retention period', async () => {
     (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([
-      { id: 'cat-1', category: 'Recent Data', retentionDays: 365, complianceStatus: 'COMPLIANT', createdAt: new Date() },
+      {
+        id: 'cat-1',
+        category: 'Recent Data',
+        retentionDays: 365,
+        complianceStatus: 'COMPLIANT',
+        createdAt: new Date(),
+      },
     ]);
 
     await runGdprMonitorJob();

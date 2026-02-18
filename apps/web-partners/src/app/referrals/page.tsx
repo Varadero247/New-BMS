@@ -37,7 +37,10 @@ export default function ReferralsPage() {
 
   useEffect(() => {
     const token = localStorage.getItem('partner_token');
-    if (!token) { router.push('/login'); return; }
+    if (!token) {
+      router.push('/login');
+      return;
+    }
     fetchData();
   }, []);
 
@@ -63,7 +66,10 @@ export default function ReferralsPage() {
     setSubmitting(true);
     setError('');
     try {
-      await api.post('/api/referrals/track', { prospectEmail: formEmail, prospectName: formName || undefined });
+      await api.post('/api/referrals/track', {
+        prospectEmail: formEmail,
+        prospectName: formName || undefined,
+      });
       setFormEmail('');
       setFormName('');
       setShowForm(false);
@@ -77,10 +83,27 @@ export default function ReferralsPage() {
   };
 
   const statusBadge = (r: Referral) => {
-    if (r.convertedAt) return <span className="px-2 py-0.5 rounded-full text-xs bg-green-500/20 text-green-400">Converted</span>;
-    if (r.signedUpAt) return <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/20 text-blue-400">Signed Up</span>;
-    if (r.clickedAt) return <span className="px-2 py-0.5 rounded-full text-xs bg-yellow-500/20 text-yellow-400">Clicked</span>;
-    return <span className="px-2 py-0.5 rounded-full text-xs bg-gray-500/20 text-gray-400">Sent</span>;
+    if (r.convertedAt)
+      return (
+        <span className="px-2 py-0.5 rounded-full text-xs bg-green-500/20 text-green-400">
+          Converted
+        </span>
+      );
+    if (r.signedUpAt)
+      return (
+        <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/20 text-blue-400">
+          Signed Up
+        </span>
+      );
+    if (r.clickedAt)
+      return (
+        <span className="px-2 py-0.5 rounded-full text-xs bg-yellow-500/20 text-yellow-400">
+          Clicked
+        </span>
+      );
+    return (
+      <span className="px-2 py-0.5 rounded-full text-xs bg-gray-500/20 text-gray-400">Sent</span>
+    );
   };
 
   if (loading) {
@@ -112,7 +135,12 @@ export default function ReferralsPage() {
           {error && (
             <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center justify-between">
               <p className="text-sm text-red-400">{error}</p>
-              <button onClick={() => setError('')} className="text-red-500 hover:text-red-300 ml-4 text-sm">Dismiss</button>
+              <button
+                onClick={() => setError('')}
+                className="text-red-500 hover:text-red-300 ml-4 text-sm"
+              >
+                Dismiss
+              </button>
             </div>
           )}
 
@@ -137,7 +165,9 @@ export default function ReferralsPage() {
               </div>
               <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
                 <p className="text-sm text-gray-400 mb-1">Conversion Rate</p>
-                <p className="text-2xl font-bold text-white">{(stats.conversionRate * 100).toFixed(1)}%</p>
+                <p className="text-2xl font-bold text-white">
+                  {(stats.conversionRate * 100).toFixed(1)}%
+                </p>
               </div>
             </div>
           )}
@@ -191,10 +221,18 @@ export default function ReferralsPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-800">
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Prospect</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Email</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        Prospect
+                      </th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        Email
+                      </th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        Date
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-800">
@@ -203,7 +241,9 @@ export default function ReferralsPage() {
                         <td className="py-3 px-6 text-sm text-white">{r.prospectName || '—'}</td>
                         <td className="py-3 px-6 text-sm text-gray-400">{r.prospectEmail}</td>
                         <td className="py-3 px-6">{statusBadge(r)}</td>
-                        <td className="py-3 px-6 text-sm text-gray-400">{new Date(r.createdAt).toLocaleDateString('en-GB')}</td>
+                        <td className="py-3 px-6 text-sm text-gray-400">
+                          {new Date(r.createdAt).toLocaleDateString('en-GB')}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

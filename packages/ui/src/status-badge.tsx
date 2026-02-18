@@ -17,7 +17,10 @@ export interface StatusBadgeProps {
   className?: string;
 }
 
-const statusConfig: Record<ComplianceStatus, { label: string; dotColor: string; textColor: string; bgColor: string }> = {
+const statusConfig: Record<
+  ComplianceStatus,
+  { label: string; dotColor: string; textColor: string; bgColor: string }
+> = {
   compliant: {
     label: 'Compliant',
     dotColor: 'var(--teal-core)',

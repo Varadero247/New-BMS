@@ -23,12 +23,18 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // Calculate overall IMS score: Quality 50% + H&S 30% + Env 20%
-function calculateOverallImsScore(qualityScore: number, hsAuditScore: number, envAuditScore: number): number {
+function calculateOverallImsScore(
+  qualityScore: number,
+  hsAuditScore: number,
+  envAuditScore: number
+): number {
   return Math.round(qualityScore * 0.5 + hsAuditScore * 0.3 + envAuditScore * 0.2);
 }
 
 // Determine overall rating from IMS score
-function getOverallRating(score: number): 'PREFERRED' | 'APPROVED' | 'CONDITIONAL' | 'PROBATIONARY' | 'SUSPENDED' | 'DISQUALIFIED' {
+function getOverallRating(
+  score: number
+): 'PREFERRED' | 'APPROVED' | 'CONDITIONAL' | 'PROBATIONARY' | 'SUSPENDED' | 'DISQUALIFIED' {
   if (score >= 90) return 'PREFERRED';
   if (score >= 75) return 'APPROVED';
   if (score >= 60) return 'CONDITIONAL';
@@ -86,7 +92,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List suppliers error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list suppliers' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list suppliers' },
+    });
   }
 });
 
@@ -98,13 +107,18 @@ router.get('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
     });
 
     if (!supplier) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     res.json({ success: true, data: supplier });
   } catch (error) {
     logger.error('Get supplier error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get supplier' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get supplier' },
+    });
   }
 });
 
@@ -115,18 +129,30 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       supplierName: z.string().trim().min(1).max(200),
       supplierCode: z.string().optional(),
       category: z.enum([
-        'MATERIALS', 'SERVICES', 'EQUIPMENT', 'LABOUR',
-        'SUBCONTRACT', 'UTILITIES', 'PROFESSIONAL_SERVICES', 'OTHER',
+        'MATERIALS',
+        'SERVICES',
+        'EQUIPMENT',
+        'LABOUR',
+        'SUBCONTRACT',
+        'UTILITIES',
+        'PROFESSIONAL_SERVICES',
+        'OTHER',
       ]),
       countryOfOrigin: z.string().optional(),
       primaryContact: z.string().optional(),
       contactEmail: z.string().trim().email('Invalid email').optional(),
       contactPhone: z.string().optional(),
       accountManager: z.string().optional(),
-      approvedStatus: z.enum([
-        'APPROVED', 'CONDITIONALLY_APPROVED', 'PROBATIONARY',
-        'SUSPENDED', 'DISQUALIFIED', 'PENDING_EVALUATION',
-      ]).optional(),
+      approvedStatus: z
+        .enum([
+          'APPROVED',
+          'CONDITIONALLY_APPROVED',
+          'PROBATIONARY',
+          'SUSPENDED',
+          'DISQUALIFIED',
+          'PENDING_EVALUATION',
+        ])
+        .optional(),
       // Quality Assessment
       iso9001Certified: z.enum(['YES', 'NO', 'IN_PROGRESS']).optional(),
       certificationBody: z.string().optional(),
@@ -137,7 +163,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       ncrsRaised: z.number().optional(),
       capaCompletionPct: z.number().optional(),
       qualityScore: z.number().min(0).max(100).optional(),
-      qualityRating: z.enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR']).optional(),
+      qualityRating: z
+        .enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR'])
+        .optional(),
       // H&S Assessment
       iso45001Certified: z.enum(['YES', 'NO', 'IN_PROGRESS']).optional(),
       riddorLtiRate: z.number().nonnegative().optional(),
@@ -145,7 +173,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       methodStatements: z.boolean().optional(),
       hsAuditScore: z.number().min(0).max(100).optional(),
       hsComments: z.string().optional(),
-      hsRating: z.enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR']).optional(),
+      hsRating: z
+        .enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR'])
+        .optional(),
       // Environmental Assessment
       iso14001Certified: z.enum(['YES', 'NO', 'IN_PROGRESS']).optional(),
       envPolicyInPlace: z.boolean().optional(),
@@ -154,15 +184,22 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       envIncidents: z.number().optional(),
       envAuditScore: z.number().min(0).max(100).optional(),
       envComments: z.string().optional(),
-      envRating: z.enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR']).optional(),
+      envRating: z
+        .enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR'])
+        .optional(),
       // Audit & Review
-      lastAuditDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      lastAuditDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       nextAuditDue: z.string().optional(),
       auditType: z.enum(['DESK', 'ON_SITE', 'REMOTE', 'THIRD_PARTY']).optional(),
       auditFindings: z.string().optional(),
       openNcrs: z.number().optional(),
       correctiveActionsDue: z.string().optional(),
-      reviewFrequency: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE']).optional(),
+      reviewFrequency: z
+        .enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'])
+        .optional(),
       // AI
       aiAnalysis: z.string().optional(),
       aiKeyRisks: z.string().optional(),
@@ -227,7 +264,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         auditType: data.auditType,
         auditFindings: data.auditFindings,
         openNcrs: data.openNcrs,
-        correctiveActionsDue: data.correctiveActionsDue ? new Date(data.correctiveActionsDue) : undefined,
+        correctiveActionsDue: data.correctiveActionsDue
+          ? new Date(data.correctiveActionsDue)
+          : undefined,
         reviewFrequency: data.reviewFrequency,
         aiAnalysis: data.aiAnalysis,
         aiKeyRisks: data.aiKeyRisks,
@@ -240,10 +279,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: supplier });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create supplier error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create supplier' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create supplier' },
+    });
   }
 });
 
@@ -252,25 +301,41 @@ router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
   try {
     const existing = await prisma.qualSupplier.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     const schema = z.object({
       supplierName: z.string().trim().min(1).max(200).optional(),
       supplierCode: z.string().optional(),
-      category: z.enum([
-        'MATERIALS', 'SERVICES', 'EQUIPMENT', 'LABOUR',
-        'SUBCONTRACT', 'UTILITIES', 'PROFESSIONAL_SERVICES', 'OTHER',
-      ]).optional(),
+      category: z
+        .enum([
+          'MATERIALS',
+          'SERVICES',
+          'EQUIPMENT',
+          'LABOUR',
+          'SUBCONTRACT',
+          'UTILITIES',
+          'PROFESSIONAL_SERVICES',
+          'OTHER',
+        ])
+        .optional(),
       countryOfOrigin: z.string().optional(),
       primaryContact: z.string().optional(),
       contactEmail: z.string().trim().email('Invalid email').optional(),
       contactPhone: z.string().optional(),
       accountManager: z.string().optional(),
-      approvedStatus: z.enum([
-        'APPROVED', 'CONDITIONALLY_APPROVED', 'PROBATIONARY',
-        'SUSPENDED', 'DISQUALIFIED', 'PENDING_EVALUATION',
-      ]).optional(),
+      approvedStatus: z
+        .enum([
+          'APPROVED',
+          'CONDITIONALLY_APPROVED',
+          'PROBATIONARY',
+          'SUSPENDED',
+          'DISQUALIFIED',
+          'PENDING_EVALUATION',
+        ])
+        .optional(),
       iso9001Certified: z.enum(['YES', 'NO', 'IN_PROGRESS']).optional(),
       certificationBody: z.string().optional(),
       certificateExpiry: z.string().optional(),
@@ -280,14 +345,18 @@ router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
       ncrsRaised: z.number().optional(),
       capaCompletionPct: z.number().optional(),
       qualityScore: z.number().min(0).max(100).optional(),
-      qualityRating: z.enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR']).optional(),
+      qualityRating: z
+        .enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR'])
+        .optional(),
       iso45001Certified: z.enum(['YES', 'NO', 'IN_PROGRESS']).optional(),
       riddorLtiRate: z.number().nonnegative().optional(),
       hsPolicyInPlace: z.boolean().optional(),
       methodStatements: z.boolean().optional(),
       hsAuditScore: z.number().min(0).max(100).optional(),
       hsComments: z.string().optional(),
-      hsRating: z.enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR']).optional(),
+      hsRating: z
+        .enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR'])
+        .optional(),
       iso14001Certified: z.enum(['YES', 'NO', 'IN_PROGRESS']).optional(),
       envPolicyInPlace: z.boolean().optional(),
       carbonFootprintData: z.enum(['YES', 'NO', 'IN_PROGRESS']).optional(),
@@ -295,14 +364,21 @@ router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
       envIncidents: z.number().optional(),
       envAuditScore: z.number().min(0).max(100).optional(),
       envComments: z.string().optional(),
-      envRating: z.enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR']).optional(),
-      lastAuditDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      envRating: z
+        .enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR'])
+        .optional(),
+      lastAuditDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       nextAuditDue: z.string().optional(),
       auditType: z.enum(['DESK', 'ON_SITE', 'REMOTE', 'THIRD_PARTY']).optional(),
       auditFindings: z.string().optional(),
       openNcrs: z.number().optional(),
       correctiveActionsDue: z.string().optional(),
-      reviewFrequency: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE']).optional(),
+      reviewFrequency: z
+        .enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'])
+        .optional(),
       aiAnalysis: z.string().optional(),
       aiKeyRisks: z.string().optional(),
       aiImprovementAreas: z.string().optional(),
@@ -330,35 +406,59 @@ router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
         certificateExpiry: data.certificateExpiry ? new Date(data.certificateExpiry) : undefined,
         lastAuditDate: data.lastAuditDate ? new Date(data.lastAuditDate) : undefined,
         nextAuditDue: data.nextAuditDue ? new Date(data.nextAuditDue) : undefined,
-        correctiveActionsDue: data.correctiveActionsDue ? new Date(data.correctiveActionsDue) : undefined,
+        correctiveActionsDue: data.correctiveActionsDue
+          ? new Date(data.correctiveActionsDue)
+          : undefined,
       },
     });
 
     res.json({ success: true, data: supplier });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update supplier error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update supplier' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update supplier' },
+    });
   }
 });
 
 // DELETE /:id — Delete supplier
-router.delete('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.qualSupplier.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.qualSupplier),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.qualSupplier.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      }
+
+      await prisma.qualSupplier.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete supplier error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete supplier' },
+      });
     }
-
-    await prisma.qualSupplier.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete supplier error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete supplier' } });
   }
-});
+);
 
 export default router;

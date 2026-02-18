@@ -59,15 +59,24 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       },
     });
 
-    logger.info('Webhook created', { webhookId: webhook.id, name: webhook.name, events: webhook.events });
+    logger.info('Webhook created', {
+      webhookId: webhook.id,
+      name: webhook.name,
+      events: webhook.events,
+    });
 
     res.status(201).json({ success: true, data: webhook });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating webhook', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create webhook' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create webhook' },
+    });
   }
 });
 
@@ -107,7 +116,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Error listing webhooks', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list webhooks' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list webhooks' },
+    });
   }
 });
 
@@ -127,13 +139,18 @@ router.get('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res:
     });
 
     if (!webhook) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Webhook not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Webhook not found' } });
     }
 
     res.json({ success: true, data: webhook });
   } catch (error) {
     logger.error('Error fetching webhook', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch webhook' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch webhook' },
+    });
   }
 });
 
@@ -159,7 +176,9 @@ router.put('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res:
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Webhook not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Webhook not found' } });
     }
 
     const webhook = await prisma.webhook.update({
@@ -172,10 +191,15 @@ router.put('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res:
     res.json({ success: true, data: webhook });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error updating webhook', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update webhook' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update webhook' },
+    });
   }
 });
 
@@ -189,7 +213,9 @@ router.delete('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, r
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Webhook not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Webhook not found' } });
     }
 
     await prisma.webhook.update({
@@ -202,141 +228,164 @@ router.delete('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, r
     res.json({ success: true, data: { message: 'Webhook deleted successfully' } });
   } catch (error) {
     logger.error('Error deleting webhook', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete webhook' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete webhook' },
+    });
   }
 });
 
 // ============================================
 // POST /api/webhooks/:id/test — Send test delivery
 // ============================================
-router.post('/:id/test', checkOwnership(prisma.webhook), async (req: AuthRequest, res: Response) => {
-  try {
-    const webhook = await prisma.webhook.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
-    });
-
-    if (!webhook) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Webhook not found' } });
-    }
-
-    const testPayload = {
-      event: 'test',
-      timestamp: new Date().toISOString(),
-      data: {
-        message: 'This is a test webhook delivery',
-        webhookId: webhook.id,
-        webhookName: webhook.name,
-      },
-    };
-
-    // Generate HMAC signature
-    const payloadString = JSON.stringify(testPayload);
-    const signature = crypto
-      .createHmac('sha256', webhook.secret)
-      .update(payloadString)
-      .digest('hex');
-
-    // Build request headers
-    const requestHeaders: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'X-Webhook-Signature': signature,
-      'X-Webhook-Id': webhook.id,
-      'X-Webhook-Event': 'test',
-    };
-
-    // Merge custom headers
-    if (webhook.headers && typeof webhook.headers === 'object') {
-      Object.assign(requestHeaders, webhook.headers);
-    }
-
-    let statusCode: number | null = null;
-    let responseBody: string | null = null;
-    let success = false;
-    let lastError: string | null = null;
-
+router.post(
+  '/:id/test',
+  checkOwnership(prisma.webhook),
+  async (req: AuthRequest, res: Response) => {
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), webhook.timeout);
-
-      const response = await fetch(webhook.url, {
-        method: 'POST',
-        headers: requestHeaders,
-        body: payloadString,
-        signal: controller.signal,
+      const webhook = await prisma.webhook.findFirst({
+        where: { id: req.params.id, deletedAt: null } as any,
       });
 
-      clearTimeout(timeoutId);
-      statusCode = response.status;
-      responseBody = await response.text().catch(() => null);
-      success = response.ok;
-    } catch (fetchError: unknown) {
-      lastError = fetchError instanceof Error ? fetchError.message : 'Unknown delivery error';
-      logger.warn('Test webhook delivery failed', { webhookId: webhook.id, error: lastError });
-    }
+      if (!webhook) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Webhook not found' } });
+      }
 
-    // Record delivery
-    const delivery = await prisma.webhookDelivery.create({
-      data: {
-        webhookId: webhook.id,
+      const testPayload = {
         event: 'test',
-        payload: testPayload,
-        statusCode,
-        response: responseBody,
+        timestamp: new Date().toISOString(),
+        data: {
+          message: 'This is a test webhook delivery',
+          webhookId: webhook.id,
+          webhookName: webhook.name,
+        },
+      };
+
+      // Generate HMAC signature
+      const payloadString = JSON.stringify(testPayload);
+      const signature = crypto
+        .createHmac('sha256', webhook.secret)
+        .update(payloadString)
+        .digest('hex');
+
+      // Build request headers
+      const requestHeaders: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'X-Webhook-Signature': signature,
+        'X-Webhook-Id': webhook.id,
+        'X-Webhook-Event': 'test',
+      };
+
+      // Merge custom headers
+      if (webhook.headers && typeof webhook.headers === 'object') {
+        Object.assign(requestHeaders, webhook.headers);
+      }
+
+      let statusCode: number | null = null;
+      let responseBody: string | null = null;
+      let success = false;
+      let lastError: string | null = null;
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), webhook.timeout);
+
+        const response = await fetch(webhook.url, {
+          method: 'POST',
+          headers: requestHeaders,
+          body: payloadString,
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+        statusCode = response.status;
+        responseBody = await response.text().catch(() => null);
+        success = response.ok;
+      } catch (fetchError: unknown) {
+        lastError = fetchError instanceof Error ? fetchError.message : 'Unknown delivery error';
+        logger.warn('Test webhook delivery failed', { webhookId: webhook.id, error: lastError });
+      }
+
+      // Record delivery
+      const delivery = await prisma.webhookDelivery.create({
+        data: {
+          webhookId: webhook.id,
+          event: 'test',
+          payload: testPayload,
+          statusCode,
+          response: responseBody,
+          success,
+          attempts: 1,
+          lastError,
+          deliveredAt: success ? new Date() : undefined,
+        },
+      });
+
+      logger.info('Test webhook delivery sent', {
+        webhookId: webhook.id,
+        deliveryId: delivery.id,
         success,
-        attempts: 1,
-        lastError,
-        deliveredAt: success ? new Date() : undefined,
-      },
-    });
+      });
 
-    logger.info('Test webhook delivery sent', { webhookId: webhook.id, deliveryId: delivery.id, success });
-
-    res.json({ success: true, data: delivery });
-  } catch (error) {
-    logger.error('Error sending test webhook', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to send test webhook' } });
+      res.json({ success: true, data: delivery });
+    } catch (error) {
+      logger.error('Error sending test webhook', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to send test webhook' },
+      });
+    }
   }
-});
+);
 
 // ============================================
 // GET /api/webhooks/:id/deliveries — List deliveries for a webhook
 // ============================================
-router.get('/:id/deliveries', checkOwnership(prisma.webhook), async (req: AuthRequest, res: Response) => {
-  try {
-    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
-    const skip = (page - 1) * limit;
+router.get(
+  '/:id/deliveries',
+  checkOwnership(prisma.webhook),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+      const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
+      const skip = (page - 1) * limit;
 
-    const where: any = { webhookId: req.params.id };
+      const where: any = { webhookId: req.params.id };
 
-    if (req.query.event) {
-      where.event = req.query.event as string;
+      if (req.query.event) {
+        where.event = req.query.event as string;
+      }
+
+      if (req.query.success !== undefined) {
+        where.success = req.query.success === 'true';
+      }
+
+      const [deliveries, total] = await Promise.all([
+        prisma.webhookDelivery.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit,
+        }),
+        prisma.webhookDelivery.count({ where }),
+      ]);
+
+      res.json({
+        success: true,
+        data: deliveries,
+        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      });
+    } catch (error) {
+      logger.error('Error listing deliveries', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to list deliveries' },
+      });
     }
-
-    if (req.query.success !== undefined) {
-      where.success = req.query.success === 'true';
-    }
-
-    const [deliveries, total] = await Promise.all([
-      prisma.webhookDelivery.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.webhookDelivery.count({ where }),
-    ]);
-
-    res.json({
-      success: true,
-      data: deliveries,
-      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
-    });
-  } catch (error) {
-    logger.error('Error listing deliveries', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list deliveries' } });
   }
-});
+);
 
 // ============================================
 // POST /api/webhooks/dispatch — Internal: dispatch event to all subscribed webhooks
@@ -357,7 +406,8 @@ router.post('/dispatch', async (req: AuthRequest, res: Response) => {
         deletedAt: null,
         events: { has: input.event } as any,
       },
-      take: 1000});
+      take: 1000,
+    });
 
     if (webhooks.length === 0) {
       return res.json({ success: true, data: { dispatched: 0, deliveries: [] } });
@@ -455,10 +505,15 @@ router.post('/dispatch', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error dispatching webhook event', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to dispatch webhook event' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to dispatch webhook event' },
+    });
   }
 });
 

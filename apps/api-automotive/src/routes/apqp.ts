@@ -65,12 +65,7 @@ const APQP_DELIVERABLES: Record<number, string[]> = {
     'Production Control Plan',
     'Management Support',
   ],
-  5: [
-    'Reduced Variation',
-    'Customer Satisfaction',
-    'Delivery and Service',
-    'Lessons Learned',
-  ],
+  5: ['Reduced Variation', 'Customer Satisfaction', 'Delivery and Service', 'Lessons Learned'],
 };
 
 const PHASE_NAMES: Record<number, string> = {
@@ -134,7 +129,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List APQP projects error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list APQP projects' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list APQP projects' },
+    });
   }
 });
 
@@ -155,13 +153,18 @@ router.get('/:id', checkOwnership(prisma.apqpProject), async (req: AuthRequest, 
     });
 
     if (!project) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'APQP project not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'APQP project not found' } });
     }
 
     res.json({ success: true, data: project });
   } catch (error) {
     logger.error('Get APQP project error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get APQP project' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get APQP project' },
+    });
   }
 });
 
@@ -174,8 +177,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       partName: z.string().trim().min(1).max(200),
       customer: z.string().trim().min(1).max(200),
       programName: z.string().optional(),
-      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      targetDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       teamLeader: z.string().trim().min(1).max(200),
       teamMembers: z.array(z.string()).optional().default([]),
       status: z.enum(['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
@@ -247,10 +250,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: project });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create APQP project error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create APQP project' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create APQP project' },
+    });
   }
 });
 
@@ -259,7 +272,9 @@ router.put('/:id', checkOwnership(prisma.apqpProject), async (req: AuthRequest, 
   try {
     const existing = await prisma.apqpProject.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'APQP project not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'APQP project not found' } });
     }
 
     const schema = z.object({
@@ -269,8 +284,14 @@ router.put('/:id', checkOwnership(prisma.apqpProject), async (req: AuthRequest, 
       customer: z.string().trim().min(1).max(200).optional(),
       programName: z.string().optional(),
       status: z.enum(['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
-      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      targetDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      completedDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       teamLeader: z.string().trim().min(1).max(200).optional(),
       teamMembers: z.array(z.string()).optional(),
     });
@@ -292,32 +313,52 @@ router.put('/:id', checkOwnership(prisma.apqpProject), async (req: AuthRequest, 
     res.json({ success: true, data: project });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update APQP project error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update APQP project' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update APQP project' },
+    });
   }
 });
 
 // DELETE /:id - Soft delete APQP project
-router.delete('/:id', checkOwnership(prisma.apqpProject), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.apqpProject.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'APQP project not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.apqpProject),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.apqpProject.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'APQP project not found' },
+        });
+      }
+
+      await prisma.apqpProject.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete APQP project error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete APQP project' },
+      });
     }
-
-    await prisma.apqpProject.update({
-      where: { id: req.params.id },
-      data: { deletedAt: new Date() },
-    });
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete APQP project error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete APQP project' } });
   }
-});
+);
 
 // POST /:id/phases/:phaseNum/gate-review - Submit phase gate review
 router.post('/:id/phases/:phaseNum/gate-review', async (req: AuthRequest, res: Response) => {
@@ -326,11 +367,14 @@ router.post('/:id/phases/:phaseNum/gate-review', async (req: AuthRequest, res: R
     const phaseNumber = parseInt(phaseNum, 10);
 
     if (isNaN(phaseNumber) || phaseNumber < 1 || phaseNumber > 5) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Phase number must be between 1 and 5' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Phase number must be between 1 and 5' },
+      });
     }
 
     const schema = z.object({
-      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      reviewDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       reviewers: z.array(z.string()).min(1),
       decision: z.enum(['APPROVED', 'APPROVED_WITH_CONDITIONS', 'REJECTED', 'DEFERRED']),
       conditions: z.string().optional(),
@@ -346,7 +390,9 @@ router.post('/:id/phases/:phaseNum/gate-review', async (req: AuthRequest, res: R
     });
 
     if (!phase) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Phase not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Phase not found' } });
     }
 
     // Check if gate review already exists
@@ -423,10 +469,20 @@ router.post('/:id/phases/:phaseNum/gate-review', async (req: AuthRequest, res: R
     res.status(201).json({ success: true, data: gateReview });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Gate review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit gate review' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to submit gate review' },
+    });
   }
 });
 
@@ -438,7 +494,9 @@ router.put('/:id/deliverables/:did', async (req: AuthRequest, res: Response) => 
     // Verify project exists
     const project = await prisma.apqpProject.findUnique({ where: { id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'APQP project not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'APQP project not found' } });
     }
 
     // Find deliverable and verify it belongs to this project
@@ -448,14 +506,24 @@ router.put('/:id/deliverables/:did', async (req: AuthRequest, res: Response) => 
     });
 
     if (!deliverable || deliverable.phase.projectId !== id) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deliverable not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Deliverable not found' } });
     }
 
     const schema = z.object({
-      status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'NOT_APPLICABLE', 'BLOCKED']).optional(),
+      status: z
+        .enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'NOT_APPLICABLE', 'BLOCKED'])
+        .optional(),
       assignedTo: z.string().optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      completedDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       documentRef: z.string().optional(),
       notes: z.string().optional(),
     });
@@ -483,10 +551,20 @@ router.put('/:id/deliverables/:did', async (req: AuthRequest, res: Response) => 
     res.json({ success: true, data: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update deliverable error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update deliverable' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update deliverable' },
+    });
   }
 });
 
@@ -507,7 +585,9 @@ router.get('/:id/status-report', async (req: AuthRequest, res: Response) => {
     });
 
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'APQP project not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'APQP project not found' } });
     }
 
     const phaseReports = project.phases.map((phase) => {
@@ -518,12 +598,9 @@ router.get('/:id/status-report', async (req: AuthRequest, res: Response) => {
       const inProgressDeliverables = phase.deliverables.filter(
         (d) => d.status === 'IN_PROGRESS'
       ).length;
-      const blockedDeliverables = phase.deliverables.filter(
-        (d) => d.status === 'BLOCKED'
-      ).length;
-      const completionPercentage = totalDeliverables > 0
-        ? Math.round((completedDeliverables / totalDeliverables) * 100)
-        : 0;
+      const blockedDeliverables = phase.deliverables.filter((d) => d.status === 'BLOCKED').length;
+      const completionPercentage =
+        totalDeliverables > 0 ? Math.round((completedDeliverables / totalDeliverables) * 100) : 0;
 
       return {
         phaseNumber: phase.phaseNumber,
@@ -546,9 +623,8 @@ router.get('/:id/status-report', async (req: AuthRequest, res: Response) => {
 
     const totalDeliverables = phaseReports.reduce((sum, p) => sum + p.totalDeliverables, 0);
     const totalCompleted = phaseReports.reduce((sum, p) => sum + p.completedDeliverables, 0);
-    const overallCompletion = totalDeliverables > 0
-      ? Math.round((totalCompleted / totalDeliverables) * 100)
-      : 0;
+    const overallCompletion =
+      totalDeliverables > 0 ? Math.round((totalCompleted / totalDeliverables) * 100) : 0;
 
     const report = {
       projectId: project.id,
@@ -570,7 +646,10 @@ router.get('/:id/status-report', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: report });
   } catch (error) {
     logger.error('Status report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate status report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate status report' },
+    });
   }
 });
 

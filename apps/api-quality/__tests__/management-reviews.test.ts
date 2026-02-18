@@ -144,7 +144,9 @@ describe('Management Reviews Routes', () => {
     it('should return a management review by id', async () => {
       (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
 
-      const res = await request(app).get('/api/management-reviews/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).get(
+        '/api/management-reviews/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.status).toBe('PLANNED');
@@ -153,7 +155,9 @@ describe('Management Reviews Routes', () => {
     it('should return 404 if not found', async () => {
       (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/management-reviews/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).get(
+        '/api/management-reviews/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
     });
@@ -161,7 +165,9 @@ describe('Management Reviews Routes', () => {
     it('should handle errors', async () => {
       (prisma.qualManagementReview.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/management-reviews/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).get(
+        '/api/management-reviews/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
@@ -170,11 +176,16 @@ describe('Management Reviews Routes', () => {
   describe('PUT /api/management-reviews/:id', () => {
     it('should update a management review', async () => {
       (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
-      (prisma.qualManagementReview.update as jest.Mock).mockResolvedValue({ ...mockReview, status: 'IN_PROGRESS' });
-
-      const res = await request(app).put('/api/management-reviews/00000000-0000-0000-0000-000000000001').send({
+      (prisma.qualManagementReview.update as jest.Mock).mockResolvedValue({
+        ...mockReview,
         status: 'IN_PROGRESS',
       });
+
+      const res = await request(app)
+        .put('/api/management-reviews/00000000-0000-0000-0000-000000000001')
+        .send({
+          status: 'IN_PROGRESS',
+        });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.status).toBe('IN_PROGRESS');
@@ -183,9 +194,11 @@ describe('Management Reviews Routes', () => {
     it('should return 404 if not found', async () => {
       (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/management-reviews/00000000-0000-0000-0000-000000000099').send({
-        status: 'IN_PROGRESS',
-      });
+      const res = await request(app)
+        .put('/api/management-reviews/00000000-0000-0000-0000-000000000099')
+        .send({
+          status: 'IN_PROGRESS',
+        });
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
     });
@@ -194,9 +207,11 @@ describe('Management Reviews Routes', () => {
       (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
       (prisma.qualManagementReview.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).put('/api/management-reviews/00000000-0000-0000-0000-000000000001').send({
-        status: 'IN_PROGRESS',
-      });
+      const res = await request(app)
+        .put('/api/management-reviews/00000000-0000-0000-0000-000000000001')
+        .send({
+          status: 'IN_PROGRESS',
+        });
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
@@ -213,10 +228,12 @@ describe('Management Reviews Routes', () => {
         completedAt: '2026-03-15T16:00:00.000Z',
       });
 
-      const res = await request(app).put('/api/management-reviews/00000000-0000-0000-0000-000000000001/complete').send({
-        minutes: 'All items reviewed and approved',
-        decisions: 'Continue current QMS approach',
-      });
+      const res = await request(app)
+        .put('/api/management-reviews/00000000-0000-0000-0000-000000000001/complete')
+        .send({
+          minutes: 'All items reviewed and approved',
+          decisions: 'Continue current QMS approach',
+        });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.status).toBe('COMPLETED');
@@ -226,10 +243,12 @@ describe('Management Reviews Routes', () => {
     it('should return 404 if review not found for complete', async () => {
       (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/management-reviews/00000000-0000-0000-0000-000000000099/complete').send({
-        minutes: 'Minutes',
-        decisions: 'Decisions',
-      });
+      const res = await request(app)
+        .put('/api/management-reviews/00000000-0000-0000-0000-000000000099/complete')
+        .send({
+          minutes: 'Minutes',
+          decisions: 'Decisions',
+        });
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
     });
@@ -238,10 +257,12 @@ describe('Management Reviews Routes', () => {
       (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
       (prisma.qualManagementReview.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).put('/api/management-reviews/00000000-0000-0000-0000-000000000001/complete').send({
-        minutes: 'Minutes',
-        decisions: 'Decisions',
-      });
+      const res = await request(app)
+        .put('/api/management-reviews/00000000-0000-0000-0000-000000000001/complete')
+        .send({
+          minutes: 'Minutes',
+          decisions: 'Decisions',
+        });
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
@@ -250,9 +271,14 @@ describe('Management Reviews Routes', () => {
   describe('DELETE /api/management-reviews/:id', () => {
     it('should soft delete a management review', async () => {
       (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
-      (prisma.qualManagementReview.update as jest.Mock).mockResolvedValue({ ...mockReview, deletedAt: new Date().toISOString() });
+      (prisma.qualManagementReview.update as jest.Mock).mockResolvedValue({
+        ...mockReview,
+        deletedAt: new Date().toISOString(),
+      });
 
-      const res = await request(app).delete('/api/management-reviews/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/management-reviews/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(prisma.qualManagementReview.update).toHaveBeenCalledWith(
@@ -263,7 +289,9 @@ describe('Management Reviews Routes', () => {
     it('should return 404 if not found', async () => {
       (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/management-reviews/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/management-reviews/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
     });
@@ -271,7 +299,9 @@ describe('Management Reviews Routes', () => {
     it('should handle delete errors', async () => {
       (prisma.qualManagementReview.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/management-reviews/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/management-reviews/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });

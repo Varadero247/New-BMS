@@ -248,7 +248,9 @@ export const HorizontalInteractive: Story = {
         </div>
         <div className="p-4 bg-gray-50 rounded-lg">
           <p className="text-sm font-semibold">{steps[current].label}</p>
-          <p className="text-xs text-gray-500 mt-1">Step {current + 1} of {steps.length}</p>
+          <p className="text-xs text-gray-500 mt-1">
+            Step {current + 1} of {steps.length}
+          </p>
         </div>
       </div>
     );
@@ -283,9 +285,7 @@ export const FormFlow: Story = {
         <div className="p-6 border rounded-lg bg-white">
           <h3 className="font-semibold text-lg">{steps[current].label}</h3>
           <p className="text-sm text-gray-500 mt-1">{steps[current].description}</p>
-          <div className="mt-4 p-4 bg-gray-50 rounded text-sm">
-            {formContent[current]}
-          </div>
+          <div className="mt-4 p-4 bg-gray-50 rounded text-sm">{formContent[current]}</div>
         </div>
         <div className="flex gap-2">
           <Button

@@ -57,10 +57,17 @@ router.get('/low-stock', async (req: AuthRequest, res: Response) => {
 
     const total = Number(countResult[0]?.count ?? 0);
 
-    res.json({ success: true, data: lowStockItems, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({
+      success: true,
+      data: lowStockItems,
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error) {
     logger.error('Low stock error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get low stock items' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get low stock items' },
+    });
   }
 });
 
@@ -92,7 +99,10 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Stock summary error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get stock summary' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get stock summary' },
+    });
   }
 });
 
@@ -115,17 +125,33 @@ router.get('/', async (req: AuthRequest, res: Response) => {
         take: limit,
         orderBy: { updatedAt: 'desc' },
         include: {
-          product: { select: { id: true, sku: true, name: true, reorderPoint: true, reorderQuantity: true, maxStockLevel: true } },
+          product: {
+            select: {
+              id: true,
+              sku: true,
+              name: true,
+              reorderPoint: true,
+              reorderQuantity: true,
+              maxStockLevel: true,
+            },
+          },
           warehouse: { select: { id: true, code: true, name: true } },
         },
       }),
       prisma.inventory.count({ where }),
     ]);
 
-    res.json({ success: true, data: items, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({
+      success: true,
+      data: items,
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error) {
     logger.error('List stock levels error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list stock levels' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list stock levels' },
+    });
   }
 });
 
@@ -135,15 +161,32 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     const item = await prisma.inventory.findFirst({
       where: { id: req.params.id },
       include: {
-        product: { select: { id: true, sku: true, name: true, reorderPoint: true, reorderQuantity: true, maxStockLevel: true, costPrice: true } },
+        product: {
+          select: {
+            id: true,
+            sku: true,
+            name: true,
+            reorderPoint: true,
+            reorderQuantity: true,
+            maxStockLevel: true,
+            costPrice: true,
+          },
+        },
         warehouse: { select: { id: true, code: true, name: true } },
       },
     });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Stock level record not found' } });
+    if (!item)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Stock level record not found' },
+      });
     res.json({ success: true, data: item });
   } catch (error) {
     logger.error('Get stock level error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get stock level' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get stock level' },
+    });
   }
 });
 

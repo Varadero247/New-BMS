@@ -11,11 +11,11 @@ const fullAccessContext: NLQPermissionContext = {
   role: 'admin',
   modulePermissions: {
     'health-safety': 6,
-    'quality': 6,
-    'environment': 6,
-    'hr': 6,
-    'inventory': 6,
-    'finance': 6,
+    quality: 6,
+    environment: 6,
+    hr: 6,
+    inventory: 6,
+    finance: 6,
   },
 };
 
@@ -123,22 +123,28 @@ describe('nlq', () => {
 
   describe('validateQueryPermissions', () => {
     it('should return true when user has all required permissions', () => {
-      expect(validateQueryPermissions(['health-safety', 'quality'], {
-        'health-safety': 3,
-        'quality': 2,
-      })).toBe(true);
+      expect(
+        validateQueryPermissions(['health-safety', 'quality'], {
+          'health-safety': 3,
+          quality: 2,
+        })
+      ).toBe(true);
     });
 
     it('should return false when user lacks a required permission', () => {
-      expect(validateQueryPermissions(['health-safety', 'quality'], {
-        'health-safety': 3,
-      })).toBe(false);
+      expect(
+        validateQueryPermissions(['health-safety', 'quality'], {
+          'health-safety': 3,
+        })
+      ).toBe(false);
     });
 
     it('should return false when permission level is 0 (NONE)', () => {
-      expect(validateQueryPermissions(['health-safety'], {
-        'health-safety': 0,
-      })).toBe(false);
+      expect(
+        validateQueryPermissions(['health-safety'], {
+          'health-safety': 0,
+        })
+      ).toBe(false);
     });
 
     it('should return true for empty modules array', () => {

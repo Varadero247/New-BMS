@@ -10,12 +10,7 @@ export interface HelpTooltipProps {
   className?: string;
 }
 
-export function HelpTooltip({
-  content,
-  isoRef,
-  videoUrl,
-  className,
-}: HelpTooltipProps) {
+export function HelpTooltip({ content, isoRef, videoUrl, className }: HelpTooltipProps) {
   const [open, setOpen] = useState(false);
   const [flipY, setFlipY] = useState(false);
   const [flipX, setFlipX] = useState(false);
@@ -55,13 +50,20 @@ export function HelpTooltip({
     <span
       ref={containerRef}
       className={cn('relative inline-flex items-center', className)}
-      onMouseEnter={() => { updatePosition(); setOpen(true); }}
+      onMouseEnter={() => {
+        updatePosition();
+        setOpen(true);
+      }}
       onMouseLeave={() => setOpen(false)}
     >
       {/* Help circle icon (inline SVG, Lucide HelpCircle style) */}
       <button
         type="button"
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen((o) => !o); }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen((o) => !o);
+        }}
         className="inline-flex items-center justify-center h-4 w-4 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full"
         aria-label="Help"
       >

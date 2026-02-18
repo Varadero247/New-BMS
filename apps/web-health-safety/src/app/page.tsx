@@ -3,7 +3,16 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
 import { ComplianceGauge, RiskMatrix, SafetyTrendChart } from '@ims/charts';
-import { AlertTriangle, FileWarning, Clock, TrendingUp, Users, Activity, Scale, Target } from 'lucide-react';
+import {
+  AlertTriangle,
+  FileWarning,
+  Clock,
+  TrendingUp,
+  Users,
+  Activity,
+  Scale,
+  Target,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface DashboardStats {
@@ -33,14 +42,15 @@ export default function HealthSafetyDashboard() {
 
   async function loadStats() {
     try {
-      const [risksRes, incidentsRes, metricsRes, legalRes, objectivesRes, capaRes] = await Promise.all([
-        api.get('/risks'),
-        api.get('/incidents'),
-        api.get('/metrics').catch(() => ({ data: { data: null } })),
-        api.get('/legal').catch(() => ({ data: { data: [] } })),
-        api.get('/objectives').catch(() => ({ data: { data: [] } })),
-        api.get('/capa').catch(() => ({ data: { data: [] } })),
-      ]);
+      const [risksRes, incidentsRes, metricsRes, legalRes, objectivesRes, capaRes] =
+        await Promise.all([
+          api.get('/risks'),
+          api.get('/incidents'),
+          api.get('/metrics').catch(() => ({ data: { data: null } })),
+          api.get('/legal').catch(() => ({ data: { data: [] } })),
+          api.get('/objectives').catch(() => ({ data: { data: [] } })),
+          api.get('/capa').catch(() => ({ data: { data: [] } })),
+        ]);
 
       const risks = risksRes.data.data || [];
       const incidents = incidentsRes.data.data || [];
@@ -51,21 +61,27 @@ export default function HealthSafetyDashboard() {
 
       // Calculate CAPA overdue count
       const now = new Date();
-      const overdueCapas = capas.filter((c: Record<string, unknown>) =>
-        c.status !== 'CLOSED' && c.targetCompletionDate && new Date(c.targetCompletionDate) < now
+      const overdueCapas = capas.filter(
+        (c: Record<string, unknown>) =>
+          c.status !== 'CLOSED' && c.targetCompletionDate && new Date(c.targetCompletionDate) < now
       ).length;
 
       const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      const dueThisWeek = capas.filter((c: Record<string, unknown>) =>
-        c.status !== 'CLOSED' && c.targetCompletionDate &&
-        new Date(c.targetCompletionDate) >= now &&
-        new Date(c.targetCompletionDate) <= oneWeekFromNow
+      const dueThisWeek = capas.filter(
+        (c: Record<string, unknown>) =>
+          c.status !== 'CLOSED' &&
+          c.targetCompletionDate &&
+          new Date(c.targetCompletionDate) >= now &&
+          new Date(c.targetCompletionDate) <= oneWeekFromNow
       ).length;
 
       // Calculate legal compliance percentage
       const legalTotal = legal.length;
-      const legalCompliant = legal.filter((l: Record<string, unknown>) => l.complianceStatus === 'COMPLIANT').length;
-      const compliancePercent = legalTotal > 0 ? Math.round((legalCompliant / legalTotal) * 100) : 0;
+      const legalCompliant = legal.filter(
+        (l: Record<string, unknown>) => l.complianceStatus === 'COMPLIANT'
+      ).length;
+      const compliancePercent =
+        legalTotal > 0 ? Math.round((legalCompliant / legalTotal) * 100) : 0;
 
       setStats({
         compliance: compliancePercent,
@@ -76,7 +92,10 @@ export default function HealthSafetyDashboard() {
         },
         incidents: {
           total: incidents.length,
-          open: incidents.filter((i: Record<string, unknown>) => i.status === 'OPEN' || i.status === 'UNDER_INVESTIGATION').length,
+          open: incidents.filter(
+            (i: Record<string, unknown>) =>
+              i.status === 'OPEN' || i.status === 'UNDER_INVESTIGATION'
+          ).length,
           thisMonth: incidents.filter((i: Record<string, unknown>) => {
             const date = new Date(i.createdAt);
             return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
@@ -90,14 +109,22 @@ export default function HealthSafetyDashboard() {
         legal: {
           total: legalTotal,
           compliant: legalCompliant,
-          partial: legal.filter((l: Record<string, unknown>) => l.complianceStatus === 'PARTIAL').length,
-          nonCompliant: legal.filter((l: Record<string, unknown>) => l.complianceStatus === 'NON_COMPLIANT').length,
+          partial: legal.filter((l: Record<string, unknown>) => l.complianceStatus === 'PARTIAL')
+            .length,
+          nonCompliant: legal.filter(
+            (l: Record<string, unknown>) => l.complianceStatus === 'NON_COMPLIANT'
+          ).length,
         },
         objectives: {
           total: objectives.length,
-          achieved: objectives.filter((o: Record<string, unknown>) => o.status === 'ACHIEVED').length,
-          onTrack: objectives.filter((o: Record<string, unknown>) => o.status === 'ON_TRACK' || o.status === 'ACTIVE').length,
-          atRisk: objectives.filter((o: Record<string, unknown>) => o.status === 'AT_RISK' || o.status === 'BEHIND').length,
+          achieved: objectives.filter((o: Record<string, unknown>) => o.status === 'ACHIEVED')
+            .length,
+          onTrack: objectives.filter(
+            (o: Record<string, unknown>) => o.status === 'ON_TRACK' || o.status === 'ACTIVE'
+          ).length,
+          atRisk: objectives.filter(
+            (o: Record<string, unknown>) => o.status === 'AT_RISK' || o.status === 'BEHIND'
+          ).length,
         },
         metrics: metrics || { ltifr: 0, trir: 0, severityRate: 0 },
         topRisks: risks.slice(0, 5),
@@ -117,7 +144,7 @@ export default function HealthSafetyDashboard() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
@@ -131,19 +158,36 @@ export default function HealthSafetyDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Health & Safety Dashboard</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 45001 Occupational Health & Safety Management</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Health & Safety Dashboard
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            ISO 45001 Occupational Health & Safety Management
+          </p>
         </div>
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
             <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-            <button onClick={() => { setError(''); setLoading(true); loadStats(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+            <button
+              onClick={() => {
+                setError('');
+                setLoading(true);
+                loadStats();
+              }}
+              className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0"
+            >
+              Retry
+            </button>
           </div>
         )}
 
         {/* Compliance & Metrics Row */}
-        <div data-tour="hs-stats" aria-live="polite" className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div
+          data-tour="hs-stats"
+          aria-live="polite"
+          className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
+        >
           <Card>
             <CardContent className="pt-6 flex justify-center">
               <ComplianceGauge
@@ -166,7 +210,9 @@ export default function HealthSafetyDashboard() {
                   <Activity className="h-6 w-6 text-red-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Lost Time Injury Frequency Rate</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                Lost Time Injury Frequency Rate
+              </p>
             </CardContent>
           </Card>
 
@@ -181,7 +227,9 @@ export default function HealthSafetyDashboard() {
                   <TrendingUp className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Total Recordable Incident Rate</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                Total Recordable Incident Rate
+              </p>
             </CardContent>
           </Card>
 
@@ -190,13 +238,17 @@ export default function HealthSafetyDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Severity Rate</p>
-                  <p className="text-2xl font-bold">{stats?.metrics.severityRate.toFixed(1) || '0.0'}</p>
+                  <p className="text-2xl font-bold">
+                    {stats?.metrics.severityRate.toFixed(1) || '0.0'}
+                  </p>
                 </div>
                 <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-full">
                   <Users className="h-6 w-6 text-yellow-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Days Lost per Incident</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                Days Lost per Incident
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -215,7 +267,9 @@ export default function HealthSafetyDashboard() {
                 </div>
               </div>
               <div className="mt-2 text-sm">
-                <span className="text-red-600 font-medium">{stats?.risks.critical || 0} critical</span>
+                <span className="text-red-600 font-medium">
+                  {stats?.risks.critical || 0} critical
+                </span>
                 <span className="text-gray-400 dark:text-gray-500 mx-1">|</span>
                 <span className="text-orange-600 font-medium">{stats?.risks.high || 0} high</span>
               </div>
@@ -244,7 +298,9 @@ export default function HealthSafetyDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Overdue CAPAs</p>
-                  <p className={`text-2xl font-bold ${(stats?.actions.overdue || 0) > 0 ? 'text-red-600' : ''}`}>
+                  <p
+                    className={`text-2xl font-bold ${(stats?.actions.overdue || 0) > 0 ? 'text-red-600' : ''}`}
+                  >
                     {stats?.actions.overdue || 0}
                   </p>
                 </div>
@@ -280,16 +336,25 @@ export default function HealthSafetyDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Legal Compliance</p>
-                  <p className="text-2xl font-bold">{stats?.legal.compliant || 0}<span className="text-sm text-gray-400 dark:text-gray-500 font-normal">/{stats?.legal.total || 0}</span></p>
+                  <p className="text-2xl font-bold">
+                    {stats?.legal.compliant || 0}
+                    <span className="text-sm text-gray-400 dark:text-gray-500 font-normal">
+                      /{stats?.legal.total || 0}
+                    </span>
+                  </p>
                 </div>
                 <div className="p-3 bg-green-100 dark:bg-green-900 rounded-full">
                   <Scale className="h-6 w-6 text-green-600" />
                 </div>
               </div>
               <div className="mt-2 text-sm">
-                <span className="text-yellow-600 font-medium">{stats?.legal.partial || 0} partial</span>
+                <span className="text-yellow-600 font-medium">
+                  {stats?.legal.partial || 0} partial
+                </span>
                 <span className="text-gray-400 dark:text-gray-500 mx-1">|</span>
-                <span className="text-red-600 font-medium">{stats?.legal.nonCompliant || 0} non-compliant</span>
+                <span className="text-red-600 font-medium">
+                  {stats?.legal.nonCompliant || 0} non-compliant
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -306,13 +371,19 @@ export default function HealthSafetyDashboard() {
                 </div>
               </div>
               <div className="mt-2 text-sm">
-                <span className="text-green-600 font-medium">{stats?.objectives.achieved || 0} achieved</span>
+                <span className="text-green-600 font-medium">
+                  {stats?.objectives.achieved || 0} achieved
+                </span>
                 <span className="text-gray-400 dark:text-gray-500 mx-1">|</span>
-                <span className="text-blue-600 font-medium">{stats?.objectives.onTrack || 0} on track</span>
+                <span className="text-blue-600 font-medium">
+                  {stats?.objectives.onTrack || 0} on track
+                </span>
                 {(stats?.objectives.atRisk || 0) > 0 && (
                   <>
                     <span className="text-gray-400 dark:text-gray-500 mx-1">|</span>
-                    <span className="text-red-600 font-medium">{stats?.objectives.atRisk} at risk</span>
+                    <span className="text-red-600 font-medium">
+                      {stats?.objectives.atRisk} at risk
+                    </span>
                   </>
                 )}
               </div>
@@ -362,18 +433,27 @@ export default function HealthSafetyDashboard() {
               {stats?.topRisks && stats.topRisks.length > 0 ? (
                 <div className="space-y-3">
                   {stats.topRisks.map((risk: Record<string, unknown>) => (
-                    <div key={risk.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div
+                      key={risk.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
                       <div className="flex-1">
                         <p className="font-medium text-sm">{risk.title}</p>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          risk.riskLevel === 'CRITICAL' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                          risk.riskLevel === 'HIGH' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
-                          'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
-                        }`}>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full ${
+                            risk.riskLevel === 'CRITICAL'
+                              ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                              : risk.riskLevel === 'HIGH'
+                                ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300'
+                                : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
+                          }`}
+                        >
                           {risk.riskLevel}
                         </span>
                       </div>
-                      <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">{risk.riskScore}</div>
+                      <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">
+                        {risk.riskScore}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -395,16 +475,25 @@ export default function HealthSafetyDashboard() {
               {stats?.recentIncidents && stats.recentIncidents.length > 0 ? (
                 <div className="space-y-3">
                   {stats.recentIncidents.map((incident: Record<string, unknown>) => (
-                    <div key={incident.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div
+                      key={incident.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
                       <div className="flex-1">
                         <p className="font-medium text-sm">{incident.title}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">{incident.referenceNumber}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            incident.status === 'OPEN' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                            incident.status === 'UNDER_INVESTIGATION' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' :
-                            'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
-                          }`}>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {incident.referenceNumber}
+                          </span>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              incident.status === 'OPEN'
+                                ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                                : incident.status === 'UNDER_INVESTIGATION'
+                                  ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
+                                  : 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                            }`}
+                          >
                             {incident.status}
                           </span>
                           {incident.riddorReportable && (
@@ -421,7 +510,9 @@ export default function HealthSafetyDashboard() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No incidents recorded</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                  No incidents recorded
+                </p>
               )}
             </CardContent>
           </Card>

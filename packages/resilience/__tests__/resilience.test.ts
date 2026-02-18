@@ -257,10 +257,7 @@ describe('Resilience Package', () => {
     });
 
     it('should call onRetry callback', async () => {
-      const fn = jest
-        .fn()
-        .mockRejectedValueOnce(new Error('fail'))
-        .mockResolvedValue('success');
+      const fn = jest.fn().mockRejectedValueOnce(new Error('fail')).mockResolvedValue('success');
       const onRetry = jest.fn();
 
       await withRetry(fn, {
@@ -372,11 +369,7 @@ describe('Resilience Package', () => {
         running--;
       };
 
-      await Promise.all([
-        bulkhead.execute(fn),
-        bulkhead.execute(fn),
-        bulkhead.execute(fn),
-      ]);
+      await Promise.all([bulkhead.execute(fn), bulkhead.execute(fn), bulkhead.execute(fn)]);
 
       expect(maxRunning).toBe(1);
     });

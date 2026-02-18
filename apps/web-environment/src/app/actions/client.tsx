@@ -16,15 +16,7 @@ import {
   Textarea,
   AIDisclosure,
 } from '@ims/ui';
-import {
-  Plus,
-  ClipboardList,
-  Loader2,
-  Search,
-  Sparkles,
-  Clock,
-  CheckCircle,
-} from 'lucide-react';
+import { Plus, ClipboardList, Loader2, Search, Sparkles, Clock, CheckCircle } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -256,10 +248,7 @@ function formatLabel(str: string): string {
 }
 
 function isOverdue(dueDate: string, status: string): boolean {
-  return (
-    (status === 'OPEN' || status === 'IN_PROGRESS') &&
-    new Date(dueDate) < new Date()
-  );
+  return (status === 'OPEN' || status === 'IN_PROGRESS') && new Date(dueDate) < new Date();
 }
 
 // ---------------------------------------------------------------------------
@@ -431,8 +420,12 @@ export default function ActionsClient() {
     return (
       <div className="flex items-center gap-2 mb-3">
         <span className={`w-3 h-3 rounded-full ${colorMap[col] || 'bg-gray-400'}`} />
-        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{formatLabel(col)}</span>
-        <span className="text-xs text-gray-400 dark:text-gray-500">({kanbanGroups[col]?.length || 0})</span>
+        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+          {formatLabel(col)}
+        </span>
+        <span className="text-xs text-gray-400 dark:text-gray-500">
+          ({kanbanGroups[col]?.length || 0})
+        </span>
       </div>
     );
   }
@@ -443,19 +436,23 @@ export default function ActionsClient() {
       <div
         key={action.id}
         className={`p-4 border rounded-lg transition-colors ${
-          overdue ? 'border-red-300 bg-red-50' : 'border-gray-200 dark:border-gray-700 hover:border-green-300 bg-white'
+          overdue
+            ? 'border-red-300 bg-red-50'
+            : 'border-gray-200 dark:border-gray-700 hover:border-green-300 bg-white'
         }`}
       >
         {/* Header row */}
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">{action.referenceNumber}</span>
-          <Badge className={priorityColor(action.priority)}>
-            {action.priority}
-          </Badge>
+          <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">
+            {action.referenceNumber}
+          </span>
+          <Badge className={priorityColor(action.priority)}>{action.priority}</Badge>
         </div>
 
         {/* Title */}
-        <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1 line-clamp-1">{action.title}</h4>
+        <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1 line-clamp-1">
+          {action.title}
+        </h4>
 
         {/* Action type badge */}
         <Badge variant={actionTypeBadgeVariant(action.actionType)} className="text-xs mb-2">
@@ -464,7 +461,9 @@ export default function ActionsClient() {
 
         {/* Description preview */}
         {action.description && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">{action.description}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
+            {action.description}
+          </p>
         )}
 
         {/* Assigned to & due date */}
@@ -483,7 +482,9 @@ export default function ActionsClient() {
             style={{ width: `${Math.min(100, action.percentComplete || 0)}%` }}
           />
         </div>
-        <span className="text-xs text-gray-400 dark:text-gray-500">{action.percentComplete || 0}% complete</span>
+        <span className="text-xs text-gray-400 dark:text-gray-500">
+          {action.percentComplete || 0}% complete
+        </span>
 
         {/* Overdue warning */}
         {overdue && (
@@ -506,7 +507,9 @@ export default function ActionsClient() {
         {/* Page Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Environmental Actions</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Environmental Actions
+            </h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">
               Corrective, preventive and improvement actions for environmental management
             </p>
@@ -525,7 +528,9 @@ export default function ActionsClient() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{counts.total}</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                  {counts.total}
+                </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
               </div>
             </CardContent>
@@ -577,7 +582,8 @@ export default function ActionsClient() {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <Input
                     id="search"
-                    aria-label="Search actions..." placeholder="Search actions..."
+                    aria-label="Search actions..."
+                    placeholder="Search actions..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-9"
@@ -656,7 +662,9 @@ export default function ActionsClient() {
             <CardContent className="py-16">
               <div className="text-center">
                 <ClipboardList className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400 text-lg mb-1">No environmental actions found</p>
+                <p className="text-gray-500 dark:text-gray-400 text-lg mb-1">
+                  No environmental actions found
+                </p>
                 <p className="text-gray-400 dark:text-gray-500 text-sm mb-6">
                   Click Create Action to add your first action
                 </p>
@@ -926,9 +934,7 @@ export default function ActionsClient() {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <Label htmlFor="percentComplete">
-                    Percent Complete: {form.percentComplete}%
-                  </Label>
+                  <Label htmlFor="percentComplete">Percent Complete: {form.percentComplete}%</Label>
                   <div className="mt-2 flex items-center gap-4">
                     <input
                       id="percentComplete"
@@ -1065,7 +1071,12 @@ export default function ActionsClient() {
                   </button>
                   {aiExpanded && (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
-                      <AIDisclosure variant="inline" provider="claude" analysisType="Environmental Action Recommendation" confidence={0.85} />
+                      <AIDisclosure
+                        variant="inline"
+                        provider="claude"
+                        analysisType="Environmental Action Recommendation"
+                        confidence={0.85}
+                      />
                       {aiGenerated.actionPlan && (
                         <div>
                           <p className="text-xs font-semibold text-green-800 uppercase">
@@ -1135,16 +1146,14 @@ export default function ActionsClient() {
 
           {/* Modal Footer */}
           <ModalFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowModal(false)}
-              disabled={submitting}
-            >
+            <Button variant="outline" onClick={() => setShowModal(false)} disabled={submitting}>
               Cancel
             </Button>
             <Button
               className="bg-green-600 hover:bg-green-700"
-              disabled={submitting || !form.title || !form.description || !form.assignedTo || !form.dueDate}
+              disabled={
+                submitting || !form.title || !form.description || !form.assignedTo || !form.dueDate
+              }
               onClick={handleSubmit}
             >
               {submitting ? (

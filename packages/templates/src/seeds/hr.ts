@@ -71,8 +71,10 @@ export const hrTemplates: TemplateDefinition[] = [
         label: 'Purpose Statement',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the overall purpose and contribution of this role to the organisation...',
-        helpText: 'A concise statement (2-4 sentences) explaining the core purpose of the position.',
+        placeholder:
+          'Describe the overall purpose and contribution of this role to the organisation...',
+        helpText:
+          'A concise statement (2-4 sentences) explaining the core purpose of the position.',
         validation: { minLength: 50, maxLength: 2000 },
         width: 'full',
         section: 'Role Purpose',
@@ -194,8 +196,10 @@ export const hrTemplates: TemplateDefinition[] = [
         id: 'working_conditions',
         label: 'Working Conditions',
         type: 'textarea',
-        placeholder: 'Describe working environment, travel requirements, shift patterns, physical demands...',
-        helpText: 'Include details on location, travel, hours, PPE requirements, and any special conditions.',
+        placeholder:
+          'Describe working environment, travel requirements, shift patterns, physical demands...',
+        helpText:
+          'Include details on location, travel, hours, PPE requirements, and any special conditions.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'Working Conditions',
@@ -230,7 +234,8 @@ export const hrTemplates: TemplateDefinition[] = [
         label: 'Approver Signature',
         type: 'signature',
         required: true,
-        helpText: 'Signature of the hiring manager or HR representative approving this job description.',
+        helpText:
+          'Signature of the hiring manager or HR representative approving this job description.',
         section: 'Approval',
       },
     ],
@@ -299,14 +304,15 @@ export const hrTemplates: TemplateDefinition[] = [
         id: 'section_competency',
         label: 'Competency Assessment',
         type: 'section',
-        helpText: 'Rate each competency based on the candidate\'s responses during the interview.',
+        helpText: "Rate each competency based on the candidate's responses during the interview.",
       },
       {
         id: 'competency_assessment',
         label: 'Competency Assessment',
         type: 'table',
         required: true,
-        helpText: 'Assess each competency area. Rating scale: 1 = Poor, 2 = Below Average, 3 = Average, 4 = Good, 5 = Excellent.',
+        helpText:
+          'Assess each competency area. Rating scale: 1 = Poor, 2 = Below Average, 3 = Average, 4 = Good, 5 = Excellent.',
         columns: [
           {
             id: 'competency',
@@ -328,7 +334,7 @@ export const hrTemplates: TemplateDefinition[] = [
             label: 'Response Summary',
             type: 'textarea',
             required: true,
-            placeholder: 'Summary of the candidate\'s response...',
+            placeholder: "Summary of the candidate's response...",
             validation: { maxLength: 1000 },
           },
           {
@@ -354,7 +360,7 @@ export const hrTemplates: TemplateDefinition[] = [
         label: 'Technical Skills Rating',
         type: 'rating',
         required: true,
-        helpText: 'Overall rating of the candidate\'s technical skills. 1 = Poor, 5 = Excellent.',
+        helpText: "Overall rating of the candidate's technical skills. 1 = Poor, 5 = Excellent.",
         validation: { min: 1, max: 5 },
         width: 'half',
         section: 'Skills & Cultural Fit',
@@ -364,7 +370,8 @@ export const hrTemplates: TemplateDefinition[] = [
         label: 'Cultural Fit Rating',
         type: 'rating',
         required: true,
-        helpText: 'How well the candidate aligns with company values and team dynamics. 1 = Poor, 5 = Excellent.',
+        helpText:
+          'How well the candidate aligns with company values and team dynamics. 1 = Poor, 5 = Excellent.',
         validation: { min: 1, max: 5 },
         width: 'half',
         section: 'Skills & Cultural Fit',
@@ -397,7 +404,7 @@ export const hrTemplates: TemplateDefinition[] = [
         label: 'Key Strengths',
         type: 'textarea',
         required: true,
-        placeholder: 'Summarise the candidate\'s main strengths observed during the interview...',
+        placeholder: "Summarise the candidate's main strengths observed during the interview...",
         helpText: 'Highlight specific examples or evidence from the interview.',
         validation: { minLength: 20, maxLength: 2000 },
         width: 'full',
@@ -407,7 +414,8 @@ export const hrTemplates: TemplateDefinition[] = [
         id: 'concerns',
         label: 'Concerns / Weaknesses',
         type: 'textarea',
-        placeholder: 'Note any concerns, gaps, or areas where the candidate did not meet expectations...',
+        placeholder:
+          'Note any concerns, gaps, or areas where the candidate did not meet expectations...',
         helpText: 'Be specific and evidence-based.',
         validation: { maxLength: 2000 },
         width: 'full',
@@ -495,7 +503,8 @@ export const hrTemplates: TemplateDefinition[] = [
         label: 'Goals Achievement',
         type: 'table',
         required: true,
-        helpText: 'List each goal, the target, actual result, and a rating from 1 (not met) to 5 (exceeded).',
+        helpText:
+          'List each goal, the target, actual result, and a rating from 1 (not met) to 5 (exceeded).',
         columns: [
           {
             id: 'goal',
@@ -573,7 +582,7 @@ export const hrTemplates: TemplateDefinition[] = [
         id: 'section_overall',
         label: 'Overall Assessment',
         type: 'section',
-        helpText: 'Summarise the employee\'s overall performance.',
+        helpText: "Summarise the employee's overall performance.",
       },
       {
         id: 'overall_rating',
@@ -596,7 +605,7 @@ export const hrTemplates: TemplateDefinition[] = [
         label: 'Strengths',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the employee\'s key strengths demonstrated during this period...',
+        placeholder: "Describe the employee's key strengths demonstrated during this period...",
         validation: { minLength: 20, maxLength: 2000 },
         width: 'full',
         section: 'Overall Assessment',
@@ -617,7 +626,7 @@ export const hrTemplates: TemplateDefinition[] = [
         id: 'section_development',
         label: 'Development Plan',
         type: 'section',
-        helpText: 'Agreed actions for the employee\'s professional development.',
+        helpText: "Agreed actions for the employee's professional development.",
       },
       {
         id: 'development_plan',
@@ -744,7 +753,8 @@ export const hrTemplates: TemplateDefinition[] = [
         label: 'Competency Gap Analysis',
         type: 'table',
         required: true,
-        helpText: 'For each role/competency, rate the current level and required level on a 1-5 scale. The gap is the difference.',
+        helpText:
+          'For each role/competency, rate the current level and required level on a 1-5 scale. The gap is the difference.',
         columns: [
           {
             id: 'role',
@@ -868,7 +878,8 @@ export const hrTemplates: TemplateDefinition[] = [
         label: 'Implementation Timeline',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the phased rollout plan with target dates for each training initiative...',
+        placeholder:
+          'Describe the phased rollout plan with target dates for each training initiative...',
         helpText: 'Include key milestones and delivery phases.',
         validation: { maxLength: 2000 },
         width: 'full',
@@ -945,7 +956,7 @@ export const hrTemplates: TemplateDefinition[] = [
         type: 'text',
         required: true,
         placeholder: 'e.g. EMP-00123',
-        helpText: 'The employee\'s unique identifier in the HR system.',
+        helpText: "The employee's unique identifier in the HR system.",
         width: 'half',
         section: 'Employee Information',
       },
@@ -1053,7 +1064,8 @@ export const hrTemplates: TemplateDefinition[] = [
         label: 'Competency Achieved',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the competency or skill the employee has demonstrated as a result of this training...',
+        placeholder:
+          'Describe the competency or skill the employee has demonstrated as a result of this training...',
         helpText: 'Be specific about what the employee can now do or understand.',
         validation: { minLength: 10, maxLength: 1000 },
         width: 'full',
@@ -1096,7 +1108,8 @@ export const hrTemplates: TemplateDefinition[] = [
         label: 'Trainer Signature',
         type: 'signature',
         required: true,
-        helpText: 'The trainer or assessor confirms the training was delivered and assessment completed.',
+        helpText:
+          'The trainer or assessor confirms the training was delivered and assessment completed.',
         section: 'Sign-Off',
       },
       {

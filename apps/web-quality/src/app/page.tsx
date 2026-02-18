@@ -53,7 +53,8 @@ export default function QualityDashboard() {
         },
         nonconformances: {
           total: ncs.length,
-          open: ncs.filter((nc: any) => nc.status === 'OPEN' || nc.status === 'INVESTIGATING').length,
+          open: ncs.filter((nc: any) => nc.status === 'OPEN' || nc.status === 'INVESTIGATING')
+            .length,
         },
         actions: { overdue: 4, dueThisWeek: 6 },
         metrics: metrics || {
@@ -79,7 +80,7 @@ export default function QualityDashboard() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
@@ -94,13 +95,22 @@ export default function QualityDashboard() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Quality Dashboard</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 9001 Quality Management System</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            ISO 9001 Quality Management System
+          </p>
         </div>
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
             <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-            <button onClick={() => { setError(''); setLoading(true); loadStats(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">
+            <button
+              onClick={() => {
+                setError('');
+                setLoading(true);
+                loadStats();
+              }}
+              className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0"
+            >
               Retry
             </button>
           </div>
@@ -124,7 +134,9 @@ export default function QualityDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">COPQ</p>
-                  <p className="text-2xl font-bold">${(stats?.metrics?.copq ?? 0).toLocaleString()}</p>
+                  <p className="text-2xl font-bold">
+                    ${(stats?.metrics?.copq ?? 0).toLocaleString()}
+                  </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">Cost of Poor Quality</p>
                 </div>
                 <div className="p-3 bg-red-100 dark:bg-red-900 rounded-full">
@@ -139,7 +151,9 @@ export default function QualityDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">DPMO</p>
-                  <p className="text-2xl font-bold">{(stats?.metrics?.dpmo ?? 0).toLocaleString()}</p>
+                  <p className="text-2xl font-bold">
+                    {(stats?.metrics?.dpmo ?? 0).toLocaleString()}
+                  </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">Defects per Million</p>
                 </div>
                 <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-full">
@@ -194,7 +208,9 @@ export default function QualityDashboard() {
                 </div>
               </div>
               <div className="mt-2 text-sm">
-                <span className="text-red-600 font-medium">{stats?.processes.atRisk || 0} at risk</span>
+                <span className="text-red-600 font-medium">
+                  {stats?.processes.atRisk || 0} at risk
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -262,23 +278,36 @@ export default function QualityDashboard() {
               {stats?.topNCs && stats.topNCs.length > 0 ? (
                 <div className="space-y-3">
                   {stats.topNCs.map((nc: any) => (
-                    <div key={nc.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div
+                      key={nc.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
                       <div className="flex-1">
                         <p className="font-medium text-sm">{nc.title}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">{nc.referenceNumber}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            nc.status === 'OPEN' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                            nc.status === 'INVESTIGATING' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' :
-                            'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
-                          }`}>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {nc.referenceNumber}
+                          </span>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              nc.status === 'OPEN'
+                                ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                                : nc.status === 'INVESTIGATING'
+                                  ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
+                                  : 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                            }`}
+                          >
                             {nc.status}
                           </span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            nc.ncType === 'CUSTOMER_COMPLAINT' ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300' :
-                            nc.ncType === 'INTERNAL_AUDIT' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
-                            'bg-gray-100 dark:bg-gray-800 text-gray-700'
-                          }`}>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              nc.ncType === 'CUSTOMER_COMPLAINT'
+                                ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300'
+                                : nc.ncType === 'INTERNAL_AUDIT'
+                                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }`}
+                          >
                             {nc.ncType?.replace('_', ' ')}
                           </span>
                         </div>
@@ -290,7 +319,9 @@ export default function QualityDashboard() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No nonconformances recorded</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                  No nonconformances recorded
+                </p>
               )}
             </CardContent>
           </Card>
@@ -307,16 +338,25 @@ export default function QualityDashboard() {
               {stats?.recentComplaints && stats.recentComplaints.length > 0 ? (
                 <div className="space-y-3">
                   {stats.recentComplaints.map((complaint: any) => (
-                    <div key={complaint.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div
+                      key={complaint.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
                       <div className="flex-1">
                         <p className="font-medium text-sm">{complaint.title}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">{complaint.referenceNumber}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            complaint.severity === 'CRITICAL' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                            complaint.severity === 'MAJOR' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
-                            'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
-                          }`}>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {complaint.referenceNumber}
+                          </span>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              complaint.severity === 'CRITICAL'
+                                ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                                : complaint.severity === 'MAJOR'
+                                  ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300'
+                                  : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
+                            }`}
+                          >
                             {complaint.severity}
                           </span>
                         </div>

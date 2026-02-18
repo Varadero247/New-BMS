@@ -157,9 +157,7 @@ describe('HR Leave API Routes', () => {
         isActive: true,
       });
 
-      const response = await request(app)
-        .post('/api/leave/types')
-        .send(createPayload);
+      const response = await request(app).post('/api/leave/types').send(createPayload);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -196,9 +194,7 @@ describe('HR Leave API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.leaveType.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .post('/api/leave/types')
-        .send(createPayload);
+      const response = await request(app).post('/api/leave/types').send(createPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -216,7 +212,13 @@ describe('HR Leave API Routes', () => {
         endDate: new Date('2025-02-05'),
         days: 5,
         status: 'PENDING',
-        employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', departmentId: '2b000000-0000-4000-a000-000000000001' },
+        employee: {
+          id: '2a000000-0000-4000-a000-000000000001',
+          firstName: 'John',
+          lastName: 'Doe',
+          employeeNumber: 'EMP001',
+          departmentId: '2b000000-0000-4000-a000-000000000001',
+        },
         leaveType: { id: '14200000-0000-4000-a000-000000000001', name: 'Annual Leave' },
         approvals: [],
       },
@@ -287,7 +289,9 @@ describe('HR Leave API Routes', () => {
       (mockPrisma.leaveRequest.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.leaveRequest.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app).get('/api/leave/requests?leaveTypeId=14200000-0000-4000-a000-000000000001');
+      await request(app).get(
+        '/api/leave/requests?leaveTypeId=14200000-0000-4000-a000-000000000001'
+      );
 
       expect(mockPrisma.leaveRequest.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -339,7 +343,11 @@ describe('HR Leave API Routes', () => {
         lastName: 'Doe',
         employeeNumber: 'EMP001',
         department: { name: 'Engineering' },
-        manager: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
+        manager: {
+          id: '53000000-0000-4000-a000-000000000001',
+          firstName: 'Jane',
+          lastName: 'Manager',
+        },
       },
       leaveType: { id: '14200000-0000-4000-a000-000000000001', name: 'Annual Leave' },
       approvals: [],
@@ -348,7 +356,9 @@ describe('HR Leave API Routes', () => {
     it('should return single leave request', async () => {
       (mockPrisma.leaveRequest.findUnique as jest.Mock).mockResolvedValueOnce(mockRequest);
 
-      const response = await request(app).get('/api/leave/requests/14100000-0000-4000-a000-000000000001');
+      const response = await request(app).get(
+        '/api/leave/requests/14100000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -358,16 +368,22 @@ describe('HR Leave API Routes', () => {
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff request', async () => {
       (mockPrisma.leaveRequest.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/leave/requests/00000000-0000-4000-a000-ffffffffffff');
+      const response = await request(app).get(
+        '/api/leave/requests/00000000-0000-4000-a000-ffffffffffff'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.leaveRequest.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.leaveRequest.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
-      const response = await request(app).get('/api/leave/requests/14100000-0000-4000-a000-000000000001');
+      const response = await request(app).get(
+        '/api/leave/requests/14100000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -400,13 +416,17 @@ describe('HR Leave API Routes', () => {
         status: 'PENDING',
         employee: { firstName: 'John', lastName: 'Doe' },
         leaveType: { id: '14200000-0000-4000-a000-000000000001', name: 'Annual Leave' },
-        approvals: [{ id: '14400000-0000-4000-a000-000000000001', approverEmployeeId: '53000000-0000-4000-a000-000000000001', status: 'PENDING' }],
+        approvals: [
+          {
+            id: '14400000-0000-4000-a000-000000000001',
+            approverEmployeeId: '53000000-0000-4000-a000-000000000001',
+            status: 'PENDING',
+          },
+        ],
       });
       (mockPrisma.leaveBalance.update as jest.Mock).mockResolvedValueOnce({});
 
-      const response = await request(app)
-        .post('/api/leave/requests')
-        .send(createPayload);
+      const response = await request(app).post('/api/leave/requests').send(createPayload);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -419,27 +439,29 @@ describe('HR Leave API Routes', () => {
         balance: 2,
       });
 
-      const response = await request(app)
-        .post('/api/leave/requests')
-        .send(createPayload);
+      const response = await request(app).post('/api/leave/requests').send(createPayload);
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('INSUFFICIENT_BALANCE');
     });
 
     it('should return 400 for missing employeeId', async () => {
-      const response = await request(app)
-        .post('/api/leave/requests')
-        .send({ leaveTypeId: '22222222-2222-2222-2222-222222222222', startDate: '2025-02-10', endDate: '2025-02-14' });
+      const response = await request(app).post('/api/leave/requests').send({
+        leaveTypeId: '22222222-2222-2222-2222-222222222222',
+        startDate: '2025-02-10',
+        endDate: '2025-02-14',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
     });
 
     it('should return 400 for missing startDate', async () => {
-      const response = await request(app)
-        .post('/api/leave/requests')
-        .send({ employeeId: '11111111-1111-1111-1111-111111111111', leaveTypeId: '22222222-2222-2222-2222-222222222222', endDate: '2025-02-14' });
+      const response = await request(app).post('/api/leave/requests').send({
+        employeeId: '11111111-1111-1111-1111-111111111111',
+        leaveTypeId: '22222222-2222-2222-2222-222222222222',
+        endDate: '2025-02-14',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -456,9 +478,7 @@ describe('HR Leave API Routes', () => {
       });
       (mockPrisma.leaveRequest.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .post('/api/leave/requests')
-        .send(createPayload);
+      const response = await request(app).post('/api/leave/requests').send(createPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -504,7 +524,9 @@ describe('HR Leave API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.leaveRequest.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.leaveRequest.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/leave/requests/14100000-0000-4000-a000-000000000001/approve')
@@ -533,7 +555,10 @@ describe('HR Leave API Routes', () => {
 
       const response = await request(app)
         .put('/api/leave/requests/14100000-0000-4000-a000-000000000001/reject')
-        .send({ approverId: '53000000-0000-4000-a000-000000000001', comments: 'Rejected - team busy' });
+        .send({
+          approverId: '53000000-0000-4000-a000-000000000001',
+          comments: 'Rejected - team busy',
+        });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -551,7 +576,9 @@ describe('HR Leave API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.leaveRequest.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.leaveRequest.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/leave/requests/14100000-0000-4000-a000-000000000001/reject')
@@ -580,7 +607,9 @@ describe('HR Leave API Routes', () => {
     it('should return leave balances for employee', async () => {
       (mockPrisma.leaveBalance.findMany as jest.Mock).mockResolvedValueOnce(mockBalances);
 
-      const response = await request(app).get('/api/leave/balances/2a000000-0000-4000-a000-000000000001');
+      const response = await request(app).get(
+        '/api/leave/balances/2a000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -618,7 +647,9 @@ describe('HR Leave API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.leaveBalance.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/leave/balances/2a000000-0000-4000-a000-000000000001');
+      const response = await request(app).get(
+        '/api/leave/balances/2a000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -643,9 +674,7 @@ describe('HR Leave API Routes', () => {
         leaveType: { name: 'Annual Leave' },
       });
 
-      const response = await request(app)
-        .post('/api/leave/balances')
-        .send(balancePayload);
+      const response = await request(app).post('/api/leave/balances').send(balancePayload);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -657,9 +686,7 @@ describe('HR Leave API Routes', () => {
         balance: 28,
       });
 
-      await request(app)
-        .post('/api/leave/balances')
-        .send(balancePayload);
+      await request(app).post('/api/leave/balances').send(balancePayload);
 
       expect(mockPrisma.leaveBalance.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -685,9 +712,7 @@ describe('HR Leave API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.leaveBalance.upsert as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .post('/api/leave/balances')
-        .send(balancePayload);
+      const response = await request(app).post('/api/leave/balances').send(balancePayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -752,9 +777,7 @@ describe('HR Leave API Routes', () => {
         year: 2025,
       });
 
-      const response = await request(app)
-        .post('/api/leave/holidays')
-        .send(holidayPayload);
+      const response = await request(app).post('/api/leave/holidays').send(holidayPayload);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -782,9 +805,7 @@ describe('HR Leave API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.holiday.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .post('/api/leave/holidays')
-        .send(holidayPayload);
+      const response = await request(app).post('/api/leave/holidays').send(holidayPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');

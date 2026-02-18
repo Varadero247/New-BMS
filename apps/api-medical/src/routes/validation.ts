@@ -26,7 +26,10 @@ const createSchema = z.object({
   intendedUseConfirmed: z.boolean().optional(),
   results: z.string().optional(),
   pass: z.boolean().optional(),
-  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  completedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   completedBy: z.string().optional(),
 });
 
@@ -71,7 +74,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List design validations error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list design validations' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list design validations' },
+    });
   }
 });
 
@@ -99,7 +105,10 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Validation stats error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get validation stats' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get validation stats' },
+    });
   }
 });
 
@@ -112,13 +121,19 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!validation) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design validation not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design validation not found' },
+      });
     }
 
     res.json({ success: true, data: validation });
   } catch (error) {
     logger.error('Get design validation error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get design validation' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get design validation' },
+    });
   }
 });
 
@@ -129,7 +144,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
     const project = await prisma.designProject.findUnique({ where: { id: data.projectId } });
     if (!project) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design project not found' },
+      });
     }
 
     const validation = await prisma.designValidation.create({
@@ -150,10 +168,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: validation });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create design validation error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create design validation' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create design validation' },
+    });
   }
 });
 
@@ -162,7 +190,10 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.designValidation.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design validation not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design validation not found' },
+      });
     }
 
     const data = updateSchema.parse(req.body);
@@ -178,10 +209,20 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: validation });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update design validation error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update design validation' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update design validation' },
+    });
   }
 });
 
@@ -190,14 +231,20 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.designValidation.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design validation not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design validation not found' },
+      });
     }
 
     await prisma.designValidation.delete({ where: { id: req.params.id } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete design validation error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete design validation' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete design validation' },
+    });
   }
 });
 

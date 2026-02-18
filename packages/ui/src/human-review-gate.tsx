@@ -119,8 +119,8 @@ export function HumanReviewGate({
         reviewer && formattedDate
           ? `Reviewed and approved by ${reviewer} on ${formattedDate}`
           : reviewer
-          ? `Reviewed and approved by ${reviewer}`
-          : 'Reviewed and approved',
+            ? `Reviewed and approved by ${reviewer}`
+            : 'Reviewed and approved',
     },
     rejected: {
       wrapper: 'bg-red-50 border-red-300 dark:bg-red-900/15 dark:border-red-700/50',
@@ -139,10 +139,7 @@ export function HumanReviewGate({
           />
         </svg>
       ),
-      message:
-        reviewer
-          ? `Rejected by ${reviewer}`
-          : 'Rejected',
+      message: reviewer ? `Rejected by ${reviewer}` : 'Rejected',
     },
     expired: {
       wrapper: 'bg-gray-100 border-gray-300 dark:bg-gray-800/40 dark:border-gray-600/50',
@@ -168,21 +165,17 @@ export function HumanReviewGate({
   const cfg = bannerConfig[status];
 
   // ── Content visibility ────────────────────────────────────────────────────
-  const shouldBlur =
-    blurUntilReview && (status === 'pending' || status === 'expired');
+  const shouldBlur = blurUntilReview && (status === 'pending' || status === 'expired');
 
   const contentStyle: React.CSSProperties = shouldBlur
     ? { filter: 'blur(4px)', userSelect: 'none', pointerEvents: 'none' }
     : status === 'rejected'
-    ? { opacity: 0.5 }
-    : {};
+      ? { opacity: 0.5 }
+      : {};
 
   return (
     <div
-      className={cn(
-        'rounded-xl border overflow-hidden bg-card text-foreground',
-        className
-      )}
+      className={cn('rounded-xl border overflow-hidden bg-card text-foreground', className)}
       role="region"
       aria-label={`AI output — review status: ${status}`}
     >
@@ -215,15 +208,10 @@ export function HumanReviewGate({
         {riskLevel && (
           <div className="flex items-center gap-1.5 shrink-0">
             <span
-              className={cn(
-                'h-2.5 w-2.5 rounded-full shrink-0',
-                riskDotColors[riskLevel]
-              )}
+              className={cn('h-2.5 w-2.5 rounded-full shrink-0', riskDotColors[riskLevel])}
               aria-hidden="true"
             />
-            <span className={cn('text-xs font-medium', cfg.text)}>
-              {riskLabels[riskLevel]}
-            </span>
+            <span className={cn('text-xs font-medium', cfg.text)}>{riskLabels[riskLevel]}</span>
           </div>
         )}
 

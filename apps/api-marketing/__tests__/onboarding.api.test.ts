@@ -29,7 +29,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/onboarding', onboardingRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 // ===================================================================
 // POST /api/onboarding/enqueue/:userId
@@ -89,7 +91,9 @@ describe('GET /api/onboarding/status/:userId', () => {
     ];
     (prisma.mktEmailJob.findMany as jest.Mock).mockResolvedValue(jobs);
 
-    const res = await request(app).get('/api/onboarding/status/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/onboarding/status/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.summary.sent).toBe(1);
@@ -100,7 +104,9 @@ describe('GET /api/onboarding/status/:userId', () => {
   it('returns empty results for unknown user', async () => {
     (prisma.mktEmailJob.findMany as jest.Mock).mockResolvedValue([]);
 
-    const res = await request(app).get('/api/onboarding/status/00000000-0000-0000-0000-000000000099');
+    const res = await request(app).get(
+      '/api/onboarding/status/00000000-0000-0000-0000-000000000099'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.summary.total).toBe(0);
@@ -115,7 +121,9 @@ describe('POST /api/onboarding/cancel/:userId', () => {
   it('cancels pending emails for user', async () => {
     (prisma.mktEmailJob.updateMany as jest.Mock).mockResolvedValue({ count: 5 });
 
-    const res = await request(app).post('/api/onboarding/cancel/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).post(
+      '/api/onboarding/cancel/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.cancelledCount).toBe(5);
@@ -136,7 +144,9 @@ describe('POST /api/onboarding/cancel/:userId', () => {
   it('returns 0 if no pending jobs exist', async () => {
     (prisma.mktEmailJob.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
 
-    const res = await request(app).post('/api/onboarding/cancel/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).post(
+      '/api/onboarding/cancel/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.body.data.cancelledCount).toBe(0);
   });

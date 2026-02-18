@@ -37,19 +37,26 @@ describe('@ims/automation-rules', () => {
     });
 
     it('should have unique IDs', () => {
-      const ids = AUTOMATION_RULES.map(r => r.id);
+      const ids = AUTOMATION_RULES.map((r) => r.id);
       expect(new Set(ids).size).toBe(ids.length);
     });
 
     it('should have valid categories', () => {
-      const validCategories = ['quality', 'safety', 'environment', 'compliance', 'hr', 'maintenance'];
+      const validCategories = [
+        'quality',
+        'safety',
+        'environment',
+        'compliance',
+        'hr',
+        'maintenance',
+      ];
       for (const rule of AUTOMATION_RULES) {
         expect(validCategories).toContain(rule.category);
       }
     });
 
     it('should cover all 6 categories', () => {
-      const categories = new Set(AUTOMATION_RULES.map(r => r.category));
+      const categories = new Set(AUTOMATION_RULES.map((r) => r.category));
       expect(categories.size).toBeGreaterThanOrEqual(4);
     });
   });
@@ -93,17 +100,17 @@ describe('@ims/automation-rules', () => {
     it('should return all rules with enabled status', () => {
       const rules = listRules('org-1');
       expect(rules).toHaveLength(20);
-      expect(rules.every(r => r.enabled === false)).toBe(true);
+      expect(rules.every((r) => r.enabled === false)).toBe(true);
     });
 
     it('should show enabled status after enabling', () => {
       enableRule('org-1', 'rule-001');
       enableRule('org-1', 'rule-005');
       const rules = listRules('org-1');
-      const enabled = rules.filter(r => r.enabled);
+      const enabled = rules.filter((r) => r.enabled);
       expect(enabled).toHaveLength(2);
-      expect(enabled.map(r => r.id)).toContain('rule-001');
-      expect(enabled.map(r => r.id)).toContain('rule-005');
+      expect(enabled.map((r) => r.id)).toContain('rule-001');
+      expect(enabled.map((r) => r.id)).toContain('rule-005');
     });
 
     it('should isolate enabled rules per org', () => {
@@ -111,10 +118,10 @@ describe('@ims/automation-rules', () => {
       enableRule('org-2', 'rule-002');
       const org1Rules = listRules('org-1');
       const org2Rules = listRules('org-2');
-      expect(org1Rules.find(r => r.id === 'rule-001')!.enabled).toBe(true);
-      expect(org1Rules.find(r => r.id === 'rule-002')!.enabled).toBe(false);
-      expect(org2Rules.find(r => r.id === 'rule-001')!.enabled).toBe(false);
-      expect(org2Rules.find(r => r.id === 'rule-002')!.enabled).toBe(true);
+      expect(org1Rules.find((r) => r.id === 'rule-001')!.enabled).toBe(true);
+      expect(org1Rules.find((r) => r.id === 'rule-002')!.enabled).toBe(false);
+      expect(org2Rules.find((r) => r.id === 'rule-001')!.enabled).toBe(false);
+      expect(org2Rules.find((r) => r.id === 'rule-002')!.enabled).toBe(true);
     });
   });
 

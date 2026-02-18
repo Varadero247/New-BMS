@@ -79,7 +79,9 @@ export default function AnalyticsPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold">Analytics & Workflows</h1>
-          <p className="text-muted-foreground">Root cause analysis and continuous improvement tools</p>
+          <p className="text-muted-foreground">
+            Root cause analysis and continuous improvement tools
+          </p>
         </div>
       </div>
 
@@ -88,7 +90,8 @@ export default function AnalyticsPage() {
         <CardHeader>
           <CardTitle>Analysis Tools Overview</CardTitle>
           <CardDescription>
-            Use these quality and lean tools to analyze incidents, identify root causes, and drive continuous improvement
+            Use these quality and lean tools to analyze incidents, identify root causes, and drive
+            continuous improvement
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -100,12 +103,16 @@ export default function AnalyticsPage() {
                 className="group p-4 border rounded-lg hover:border-primary/50 hover:shadow-sm transition-all"
               >
                 <div className="flex items-start gap-3">
-                  <div className={`w-10 h-10 ${tool.bgColor} rounded-lg flex items-center justify-center shrink-0`}>
+                  <div
+                    className={`w-10 h-10 ${tool.bgColor} rounded-lg flex items-center justify-center shrink-0`}
+                  >
                     <tool.icon className={`w-5 h-5 ${tool.textColor}`} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium group-hover:text-primary transition-colors">{tool.name}</h3>
+                      <h3 className="font-medium group-hover:text-primary transition-colors">
+                        {tool.name}
+                      </h3>
                       <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">{tool.description}</p>
@@ -131,7 +138,8 @@ export default function AnalyticsPage() {
               <div>
                 <p className="font-medium">5 Whys</p>
                 <p className="text-sm text-muted-foreground">
-                  Best for simple problems with a single root cause. Quick and effective for immediate analysis.
+                  Best for simple problems with a single root cause. Quick and effective for
+                  immediate analysis.
                 </p>
               </div>
             </div>
@@ -142,7 +150,8 @@ export default function AnalyticsPage() {
               <div>
                 <p className="font-medium">Fishbone Diagram</p>
                 <p className="text-sm text-muted-foreground">
-                  Best for complex problems with multiple potential causes. Organizes causes into categories.
+                  Best for complex problems with multiple potential causes. Organizes causes into
+                  categories.
                 </p>
               </div>
             </div>
@@ -153,7 +162,8 @@ export default function AnalyticsPage() {
               <div>
                 <p className="font-medium">Pareto Analysis</p>
                 <p className="text-sm text-muted-foreground">
-                  Best for prioritizing issues. Identifies the vital few causes that contribute to most problems.
+                  Best for prioritizing issues. Identifies the vital few causes that contribute to
+                  most problems.
                 </p>
               </div>
             </div>
@@ -172,7 +182,8 @@ export default function AnalyticsPage() {
               <div>
                 <p className="font-medium">Bow-Tie Analysis</p>
                 <p className="text-sm text-muted-foreground">
-                  Best for risk assessment. Visualizes threats, barriers, and consequences around a top event.
+                  Best for risk assessment. Visualizes threats, barriers, and consequences around a
+                  top event.
                 </p>
               </div>
             </div>
@@ -183,7 +194,8 @@ export default function AnalyticsPage() {
               <div>
                 <p className="font-medium">Lean 8 Wastes</p>
                 <p className="text-sm text-muted-foreground">
-                  Best for process improvement. Identifies and eliminates waste using DOWNTIME framework.
+                  Best for process improvement. Identifies and eliminates waste using DOWNTIME
+                  framework.
                 </p>
               </div>
             </div>

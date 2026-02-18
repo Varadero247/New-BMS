@@ -397,7 +397,9 @@ describe('Medical DMR/DHR API Routes', () => {
 
     it('should handle database errors gracefully', async () => {
       (mockPrisma.deviceMasterRecord.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.deviceMasterRecord.create as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.deviceMasterRecord.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
       const response = await request(app)
         .post('/api/dmr')
@@ -416,12 +418,13 @@ describe('Medical DMR/DHR API Routes', () => {
   // ==========================================
   describe('GET /api/dmr', () => {
     it('should return a list of DMRs with default pagination', async () => {
-      (mockPrisma.deviceMasterRecord.findMany as jest.Mock).mockResolvedValueOnce([mockDMR, mockDMR2]);
+      (mockPrisma.deviceMasterRecord.findMany as jest.Mock).mockResolvedValueOnce([
+        mockDMR,
+        mockDMR2,
+      ]);
       (mockPrisma.deviceMasterRecord.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/dmr')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/dmr').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -477,9 +480,7 @@ describe('Medical DMR/DHR API Routes', () => {
       (mockPrisma.deviceMasterRecord.findMany as jest.Mock).mockResolvedValueOnce([mockDMR2]);
       (mockPrisma.deviceMasterRecord.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/dmr?status=APPROVED')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/dmr?status=APPROVED').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.deviceMasterRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -495,9 +496,7 @@ describe('Medical DMR/DHR API Routes', () => {
       (mockPrisma.deviceMasterRecord.findMany as jest.Mock).mockResolvedValueOnce([mockDMR]);
       (mockPrisma.deviceMasterRecord.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/dmr?deviceClass=CLASS_III')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/dmr?deviceClass=CLASS_III').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.deviceMasterRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -513,9 +512,7 @@ describe('Medical DMR/DHR API Routes', () => {
       (mockPrisma.deviceMasterRecord.findMany as jest.Mock).mockResolvedValueOnce([mockDMR]);
       (mockPrisma.deviceMasterRecord.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/dmr?deviceName=cardiac')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/dmr?deviceName=cardiac').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.deviceMasterRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -531,9 +528,7 @@ describe('Medical DMR/DHR API Routes', () => {
       (mockPrisma.deviceMasterRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.deviceMasterRecord.count as jest.Mock).mockResolvedValueOnce(0);
 
-      const response = await request(app)
-        .get('/api/dmr')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/dmr').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.data).toHaveLength(0);
@@ -545,9 +540,7 @@ describe('Medical DMR/DHR API Routes', () => {
       (mockPrisma.deviceMasterRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.deviceMasterRecord.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/dmr')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/dmr').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.deviceMasterRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -557,11 +550,11 @@ describe('Medical DMR/DHR API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.deviceMasterRecord.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.deviceMasterRecord.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
-      const response = await request(app)
-        .get('/api/dmr')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/dmr').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -636,7 +629,9 @@ describe('Medical DMR/DHR API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get(`/api/dmr/${mockDMR.id}`)
@@ -745,7 +740,9 @@ describe('Medical DMR/DHR API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put(`/api/dmr/${mockDMR.id}`)
@@ -894,7 +891,9 @@ describe('Medical DMR/DHR API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post(`/api/dmr/${mockDMR.id}/approve`)
@@ -1098,7 +1097,9 @@ describe('Medical DMR/DHR API Routes', () => {
     it('should handle database errors gracefully', async () => {
       (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockResolvedValueOnce(mockDMR);
       (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.deviceHistoryRecord.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.deviceHistoryRecord.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/dhr')
@@ -1117,15 +1118,29 @@ describe('Medical DMR/DHR API Routes', () => {
   describe('GET /api/dhr', () => {
     it('should return a list of DHRs with default pagination', async () => {
       const dhrsWithDmr = [
-        { ...mockDHR, dmr: { id: mockDMR.id, refNumber: mockDMR.refNumber, deviceName: mockDMR.deviceName, deviceClass: mockDMR.deviceClass } },
-        { ...mockDHR2, dmr: { id: mockDMR.id, refNumber: mockDMR.refNumber, deviceName: mockDMR.deviceName, deviceClass: mockDMR.deviceClass } },
+        {
+          ...mockDHR,
+          dmr: {
+            id: mockDMR.id,
+            refNumber: mockDMR.refNumber,
+            deviceName: mockDMR.deviceName,
+            deviceClass: mockDMR.deviceClass,
+          },
+        },
+        {
+          ...mockDHR2,
+          dmr: {
+            id: mockDMR.id,
+            refNumber: mockDMR.refNumber,
+            deviceName: mockDMR.deviceName,
+            deviceClass: mockDMR.deviceClass,
+          },
+        },
       ];
       (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValueOnce(dhrsWithDmr);
       (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/dhr')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/dhr').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -1176,9 +1191,7 @@ describe('Medical DMR/DHR API Routes', () => {
       (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/dhr?status=RELEASED')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/dhr?status=RELEASED').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.deviceHistoryRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1194,9 +1207,7 @@ describe('Medical DMR/DHR API Routes', () => {
       (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get(`/api/dhr?dmrId=${mockDMR.id}`)
-        .set('Authorization', 'Bearer token');
+      await request(app).get(`/api/dhr?dmrId=${mockDMR.id}`).set('Authorization', 'Bearer token');
 
       expect(mockPrisma.deviceHistoryRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1230,9 +1241,7 @@ describe('Medical DMR/DHR API Routes', () => {
       (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/dhr')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/dhr').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.deviceHistoryRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1244,11 +1253,11 @@ describe('Medical DMR/DHR API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
-      const response = await request(app)
-        .get('/api/dhr')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/dhr').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -1273,7 +1282,9 @@ describe('Medical DMR/DHR API Routes', () => {
           currentVersion: mockDMR.currentVersion,
         },
       };
-      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValueOnce(dhrWithRecords);
+      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValueOnce(
+        dhrWithRecords
+      );
 
       const response = await request(app)
         .get(`/api/dhr/${mockDHR.id}`)
@@ -1333,7 +1344,9 @@ describe('Medical DMR/DHR API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get(`/api/dhr/${mockDHR.id}`)
@@ -1405,9 +1418,16 @@ describe('Medical DMR/DHR API Routes', () => {
 
     it('should accept all valid recordType enum values', async () => {
       const validTypes = [
-        'INCOMING_INSPECTION', 'IN_PROCESS_INSPECTION', 'FINAL_INSPECTION',
-        'ENVIRONMENTAL_MONITORING', 'EQUIPMENT_CALIBRATION', 'STERILIZATION',
-        'PACKAGING', 'LABELLING', 'ACCEPTANCE_TEST', 'OTHER',
+        'INCOMING_INSPECTION',
+        'IN_PROCESS_INSPECTION',
+        'FINAL_INSPECTION',
+        'ENVIRONMENTAL_MONITORING',
+        'EQUIPMENT_CALIBRATION',
+        'STERILIZATION',
+        'PACKAGING',
+        'LABELLING',
+        'ACCEPTANCE_TEST',
+        'OTHER',
       ];
 
       for (const recordType of validTypes) {
@@ -1562,7 +1582,9 @@ describe('Medical DMR/DHR API Routes', () => {
           { ...mockDHRRecord, id: 'rec-0003', title: 'Final Inspection', pass: true },
         ],
       };
-      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValueOnce(dhrWithPassingRecords);
+      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValueOnce(
+        dhrWithPassingRecords
+      );
       (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockResolvedValueOnce({
         ...mockDHR,
         status: 'RELEASED',
@@ -1597,7 +1619,9 @@ describe('Medical DMR/DHR API Routes', () => {
           { ...mockDHRRecord, id: 'rec-0003', pass: null },
         ],
       };
-      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValueOnce(dhrWithNullPass);
+      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValueOnce(
+        dhrWithNullPass
+      );
       (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockResolvedValueOnce({
         ...mockDHR,
         status: 'RELEASED',
@@ -1636,7 +1660,9 @@ describe('Medical DMR/DHR API Routes', () => {
           { ...mockDHRRecordFailed, pass: false },
         ],
       };
-      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValueOnce(dhrWithFailedRecords);
+      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValueOnce(
+        dhrWithFailedRecords
+      );
 
       const response = await request(app)
         .post(`/api/dhr/${mockDHR.id}/release`)
@@ -1645,7 +1671,9 @@ describe('Medical DMR/DHR API Routes', () => {
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
-      expect(response.body.error.message).toContain('1 production record(s) have failed inspections');
+      expect(response.body.error.message).toContain(
+        '1 production record(s) have failed inspections'
+      );
     });
 
     it('should return 400 with correct count when multiple records fail', async () => {
@@ -1658,14 +1686,18 @@ describe('Medical DMR/DHR API Routes', () => {
           { ...mockDHRRecordFailed, id: 'rec-f3', pass: false },
         ],
       };
-      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValueOnce(dhrWithMultipleFailures);
+      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValueOnce(
+        dhrWithMultipleFailures
+      );
 
       const response = await request(app)
         .post(`/api/dhr/${mockDHR.id}/release`)
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(400);
-      expect(response.body.error.message).toContain('3 production record(s) have failed inspections');
+      expect(response.body.error.message).toContain(
+        '3 production record(s) have failed inspections'
+      );
     });
 
     it('should return 404 when DHR does not exist', async () => {
@@ -1700,7 +1732,9 @@ describe('Medical DMR/DHR API Routes', () => {
         ...mockDHR,
         productionRecords: [{ ...mockDHRRecord, pass: true }],
       };
-      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValueOnce(dhrWithRecords);
+      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValueOnce(
+        dhrWithRecords
+      );
       (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockResolvedValueOnce({
         ...mockDHR,
         status: 'RELEASED',
@@ -1720,7 +1754,9 @@ describe('Medical DMR/DHR API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post(`/api/dhr/${mockDHR.id}/release`)
@@ -1736,7 +1772,9 @@ describe('Medical DMR/DHR API Routes', () => {
         ...mockDHR,
         productionRecords: [{ ...mockDHRRecord, pass: true }],
       };
-      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValueOnce(dhrWithRecords);
+      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValueOnce(
+        dhrWithRecords
+      );
       (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockResolvedValueOnce({
         ...mockDHR,
         status: 'RELEASED',

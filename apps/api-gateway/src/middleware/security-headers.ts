@@ -18,9 +18,7 @@ const contentSecurityPolicy = {
     defaultSrc: ["'self'"],
 
     // Scripts: same origin only, no inline scripts in production
-    scriptSrc: isProduction
-      ? ["'self'"]
-      : ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Allow for dev tools
+    scriptSrc: isProduction ? ["'self'"] : ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Allow for dev tools
 
     // Styles: same origin, allow inline for UI frameworks
     styleSrc: ["'self'", "'unsafe-inline'"],
@@ -36,15 +34,15 @@ const contentSecurityPolicy = {
       "'self'",
       // Allow connections to configured origins and local services in development
       ...(isProduction
-        ? (process.env.CSP_CONNECT_SOURCES
-            ? process.env.CSP_CONNECT_SOURCES.split(',').map(s => s.trim())
-            : [])
-        : (process.env.CSP_CONNECT_SOURCES
-            ? process.env.CSP_CONNECT_SOURCES.split(',').map(s => s.trim())
-            : [
-                ...Array.from({ length: 25 }, (_, i) => `http://localhost:${4000 + i}`),
-                'ws://localhost:*',
-              ])),
+        ? process.env.CSP_CONNECT_SOURCES
+          ? process.env.CSP_CONNECT_SOURCES.split(',').map((s) => s.trim())
+          : []
+        : process.env.CSP_CONNECT_SOURCES
+          ? process.env.CSP_CONNECT_SOURCES.split(',').map((s) => s.trim())
+          : [
+              ...Array.from({ length: 25 }, (_, i) => `http://localhost:${4000 + i}`),
+              'ws://localhost:*',
+            ]),
     ],
 
     // Frame ancestors: prevent clickjacking

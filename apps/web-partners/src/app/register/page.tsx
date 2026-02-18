@@ -140,7 +140,9 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Confirm Password</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Confirm Password
+              </label>
               <input
                 type="password"
                 value={form.confirmPassword}
@@ -152,7 +154,9 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">ISO Specialisms</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                ISO Specialisms
+              </label>
               <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-2">
                 {ISO_SPECIALISMS.map((specialism) => (
                   <label
@@ -177,7 +181,13 @@ export default function RegisterPage() {
                       }`}
                     >
                       {form.specialisms.includes(specialism) && (
-                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={3}
+                        >
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       )}

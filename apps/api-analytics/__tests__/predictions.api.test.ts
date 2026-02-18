@@ -28,7 +28,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/predictions', predictionsRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('Predictions Routes', () => {
   describe('GET /api/predictions/capa-overrun', () => {

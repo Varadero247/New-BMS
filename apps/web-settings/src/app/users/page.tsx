@@ -35,7 +35,13 @@ export default function UsersPage() {
   const [availableRoles, setAvailableRoles] = useState<PlatformRole[]>([]);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteForm, setInviteForm] = useState({ email: '', firstName: '', lastName: '', password: '', role: 'USER' });
+  const [inviteForm, setInviteForm] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    password: '',
+    role: 'USER',
+  });
 
   useEffect(() => {
     loadUsers();
@@ -49,7 +55,15 @@ export default function UsersPage() {
       setUsers(Array.isArray(data) ? data : []);
     } catch {
       setUsers([
-        { id: '1', email: 'admin@ims.local', firstName: 'Admin', lastName: 'User', role: 'ADMIN', isActive: true, createdAt: new Date().toISOString() },
+        {
+          id: '1',
+          email: 'admin@ims.local',
+          firstName: 'Admin',
+          lastName: 'User',
+          role: 'ADMIN',
+          isActive: true,
+          createdAt: new Date().toISOString(),
+        },
       ]);
     } finally {
       setLoading(false);
@@ -67,7 +81,8 @@ export default function UsersPage() {
 
   function getUserName(user: User): string {
     if (user.name) return user.name;
-    if (user.firstName || user.lastName) return `${user.firstName || ''} ${user.lastName || ''}`.trim();
+    if (user.firstName || user.lastName)
+      return `${user.firstName || ''} ${user.lastName || ''}`.trim();
     return user.email.split('@')[0];
   }
 
@@ -89,10 +104,8 @@ export default function UsersPage() {
   }
 
   function toggleRole(roleId: string) {
-    setSelectedRoles(prev =>
-      prev.includes(roleId)
-        ? prev.filter(r => r !== roleId)
-        : [...prev, roleId]
+    setSelectedRoles((prev) =>
+      prev.includes(roleId) ? prev.filter((r) => r !== roleId) : [...prev, roleId]
     );
   }
 
@@ -116,9 +129,11 @@ export default function UsersPage() {
     }
   }
 
-  const filteredUsers = users.filter(user => {
+  const filteredUsers = users.filter((user) => {
     const name = getUserName(user).toLowerCase();
-    const matchesSearch = name.includes(searchTerm.toLowerCase()) || user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      name.includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = !roleFilter || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
@@ -130,7 +145,9 @@ export default function UsersPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">User Management</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage system users, roles, and access</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Manage system users, roles, and access
+            </p>
           </div>
           <Button onClick={() => setShowInviteModal(true)} className="flex items-center gap-2">
             <UserPlus className="h-4 w-4" />
@@ -149,7 +166,7 @@ export default function UsersPage() {
           <Card>
             <CardContent className="pt-6 text-center">
               <p className="text-3xl font-bold text-green-600">
-                {users.filter(u => u.isActive).length}
+                {users.filter((u) => u.isActive).length}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
             </CardContent>
@@ -157,16 +174,14 @@ export default function UsersPage() {
           <Card>
             <CardContent className="pt-6 text-center">
               <p className="text-3xl font-bold text-blue-600">
-                {users.filter(u => u.role === 'ADMIN').length}
+                {users.filter((u) => u.role === 'ADMIN').length}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Admins</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6 text-center">
-              <p className="text-3xl font-bold text-purple-600">
-                {availableRoles.length}
-              </p>
+              <p className="text-3xl font-bold text-purple-600">{availableRoles.length}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Available Roles</p>
             </CardContent>
           </Card>
@@ -178,7 +193,8 @@ export default function UsersPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              aria-label="Search users..." placeholder="Search users..."
+              aria-label="Search users..."
+              placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -208,7 +224,7 @@ export default function UsersPage() {
           <CardContent>
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3, 4].map(i => (
+                {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="h-16 bg-gray-200 rounded" />
                 ))}
               </div>
@@ -228,13 +244,18 @@ export default function UsersPage() {
                         </span>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">{getUserName(user)}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          {getUserName(user)}
+                        </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
                           <Mail className="h-3 w-3" />
                           {user.email}
                         </p>
                         {user.jobTitle && (
-                          <p className="text-xs text-gray-400 dark:text-gray-500">{user.jobTitle}{user.department ? ` — ${user.department}` : ''}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">
+                            {user.jobTitle}
+                            {user.department ? ` — ${user.department}` : ''}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -242,20 +263,27 @@ export default function UsersPage() {
                       {/* RBAC Roles */}
                       {user.roles && user.roles.length > 0 ? (
                         <div className="flex flex-wrap gap-1 max-w-[200px]">
-                          {user.roles.slice(0, 2).map(r => (
+                          {user.roles.slice(0, 2).map((r) => (
                             <Badge key={r} variant="outline" className="text-xs">
-                              {r.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                              {r.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                             </Badge>
                           ))}
                           {user.roles.length > 2 && (
-                            <Badge variant="outline" className="text-xs">+{user.roles.length - 2}</Badge>
+                            <Badge variant="outline" className="text-xs">
+                              +{user.roles.length - 2}
+                            </Badge>
                           )}
                         </div>
                       ) : (
-                        <Badge variant={
-                          user.role === 'ADMIN' ? 'destructive' :
-                          user.role === 'MANAGER' ? 'default' : 'secondary'
-                        }>
+                        <Badge
+                          variant={
+                            user.role === 'ADMIN'
+                              ? 'destructive'
+                              : user.role === 'MANAGER'
+                                ? 'default'
+                                : 'secondary'
+                          }
+                        >
                           <Shield className="h-3 w-3 mr-1" />
                           {user.role}
                         </Badge>
@@ -293,12 +321,18 @@ export default function UsersPage() {
       </div>
 
       {/* Role Assignment Modal */}
-      <Modal isOpen={showRoleModal} onClose={() => setShowRoleModal(false)} title="Assign RBAC Roles" size="lg">
+      <Modal
+        isOpen={showRoleModal}
+        onClose={() => setShowRoleModal(false)}
+        title="Assign RBAC Roles"
+        size="lg"
+      >
         <div className="p-4">
           {selectedUser && (
             <>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                Assigning roles to <strong>{getUserName(selectedUser)}</strong> ({selectedUser.email})
+                Assigning roles to <strong>{getUserName(selectedUser)}</strong> (
+                {selectedUser.email})
               </p>
               <div className="max-h-[400px] overflow-y-auto space-y-1">
                 {availableRoles.map((role) => (
@@ -312,19 +346,23 @@ export default function UsersPage() {
                     }`}
                   >
                     <div className="text-left">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{role.name}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {role.name}
+                      </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">{role.description}</p>
                     </div>
-                    {selectedRoles.includes(role.id) && (
-                      <Check className="h-4 w-4 text-blue-600" />
-                    )}
+                    {selectedRoles.includes(role.id) && <Check className="h-4 w-4 text-blue-600" />}
                   </button>
                 ))}
               </div>
               <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                <p className="text-sm text-gray-500 dark:text-gray-400">{selectedRoles.length} roles selected</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {selectedRoles.length} roles selected
+                </p>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setShowRoleModal(false)}>Cancel</Button>
+                  <Button variant="outline" onClick={() => setShowRoleModal(false)}>
+                    Cancel
+                  </Button>
                   <Button onClick={saveRoles}>Save Roles</Button>
                 </div>
               </div>
@@ -334,53 +372,68 @@ export default function UsersPage() {
       </Modal>
 
       {/* Invite User Modal */}
-      <Modal isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} title="Invite New User" size="md">
+      <Modal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        title="Invite New User"
+        size="md"
+      >
         <div className="p-4 space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">Email</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">
+              Email
+            </label>
             <input
               type="email"
               value={inviteForm.email}
-              onChange={(e) => setInviteForm(f => ({ ...f, email: e.target.value }))}
+              onChange={(e) => setInviteForm((f) => ({ ...f, email: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="user@company.com"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">First Name</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">
+                First Name
+              </label>
               <input
                 type="text"
                 value={inviteForm.firstName}
-                onChange={(e) => setInviteForm(f => ({ ...f, firstName: e.target.value }))}
+                onChange={(e) => setInviteForm((f) => ({ ...f, firstName: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">Last Name</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">
+                Last Name
+              </label>
               <input
                 type="text"
                 value={inviteForm.lastName}
-                onChange={(e) => setInviteForm(f => ({ ...f, lastName: e.target.value }))}
+                onChange={(e) => setInviteForm((f) => ({ ...f, lastName: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">Temporary Password</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">
+              Temporary Password
+            </label>
             <input
               type="password"
               value={inviteForm.password}
-              onChange={(e) => setInviteForm(f => ({ ...f, password: e.target.value }))}
+              onChange={(e) => setInviteForm((f) => ({ ...f, password: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Min 8 characters"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">Legacy Role</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">
+              Legacy Role
+            </label>
             <select
               value={inviteForm.role}
-              onChange={(e) => setInviteForm(f => ({ ...f, role: e.target.value }))}
+              onChange={(e) => setInviteForm((f) => ({ ...f, role: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="USER">User</option>
@@ -390,7 +443,9 @@ export default function UsersPage() {
             </select>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => setShowInviteModal(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowInviteModal(false)}>
+              Cancel
+            </Button>
             <Button onClick={inviteUser}>Create User</Button>
           </div>
         </div>

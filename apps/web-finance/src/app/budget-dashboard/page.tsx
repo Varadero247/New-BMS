@@ -44,18 +44,138 @@ const MONTHLY_DATA: MonthlyData[] = [
 ];
 
 const BUDGET_LINES: BudgetLine[] = [
-  { id: '1', department: 'Production', category: 'Direct Labour', annualBudget: 720000, ytdBudget: 480000, ytdActual: 465000, forecast: 705000, variance: 15000, variancePct: 3.1 },
-  { id: '2', department: 'Production', category: 'Raw Materials', annualBudget: 960000, ytdBudget: 640000, ytdActual: 672000, forecast: 1008000, variance: -32000, variancePct: -5.0 },
-  { id: '3', department: 'Production', category: 'Maintenance', annualBudget: 180000, ytdBudget: 120000, ytdActual: 115000, forecast: 172000, variance: 5000, variancePct: 4.2 },
-  { id: '4', department: 'Quality', category: 'Testing & Inspection', annualBudget: 96000, ytdBudget: 64000, ytdActual: 58000, forecast: 87000, variance: 6000, variancePct: 9.4 },
-  { id: '5', department: 'Quality', category: 'Calibration', annualBudget: 36000, ytdBudget: 24000, ytdActual: 26500, forecast: 39750, variance: -2500, variancePct: -10.4 },
-  { id: '6', department: 'Engineering', category: 'R&D', annualBudget: 240000, ytdBudget: 160000, ytdActual: 152000, forecast: 228000, variance: 8000, variancePct: 5.0 },
-  { id: '7', department: 'Engineering', category: 'Tooling', annualBudget: 120000, ytdBudget: 80000, ytdActual: 95000, forecast: 142500, variance: -15000, variancePct: -18.8 },
-  { id: '8', department: 'Administration', category: 'IT Infrastructure', annualBudget: 144000, ytdBudget: 96000, ytdActual: 88000, forecast: 132000, variance: 8000, variancePct: 8.3 },
-  { id: '9', department: 'Administration', category: 'Facilities', annualBudget: 180000, ytdBudget: 120000, ytdActual: 118000, forecast: 177000, variance: 2000, variancePct: 1.7 },
-  { id: '10', department: 'Sales', category: 'Marketing', annualBudget: 96000, ytdBudget: 64000, ytdActual: 71000, forecast: 106500, variance: -7000, variancePct: -10.9 },
-  { id: '11', department: 'Sales', category: 'Travel & Entertainment', annualBudget: 48000, ytdBudget: 32000, ytdActual: 28000, forecast: 42000, variance: 4000, variancePct: 12.5 },
-  { id: '12', department: 'HR', category: 'Training & Development', annualBudget: 72000, ytdBudget: 48000, ytdActual: 42000, forecast: 63000, variance: 6000, variancePct: 12.5 },
+  {
+    id: '1',
+    department: 'Production',
+    category: 'Direct Labour',
+    annualBudget: 720000,
+    ytdBudget: 480000,
+    ytdActual: 465000,
+    forecast: 705000,
+    variance: 15000,
+    variancePct: 3.1,
+  },
+  {
+    id: '2',
+    department: 'Production',
+    category: 'Raw Materials',
+    annualBudget: 960000,
+    ytdBudget: 640000,
+    ytdActual: 672000,
+    forecast: 1008000,
+    variance: -32000,
+    variancePct: -5.0,
+  },
+  {
+    id: '3',
+    department: 'Production',
+    category: 'Maintenance',
+    annualBudget: 180000,
+    ytdBudget: 120000,
+    ytdActual: 115000,
+    forecast: 172000,
+    variance: 5000,
+    variancePct: 4.2,
+  },
+  {
+    id: '4',
+    department: 'Quality',
+    category: 'Testing & Inspection',
+    annualBudget: 96000,
+    ytdBudget: 64000,
+    ytdActual: 58000,
+    forecast: 87000,
+    variance: 6000,
+    variancePct: 9.4,
+  },
+  {
+    id: '5',
+    department: 'Quality',
+    category: 'Calibration',
+    annualBudget: 36000,
+    ytdBudget: 24000,
+    ytdActual: 26500,
+    forecast: 39750,
+    variance: -2500,
+    variancePct: -10.4,
+  },
+  {
+    id: '6',
+    department: 'Engineering',
+    category: 'R&D',
+    annualBudget: 240000,
+    ytdBudget: 160000,
+    ytdActual: 152000,
+    forecast: 228000,
+    variance: 8000,
+    variancePct: 5.0,
+  },
+  {
+    id: '7',
+    department: 'Engineering',
+    category: 'Tooling',
+    annualBudget: 120000,
+    ytdBudget: 80000,
+    ytdActual: 95000,
+    forecast: 142500,
+    variance: -15000,
+    variancePct: -18.8,
+  },
+  {
+    id: '8',
+    department: 'Administration',
+    category: 'IT Infrastructure',
+    annualBudget: 144000,
+    ytdBudget: 96000,
+    ytdActual: 88000,
+    forecast: 132000,
+    variance: 8000,
+    variancePct: 8.3,
+  },
+  {
+    id: '9',
+    department: 'Administration',
+    category: 'Facilities',
+    annualBudget: 180000,
+    ytdBudget: 120000,
+    ytdActual: 118000,
+    forecast: 177000,
+    variance: 2000,
+    variancePct: 1.7,
+  },
+  {
+    id: '10',
+    department: 'Sales',
+    category: 'Marketing',
+    annualBudget: 96000,
+    ytdBudget: 64000,
+    ytdActual: 71000,
+    forecast: 106500,
+    variance: -7000,
+    variancePct: -10.9,
+  },
+  {
+    id: '11',
+    department: 'Sales',
+    category: 'Travel & Entertainment',
+    annualBudget: 48000,
+    ytdBudget: 32000,
+    ytdActual: 28000,
+    forecast: 42000,
+    variance: 4000,
+    variancePct: 12.5,
+  },
+  {
+    id: '12',
+    department: 'HR',
+    category: 'Training & Development',
+    annualBudget: 72000,
+    ytdBudget: 48000,
+    ytdActual: 42000,
+    forecast: 63000,
+    variance: 6000,
+    variancePct: 12.5,
+  },
 ];
 
 function formatCurrency(val: number): string {
@@ -72,10 +192,10 @@ export default function BudgetDashboardPage() {
   const period = 'FY 2025/26';
 
   const filtered = selectedDept
-    ? BUDGET_LINES.filter(b => b.department === selectedDept)
+    ? BUDGET_LINES.filter((b) => b.department === selectedDept)
     : BUDGET_LINES;
 
-  const departments = [...new Set(BUDGET_LINES.map(b => b.department))];
+  const departments = [...new Set(BUDGET_LINES.map((b) => b.department))];
 
   // Totals
   const totalBudget = BUDGET_LINES.reduce((s, b) => s + b.annualBudget, 0);
@@ -83,14 +203,14 @@ export default function BudgetDashboardPage() {
   const totalYtdActual = BUDGET_LINES.reduce((s, b) => s + b.ytdActual, 0);
   const totalForecast = BUDGET_LINES.reduce((s, b) => s + b.forecast, 0);
   const totalVariance = totalYtdBudget - totalYtdActual;
-  const overBudgetLines = BUDGET_LINES.filter(b => b.variance < 0).length;
+  const overBudgetLines = BUDGET_LINES.filter((b) => b.variance < 0).length;
   const budgetUtilization = Math.round((totalYtdActual / totalYtdBudget) * 100);
 
-  const maxMonthly = Math.max(...MONTHLY_DATA.map(m => Math.max(m.budget, m.actual)));
+  const maxMonthly = Math.max(...MONTHLY_DATA.map((m) => Math.max(m.budget, m.actual)));
 
   // Department totals
-  const deptSummary = departments.map(dept => {
-    const lines = BUDGET_LINES.filter(b => b.department === dept);
+  const deptSummary = departments.map((dept) => {
+    const lines = BUDGET_LINES.filter((b) => b.department === dept);
     const budget = lines.reduce((s, b) => s + b.ytdBudget, 0);
     const actual = lines.reduce((s, b) => s + b.ytdActual, 0);
     return { dept, budget, actual, variance: budget - actual };
@@ -102,8 +222,12 @@ export default function BudgetDashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Budget Dashboard</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">{period} — Year-to-date performance and forecast variance analysis</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Budget Dashboard
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              {period} — Year-to-date performance and forecast variance analysis
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <PiggyBank className="h-5 w-5 text-indigo-600" />
@@ -122,7 +246,9 @@ export default function BudgetDashboardPage() {
                 size="lg"
                 label="Budget Utilization"
                 sublabel="YTD"
-                color={budgetUtilization > 100 ? 'red' : budgetUtilization > 95 ? 'yellow' : 'green'}
+                color={
+                  budgetUtilization > 100 ? 'red' : budgetUtilization > 95 ? 'yellow' : 'green'
+                }
               />
             </CardContent>
           </Card>
@@ -132,8 +258,12 @@ export default function BudgetDashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Annual Budget</p>
-                  <p className="text-2xl font-bold text-indigo-700">{formatCurrency(totalBudget)}</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Forecast: {formatCurrency(totalForecast)}</p>
+                  <p className="text-2xl font-bold text-indigo-700">
+                    {formatCurrency(totalBudget)}
+                  </p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                    Forecast: {formatCurrency(totalForecast)}
+                  </p>
                 </div>
                 <DollarSign className="h-8 w-8 text-indigo-400" />
               </div>
@@ -145,11 +275,15 @@ export default function BudgetDashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">YTD Variance</p>
-                  <p className={`text-2xl font-bold ${totalVariance >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                    {totalVariance >= 0 ? '+' : '-'}{formatCurrency(totalVariance)}
+                  <p
+                    className={`text-2xl font-bold ${totalVariance >= 0 ? 'text-green-700' : 'text-red-700'}`}
+                  >
+                    {totalVariance >= 0 ? '+' : '-'}
+                    {formatCurrency(totalVariance)}
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                    Budget: {formatCurrency(totalYtdBudget)} | Actual: {formatCurrency(totalYtdActual)}
+                    Budget: {formatCurrency(totalYtdBudget)} | Actual:{' '}
+                    {formatCurrency(totalYtdActual)}
                   </p>
                 </div>
                 {totalVariance >= 0 ? (
@@ -167,7 +301,9 @@ export default function BudgetDashboardPage() {
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Lines Over Budget</p>
                   <p className="text-2xl font-bold text-orange-700">{overBudgetLines}</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">of {BUDGET_LINES.length} total lines</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                    of {BUDGET_LINES.length} total lines
+                  </p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-orange-400" />
               </div>
@@ -185,9 +321,12 @@ export default function BudgetDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-end gap-3 h-40">
-              {MONTHLY_DATA.map(m => (
+              {MONTHLY_DATA.map((m) => (
                 <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
-                  <div className="w-full flex items-end justify-center gap-1" style={{ height: 120 }}>
+                  <div
+                    className="w-full flex items-end justify-center gap-1"
+                    style={{ height: 120 }}
+                  >
                     <div
                       className="w-5 bg-blue-200 rounded-t"
                       style={{ height: `${(m.budget / maxMonthly) * 120}px` }}
@@ -203,8 +342,11 @@ export default function BudgetDashboardPage() {
                   </div>
                   <span className="text-xs text-gray-500 dark:text-gray-400">{m.month}</span>
                   {m.actual > 0 && (
-                    <span className={`text-xs font-medium ${m.actual > m.budget ? 'text-red-600' : 'text-green-600'}`}>
-                      {m.actual > m.budget ? '+' : ''}{formatCurrency(m.actual - m.budget)}
+                    <span
+                      className={`text-xs font-medium ${m.actual > m.budget ? 'text-red-600' : 'text-green-600'}`}
+                    >
+                      {m.actual > m.budget ? '+' : ''}
+                      {formatCurrency(m.actual - m.budget)}
                     </span>
                   )}
                 </div>
@@ -248,7 +390,7 @@ export default function BudgetDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              {deptSummary.map(d => (
+              {deptSummary.map((d) => (
                 <button
                   key={d.dept}
                   onClick={() => setSelectedDept(selectedDept === d.dept ? '' : d.dept)}
@@ -258,15 +400,20 @@ export default function BudgetDashboardPage() {
                       : 'border-gray-200 dark:border-gray-700 hover:border-indigo-300 hover:bg-gray-50'
                   }`}
                 >
-                  <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">{d.dept}</p>
+                  <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    {d.dept}
+                  </p>
                   <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mb-1">
                     <div
                       className={`h-full rounded-full ${d.variance >= 0 ? 'bg-green-500' : 'bg-red-500'}`}
                       style={{ width: `${Math.min(100, (d.actual / d.budget) * 100)}%` }}
                     />
                   </div>
-                  <p className={`text-xs font-medium ${d.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {d.variance >= 0 ? '+' : '-'}{formatCurrency(d.variance)}
+                  <p
+                    className={`text-xs font-medium ${d.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                  >
+                    {d.variance >= 0 ? '+' : '-'}
+                    {formatCurrency(d.variance)}
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                     {Math.round((d.actual / d.budget) * 100)}% utilized
@@ -283,7 +430,11 @@ export default function BudgetDashboardPage() {
             <CardTitle className="flex items-center gap-2">
               <PiggyBank className="h-5 w-5 text-indigo-600" />
               Budget Lines ({filtered.length})
-              {selectedDept && <span className="text-sm font-normal text-gray-500 dark:text-gray-400">— {selectedDept}</span>}
+              {selectedDept && (
+                <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                  — {selectedDept}
+                </span>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -291,39 +442,75 @@ export default function BudgetDashboardPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-gray-50 dark:bg-gray-800">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Department</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Category</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Annual Budget</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">YTD Budget</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">YTD Actual</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Variance</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Var %</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Forecast</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                      Department
+                    </th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                      Category
+                    </th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                      Annual Budget
+                    </th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                      YTD Budget
+                    </th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                      YTD Actual
+                    </th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                      Variance
+                    </th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                      Var %
+                    </th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                      Forecast
+                    </th>
+                    <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                      Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map(line => (
+                  {filtered.map((line) => (
                     <tr key={line.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                      <td className="py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">{line.department}</td>
-                      <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{line.category}</td>
-                      <td className="py-3 px-4 text-right font-mono text-gray-600">{formatCurrency(line.annualBudget)}</td>
-                      <td className="py-3 px-4 text-right font-mono text-gray-600">{formatCurrency(line.ytdBudget)}</td>
-                      <td className="py-3 px-4 text-right font-mono text-gray-900 dark:text-gray-100 font-medium">{formatCurrency(line.ytdActual)}</td>
-                      <td className={`py-3 px-4 text-right font-mono font-medium ${line.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {line.variance >= 0 ? '+' : '-'}{formatCurrency(line.variance)}
+                      <td className="py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">
+                        {line.department}
                       </td>
-                      <td className={`py-3 px-4 text-right font-medium ${line.variancePct >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <td className="py-3 px-4 text-gray-900 dark:text-gray-100">
+                        {line.category}
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono text-gray-600">
+                        {formatCurrency(line.annualBudget)}
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono text-gray-600">
+                        {formatCurrency(line.ytdBudget)}
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono text-gray-900 dark:text-gray-100 font-medium">
+                        {formatCurrency(line.ytdActual)}
+                      </td>
+                      <td
+                        className={`py-3 px-4 text-right font-mono font-medium ${line.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                      >
+                        {line.variance >= 0 ? '+' : '-'}
+                        {formatCurrency(line.variance)}
+                      </td>
+                      <td
+                        className={`py-3 px-4 text-right font-medium ${line.variancePct >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                      >
                         <div className="flex items-center justify-end gap-1">
                           {line.variancePct >= 0 ? (
                             <TrendingUp className="h-3 w-3" />
                           ) : (
                             <TrendingDown className="h-3 w-3" />
                           )}
-                          {line.variancePct >= 0 ? '+' : ''}{line.variancePct.toFixed(1)}%
+                          {line.variancePct >= 0 ? '+' : ''}
+                          {line.variancePct.toFixed(1)}%
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-right font-mono text-gray-600">{formatCurrency(line.forecast)}</td>
+                      <td className="py-3 px-4 text-right font-mono text-gray-600">
+                        {formatCurrency(line.forecast)}
+                      </td>
                       <td className="py-3 px-4 text-center">
                         {line.variance >= 0 ? (
                           <Badge className="bg-green-100 text-green-700">Under</Badge>
@@ -338,7 +525,9 @@ export default function BudgetDashboardPage() {
                 </tbody>
                 <tfoot>
                   <tr className="bg-gray-50 dark:bg-gray-800 border-t-2 border-gray-300 font-semibold">
-                    <td colSpan={2} className="py-3 px-4 text-gray-700 dark:text-gray-300">Total</td>
+                    <td colSpan={2} className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                      Total
+                    </td>
                     <td className="py-3 px-4 text-right font-mono">
                       {formatCurrency(filtered.reduce((s, b) => s + b.annualBudget, 0))}
                     </td>
@@ -348,7 +537,9 @@ export default function BudgetDashboardPage() {
                     <td className="py-3 px-4 text-right font-mono">
                       {formatCurrency(filtered.reduce((s, b) => s + b.ytdActual, 0))}
                     </td>
-                    <td className={`py-3 px-4 text-right font-mono ${filtered.reduce((s, b) => s + b.variance, 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <td
+                      className={`py-3 px-4 text-right font-mono ${filtered.reduce((s, b) => s + b.variance, 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                    >
                       {filtered.reduce((s, b) => s + b.variance, 0) >= 0 ? '+' : '-'}
                       {formatCurrency(filtered.reduce((s, b) => s + b.variance, 0))}
                     </td>

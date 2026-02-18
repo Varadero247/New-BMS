@@ -28,10 +28,7 @@ function TickerList() {
 export default function Ticker() {
   return (
     <div className="bg-navy py-3 overflow-hidden" aria-label="Standards marquee" aria-hidden="true">
-      <div
-        className="flex whitespace-nowrap"
-        style={{ animation: 'ticker 28s linear infinite' }}
-      >
+      <div className="flex whitespace-nowrap" style={{ animation: 'ticker 28s linear infinite' }}>
         {/* Duplicate for seamless loop */}
         <TickerList />
         <TickerList />

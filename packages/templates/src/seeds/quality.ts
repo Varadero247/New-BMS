@@ -67,7 +67,8 @@ export const qualityTemplates: TemplateDefinition[] = [
         label: 'Non-Conformance Description',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the non-conformance in detail including what was found, expected vs actual...',
+        placeholder:
+          'Describe the non-conformance in detail including what was found, expected vs actual...',
         helpText: 'Provide a clear, factual description of the deviation from requirements.',
         validation: { minLength: 20, maxLength: 3000 },
         width: 'full',
@@ -102,7 +103,8 @@ export const qualityTemplates: TemplateDefinition[] = [
         label: 'Containment Actions',
         type: 'textarea',
         placeholder: 'Describe immediate actions taken to contain the non-conformance...',
-        helpText: 'Actions taken to prevent further non-conforming product from being produced or shipped.',
+        helpText:
+          'Actions taken to prevent further non-conforming product from being produced or shipped.',
         width: 'full',
       },
       {
@@ -113,8 +115,20 @@ export const qualityTemplates: TemplateDefinition[] = [
         helpText: 'List all corrective actions to eliminate the root cause.',
         columns: [
           { id: 'caNumber', label: '#', type: 'number', width: 'third' },
-          { id: 'caDescription', label: 'Action Description', type: 'textarea', required: true, width: 'full' },
-          { id: 'caResponsible', label: 'Responsible Person', type: 'text', required: true, width: 'half' },
+          {
+            id: 'caDescription',
+            label: 'Action Description',
+            type: 'textarea',
+            required: true,
+            width: 'full',
+          },
+          {
+            id: 'caResponsible',
+            label: 'Responsible Person',
+            type: 'text',
+            required: true,
+            width: 'half',
+          },
           { id: 'caTargetDate', label: 'Target Date', type: 'date', required: true, width: 'half' },
           {
             id: 'caStatus',
@@ -144,8 +158,10 @@ export const qualityTemplates: TemplateDefinition[] = [
         id: 'verificationDetails',
         label: 'Verification of Effectiveness',
         type: 'textarea',
-        placeholder: 'Describe how effectiveness of corrective actions will be or has been verified...',
-        helpText: 'Evidence that corrective actions have eliminated the root cause and prevented recurrence.',
+        placeholder:
+          'Describe how effectiveness of corrective actions will be or has been verified...',
+        helpText:
+          'Evidence that corrective actions have eliminated the root cause and prevented recurrence.',
         width: 'full',
       },
       {
@@ -354,10 +370,17 @@ export const qualityTemplates: TemplateDefinition[] = [
         label: 'Team Members',
         type: 'table',
         required: true,
-        helpText: 'Select a cross-functional team with the process/product knowledge to solve the problem.',
+        helpText:
+          'Select a cross-functional team with the process/product knowledge to solve the problem.',
         columns: [
           { id: 'memberName', label: 'Name', type: 'text', required: true, width: 'half' },
-          { id: 'memberRole', label: 'Role / Function', type: 'text', required: true, width: 'half' },
+          {
+            id: 'memberRole',
+            label: 'Role / Function',
+            type: 'text',
+            required: true,
+            width: 'half',
+          },
           { id: 'memberDept', label: 'Department', type: 'text', width: 'half' },
         ],
         width: 'full',
@@ -382,7 +405,8 @@ export const qualityTemplates: TemplateDefinition[] = [
         label: 'Problem Description',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the problem using 5W2H: Who, What, When, Where, Why, How, How many...',
+        placeholder:
+          'Describe the problem using 5W2H: Who, What, When, Where, Why, How, How many...',
         helpText: 'Quantify the problem using measurable terms. Use IS / IS NOT analysis.',
         validation: { minLength: 50, maxLength: 5000 },
         width: 'full',
@@ -398,8 +422,10 @@ export const qualityTemplates: TemplateDefinition[] = [
         label: 'Interim Containment Actions',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe actions to protect the customer from the problem until permanent fix...',
-        helpText: 'Actions to isolate the effect of the problem from the customer. Verify effectiveness of containment.',
+        placeholder:
+          'Describe actions to protect the customer from the problem until permanent fix...',
+        helpText:
+          'Actions to isolate the effect of the problem from the customer. Verify effectiveness of containment.',
         validation: { minLength: 20, maxLength: 3000 },
         width: 'full',
       },
@@ -415,7 +441,8 @@ export const qualityTemplates: TemplateDefinition[] = [
         type: 'textarea',
         required: true,
         placeholder: 'Document the root cause analysis findings...',
-        helpText: 'Identify all potential causes. Test each against the problem description. Verify the true root cause.',
+        helpText:
+          'Identify all potential causes. Test each against the problem description. Verify the true root cause.',
         validation: { minLength: 20, maxLength: 3000 },
         width: 'full',
       },
@@ -439,7 +466,8 @@ export const qualityTemplates: TemplateDefinition[] = [
         type: 'textarea',
         required: true,
         placeholder: 'Describe permanent corrective actions that address the root cause...',
-        helpText: 'Select the best permanent corrective action(s). Verify they resolve the problem without undesirable side effects.',
+        helpText:
+          'Select the best permanent corrective action(s). Verify they resolve the problem without undesirable side effects.',
         validation: { minLength: 20, maxLength: 3000 },
         width: 'full',
       },
@@ -455,7 +483,8 @@ export const qualityTemplates: TemplateDefinition[] = [
         type: 'textarea',
         required: true,
         placeholder: 'Describe the implementation steps, timeline, and monitoring plan...',
-        helpText: 'Define implementation plan, remove containment actions, and monitor long-term effectiveness.',
+        helpText:
+          'Define implementation plan, remove containment actions, and monitor long-term effectiveness.',
         width: 'full',
       },
       {
@@ -469,8 +498,10 @@ export const qualityTemplates: TemplateDefinition[] = [
         label: 'Preventive Actions',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe systemic changes to prevent recurrence across similar products/processes...',
-        helpText: 'Modify systems, procedures, standards, and training to prevent this and similar problems.',
+        placeholder:
+          'Describe systemic changes to prevent recurrence across similar products/processes...',
+        helpText:
+          'Modify systems, procedures, standards, and training to prevent this and similar problems.',
         width: 'full',
       },
       {
@@ -577,7 +608,8 @@ export const qualityTemplates: TemplateDefinition[] = [
         type: 'textarea',
         required: true,
         placeholder: 'Assess the risk: likelihood, severity, and potential impact...',
-        helpText: 'Evaluate the risk to product quality, customer satisfaction, and regulatory compliance.',
+        helpText:
+          'Evaluate the risk to product quality, customer satisfaction, and regulatory compliance.',
         width: 'full',
       },
       {
@@ -592,7 +624,8 @@ export const qualityTemplates: TemplateDefinition[] = [
         type: 'textarea',
         required: true,
         placeholder: 'Document the root cause analysis method and findings...',
-        helpText: 'Use appropriate analysis tools (5-Why, fishbone, fault tree, etc.) to determine root cause.',
+        helpText:
+          'Use appropriate analysis tools (5-Why, fishbone, fault tree, etc.) to determine root cause.',
         validation: { minLength: 30, maxLength: 5000 },
         width: 'full',
       },
@@ -610,14 +643,32 @@ export const qualityTemplates: TemplateDefinition[] = [
         helpText: 'Define specific, measurable actions to address the root cause.',
         columns: [
           { id: 'actionNumber', label: '#', type: 'number', width: 'third' },
-          { id: 'actionDescription', label: 'Action Description', type: 'textarea', required: true, width: 'full' },
+          {
+            id: 'actionDescription',
+            label: 'Action Description',
+            type: 'textarea',
+            required: true,
+            width: 'full',
+          },
           { id: 'actionOwner', label: 'Owner', type: 'text', required: true, width: 'half' },
-          { id: 'actionPriority', label: 'Priority', type: 'select', options: [
-            { label: 'High', value: 'high' },
-            { label: 'Medium', value: 'medium' },
-            { label: 'Low', value: 'low' },
-          ], width: 'third' },
-          { id: 'actionTargetDate', label: 'Target Date', type: 'date', required: true, width: 'half' },
+          {
+            id: 'actionPriority',
+            label: 'Priority',
+            type: 'select',
+            options: [
+              { label: 'High', value: 'high' },
+              { label: 'Medium', value: 'medium' },
+              { label: 'Low', value: 'low' },
+            ],
+            width: 'third',
+          },
+          {
+            id: 'actionTargetDate',
+            label: 'Target Date',
+            type: 'date',
+            required: true,
+            width: 'half',
+          },
         ],
         width: 'full',
       },
@@ -641,7 +692,8 @@ export const qualityTemplates: TemplateDefinition[] = [
         type: 'textarea',
         required: true,
         placeholder: 'Define measurable criteria for determining CAPA effectiveness...',
-        helpText: 'How will you know the CAPA was effective? Define measurable acceptance criteria.',
+        helpText:
+          'How will you know the CAPA was effective? Define measurable acceptance criteria.',
         width: 'full',
       },
       {
@@ -795,11 +847,24 @@ export const qualityTemplates: TemplateDefinition[] = [
         columns: [
           { id: 'ncrRef', label: 'NCR Reference', type: 'text', required: true, width: 'half' },
           { id: 'ncrClause', label: 'Clause', type: 'text', required: true, width: 'third' },
-          { id: 'ncrGrade', label: 'Grade', type: 'select', options: [
-            { label: 'Minor', value: 'minor' },
-            { label: 'Major', value: 'major' },
-          ], required: true, width: 'third' },
-          { id: 'ncrDescription', label: 'Description', type: 'textarea', required: true, width: 'full' },
+          {
+            id: 'ncrGrade',
+            label: 'Grade',
+            type: 'select',
+            options: [
+              { label: 'Minor', value: 'minor' },
+              { label: 'Major', value: 'major' },
+            ],
+            required: true,
+            width: 'third',
+          },
+          {
+            id: 'ncrDescription',
+            label: 'Description',
+            type: 'textarea',
+            required: true,
+            width: 'full',
+          },
         ],
         width: 'full',
       },
@@ -942,12 +1007,30 @@ export const qualityTemplates: TemplateDefinition[] = [
         columns: [
           { id: 'ncrRef', label: 'NCR #', type: 'text', required: true, width: 'third' },
           { id: 'ncrArea', label: 'Area', type: 'text', required: true, width: 'half' },
-          { id: 'ncrGrade', label: 'Grade', type: 'select', options: [
-            { label: 'Minor', value: 'minor' },
-            { label: 'Major', value: 'major' },
-          ], required: true, width: 'third' },
-          { id: 'ncrDescription', label: 'Description', type: 'textarea', required: true, width: 'full' },
-          { id: 'ncrCorrective', label: 'Required Corrective Action', type: 'textarea', width: 'full' },
+          {
+            id: 'ncrGrade',
+            label: 'Grade',
+            type: 'select',
+            options: [
+              { label: 'Minor', value: 'minor' },
+              { label: 'Major', value: 'major' },
+            ],
+            required: true,
+            width: 'third',
+          },
+          {
+            id: 'ncrDescription',
+            label: 'Description',
+            type: 'textarea',
+            required: true,
+            width: 'full',
+          },
+          {
+            id: 'ncrCorrective',
+            label: 'Required Corrective Action',
+            type: 'textarea',
+            width: 'full',
+          },
         ],
         width: 'full',
       },
@@ -1036,7 +1119,8 @@ export const qualityTemplates: TemplateDefinition[] = [
         type: 'textarea',
         required: true,
         placeholder: 'List all process inputs (materials, information, resources, criteria)...',
-        helpText: 'Identify what enters the process including raw materials, work instructions, specifications.',
+        helpText:
+          'Identify what enters the process including raw materials, work instructions, specifications.',
         width: 'half',
       },
       {
@@ -1062,14 +1146,27 @@ export const qualityTemplates: TemplateDefinition[] = [
         helpText: 'Evaluate each control point in the process.',
         columns: [
           { id: 'controlStep', label: 'Process Step', type: 'text', required: true, width: 'half' },
-          { id: 'controlParam', label: 'Control Parameter', type: 'text', required: true, width: 'half' },
+          {
+            id: 'controlParam',
+            label: 'Control Parameter',
+            type: 'text',
+            required: true,
+            width: 'half',
+          },
           { id: 'controlMethod', label: 'Control Method', type: 'text', width: 'half' },
           { id: 'controlSpec', label: 'Specification / Limit', type: 'text', width: 'half' },
-          { id: 'controlConformity', label: 'Conformity', type: 'select', options: [
-            { label: 'Conforming', value: 'conforming' },
-            { label: 'Non-Conforming', value: 'non_conforming' },
-            { label: 'Observation', value: 'observation' },
-          ], required: true, width: 'half' },
+          {
+            id: 'controlConformity',
+            label: 'Conformity',
+            type: 'select',
+            options: [
+              { label: 'Conforming', value: 'conforming' },
+              { label: 'Non-Conforming', value: 'non_conforming' },
+              { label: 'Observation', value: 'observation' },
+            ],
+            required: true,
+            width: 'half',
+          },
           { id: 'controlNotes', label: 'Notes', type: 'textarea', width: 'full' },
         ],
         width: 'full',
@@ -1095,13 +1192,26 @@ export const qualityTemplates: TemplateDefinition[] = [
         helpText: 'Document all findings from the process audit.',
         columns: [
           { id: 'findingRef', label: 'Finding #', type: 'text', required: true, width: 'third' },
-          { id: 'findingType', label: 'Type', type: 'select', options: [
-            { label: 'Major NC', value: 'major_nc' },
-            { label: 'Minor NC', value: 'minor_nc' },
-            { label: 'Observation', value: 'observation' },
-            { label: 'OFI', value: 'ofi' },
-          ], required: true, width: 'half' },
-          { id: 'findingDescription', label: 'Description', type: 'textarea', required: true, width: 'full' },
+          {
+            id: 'findingType',
+            label: 'Type',
+            type: 'select',
+            options: [
+              { label: 'Major NC', value: 'major_nc' },
+              { label: 'Minor NC', value: 'minor_nc' },
+              { label: 'Observation', value: 'observation' },
+              { label: 'OFI', value: 'ofi' },
+            ],
+            required: true,
+            width: 'half',
+          },
+          {
+            id: 'findingDescription',
+            label: 'Description',
+            type: 'textarea',
+            required: true,
+            width: 'full',
+          },
           { id: 'findingAction', label: 'Required Action', type: 'textarea', width: 'full' },
         ],
         width: 'full',
@@ -1111,7 +1221,8 @@ export const qualityTemplates: TemplateDefinition[] = [
         label: 'Process Effectiveness Rating',
         type: 'rating',
         required: true,
-        helpText: 'Rate overall process effectiveness from 1 (ineffective) to 5 (highly effective).',
+        helpText:
+          'Rate overall process effectiveness from 1 (ineffective) to 5 (highly effective).',
         width: 'half',
       },
       {
@@ -1247,9 +1358,21 @@ export const qualityTemplates: TemplateDefinition[] = [
         helpText: 'Decisions and actions for QMS improvement.',
         columns: [
           { id: 'decisionNumber', label: '#', type: 'number', width: 'third' },
-          { id: 'decisionDescription', label: 'Decision / Action', type: 'textarea', required: true, width: 'full' },
+          {
+            id: 'decisionDescription',
+            label: 'Decision / Action',
+            type: 'textarea',
+            required: true,
+            width: 'full',
+          },
           { id: 'decisionOwner', label: 'Owner', type: 'text', required: true, width: 'half' },
-          { id: 'decisionDeadline', label: 'Deadline', type: 'date', required: true, width: 'half' },
+          {
+            id: 'decisionDeadline',
+            label: 'Deadline',
+            type: 'date',
+            required: true,
+            width: 'half',
+          },
         ],
         width: 'full',
       },
@@ -1334,7 +1457,13 @@ export const qualityTemplates: TemplateDefinition[] = [
         helpText: 'List all review participants and their functions.',
         columns: [
           { id: 'reviewerName', label: 'Name', type: 'text', required: true, width: 'half' },
-          { id: 'reviewerRole', label: 'Role / Function', type: 'text', required: true, width: 'half' },
+          {
+            id: 'reviewerRole',
+            label: 'Role / Function',
+            type: 'text',
+            required: true,
+            width: 'half',
+          },
           { id: 'reviewerDept', label: 'Department', type: 'text', width: 'half' },
         ],
         width: 'full',
@@ -1392,13 +1521,26 @@ export const qualityTemplates: TemplateDefinition[] = [
         helpText: 'Document any issues, concerns, or risks identified during the review.',
         columns: [
           { id: 'issueRef', label: 'Issue #', type: 'text', required: true, width: 'third' },
-          { id: 'issueDescription', label: 'Description', type: 'textarea', required: true, width: 'full' },
-          { id: 'issueSeverity', label: 'Severity', type: 'select', options: [
-            { label: 'Low', value: 'low' },
-            { label: 'Medium', value: 'medium' },
-            { label: 'High', value: 'high' },
-            { label: 'Critical', value: 'critical' },
-          ], required: true, width: 'third' },
+          {
+            id: 'issueDescription',
+            label: 'Description',
+            type: 'textarea',
+            required: true,
+            width: 'full',
+          },
+          {
+            id: 'issueSeverity',
+            label: 'Severity',
+            type: 'select',
+            options: [
+              { label: 'Low', value: 'low' },
+              { label: 'Medium', value: 'medium' },
+              { label: 'High', value: 'high' },
+              { label: 'Critical', value: 'critical' },
+            ],
+            required: true,
+            width: 'third',
+          },
         ],
         width: 'full',
       },
@@ -1409,7 +1551,13 @@ export const qualityTemplates: TemplateDefinition[] = [
         helpText: 'Actions required to resolve issues and progress the design.',
         columns: [
           { id: 'actionRef', label: 'Action #', type: 'text', required: true, width: 'third' },
-          { id: 'actionDescription', label: 'Action', type: 'textarea', required: true, width: 'full' },
+          {
+            id: 'actionDescription',
+            label: 'Action',
+            type: 'textarea',
+            required: true,
+            width: 'full',
+          },
           { id: 'actionOwner', label: 'Owner', type: 'text', required: true, width: 'half' },
           { id: 'actionDueDate', label: 'Due Date', type: 'date', required: true, width: 'half' },
         ],
@@ -1514,7 +1662,8 @@ export const qualityTemplates: TemplateDefinition[] = [
         label: 'FMEA Analysis Table',
         type: 'table',
         required: true,
-        helpText: 'Systematically analyze each function/process step for potential failure modes. RPN = Severity x Occurrence x Detection.',
+        helpText:
+          'Systematically analyze each function/process step for potential failure modes. RPN = Severity x Occurrence x Detection.',
         columns: [
           {
             id: 'function',

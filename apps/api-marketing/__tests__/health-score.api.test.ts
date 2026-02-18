@@ -27,14 +27,19 @@ jest.mock('../src/config', () => ({
   },
 }));
 
-import healthScoreRouter, { calculateHealthScore, determineTrend } from '../src/routes/health-score';
+import healthScoreRouter, {
+  calculateHealthScore,
+  determineTrend,
+} from '../src/routes/health-score';
 import { prisma } from '../src/prisma';
 
 const app = express();
 app.use(express.json());
 app.use('/api/health-score', healthScoreRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 // ===================================================================
 // Health Score Calculation Logic
@@ -42,55 +47,146 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('calculateHealthScore', () => {
   it('returns 0 for completely inactive user', () => {
-    expect(calculateHealthScore({ loginsLast7Days: 0, recordsCreated: 0, modulesVisited: 0, teamMembersInvited: 0 })).toBe(0);
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 0,
+        recordsCreated: 0,
+        modulesVisited: 0,
+        teamMembersInvited: 0,
+      })
+    ).toBe(0);
   });
 
   it('returns maximum score for highly active user', () => {
-    expect(calculateHealthScore({ loginsLast7Days: 7, recordsCreated: 25, modulesVisited: 8, teamMembersInvited: 3 })).toBe(100);
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 7,
+        recordsCreated: 25,
+        modulesVisited: 8,
+        teamMembersInvited: 3,
+      })
+    ).toBe(100);
   });
 
   it('scores logins correctly: 1-2 = 10pts', () => {
-    expect(calculateHealthScore({ loginsLast7Days: 2, recordsCreated: 0, modulesVisited: 0, teamMembersInvited: 0 })).toBe(10);
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 2,
+        recordsCreated: 0,
+        modulesVisited: 0,
+        teamMembersInvited: 0,
+      })
+    ).toBe(10);
   });
 
   it('scores logins correctly: 3-4 = 20pts', () => {
-    expect(calculateHealthScore({ loginsLast7Days: 4, recordsCreated: 0, modulesVisited: 0, teamMembersInvited: 0 })).toBe(20);
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 4,
+        recordsCreated: 0,
+        modulesVisited: 0,
+        teamMembersInvited: 0,
+      })
+    ).toBe(20);
   });
 
   it('scores logins correctly: 5+ = 30pts', () => {
-    expect(calculateHealthScore({ loginsLast7Days: 5, recordsCreated: 0, modulesVisited: 0, teamMembersInvited: 0 })).toBe(30);
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 5,
+        recordsCreated: 0,
+        modulesVisited: 0,
+        teamMembersInvited: 0,
+      })
+    ).toBe(30);
   });
 
   it('scores records created: 1-5 = 10pts', () => {
-    expect(calculateHealthScore({ loginsLast7Days: 0, recordsCreated: 3, modulesVisited: 0, teamMembersInvited: 0 })).toBe(10);
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 0,
+        recordsCreated: 3,
+        modulesVisited: 0,
+        teamMembersInvited: 0,
+      })
+    ).toBe(10);
   });
 
   it('scores records created: 6-20 = 15pts', () => {
-    expect(calculateHealthScore({ loginsLast7Days: 0, recordsCreated: 10, modulesVisited: 0, teamMembersInvited: 0 })).toBe(15);
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 0,
+        recordsCreated: 10,
+        modulesVisited: 0,
+        teamMembersInvited: 0,
+      })
+    ).toBe(15);
   });
 
   it('scores records created: 20+ = 20pts', () => {
-    expect(calculateHealthScore({ loginsLast7Days: 0, recordsCreated: 21, modulesVisited: 0, teamMembersInvited: 0 })).toBe(20);
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 0,
+        recordsCreated: 21,
+        modulesVisited: 0,
+        teamMembersInvited: 0,
+      })
+    ).toBe(20);
   });
 
   it('scores modules visited: 1 = 5pts', () => {
-    expect(calculateHealthScore({ loginsLast7Days: 0, recordsCreated: 0, modulesVisited: 1, teamMembersInvited: 0 })).toBe(5);
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 0,
+        recordsCreated: 0,
+        modulesVisited: 1,
+        teamMembersInvited: 0,
+      })
+    ).toBe(5);
   });
 
   it('scores modules visited: 7+ = 25pts', () => {
-    expect(calculateHealthScore({ loginsLast7Days: 0, recordsCreated: 0, modulesVisited: 7, teamMembersInvited: 0 })).toBe(25);
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 0,
+        recordsCreated: 0,
+        modulesVisited: 7,
+        teamMembersInvited: 0,
+      })
+    ).toBe(25);
   });
 
   it('scores team members invited: 1 = 10pts', () => {
-    expect(calculateHealthScore({ loginsLast7Days: 0, recordsCreated: 0, modulesVisited: 0, teamMembersInvited: 1 })).toBe(10);
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 0,
+        recordsCreated: 0,
+        modulesVisited: 0,
+        teamMembersInvited: 1,
+      })
+    ).toBe(10);
   });
 
   it('scores team members invited: 2+ = 25pts', () => {
-    expect(calculateHealthScore({ loginsLast7Days: 0, recordsCreated: 0, modulesVisited: 0, teamMembersInvited: 2 })).toBe(25);
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 0,
+        recordsCreated: 0,
+        modulesVisited: 0,
+        teamMembersInvited: 2,
+      })
+    ).toBe(25);
   });
 
   it('caps at 100', () => {
-    expect(calculateHealthScore({ loginsLast7Days: 10, recordsCreated: 100, modulesVisited: 20, teamMembersInvited: 10 })).toBe(100);
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 10,
+        recordsCreated: 100,
+        modulesVisited: 20,
+        teamMembersInvited: 10,
+      })
+    ).toBe(100);
   });
 });
 
@@ -123,10 +219,15 @@ describe('determineTrend', () => {
 describe('GET /api/health-score/user/:userId', () => {
   it('returns latest health score', async () => {
     (prisma.mktHealthScore.findFirst as jest.Mock).mockResolvedValue({
-      id: 'hs-1', userId: 'user-1', score: 75, trend: 'IMPROVING',
+      id: 'hs-1',
+      userId: 'user-1',
+      score: 75,
+      trend: 'IMPROVING',
     });
 
-    const res = await request(app).get('/api/health-score/user/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/health-score/user/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.score).toBe(75);
@@ -135,7 +236,9 @@ describe('GET /api/health-score/user/:userId', () => {
   it('returns 404 when no score exists', async () => {
     (prisma.mktHealthScore.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/health-score/user/00000000-0000-0000-0000-000000000099');
+    const res = await request(app).get(
+      '/api/health-score/user/00000000-0000-0000-0000-000000000099'
+    );
 
     expect(res.status).toBe(404);
   });
@@ -154,7 +257,9 @@ describe('GET /api/health-score/org/:orgId', () => {
     ];
     (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue(scores);
 
-    const res = await request(app).get('/api/health-score/org/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/health-score/org/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.totalUsers).toBe(3);

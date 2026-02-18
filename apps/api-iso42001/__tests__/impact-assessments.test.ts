@@ -80,7 +80,12 @@ const mockAssessment = {
   createdAt: new Date('2026-01-15'),
   updatedAt: new Date('2026-01-15'),
   deletedAt: null,
-  system: { id: UUID1, name: 'Credit Scoring AI', reference: 'AI42-SYS-2602-5555', riskTier: 'HIGH' },
+  system: {
+    id: UUID1,
+    name: 'Credit Scoring AI',
+    reference: 'AI42-SYS-2602-5555',
+    riskTier: 'HIGH',
+  },
 };
 
 // ===================================================================
@@ -223,10 +228,12 @@ describe('POST /api/impact-assessments', () => {
   });
 
   it('should return 400 for invalid systemId', async () => {
-    const res = await request(app).post('/api/impact-assessments').send({
-      ...validPayload,
-      systemId: 'not-a-uuid',
-    });
+    const res = await request(app)
+      .post('/api/impact-assessments')
+      .send({
+        ...validPayload,
+        systemId: 'not-a-uuid',
+      });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);

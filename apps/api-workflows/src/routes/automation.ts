@@ -23,16 +23,36 @@ const createRuleSchema = z.object({
   triggerSchedule: z.string().optional(),
   triggerCondition: z.record(z.unknown()).optional(),
   actionType: z.enum([
-    'CREATE_WORKFLOW', 'UPDATE_ENTITY', 'SEND_NOTIFICATION', 'CALL_WEBHOOK',
-    'EXECUTE_SCRIPT', 'ASSIGN_TASK', 'ESCALATE', 'UPDATE_STATUS', 'GENERATE_REPORT', 'CUSTOM'
+    'CREATE_WORKFLOW',
+    'UPDATE_ENTITY',
+    'SEND_NOTIFICATION',
+    'CALL_WEBHOOK',
+    'EXECUTE_SCRIPT',
+    'ASSIGN_TASK',
+    'ESCALATE',
+    'UPDATE_STATUS',
+    'GENERATE_REPORT',
+    'CUSTOM',
   ]),
   actionConfig: z.record(z.unknown()),
   entityType: z.string().optional(),
-  workflowCategory: z.enum([
-    'APPROVAL', 'REVIEW', 'CHANGE_MANAGEMENT', 'INCIDENT', 'REQUEST',
-    'ONBOARDING', 'OFFBOARDING', 'PROCUREMENT', 'DOCUMENT_CONTROL',
-    'AUDIT', 'CAPA', 'TRAINING', 'CUSTOM'
-  ]).optional(),
+  workflowCategory: z
+    .enum([
+      'APPROVAL',
+      'REVIEW',
+      'CHANGE_MANAGEMENT',
+      'INCIDENT',
+      'REQUEST',
+      'ONBOARDING',
+      'OFFBOARDING',
+      'PROCUREMENT',
+      'DOCUMENT_CONTROL',
+      'AUDIT',
+      'CAPA',
+      'TRAINING',
+      'CUSTOM',
+    ])
+    .optional(),
   priority: z.number().int().min(0).max(100).default(0),
   maxRetries: z.number().int().min(0).max(10).default(3),
   retryDelaySeconds: z.number().int().min(1).max(3600).default(60),
@@ -75,37 +95,41 @@ router.get('/rules', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/automation/rules/:id - Get single rule
-router.get('/rules/:id', checkOwnership(prisma.automationRule), async (req: AuthRequest, res: Response) => {
-  try {
-    const rule = await prisma.automationRule.findUnique({
-      where: { id: req.params.id },
-      include: {
-        executions: {
-          take: 10,
-          orderBy: { createdAt: 'desc' },
+router.get(
+  '/rules/:id',
+  checkOwnership(prisma.automationRule),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const rule = await prisma.automationRule.findUnique({
+        where: { id: req.params.id },
+        include: {
+          executions: {
+            take: 10,
+            orderBy: { createdAt: 'desc' },
+          },
+          _count: {
+            select: { executions: true },
+          },
         },
-        _count: {
-          select: { executions: true },
-        },
-      },
-    });
+      });
 
-    if (!rule) {
-      return res.status(404).json({
+      if (!rule) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Automation rule not found' },
+        });
+      }
+
+      res.json({ success: true, data: rule });
+    } catch (error) {
+      logger.error('Error fetching automation rule', { error: (error as Error).message });
+      res.status(500).json({
         success: false,
-        error: { code: 'NOT_FOUND', message: 'Automation rule not found' },
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch automation rule' },
       });
     }
-
-    res.json({ success: true, data: rule });
-  } catch (error) {
-    logger.error('Error fetching automation rule', { error: (error as Error).message });
-    res.status(500).json({
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch automation rule' },
-    });
   }
-});
+);
 
 // POST /api/automation/rules - Create automation rule
 router.post('/rules', async (req: Request, res: Response) => {
@@ -162,48 +186,56 @@ router.post('/rules', async (req: Request, res: Response) => {
 });
 
 // PUT /api/automation/rules/:id - Update automation rule
-router.put('/rules/:id', checkOwnership(prisma.automationRule), async (req: AuthRequest, res: Response) => {
-  try {
-    const data = updateRuleSchema.parse(req.body);
+router.put(
+  '/rules/:id',
+  checkOwnership(prisma.automationRule),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const data = updateRuleSchema.parse(req.body);
 
-    const rule = await prisma.automationRule.update({
-      where: { id: req.params.id },
-      data: data as any,
-    });
+      const rule = await prisma.automationRule.update({
+        where: { id: req.params.id },
+        data: data as any,
+      });
 
-    res.json({ success: true, data: rule });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.json({ success: true, data: rule });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: error.errors },
+        });
+      }
+      logger.error('Error updating automation rule', { error: (error as Error).message });
+      res.status(500).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: error.errors },
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update automation rule' },
       });
     }
-    logger.error('Error updating automation rule', { error: (error as Error).message });
-    res.status(500).json({
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'Failed to update automation rule' },
-    });
   }
-});
+);
 
 // DELETE /api/automation/rules/:id - Delete automation rule
-router.delete('/rules/:id', checkOwnership(prisma.automationRule), async (req: AuthRequest, res: Response) => {
-  try {
-    await prisma.automationRule.update({
-      where: { id: req.params.id },
-      data: { deletedAt: new Date() },
-    });
+router.delete(
+  '/rules/:id',
+  checkOwnership(prisma.automationRule),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      await prisma.automationRule.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
 
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Error deleting automation rule', { error: (error as Error).message });
-    res.status(500).json({
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete automation rule' },
-    });
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Error deleting automation rule', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete automation rule' },
+      });
+    }
   }
-});
+);
 
 // POST /api/automation/rules/:id/execute - Execute rule manually
 const executeRuleSchema = z.object({
@@ -450,41 +482,36 @@ router.post('/executions/:id/retry', async (req: Request, res: Response) => {
 // GET /api/automation/stats - Get automation statistics
 router.get('/stats', async (req: Request, res: Response) => {
   try {
-    const [
-      totalRules,
-      activeRules,
-      executionsByStatus,
-      recentExecutions,
-      topRules,
-    ] = await Promise.all([
-      prisma.automationRule.count(),
-      prisma.automationRule.count({ where: { isActive: true } }),
-      prisma.automationExecution.groupBy({
-        by: ['status'],
-        _count: { status: true },
-      }),
-      prisma.automationExecution.findMany({
-        where: { deletedAt: null } as any,
-        take: 10,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          rule: { select: { name: true, code: true } },
-        },
-      }),
-      prisma.automationRule.findMany({
-        where: { deletedAt: null } as any,
-        take: 5,
-        orderBy: { executionCount: 'desc' },
-        select: {
-          id: true,
-          name: true,
-          code: true,
-          executionCount: true,
-          failureCount: true,
-          lastExecutedAt: true,
-        },
-      }),
-    ]);
+    const [totalRules, activeRules, executionsByStatus, recentExecutions, topRules] =
+      await Promise.all([
+        prisma.automationRule.count(),
+        prisma.automationRule.count({ where: { isActive: true } }),
+        prisma.automationExecution.groupBy({
+          by: ['status'],
+          _count: { status: true },
+        }),
+        prisma.automationExecution.findMany({
+          where: { deletedAt: null } as any,
+          take: 10,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            rule: { select: { name: true, code: true } },
+          },
+        }),
+        prisma.automationRule.findMany({
+          where: { deletedAt: null } as any,
+          take: 5,
+          orderBy: { executionCount: 'desc' },
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            executionCount: true,
+            failureCount: true,
+            lastExecutedAt: true,
+          },
+        }),
+      ]);
 
     res.json({
       success: true,

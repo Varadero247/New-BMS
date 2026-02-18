@@ -58,7 +58,9 @@ export const ExtraLarge: Story = {
 
 export const AllSizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'flex-start' }}>
+    <div
+      style={{ display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'flex-start' }}
+    >
       <NexaraLogo size="xs" />
       <NexaraLogo size="sm" />
       <NexaraLogo size="md" />

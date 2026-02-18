@@ -83,7 +83,9 @@ describe('GET /api/adjustments', () => {
     (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValue([]);
     (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValue(0);
 
-    const res = await request(app).get(`/api/adjustments?productId=${PRODUCT_ID}&warehouseId=${WAREHOUSE_ID}`);
+    const res = await request(app).get(
+      `/api/adjustments?productId=${PRODUCT_ID}&warehouseId=${WAREHOUSE_ID}`
+    );
     expect(res.status).toBe(200);
   });
 
@@ -104,7 +106,10 @@ describe('POST /api/adjustments', () => {
   };
 
   it('creates adjustment successfully when inventory exists', async () => {
-    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue({ id: 'inv-1', quantityOnHand: 10 });
+    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue({
+      id: 'inv-1',
+      quantityOnHand: 10,
+    });
     (mockPrisma.$transaction as jest.Mock).mockResolvedValue([mockTransaction]);
 
     const res = await request(app).post('/api/adjustments').send(validBody);
@@ -122,9 +127,14 @@ describe('POST /api/adjustments', () => {
   });
 
   it('returns 400 when ADJUSTMENT_OUT would create negative stock', async () => {
-    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue({ id: 'inv-1', quantityOnHand: 2 });
+    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue({
+      id: 'inv-1',
+      quantityOnHand: 2,
+    });
 
-    const res = await request(app).post('/api/adjustments').send({ ...validBody, adjustmentType: 'ADJUSTMENT_OUT', quantity: 5 });
+    const res = await request(app)
+      .post('/api/adjustments')
+      .send({ ...validBody, adjustmentType: 'ADJUSTMENT_OUT', quantity: 5 });
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INSUFFICIENT_STOCK');
   });
@@ -135,7 +145,10 @@ describe('POST /api/adjustments', () => {
   });
 
   it('returns 500 on DB error', async () => {
-    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue({ id: 'inv-1', quantityOnHand: 10 });
+    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue({
+      id: 'inv-1',
+      quantityOnHand: 10,
+    });
     (mockPrisma.$transaction as jest.Mock).mockRejectedValue(new Error('fail'));
 
     const res = await request(app).post('/api/adjustments').send(validBody);

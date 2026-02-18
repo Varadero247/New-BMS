@@ -90,9 +90,7 @@ describe('Payroll Expenses API Routes', () => {
       (mockPrisma.expense.findMany as jest.Mock).mockResolvedValueOnce(mockExpenses);
       (mockPrisma.expense.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/expenses')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/expenses').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -140,9 +138,7 @@ describe('Payroll Expenses API Routes', () => {
       (mockPrisma.expense.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.expense.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/expenses?status=APPROVED')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/expenses?status=APPROVED').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.expense.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -157,9 +153,7 @@ describe('Payroll Expenses API Routes', () => {
       (mockPrisma.expense.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.expense.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/expenses?category=TRAVEL')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/expenses?category=TRAVEL').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.expense.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -174,9 +168,7 @@ describe('Payroll Expenses API Routes', () => {
       (mockPrisma.expense.findMany as jest.Mock).mockResolvedValueOnce(mockExpenses);
       (mockPrisma.expense.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/expenses')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/expenses').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.expense.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -188,9 +180,7 @@ describe('Payroll Expenses API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.expense.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/expenses')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/expenses').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -204,7 +194,12 @@ describe('Payroll Expenses API Routes', () => {
       category: 'TRAVEL',
       description: 'Flight to conference',
       amount: 500,
-      employee: { firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', departmentId: '2b000000-0000-4000-a000-000000000001' },
+      employee: {
+        firstName: 'John',
+        lastName: 'Doe',
+        employeeNumber: 'EMP001',
+        departmentId: '2b000000-0000-4000-a000-000000000001',
+      },
       report: null,
     };
 

@@ -82,16 +82,18 @@ export default function RiskRegisterPage() {
 
   const stats = {
     total: risks.length,
-    extreme: risks.filter(r => r.currentRiskLevel === 'EXTREME').length,
-    high: risks.filter(r => r.currentRiskLevel === 'HIGH').length,
-    medium: risks.filter(r => r.currentRiskLevel === 'MEDIUM').length,
-    low: risks.filter(r => r.currentRiskLevel === 'LOW').length,
-    withTreatments: risks.filter(r => (r._count?.treatments || 0) > 0).length,
+    extreme: risks.filter((r) => r.currentRiskLevel === 'EXTREME').length,
+    high: risks.filter((r) => r.currentRiskLevel === 'HIGH').length,
+    medium: risks.filter((r) => r.currentRiskLevel === 'MEDIUM').length,
+    low: risks.filter((r) => r.currentRiskLevel === 'LOW').length,
+    withTreatments: risks.filter((r) => (r._count?.treatments || 0) > 0).length,
   };
 
   // Create risk matrix data
-  const riskMatrix = Array(5).fill(null).map(() => Array(5).fill(0));
-  risks.forEach(risk => {
+  const riskMatrix = Array(5)
+    .fill(null)
+    .map(() => Array(5).fill(0));
+  risks.forEach((risk) => {
     if (risk.likelihood && risk.impact) {
       riskMatrix[5 - risk.likelihood][risk.impact - 1]++;
     }
@@ -103,7 +105,7 @@ export default function RiskRegisterPage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-24 bg-gray-200 rounded" />
             ))}
           </div>
@@ -119,7 +121,9 @@ export default function RiskRegisterPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Risk Register</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Enterprise risk management and treatment tracking</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Enterprise risk management and treatment tracking
+            </p>
           </div>
           <Link href="/risk-register/new">
             <Button className="flex items-center gap-2">
@@ -206,7 +210,9 @@ export default function RiskRegisterPage() {
           <CardContent>
             <div className="flex items-center gap-8">
               <div className="flex flex-col items-center">
-                <span className="text-xs text-gray-500 dark:text-gray-400 mb-2 -rotate-90 w-20">Likelihood →</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 mb-2 -rotate-90 w-20">
+                  Likelihood →
+                </span>
               </div>
               <div className="flex-1">
                 <div className="flex justify-end mb-1">
@@ -294,11 +300,20 @@ export default function RiskRegisterPage() {
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium">{risk.title}</span>
                             {risk.currentRiskLevel && (
-                              <Badge className={riskLevelColors[risk.currentRiskLevel] || 'bg-gray-100 dark:bg-gray-800'}>
+                              <Badge
+                                className={
+                                  riskLevelColors[risk.currentRiskLevel] ||
+                                  'bg-gray-100 dark:bg-gray-800'
+                                }
+                              >
                                 {risk.currentRiskLevel}
                               </Badge>
                             )}
-                            <Badge className={statusColors[risk.status] || 'bg-gray-100 dark:bg-gray-800'}>
+                            <Badge
+                              className={
+                                statusColors[risk.status] || 'bg-gray-100 dark:bg-gray-800'
+                              }
+                            >
                               {risk.status.replace(/_/g, ' ')}
                             </Badge>
                           </div>
@@ -311,7 +326,9 @@ export default function RiskRegisterPage() {
                             {risk.residualRiskScore && (
                               <>
                                 <span>→</span>
-                                <span className="text-green-600">Residual: {risk.residualRiskScore}</span>
+                                <span className="text-green-600">
+                                  Residual: {risk.residualRiskScore}
+                                </span>
                               </>
                             )}
                             {risk._count && (

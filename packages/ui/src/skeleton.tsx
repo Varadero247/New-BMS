@@ -40,7 +40,10 @@ export function Skeleton({ variant = 'text', width, height, className, lines = 1
         <div
           key={i}
           className={cn(baseStyles, 'rounded h-4', i === lines - 1 && lines > 1 && 'w-3/4')}
-          style={{ width: i === lines - 1 && lines > 1 ? '75%' : width ?? '100%', height: height ?? undefined }}
+          style={{
+            width: i === lines - 1 && lines > 1 ? '75%' : (width ?? '100%'),
+            height: height ?? undefined,
+          }}
         />
       ))}
     </div>

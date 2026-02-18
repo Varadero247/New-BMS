@@ -16,7 +16,15 @@ router.param('id', validateIdParam());
 
 const auditLogCreateSchema = z.object({
   systemId: z.string().max(100).optional().nullable(),
-  action: z.enum(['DECISION', 'OVERRIDE', 'REVIEW', 'APPROVAL', 'REJECTION', 'ESCALATION', 'CONFIG_CHANGE']),
+  action: z.enum([
+    'DECISION',
+    'OVERRIDE',
+    'REVIEW',
+    'APPROVAL',
+    'REJECTION',
+    'ESCALATION',
+    'CONFIG_CHANGE',
+  ]),
   description: z.string().trim().min(1).max(2000),
   inputSummary: z.string().max(5000).optional().nullable(),
   outputSummary: z.string().max(5000).optional().nullable(),
@@ -98,10 +106,13 @@ router.get('/stats', async (req: Request, res: Response) => {
       success: true,
       data: {
         totalEntries,
-        byAction: actionCounts.reduce((acc, g) => {
-          acc[g.action] = (g as any)._count.id;
-          return acc;
-        }, {} as Record<string, number>),
+        byAction: actionCounts.reduce(
+          (acc, g) => {
+            acc[g.action] = (g as any)._count.id;
+            return acc;
+          },
+          {} as Record<string, number>
+        ),
         dailyCounts,
         topUsers: topUsers.map((u) => ({
           userId: u.userId,
@@ -112,8 +123,13 @@ router.get('/stats', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get audit stats', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit log stats' } });
+    logger.error('Failed to get audit stats', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit log stats' },
+    });
   }
 });
 
@@ -169,8 +185,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list audit logs', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list audit logs' } });
+    logger.error('Failed to list audit logs', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list audit logs' },
+    });
   }
 });
 
@@ -179,7 +200,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = auditLogCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -202,8 +230,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('AI audit log entry created', { entryId: entry.id, action: parsed.data.action });
     res.status(201).json({ success: true, data: entry });
   } catch (error: unknown) {
-    logger.error('Failed to create audit log', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit log entry' } });
+    logger.error('Failed to create audit log', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit log entry' },
+    });
   }
 });
 
@@ -213,12 +246,21 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const entry = await prisma.aiAuditLog.findUnique({ where: { id } });
     if (!entry) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit log entry not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Audit log entry not found' },
+      });
     }
     res.json({ success: true, data: entry });
   } catch (error: unknown) {
-    logger.error('Failed to get audit log entry', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit log entry' } });
+    logger.error('Failed to get audit log entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit log entry' },
+    });
   }
 });
 
@@ -228,7 +270,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const entry = await prisma.aiAuditLog.findUnique({ where: { id } });
     if (!entry) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit log entry not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Audit log entry not found' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -250,8 +295,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('AI audit log entry soft-deleted', { entryId: id, deletedBy: authReq.user?.id });
     res.status(204).send();
   } catch (error: unknown) {
-    logger.error('Failed to delete audit log entry', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete audit log entry' } });
+    logger.error('Failed to delete audit log entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete audit log entry' },
+    });
   }
 });
 

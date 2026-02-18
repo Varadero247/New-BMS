@@ -244,9 +244,7 @@ export default function DashboardPage() {
       value: stats.kriBreaches,
       icon: Activity,
       colorClass:
-        stats.kriBreaches > 0
-          ? 'bg-red-50 dark:bg-red-900/20'
-          : 'bg-green-50 dark:bg-green-900/20',
+        stats.kriBreaches > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-green-50 dark:bg-green-900/20',
       iconClass: stats.kriBreaches > 0 ? 'text-red-600' : 'text-green-600',
     },
     {
@@ -296,7 +294,6 @@ export default function DashboardPage() {
       <Sidebar />
       <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-7xl mx-auto space-y-8">
-
           {/* Page Header */}
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
@@ -313,7 +310,8 @@ export default function DashboardPage() {
               <ShieldAlert className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
               <div>
                 <p className="text-sm font-semibold text-red-800 dark:text-red-200">
-                  {stats.criticalRisks} Critical Risk{stats.criticalRisks > 1 ? 's' : ''} Require Immediate Attention
+                  {stats.criticalRisks} Critical Risk{stats.criticalRisks > 1 ? 's' : ''} Require
+                  Immediate Attention
                 </p>
                 <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">
                   Review and implement controls to bring residual risk within acceptable levels.
@@ -353,7 +351,8 @@ export default function DashboardPage() {
               <Activity className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
               <div>
                 <p className="text-sm font-semibold text-red-800 dark:text-red-200">
-                  {stats.kriBreaches} Key Risk Indicator{stats.kriBreaches > 1 ? 's' : ''} in Breach (RED)
+                  {stats.kriBreaches} Key Risk Indicator{stats.kriBreaches > 1 ? 's' : ''} in Breach
+                  (RED)
                 </p>
                 <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">
                   KRI thresholds have been exceeded. Escalation and corrective action required.
@@ -403,7 +402,6 @@ export default function DashboardPage() {
 
           {/* Middle Row: Heat Map + Top 5 Risks */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
             {/* Risk Heat Map */}
             <Card>
               <CardContent className="p-6">
@@ -447,16 +445,11 @@ export default function DashboardPage() {
                             const score = l * c;
                             const risks = cellMap[l][c];
                             const count = risks.length;
-                            const isSelected =
-                              selectedCell?.l === l && selectedCell?.c === c;
+                            const isSelected = selectedCell?.l === l && selectedCell?.c === c;
                             return (
                               <button
                                 key={c}
-                                onClick={() =>
-                                  setSelectedCell(
-                                    isSelected ? null : { l, c }
-                                  )
-                                }
+                                onClick={() => setSelectedCell(isSelected ? null : { l, c })}
                                 className={`flex-1 h-10 rounded text-xs font-semibold transition-all ${getCellColor(score)} ${
                                   isSelected
                                     ? 'ring-2 ring-offset-1 ring-gray-700 dark:ring-gray-200 scale-105'
@@ -494,7 +487,9 @@ export default function DashboardPage() {
                 {selectedCell && cellMap[selectedCell.l][selectedCell.c].length > 0 && (
                   <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                     <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      {LIKELIHOOD_LABELS[selectedCell.l - 1]} × {CONSEQUENCE_LABELS[selectedCell.c - 1]} — Score {selectedCell.l * selectedCell.c}
+                      {LIKELIHOOD_LABELS[selectedCell.l - 1]} ×{' '}
+                      {CONSEQUENCE_LABELS[selectedCell.c - 1]} — Score{' '}
+                      {selectedCell.l * selectedCell.c}
                     </p>
                     <ul className="space-y-1">
                       {cellMap[selectedCell.l][selectedCell.c].map((r) => (
@@ -522,9 +517,7 @@ export default function DashboardPage() {
                   ].map((item) => (
                     <div key={item.label} className="flex items-center gap-1">
                       <div className={`w-3 h-3 rounded-sm ${item.cls}`} />
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {item.label}
-                      </span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{item.label}</span>
                     </div>
                   ))}
                 </div>
@@ -602,7 +595,6 @@ export default function DashboardPage() {
 
           {/* Bottom Row: Risk by Category + Quick Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
             {/* Risk by Category */}
             <Card className="lg:col-span-2">
               <CardContent className="p-6">
@@ -728,7 +720,9 @@ export default function DashboardPage() {
           <div className="flex flex-wrap gap-6 text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 pt-6">
             <span>
               Avg. Residual Score:{' '}
-              <strong className="text-gray-700 dark:text-gray-300">{stats.avgRiskScore ?? 0}</strong>
+              <strong className="text-gray-700 dark:text-gray-300">
+                {stats.avgRiskScore ?? 0}
+              </strong>
             </span>
             <span>
               Open CAPAs:{' '}
@@ -736,11 +730,11 @@ export default function DashboardPage() {
             </span>
             <span>
               Pending Reviews:{' '}
-              <strong className="text-gray-700 dark:text-gray-300">{stats.pendingReviews ?? 0}</strong>
+              <strong className="text-gray-700 dark:text-gray-300">
+                {stats.pendingReviews ?? 0}
+              </strong>
             </span>
-            <span className="ml-auto text-xs">
-              ISO 31000:2018 — Risk Management Framework
-            </span>
+            <span className="ml-auto text-xs">ISO 31000:2018 — Risk Management Framework</span>
           </div>
         </div>
       </main>

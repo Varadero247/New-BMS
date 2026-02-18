@@ -48,7 +48,12 @@ router.get('/', async (req: Request, res: Response) => {
     if (status) where.status = status;
 
     const [items, total] = await Promise.all([
-      prisma.portalQualityReport.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.portalQualityReport.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
       prisma.portalQualityReport.count({ where }),
     ]);
 
@@ -58,8 +63,12 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing NCRs', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list NCRs' } });
+    logger.error('Error listing NCRs', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list NCRs' } });
   }
 });
 
@@ -72,19 +81,32 @@ router.post('/:id/response', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = ncrResponseSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const ncr = await prisma.portalQualityReport.findFirst({
-      where: { id: req.params.id, portalUserId: auth.user!.id, reportType: 'NCR', deletedAt: null } as any,
+      where: {
+        id: req.params.id,
+        portalUserId: auth.user!.id,
+        reportType: 'NCR',
+        deletedAt: null,
+      } as any,
     });
 
     if (!ncr) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'NCR not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'NCR not found' } });
     }
 
     if (ncr.status === 'CLOSED' || ncr.status === 'RESOLVED') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'NCR is already resolved or closed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'NCR is already resolved or closed' },
+      });
     }
 
     const updated = await prisma.portalQualityReport.update({
@@ -99,8 +121,13 @@ router.post('/:id/response', async (req: Request, res: Response) => {
     logger.info('NCR response submitted', { id: updated.id });
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Error submitting NCR response', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit NCR response' } });
+    logger.error('Error submitting NCR response', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to submit NCR response' },
+    });
   }
 });
 

@@ -20,7 +20,10 @@ import { prisma } from '../src/prisma';
 const app = express();
 app.use(express.json());
 // Inject partner auth middleware
-app.use((req: any, _res: any, next: any) => { req.partner = { id: 'partner-1' }; next(); });
+app.use((req: any, _res: any, next: any) => {
+  req.partner = { id: 'partner-1' };
+  next();
+});
 app.use('/api/profile', profileRouter);
 
 const appNoAuth = express();
@@ -28,7 +31,9 @@ appNoAuth.use(express.json());
 // No partner auth — simulates unauthenticated requests
 appNoAuth.use('/api/profile', profileRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockPartner = {
   id: 'partner-1',
@@ -136,9 +141,7 @@ describe('PUT /api/profile', () => {
   it('should call update with correct partner ID', async () => {
     (prisma.mktPartner.update as jest.Mock).mockResolvedValue(mockPartner);
 
-    await request(app)
-      .put('/api/profile')
-      .send({ name: 'New Name' });
+    await request(app).put('/api/profile').send({ name: 'New Name' });
 
     expect(prisma.mktPartner.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -148,9 +151,7 @@ describe('PUT /api/profile', () => {
   });
 
   it('should return 401 when not authenticated', async () => {
-    const res = await request(appNoAuth)
-      .put('/api/profile')
-      .send({ name: 'New Name' });
+    const res = await request(appNoAuth).put('/api/profile').send({ name: 'New Name' });
 
     expect(res.status).toBe(401);
     expect(res.body.success).toBe(false);
@@ -158,9 +159,7 @@ describe('PUT /api/profile', () => {
   });
 
   it('should return 400 for invalid update data (empty name)', async () => {
-    const res = await request(app)
-      .put('/api/profile')
-      .send({ name: '' });
+    const res = await request(app).put('/api/profile').send({ name: '' });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
@@ -168,9 +167,7 @@ describe('PUT /api/profile', () => {
   });
 
   it('should return 400 for invalid update data (empty company)', async () => {
-    const res = await request(app)
-      .put('/api/profile')
-      .send({ company: '' });
+    const res = await request(app).put('/api/profile').send({ company: '' });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
@@ -180,9 +177,7 @@ describe('PUT /api/profile', () => {
   it('should return 500 on database error', async () => {
     (prisma.mktPartner.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app)
-      .put('/api/profile')
-      .send({ name: 'Test' });
+    const res = await request(app).put('/api/profile').send({ name: 'Test' });
 
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -192,9 +187,7 @@ describe('PUT /api/profile', () => {
   it('should allow empty PUT body (all fields optional)', async () => {
     (prisma.mktPartner.update as jest.Mock).mockResolvedValue(mockPartner);
 
-    const res = await request(app)
-      .put('/api/profile')
-      .send({});
+    const res = await request(app).put('/api/profile').send({});
 
     expect(res.status).toBe(200);
   });

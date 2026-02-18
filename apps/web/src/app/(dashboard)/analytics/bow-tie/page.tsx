@@ -98,7 +98,9 @@ export default function BowTiePage() {
     }
   }
 
-  const addItem = (field: 'threats' | 'preventiveBarriers' | 'mitigatingBarriers' | 'consequences') => {
+  const addItem = (
+    field: 'threats' | 'preventiveBarriers' | 'mitigatingBarriers' | 'consequences'
+  ) => {
     setFormData({
       ...formData,
       [field]: [...formData[field], ''],
@@ -227,7 +229,12 @@ export default function BowTiePage() {
                     <AlertTriangle className="w-5 h-5 text-red-600" />
                     <span className="font-medium text-red-700">Threats</span>
                   </div>
-                  <Button variant="ghost" size="sm" className="text-red-600" onClick={() => addItem('threats')}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-600"
+                    onClick={() => addItem('threats')}
+                  >
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
@@ -241,7 +248,11 @@ export default function BowTiePage() {
                         className="bg-white"
                       />
                       {formData.threats.length > 1 && (
-                        <Button variant="ghost" size="sm" onClick={() => removeItem('threats', idx)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeItem('threats', idx)}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       )}
@@ -257,7 +268,12 @@ export default function BowTiePage() {
                     <ShieldCheck className="w-5 h-5 text-green-600" />
                     <span className="font-medium text-green-700">Preventive Barriers</span>
                   </div>
-                  <Button variant="ghost" size="sm" className="text-green-600" onClick={() => addItem('preventiveBarriers')}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-green-600"
+                    onClick={() => addItem('preventiveBarriers')}
+                  >
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
@@ -271,7 +287,11 @@ export default function BowTiePage() {
                         className="bg-white"
                       />
                       {formData.preventiveBarriers.length > 1 && (
-                        <Button variant="ghost" size="sm" onClick={() => removeItem('preventiveBarriers', idx)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeItem('preventiveBarriers', idx)}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       )}
@@ -290,7 +310,12 @@ export default function BowTiePage() {
                     <ShieldAlert className="w-5 h-5 text-blue-600" />
                     <span className="font-medium text-blue-700">Mitigating Barriers</span>
                   </div>
-                  <Button variant="ghost" size="sm" className="text-blue-600" onClick={() => addItem('mitigatingBarriers')}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-600"
+                    onClick={() => addItem('mitigatingBarriers')}
+                  >
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
@@ -304,7 +329,11 @@ export default function BowTiePage() {
                         className="bg-white"
                       />
                       {formData.mitigatingBarriers.length > 1 && (
-                        <Button variant="ghost" size="sm" onClick={() => removeItem('mitigatingBarriers', idx)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeItem('mitigatingBarriers', idx)}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       )}
@@ -320,7 +349,12 @@ export default function BowTiePage() {
                     <Zap className="w-5 h-5 text-orange-600" />
                     <span className="font-medium text-orange-700">Consequences</span>
                   </div>
-                  <Button variant="ghost" size="sm" className="text-orange-600" onClick={() => addItem('consequences')}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-orange-600"
+                    onClick={() => addItem('consequences')}
+                  >
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
@@ -334,7 +368,11 @@ export default function BowTiePage() {
                         className="bg-white"
                       />
                       {formData.consequences.length > 1 && (
-                        <Button variant="ghost" size="sm" onClick={() => removeItem('consequences', idx)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeItem('consequences', idx)}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       )}
@@ -352,7 +390,11 @@ export default function BowTiePage() {
                 onClick={createAnalysis}
                 disabled={creating || !formData.title || !formData.hazard || !formData.topEvent}
               >
-                {creating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                {creating ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
                 Save Analysis
               </Button>
             </div>
@@ -436,10 +478,7 @@ export default function BowTiePage() {
           {analyses.length > 0 ? (
             <div className="space-y-6">
               {analyses.map((analysis) => (
-                <div
-                  key={analysis.id}
-                  className="p-4 border rounded-lg"
-                >
+                <div key={analysis.id} className="p-4 border rounded-lg">
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="font-medium">{analysis.title}</h3>
@@ -447,7 +486,9 @@ export default function BowTiePage() {
                         {new Date(analysis.createdAt).toLocaleDateString()} • {analysis.sourceType}
                       </p>
                     </div>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(analysis.status)}`}>
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(analysis.status)}`}
+                    >
                       {analysis.status}
                     </span>
                   </div>

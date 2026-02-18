@@ -18,10 +18,12 @@ Nexara IMS is a unified compliance intelligence platform that brings 29 ISO stan
 
 > **Warning**
 > **EMFILE Fix Required**: This monorepo opens 3,000+ file watchers. Before running anything, increase your file descriptor limit:
+>
 > ```bash
 > # Add to ~/.bashrc or ~/.zshrc (do this ONCE, before anything else)
 > echo "ulimit -n 65536" >> ~/.bashrc && source ~/.bashrc
 > ```
+>
 > Without this, you will get `Error: EMFILE: too many open files` immediately.
 
 ---
@@ -50,9 +52,9 @@ ulimit -n 65536 && pnpm dev --filter='!@ims/mobile'
 
 Default login credentials after seeding:
 
-| Email | Password | Role |
-|---|---|---|
-| admin@ims.local | admin123 | ADMIN |
+| Email             | Password | Role    |
+| ----------------- | -------- | ------- |
+| admin@ims.local   | admin123 | ADMIN   |
 | manager@ims.local | admin123 | MANAGER |
 | auditor@ims.local | admin123 | AUDITOR |
 
@@ -60,118 +62,118 @@ Default login credentials after seeding:
 
 ### API Services (Express.js)
 
-| Service | Port | Domain |
-|---|---|---|
-| api-gateway | 4000 | Auth, routing, sessions, proxying |
-| api-health-safety | 4001 | ISO 45001 — Health & Safety |
-| api-environment | 4002 | ISO 14001 — Environmental Management |
-| api-quality | 4003 | ISO 9001 — Quality Management |
-| api-ai-analysis | 4004 | AI/ML Analysis Engine |
-| api-inventory | 4005 | Inventory Management |
-| api-hr | 4006 | Human Resources |
-| api-payroll | 4007 | Payroll Processing |
-| api-workflows | 4008 | Workflow Automation |
-| api-project-management | 4009 | Project Management |
-| api-automotive | 4010 | IATF 16949 — Automotive |
-| api-medical | 4011 | ISO 13485 — Medical Devices |
-| api-aerospace | 4012 | AS9100 — Aerospace |
-| api-finance | 4013 | Finance Management |
-| api-crm | 4014 | Customer Relationship Management |
-| api-infosec | 4015 | ISO 27001 — Information Security |
-| api-esg | 4016 | ESG / CSRD Reporting |
-| api-cmms | 4017 | CMMS / Asset Management |
-| api-portal | 4018 | Customer & Supplier Portal |
-| api-food-safety | 4019 | ISO 22000 — Food Safety |
-| api-energy | 4020 | ISO 50001 — Energy Management |
-| api-analytics | 4021 | Analytics & Reporting |
-| api-field-service | 4022 | Field Service Management |
-| api-iso42001 | 4023 | ISO 42001 — AI Management |
-| api-iso37001 | 4024 | ISO 37001 — Anti-Bribery |
-| api-marketing | 4025 | Marketing Automation |
-| api-partners | 4026 | Partner Management |
-| api-risk | 4027 | ISO 31000 — Enterprise Risk Management |
-| api-training | 4028 | Training & Competency Management |
-| api-suppliers | 4029 | Supplier Management |
-| api-assets | 4030 | Asset Management |
-| api-documents | 4031 | Document Management |
-| api-complaints | 4032 | Complaints Management |
-| api-contracts | 4033 | Contract Management |
-| api-ptw | 4034 | Permit to Work |
-| api-reg-monitor | 4035 | Regulatory Monitor |
-| api-incidents | 4036 | Incident Management |
-| api-audits | 4037 | Audit Management |
-| api-mgmt-review | 4038 | Management Review |
-| api-setup-wizard | 4039 | Setup Wizard |
-| api-chemicals | 4040 | Chemical Management (COSHH/GHS) |
-| api-emergency | 4041 | Fire, Emergency & Disaster Management |
+| Service                | Port | Domain                                 |
+| ---------------------- | ---- | -------------------------------------- |
+| api-gateway            | 4000 | Auth, routing, sessions, proxying      |
+| api-health-safety      | 4001 | ISO 45001 — Health & Safety            |
+| api-environment        | 4002 | ISO 14001 — Environmental Management   |
+| api-quality            | 4003 | ISO 9001 — Quality Management          |
+| api-ai-analysis        | 4004 | AI/ML Analysis Engine                  |
+| api-inventory          | 4005 | Inventory Management                   |
+| api-hr                 | 4006 | Human Resources                        |
+| api-payroll            | 4007 | Payroll Processing                     |
+| api-workflows          | 4008 | Workflow Automation                    |
+| api-project-management | 4009 | Project Management                     |
+| api-automotive         | 4010 | IATF 16949 — Automotive                |
+| api-medical            | 4011 | ISO 13485 — Medical Devices            |
+| api-aerospace          | 4012 | AS9100 — Aerospace                     |
+| api-finance            | 4013 | Finance Management                     |
+| api-crm                | 4014 | Customer Relationship Management       |
+| api-infosec            | 4015 | ISO 27001 — Information Security       |
+| api-esg                | 4016 | ESG / CSRD Reporting                   |
+| api-cmms               | 4017 | CMMS / Asset Management                |
+| api-portal             | 4018 | Customer & Supplier Portal             |
+| api-food-safety        | 4019 | ISO 22000 — Food Safety                |
+| api-energy             | 4020 | ISO 50001 — Energy Management          |
+| api-analytics          | 4021 | Analytics & Reporting                  |
+| api-field-service      | 4022 | Field Service Management               |
+| api-iso42001           | 4023 | ISO 42001 — AI Management              |
+| api-iso37001           | 4024 | ISO 37001 — Anti-Bribery               |
+| api-marketing          | 4025 | Marketing Automation                   |
+| api-partners           | 4026 | Partner Management                     |
+| api-risk               | 4027 | ISO 31000 — Enterprise Risk Management |
+| api-training           | 4028 | Training & Competency Management       |
+| api-suppliers          | 4029 | Supplier Management                    |
+| api-assets             | 4030 | Asset Management                       |
+| api-documents          | 4031 | Document Management                    |
+| api-complaints         | 4032 | Complaints Management                  |
+| api-contracts          | 4033 | Contract Management                    |
+| api-ptw                | 4034 | Permit to Work                         |
+| api-reg-monitor        | 4035 | Regulatory Monitor                     |
+| api-incidents          | 4036 | Incident Management                    |
+| api-audits             | 4037 | Audit Management                       |
+| api-mgmt-review        | 4038 | Management Review                      |
+| api-setup-wizard       | 4039 | Setup Wizard                           |
+| api-chemicals          | 4040 | Chemical Management (COSHH/GHS)        |
+| api-emergency          | 4041 | Fire, Emergency & Disaster Management  |
 
 ### Web Applications (Next.js 15)
 
-| App | Port | Domain |
-|---|---|---|
-| web-dashboard | 3000 | Main Dashboard |
-| web-health-safety | 3001 | Health & Safety |
-| web-environment | 3002 | Environmental Management |
-| web-quality | 3003 | Quality Management |
-| web-settings | 3004 | System Settings |
-| web-inventory | 3005 | Inventory |
-| web-hr | 3006 | Human Resources |
-| web-payroll | 3007 | Payroll |
-| web-workflows | 3008 | Workflows |
-| web-project-management | 3009 | Project Management |
-| web-automotive | 3010 | Automotive (IATF 16949) |
-| web-medical | 3011 | Medical Devices |
-| web-aerospace | 3012 | Aerospace (AS9100) |
-| web-finance | 3013 | Finance |
-| web-crm | 3014 | CRM |
-| web-infosec | 3015 | InfoSec (ISO 27001) |
-| web-esg | 3016 | ESG Reporting |
-| web-cmms | 3017 | CMMS |
-| web-customer-portal | 3018 | Customer Portal |
-| web-supplier-portal | 3019 | Supplier Portal |
-| web-food-safety | 3020 | Food Safety |
-| web-energy | 3021 | Energy Management |
-| web-analytics | 3022 | Analytics |
-| web-field-service | 3023 | Field Service |
-| web-iso42001 | 3024 | AI Management |
-| web-iso37001 | 3025 | Anti-Bribery |
-| web-partners | 3026 | Partner Portal |
-| web-admin | 3027 | Admin Dashboard |
-| web-marketing | 3030 | Marketing Site |
-| web-risk | 3031 | Enterprise Risk Management |
-| web-training | 3032 | Training & Competency |
-| web-suppliers | 3033 | Supplier Management |
-| web-assets | 3034 | Asset Management |
-| web-documents | 3035 | Document Management |
-| web-complaints | 3036 | Complaints Management |
-| web-contracts | 3037 | Contract Management |
-| web-finance-compliance | 3038 | Financial Compliance |
-| web-ptw | 3039 | Permit to Work |
-| web-reg-monitor | 3040 | Regulatory Monitor |
-| web-incidents | 3041 | Incident Management |
-| web-audits | 3042 | Audit Management |
-| web-mgmt-review | 3043 | Management Review |
-| web-chemicals | 3044 | Chemical Management |
-| web-emergency | 3045 | Fire, Emergency & Disaster Management |
+| App                    | Port | Domain                                |
+| ---------------------- | ---- | ------------------------------------- |
+| web-dashboard          | 3000 | Main Dashboard                        |
+| web-health-safety      | 3001 | Health & Safety                       |
+| web-environment        | 3002 | Environmental Management              |
+| web-quality            | 3003 | Quality Management                    |
+| web-settings           | 3004 | System Settings                       |
+| web-inventory          | 3005 | Inventory                             |
+| web-hr                 | 3006 | Human Resources                       |
+| web-payroll            | 3007 | Payroll                               |
+| web-workflows          | 3008 | Workflows                             |
+| web-project-management | 3009 | Project Management                    |
+| web-automotive         | 3010 | Automotive (IATF 16949)               |
+| web-medical            | 3011 | Medical Devices                       |
+| web-aerospace          | 3012 | Aerospace (AS9100)                    |
+| web-finance            | 3013 | Finance                               |
+| web-crm                | 3014 | CRM                                   |
+| web-infosec            | 3015 | InfoSec (ISO 27001)                   |
+| web-esg                | 3016 | ESG Reporting                         |
+| web-cmms               | 3017 | CMMS                                  |
+| web-customer-portal    | 3018 | Customer Portal                       |
+| web-supplier-portal    | 3019 | Supplier Portal                       |
+| web-food-safety        | 3020 | Food Safety                           |
+| web-energy             | 3021 | Energy Management                     |
+| web-analytics          | 3022 | Analytics                             |
+| web-field-service      | 3023 | Field Service                         |
+| web-iso42001           | 3024 | AI Management                         |
+| web-iso37001           | 3025 | Anti-Bribery                          |
+| web-partners           | 3026 | Partner Portal                        |
+| web-admin              | 3027 | Admin Dashboard                       |
+| web-marketing          | 3030 | Marketing Site                        |
+| web-risk               | 3031 | Enterprise Risk Management            |
+| web-training           | 3032 | Training & Competency                 |
+| web-suppliers          | 3033 | Supplier Management                   |
+| web-assets             | 3034 | Asset Management                      |
+| web-documents          | 3035 | Document Management                   |
+| web-complaints         | 3036 | Complaints Management                 |
+| web-contracts          | 3037 | Contract Management                   |
+| web-finance-compliance | 3038 | Financial Compliance                  |
+| web-ptw                | 3039 | Permit to Work                        |
+| web-reg-monitor        | 3040 | Regulatory Monitor                    |
+| web-incidents          | 3041 | Incident Management                   |
+| web-audits             | 3042 | Audit Management                      |
+| web-mgmt-review        | 3043 | Management Review                     |
+| web-chemicals          | 3044 | Chemical Management                   |
+| web-emergency          | 3045 | Fire, Emergency & Disaster Management |
 
 ## ISO Standards Coverage
 
-| Standard | Module | Domain |
-|---|---|---|
-| ISO 9001:2015 | Quality | Quality Management Systems |
-| ISO 14001:2015 | Environment | Environmental Management |
-| ISO 45001:2018 | Health & Safety | Occupational Health & Safety |
-| ISO 27001:2022 | InfoSec | Information Security |
-| ISO 22000:2018 | Food Safety | Food Safety Management |
-| ISO 13485:2016 | Medical | Medical Device Quality |
-| ISO 42001:2023 | AI Management | AI Management Systems |
-| ISO 37001:2016 | Anti-Bribery | Anti-Bribery Management |
-| ISO 50001:2018 | Energy | Energy Management |
-| IATF 16949:2016 | Automotive | Automotive Quality |
-| AS9100 Rev D | Aerospace | Aerospace Quality |
-| ESG / CSRD | ESG | Environmental, Social, Governance |
-| GDPR | InfoSec / Settings | Data Protection |
-| + 16 additional frameworks | Various | Sector-specific compliance |
+| Standard                   | Module             | Domain                            |
+| -------------------------- | ------------------ | --------------------------------- |
+| ISO 9001:2015              | Quality            | Quality Management Systems        |
+| ISO 14001:2015             | Environment        | Environmental Management          |
+| ISO 45001:2018             | Health & Safety    | Occupational Health & Safety      |
+| ISO 27001:2022             | InfoSec            | Information Security              |
+| ISO 22000:2018             | Food Safety        | Food Safety Management            |
+| ISO 13485:2016             | Medical            | Medical Device Quality            |
+| ISO 42001:2023             | AI Management      | AI Management Systems             |
+| ISO 37001:2016             | Anti-Bribery       | Anti-Bribery Management           |
+| ISO 50001:2018             | Energy             | Energy Management                 |
+| IATF 16949:2016            | Automotive         | Automotive Quality                |
+| AS9100 Rev D               | Aerospace          | Aerospace Quality                 |
+| ESG / CSRD                 | ESG                | Environmental, Social, Governance |
+| GDPR                       | InfoSec / Settings | Data Protection                   |
+| + 16 additional frameworks | Various            | Sector-specific compliance        |
 
 ## Project Structure
 
@@ -214,18 +216,18 @@ See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for the complete development envi
 
 ## Documentation
 
-| Document | Description |
-|---|---|
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture, diagrams, and design decisions |
-| [DEVELOPMENT.md](docs/DEVELOPMENT.md) | Development environment setup and workflows |
-| [DATABASE.md](docs/DATABASE.md) | PostgreSQL, Prisma schemas, and migration guide |
-| [DEPLOYMENT.md](docs/DEPLOYMENT.md) | Production deployment, PM2, Nginx, Docker |
-| [API.md](docs/API.md) | API gateway, authentication, and endpoint reference |
-| [TESTING.md](docs/TESTING.md) | Testing strategy, running tests, curl examples |
-| [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Common issues and fixes |
-| [PACKAGES.md](docs/PACKAGES.md) | Complete shared package reference (59 packages) |
-| [CONTRIBUTING.md](docs/CONTRIBUTING.md) | Branch naming, commit format, PR checklist |
-| [BRAND.md](docs/BRAND.md) | Nexara brand guidelines and identity |
+| Document                                      | Description                                         |
+| --------------------------------------------- | --------------------------------------------------- |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md)       | System architecture, diagrams, and design decisions |
+| [DEVELOPMENT.md](docs/DEVELOPMENT.md)         | Development environment setup and workflows         |
+| [DATABASE.md](docs/DATABASE.md)               | PostgreSQL, Prisma schemas, and migration guide     |
+| [DEPLOYMENT.md](docs/DEPLOYMENT.md)           | Production deployment, PM2, Nginx, Docker           |
+| [API.md](docs/API.md)                         | API gateway, authentication, and endpoint reference |
+| [TESTING.md](docs/TESTING.md)                 | Testing strategy, running tests, curl examples      |
+| [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Common issues and fixes                             |
+| [PACKAGES.md](docs/PACKAGES.md)               | Complete shared package reference (59 packages)     |
+| [CONTRIBUTING.md](docs/CONTRIBUTING.md)       | Branch naming, commit format, PR checklist          |
+| [BRAND.md](docs/BRAND.md)                     | Nexara brand guidelines and identity                |
 
 ## Contributing
 
@@ -237,4 +239,4 @@ Proprietary. All rights reserved.
 
 ---
 
-*Nexara IMS — Every standard. One intelligent platform.*
+_Nexara IMS — Every standard. One intelligent platform._

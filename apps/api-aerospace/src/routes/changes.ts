@@ -33,7 +33,16 @@ async function generateChangeRequestRefNumber(): Promise<string> {
 const createChangeRequestSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
-  changeType: z.enum(['DESIGN', 'PROCESS', 'MATERIAL', 'SUPPLIER', 'DOCUMENT', 'SOFTWARE', 'TOOLING', 'OTHER']),
+  changeType: z.enum([
+    'DESIGN',
+    'PROCESS',
+    'MATERIAL',
+    'SUPPLIER',
+    'DOCUMENT',
+    'SOFTWARE',
+    'TOOLING',
+    'OTHER',
+  ]),
   priority: z.enum(['EMERGENCY', 'HIGH', 'MEDIUM', 'LOW']).optional().default('MEDIUM'),
   reason: z.string().min(1, 'Reason is required'),
   affectedDocuments: z.array(z.string()).optional().default([]),
@@ -44,14 +53,19 @@ const createChangeRequestSchema = z.object({
   safetyImpact: z.boolean().optional().default(false),
   costEstimate: z.number().nonnegative().optional(),
   proposedBy: z.string().optional(),
-  requestedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  requestedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   notes: z.string().optional(),
 });
 
 const updateChangeRequestSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
   description: z.string().optional(),
-  changeType: z.enum(['DESIGN', 'PROCESS', 'MATERIAL', 'SUPPLIER', 'DOCUMENT', 'SOFTWARE', 'TOOLING', 'OTHER']).optional(),
+  changeType: z
+    .enum(['DESIGN', 'PROCESS', 'MATERIAL', 'SUPPLIER', 'DOCUMENT', 'SOFTWARE', 'TOOLING', 'OTHER'])
+    .optional(),
   priority: z.enum(['EMERGENCY', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   reason: z.string().optional(),
   affectedDocuments: z.array(z.string()).optional(),
@@ -61,7 +75,20 @@ const updateChangeRequestSchema = z.object({
   regulatoryImpact: z.boolean().optional(),
   safetyImpact: z.boolean().optional(),
   costEstimate: z.number().nonnegative().optional(),
-  status: z.enum(['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'IMPLEMENTING', 'IMPLEMENTED', 'VERIFIED', 'CLOSED', 'CANCELLED']).optional(),
+  status: z
+    .enum([
+      'DRAFT',
+      'SUBMITTED',
+      'UNDER_REVIEW',
+      'APPROVED',
+      'REJECTED',
+      'IMPLEMENTING',
+      'IMPLEMENTED',
+      'VERIFIED',
+      'CLOSED',
+      'CANCELLED',
+    ])
+    .optional(),
   notes: z.string().optional(),
 });
 
@@ -120,7 +147,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List change requests error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list change requests' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list change requests' },
+    });
   }
 });
 
@@ -132,13 +162,19 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!changeRequest || changeRequest.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Change request not found' },
+      });
     }
 
     res.json({ success: true, data: changeRequest });
   } catch (error) {
     logger.error('Get change request error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get change request' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get change request' },
+    });
   }
 });
 
@@ -176,11 +212,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create change request error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create change request' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create change request' },
+    });
   }
 });
 
@@ -189,7 +232,10 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Change request not found' },
+      });
     }
 
     const data = updateChangeRequestSchema.parse(req.body);
@@ -204,11 +250,18 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update change request error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update change request' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update change request' },
+    });
   }
 });
 
@@ -217,7 +270,10 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Change request not found' },
+      });
     }
 
     await prisma.aeroChangeRequest.update({
@@ -228,7 +284,10 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     res.status(204).send();
   } catch (error) {
     logger.error('Delete change request error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete change request' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete change request' },
+    });
   }
 });
 
@@ -241,7 +300,10 @@ router.put('/:id/submit', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Change request not found' },
+      });
     }
 
     const changeRequest = await prisma.aeroChangeRequest.update({
@@ -252,7 +314,10 @@ router.put('/:id/submit', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: changeRequest });
   } catch (error) {
     logger.error('Submit change request error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit change request' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to submit change request' },
+    });
   }
 });
 
@@ -261,18 +326,30 @@ router.put('/:id/review', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Change request not found' },
+      });
     }
 
     const data = reviewChangeRequestSchema.parse(req.body);
 
     let newStatus: string;
     switch (data.decision) {
-      case 'APPROVE': newStatus = 'APPROVED'; break;
-      case 'REJECT': newStatus = 'REJECTED'; break;
-      case 'DEFER': newStatus = 'UNDER_REVIEW'; break;
-      case 'REQUEST_MORE_INFO': newStatus = 'UNDER_REVIEW'; break;
-      default: newStatus = existing.status;
+      case 'APPROVE':
+        newStatus = 'APPROVED';
+        break;
+      case 'REJECT':
+        newStatus = 'REJECTED';
+        break;
+      case 'DEFER':
+        newStatus = 'UNDER_REVIEW';
+        break;
+      case 'REQUEST_MORE_INFO':
+        newStatus = 'UNDER_REVIEW';
+        break;
+      default:
+        newStatus = existing.status;
     }
 
     const changeRequest = await prisma.aeroChangeRequest.update({
@@ -292,11 +369,18 @@ router.put('/:id/review', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Review change request error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to review change request' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to review change request' },
+    });
   }
 });
 
@@ -305,7 +389,10 @@ router.put('/:id/implement', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Change request not found' },
+      });
     }
 
     const data = implementChangeRequestSchema.parse(req.body);
@@ -326,11 +413,18 @@ router.put('/:id/implement', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Implement change request error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to mark change request as implemented' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to mark change request as implemented' },
+    });
   }
 });
 

@@ -53,7 +53,10 @@ router.get('/valuation', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Valuation report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate valuation report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate valuation report' },
+    });
   }
 });
 
@@ -61,7 +64,9 @@ router.get('/valuation', async (req: AuthRequest, res: Response) => {
 router.get('/movement', async (req: AuthRequest, res: Response) => {
   try {
     const { warehouseId, startDate, endDate } = req.query;
-    const start = startDate ? new Date(startDate as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const start = startDate
+      ? new Date(startDate as string)
+      : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const end = endDate ? new Date(endDate as string) : new Date();
 
     const where: Record<string, unknown> = {
@@ -113,7 +118,10 @@ router.get('/movement', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Movement report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate movement report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate movement report' },
+    });
   }
 });
 
@@ -132,7 +140,8 @@ router.get('/ageing', async (req: AuthRequest, res: Response) => {
         product: { select: { sku: true, name: true } },
         warehouse: { select: { code: true, name: true } },
       },
-      take: 1000});
+      take: 1000,
+    });
 
     // Categorise by last received date
     const aged = items.map((item) => {
@@ -144,27 +153,39 @@ router.get('/ageing', async (req: AuthRequest, res: Response) => {
       return {
         ...item,
         daysSinceReceived,
-        ageBucket: daysSinceReceived === null ? 'UNKNOWN'
-          : daysSinceReceived <= 30 ? '0-30 days'
-          : daysSinceReceived <= 60 ? '31-60 days'
-          : daysSinceReceived <= 90 ? '61-90 days'
-          : daysSinceReceived <= 180 ? '91-180 days'
-          : '180+ days',
+        ageBucket:
+          daysSinceReceived === null
+            ? 'UNKNOWN'
+            : daysSinceReceived <= 30
+              ? '0-30 days'
+              : daysSinceReceived <= 60
+                ? '31-60 days'
+                : daysSinceReceived <= 90
+                  ? '61-90 days'
+                  : daysSinceReceived <= 180
+                    ? '91-180 days'
+                    : '180+ days',
       };
     });
 
-    const buckets = aged.reduce((acc, item) => {
-      const bucket = item.ageBucket;
-      if (!acc[bucket]) acc[bucket] = { count: 0, totalValue: 0 };
-      acc[bucket].count++;
-      acc[bucket].totalValue += Number(item.inventoryValue);
-      return acc;
-    }, {} as Record<string, { count: number; totalValue: number }>);
+    const buckets = aged.reduce(
+      (acc, item) => {
+        const bucket = item.ageBucket;
+        if (!acc[bucket]) acc[bucket] = { count: 0, totalValue: 0 };
+        acc[bucket].count++;
+        acc[bucket].totalValue += Number(item.inventoryValue);
+        return acc;
+      },
+      {} as Record<string, { count: number; totalValue: number }>
+    );
 
     res.json({ success: true, data: { items: aged, buckets } });
   } catch (error) {
     logger.error('Ageing report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate ageing report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate ageing report' },
+    });
   }
 });
 
@@ -172,7 +193,9 @@ router.get('/ageing', async (req: AuthRequest, res: Response) => {
 router.get('/turnover', async (req: AuthRequest, res: Response) => {
   try {
     const { startDate, endDate } = req.query;
-    const start = startDate ? new Date(startDate as string) : new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+    const start = startDate
+      ? new Date(startDate as string)
+      : new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
     const end = endDate ? new Date(endDate as string) : new Date();
 
     // Outbound transactions for COGS approximation
@@ -198,7 +221,10 @@ router.get('/turnover', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Turnover report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate turnover report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate turnover report' },
+    });
   }
 });
 

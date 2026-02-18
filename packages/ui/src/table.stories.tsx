@@ -22,10 +22,34 @@ export default meta;
 type Story = StoryObj<typeof Table>;
 
 const sampleData = [
-  { id: 'WO-001', title: 'Replace HVAC filter', status: 'Open', priority: 'High', assignee: 'Alice' },
-  { id: 'WO-002', title: 'Inspect fire suppression', status: 'In Progress', priority: 'Critical', assignee: 'Bob' },
-  { id: 'WO-003', title: 'Lubricate conveyor belt', status: 'Closed', priority: 'Low', assignee: 'Carol' },
-  { id: 'WO-004', title: 'Electrical panel audit', status: 'Open', priority: 'Medium', assignee: 'Dave' },
+  {
+    id: 'WO-001',
+    title: 'Replace HVAC filter',
+    status: 'Open',
+    priority: 'High',
+    assignee: 'Alice',
+  },
+  {
+    id: 'WO-002',
+    title: 'Inspect fire suppression',
+    status: 'In Progress',
+    priority: 'Critical',
+    assignee: 'Bob',
+  },
+  {
+    id: 'WO-003',
+    title: 'Lubricate conveyor belt',
+    status: 'Closed',
+    priority: 'Low',
+    assignee: 'Carol',
+  },
+  {
+    id: 'WO-004',
+    title: 'Electrical panel audit',
+    status: 'Open',
+    priority: 'Medium',
+    assignee: 'Dave',
+  },
 ];
 
 const statusVariant = (s: string) => {
@@ -148,7 +172,10 @@ export const Empty: Story = {
       </TableHeader>
       <TableBody>
         <TableRow>
-          <TableCell colSpan={3} style={{ textAlign: 'center', padding: '40px 0', color: '#9CA3AF' }}>
+          <TableCell
+            colSpan={3}
+            style={{ textAlign: 'center', padding: '40px 0', color: '#9CA3AF' }}
+          >
             No records found.
           </TableCell>
         </TableRow>
@@ -217,13 +244,38 @@ export const WithPagination: Story = {
           ))}
         </TableBody>
       </Table>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px', fontSize: '0.875rem', color: '#9CA3AF' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginTop: '12px',
+          fontSize: '0.875rem',
+          color: '#9CA3AF',
+        }}
+      >
         <span>Showing 1–4 of 48 records</span>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button style={{ padding: '4px 12px', border: '1px solid #d1d5db', borderRadius: '6px' }}>Previous</button>
-          <button style={{ padding: '4px 12px', border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: '#1E3A8A', color: '#fff' }}>1</button>
-          <button style={{ padding: '4px 12px', border: '1px solid #d1d5db', borderRadius: '6px' }}>2</button>
-          <button style={{ padding: '4px 12px', border: '1px solid #d1d5db', borderRadius: '6px' }}>Next</button>
+          <button style={{ padding: '4px 12px', border: '1px solid #d1d5db', borderRadius: '6px' }}>
+            Previous
+          </button>
+          <button
+            style={{
+              padding: '4px 12px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              backgroundColor: '#1E3A8A',
+              color: '#fff',
+            }}
+          >
+            1
+          </button>
+          <button style={{ padding: '4px 12px', border: '1px solid #d1d5db', borderRadius: '6px' }}>
+            2
+          </button>
+          <button style={{ padding: '4px 12px', border: '1px solid #d1d5db', borderRadius: '6px' }}>
+            Next
+          </button>
         </div>
       </div>
     </div>

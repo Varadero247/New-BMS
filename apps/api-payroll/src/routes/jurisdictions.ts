@@ -27,10 +27,16 @@ const JURISDICTION_RULES: Record<string, object> = {
     code: 'AE',
     name: 'United Arab Emirates',
     incomeTax: { rate: 0, description: 'No personal income tax' },
-    socialSecurity: { employee: 0, employer: 0.125, description: '12.5% employer for UAE nationals only' },
+    socialSecurity: {
+      employee: 0,
+      employer: 0.125,
+      description: '12.5% employer for UAE nationals only',
+    },
     wps: { required: true, description: 'Wage Protection System compliance required' },
     gratuity: {
-      first5Years: 21, after5Years: 30, unit: 'days per year',
+      first5Years: 21,
+      after5Years: 30,
+      unit: 'days per year',
       description: 'End of Service Gratuity: 21 days/yr first 5 years, 30 days/yr after',
     },
   },
@@ -40,8 +46,8 @@ const JURISDICTION_RULES: Record<string, object> = {
     incomeTax: {
       personalAllowance: 12570,
       bands: [
-        { name: 'Basic', rate: 0.20, from: 0, to: 37700 },
-        { name: 'Higher', rate: 0.40, from: 37700, to: 125140 },
+        { name: 'Basic', rate: 0.2, from: 0, to: 37700 },
+        { name: 'Higher', rate: 0.4, from: 37700, to: 125140 },
         { name: 'Additional', rate: 0.45, from: 125140, to: null },
       ],
     },
@@ -52,7 +58,7 @@ const JURISDICTION_RULES: Record<string, object> = {
     scottishRates: {
       bands: [
         { name: 'Starter', rate: 0.19, from: 0, to: 2162 },
-        { name: 'Basic', rate: 0.20, from: 2162, to: 13118 },
+        { name: 'Basic', rate: 0.2, from: 2162, to: 13118 },
         { name: 'Intermediate', rate: 0.21, from: 13118, to: 31092 },
         { name: 'Higher', rate: 0.42, from: 31092, to: 125140 },
         { name: 'Top', rate: 0.47, from: 125140, to: null },
@@ -84,7 +90,7 @@ const JURISDICTION_RULES: Record<string, object> = {
     name: 'United States',
     federalTax: {
       brackets: [
-        { rate: 0.10, from: 0, to: 11600 },
+        { rate: 0.1, from: 0, to: 11600 },
         { rate: 0.12, from: 11600, to: 47150 },
         { rate: 0.22, from: 47150, to: 100525 },
         { rate: 0.24, from: 100525, to: 191950 },
@@ -121,7 +127,11 @@ const JURISDICTION_RULES: Record<string, object> = {
   DE: {
     code: 'DE',
     name: 'Germany',
-    incomeTax: { progressiveFormula: true, solidaritySurcharge: 0.055, churchTax: { rate: 0.08, optional: true } },
+    incomeTax: {
+      progressiveFormula: true,
+      solidaritySurcharge: 0.055,
+      churchTax: { rate: 0.08, optional: true },
+    },
     socialInsurance: {
       pension: { rate: 0.186, split: 'equal' },
       health: { rate: 0.146, split: 'equal', additionalRate: 0.017 },
@@ -135,7 +145,7 @@ const JURISDICTION_RULES: Record<string, object> = {
     incomeTax: {
       bands: [
         { rate: 0.3693, from: 0, to: 73031 },
-        { rate: 0.4950, from: 73031, to: null },
+        { rate: 0.495, from: 73031, to: null },
       ],
     },
     socialContributions: {
@@ -147,7 +157,10 @@ const JURISDICTION_RULES: Record<string, object> = {
 };
 
 // In-memory store for active jurisdictions (in production, would use DB)
-const activeJurisdictions: Map<string, { code: string; name: string; activatedAt: string; status: string; customRules?: object }> = new Map();
+const activeJurisdictions: Map<
+  string,
+  { code: string; name: string; activatedAt: string; status: string; customRules?: object }
+> = new Map();
 
 const SUPPORTED_CODES = Object.keys(JURISDICTION_RULES);
 
@@ -167,7 +180,10 @@ router.post('/', async (req: Request, res: Response) => {
     if (!SUPPORTED_CODES.includes(code)) {
       return res.status(400).json({
         success: false,
-        error: { code: 'UNSUPPORTED_JURISDICTION', message: `Jurisdiction ${code} is not supported. Supported: ${SUPPORTED_CODES.join(', ')}` },
+        error: {
+          code: 'UNSUPPORTED_JURISDICTION',
+          message: `Jurisdiction ${code} is not supported. Supported: ${SUPPORTED_CODES.join(', ')}`,
+        },
       });
     }
 
@@ -193,10 +209,15 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: jurisdiction });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error registering jurisdiction', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to register jurisdiction' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to register jurisdiction' },
+    });
   }
 });
 
@@ -209,7 +230,10 @@ router.get('/', async (_req: Request, res: Response) => {
     res.json({ success: true, data: jurisdictions });
   } catch (error) {
     logger.error('Error listing jurisdictions', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list jurisdictions' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list jurisdictions' },
+    });
   }
 });
 
@@ -238,7 +262,10 @@ router.get('/:code/rules', async (req: Request, res: Response) => {
     res.json({ success: true, data: mergedRules });
   } catch (error) {
     logger.error('Error fetching jurisdiction rules', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch rules' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch rules' },
+    });
   }
 });
 
@@ -287,10 +314,15 @@ router.put('/:code/rules', async (req: Request, res: Response) => {
     res.json({ success: true, data: updatedRules });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error updating jurisdiction rules', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update rules' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update rules' },
+    });
   }
 });
 
@@ -316,7 +348,10 @@ router.delete('/:code', async (req: Request, res: Response) => {
     res.json({ success: true, data: { ...jurisdiction, deactivatedAt: new Date().toISOString() } });
   } catch (error) {
     logger.error('Error deactivating jurisdiction', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to deactivate jurisdiction' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to deactivate jurisdiction' },
+    });
   }
 });
 
@@ -339,24 +374,58 @@ router.post('/:code/calculate', async (req: Request, res: Response) => {
     let result;
     switch (code) {
       case 'GB':
-        if (!data.grossAnnual) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'grossAnnual is required for UK calculation' } });
+        if (!data.grossAnnual)
+          return res.status(400).json({
+            success: false,
+            error: {
+              code: 'VALIDATION_ERROR',
+              message: 'grossAnnual is required for UK calculation',
+            },
+          });
         result = calculateUKTax(data.grossAnnual, data.isScottish || false);
         break;
       case 'US':
-        if (!data.grossAnnual) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'grossAnnual is required for US calculation' } });
+        if (!data.grossAnnual)
+          return res.status(400).json({
+            success: false,
+            error: {
+              code: 'VALIDATION_ERROR',
+              message: 'grossAnnual is required for US calculation',
+            },
+          });
         result = calculateUSFederalTax(data.grossAnnual);
         break;
       case 'AU':
-        if (!data.grossAnnual) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'grossAnnual is required for AU calculation' } });
+        if (!data.grossAnnual)
+          return res.status(400).json({
+            success: false,
+            error: {
+              code: 'VALIDATION_ERROR',
+              message: 'grossAnnual is required for AU calculation',
+            },
+          });
         result = calculateAUTax(data.grossAnnual);
         break;
       case 'CA':
-        if (!data.grossAnnual) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'grossAnnual is required for CA calculation' } });
+        if (!data.grossAnnual)
+          return res.status(400).json({
+            success: false,
+            error: {
+              code: 'VALIDATION_ERROR',
+              message: 'grossAnnual is required for CA calculation',
+            },
+          });
         result = calculateCAFederalTax(data.grossAnnual);
         break;
       case 'AE':
         if (!data.monthlySalary || data.yearsOfService === undefined) {
-          return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'monthlySalary and yearsOfService are required for UAE calculation' } });
+          return res.status(400).json({
+            success: false,
+            error: {
+              code: 'VALIDATION_ERROR',
+              message: 'monthlySalary and yearsOfService are required for UAE calculation',
+            },
+          });
         }
         result = {
           gratuity: calculateUAEGratuity(data.monthlySalary, data.yearsOfService),
@@ -365,11 +434,25 @@ router.post('/:code/calculate', async (req: Request, res: Response) => {
         };
         break;
       case 'DE':
-        if (!data.grossAnnual) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'grossAnnual is required for DE calculation' } });
+        if (!data.grossAnnual)
+          return res.status(400).json({
+            success: false,
+            error: {
+              code: 'VALIDATION_ERROR',
+              message: 'grossAnnual is required for DE calculation',
+            },
+          });
         result = calculateDETax(data.grossAnnual);
         break;
       case 'NL':
-        if (!data.grossAnnual) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'grossAnnual is required for NL calculation' } });
+        if (!data.grossAnnual)
+          return res.status(400).json({
+            success: false,
+            error: {
+              code: 'VALIDATION_ERROR',
+              message: 'grossAnnual is required for NL calculation',
+            },
+          });
         result = calculateNLTax(data.grossAnnual);
         break;
       default:
@@ -382,10 +465,15 @@ router.post('/:code/calculate', async (req: Request, res: Response) => {
     res.json({ success: true, data: result });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error calculating tax', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to calculate tax' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to calculate tax' },
+    });
   }
 });
 

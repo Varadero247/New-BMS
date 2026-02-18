@@ -3,7 +3,13 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    cmmsInspection: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    cmmsInspection: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
   },
   Prisma: { Decimal: jest.fn((v: any) => v) },
 }));
@@ -161,16 +167,24 @@ describe('Inspections Routes', () => {
   describe('PUT /api/inspections/:id', () => {
     it('should update an inspection', async () => {
       prisma.cmmsInspection.findFirst.mockResolvedValue(mockInspection);
-      prisma.cmmsInspection.update.mockResolvedValue({ ...mockInspection, status: 'COMPLETED', result: 'PASS' });
+      prisma.cmmsInspection.update.mockResolvedValue({
+        ...mockInspection,
+        status: 'COMPLETED',
+        result: 'PASS',
+      });
 
-      const res = await request(app).put('/api/inspections/00000000-0000-0000-0000-000000000001').send({ status: 'COMPLETED', result: 'PASS' });
+      const res = await request(app)
+        .put('/api/inspections/00000000-0000-0000-0000-000000000001')
+        .send({ status: 'COMPLETED', result: 'PASS' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent inspection', async () => {
       prisma.cmmsInspection.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/inspections/00000000-0000-0000-0000-000000000099').send({ status: 'COMPLETED' });
+      const res = await request(app)
+        .put('/api/inspections/00000000-0000-0000-0000-000000000099')
+        .send({ status: 'COMPLETED' });
       expect(res.status).toBe(404);
     });
   });
@@ -180,7 +194,9 @@ describe('Inspections Routes', () => {
       prisma.cmmsInspection.findFirst.mockResolvedValue(mockInspection);
       prisma.cmmsInspection.update.mockResolvedValue({ ...mockInspection, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/inspections/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/inspections/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -188,7 +204,9 @@ describe('Inspections Routes', () => {
     it('should return 404 for non-existent inspection', async () => {
       prisma.cmmsInspection.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/inspections/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/inspections/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
     });
   });

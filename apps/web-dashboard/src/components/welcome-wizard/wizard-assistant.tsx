@@ -13,8 +13,16 @@ const STEP_SUGGESTIONS: string[][] = [
   ['What can Nexara do?', 'How many modules are there?', 'How does the AI work?'],
   ['What ISO standards are covered?', 'How do audits work?', 'What is CAPA?'],
   ['How does CMMS connect to Inventory?', 'Can I automate workflows?', 'How does payroll work?'],
-  ['How do incidents connect to risk?', 'What is bow-tie analysis?', 'How does regulatory monitoring work?'],
-  ['What AI analysis types exist?', 'Can AI detect compliance gaps?', 'How does predictive risk work?'],
+  [
+    'How do incidents connect to risk?',
+    'What is bow-tie analysis?',
+    'How does regulatory monitoring work?',
+  ],
+  [
+    'What AI analysis types exist?',
+    'Can AI detect compliance gaps?',
+    'How does predictive risk work?',
+  ],
   ['How many templates are there?', 'Can I customise templates?', 'What are evidence packs?'],
   ['How do I invite my team?', 'Where is the setup wizard?', 'How do I get support?'],
 ];
@@ -51,12 +59,20 @@ export function WizardAssistant({ stepIndex, onClose }: WizardAssistantProps) {
       const data = res.data.data;
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: data.answer || 'I couldn\'t find a specific answer. Try rephrasing your question.' },
+        {
+          role: 'assistant',
+          content:
+            data.answer || "I couldn't find a specific answer. Try rephrasing your question.",
+        },
       ]);
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: 'Sorry, I\'m unable to connect to the AI service right now. Please try again later.' },
+        {
+          role: 'assistant',
+          content:
+            "Sorry, I'm unable to connect to the AI service right now. Please try again later.",
+        },
       ]);
     } finally {
       setLoading(false);

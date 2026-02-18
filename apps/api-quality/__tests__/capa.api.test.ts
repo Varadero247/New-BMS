@@ -87,9 +87,7 @@ describe('Quality CAPA API Routes', () => {
       mockPrisma.qualCapa.findMany.mockResolvedValueOnce(mockCapas);
       mockPrisma.qualCapa.count.mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/capa')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/capa').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -120,9 +118,7 @@ describe('Quality CAPA API Routes', () => {
       mockPrisma.qualCapa.findMany.mockResolvedValueOnce([]);
       mockPrisma.qualCapa.count.mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/capa?capaType=CORRECTIVE')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/capa?capaType=CORRECTIVE').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualCapa.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -137,9 +133,7 @@ describe('Quality CAPA API Routes', () => {
       mockPrisma.qualCapa.findMany.mockResolvedValueOnce([]);
       mockPrisma.qualCapa.count.mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/capa?status=INITIATED')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/capa?status=INITIATED').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualCapa.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -154,9 +148,7 @@ describe('Quality CAPA API Routes', () => {
       mockPrisma.qualCapa.findMany.mockResolvedValueOnce([]);
       mockPrisma.qualCapa.count.mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/capa?severity=CRITICAL')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/capa?severity=CRITICAL').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualCapa.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -188,9 +180,7 @@ describe('Quality CAPA API Routes', () => {
       mockPrisma.qualCapa.findMany.mockResolvedValueOnce(mockCapas);
       mockPrisma.qualCapa.count.mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/capa')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/capa').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualCapa.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -204,9 +194,7 @@ describe('Quality CAPA API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.qualCapa.findMany.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/capa')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/capa').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -263,7 +251,11 @@ describe('Quality CAPA API Routes', () => {
       status: 'INITIATED',
       description: 'Corrective action for recurring defect',
       capaActions: [
-        { id: '1a000000-0000-4000-a000-000000000001', action: 'Investigate root cause', status: 'IN_PROGRESS' },
+        {
+          id: '1a000000-0000-4000-a000-000000000001',
+          action: 'Investigate root cause',
+          status: 'IN_PROGRESS',
+        },
       ],
     };
 
@@ -356,10 +348,7 @@ describe('Quality CAPA API Routes', () => {
         capaActions: [],
       });
 
-      await request(app)
-        .post('/api/capa')
-        .set('Authorization', 'Bearer token')
-        .send(createPayload);
+      await request(app).post('/api/capa').set('Authorization', 'Bearer token').send(createPayload);
 
       expect(mockPrisma.qualCapa.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -378,10 +367,7 @@ describe('Quality CAPA API Routes', () => {
         capaActions: [],
       });
 
-      await request(app)
-        .post('/api/capa')
-        .set('Authorization', 'Bearer token')
-        .send(createPayload);
+      await request(app).post('/api/capa').set('Authorization', 'Bearer token').send(createPayload);
 
       expect(mockPrisma.qualCapa.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -400,10 +386,7 @@ describe('Quality CAPA API Routes', () => {
         capaActions: [],
       });
 
-      await request(app)
-        .post('/api/capa')
-        .set('Authorization', 'Bearer token')
-        .send(createPayload);
+      await request(app).post('/api/capa').set('Authorization', 'Bearer token').send(createPayload);
 
       expect(mockPrisma.qualCapa.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -567,7 +550,9 @@ describe('Quality CAPA API Routes', () => {
 
   describe('DELETE /api/capa/:id', () => {
     it('should delete CAPA successfully', async () => {
-      mockPrisma.qualCapa.findUnique.mockResolvedValueOnce({ id: '12000000-0000-4000-a000-000000000001' });
+      mockPrisma.qualCapa.findUnique.mockResolvedValueOnce({
+        id: '12000000-0000-4000-a000-000000000001',
+      });
       mockPrisma.qualCapa.delete.mockResolvedValueOnce({});
 
       const response = await request(app)
@@ -617,7 +602,9 @@ describe('Quality CAPA API Routes', () => {
     };
 
     it('should create a CAPA action successfully', async () => {
-      mockPrisma.qualCapa.findUnique.mockResolvedValueOnce({ id: '12000000-0000-4000-a000-000000000001' });
+      mockPrisma.qualCapa.findUnique.mockResolvedValueOnce({
+        id: '12000000-0000-4000-a000-000000000001',
+      });
       mockPrisma.qualCapaAction.create.mockResolvedValueOnce({
         id: 'ca-new-123',
         ...actionPayload,
@@ -638,7 +625,9 @@ describe('Quality CAPA API Routes', () => {
     });
 
     it('should set capaId from route param', async () => {
-      mockPrisma.qualCapa.findUnique.mockResolvedValueOnce({ id: '12000000-0000-4000-a000-000000000001' });
+      mockPrisma.qualCapa.findUnique.mockResolvedValueOnce({
+        id: '12000000-0000-4000-a000-000000000001',
+      });
       mockPrisma.qualCapaAction.create.mockResolvedValueOnce({
         id: 'ca-new-123',
         capaId: '12000000-0000-4000-a000-000000000001',
@@ -669,7 +658,9 @@ describe('Quality CAPA API Routes', () => {
     });
 
     it('should return 400 for missing action text', async () => {
-      mockPrisma.qualCapa.findUnique.mockResolvedValueOnce({ id: '12000000-0000-4000-a000-000000000001' });
+      mockPrisma.qualCapa.findUnique.mockResolvedValueOnce({
+        id: '12000000-0000-4000-a000-000000000001',
+      });
 
       const { action, ...payload } = actionPayload;
       const response = await request(app)
@@ -682,7 +673,9 @@ describe('Quality CAPA API Routes', () => {
     });
 
     it('should return 400 for missing assignedTo', async () => {
-      mockPrisma.qualCapa.findUnique.mockResolvedValueOnce({ id: '12000000-0000-4000-a000-000000000001' });
+      mockPrisma.qualCapa.findUnique.mockResolvedValueOnce({
+        id: '12000000-0000-4000-a000-000000000001',
+      });
 
       const { assignedTo, ...payload } = actionPayload;
       const response = await request(app)
@@ -695,7 +688,9 @@ describe('Quality CAPA API Routes', () => {
     });
 
     it('should return 400 for missing dueDate', async () => {
-      mockPrisma.qualCapa.findUnique.mockResolvedValueOnce({ id: '12000000-0000-4000-a000-000000000001' });
+      mockPrisma.qualCapa.findUnique.mockResolvedValueOnce({
+        id: '12000000-0000-4000-a000-000000000001',
+      });
 
       const { dueDate, ...payload } = actionPayload;
       const response = await request(app)
@@ -708,7 +703,9 @@ describe('Quality CAPA API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      mockPrisma.qualCapa.findUnique.mockResolvedValueOnce({ id: '12000000-0000-4000-a000-000000000001' });
+      mockPrisma.qualCapa.findUnique.mockResolvedValueOnce({
+        id: '12000000-0000-4000-a000-000000000001',
+      });
       mockPrisma.qualCapaAction.create.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
@@ -738,7 +735,9 @@ describe('Quality CAPA API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -751,12 +750,17 @@ describe('Quality CAPA API Routes', () => {
       mockPrisma.qualCapaAction.update.mockResolvedValueOnce(existingAction);
 
       await request(app)
-        .put('/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ action: 'Updated action text' });
 
       expect(mockPrisma.qualCapaAction.findFirst).toHaveBeenCalledWith({
-        where: { id: '1a000000-0000-4000-a000-000000000001', capaId: '12000000-0000-4000-a000-000000000001' },
+        where: {
+          id: '1a000000-0000-4000-a000-000000000001',
+          capaId: '12000000-0000-4000-a000-000000000001',
+        },
       });
     });
 
@@ -764,7 +768,9 @@ describe('Quality CAPA API Routes', () => {
       mockPrisma.qualCapaAction.findFirst.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/capa/12000000-0000-4000-a000-000000000001/actions/00000000-0000-4000-a000-ffffffffffff')
+        .put(
+          '/api/capa/12000000-0000-4000-a000-000000000001/actions/00000000-0000-4000-a000-ffffffffffff'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -776,7 +782,9 @@ describe('Quality CAPA API Routes', () => {
       mockPrisma.qualCapaAction.findFirst.mockResolvedValueOnce(existingAction);
 
       const response = await request(app)
-        .put('/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -788,7 +796,9 @@ describe('Quality CAPA API Routes', () => {
       mockPrisma.qualCapaAction.findFirst.mockResolvedValueOnce(existingAction);
 
       const response = await request(app)
-        .put('/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ priority: 'INVALID_PRIORITY' });
 
@@ -800,7 +810,9 @@ describe('Quality CAPA API Routes', () => {
       mockPrisma.qualCapaAction.findFirst.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -811,11 +823,16 @@ describe('Quality CAPA API Routes', () => {
 
   describe('DELETE /api/capa/:id/actions/:actionId', () => {
     it('should delete CAPA action successfully', async () => {
-      mockPrisma.qualCapaAction.findFirst.mockResolvedValueOnce({ id: '1a000000-0000-4000-a000-000000000001', capaId: '12000000-0000-4000-a000-000000000001' });
+      mockPrisma.qualCapaAction.findFirst.mockResolvedValueOnce({
+        id: '1a000000-0000-4000-a000-000000000001',
+        capaId: '12000000-0000-4000-a000-000000000001',
+      });
       mockPrisma.qualCapaAction.delete.mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001')
+        .delete(
+          '/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
@@ -826,15 +843,23 @@ describe('Quality CAPA API Routes', () => {
     });
 
     it('should look up action by both actionId and capaId', async () => {
-      mockPrisma.qualCapaAction.findFirst.mockResolvedValueOnce({ id: '1a000000-0000-4000-a000-000000000001', capaId: '12000000-0000-4000-a000-000000000001' });
+      mockPrisma.qualCapaAction.findFirst.mockResolvedValueOnce({
+        id: '1a000000-0000-4000-a000-000000000001',
+        capaId: '12000000-0000-4000-a000-000000000001',
+      });
       mockPrisma.qualCapaAction.delete.mockResolvedValueOnce({});
 
       await request(app)
-        .delete('/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001')
+        .delete(
+          '/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualCapaAction.findFirst).toHaveBeenCalledWith({
-        where: { id: '1a000000-0000-4000-a000-000000000001', capaId: '12000000-0000-4000-a000-000000000001' },
+        where: {
+          id: '1a000000-0000-4000-a000-000000000001',
+          capaId: '12000000-0000-4000-a000-000000000001',
+        },
       });
     });
 
@@ -842,7 +867,9 @@ describe('Quality CAPA API Routes', () => {
       mockPrisma.qualCapaAction.findFirst.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/capa/12000000-0000-4000-a000-000000000001/actions/00000000-0000-4000-a000-ffffffffffff')
+        .delete(
+          '/api/capa/12000000-0000-4000-a000-000000000001/actions/00000000-0000-4000-a000-ffffffffffff'
+        )
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -853,7 +880,9 @@ describe('Quality CAPA API Routes', () => {
       mockPrisma.qualCapaAction.findFirst.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001')
+        .delete(
+          '/api/capa/12000000-0000-4000-a000-000000000001/actions/1a000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

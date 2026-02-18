@@ -22,9 +22,24 @@ const supplierCreateSchema = z.object({
   phone: z.string().max(50).optional().nullable(),
   address: z.string().max(500).optional().nullable(),
   category: z.enum(['RAW_MATERIAL', 'PACKAGING', 'INGREDIENT', 'SERVICE']),
-  status: z.enum(['APPROVED', 'CONDITIONAL', 'SUSPENDED', 'REJECTED']).optional().default('APPROVED'),
-  lastAuditDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
-  nextAuditDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  status: z
+    .enum(['APPROVED', 'CONDITIONAL', 'SUSPENDED', 'REJECTED'])
+    .optional()
+    .default('APPROVED'),
+  lastAuditDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
+  nextAuditDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
   rating: z.number().min(0).max(100).optional().nullable(),
   certifications: z.any().optional().nullable(),
 });
@@ -37,8 +52,20 @@ const supplierUpdateSchema = z.object({
   address: z.string().max(500).optional().nullable(),
   category: z.enum(['RAW_MATERIAL', 'PACKAGING', 'INGREDIENT', 'SERVICE']).optional(),
   status: z.enum(['APPROVED', 'CONDITIONAL', 'SUSPENDED', 'REJECTED']).optional(),
-  lastAuditDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
-  nextAuditDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  lastAuditDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
+  nextAuditDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
   rating: z.number().min(0).max(100).optional().nullable(),
   certifications: z.any().optional().nullable(),
 });
@@ -78,8 +105,13 @@ router.get('/due-audit', async (req: Request, res: Response) => {
 
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Error fetching suppliers due for audit', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch suppliers due for audit' } });
+    logger.error('Error fetching suppliers due for audit', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch suppliers due for audit' },
+    });
   }
 });
 
@@ -108,8 +140,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing suppliers', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list suppliers' } });
+    logger.error('Error listing suppliers', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list suppliers' },
+    });
   }
 });
 
@@ -120,7 +157,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = supplierCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -140,8 +180,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Supplier created', { id: supplier.id, code });
     res.status(201).json({ success: true, data: supplier });
   } catch (error: unknown) {
-    logger.error('Error creating supplier', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create supplier' } });
+    logger.error('Error creating supplier', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create supplier' },
+    });
   }
 });
 
@@ -155,13 +200,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!supplier) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     res.json({ success: true, data: supplier });
   } catch (error: unknown) {
-    logger.error('Error fetching supplier', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch supplier' } });
+    logger.error('Error fetching supplier', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch supplier' },
+    });
   }
 });
 
@@ -170,14 +222,21 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSupplier.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSupplier.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     const parsed = supplierUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -193,8 +252,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Supplier updated', { id: supplier.id });
     res.json({ success: true, data: supplier });
   } catch (error: unknown) {
-    logger.error('Error updating supplier', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update supplier' } });
+    logger.error('Error updating supplier', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update supplier' },
+    });
   }
 });
 
@@ -203,9 +267,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSupplier.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSupplier.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     await prisma.fsSupplier.update({
@@ -216,8 +284,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Supplier deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Supplier deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting supplier', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete supplier' } });
+    logger.error('Error deleting supplier', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete supplier' },
+    });
   }
 });
 

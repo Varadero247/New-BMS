@@ -50,8 +50,14 @@ const policyCreateSchema = z.object({
     'OTHER',
   ]),
   version: z.string().max(20).optional(),
-  effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  effectiveDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  reviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   scope: z.string().max(2000).optional(),
   owner: z.string().max(200).optional(),
   notes: z.string().max(2000).optional(),
@@ -60,21 +66,29 @@ const policyCreateSchema = z.object({
 const policyUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
   content: z.string().min(1).optional(),
-  policyType: z.enum([
-    'ANTI_BRIBERY_POLICY',
-    'GIFTS_HOSPITALITY_POLICY',
-    'WHISTLEBLOWING_POLICY',
-    'CONFLICTS_OF_INTEREST',
-    'THIRD_PARTY_MANAGEMENT',
-    'FACILITATION_PAYMENTS',
-    'POLITICAL_CONTRIBUTIONS',
-    'CHARITABLE_DONATIONS',
-    'SPONSORSHIPS',
-    'OTHER',
-  ]).optional(),
+  policyType: z
+    .enum([
+      'ANTI_BRIBERY_POLICY',
+      'GIFTS_HOSPITALITY_POLICY',
+      'WHISTLEBLOWING_POLICY',
+      'CONFLICTS_OF_INTEREST',
+      'THIRD_PARTY_MANAGEMENT',
+      'FACILITATION_PAYMENTS',
+      'POLITICAL_CONTRIBUTIONS',
+      'CHARITABLE_DONATIONS',
+      'SPONSORSHIPS',
+      'OTHER',
+    ])
+    .optional(),
   version: z.string().max(20).optional(),
-  effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  effectiveDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  reviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   scope: z.string().max(2000).optional(),
   owner: z.string().max(200).optional(),
   notes: z.string().max(2000).optional(),
@@ -135,8 +149,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list policies', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list policies' } });
+    logger.error('Failed to list policies', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list policies' },
+    });
   }
 });
 
@@ -164,8 +183,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Policy created', { id: policy.id, referenceNumber });
     res.status(201).json({ success: true, data: policy });
   } catch (error: unknown) {
-    logger.error('Failed to create policy', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create policy' } });
+    logger.error('Failed to create policy', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create policy' },
+    });
   }
 });
 
@@ -179,13 +203,19 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!policy) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
     }
 
     res.json({ success: true, data: policy });
   } catch (error: unknown) {
-    logger.error('Failed to get policy', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get policy' } });
+    logger.error('Failed to get policy', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get policy' } });
   }
 });
 
@@ -203,7 +233,9 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -219,8 +251,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Policy updated', { id: policy.id });
     res.json({ success: true, data: policy });
   } catch (error: unknown) {
-    logger.error('Failed to update policy', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update policy' } });
+    logger.error('Failed to update policy', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update policy' },
+    });
   }
 });
 
@@ -231,7 +268,9 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -249,8 +288,13 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     logger.info('Policy approved', { id: policy.id });
     res.json({ success: true, data: policy });
   } catch (error: unknown) {
-    logger.error('Failed to approve policy', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve policy' } });
+    logger.error('Failed to approve policy', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve policy' },
+    });
   }
 });
 
@@ -261,7 +305,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -277,8 +323,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Policy deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Policy deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete policy', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete policy' } });
+    logger.error('Failed to delete policy', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete policy' },
+    });
   }
 });
 

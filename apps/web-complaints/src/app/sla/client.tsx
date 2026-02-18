@@ -2,8 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import {
-  Card, CardContent, Badge,
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  Card,
+  CardContent,
+  Badge,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
 } from '@ims/ui';
 import { Clock, AlertTriangle, CheckCircle } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -38,7 +45,7 @@ export default function SlaClient() {
         ]);
         setSlaStats(slaRes.data.data || { overdue: 0, onTrack: 0 });
         const allComplaints: Complaint[] = complaintsRes.data.data || [];
-        setComplaints(allComplaints.filter(c => c.slaDeadline));
+        setComplaints(allComplaints.filter((c) => c.slaDeadline));
       } catch (err) {
         console.error('Failed to load SLA data:', err);
       } finally {
@@ -57,18 +64,23 @@ export default function SlaClient() {
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   }
 
-  if (loading) return (
-    <div className="p-8">
-      <div className="animate-pulse space-y-4">
-        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
-        <div className="grid grid-cols-3 gap-4">{[1,2,3].map(i => <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />)}</div>
-        <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded" />
+  if (loading)
+    return (
+      <div className="p-8">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
+          <div className="grid grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
+            ))}
+          </div>
+          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded" />
+        </div>
       </div>
-    </div>
-  );
+    );
 
-  const overdueComplaints = complaints.filter(c => isOverdue(c.slaDeadline, c.status));
-  const atRiskComplaints = complaints.filter(c => {
+  const overdueComplaints = complaints.filter((c) => isOverdue(c.slaDeadline, c.status));
+  const atRiskComplaints = complaints.filter((c) => {
     if (c.status === 'RESOLVED' || c.status === 'CLOSED') return false;
     const days = getDaysRemaining(c.slaDeadline);
     return days > 0 && days <= 3;
@@ -79,7 +91,9 @@ export default function SlaClient() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">SLA Tracking</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Monitor complaint resolution deadlines</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Monitor complaint resolution deadlines
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -101,7 +115,9 @@ export default function SlaClient() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">At Risk (3 days)</p>
-                  <p className="text-3xl font-bold text-orange-600 mt-1">{atRiskComplaints.length}</p>
+                  <p className="text-3xl font-bold text-orange-600 mt-1">
+                    {atRiskComplaints.length}
+                  </p>
                 </div>
                 <div className="p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20">
                   <Clock className="h-6 w-6 text-orange-600" />
@@ -126,7 +142,9 @@ export default function SlaClient() {
 
         {overdueComplaints.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Overdue Complaints</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              Overdue Complaints
+            </h2>
             <Card>
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
@@ -142,14 +160,26 @@ export default function SlaClient() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {overdueComplaints.map(c => (
+                      {overdueComplaints.map((c) => (
                         <TableRow key={c.id} className="bg-red-50/50 dark:bg-red-900/10">
                           <TableCell className="font-mono text-xs">{c.referenceNumber}</TableCell>
                           <TableCell className="font-medium">{c.title}</TableCell>
-                          <TableCell><Badge variant={c.priority === 'CRITICAL' ? 'destructive' : 'outline'}>{c.priority}</Badge></TableCell>
-                          <TableCell><Badge variant="outline">{(c.status || '').replace(/_/g, ' ')}</Badge></TableCell>
-                          <TableCell className="text-sm">{new Date(c.slaDeadline).toLocaleDateString()}</TableCell>
-                          <TableCell><span className="text-red-600 font-semibold">{Math.abs(getDaysRemaining(c.slaDeadline))} days</span></TableCell>
+                          <TableCell>
+                            <Badge variant={c.priority === 'CRITICAL' ? 'destructive' : 'outline'}>
+                              {c.priority}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{(c.status || '').replace(/_/g, ' ')}</Badge>
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {new Date(c.slaDeadline).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-red-600 font-semibold">
+                              {Math.abs(getDaysRemaining(c.slaDeadline))} days
+                            </span>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -161,7 +191,9 @@ export default function SlaClient() {
         )}
 
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">All Complaints with SLA</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            All Complaints with SLA
+          </h2>
           <Card>
             <CardContent className="p-0">
               {complaints.length > 0 ? (
@@ -178,7 +210,7 @@ export default function SlaClient() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {complaints.map(c => {
+                      {complaints.map((c) => {
                         const days = getDaysRemaining(c.slaDeadline);
                         const overdue = isOverdue(c.slaDeadline, c.status);
                         const resolved = c.status === 'RESOLVED' || c.status === 'CLOSED';
@@ -186,16 +218,30 @@ export default function SlaClient() {
                           <TableRow key={c.id}>
                             <TableCell className="font-mono text-xs">{c.referenceNumber}</TableCell>
                             <TableCell className="font-medium">{c.title}</TableCell>
-                            <TableCell><Badge variant="outline">{c.priority}</Badge></TableCell>
-                            <TableCell><Badge variant={resolved ? 'secondary' : 'default'}>{(c.status || '').replace(/_/g, ' ')}</Badge></TableCell>
-                            <TableCell className="text-sm">{new Date(c.slaDeadline).toLocaleDateString()}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline">{c.priority}</Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={resolved ? 'secondary' : 'default'}>
+                                {(c.status || '').replace(/_/g, ' ')}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {new Date(c.slaDeadline).toLocaleDateString()}
+                            </TableCell>
                             <TableCell>
                               {resolved ? (
-                                <span className="text-green-600 text-sm font-medium">Completed</span>
+                                <span className="text-green-600 text-sm font-medium">
+                                  Completed
+                                </span>
                               ) : overdue ? (
-                                <span className="text-red-600 text-sm font-semibold">{Math.abs(days)} days overdue</span>
+                                <span className="text-red-600 text-sm font-semibold">
+                                  {Math.abs(days)} days overdue
+                                </span>
                               ) : days <= 3 ? (
-                                <span className="text-orange-600 text-sm font-semibold">{days} days left</span>
+                                <span className="text-orange-600 text-sm font-semibold">
+                                  {days} days left
+                                </span>
                               ) : (
                                 <span className="text-green-600 text-sm">{days} days left</span>
                               )}
@@ -209,7 +255,9 @@ export default function SlaClient() {
               ) : (
                 <div className="text-center py-12">
                   <Clock className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-500 dark:text-gray-400">No complaints with SLA deadlines</p>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    No complaints with SLA deadlines
+                  </p>
                 </div>
               )}
             </CardContent>

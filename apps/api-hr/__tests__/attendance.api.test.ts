@@ -73,7 +73,13 @@ describe('HR Attendance API Routes', () => {
         clockIn: new Date('2025-01-15T08:00:00'),
         clockOut: new Date('2025-01-15T17:00:00'),
         workedHours: 9,
-        employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', departmentId: '2b000000-0000-4000-a000-000000000001' },
+        employee: {
+          id: '2a000000-0000-4000-a000-000000000001',
+          firstName: 'John',
+          lastName: 'Doe',
+          employeeNumber: 'EMP001',
+          departmentId: '2b000000-0000-4000-a000-000000000001',
+        },
         shift: null,
       },
       {
@@ -84,7 +90,13 @@ describe('HR Attendance API Routes', () => {
         clockIn: new Date('2025-01-15T09:30:00'),
         clockOut: null,
         workedHours: 0,
-        employee: { id: '2a000000-0000-4000-a000-000000000002', firstName: 'Jane', lastName: 'Smith', employeeNumber: 'EMP002', departmentId: '2b000000-0000-4000-a000-000000000001' },
+        employee: {
+          id: '2a000000-0000-4000-a000-000000000002',
+          firstName: 'Jane',
+          lastName: 'Smith',
+          employeeNumber: 'EMP002',
+          departmentId: '2b000000-0000-4000-a000-000000000001',
+        },
         shift: null,
       },
     ];
@@ -229,9 +241,7 @@ describe('HR Attendance API Routes', () => {
         employee: { firstName: 'John', lastName: 'Doe' },
       });
 
-      const response = await request(app)
-        .post('/api/attendance/clock-in')
-        .send(clockInPayload);
+      const response = await request(app).post('/api/attendance/clock-in').send(clockInPayload);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -243,9 +253,7 @@ describe('HR Attendance API Routes', () => {
         clockIn: new Date(),
       });
 
-      const response = await request(app)
-        .post('/api/attendance/clock-in')
-        .send(clockInPayload);
+      const response = await request(app).post('/api/attendance/clock-in').send(clockInPayload);
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('ALREADY_CLOCKED_IN');
@@ -272,9 +280,7 @@ describe('HR Attendance API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.attendance.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .post('/api/attendance/clock-in')
-        .send(clockInPayload);
+      const response = await request(app).post('/api/attendance/clock-in').send(clockInPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -302,9 +308,7 @@ describe('HR Attendance API Routes', () => {
         employee: { firstName: 'John', lastName: 'Doe' },
       });
 
-      const response = await request(app)
-        .post('/api/attendance/clock-out')
-        .send(clockOutPayload);
+      const response = await request(app).post('/api/attendance/clock-out').send(clockOutPayload);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -313,9 +317,7 @@ describe('HR Attendance API Routes', () => {
     it('should return 400 if not clocked in', async () => {
       (mockPrisma.attendance.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app)
-        .post('/api/attendance/clock-out')
-        .send(clockOutPayload);
+      const response = await request(app).post('/api/attendance/clock-out').send(clockOutPayload);
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('NOT_CLOCKED_IN');
@@ -328,9 +330,7 @@ describe('HR Attendance API Routes', () => {
         clockOut: new Date(),
       });
 
-      const response = await request(app)
-        .post('/api/attendance/clock-out')
-        .send(clockOutPayload);
+      const response = await request(app).post('/api/attendance/clock-out').send(clockOutPayload);
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('ALREADY_CLOCKED_OUT');
@@ -348,9 +348,7 @@ describe('HR Attendance API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.attendance.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .post('/api/attendance/clock-out')
-        .send(clockOutPayload);
+      const response = await request(app).post('/api/attendance/clock-out').send(clockOutPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -455,9 +453,7 @@ describe('HR Attendance API Routes', () => {
         ...shiftPayload,
       });
 
-      const response = await request(app)
-        .post('/api/attendance/shifts')
-        .send(shiftPayload);
+      const response = await request(app).post('/api/attendance/shifts').send(shiftPayload);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -485,9 +481,7 @@ describe('HR Attendance API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.workShift.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .post('/api/attendance/shifts')
-        .send(shiftPayload);
+      const response = await request(app).post('/api/attendance/shifts').send(shiftPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');

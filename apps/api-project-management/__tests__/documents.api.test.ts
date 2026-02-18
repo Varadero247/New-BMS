@@ -89,7 +89,9 @@ describe('Documents API Routes', () => {
     });
 
     it('should handle database errors with 500', async () => {
-      (mockPrisma.projectDocument.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.projectDocument.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/documents?projectId=project-1')
@@ -248,7 +250,9 @@ describe('Documents API Routes', () => {
     });
 
     it('should handle database errors with 500', async () => {
-      (mockPrisma.projectDocument.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.projectDocument.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/documents/1e000000-0000-4000-a000-000000000001')
@@ -290,7 +294,9 @@ describe('Documents API Routes', () => {
     });
 
     it('should handle database errors with 500', async () => {
-      (mockPrisma.projectDocument.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.projectDocument.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/documents/1e000000-0000-4000-a000-000000000001')

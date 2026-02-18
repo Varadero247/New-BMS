@@ -17,17 +17,30 @@ router.param('id', validateIdParam());
 // ============================================
 
 const COMPLAINT_SOURCES = [
-  'CUSTOMER', 'FIELD_SERVICE', 'INTERNAL', 'REGULATORY',
-  'DISTRIBUTOR', 'HEALTHCARE_PROVIDER', 'PATIENT',
+  'CUSTOMER',
+  'FIELD_SERVICE',
+  'INTERNAL',
+  'REGULATORY',
+  'DISTRIBUTOR',
+  'HEALTHCARE_PROVIDER',
+  'PATIENT',
 ] as const;
 
 const COMPLAINT_SEVERITIES = [
-  'MINOR', 'MODERATE', 'MAJOR', 'CRITICAL', 'LIFE_THREATENING',
+  'MINOR',
+  'MODERATE',
+  'MAJOR',
+  'CRITICAL',
+  'LIFE_THREATENING',
 ] as const;
 
 const COMPLAINT_STATUSES = [
-  'RECEIVED', 'UNDER_INVESTIGATION', 'MDR_REVIEW',
-  'CAPA_INITIATED', 'CLOSED', 'CLOSED_NO_ACTION',
+  'RECEIVED',
+  'UNDER_INVESTIGATION',
+  'MDR_REVIEW',
+  'CAPA_INITIATED',
+  'CLOSED',
+  'CLOSED_NO_ACTION',
 ] as const;
 
 /**
@@ -68,7 +81,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       deviceId: z.string().optional(),
       lotNumber: z.string().optional(),
       serialNumber: z.string().optional(),
-      complaintDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      complaintDate: z
+        .string()
+        .trim()
+        .min(1)
+        .max(200)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       source: z.enum(COMPLAINT_SOURCES),
       reporterName: z.string().optional(),
       reporterContact: z.string().optional(),
@@ -123,11 +141,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create complaint error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create complaint' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create complaint' },
+    });
   }
 });
 
@@ -137,8 +162,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const {
-      page = '1', limit = '20', status, severity,
-      deviceName, mdrReportable, dateFrom, dateTo,
+      page = '1',
+      limit = '20',
+      status,
+      severity,
+      deviceName,
+      mdrReportable,
+      dateFrom,
+      dateTo,
     } = req.query;
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -179,7 +210,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List complaints error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list complaints' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list complaints' },
+    });
   }
 });
 
@@ -201,7 +235,8 @@ router.get('/trending', async (req: AuthRequest, res: Response) => {
       where: baseWhere,
       select: { complaintDate: true, deviceName: true, source: true, severity: true },
       orderBy: { complaintDate: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Group by month
     const byMonth: Record<string, number> = {};
@@ -264,7 +299,10 @@ router.get('/trending', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Complaint trending error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate complaint trends' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate complaint trends' },
+    });
   }
 });
 
@@ -281,11 +319,7 @@ router.get('/mdr-pending', async (req: AuthRequest, res: Response) => {
     const where: any = {
       deletedAt: null,
       mdrReportable: null,
-      OR: [
-        { injuryOccurred: true },
-        { deathOccurred: true },
-        { malfunctionOccurred: true },
-      ],
+      OR: [{ injuryOccurred: true }, { deathOccurred: true }, { malfunctionOccurred: true }],
     };
 
     const [complaints, total] = await Promise.all([
@@ -305,7 +339,10 @@ router.get('/mdr-pending', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('MDR pending complaints error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list MDR pending complaints' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list MDR pending complaints' },
+    });
   }
 });
 
@@ -319,13 +356,18 @@ router.get('/:id', checkOwnership(prisma.complaint), async (req: AuthRequest, re
     });
 
     if (!complaint || complaint.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Complaint not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Complaint not found' } });
     }
 
     res.json({ success: true, data: complaint });
   } catch (error) {
     logger.error('Get complaint error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get complaint' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get complaint' },
+    });
   }
 });
 
@@ -336,7 +378,9 @@ router.put('/:id', checkOwnership(prisma.complaint), async (req: AuthRequest, re
   try {
     const existing = await prisma.complaint.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Complaint not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Complaint not found' } });
     }
 
     const schema = z.object({
@@ -352,7 +396,9 @@ router.put('/:id', checkOwnership(prisma.complaint), async (req: AuthRequest, re
     const complaint = await prisma.complaint.update({
       where: { id: req.params.id },
       data: {
-        ...(data.investigationSummary !== undefined && { investigationSummary: data.investigationSummary }),
+        ...(data.investigationSummary !== undefined && {
+          investigationSummary: data.investigationSummary,
+        }),
         ...(data.rootCause !== undefined && { rootCause: data.rootCause }),
         ...(data.correctiveAction !== undefined && { correctiveAction: data.correctiveAction }),
         ...(data.capaRef !== undefined && { capaRef: data.capaRef }),
@@ -365,11 +411,18 @@ router.put('/:id', checkOwnership(prisma.complaint), async (req: AuthRequest, re
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update complaint error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update complaint' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update complaint' },
+    });
   }
 });
 
@@ -380,7 +433,9 @@ router.post('/:id/mdr', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.complaint.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Complaint not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Complaint not found' } });
     }
 
     const schema = z.object({
@@ -416,11 +471,18 @@ router.post('/:id/mdr', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('MDR decision error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to record MDR decision' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to record MDR decision' },
+    });
   }
 });
 
@@ -431,7 +493,9 @@ router.post('/:id/close', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.complaint.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Complaint not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Complaint not found' } });
     }
 
     // Validate: MDR decision must have been made
@@ -451,7 +515,8 @@ router.post('/:id/close', async (req: AuthRequest, res: Response) => {
         success: false,
         error: {
           code: 'INVESTIGATION_INCOMPLETE',
-          message: 'Root cause and corrective action must be documented before closing the complaint',
+          message:
+            'Root cause and corrective action must be documented before closing the complaint',
         },
       });
     }
@@ -468,9 +533,11 @@ router.post('/:id/close', async (req: AuthRequest, res: Response) => {
         status: 'CLOSED',
         closedDate: new Date(),
         closedBy: req.user?.email || req.user?.id,
-        ...(data.disposition && { investigationSummary: existing.investigationSummary
-          ? `${existing.investigationSummary}\n\nDisposition: ${data.disposition}`
-          : `Disposition: ${data.disposition}` }),
+        ...(data.disposition && {
+          investigationSummary: existing.investigationSummary
+            ? `${existing.investigationSummary}\n\nDisposition: ${data.disposition}`
+            : `Disposition: ${data.disposition}`,
+        }),
       },
     });
 
@@ -479,11 +546,18 @@ router.post('/:id/close', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Close complaint error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close complaint' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to close complaint' },
+    });
   }
 });
 

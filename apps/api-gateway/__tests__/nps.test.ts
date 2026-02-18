@@ -2,7 +2,13 @@ import express from 'express';
 import request from 'supertest';
 
 const mockAuthenticate = jest.fn((req: any, _res: any, next: any) => {
-  req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1', organisationId: 'org-1' };
+  req.user = {
+    id: 'user-1',
+    email: 'admin@ims.local',
+    role: 'ADMIN',
+    orgId: 'org-1',
+    organisationId: 'org-1',
+  };
   next();
 });
 
@@ -55,7 +61,13 @@ describe('NPS Routes', () => {
     app.use('/api/nps', npsRouter);
     jest.clearAllMocks();
     mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
-      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1', organisationId: 'org-1' };
+      req.user = {
+        id: 'user-1',
+        email: 'admin@ims.local',
+        role: 'ADMIN',
+        orgId: 'org-1',
+        organisationId: 'org-1',
+      };
       next();
     });
     mockSubmitResponse.mockReturnValue({
@@ -92,70 +104,52 @@ describe('NPS Routes', () => {
 
     it('submits an NPS passive response', async () => {
       mockSubmitResponse.mockReturnValueOnce({ id: 'nps-2', score: 7, category: 'passive' });
-      const res = await request(app)
-        .post('/api/nps')
-        .send({ score: 7 });
+      const res = await request(app).post('/api/nps').send({ score: 7 });
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
     });
 
     it('submits an NPS detractor response', async () => {
       mockSubmitResponse.mockReturnValueOnce({ id: 'nps-3', score: 3, category: 'detractor' });
-      const res = await request(app)
-        .post('/api/nps')
-        .send({ score: 3 });
+      const res = await request(app).post('/api/nps').send({ score: 3 });
       expect(res.status).toBe(201);
     });
 
     it('accepts score of 0 (minimum)', async () => {
       mockSubmitResponse.mockReturnValueOnce({ id: 'nps-4', score: 0, category: 'detractor' });
-      const res = await request(app)
-        .post('/api/nps')
-        .send({ score: 0 });
+      const res = await request(app).post('/api/nps').send({ score: 0 });
       expect(res.status).toBe(201);
     });
 
     it('accepts score of 10 (maximum)', async () => {
       mockSubmitResponse.mockReturnValueOnce({ id: 'nps-5', score: 10, category: 'promoter' });
-      const res = await request(app)
-        .post('/api/nps')
-        .send({ score: 10 });
+      const res = await request(app).post('/api/nps').send({ score: 10 });
       expect(res.status).toBe(201);
     });
 
     it('rejects score below 0', async () => {
-      const res = await request(app)
-        .post('/api/nps')
-        .send({ score: -1 });
+      const res = await request(app).post('/api/nps').send({ score: -1 });
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
     });
 
     it('rejects score above 10', async () => {
-      const res = await request(app)
-        .post('/api/nps')
-        .send({ score: 11 });
+      const res = await request(app).post('/api/nps').send({ score: 11 });
       expect(res.status).toBe(400);
     });
 
     it('rejects non-integer score', async () => {
-      const res = await request(app)
-        .post('/api/nps')
-        .send({ score: 7.5 });
+      const res = await request(app).post('/api/nps').send({ score: 7.5 });
       expect(res.status).toBe(400);
     });
 
     it('rejects missing score', async () => {
-      const res = await request(app)
-        .post('/api/nps')
-        .send({ comment: 'No score given' });
+      const res = await request(app).post('/api/nps').send({ comment: 'No score given' });
       expect(res.status).toBe(400);
     });
 
     it('accepts optional comment', async () => {
-      const res = await request(app)
-        .post('/api/nps')
-        .send({ score: 8 });
+      const res = await request(app).post('/api/nps').send({ score: 8 });
       expect(res.status).toBe(201);
     });
   });

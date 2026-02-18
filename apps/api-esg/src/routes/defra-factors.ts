@@ -21,10 +21,16 @@ const createSchema = z.object({
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = (req as any).user?.orgId || 'default';
-    const data = await prisma.esgDefraFactor.findMany({ where: { orgId, deletedAt: null } as any, take: 2000, orderBy: { category: 'asc' } });
+    const data = await prisma.esgDefraFactor.findMany({
+      where: { orgId, deletedAt: null } as any,
+      take: 2000,
+      orderBy: { category: 'asc' },
+    });
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed' } });
   }
 });
@@ -33,17 +39,36 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
     const orgId = (req as any).user?.orgId || 'default';
     const { category, subcategory, activity, unit, factor, year, source, notes } = parsed.data;
     const data = await prisma.esgDefraFactor.create({
-      data: { category, subcategory, activity, unit, factor, year, source, notes, orgId, createdBy: (req as AuthRequest).user?.id },
+      data: {
+        category,
+        subcategory,
+        activity,
+        unit,
+        factor,
+        year,
+        source,
+        notes,
+        orgId,
+        createdBy: (req as AuthRequest).user?.id,
+      },
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' },
+    });
   }
 });
 

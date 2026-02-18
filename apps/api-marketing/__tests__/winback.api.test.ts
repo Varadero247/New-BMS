@@ -26,12 +26,18 @@ const app = express();
 app.use(express.json());
 app.use('/api/winback', winbackRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('POST /api/winback/start/:orgId', () => {
   it('creates win-back sequence', async () => {
     (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue(null);
-    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({ id: 'wb-1', orgId: 'org-1', token: 'token-1' });
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({
+      id: 'wb-1',
+      orgId: 'org-1',
+      token: 'token-1',
+    });
     (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
 
     const res = await request(app)
@@ -55,10 +61,15 @@ describe('POST /api/winback/start/:orgId', () => {
 
   it('schedules day 3 email', async () => {
     (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue(null);
-    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({ id: 'wb-1', orgId: 'org-1' });
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({
+      id: 'wb-1',
+      orgId: 'org-1',
+    });
     (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
 
-    await request(app).post('/api/winback/start/00000000-0000-0000-0000-000000000001').send({ email: 'a@b.com' });
+    await request(app)
+      .post('/api/winback/start/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'a@b.com' });
 
     expect(prisma.mktEmailJob.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -70,7 +81,10 @@ describe('POST /api/winback/start/:orgId', () => {
 
 describe('GET /api/winback/reason/:reason', () => {
   it('records cancellation reason with valid token', async () => {
-    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({ id: 'wb-1', orgId: 'org-1' });
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({
+      id: 'wb-1',
+      orgId: 'org-1',
+    });
     (prisma.mktWinBackSequence.update as jest.Mock).mockResolvedValue({});
     (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
 
@@ -104,7 +118,10 @@ describe('GET /api/winback/reason/:reason', () => {
 
   it('accepts all valid reasons', async () => {
     for (const reason of ['price', 'features', 'time', 'competitor', 'business']) {
-      (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({ id: 'wb-1', orgId: 'org-1' });
+      (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({
+        id: 'wb-1',
+        orgId: 'org-1',
+      });
       (prisma.mktWinBackSequence.update as jest.Mock).mockResolvedValue({});
       (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
 
@@ -114,7 +131,10 @@ describe('GET /api/winback/reason/:reason', () => {
   });
 
   it('schedules reason-specific day 7 email', async () => {
-    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({ id: 'wb-1', orgId: 'org-1' });
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({
+      id: 'wb-1',
+      orgId: 'org-1',
+    });
     (prisma.mktWinBackSequence.update as jest.Mock).mockResolvedValue({});
     (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
 

@@ -18,9 +18,28 @@ router.param('id', validateIdParam());
 // (ISO 13485 Clause 8.5.2 / 8.5.3)
 // ============================================
 
-const CAPA_SOURCES = ['COMPLAINT', 'AUDIT', 'NCR', 'RISK_ASSESSMENT', 'PMS_REPORT', 'REGULATORY_FINDING', 'INTERNAL_OBSERVATION', 'SUPPLIER_ISSUE', 'OTHER'] as const;
+const CAPA_SOURCES = [
+  'COMPLAINT',
+  'AUDIT',
+  'NCR',
+  'RISK_ASSESSMENT',
+  'PMS_REPORT',
+  'REGULATORY_FINDING',
+  'INTERNAL_OBSERVATION',
+  'SUPPLIER_ISSUE',
+  'OTHER',
+] as const;
 const CAPA_SEVERITIES = ['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL'] as const;
-const CAPA_STATUSES = ['OPEN', 'INVESTIGATION', 'PLANNED', 'IMPLEMENTATION', 'VERIFICATION', 'EFFECTIVENESS_CHECK', 'CLOSED', 'CANCELLED'] as const;
+const CAPA_STATUSES = [
+  'OPEN',
+  'INVESTIGATION',
+  'PLANNED',
+  'IMPLEMENTATION',
+  'VERIFICATION',
+  'EFFECTIVENESS_CHECK',
+  'CLOSED',
+  'CANCELLED',
+] as const;
 
 async function generateRefNumber(): Promise<string> {
   const now = new Date();
@@ -55,18 +74,38 @@ const updateSchema = z.object({
   rootCause: z.string().optional(),
   rootCauseMethod: z.string().optional(),
   containmentAction: z.string().optional(),
-  containmentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  containmentDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   plannedAction: z.string().optional(),
-  plannedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  plannedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   implementedAction: z.string().optional(),
-  implementedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  implementedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   verificationMethod: z.string().optional(),
-  verificationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  verificationDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   verifiedBy: z.string().optional(),
   effectivenessCheck: z.string().optional(),
-  effectivenessDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  effectivenessResult: z.enum(['EFFECTIVE', 'PARTIALLY_EFFECTIVE', 'NOT_EFFECTIVE', 'PENDING']).optional(),
-  closedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  effectivenessDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  effectivenessResult: z
+    .enum(['EFFECTIVE', 'PARTIALLY_EFFECTIVE', 'NOT_EFFECTIVE', 'PENDING'])
+    .optional(),
+  closedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   closedBy: z.string().optional(),
 });
 
@@ -105,7 +144,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List CAPAs error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list CAPAs' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list CAPAs' } });
   }
 });
 
@@ -114,9 +155,21 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
   try {
     const [total, byStatus, byType, bySeverity, overdue] = await Promise.all([
       prisma.medCapa.count({ where: { deletedAt: null } as any }),
-      prisma.medCapa.groupBy({ by: ['status'], _count: { id: true }, where: { deletedAt: null } as any }),
-      prisma.medCapa.groupBy({ by: ['capaType'], _count: { id: true }, where: { deletedAt: null } as any }),
-      prisma.medCapa.groupBy({ by: ['severity'], _count: { id: true }, where: { deletedAt: null } as any }),
+      prisma.medCapa.groupBy({
+        by: ['status'],
+        _count: { id: true },
+        where: { deletedAt: null } as any,
+      }),
+      prisma.medCapa.groupBy({
+        by: ['capaType'],
+        _count: { id: true },
+        where: { deletedAt: null } as any,
+      }),
+      prisma.medCapa.groupBy({
+        by: ['severity'],
+        _count: { id: true },
+        where: { deletedAt: null } as any,
+      }),
       prisma.medCapa.count({
         where: {
           deletedAt: null,
@@ -131,14 +184,17 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
       data: {
         total,
         overdue,
-        byStatus: byStatus.map(s => ({ status: s.status, count: (s as any)._count.id })),
-        byType: byType.map(t => ({ type: t.capaType, count: (t as any)._count.id })),
-        bySeverity: bySeverity.map(s => ({ severity: s.severity, count: (s as any)._count.id })),
+        byStatus: byStatus.map((s) => ({ status: s.status, count: (s as any)._count.id })),
+        byType: byType.map((t) => ({ type: t.capaType, count: (t as any)._count.id })),
+        bySeverity: bySeverity.map((s) => ({ severity: s.severity, count: (s as any)._count.id })),
       },
     });
   } catch (error) {
     logger.error('CAPA stats error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get CAPA stats' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get CAPA stats' },
+    });
   }
 });
 
@@ -147,12 +203,16 @@ router.get('/:id', checkOwnership(prisma.medCapa), async (req: AuthRequest, res:
   try {
     const capa = await prisma.medCapa.findUnique({ where: { id: req.params.id } });
     if (!capa || capa.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
     res.json({ success: true, data: capa });
   } catch (error) {
     logger.error('Get CAPA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get CAPA' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get CAPA' } });
   }
 });
 
@@ -181,10 +241,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: capa });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create CAPA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create CAPA' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create CAPA' },
+    });
   }
 });
 
@@ -193,13 +263,22 @@ router.put('/:id', checkOwnership(prisma.medCapa), async (req: AuthRequest, res:
   try {
     const existing = await prisma.medCapa.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 
     const data = updateSchema.parse(req.body);
     const updateData: Record<string, unknown> = { ...data };
 
-    const dateFields = ['containmentDate', 'plannedDate', 'implementedDate', 'verificationDate', 'effectivenessDate', 'closedDate'];
+    const dateFields = [
+      'containmentDate',
+      'plannedDate',
+      'implementedDate',
+      'verificationDate',
+      'effectivenessDate',
+      'closedDate',
+    ];
     for (const field of dateFields) {
       if (data[field as keyof typeof data]) {
         updateData[field] = new Date(data[field as keyof typeof data] as string);
@@ -216,10 +295,20 @@ router.put('/:id', checkOwnership(prisma.medCapa), async (req: AuthRequest, res:
     res.json({ success: true, data: capa });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update CAPA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update CAPA' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update CAPA' },
+    });
   }
 });
 
@@ -228,14 +317,19 @@ router.delete('/:id', checkOwnership(prisma.medCapa), async (req: AuthRequest, r
   try {
     const existing = await prisma.medCapa.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 
     await prisma.medCapa.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete CAPA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete CAPA' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete CAPA' },
+    });
   }
 });
 

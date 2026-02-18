@@ -33,7 +33,7 @@ export class EmailService {
       this.config = {
         host: config?.host || process.env.SMTP_HOST || 'localhost',
         port: config?.port || parseInt(process.env.SMTP_PORT || '587', 10),
-        secure: config?.secure ?? (process.env.SMTP_SECURE === 'true'),
+        secure: config?.secure ?? process.env.SMTP_SECURE === 'true',
         auth: {
           user: config?.auth?.user || process.env.SMTP_USER || '',
           pass: config?.auth?.pass || process.env.SMTP_PASS || '',
@@ -48,7 +48,9 @@ export class EmailService {
     return this.transporter !== null;
   }
 
-  async send(options: SendEmailOptions): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  async send(
+    options: SendEmailOptions
+  ): Promise<{ success: boolean; messageId?: string; error?: string }> {
     if (!this.transporter) {
       logger.warn('SMTP not configured, email not sent', {
         to: options.to,
@@ -90,7 +92,10 @@ export class EmailService {
 
 // Email templates
 export const templates = {
-  passwordReset: (resetUrl: string, expiresInMinutes: number = 60): { subject: string; text: string; html: string } => ({
+  passwordReset: (
+    resetUrl: string,
+    expiresInMinutes: number = 60
+  ): { subject: string; text: string; html: string } => ({
     subject: 'Password Reset Request - IMS',
     text: `
 You requested a password reset for your IMS account.
@@ -174,7 +179,9 @@ export function initEmailService(config: Partial<EmailConfig>): EmailService {
   return emailService;
 }
 
-export async function sendEmail(options: SendEmailOptions): Promise<{ success: boolean; messageId?: string; error?: string }> {
+export async function sendEmail(
+  options: SendEmailOptions
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
   return getEmailService().send(options);
 }
 

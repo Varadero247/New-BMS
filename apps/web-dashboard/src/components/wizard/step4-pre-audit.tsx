@@ -49,7 +49,9 @@ export default function Step4PreAudit({ data }: Step4Props) {
             </div>
             <div>
               <h3 className="font-semibold text-gray-900 dark:text-gray-100">ISO Standards</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{standards.length} selected</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {standards.length} selected
+              </p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -76,7 +78,9 @@ export default function Step4PreAudit({ data }: Step4Props) {
             </div>
             <div>
               <h3 className="font-semibold text-gray-900 dark:text-gray-100">Document Templates</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{totalDocs} documents to seed</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {totalDocs} documents to seed
+              </p>
             </div>
           </div>
           {standards.map((s) => {
@@ -84,7 +88,9 @@ export default function Step4PreAudit({ data }: Step4Props) {
             if (docs.length === 0) return null;
             return (
               <div key={s} className="mb-2">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{STANDARD_LABELS[s] || s}</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {STANDARD_LABELS[s] || s}
+                </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">{docs.join(', ')}</p>
               </div>
             );
@@ -100,7 +106,9 @@ export default function Step4PreAudit({ data }: Step4Props) {
             <div>
               <h3 className="font-semibold text-gray-900 dark:text-gray-100">Team Invitations</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {team.length > 0 ? `${team.length} invite${team.length > 1 ? 's' : ''} pending` : 'No invites (can add later)'}
+                {team.length > 0
+                  ? `${team.length} invite${team.length > 1 ? 's' : ''} pending`
+                  : 'No invites (can add later)'}
               </p>
             </div>
           </div>
@@ -109,7 +117,9 @@ export default function Step4PreAudit({ data }: Step4Props) {
               {team.map((m, i) => (
                 <div key={i} className="flex items-center justify-between text-sm">
                   <span className="text-gray-700 dark:text-gray-300">{m.email}</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">{m.role.replace('_', ' ')}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                    {m.role.replace('_', ' ')}
+                  </span>
                 </div>
               ))}
             </div>

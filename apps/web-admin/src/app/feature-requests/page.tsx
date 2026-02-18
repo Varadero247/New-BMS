@@ -16,8 +16,23 @@ interface FeatureRequest {
   createdAt: string;
 }
 
-const STATUS_OPTIONS = ['SUBMITTED', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS', 'SHIPPED', 'DECLINED'];
-const FILTER_TABS = ['All', 'SUBMITTED', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS', 'SHIPPED', 'DECLINED'];
+const STATUS_OPTIONS = [
+  'SUBMITTED',
+  'UNDER_REVIEW',
+  'PLANNED',
+  'IN_PROGRESS',
+  'SHIPPED',
+  'DECLINED',
+];
+const FILTER_TABS = [
+  'All',
+  'SUBMITTED',
+  'UNDER_REVIEW',
+  'PLANNED',
+  'IN_PROGRESS',
+  'SHIPPED',
+  'DECLINED',
+];
 
 const statusColors: Record<string, string> = {
   SUBMITTED: 'bg-gray-500/20 text-gray-400',
@@ -68,9 +83,7 @@ export default function FeatureRequestsPage() {
   const handleVote = async (id: string) => {
     try {
       await api.post(`/api/analytics/feature-requests/${id}/vote`);
-      setRequests((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, votes: r.votes + 1 } : r))
-      );
+      setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, votes: r.votes + 1 } : r)));
     } catch {
       // Silently fail
     }
@@ -79,9 +92,7 @@ export default function FeatureRequestsPage() {
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
       await api.patch(`/api/analytics/feature-requests/${id}`, { status: newStatus });
-      setRequests((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r))
-      );
+      setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r)));
     } catch {
       // Silently fail
     }
@@ -95,7 +106,9 @@ export default function FeatureRequestsPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-white">Feature Requests</h1>
-            <p className="text-gray-400 dark:text-gray-500 mt-1">Track and manage customer feature requests</p>
+            <p className="text-gray-400 dark:text-gray-500 mt-1">
+              Track and manage customer feature requests
+            </p>
           </div>
           <button
             onClick={fetchRequests}
@@ -110,9 +123,14 @@ export default function FeatureRequestsPage() {
           {FILTER_TABS.map((tab) => (
             <button
               key={tab}
-              onClick={() => { setActiveFilter(tab); setPage(1); }}
+              onClick={() => {
+                setActiveFilter(tab);
+                setPage(1);
+              }}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                activeFilter === tab ? 'bg-[#1B3A6B] text-white' : 'text-gray-400 dark:text-gray-500 hover:text-white'
+                activeFilter === tab
+                  ? 'bg-[#1B3A6B] text-white'
+                  : 'text-gray-400 dark:text-gray-500 hover:text-white'
               }`}
             >
               {tab === 'All' ? 'All' : tab.replace('_', ' ')}
@@ -131,22 +149,38 @@ export default function FeatureRequestsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#1B3A6B]/30">
-                <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Title</th>
-                <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-20">Votes</th>
-                <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-32">Status</th>
-                <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-24">Priority</th>
-                <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-36">Requested By</th>
-                <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-32">Actions</th>
+                <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                  Title
+                </th>
+                <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-20">
+                  Votes
+                </th>
+                <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-32">
+                  Status
+                </th>
+                <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-24">
+                  Priority
+                </th>
+                <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-36">
+                  Requested By
+                </th>
+                <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium w-32">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
               {loading && requests.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-gray-500 dark:text-gray-400">Loading...</td>
+                  <td colSpan={6} className="py-12 text-center text-gray-500 dark:text-gray-400">
+                    Loading...
+                  </td>
                 </tr>
               ) : requests.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-gray-500 dark:text-gray-400">No feature requests found</td>
+                  <td colSpan={6} className="py-12 text-center text-gray-500 dark:text-gray-400">
+                    No feature requests found
+                  </td>
                 </tr>
               ) : (
                 requests.map((req) => (
@@ -168,7 +202,10 @@ export default function FeatureRequestsPage() {
                       </td>
                       <td className="py-3 px-4 text-center">
                         <button
-                          onClick={(e) => { e.stopPropagation(); handleVote(req.id); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleVote(req.id);
+                          }}
                           className="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
                         >
                           <ThumbsUp className="w-3.5 h-3.5" />
@@ -176,16 +213,22 @@ export default function FeatureRequestsPage() {
                         </button>
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${statusColors[req.status] || 'bg-gray-500/20 text-gray-400'}`}>
+                        <span
+                          className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${statusColors[req.status] || 'bg-gray-500/20 text-gray-400'}`}
+                        >
                           {req.status.replace('_', ' ')}
                         </span>
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <span className={`text-xs font-medium ${priorityColors[req.priority] || 'text-gray-400'}`}>
+                        <span
+                          className={`text-xs font-medium ${priorityColors[req.priority] || 'text-gray-400'}`}
+                        >
                           {req.priority}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-gray-300 text-sm truncate max-w-[144px]">{req.requestedBy}</td>
+                      <td className="py-3 px-4 text-gray-300 text-sm truncate max-w-[144px]">
+                        {req.requestedBy}
+                      </td>
                       <td className="py-3 px-4 text-center" onClick={(e) => e.stopPropagation()}>
                         <select
                           value={req.status}
@@ -193,7 +236,9 @@ export default function FeatureRequestsPage() {
                           className="bg-[#080B12] border border-[#1B3A6B]/30 text-gray-300 text-xs rounded px-2 py-1 focus:outline-none focus:border-blue-500"
                         >
                           {STATUS_OPTIONS.map((s) => (
-                            <option key={s} value={s}>{s.replace('_', ' ')}</option>
+                            <option key={s} value={s}>
+                              {s.replace('_', ' ')}
+                            </option>
                           ))}
                         </select>
                       </td>

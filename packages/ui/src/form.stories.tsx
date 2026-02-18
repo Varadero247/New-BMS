@@ -128,9 +128,9 @@ export const CompleteForm: Story = {
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleChange = (field: string, value: string) => {
-      setFormData(prev => ({ ...prev, [field]: value }));
+      setFormData((prev) => ({ ...prev, [field]: value }));
       if (errors[field]) {
-        setErrors(prev => ({ ...prev, [field]: '' }));
+        setErrors((prev) => ({ ...prev, [field]: '' }));
       }
     };
 
@@ -198,8 +198,12 @@ export const CompleteForm: Story = {
           </FormField>
         </FormGroup>
         <FormActions>
-          <Button variant="outline" type="button">Cancel</Button>
-          <Button variant="default" type="submit">Create Profile</Button>
+          <Button variant="outline" type="button">
+            Cancel
+          </Button>
+          <Button variant="default" type="submit">
+            Create Profile
+          </Button>
         </FormActions>
       </form>
     );
@@ -249,11 +253,7 @@ export const FormWithValidation: Story = {
     };
 
     return (
-      <FormField
-        label="Email Address"
-        required={true}
-        error={emailError}
-      >
+      <FormField label="Email Address" required={true} error={emailError}>
         <Input
           type="email"
           placeholder="your@email.com"

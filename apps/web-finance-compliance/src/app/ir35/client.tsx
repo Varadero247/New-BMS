@@ -1,13 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  Plus,
-  Search,
-  FileCheck2,
-  AlertTriangle,
-  Edit2,
-} from 'lucide-react';
+import { Plus, Search, FileCheck2, AlertTriangle, Edit2 } from 'lucide-react';
 import { Modal } from '@ims/ui';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
@@ -92,12 +86,8 @@ export default function Ir35Client() {
       const payload = {
         ...form,
         contractorEmail: form.contractorEmail || null,
-        assessmentDate: form.assessmentDate
-          ? new Date(form.assessmentDate).toISOString()
-          : null,
-        reviewDate: form.reviewDate
-          ? new Date(form.reviewDate).toISOString()
-          : null,
+        assessmentDate: form.assessmentDate ? new Date(form.assessmentDate).toISOString() : null,
+        reviewDate: form.reviewDate ? new Date(form.reviewDate).toISOString() : null,
       };
       await api.post('/ir35', payload);
       setModalOpen(false);
@@ -253,8 +243,7 @@ export default function Ir35Client() {
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                            determinationColors[item.determination] ||
-                            determinationColors.UNKNOWN
+                            determinationColors[item.determination] || determinationColors.UNKNOWN
                           }`}
                         >
                           {item.determination}
@@ -266,9 +255,7 @@ export default function Ir35Client() {
                           : '-'}
                       </td>
                       <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
-                        {item.reviewDate
-                          ? new Date(item.reviewDate).toLocaleDateString()
-                          : '-'}
+                        {item.reviewDate ? new Date(item.reviewDate).toLocaleDateString() : '-'}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <button
@@ -307,9 +294,7 @@ export default function Ir35Client() {
               <input
                 type="text"
                 value={form.contractorName}
-                onChange={(e) =>
-                  setForm({ ...form, contractorName: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, contractorName: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
                 placeholder="Contractor name"
               />
@@ -321,9 +306,7 @@ export default function Ir35Client() {
               <input
                 type="email"
                 value={form.contractorEmail}
-                onChange={(e) =>
-                  setForm({ ...form, contractorEmail: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, contractorEmail: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
                 placeholder="email@example.com"
               />
@@ -338,9 +321,7 @@ export default function Ir35Client() {
               <input
                 type="text"
                 value={form.clientName}
-                onChange={(e) =>
-                  setForm({ ...form, clientName: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, clientName: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
                 placeholder="End client name"
               />
@@ -351,9 +332,7 @@ export default function Ir35Client() {
               </label>
               <select
                 value={form.determination}
-                onChange={(e) =>
-                  setForm({ ...form, determination: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, determination: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
               >
                 {DETERMINATIONS.map((d) => (
@@ -371,9 +350,7 @@ export default function Ir35Client() {
             </label>
             <textarea
               value={form.engagementDesc}
-              onChange={(e) =>
-                setForm({ ...form, engagementDesc: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, engagementDesc: e.target.value })}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
               placeholder="Describe the engagement..."
@@ -388,9 +365,7 @@ export default function Ir35Client() {
               <input
                 type="date"
                 value={form.assessmentDate}
-                onChange={(e) =>
-                  setForm({ ...form, assessmentDate: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, assessmentDate: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -401,9 +376,7 @@ export default function Ir35Client() {
               <input
                 type="text"
                 value={form.assessedBy}
-                onChange={(e) =>
-                  setForm({ ...form, assessedBy: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, assessedBy: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
                 placeholder="Assessor name"
               />
@@ -416,9 +389,7 @@ export default function Ir35Client() {
             </label>
             <textarea
               value={form.reasoning}
-              onChange={(e) =>
-                setForm({ ...form, reasoning: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, reasoning: e.target.value })}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
               placeholder="Reasoning for the determination..."
@@ -433,9 +404,7 @@ export default function Ir35Client() {
               <input
                 type="text"
                 value={form.evidenceUrl}
-                onChange={(e) =>
-                  setForm({ ...form, evidenceUrl: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, evidenceUrl: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
                 placeholder="Link to evidence"
               />
@@ -447,9 +416,7 @@ export default function Ir35Client() {
               <input
                 type="date"
                 value={form.reviewDate}
-                onChange={(e) =>
-                  setForm({ ...form, reviewDate: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, reviewDate: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -497,9 +464,7 @@ export default function Ir35Client() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  Contractor
-                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Contractor</p>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {detailModal.contractorName}
                 </p>
@@ -508,9 +473,7 @@ export default function Ir35Client() {
                 )}
               </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  Client
-                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Client</p>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {detailModal.clientName || '-'}
                 </p>
@@ -519,22 +482,17 @@ export default function Ir35Client() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  Determination
-                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Determination</p>
                 <span
                   className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                    determinationColors[detailModal.determination] ||
-                    determinationColors.UNKNOWN
+                    determinationColors[detailModal.determination] || determinationColors.UNKNOWN
                   }`}
                 >
                   {detailModal.determination}
                 </span>
               </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  Assessed By
-                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Assessed By</p>
                 <p className="text-sm text-gray-900 dark:text-gray-100">
                   {detailModal.assessedBy || '-'}
                 </p>
@@ -554,20 +512,14 @@ export default function Ir35Client() {
 
             {detailModal.reasoning && (
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  Reasoning
-                </p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
-                  {detailModal.reasoning}
-                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Reasoning</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{detailModal.reasoning}</p>
               </div>
             )}
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  Assessment Date
-                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Assessment Date</p>
                 <p className="text-sm text-gray-900 dark:text-gray-100">
                   {detailModal.assessmentDate
                     ? new Date(detailModal.assessmentDate).toLocaleDateString()
@@ -575,9 +527,7 @@ export default function Ir35Client() {
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  Review Date
-                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Review Date</p>
                 <p className="text-sm text-gray-900 dark:text-gray-100">
                   {detailModal.reviewDate
                     ? new Date(detailModal.reviewDate).toLocaleDateString()
@@ -588,12 +538,8 @@ export default function Ir35Client() {
 
             {detailModal.notes && (
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  Notes
-                </p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
-                  {detailModal.notes}
-                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Notes</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{detailModal.notes}</p>
               </div>
             )}
 

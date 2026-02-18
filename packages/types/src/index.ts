@@ -682,12 +682,7 @@ export type CapaSource =
 
 export type CapaPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 
-export type CapaStatus =
-  | 'OPEN'
-  | 'IN_PROGRESS'
-  | 'PENDING_VERIFICATION'
-  | 'CLOSED'
-  | 'OVERDUE';
+export type CapaStatus = 'OPEN' | 'IN_PROGRESS' | 'PENDING_VERIFICATION' | 'CLOSED' | 'OVERDUE';
 
 export type CapaActionType = 'IMMEDIATE' | 'CORRECTIVE' | 'PREVENTIVE';
 

@@ -28,7 +28,11 @@ interface HREmployee {
 
 function currencyToJurisdiction(currency: string): TaxJurisdiction {
   const map: Record<string, TaxJurisdiction> = {
-    GBP: 'UK', AED: 'UAE', AUD: 'AU', USD: 'US', CAD: 'CA',
+    GBP: 'UK',
+    AED: 'UAE',
+    AUD: 'AU',
+    USD: 'US',
+    CAD: 'CA',
   };
   return map[(currency || '').toUpperCase()] ?? 'UK';
 }
@@ -66,7 +70,7 @@ async function fetchActiveEmployees(): Promise<HREmployee[]> {
   if (!res.ok) {
     throw new Error(`HR service returned ${res.status}: ${await res.text()}`);
   }
-  const body = await res.json() as { success: boolean; data: HREmployee[] };
+  const body = (await res.json()) as { success: boolean; data: HREmployee[] };
   return body.data ?? [];
 }
 
@@ -113,7 +117,10 @@ router.get('/runs', scopeToUser, async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching payroll runs', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch payroll runs' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch payroll runs' },
+    });
   }
 });
 
@@ -129,13 +136,18 @@ router.get('/runs/:id', checkOwnership(prisma.payrollRun), async (req: Request, 
     });
 
     if (!run) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Payroll run not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Payroll run not found' } });
     }
 
     res.json({ success: true, data: run });
   } catch (error) {
     logger.error('Error fetching payroll run', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch payroll run' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch payroll run' },
+    });
   }
 });
 
@@ -143,9 +155,17 @@ router.get('/runs/:id', checkOwnership(prisma.payrollRun), async (req: Request, 
 router.post('/runs', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-      periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-      payDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      periodStart: z
+        .string()
+        .trim()
+        .min(1)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      periodEnd: z
+        .string()
+        .trim()
+        .min(1)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      payDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       payFrequency: z.enum(['WEEKLY', 'BI_WEEKLY', 'SEMI_MONTHLY', 'MONTHLY']),
     });
 
@@ -177,181 +197,210 @@ router.post('/runs', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: run });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating payroll run', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create payroll run' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create payroll run' },
+    });
   }
 });
 
 // POST /api/payroll/runs/:id/calculate - Calculate payroll
-router.post('/runs/:id/calculate', checkOwnership(prisma.payrollRun), async (req: Request, res: Response) => {
-  let statusNeedsReset = false;
-  try {
-    const run = await prisma.payrollRun.findUnique({
-      where: { id: req.params.id },
-    });
+router.post(
+  '/runs/:id/calculate',
+  checkOwnership(prisma.payrollRun),
+  async (req: Request, res: Response) => {
+    let statusNeedsReset = false;
+    try {
+      const run = await prisma.payrollRun.findUnique({
+        where: { id: req.params.id },
+      });
 
-    if (!run) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Payroll run not found' } });
-    }
-
-    // Update status to calculating
-    await prisma.payrollRun.update({
-      where: { id: req.params.id },
-      data: { status: 'CALCULATING' },
-    });
-    statusNeedsReset = true;
-
-    // Fetch active employees from the HR service
-    const employees = await fetchActiveEmployees();
-    if (employees.length === 0) {
-      await prisma.payrollRun.update({ where: { id: req.params.id }, data: { status: 'DRAFT' } });
-      statusNeedsReset = false;
-      return res.status(422).json({ success: false, error: { code: 'NO_EMPLOYEES', message: 'No active employees found in HR service' } });
-    }
-
-    // Calculate working days in the period
-    const periodStart = new Date(run.periodStart);
-    const periodEnd = new Date(run.periodEnd);
-    const msPerDay = 86400000;
-    const calendarDays = Math.round((periodEnd.getTime() - periodStart.getTime()) / msPerDay) + 1;
-    const workingDays = Math.round(calendarDays * (5 / 7));
-
-    // Create payslips for each employee in a single transaction
-    const payslipCount = await prisma.$transaction(async (tx) => {
-      let created = 0;
-      for (const emp of employees) {
-        const baseSalary = parseFloat(String(emp.salary ?? '0')) || 0;
-        const proratedSalary = baseSalary; // full period — adjust for partial months if needed
-        const currency = emp.currency ?? 'GBP';
-
-        // Determine jurisdiction: prefer explicit taxJurisdiction field, fall back to currency mapping
-        const jurisdiction: TaxJurisdiction = (
-          emp.taxJurisdiction && ['UK', 'UAE', 'AU', 'US', 'CA'].includes(emp.taxJurisdiction)
-            ? emp.taxJurisdiction as TaxJurisdiction
-            : currencyToJurisdiction(currency)
-        );
-
-        let incomeTax = 0;
-        let niContribution = 0;
-        try {
-          const taxResult = calculateTax(jurisdiction, proratedSalary, {
-            period: 'annual',
-            taxCode: emp.taxCode ?? undefined,
-          });
-          const extracted = extractTaxAmounts(taxResult);
-          incomeTax = extracted.incomeTax;
-          niContribution = extracted.socialSecurity;
-        } catch {
-          // Fallback to flat rates if tax engine fails (unsupported jurisdiction)
-          incomeTax = proratedSalary * 0.20;
-          niContribution = proratedSalary * 0.12;
-        }
-
-        const totalDeductions = incomeTax + niContribution;
-        const netPay = proratedSalary - totalDeductions;
-
-        const psCount = await tx.payslip.count({ where: { payrollRunId: run.id } });
-        const payslipNumber = `${run.runNumber}-${String(psCount + 1).padStart(4, '0')}`;
-
-        // Upsert: skip if already generated for this run/employee combination
-        await tx.payslip.upsert({
-          where: { payrollRunId_employeeId: { payrollRunId: run.id, employeeId: emp.id } },
-          update: {},
-          create: {
-            payslipNumber,
-            payrollRunId: run.id,
-            employeeId: emp.id,
-            periodStart: run.periodStart,
-            periodEnd: run.periodEnd,
-            payDate: run.payDate,
-            employeeName: `${emp.firstName} ${emp.lastName}`,
-            employeeNumber: emp.employeeNumber,
-            department: emp.department?.name ?? null,
-            position: emp.position?.title ?? null,
-            bankAccount: emp.accountNumber ?? null,
-            workingDays: workingDays,
-            paidDays: workingDays,
-            leaveDays: 0,
-            unpaidLeaveDays: 0,
-            overtimeHours: 0,
-            basicSalary: proratedSalary,
-            grossEarnings: proratedSalary,
-            incomeTax,
-            statutoryDeductions: niContribution,
-            totalDeductions,
-            netPay,
-            currency,
-            taxableIncome: proratedSalary,
-            status: 'CALCULATED',
-          },
-        });
-        created++;
+      if (!run) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Payroll run not found' } });
       }
-      return created;
-    });
 
-    // Mark run as CALCULATED
-    const updated = await prisma.payrollRun.update({
-      where: { id: req.params.id },
-      data: { status: 'CALCULATED' },
-    });
-    statusNeedsReset = false;
+      // Update status to calculating
+      await prisma.payrollRun.update({
+        where: { id: req.params.id },
+        data: { status: 'CALCULATING' },
+      });
+      statusNeedsReset = true;
 
-    logger.info('Payroll run calculated', { runId: run.id, payslipsCreated: payslipCount });
-    res.json({ success: true, data: { ...updated, payslipsCreated: payslipCount } });
-  } catch (error) {
-    logger.error('Error calculating payroll', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to calculate payroll' } });
-  } finally {
-    if (statusNeedsReset) {
-      try {
-        await prisma.payrollRun.update({
-          where: { id: req.params.id },
-          data: { status: 'ERROR' },
+      // Fetch active employees from the HR service
+      const employees = await fetchActiveEmployees();
+      if (employees.length === 0) {
+        await prisma.payrollRun.update({ where: { id: req.params.id }, data: { status: 'DRAFT' } });
+        statusNeedsReset = false;
+        return res.status(422).json({
+          success: false,
+          error: { code: 'NO_EMPLOYEES', message: 'No active employees found in HR service' },
         });
-      } catch (resetError) {
-        logger.error('Failed to reset payroll run status to ERROR', { error: (resetError as Error).message });
+      }
+
+      // Calculate working days in the period
+      const periodStart = new Date(run.periodStart);
+      const periodEnd = new Date(run.periodEnd);
+      const msPerDay = 86400000;
+      const calendarDays = Math.round((periodEnd.getTime() - periodStart.getTime()) / msPerDay) + 1;
+      const workingDays = Math.round(calendarDays * (5 / 7));
+
+      // Create payslips for each employee in a single transaction
+      const payslipCount = await prisma.$transaction(async (tx) => {
+        let created = 0;
+        for (const emp of employees) {
+          const baseSalary = parseFloat(String(emp.salary ?? '0')) || 0;
+          const proratedSalary = baseSalary; // full period — adjust for partial months if needed
+          const currency = emp.currency ?? 'GBP';
+
+          // Determine jurisdiction: prefer explicit taxJurisdiction field, fall back to currency mapping
+          const jurisdiction: TaxJurisdiction =
+            emp.taxJurisdiction && ['UK', 'UAE', 'AU', 'US', 'CA'].includes(emp.taxJurisdiction)
+              ? (emp.taxJurisdiction as TaxJurisdiction)
+              : currencyToJurisdiction(currency);
+
+          let incomeTax = 0;
+          let niContribution = 0;
+          try {
+            const taxResult = calculateTax(jurisdiction, proratedSalary, {
+              period: 'annual',
+              taxCode: emp.taxCode ?? undefined,
+            });
+            const extracted = extractTaxAmounts(taxResult);
+            incomeTax = extracted.incomeTax;
+            niContribution = extracted.socialSecurity;
+          } catch {
+            // Fallback to flat rates if tax engine fails (unsupported jurisdiction)
+            incomeTax = proratedSalary * 0.2;
+            niContribution = proratedSalary * 0.12;
+          }
+
+          const totalDeductions = incomeTax + niContribution;
+          const netPay = proratedSalary - totalDeductions;
+
+          const psCount = await tx.payslip.count({ where: { payrollRunId: run.id } });
+          const payslipNumber = `${run.runNumber}-${String(psCount + 1).padStart(4, '0')}`;
+
+          // Upsert: skip if already generated for this run/employee combination
+          await tx.payslip.upsert({
+            where: { payrollRunId_employeeId: { payrollRunId: run.id, employeeId: emp.id } },
+            update: {},
+            create: {
+              payslipNumber,
+              payrollRunId: run.id,
+              employeeId: emp.id,
+              periodStart: run.periodStart,
+              periodEnd: run.periodEnd,
+              payDate: run.payDate,
+              employeeName: `${emp.firstName} ${emp.lastName}`,
+              employeeNumber: emp.employeeNumber,
+              department: emp.department?.name ?? null,
+              position: emp.position?.title ?? null,
+              bankAccount: emp.accountNumber ?? null,
+              workingDays: workingDays,
+              paidDays: workingDays,
+              leaveDays: 0,
+              unpaidLeaveDays: 0,
+              overtimeHours: 0,
+              basicSalary: proratedSalary,
+              grossEarnings: proratedSalary,
+              incomeTax,
+              statutoryDeductions: niContribution,
+              totalDeductions,
+              netPay,
+              currency,
+              taxableIncome: proratedSalary,
+              status: 'CALCULATED',
+            },
+          });
+          created++;
+        }
+        return created;
+      });
+
+      // Mark run as CALCULATED
+      const updated = await prisma.payrollRun.update({
+        where: { id: req.params.id },
+        data: { status: 'CALCULATED' },
+      });
+      statusNeedsReset = false;
+
+      logger.info('Payroll run calculated', { runId: run.id, payslipsCreated: payslipCount });
+      res.json({ success: true, data: { ...updated, payslipsCreated: payslipCount } });
+    } catch (error) {
+      logger.error('Error calculating payroll', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to calculate payroll' },
+      });
+    } finally {
+      if (statusNeedsReset) {
+        try {
+          await prisma.payrollRun.update({
+            where: { id: req.params.id },
+            data: { status: 'ERROR' },
+          });
+        } catch (resetError) {
+          logger.error('Failed to reset payroll run status to ERROR', {
+            error: (resetError as Error).message,
+          });
+        }
       }
     }
   }
-});
+);
 
 // PUT /api/payroll/runs/:id/approve - Approve payroll run
-router.put('/runs/:id/approve', checkOwnership(prisma.payrollRun), async (req: Request, res: Response) => {
-  try {
-    const _schema = z.object({ approvedById: z.string().trim().optional() });
-    const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
-    const { approvedById } = _parsed.data;
+router.put(
+  '/runs/:id/approve',
+  checkOwnership(prisma.payrollRun),
+  async (req: Request, res: Response) => {
+    try {
+      const _schema = z.object({ approvedById: z.string().trim().optional() });
+      const _parsed = _schema.safeParse(req.body);
+      if (!_parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+        });
+      const { approvedById } = _parsed.data;
 
-    const run = await prisma.$transaction(async (tx) => {
-      const updatedRun = await tx.payrollRun.update({
-        where: { id: req.params.id },
-        data: {
-          status: 'APPROVED',
-          approvalStatus: 'APPROVED',
-          approvedById,
-          approvedAt: new Date(),
-        },
+      const run = await prisma.$transaction(async (tx) => {
+        const updatedRun = await tx.payrollRun.update({
+          where: { id: req.params.id },
+          data: {
+            status: 'APPROVED',
+            approvalStatus: 'APPROVED',
+            approvedById,
+            approvedAt: new Date(),
+          },
+        });
+
+        // Publish all payslips
+        await tx.payslip.updateMany({
+          where: { payrollRunId: req.params.id },
+          data: { status: 'PUBLISHED', publishedAt: new Date() },
+        });
+
+        return updatedRun;
       });
 
-      // Publish all payslips
-      await tx.payslip.updateMany({
-        where: { payrollRunId: req.params.id },
-        data: { status: 'PUBLISHED', publishedAt: new Date() },
+      res.json({ success: true, data: run });
+    } catch (error) {
+      logger.error('Error approving payroll', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to approve payroll' },
       });
-
-      return updatedRun;
-    });
-
-    res.json({ success: true, data: run });
-  } catch (error) {
-    logger.error('Error approving payroll', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve payroll' } });
+    }
   }
-});
+);
 
 // Payslips
 // GET /api/payroll/payslips - Get payslips
@@ -384,7 +433,10 @@ router.get('/payslips', scopeToUser, async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching payslips', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch payslips' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch payslips' },
+    });
   }
 });
 
@@ -400,13 +452,18 @@ router.get('/payslips/:id', checkOwnership(prisma.payslip), async (req: Request,
     });
 
     if (!payslip) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Payslip not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Payslip not found' } });
     }
 
     res.json({ success: true, data: payslip });
   } catch (error) {
     logger.error('Error fetching payslip', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch payslip' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch payslip' },
+    });
   }
 });
 
@@ -416,14 +473,11 @@ router.get('/stats', async (req: Request, res: Response) => {
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
 
-    const [
-      totalRuns,
-      pendingRuns,
-      monthlyPayroll,
-      yearlyTotal,
-    ] = await Promise.all([
+    const [totalRuns, pendingRuns, monthlyPayroll, yearlyTotal] = await Promise.all([
       prisma.payrollRun.count(),
-      prisma.payrollRun.count({ where: { status: { in: ['DRAFT', 'CALCULATED', 'UNDER_REVIEW'] } } }),
+      prisma.payrollRun.count({
+        where: { status: { in: ['DRAFT', 'CALCULATED', 'UNDER_REVIEW'] } },
+      }),
       prisma.payrollRun.aggregate({
         where: {
           periodStart: {
@@ -458,7 +512,10 @@ router.get('/stats', async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching stats', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' },
+    });
   }
 });
 

@@ -24,7 +24,7 @@ export function compoundInterest(
   principal: number,
   rate: number,
   periods: number,
-  compoundsPerPeriod: number,
+  compoundsPerPeriod: number
 ): number {
   if (principal < 0) throw new Error('Principal must be non-negative');
   if (rate < 0) throw new Error('Rate must be non-negative');

@@ -36,7 +36,10 @@ export function createLPASession(area: string, auditor: string, layer: string): 
   };
 }
 
-export function addFinding(session: LPASession, finding: Omit<LPAAuditFinding, 'timestamp'>): LPASession {
+export function addFinding(
+  session: LPASession,
+  finding: Omit<LPAAuditFinding, 'timestamp'>
+): LPASession {
   return {
     ...session,
     findings: [...session.findings, { ...finding, timestamp: new Date().toISOString() }],

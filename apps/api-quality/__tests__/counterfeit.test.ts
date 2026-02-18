@@ -428,7 +428,10 @@ describe('Quality Counterfeit Parts Prevention API Routes', () => {
   // ==========================================
   describe('GET /api/counterfeit/reports', () => {
     it('should return a list of reports with default pagination', async () => {
-      (mockPrisma.counterfeitReport.findMany as jest.Mock).mockResolvedValueOnce([mockReport, mockReport2]);
+      (mockPrisma.counterfeitReport.findMany as jest.Mock).mockResolvedValueOnce([
+        mockReport,
+        mockReport2,
+      ]);
       (mockPrisma.counterfeitReport.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app)
@@ -562,9 +565,7 @@ describe('Quality Counterfeit Parts Prevention API Routes', () => {
       (mockPrisma.counterfeitReport.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.counterfeitReport.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/counterfeit/reports')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/counterfeit/reports').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.counterfeitReport.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -577,9 +578,7 @@ describe('Quality Counterfeit Parts Prevention API Routes', () => {
       (mockPrisma.counterfeitReport.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.counterfeitReport.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/counterfeit/reports')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/counterfeit/reports').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.counterfeitReport.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -710,7 +709,9 @@ describe('Quality Counterfeit Parts Prevention API Routes', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.investigationNotes).toBe('XRF analysis shows lead content is out of spec');
+      expect(response.body.data.investigationNotes).toBe(
+        'XRF analysis shows lead content is out of spec'
+      );
       expect(response.body.data.status).toBe('UNDER_INVESTIGATION');
 
       expect(mockPrisma.counterfeitReport.update).toHaveBeenCalledWith({
@@ -1535,7 +1536,10 @@ describe('Quality Counterfeit Parts Prevention API Routes', () => {
   // ==========================================
   describe('GET /api/counterfeit/approved-sources', () => {
     it('should return a list of approved sources with default pagination', async () => {
-      (mockPrisma.approvedSource.findMany as jest.Mock).mockResolvedValueOnce([mockApprovedSource, mockApprovedSource2]);
+      (mockPrisma.approvedSource.findMany as jest.Mock).mockResolvedValueOnce([
+        mockApprovedSource,
+        mockApprovedSource2,
+      ]);
       (mockPrisma.approvedSource.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app)
@@ -1643,7 +1647,9 @@ describe('Quality Counterfeit Parts Prevention API Routes', () => {
     });
 
     it('should filter by riskRating', async () => {
-      (mockPrisma.approvedSource.findMany as jest.Mock).mockResolvedValueOnce([mockApprovedSource2]);
+      (mockPrisma.approvedSource.findMany as jest.Mock).mockResolvedValueOnce([
+        mockApprovedSource2,
+      ]);
       (mockPrisma.approvedSource.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app)

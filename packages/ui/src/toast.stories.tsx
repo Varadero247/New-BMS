@@ -16,19 +16,64 @@ function ToastDemo() {
 
   return (
     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-      <Button onClick={() => addToast({ title: 'Success!', description: 'Operation completed successfully.', variant: 'success', duration: 5000 })}>
+      <Button
+        onClick={() =>
+          addToast({
+            title: 'Success!',
+            description: 'Operation completed successfully.',
+            variant: 'success',
+            duration: 5000,
+          })
+        }
+      >
         Success Toast
       </Button>
-      <Button onClick={() => addToast({ title: 'Error!', description: 'Something went wrong.', variant: 'error', duration: 5000 })}>
+      <Button
+        onClick={() =>
+          addToast({
+            title: 'Error!',
+            description: 'Something went wrong.',
+            variant: 'error',
+            duration: 5000,
+          })
+        }
+      >
         Error Toast
       </Button>
-      <Button onClick={() => addToast({ title: 'Warning', description: 'Please review this action.', variant: 'warning', duration: 5000 })}>
+      <Button
+        onClick={() =>
+          addToast({
+            title: 'Warning',
+            description: 'Please review this action.',
+            variant: 'warning',
+            duration: 5000,
+          })
+        }
+      >
         Warning Toast
       </Button>
-      <Button onClick={() => addToast({ title: 'Information', description: 'Here is some useful info.', variant: 'info', duration: 5000 })}>
+      <Button
+        onClick={() =>
+          addToast({
+            title: 'Information',
+            description: 'Here is some useful info.',
+            variant: 'info',
+            duration: 5000,
+          })
+        }
+      >
         Info Toast
       </Button>
-      <Button onClick={() => addToast({ title: 'Persistent Toast', description: 'This toast will not auto-dismiss.', variant: 'info', duration: 0 })}>
+      <Button
+        onClick={() =>
+          addToast({
+            title: 'Persistent Toast',
+            description: 'This toast will not auto-dismiss.',
+            variant: 'info',
+            duration: 0,
+          })
+        }
+      >
         Persistent Toast
       </Button>
     </div>
@@ -49,12 +94,14 @@ export const Success: Story = {
       const { addToast } = useToast();
       return (
         <Button
-          onClick={() => addToast({
-            title: 'Success!',
-            description: 'Your changes have been saved.',
-            variant: 'success',
-            duration: 5000,
-          })}
+          onClick={() =>
+            addToast({
+              title: 'Success!',
+              description: 'Your changes have been saved.',
+              variant: 'success',
+              duration: 5000,
+            })
+          }
         >
           Show Success Toast
         </Button>
@@ -75,12 +122,14 @@ export const Error: Story = {
       const { addToast } = useToast();
       return (
         <Button
-          onClick={() => addToast({
-            title: 'Error',
-            description: 'Failed to save changes. Please try again.',
-            variant: 'error',
-            duration: 5000,
-          })}
+          onClick={() =>
+            addToast({
+              title: 'Error',
+              description: 'Failed to save changes. Please try again.',
+              variant: 'error',
+              duration: 5000,
+            })
+          }
         >
           Show Error Toast
         </Button>
@@ -101,12 +150,14 @@ export const Warning: Story = {
       const { addToast } = useToast();
       return (
         <Button
-          onClick={() => addToast({
-            title: 'Warning',
-            description: 'This action cannot be undone.',
-            variant: 'warning',
-            duration: 5000,
-          })}
+          onClick={() =>
+            addToast({
+              title: 'Warning',
+              description: 'This action cannot be undone.',
+              variant: 'warning',
+              duration: 5000,
+            })
+          }
         >
           Show Warning Toast
         </Button>
@@ -127,12 +178,14 @@ export const Info: Story = {
       const { addToast } = useToast();
       return (
         <Button
-          onClick={() => addToast({
-            title: 'Information',
-            description: 'The system will be undergoing maintenance tonight.',
-            variant: 'info',
-            duration: 5000,
-          })}
+          onClick={() =>
+            addToast({
+              title: 'Information',
+              description: 'The system will be undergoing maintenance tonight.',
+              variant: 'info',
+              duration: 5000,
+            })
+          }
         >
           Show Info Toast
         </Button>
@@ -153,11 +206,13 @@ export const WithoutDescription: Story = {
       const { addToast } = useToast();
       return (
         <Button
-          onClick={() => addToast({
-            title: 'Saved',
-            variant: 'success',
-            duration: 5000,
-          })}
+          onClick={() =>
+            addToast({
+              title: 'Saved',
+              variant: 'success',
+              duration: 5000,
+            })
+          }
         >
           Show Toast
         </Button>
@@ -178,12 +233,14 @@ export const Persistent: Story = {
       const { addToast } = useToast();
       return (
         <Button
-          onClick={() => addToast({
-            title: 'This will stay until dismissed',
-            description: 'Click the X to close.',
-            variant: 'info',
-            duration: 0,
-          })}
+          onClick={() =>
+            addToast({
+              title: 'This will stay until dismissed',
+              description: 'Click the X to close.',
+              variant: 'info',
+              duration: 0,
+            })
+          }
         >
           Show Persistent Toast
         </Button>

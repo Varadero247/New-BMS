@@ -74,13 +74,19 @@ router.get('/hierarchy', async (_req: Request, res: Response) => {
     const meters = await prisma.energyMeter.findMany({
       where: { deletedAt: null } as any,
       orderBy: { name: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     const tree = buildMeterTree(meters);
     res.json({ success: true, data: tree });
   } catch (error: unknown) {
-    logger.error('Failed to build meter hierarchy', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to build meter hierarchy' } });
+    logger.error('Failed to build meter hierarchy', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to build meter hierarchy' },
+    });
   }
 });
 
@@ -132,8 +138,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list meters', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list meters' } });
+    logger.error('Failed to list meters', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list meters' },
+    });
   }
 });
 
@@ -145,23 +156,40 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = meterCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
     const data = parsed.data;
 
     // Check duplicate code
-    const existing = await prisma.energyMeter.findFirst({ where: { code: data.code, deletedAt: null } as any });
+    const existing = await prisma.energyMeter.findFirst({
+      where: { code: data.code, deletedAt: null } as any,
+    });
     if (existing) {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: `Meter with code '${data.code}' already exists` } });
+      return res.status(409).json({
+        success: false,
+        error: { code: 'CONFLICT', message: `Meter with code '${data.code}' already exists` },
+      });
     }
 
     // Validate parent if provided
     if (data.parentMeterId) {
-      const parent = await prisma.energyMeter.findFirst({ where: { id: data.parentMeterId, deletedAt: null } as any });
+      const parent = await prisma.energyMeter.findFirst({
+        where: { id: data.parentMeterId, deletedAt: null } as any,
+      });
       if (!parent) {
-        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Parent meter not found' } });
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Parent meter not found' },
+        });
       }
     }
 
@@ -184,11 +212,24 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Meter created', { meterId: meter.id, code: data.code });
     res.status(201).json({ success: true, data: meter });
   } catch (error: unknown) {
-    logger.error('Failed to create meter', { error: error instanceof Error ? error.message : 'Unknown error' });
-    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Meter code must be unique' } });
+    logger.error('Failed to create meter', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    if (
+      error != null &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as any).code === 'P2002'
+    ) {
+      return res.status(409).json({
+        success: false,
+        error: { code: 'CONFLICT', message: 'Meter code must be unique' },
+      });
     }
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create meter' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create meter' },
+    });
   }
 });
 
@@ -206,18 +247,28 @@ router.get('/:id', async (req: Request, res: Response, next) => {
       where: { id, deletedAt: null } as any,
       include: {
         parent: { select: { id: true, name: true, code: true } },
-        children: { where: { deletedAt: null } as any, select: { id: true, name: true, code: true, type: true, status: true } },
+        children: {
+          where: { deletedAt: null } as any,
+          select: { id: true, name: true, code: true, type: true, status: true },
+        },
       },
     });
 
     if (!meter) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
     }
 
     res.json({ success: true, data: meter });
   } catch (error: unknown) {
-    logger.error('Failed to get meter', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get meter' } });
+    logger.error('Failed to get meter', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get meter' } });
   }
 });
 
@@ -230,12 +281,21 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = meterUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const existing = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -251,8 +311,14 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Meter updated', { meterId: id });
     res.json({ success: true, data: meter });
   } catch (error: unknown) {
-    logger.error('Failed to update meter', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update meter' } });
+    logger.error('Failed to update meter', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update meter' },
+    });
   }
 });
 
@@ -266,7 +332,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
     }
 
     await prisma.energyMeter.update({
@@ -277,8 +345,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Meter soft-deleted', { meterId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete meter', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete meter' } });
+    logger.error('Failed to delete meter', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete meter' },
+    });
   }
 });
 
@@ -295,7 +369,9 @@ router.get('/:id/readings', async (req: Request, res: Response) => {
 
     const meter = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } as any });
     if (!meter) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
     }
 
     const where: Record<string, unknown> = { meterId: id, deletedAt: null };
@@ -316,8 +392,14 @@ router.get('/:id/readings', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get meter readings', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get meter readings' } });
+    logger.error('Failed to get meter readings', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get meter readings' },
+    });
   }
 });
 

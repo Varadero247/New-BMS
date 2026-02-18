@@ -111,9 +111,7 @@ export default function HmrcCalendarClient() {
     try {
       const payload = {
         ...form,
-        submittedDate: form.submittedDate
-          ? new Date(form.submittedDate).toISOString()
-          : null,
+        submittedDate: form.submittedDate ? new Date(form.submittedDate).toISOString() : null,
       };
       await api.post('/hmrc-calendar', payload);
       setModalOpen(false);
@@ -131,9 +129,7 @@ export default function HmrcCalendarClient() {
     if (status === 'SUBMITTED') return 'submitted';
     const due = new Date(dueDate);
     if (due < now) return 'overdue';
-    const daysUntil = Math.ceil(
-      (due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-    );
+    const daysUntil = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     if (daysUntil <= 7) return 'urgent';
     if (daysUntil <= 30) return 'upcoming';
     return 'future';
@@ -163,9 +159,7 @@ export default function HmrcCalendarClient() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                HMRC Calendar
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">HMRC Calendar</h1>
               <p className="text-gray-500 dark:text-gray-400 mt-1">
                 Track tax filing deadlines and submissions
               </p>
@@ -255,7 +249,9 @@ export default function HmrcCalendarClient() {
                           <h3 className="font-medium text-gray-900 dark:text-gray-100">
                             {item.title}
                           </h3>
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.color}`}>
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.color}`}
+                          >
                             {cfg.icon}
                             {(item.status || 'PENDING').replace(/_/g, ' ')}
                           </span>
@@ -271,13 +267,10 @@ export default function HmrcCalendarClient() {
                               {item.type}
                             </span>
                           )}
-                          {item.filingRef && (
-                            <span>Ref: {item.filingRef}</span>
-                          )}
+                          {item.filingRef && <span>Ref: {item.filingRef}</span>}
                           {item.submittedDate && (
                             <span>
-                              Submitted:{' '}
-                              {new Date(item.submittedDate).toLocaleDateString()}
+                              Submitted: {new Date(item.submittedDate).toLocaleDateString()}
                             </span>
                           )}
                         </div>
@@ -295,17 +288,17 @@ export default function HmrcCalendarClient() {
                             urgency === 'overdue'
                               ? 'text-red-600 font-semibold'
                               : urgency === 'urgent'
-                              ? 'text-amber-600 font-semibold'
-                              : urgency === 'submitted'
-                              ? 'text-emerald-600'
-                              : 'text-gray-500 dark:text-gray-400'
+                                ? 'text-amber-600 font-semibold'
+                                : urgency === 'submitted'
+                                  ? 'text-emerald-600'
+                                  : 'text-gray-500 dark:text-gray-400'
                           }`}
                         >
                           {urgency === 'overdue'
                             ? `${Math.abs(daysUntil)} days overdue`
                             : urgency === 'submitted'
-                            ? 'Filed'
-                            : `${daysUntil} days remaining`}
+                              ? 'Filed'
+                              : `${daysUntil} days remaining`}
                         </p>
                       </div>
                     </div>
@@ -344,9 +337,7 @@ export default function HmrcCalendarClient() {
             </label>
             <textarea
               value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={2}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
               placeholder="Description of the filing..."
@@ -392,9 +383,7 @@ export default function HmrcCalendarClient() {
               <input
                 type="text"
                 value={form.filingRef}
-                onChange={(e) =>
-                  setForm({ ...form, filingRef: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, filingRef: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
                 placeholder="UTR or reference number"
               />
@@ -425,9 +414,7 @@ export default function HmrcCalendarClient() {
               <input
                 type="date"
                 value={form.submittedDate}
-                onChange={(e) =>
-                  setForm({ ...form, submittedDate: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, submittedDate: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -438,9 +425,7 @@ export default function HmrcCalendarClient() {
               <input
                 type="text"
                 value={form.submittedBy}
-                onChange={(e) =>
-                  setForm({ ...form, submittedBy: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, submittedBy: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
                 placeholder="Name of person who submitted"
               />

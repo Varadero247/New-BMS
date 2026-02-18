@@ -181,9 +181,7 @@ describe('Quality Objectives API Routes', () => {
       (mockPrisma.qualObjective.findMany as jest.Mock).mockResolvedValueOnce(mockObjectives);
       (mockPrisma.qualObjective.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/objectives')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/objectives').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualObjective.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -222,7 +220,11 @@ describe('Quality Objectives API Routes', () => {
       owner: 'John Doe',
       department: 'Quality',
       milestones: [
-        { id: '1b000000-0000-4000-a000-000000000001', title: 'Root cause analysis', status: 'COMPLETED' },
+        {
+          id: '1b000000-0000-4000-a000-000000000001',
+          title: 'Root cause analysis',
+          status: 'COMPLETED',
+        },
       ],
     };
 
@@ -255,7 +257,9 @@ describe('Quality Objectives API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualObjective.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualObjective.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/objectives/15000000-0000-4000-a000-000000000001')
@@ -477,7 +481,9 @@ describe('Quality Objectives API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualObjective.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualObjective.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/objectives/15000000-0000-4000-a000-000000000001')
@@ -494,7 +500,9 @@ describe('Quality Objectives API Routes', () => {
   // ============================================
   describe('DELETE /api/objectives/:id', () => {
     it('should delete objective successfully', async () => {
-      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '15000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualObjective.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
@@ -520,7 +528,9 @@ describe('Quality Objectives API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualObjective.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualObjective.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/objectives/15000000-0000-4000-a000-000000000001')
@@ -541,7 +551,9 @@ describe('Quality Objectives API Routes', () => {
     };
 
     it('should create a milestone successfully', async () => {
-      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '15000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualMilestone.create as jest.Mock).mockResolvedValueOnce({
         id: '1b000000-0000-4000-a000-000000000001',
         objectiveId: '15000000-0000-4000-a000-000000000001',
@@ -574,7 +586,9 @@ describe('Quality Objectives API Routes', () => {
     });
 
     it('should return 400 for missing title', async () => {
-      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '15000000-0000-4000-a000-000000000001',
+      });
 
       const response = await request(app)
         .post('/api/objectives/15000000-0000-4000-a000-000000000001/milestones')
@@ -586,7 +600,9 @@ describe('Quality Objectives API Routes', () => {
     });
 
     it('should return 400 for missing targetDate', async () => {
-      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '15000000-0000-4000-a000-000000000001',
+      });
 
       const response = await request(app)
         .post('/api/objectives/15000000-0000-4000-a000-000000000001/milestones')
@@ -598,7 +614,9 @@ describe('Quality Objectives API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '15000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualMilestone.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
@@ -630,7 +648,9 @@ describe('Quality Objectives API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ title: 'Phase 1 Updated' });
 
@@ -648,7 +668,9 @@ describe('Quality Objectives API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED' });
 
@@ -660,7 +682,9 @@ describe('Quality Objectives API Routes', () => {
       (mockPrisma.qualMilestone.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/00000000-0000-4000-a000-ffffffffffff')
+        .put(
+          '/api/objectives/15000000-0000-4000-a000-000000000001/milestones/00000000-0000-4000-a000-ffffffffffff'
+        )
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -672,7 +696,9 @@ describe('Quality Objectives API Routes', () => {
       (mockPrisma.qualMilestone.findFirst as jest.Mock).mockResolvedValueOnce(existingMilestone);
 
       const response = await request(app)
-        .put('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -681,10 +707,14 @@ describe('Quality Objectives API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualMilestone.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualMilestone.findFirst as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
-        .put('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -698,11 +728,16 @@ describe('Quality Objectives API Routes', () => {
   // ============================================
   describe('DELETE /api/objectives/:id/milestones/:milestoneId', () => {
     it('should delete milestone successfully', async () => {
-      (mockPrisma.qualMilestone.findFirst as jest.Mock).mockResolvedValueOnce({ id: '1b000000-0000-4000-a000-000000000001', objectiveId: '15000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualMilestone.findFirst as jest.Mock).mockResolvedValueOnce({
+        id: '1b000000-0000-4000-a000-000000000001',
+        objectiveId: '15000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualMilestone.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
+        .delete(
+          '/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
@@ -716,7 +751,9 @@ describe('Quality Objectives API Routes', () => {
       (mockPrisma.qualMilestone.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/00000000-0000-4000-a000-ffffffffffff')
+        .delete(
+          '/api/objectives/15000000-0000-4000-a000-000000000001/milestones/00000000-0000-4000-a000-ffffffffffff'
+        )
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -724,10 +761,14 @@ describe('Quality Objectives API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualMilestone.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualMilestone.findFirst as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
-        .delete('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
+        .delete(
+          '/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

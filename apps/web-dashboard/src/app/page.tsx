@@ -91,47 +91,335 @@ interface ModuleCard {
 }
 
 const isoModules: ModuleCard[] = [
-  { name: 'Health & Safety', subtitle: 'ISO 45001', port: 3001, icon: Shield, color: 'red', bgColor: 'bg-red-50 dark:bg-red-950', borderColor: 'border-red-200 dark:border-red-800', hoverBg: 'hover:bg-red-100 dark:hover:bg-red-900', textColor: 'text-red-900 dark:text-red-100', subtitleColor: 'text-red-600 dark:text-red-400', iconBg: 'bg-red-100 dark:bg-red-900' },
-  { name: 'Environmental', subtitle: 'ISO 14001', port: 3002, icon: Leaf, color: 'green', bgColor: 'bg-green-50 dark:bg-green-950', borderColor: 'border-green-200 dark:border-green-800', hoverBg: 'hover:bg-green-100 dark:hover:bg-green-900', textColor: 'text-green-900 dark:text-green-100', subtitleColor: 'text-green-600 dark:text-green-400', iconBg: 'bg-green-100 dark:bg-green-900' },
-  { name: 'Quality', subtitle: 'ISO 9001', port: 3003, icon: Award, color: 'blue', bgColor: 'bg-blue-50 dark:bg-blue-950', borderColor: 'border-blue-200 dark:border-blue-800', hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900', textColor: 'text-blue-900 dark:text-blue-100', subtitleColor: 'text-blue-600 dark:text-blue-400', iconBg: 'bg-blue-100 dark:bg-blue-900' },
-  { name: 'ESG', subtitle: 'Sustainability', port: 3016, icon: TreePine, color: 'teal', bgColor: 'bg-teal-50 dark:bg-teal-950', borderColor: 'border-teal-200 dark:border-teal-800', hoverBg: 'hover:bg-teal-100 dark:hover:bg-teal-900', textColor: 'text-teal-900 dark:text-teal-100', subtitleColor: 'text-teal-600 dark:text-teal-400', iconBg: 'bg-teal-100 dark:bg-teal-900' },
-  { name: 'Food Safety', subtitle: 'HACCP / ISO 22000', port: 3020, icon: UtensilsCrossed, color: 'amber', bgColor: 'bg-amber-50 dark:bg-amber-950', borderColor: 'border-amber-200 dark:border-amber-800', hoverBg: 'hover:bg-amber-100 dark:hover:bg-amber-900', textColor: 'text-amber-900 dark:text-amber-100', subtitleColor: 'text-amber-600 dark:text-amber-400', iconBg: 'bg-amber-100 dark:bg-amber-900' },
-  { name: 'Energy', subtitle: 'ISO 50001', port: 3021, icon: Zap, color: 'yellow', bgColor: 'bg-yellow-50 dark:bg-yellow-950', borderColor: 'border-yellow-200 dark:border-yellow-800', hoverBg: 'hover:bg-yellow-100 dark:hover:bg-yellow-900', textColor: 'text-yellow-900 dark:text-yellow-100', subtitleColor: 'text-yellow-600 dark:text-yellow-400', iconBg: 'bg-yellow-100 dark:bg-yellow-900' },
-  { name: 'ISO 42001 (AI)', subtitle: 'AI Management', port: 3024, icon: Brain, color: 'fuchsia', bgColor: 'bg-fuchsia-50 dark:bg-fuchsia-950', borderColor: 'border-fuchsia-200 dark:border-fuchsia-800', hoverBg: 'hover:bg-fuchsia-100 dark:hover:bg-fuchsia-900', textColor: 'text-fuchsia-900 dark:text-fuchsia-100', subtitleColor: 'text-fuchsia-600 dark:text-fuchsia-400', iconBg: 'bg-fuchsia-100 dark:bg-fuchsia-900' },
-  { name: 'ISO 37001', subtitle: 'Anti-Bribery', port: 3025, icon: Scale, color: 'rose', bgColor: 'bg-rose-50 dark:bg-rose-950', borderColor: 'border-rose-200 dark:border-rose-800', hoverBg: 'hover:bg-rose-100 dark:hover:bg-rose-900', textColor: 'text-rose-900 dark:text-rose-100', subtitleColor: 'text-rose-600 dark:text-rose-400', iconBg: 'bg-rose-100 dark:bg-rose-900' },
-  { name: 'InfoSec', subtitle: 'ISO 27001', port: 3015, icon: ShieldCheck, color: 'cyan', bgColor: 'bg-cyan-50 dark:bg-cyan-950', borderColor: 'border-cyan-200 dark:border-cyan-800', hoverBg: 'hover:bg-cyan-100 dark:hover:bg-cyan-900', textColor: 'text-cyan-900 dark:text-cyan-100', subtitleColor: 'text-cyan-600 dark:text-cyan-400', iconBg: 'bg-cyan-100 dark:bg-cyan-900' },
-  { name: 'Aerospace', subtitle: 'AS9100', port: 3012, icon: Plane, color: 'slate', bgColor: 'bg-slate-50 dark:bg-slate-950', borderColor: 'border-slate-200 dark:border-slate-800', hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-900', textColor: 'text-slate-900 dark:text-slate-100', subtitleColor: 'text-slate-600 dark:text-slate-400', iconBg: 'bg-slate-100 dark:bg-slate-900' },
+  {
+    name: 'Health & Safety',
+    subtitle: 'ISO 45001',
+    port: 3001,
+    icon: Shield,
+    color: 'red',
+    bgColor: 'bg-red-50 dark:bg-red-950',
+    borderColor: 'border-red-200 dark:border-red-800',
+    hoverBg: 'hover:bg-red-100 dark:hover:bg-red-900',
+    textColor: 'text-red-900 dark:text-red-100',
+    subtitleColor: 'text-red-600 dark:text-red-400',
+    iconBg: 'bg-red-100 dark:bg-red-900',
+  },
+  {
+    name: 'Environmental',
+    subtitle: 'ISO 14001',
+    port: 3002,
+    icon: Leaf,
+    color: 'green',
+    bgColor: 'bg-green-50 dark:bg-green-950',
+    borderColor: 'border-green-200 dark:border-green-800',
+    hoverBg: 'hover:bg-green-100 dark:hover:bg-green-900',
+    textColor: 'text-green-900 dark:text-green-100',
+    subtitleColor: 'text-green-600 dark:text-green-400',
+    iconBg: 'bg-green-100 dark:bg-green-900',
+  },
+  {
+    name: 'Quality',
+    subtitle: 'ISO 9001',
+    port: 3003,
+    icon: Award,
+    color: 'blue',
+    bgColor: 'bg-blue-50 dark:bg-blue-950',
+    borderColor: 'border-blue-200 dark:border-blue-800',
+    hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900',
+    textColor: 'text-blue-900 dark:text-blue-100',
+    subtitleColor: 'text-blue-600 dark:text-blue-400',
+    iconBg: 'bg-blue-100 dark:bg-blue-900',
+  },
+  {
+    name: 'ESG',
+    subtitle: 'Sustainability',
+    port: 3016,
+    icon: TreePine,
+    color: 'teal',
+    bgColor: 'bg-teal-50 dark:bg-teal-950',
+    borderColor: 'border-teal-200 dark:border-teal-800',
+    hoverBg: 'hover:bg-teal-100 dark:hover:bg-teal-900',
+    textColor: 'text-teal-900 dark:text-teal-100',
+    subtitleColor: 'text-teal-600 dark:text-teal-400',
+    iconBg: 'bg-teal-100 dark:bg-teal-900',
+  },
+  {
+    name: 'Food Safety',
+    subtitle: 'HACCP / ISO 22000',
+    port: 3020,
+    icon: UtensilsCrossed,
+    color: 'amber',
+    bgColor: 'bg-amber-50 dark:bg-amber-950',
+    borderColor: 'border-amber-200 dark:border-amber-800',
+    hoverBg: 'hover:bg-amber-100 dark:hover:bg-amber-900',
+    textColor: 'text-amber-900 dark:text-amber-100',
+    subtitleColor: 'text-amber-600 dark:text-amber-400',
+    iconBg: 'bg-amber-100 dark:bg-amber-900',
+  },
+  {
+    name: 'Energy',
+    subtitle: 'ISO 50001',
+    port: 3021,
+    icon: Zap,
+    color: 'yellow',
+    bgColor: 'bg-yellow-50 dark:bg-yellow-950',
+    borderColor: 'border-yellow-200 dark:border-yellow-800',
+    hoverBg: 'hover:bg-yellow-100 dark:hover:bg-yellow-900',
+    textColor: 'text-yellow-900 dark:text-yellow-100',
+    subtitleColor: 'text-yellow-600 dark:text-yellow-400',
+    iconBg: 'bg-yellow-100 dark:bg-yellow-900',
+  },
+  {
+    name: 'ISO 42001 (AI)',
+    subtitle: 'AI Management',
+    port: 3024,
+    icon: Brain,
+    color: 'fuchsia',
+    bgColor: 'bg-fuchsia-50 dark:bg-fuchsia-950',
+    borderColor: 'border-fuchsia-200 dark:border-fuchsia-800',
+    hoverBg: 'hover:bg-fuchsia-100 dark:hover:bg-fuchsia-900',
+    textColor: 'text-fuchsia-900 dark:text-fuchsia-100',
+    subtitleColor: 'text-fuchsia-600 dark:text-fuchsia-400',
+    iconBg: 'bg-fuchsia-100 dark:bg-fuchsia-900',
+  },
+  {
+    name: 'ISO 37001',
+    subtitle: 'Anti-Bribery',
+    port: 3025,
+    icon: Scale,
+    color: 'rose',
+    bgColor: 'bg-rose-50 dark:bg-rose-950',
+    borderColor: 'border-rose-200 dark:border-rose-800',
+    hoverBg: 'hover:bg-rose-100 dark:hover:bg-rose-900',
+    textColor: 'text-rose-900 dark:text-rose-100',
+    subtitleColor: 'text-rose-600 dark:text-rose-400',
+    iconBg: 'bg-rose-100 dark:bg-rose-900',
+  },
+  {
+    name: 'InfoSec',
+    subtitle: 'ISO 27001',
+    port: 3015,
+    icon: ShieldCheck,
+    color: 'cyan',
+    bgColor: 'bg-cyan-50 dark:bg-cyan-950',
+    borderColor: 'border-cyan-200 dark:border-cyan-800',
+    hoverBg: 'hover:bg-cyan-100 dark:hover:bg-cyan-900',
+    textColor: 'text-cyan-900 dark:text-cyan-100',
+    subtitleColor: 'text-cyan-600 dark:text-cyan-400',
+    iconBg: 'bg-cyan-100 dark:bg-cyan-900',
+  },
+  {
+    name: 'Aerospace',
+    subtitle: 'AS9100',
+    port: 3012,
+    icon: Plane,
+    color: 'slate',
+    bgColor: 'bg-slate-50 dark:bg-slate-950',
+    borderColor: 'border-slate-200 dark:border-slate-800',
+    hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-900',
+    textColor: 'text-slate-900 dark:text-slate-100',
+    subtitleColor: 'text-slate-600 dark:text-slate-400',
+    iconBg: 'bg-slate-100 dark:bg-slate-900',
+  },
 ];
 
 const operationsModules: ModuleCard[] = [
-  { name: 'Inventory', subtitle: 'Stock Control', port: 3005, icon: Package, color: 'sky', bgColor: 'bg-sky-50 dark:bg-sky-950', borderColor: 'border-sky-200 dark:border-sky-800', hoverBg: 'hover:bg-sky-100 dark:hover:bg-sky-900', textColor: 'text-sky-900 dark:text-sky-100', subtitleColor: 'text-sky-600 dark:text-sky-400', iconBg: 'bg-sky-100 dark:bg-sky-900' },
-  { name: 'HR Management', subtitle: 'Employee & Performance', port: 3006, icon: Users, color: 'orange', bgColor: 'bg-orange-50 dark:bg-orange-950', borderColor: 'border-orange-200 dark:border-orange-800', hoverBg: 'hover:bg-orange-100 dark:hover:bg-orange-900', textColor: 'text-orange-900 dark:text-orange-100', subtitleColor: 'text-orange-600 dark:text-orange-400', iconBg: 'bg-orange-100 dark:bg-orange-900' },
-  { name: 'Payroll', subtitle: 'Compensation & Benefits', port: 3007, icon: Wallet, color: 'emerald', bgColor: 'bg-emerald-50 dark:bg-emerald-950', borderColor: 'border-emerald-200 dark:border-emerald-800', hoverBg: 'hover:bg-emerald-100 dark:hover:bg-emerald-900', textColor: 'text-emerald-900 dark:text-emerald-100', subtitleColor: 'text-emerald-600 dark:text-emerald-400', iconBg: 'bg-emerald-100 dark:bg-emerald-900' },
-  { name: 'Workflows', subtitle: 'Process Automation', port: 3008, icon: GitBranch, color: 'indigo', bgColor: 'bg-indigo-50 dark:bg-indigo-950', borderColor: 'border-indigo-200 dark:border-indigo-800', hoverBg: 'hover:bg-indigo-100 dark:hover:bg-indigo-900', textColor: 'text-indigo-900 dark:text-indigo-100', subtitleColor: 'text-indigo-600 dark:text-indigo-400', iconBg: 'bg-indigo-100 dark:bg-indigo-900' },
-  { name: 'Project Management', subtitle: 'Tasks & Milestones', port: 3009, icon: FolderKanban, color: 'violet', bgColor: 'bg-violet-50 dark:bg-violet-950', borderColor: 'border-violet-200 dark:border-violet-800', hoverBg: 'hover:bg-violet-100 dark:hover:bg-violet-900', textColor: 'text-violet-900 dark:text-violet-100', subtitleColor: 'text-violet-600 dark:text-violet-400', iconBg: 'bg-violet-100 dark:bg-violet-900' },
-  { name: 'Finance', subtitle: 'Accounts & Budgets', port: 3013, icon: PiggyBank, color: 'lime', bgColor: 'bg-lime-50 dark:bg-lime-950', borderColor: 'border-lime-200 dark:border-lime-800', hoverBg: 'hover:bg-lime-100 dark:hover:bg-lime-900', textColor: 'text-lime-900 dark:text-lime-100', subtitleColor: 'text-lime-600 dark:text-lime-400', iconBg: 'bg-lime-100 dark:bg-lime-900' },
-  { name: 'CRM', subtitle: 'Customer Relations', port: 3014, icon: UserCircle, color: 'pink', bgColor: 'bg-pink-50 dark:bg-pink-950', borderColor: 'border-pink-200 dark:border-pink-800', hoverBg: 'hover:bg-pink-100 dark:hover:bg-pink-900', textColor: 'text-pink-900 dark:text-pink-100', subtitleColor: 'text-pink-600 dark:text-pink-400', iconBg: 'bg-pink-100 dark:bg-pink-900' },
-  { name: 'CMMS', subtitle: 'Maintenance', port: 3017, icon: Wrench, color: 'stone', bgColor: 'bg-stone-50 dark:bg-stone-950', borderColor: 'border-stone-200 dark:border-stone-800', hoverBg: 'hover:bg-stone-100 dark:hover:bg-stone-900', textColor: 'text-stone-900 dark:text-stone-100', subtitleColor: 'text-stone-600 dark:text-stone-400', iconBg: 'bg-stone-100 dark:bg-stone-900' },
-  { name: 'Field Service', subtitle: 'Job Dispatch', port: 3023, icon: Truck, color: 'blue', bgColor: 'bg-blue-50 dark:bg-blue-950', borderColor: 'border-blue-200 dark:border-blue-800', hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900', textColor: 'text-blue-900 dark:text-blue-100', subtitleColor: 'text-blue-600 dark:text-blue-400', iconBg: 'bg-blue-100 dark:bg-blue-900' },
-  { name: 'Analytics', subtitle: 'Reports & Dashboards', port: 3022, icon: BarChart3, color: 'purple', bgColor: 'bg-purple-50 dark:bg-purple-950', borderColor: 'border-purple-200 dark:border-purple-800', hoverBg: 'hover:bg-purple-100 dark:hover:bg-purple-900', textColor: 'text-purple-900 dark:text-purple-100', subtitleColor: 'text-purple-600 dark:text-purple-400', iconBg: 'bg-purple-100 dark:bg-purple-900' },
+  {
+    name: 'Inventory',
+    subtitle: 'Stock Control',
+    port: 3005,
+    icon: Package,
+    color: 'sky',
+    bgColor: 'bg-sky-50 dark:bg-sky-950',
+    borderColor: 'border-sky-200 dark:border-sky-800',
+    hoverBg: 'hover:bg-sky-100 dark:hover:bg-sky-900',
+    textColor: 'text-sky-900 dark:text-sky-100',
+    subtitleColor: 'text-sky-600 dark:text-sky-400',
+    iconBg: 'bg-sky-100 dark:bg-sky-900',
+  },
+  {
+    name: 'HR Management',
+    subtitle: 'Employee & Performance',
+    port: 3006,
+    icon: Users,
+    color: 'orange',
+    bgColor: 'bg-orange-50 dark:bg-orange-950',
+    borderColor: 'border-orange-200 dark:border-orange-800',
+    hoverBg: 'hover:bg-orange-100 dark:hover:bg-orange-900',
+    textColor: 'text-orange-900 dark:text-orange-100',
+    subtitleColor: 'text-orange-600 dark:text-orange-400',
+    iconBg: 'bg-orange-100 dark:bg-orange-900',
+  },
+  {
+    name: 'Payroll',
+    subtitle: 'Compensation & Benefits',
+    port: 3007,
+    icon: Wallet,
+    color: 'emerald',
+    bgColor: 'bg-emerald-50 dark:bg-emerald-950',
+    borderColor: 'border-emerald-200 dark:border-emerald-800',
+    hoverBg: 'hover:bg-emerald-100 dark:hover:bg-emerald-900',
+    textColor: 'text-emerald-900 dark:text-emerald-100',
+    subtitleColor: 'text-emerald-600 dark:text-emerald-400',
+    iconBg: 'bg-emerald-100 dark:bg-emerald-900',
+  },
+  {
+    name: 'Workflows',
+    subtitle: 'Process Automation',
+    port: 3008,
+    icon: GitBranch,
+    color: 'indigo',
+    bgColor: 'bg-indigo-50 dark:bg-indigo-950',
+    borderColor: 'border-indigo-200 dark:border-indigo-800',
+    hoverBg: 'hover:bg-indigo-100 dark:hover:bg-indigo-900',
+    textColor: 'text-indigo-900 dark:text-indigo-100',
+    subtitleColor: 'text-indigo-600 dark:text-indigo-400',
+    iconBg: 'bg-indigo-100 dark:bg-indigo-900',
+  },
+  {
+    name: 'Project Management',
+    subtitle: 'Tasks & Milestones',
+    port: 3009,
+    icon: FolderKanban,
+    color: 'violet',
+    bgColor: 'bg-violet-50 dark:bg-violet-950',
+    borderColor: 'border-violet-200 dark:border-violet-800',
+    hoverBg: 'hover:bg-violet-100 dark:hover:bg-violet-900',
+    textColor: 'text-violet-900 dark:text-violet-100',
+    subtitleColor: 'text-violet-600 dark:text-violet-400',
+    iconBg: 'bg-violet-100 dark:bg-violet-900',
+  },
+  {
+    name: 'Finance',
+    subtitle: 'Accounts & Budgets',
+    port: 3013,
+    icon: PiggyBank,
+    color: 'lime',
+    bgColor: 'bg-lime-50 dark:bg-lime-950',
+    borderColor: 'border-lime-200 dark:border-lime-800',
+    hoverBg: 'hover:bg-lime-100 dark:hover:bg-lime-900',
+    textColor: 'text-lime-900 dark:text-lime-100',
+    subtitleColor: 'text-lime-600 dark:text-lime-400',
+    iconBg: 'bg-lime-100 dark:bg-lime-900',
+  },
+  {
+    name: 'CRM',
+    subtitle: 'Customer Relations',
+    port: 3014,
+    icon: UserCircle,
+    color: 'pink',
+    bgColor: 'bg-pink-50 dark:bg-pink-950',
+    borderColor: 'border-pink-200 dark:border-pink-800',
+    hoverBg: 'hover:bg-pink-100 dark:hover:bg-pink-900',
+    textColor: 'text-pink-900 dark:text-pink-100',
+    subtitleColor: 'text-pink-600 dark:text-pink-400',
+    iconBg: 'bg-pink-100 dark:bg-pink-900',
+  },
+  {
+    name: 'CMMS',
+    subtitle: 'Maintenance',
+    port: 3017,
+    icon: Wrench,
+    color: 'stone',
+    bgColor: 'bg-stone-50 dark:bg-stone-950',
+    borderColor: 'border-stone-200 dark:border-stone-800',
+    hoverBg: 'hover:bg-stone-100 dark:hover:bg-stone-900',
+    textColor: 'text-stone-900 dark:text-stone-100',
+    subtitleColor: 'text-stone-600 dark:text-stone-400',
+    iconBg: 'bg-stone-100 dark:bg-stone-900',
+  },
+  {
+    name: 'Field Service',
+    subtitle: 'Job Dispatch',
+    port: 3023,
+    icon: Truck,
+    color: 'blue',
+    bgColor: 'bg-blue-50 dark:bg-blue-950',
+    borderColor: 'border-blue-200 dark:border-blue-800',
+    hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900',
+    textColor: 'text-blue-900 dark:text-blue-100',
+    subtitleColor: 'text-blue-600 dark:text-blue-400',
+    iconBg: 'bg-blue-100 dark:bg-blue-900',
+  },
+  {
+    name: 'Analytics',
+    subtitle: 'Reports & Dashboards',
+    port: 3022,
+    icon: BarChart3,
+    color: 'purple',
+    bgColor: 'bg-purple-50 dark:bg-purple-950',
+    borderColor: 'border-purple-200 dark:border-purple-800',
+    hoverBg: 'hover:bg-purple-100 dark:hover:bg-purple-900',
+    textColor: 'text-purple-900 dark:text-purple-100',
+    subtitleColor: 'text-purple-600 dark:text-purple-400',
+    iconBg: 'bg-purple-100 dark:bg-purple-900',
+  },
 ];
 
 const portalModules: ModuleCard[] = [
-  { name: 'Customer Portal', subtitle: 'Client Access', port: 3018, icon: Building2, color: 'blue', bgColor: 'bg-blue-50 dark:bg-blue-950', borderColor: 'border-blue-200 dark:border-blue-800', hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900', textColor: 'text-blue-900 dark:text-blue-100', subtitleColor: 'text-blue-600 dark:text-blue-400', iconBg: 'bg-blue-100 dark:bg-blue-900' },
-  { name: 'Supplier Portal', subtitle: 'Vendor Access', port: 3019, icon: Briefcase, color: 'amber', bgColor: 'bg-amber-50 dark:bg-amber-950', borderColor: 'border-amber-200 dark:border-amber-800', hoverBg: 'hover:bg-amber-100 dark:hover:bg-amber-900', textColor: 'text-amber-900 dark:text-amber-100', subtitleColor: 'text-amber-600 dark:text-amber-400', iconBg: 'bg-amber-100 dark:bg-amber-900' },
-  { name: 'Medical Devices', subtitle: 'ISO 13485', port: 3011, icon: Stethoscope, color: 'red', bgColor: 'bg-red-50 dark:bg-red-950', borderColor: 'border-red-200 dark:border-red-800', hoverBg: 'hover:bg-red-100 dark:hover:bg-red-900', textColor: 'text-red-900 dark:text-red-100', subtitleColor: 'text-red-600 dark:text-red-400', iconBg: 'bg-red-100 dark:bg-red-900' },
-  { name: 'Automotive', subtitle: 'IATF 16949', port: 3010, icon: Car, color: 'gray', bgColor: 'bg-gray-50 dark:bg-gray-800', borderColor: 'border-gray-200 dark:border-gray-700', hoverBg: 'hover:bg-gray-100 dark:hover:bg-gray-900', textColor: 'text-gray-900 dark:text-gray-100', subtitleColor: 'text-gray-600 dark:text-gray-400', iconBg: 'bg-gray-100 dark:bg-gray-800' },
+  {
+    name: 'Customer Portal',
+    subtitle: 'Client Access',
+    port: 3018,
+    icon: Building2,
+    color: 'blue',
+    bgColor: 'bg-blue-50 dark:bg-blue-950',
+    borderColor: 'border-blue-200 dark:border-blue-800',
+    hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900',
+    textColor: 'text-blue-900 dark:text-blue-100',
+    subtitleColor: 'text-blue-600 dark:text-blue-400',
+    iconBg: 'bg-blue-100 dark:bg-blue-900',
+  },
+  {
+    name: 'Supplier Portal',
+    subtitle: 'Vendor Access',
+    port: 3019,
+    icon: Briefcase,
+    color: 'amber',
+    bgColor: 'bg-amber-50 dark:bg-amber-950',
+    borderColor: 'border-amber-200 dark:border-amber-800',
+    hoverBg: 'hover:bg-amber-100 dark:hover:bg-amber-900',
+    textColor: 'text-amber-900 dark:text-amber-100',
+    subtitleColor: 'text-amber-600 dark:text-amber-400',
+    iconBg: 'bg-amber-100 dark:bg-amber-900',
+  },
+  {
+    name: 'Medical Devices',
+    subtitle: 'ISO 13485',
+    port: 3011,
+    icon: Stethoscope,
+    color: 'red',
+    bgColor: 'bg-red-50 dark:bg-red-950',
+    borderColor: 'border-red-200 dark:border-red-800',
+    hoverBg: 'hover:bg-red-100 dark:hover:bg-red-900',
+    textColor: 'text-red-900 dark:text-red-100',
+    subtitleColor: 'text-red-600 dark:text-red-400',
+    iconBg: 'bg-red-100 dark:bg-red-900',
+  },
+  {
+    name: 'Automotive',
+    subtitle: 'IATF 16949',
+    port: 3010,
+    icon: Car,
+    color: 'gray',
+    bgColor: 'bg-gray-50 dark:bg-gray-800',
+    borderColor: 'border-gray-200 dark:border-gray-700',
+    hoverBg: 'hover:bg-gray-100 dark:hover:bg-gray-900',
+    textColor: 'text-gray-900 dark:text-gray-100',
+    subtitleColor: 'text-gray-600 dark:text-gray-400',
+    iconBg: 'bg-gray-100 dark:bg-gray-800',
+  },
 ];
 
 const SECTION_MODULE_MAP: Record<SectionId, ModuleCard[]> = {
   'iso-compliance': isoModules,
-  'operations': operationsModules,
+  operations: operationsModules,
   'portals-specialist': portalModules,
 };
 
 const SECTION_LABELS: Record<SectionId, string> = {
   'iso-compliance': 'ISO Compliance',
-  'operations': 'Operations',
+  operations: 'Operations',
   'portals-specialist': 'Portals & Specialist',
 };
 
@@ -181,7 +469,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Check if setup wizard needs to be shown
-    api.get('/wizard/status')
+    api
+      .get('/wizard/status')
       .then((res) => {
         const data = res.data.data;
         if (!data.exists || (data.status !== 'COMPLETED' && data.status !== 'SKIPPED')) {
@@ -259,7 +548,7 @@ export default function DashboardPage() {
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
             <div className="grid grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map(i => (
+              {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="h-48 bg-gray-200 dark:bg-gray-700 rounded" />
               ))}
             </div>
@@ -279,7 +568,9 @@ export default function DashboardPage() {
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">IMS Dashboard</h1>
-              <p className="text-gray-500 dark:text-gray-400 mt-1">Integrated Management System Overview</p>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">
+                Integrated Management System Overview
+              </p>
             </div>
             <button
               onClick={openCustomize}
@@ -293,7 +584,14 @@ export default function DashboardPage() {
           {error && (
             <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
               <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-              <button onClick={() => { setError(''); setLoading(true); loadStats(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">
+              <button
+                onClick={() => {
+                  setError('');
+                  setLoading(true);
+                  loadStats();
+                }}
+                className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0"
+              >
                 Retry
               </button>
             </div>
@@ -302,8 +600,13 @@ export default function DashboardPage() {
           {!hasAnyContent && (
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <SlidersHorizontal className="h-12 w-12 text-gray-300 dark:text-gray-600 mb-4" />
-              <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Your dashboard is empty</h2>
-              <p className="text-gray-500 dark:text-gray-400 mb-4">All widgets and sections are hidden. Customize your dashboard to show the content you need.</p>
+              <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Your dashboard is empty
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
+                All widgets and sections are hidden. Customize your dashboard to show the content
+                you need.
+              </p>
               <button
                 onClick={openCustomize}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
@@ -375,9 +678,13 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="mt-2 text-sm">
-                    <span className="text-red-600 font-medium">{stats?.risks.critical || 0} critical</span>
+                    <span className="text-red-600 font-medium">
+                      {stats?.risks.critical || 0} critical
+                    </span>
                     <span className="text-gray-400 dark:text-gray-500 mx-1">|</span>
-                    <span className="text-orange-600 font-medium">{stats?.risks.high || 0} high</span>
+                    <span className="text-orange-600 font-medium">
+                      {stats?.risks.high || 0} high
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -404,7 +711,9 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Overdue Actions</p>
-                      <p className="text-2xl font-bold text-red-600">{stats?.actions.overdue || 0}</p>
+                      <p className="text-2xl font-bold text-red-600">
+                        {stats?.actions.overdue || 0}
+                      </p>
                     </div>
                     <div className="p-3 bg-orange-100 rounded-full">
                       <Clock className="h-6 w-6 text-orange-600" />
@@ -437,7 +746,10 @@ export default function DashboardPage() {
 
           {/* Quick Actions + Activity Feed */}
           {(isWidgetVisible('quick-actions') || isWidgetVisible('activity-feed')) && (
-            <div data-tour="dashboard-actions" className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div
+              data-tour="dashboard-actions"
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
+            >
               {/* Quick Actions */}
               {isWidgetVisible('quick-actions') && (
                 <Card>
@@ -446,14 +758,48 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent className="space-y-2">
                     {[
-                      { label: 'Report Incident', href: `${APP_BASE}:3001/incidents`, color: 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900 border-red-200 dark:border-red-800' },
-                      { label: 'Raise NCR', href: `${APP_BASE}:3003/nonconformances`, color: 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 border-blue-200 dark:border-blue-800' },
-                      { label: 'New CAPA', href: `${APP_BASE}:3003/capa`, color: 'bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900 border-orange-200 dark:border-orange-800' },
-                      { label: 'Log Environmental Event', href: `${APP_BASE}:3002/events`, color: 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900 border-green-200 dark:border-green-800' },
-                      { label: 'Create Work Order', href: `${APP_BASE}:3017/work-orders`, color: 'bg-stone-50 dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-900 border-stone-200 dark:border-stone-800' },
-                      { label: 'New Risk Assessment', href: `${APP_BASE}:3001/risks`, color: 'bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-100 dark:hover:bg-yellow-900 border-yellow-200 dark:border-yellow-800' },
-                    ].map(action => (
-                      <a key={action.label} href={action.href} className={`block w-full text-left px-3 py-2 text-sm font-medium rounded-md border transition-colors ${action.color}`}>
+                      {
+                        label: 'Report Incident',
+                        href: `${APP_BASE}:3001/incidents`,
+                        color:
+                          'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900 border-red-200 dark:border-red-800',
+                      },
+                      {
+                        label: 'Raise NCR',
+                        href: `${APP_BASE}:3003/nonconformances`,
+                        color:
+                          'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 border-blue-200 dark:border-blue-800',
+                      },
+                      {
+                        label: 'New CAPA',
+                        href: `${APP_BASE}:3003/capa`,
+                        color:
+                          'bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900 border-orange-200 dark:border-orange-800',
+                      },
+                      {
+                        label: 'Log Environmental Event',
+                        href: `${APP_BASE}:3002/events`,
+                        color:
+                          'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900 border-green-200 dark:border-green-800',
+                      },
+                      {
+                        label: 'Create Work Order',
+                        href: `${APP_BASE}:3017/work-orders`,
+                        color:
+                          'bg-stone-50 dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-900 border-stone-200 dark:border-stone-800',
+                      },
+                      {
+                        label: 'New Risk Assessment',
+                        href: `${APP_BASE}:3001/risks`,
+                        color:
+                          'bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-100 dark:hover:bg-yellow-900 border-yellow-200 dark:border-yellow-800',
+                      },
+                    ].map((action) => (
+                      <a
+                        key={action.label}
+                        href={action.href}
+                        className={`block w-full text-left px-3 py-2 text-sm font-medium rounded-md border transition-colors ${action.color}`}
+                      >
                         {action.label}
                       </a>
                     ))}
@@ -463,7 +809,9 @@ export default function DashboardPage() {
 
               {/* Cross-Module Activity Feed */}
               {isWidgetVisible('activity-feed') && (
-                <Card className={isWidgetVisible('quick-actions') ? 'lg:col-span-2' : 'lg:col-span-3'}>
+                <Card
+                  className={isWidgetVisible('quick-actions') ? 'lg:col-span-2' : 'lg:col-span-3'}
+                >
                   <CardHeader>
                     <CardTitle className="text-sm flex items-center gap-2">
                       <Clock className="h-4 w-4 text-gray-400 dark:text-gray-500" />
@@ -473,27 +821,85 @@ export default function DashboardPage() {
                   <CardContent>
                     <div className="space-y-3">
                       {[
-                        { module: 'Quality', action: 'NCR created', detail: 'NCR-2026-0042 — Supplier material out of spec', time: '5m ago', color: 'bg-blue-500' },
-                        { module: 'H&S', action: 'Incident resolved', detail: 'INC-2026-0118 — Slip hazard in warehouse', time: '22m ago', color: 'bg-red-500' },
-                        { module: 'CMMS', action: 'PM completed', detail: 'WO-2026-0315 — HVAC quarterly maintenance', time: '45m ago', color: 'bg-stone-500' },
-                        { module: 'Environment', action: 'Aspect reviewed', detail: 'ENV-ASP-2026-012 — Water discharge monitoring', time: '1h ago', color: 'bg-green-500' },
-                        { module: 'CRM', action: 'Deal closed', detail: 'Enterprise license — Acme Corp ($48,000)', time: '2h ago', color: 'bg-pink-500' },
-                        { module: 'InfoSec', action: 'Risk mitigated', detail: 'ISR-2026-008 — Endpoint encryption deployed', time: '3h ago', color: 'bg-cyan-500' },
-                        { module: 'Field Service', action: 'Job dispatched', detail: 'FSJ-2026-0089 — Emergency repair at Site 7', time: '4h ago', color: 'bg-blue-500' },
-                        { module: 'Finance', action: 'Invoice approved', detail: 'INV-2026-0401 — Q1 supplier payment batch', time: '5h ago', color: 'bg-lime-500' },
+                        {
+                          module: 'Quality',
+                          action: 'NCR created',
+                          detail: 'NCR-2026-0042 — Supplier material out of spec',
+                          time: '5m ago',
+                          color: 'bg-blue-500',
+                        },
+                        {
+                          module: 'H&S',
+                          action: 'Incident resolved',
+                          detail: 'INC-2026-0118 — Slip hazard in warehouse',
+                          time: '22m ago',
+                          color: 'bg-red-500',
+                        },
+                        {
+                          module: 'CMMS',
+                          action: 'PM completed',
+                          detail: 'WO-2026-0315 — HVAC quarterly maintenance',
+                          time: '45m ago',
+                          color: 'bg-stone-500',
+                        },
+                        {
+                          module: 'Environment',
+                          action: 'Aspect reviewed',
+                          detail: 'ENV-ASP-2026-012 — Water discharge monitoring',
+                          time: '1h ago',
+                          color: 'bg-green-500',
+                        },
+                        {
+                          module: 'CRM',
+                          action: 'Deal closed',
+                          detail: 'Enterprise license — Acme Corp ($48,000)',
+                          time: '2h ago',
+                          color: 'bg-pink-500',
+                        },
+                        {
+                          module: 'InfoSec',
+                          action: 'Risk mitigated',
+                          detail: 'ISR-2026-008 — Endpoint encryption deployed',
+                          time: '3h ago',
+                          color: 'bg-cyan-500',
+                        },
+                        {
+                          module: 'Field Service',
+                          action: 'Job dispatched',
+                          detail: 'FSJ-2026-0089 — Emergency repair at Site 7',
+                          time: '4h ago',
+                          color: 'bg-blue-500',
+                        },
+                        {
+                          module: 'Finance',
+                          action: 'Invoice approved',
+                          detail: 'INV-2026-0401 — Q1 supplier payment batch',
+                          time: '5h ago',
+                          color: 'bg-lime-500',
+                        },
                       ].map((item, i) => (
                         <div key={i} className="flex items-start gap-3">
                           <div className="mt-1 flex flex-col items-center">
                             <span className={`h-2.5 w-2.5 rounded-full ${item.color}`} />
-                            {i < 7 && <div className="w-0.5 h-full bg-gray-200 dark:bg-gray-700 mt-1" />}
+                            {i < 7 && (
+                              <div className="w-0.5 h-full bg-gray-200 dark:bg-gray-700 mt-1" />
+                            )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase">{item.module}</span>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">{item.action}</span>
-                              <span className="text-[10px] text-gray-400 dark:text-gray-500 ml-auto shrink-0">{item.time}</span>
+                              <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase">
+                                {item.module}
+                              </span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {item.action}
+                              </span>
+                              <span className="text-[10px] text-gray-400 dark:text-gray-500 ml-auto shrink-0">
+                                {item.time}
+                              </span>
                             </div>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 truncate">{item.detail}</p>
+                            <p className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                              {item.detail}
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -505,7 +911,9 @@ export default function DashboardPage() {
           )}
 
           {/* Main Content Grid */}
-          {(isWidgetVisible('top-risks') || isWidgetVisible('overdue-capa') || isWidgetVisible('ai-insights')) && (
+          {(isWidgetVisible('top-risks') ||
+            isWidgetVisible('overdue-capa') ||
+            isWidgetVisible('ai-insights')) && (
             <div data-tour="dashboard-charts" className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Top Risks */}
               {isWidgetVisible('top-risks') && (
@@ -520,32 +928,47 @@ export default function DashboardPage() {
                     {stats?.topRisks && stats.topRisks.length > 0 ? (
                       <div className="space-y-3">
                         {stats.topRisks.map((risk: any) => (
-                          <div key={risk.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <div
+                            key={risk.id}
+                            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                          >
                             <div className="flex-1">
                               <p className="font-medium text-sm">{risk.title}</p>
                               <div className="flex items-center gap-2 mt-1">
-                                <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                  risk.standard === 'ISO_45001' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                                  risk.standard === 'ISO_14001' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
-                                  'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                                }`}>
+                                <span
+                                  className={`text-xs px-2 py-0.5 rounded-full ${
+                                    risk.standard === 'ISO_45001'
+                                      ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                                      : risk.standard === 'ISO_14001'
+                                        ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                                        : 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                                  }`}
+                                >
                                   {risk.standard.replace('_', ' ')}
                                 </span>
-                                <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                  risk.riskLevel === 'CRITICAL' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                                  risk.riskLevel === 'HIGH' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
-                                  'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
-                                }`}>
+                                <span
+                                  className={`text-xs px-2 py-0.5 rounded-full ${
+                                    risk.riskLevel === 'CRITICAL'
+                                      ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                                      : risk.riskLevel === 'HIGH'
+                                        ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300'
+                                        : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
+                                  }`}
+                                >
                                   {risk.riskLevel}
                                 </span>
                               </div>
                             </div>
-                            <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">{risk.riskScore}</div>
+                            <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">
+                              {risk.riskScore}
+                            </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-gray-500 dark:text-gray-400 text-center py-8">No active risks</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                        No active risks
+                      </p>
                     )}
                   </CardContent>
                 </Card>
@@ -564,16 +987,25 @@ export default function DashboardPage() {
                     {stats?.overdueActions && stats.overdueActions.length > 0 ? (
                       <div className="space-y-3">
                         {stats.overdueActions.map((action: any) => (
-                          <div key={action.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <div
+                            key={action.id}
+                            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                          >
                             <div className="flex-1">
                               <p className="font-medium text-sm">{action.title}</p>
                               <div className="flex items-center gap-2 mt-1">
-                                <span className="text-xs text-gray-500 dark:text-gray-400">{action.referenceNumber}</span>
-                                <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                  action.priority === 'CRITICAL' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                                  action.priority === 'HIGH' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
-                                  'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
-                                }`}>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {action.referenceNumber}
+                                </span>
+                                <span
+                                  className={`text-xs px-2 py-0.5 rounded-full ${
+                                    action.priority === 'CRITICAL'
+                                      ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                                      : action.priority === 'HIGH'
+                                        ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300'
+                                        : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
+                                  }`}
+                                >
                                   {action.priority}
                                 </span>
                               </div>
@@ -604,11 +1036,18 @@ export default function DashboardPage() {
                     {stats?.recentAIInsights && stats.recentAIInsights.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {stats.recentAIInsights.slice(0, 4).map((insight: any) => (
-                          <div key={insight.id} className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-100 dark:border-purple-800">
+                          <div
+                            key={insight.id}
+                            className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-100 dark:border-purple-800"
+                          >
                             <div className="flex items-start justify-between">
                               <div>
-                                <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">{insight.sourceType}</p>
-                                <p className="text-sm mt-1">{insight.suggestedRootCause || 'Analysis available'}</p>
+                                <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                                  {insight.sourceType}
+                                </p>
+                                <p className="text-sm mt-1">
+                                  {insight.suggestedRootCause || 'Analysis available'}
+                                </p>
                               </div>
                               <span className="text-xs text-gray-400 dark:text-gray-500">
                                 {new Date(insight.createdAt).toLocaleDateString()}
@@ -618,7 +1057,9 @@ export default function DashboardPage() {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-gray-500 dark:text-gray-400 text-center py-8">No AI insights yet</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                        No AI insights yet
+                      </p>
                     )}
                   </CardContent>
                 </Card>
@@ -633,8 +1074,15 @@ export default function DashboardPage() {
             if (filteredModules.length === 0) return null;
 
             return (
-              <div key={sectionId} className={sectionId === visibleSections[visibleSections.length - 1] ? 'mt-8 mb-8' : 'mt-8'}>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{SECTION_LABELS[sectionId]}</h2>
+              <div
+                key={sectionId}
+                className={
+                  sectionId === visibleSections[visibleSections.length - 1] ? 'mt-8 mb-8' : 'mt-8'
+                }
+              >
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                  {SECTION_LABELS[sectionId]}
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {filteredModules.map((mod) => (
                     <ModuleCardLink key={mod.port} mod={mod} />

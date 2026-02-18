@@ -24,7 +24,10 @@ router.get('/types', async (_req: Request, res: Response) => {
     res.json({ success: true, data: types });
   } catch (error) {
     logger.error('Error fetching leave types', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch leave types' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch leave types' },
+    });
   }
 });
 
@@ -35,7 +38,18 @@ router.post('/types', async (req: Request, res: Response) => {
       code: z.string().trim().min(1).max(200),
       name: z.string().trim().min(1).max(200),
       description: z.string().optional(),
-      category: z.enum(['ANNUAL', 'SICK', 'MATERNITY', 'PATERNITY', 'BEREAVEMENT', 'UNPAID', 'COMPENSATORY', 'STUDY', 'SABBATICAL', 'OTHER']),
+      category: z.enum([
+        'ANNUAL',
+        'SICK',
+        'MATERNITY',
+        'PATERNITY',
+        'BEREAVEMENT',
+        'UNPAID',
+        'COMPENSATORY',
+        'STUDY',
+        'SABBATICAL',
+        'OTHER',
+      ]),
       color: z.string().optional(),
       defaultDaysPerYear: z.number().default(0),
       maxCarryForward: z.number().default(0),
@@ -52,10 +66,15 @@ router.post('/types', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: leaveType });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating leave type', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create leave type' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create leave type' },
+    });
   }
 });
 
@@ -90,7 +109,15 @@ router.get('/requests', scopeToUser, async (req: Request, res: Response) => {
       prisma.leaveRequest.findMany({
         where,
         include: {
-          employee: { select: { id: true, firstName: true, lastName: true, employeeNumber: true, departmentId: true } },
+          employee: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              employeeNumber: true,
+              departmentId: true,
+            },
+          },
           leaveType: true,
           approvals: true,
         },
@@ -108,41 +135,54 @@ router.get('/requests', scopeToUser, async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching leave requests', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch leave requests' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch leave requests' },
+    });
   }
 });
 
 // GET /api/leave/requests/:id - Get single leave request
-router.get('/requests/:id', checkOwnership(prisma.leaveRequest), async (req: Request, res: Response) => {
-  try {
-    const request = await prisma.leaveRequest.findUnique({
-      where: { id: req.params.id },
-      include: {
-        employee: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            employeeNumber: true,
-            department: true,
-            manager: { select: { id: true, firstName: true, lastName: true } },
+router.get(
+  '/requests/:id',
+  checkOwnership(prisma.leaveRequest),
+  async (req: Request, res: Response) => {
+    try {
+      const request = await prisma.leaveRequest.findUnique({
+        where: { id: req.params.id },
+        include: {
+          employee: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              employeeNumber: true,
+              department: true,
+              manager: { select: { id: true, firstName: true, lastName: true } },
+            },
           },
+          leaveType: true,
+          approvals: true,
         },
-        leaveType: true,
-        approvals: true,
-      },
-    });
+      });
 
-    if (!request) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Leave request not found' } });
+      if (!request) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Leave request not found' },
+        });
+      }
+
+      res.json({ success: true, data: request });
+    } catch (error) {
+      logger.error('Error fetching leave request', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch leave request' },
+      });
     }
-
-    res.json({ success: true, data: request });
-  } catch (error) {
-    logger.error('Error fetching leave request', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch leave request' } });
   }
-});
+);
 
 // POST /api/leave/requests - Create leave request
 router.post('/requests', async (req: Request, res: Response) => {
@@ -150,8 +190,8 @@ router.post('/requests', async (req: Request, res: Response) => {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
       leaveTypeId: z.string().trim().uuid(),
-      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-      endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      endDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       isHalfDay: z.boolean().default(false),
       halfDayPeriod: z.enum(['FIRST_HALF', 'SECOND_HALF']).optional(),
       reason: z.string().optional(),
@@ -171,13 +211,22 @@ router.post('/requests', async (req: Request, res: Response) => {
     // Check balance
     const year = start.getFullYear();
     const balance = await prisma.leaveBalance.findUnique({
-      where: { employeeId_leaveTypeId_year: { employeeId: data.employeeId, leaveTypeId: data.leaveTypeId, year } },
+      where: {
+        employeeId_leaveTypeId_year: {
+          employeeId: data.employeeId,
+          leaveTypeId: data.leaveTypeId,
+          year,
+        },
+      },
     });
 
     if (balance && Number(balance.balance) < days) {
       return res.status(400).json({
         success: false,
-        error: { code: 'INSUFFICIENT_BALANCE', message: `Insufficient leave balance. Available: ${balance.balance}, Requested: ${days}` },
+        error: {
+          code: 'INSUFFICIENT_BALANCE',
+          message: `Insufficient leave balance. Available: ${balance.balance}, Requested: ${days}`,
+        },
       });
     }
 
@@ -207,13 +256,15 @@ router.post('/requests', async (req: Request, res: Response) => {
           handoverToId: data.handoverToId,
           handoverNotes: data.handoverNotes,
           status: 'PENDING',
-          approvals: employee?.managerId ? {
-            create: {
-              approverEmployeeId: employee.managerId,
-              step: 1,
-              status: 'PENDING',
-            },
-          } : undefined,
+          approvals: employee?.managerId
+            ? {
+                create: {
+                  approverEmployeeId: employee.managerId,
+                  step: 1,
+                  status: 'PENDING',
+                },
+              }
+            : undefined,
         },
         include: {
           employee: { select: { firstName: true, lastName: true } },
@@ -236,120 +287,159 @@ router.post('/requests', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: request });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating leave request', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create leave request' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create leave request' },
+    });
   }
 });
 
 // PUT /api/leave/requests/:id/approve - Approve leave request
-router.put('/requests/:id/approve', checkOwnership(prisma.leaveRequest), async (req: Request, res: Response) => {
-  try {
-    const _schema = z.object({ approverId: z.string().trim().optional(), comments: z.string().trim().optional() });
-    const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
-    const { approverId, comments } = _parsed.data;
-
-    const request = await prisma.leaveRequest.findUnique({
-      where: { id: req.params.id },
-      include: { approvals: true },
-    });
-
-    if (!request) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Leave request not found' } });
-    }
-
-    const updatedRequest = await prisma.$transaction(async (tx) => {
-      // Update approval
-      await tx.leaveApproval.updateMany({
-        where: { leaveRequestId: req.params.id, approverEmployeeId: approverId },
-        data: { status: 'APPROVED', decision: 'APPROVE', decidedAt: new Date(), comments },
+router.put(
+  '/requests/:id/approve',
+  checkOwnership(prisma.leaveRequest),
+  async (req: Request, res: Response) => {
+    try {
+      const _schema = z.object({
+        approverId: z.string().trim().optional(),
+        comments: z.string().trim().optional(),
       });
+      const _parsed = _schema.safeParse(req.body);
+      if (!_parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+        });
+      const { approverId, comments } = _parsed.data;
 
-      // Update request status
-      const updated = await tx.leaveRequest.update({
+      const request = await prisma.leaveRequest.findUnique({
         where: { id: req.params.id },
-        data: { status: 'APPROVED' },
-        include: { employee: true, leaveType: true },
+        include: { approvals: true },
       });
 
-      // Update leave balance
-      const year = request.startDate.getFullYear();
-      await tx.leaveBalance.update({
-        where: {
-          employeeId_leaveTypeId_year: {
-            employeeId: request.employeeId,
-            leaveTypeId: request.leaveTypeId,
-            year,
+      if (!request) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Leave request not found' },
+        });
+      }
+
+      const updatedRequest = await prisma.$transaction(async (tx) => {
+        // Update approval
+        await tx.leaveApproval.updateMany({
+          where: { leaveRequestId: req.params.id, approverEmployeeId: approverId },
+          data: { status: 'APPROVED', decision: 'APPROVE', decidedAt: new Date(), comments },
+        });
+
+        // Update request status
+        const updated = await tx.leaveRequest.update({
+          where: { id: req.params.id },
+          data: { status: 'APPROVED' },
+          include: { employee: true, leaveType: true },
+        });
+
+        // Update leave balance
+        const year = request.startDate.getFullYear();
+        await tx.leaveBalance.update({
+          where: {
+            employeeId_leaveTypeId_year: {
+              employeeId: request.employeeId,
+              leaveTypeId: request.leaveTypeId,
+              year,
+            },
           },
-        },
-        data: {
-          pending: { decrement: request.days },
-          taken: { increment: request.days },
-          balance: { decrement: request.days },
-        },
+          data: {
+            pending: { decrement: request.days },
+            taken: { increment: request.days },
+            balance: { decrement: request.days },
+          },
+        });
+
+        return updated;
       });
 
-      return updated;
-    });
-
-    res.json({ success: true, data: updatedRequest });
-  } catch (error) {
-    logger.error('Error approving leave request', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve leave request' } });
+      res.json({ success: true, data: updatedRequest });
+    } catch (error) {
+      logger.error('Error approving leave request', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to approve leave request' },
+      });
+    }
   }
-});
+);
 
 // PUT /api/leave/requests/:id/reject - Reject leave request
-router.put('/requests/:id/reject', checkOwnership(prisma.leaveRequest), async (req: Request, res: Response) => {
-  try {
-    const _schema = z.object({ approverId: z.string().trim().optional(), comments: z.string().trim().optional() });
-    const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
-    const { approverId, comments } = _parsed.data;
-
-    const request = await prisma.leaveRequest.findUnique({ where: { id: req.params.id } });
-
-    if (!request) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Leave request not found' } });
-    }
-
-    const updatedRequest = await prisma.$transaction(async (tx) => {
-      // Update approval
-      await tx.leaveApproval.updateMany({
-        where: { leaveRequestId: req.params.id, approverEmployeeId: approverId },
-        data: { status: 'REJECTED', decision: 'REJECT', decidedAt: new Date(), comments },
+router.put(
+  '/requests/:id/reject',
+  checkOwnership(prisma.leaveRequest),
+  async (req: Request, res: Response) => {
+    try {
+      const _schema = z.object({
+        approverId: z.string().trim().optional(),
+        comments: z.string().trim().optional(),
       });
+      const _parsed = _schema.safeParse(req.body);
+      if (!_parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+        });
+      const { approverId, comments } = _parsed.data;
 
-      // Update request status
-      const updated = await tx.leaveRequest.update({
-        where: { id: req.params.id },
-        data: { status: 'REJECTED' },
-      });
+      const request = await prisma.leaveRequest.findUnique({ where: { id: req.params.id } });
 
-      // Release pending balance
-      const year = request.startDate.getFullYear();
-      await tx.leaveBalance.update({
-        where: {
-          employeeId_leaveTypeId_year: {
-            employeeId: request.employeeId,
-            leaveTypeId: request.leaveTypeId,
-            year,
+      if (!request) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Leave request not found' },
+        });
+      }
+
+      const updatedRequest = await prisma.$transaction(async (tx) => {
+        // Update approval
+        await tx.leaveApproval.updateMany({
+          where: { leaveRequestId: req.params.id, approverEmployeeId: approverId },
+          data: { status: 'REJECTED', decision: 'REJECT', decidedAt: new Date(), comments },
+        });
+
+        // Update request status
+        const updated = await tx.leaveRequest.update({
+          where: { id: req.params.id },
+          data: { status: 'REJECTED' },
+        });
+
+        // Release pending balance
+        const year = request.startDate.getFullYear();
+        await tx.leaveBalance.update({
+          where: {
+            employeeId_leaveTypeId_year: {
+              employeeId: request.employeeId,
+              leaveTypeId: request.leaveTypeId,
+              year,
+            },
           },
-        },
-        data: { pending: { decrement: request.days } },
+          data: { pending: { decrement: request.days } },
+        });
+
+        return updated;
       });
 
-      return updated;
-    });
-
-    res.json({ success: true, data: updatedRequest });
-  } catch (error) {
-    logger.error('Error rejecting leave request', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reject leave request' } });
+      res.json({ success: true, data: updatedRequest });
+    } catch (error) {
+      logger.error('Error rejecting leave request', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to reject leave request' },
+      });
+    }
   }
-});
+);
 
 // GET /api/leave/balances/:employeeId - Get employee leave balances
 router.get('/balances/:employeeId', async (req: Request, res: Response) => {
@@ -370,7 +460,10 @@ router.get('/balances/:employeeId', async (req: Request, res: Response) => {
     res.json({ success: true, data: balances });
   } catch (error) {
     logger.error('Error fetching leave balances', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch leave balances' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch leave balances' },
+    });
   }
 });
 
@@ -413,10 +506,15 @@ router.post('/balances', async (req: Request, res: Response) => {
     res.json({ success: true, data: leaveBalance });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error updating leave balance', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update leave balance' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update leave balance' },
+    });
   }
 });
 
@@ -454,7 +552,10 @@ router.get('/calendar', async (req: Request, res: Response) => {
     res.json({ success: true, data: leaves });
   } catch (error) {
     logger.error('Error fetching leave calendar', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch calendar' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch calendar' },
+    });
   }
 });
 
@@ -473,7 +574,10 @@ router.get('/holidays', async (req: Request, res: Response) => {
     res.json({ success: true, data: holidays });
   } catch (error) {
     logger.error('Error fetching holidays', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch holidays' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch holidays' },
+    });
   }
 });
 
@@ -482,7 +586,10 @@ router.post('/holidays', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       name: z.string().trim().min(1).max(200),
-      date: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      date: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       type: z.enum(['PUBLIC', 'COMPANY', 'OPTIONAL', 'RESTRICTED']),
       isFloating: z.boolean().default(false),
       applicableLocations: z.array(z.string()).default([]),
@@ -503,10 +610,15 @@ router.post('/holidays', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: holiday });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating holiday', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create holiday' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create holiday' },
+    });
   }
 });
 

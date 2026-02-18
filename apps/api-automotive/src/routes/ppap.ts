@@ -118,10 +118,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: project });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create PPAP project error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create PPAP project' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create PPAP project' },
+    });
   }
 });
 
@@ -156,7 +166,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List PPAP projects error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list PPAP projects' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list PPAP projects' },
+    });
   }
 });
 
@@ -172,13 +185,18 @@ router.get('/:id', checkOwnership(prisma.ppapProject), async (req: AuthRequest, 
     });
 
     if (!project) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'PPAP project not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'PPAP project not found' } });
     }
 
     res.json({ success: true, data: project });
   } catch (error) {
     logger.error('Get PPAP project error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get PPAP project' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get PPAP project' },
+    });
   }
 });
 
@@ -189,17 +207,24 @@ router.put('/:id/elements/:elementNumber', async (req: AuthRequest, res: Respons
     const elementNumber = parseInt(elemNumStr, 10);
 
     if (isNaN(elementNumber) || elementNumber < 1 || elementNumber > 18) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Element number must be between 1 and 18' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Element number must be between 1 and 18' },
+      });
     }
 
     // Verify project exists
     const project = await prisma.ppapProject.findUnique({ where: { id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'PPAP project not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'PPAP project not found' } });
     }
 
     const schema = z.object({
-      status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'NOT_APPLICABLE', 'REJECTED']).optional(),
+      status: z
+        .enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'NOT_APPLICABLE', 'REJECTED'])
+        .optional(),
       documentRef: z.string().optional(),
       notes: z.string().optional(),
       reviewedBy: z.string().optional(),
@@ -213,7 +238,9 @@ router.put('/:id/elements/:elementNumber', async (req: AuthRequest, res: Respons
     });
 
     if (!element) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'PPAP element not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'PPAP element not found' } });
     }
 
     const updateData: Record<string, unknown> = {};
@@ -235,10 +262,20 @@ router.put('/:id/elements/:elementNumber', async (req: AuthRequest, res: Respons
     res.json({ success: true, data: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update PPAP element error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update PPAP element' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update PPAP element' },
+    });
   }
 });
 
@@ -250,7 +287,9 @@ router.post('/:id/psw', async (req: AuthRequest, res: Response) => {
     // Verify project exists
     const project = await prisma.ppapProject.findUnique({ where: { id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'PPAP project not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'PPAP project not found' } });
     }
 
     const schema = z.object({
@@ -282,10 +321,19 @@ router.post('/:id/psw', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: submission });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Submit PSW error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit PSW' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit PSW' } });
   }
 });
 
@@ -302,17 +350,19 @@ router.get('/:id/readiness', async (req: AuthRequest, res: Response) => {
     });
 
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'PPAP project not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'PPAP project not found' } });
     }
 
     const totalElements = project.elements.length;
-    const completed = project.elements.filter(e => e.status === 'COMPLETED').length;
-    const notApplicable = project.elements.filter(e => e.status === 'NOT_APPLICABLE').length;
+    const completed = project.elements.filter((e) => e.status === 'COMPLETED').length;
+    const notApplicable = project.elements.filter((e) => e.status === 'NOT_APPLICABLE').length;
     const ready = completed + notApplicable;
     const percentage = totalElements > 0 ? Math.round((ready / totalElements) * 100) : 0;
     const missingElements = project.elements
-      .filter(e => e.status !== 'COMPLETED' && e.status !== 'NOT_APPLICABLE')
-      .map(e => `${e.elementNumber}. ${e.elementName}`);
+      .filter((e) => e.status !== 'COMPLETED' && e.status !== 'NOT_APPLICABLE')
+      .map((e) => `${e.elementNumber}. ${e.elementName}`);
 
     res.json({
       success: true,
@@ -327,7 +377,10 @@ router.get('/:id/readiness', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('PPAP readiness check error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to check PPAP readiness' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to check PPAP readiness' },
+    });
   }
 });
 
@@ -338,7 +391,9 @@ router.post('/:id/submit-level', async (req: AuthRequest, res: Response) => {
 
     const project = await prisma.ppapProject.findUnique({ where: { id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'PPAP project not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'PPAP project not found' } });
     }
 
     const schema = z.object({
@@ -355,10 +410,20 @@ router.post('/:id/submit-level', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Set submission level error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to set submission level' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to set submission level' },
+    });
   }
 });
 

@@ -45,7 +45,7 @@ ${footer}`,
 
 export function inactiveEmail(vars: OnboardingVars) {
   return {
-    subject: 'We noticed you haven\'t started yet — here\'s a quick walkthrough',
+    subject: "We noticed you haven't started yet — here's a quick walkthrough",
     html: `${header('Need a hand getting started?')}
 <p>Hi ${vars.firstName},</p>
 <p>We noticed you haven't created any records yet in Nexara. No worries — here's a 3-minute video walkthrough to help you get started:</p>
@@ -59,8 +59,8 @@ ${footer}`,
 
 export function activeEmail(vars: OnboardingVars) {
   return {
-    subject: 'Great start! Here\'s your next step with Nexara',
-    html: `${header('You\'re off to a great start!')}
+    subject: "Great start! Here's your next step with Nexara",
+    html: `${header("You're off to a great start!")}
 <p>Hi ${vars.firstName},</p>
 <p>You've been making great progress with Nexara. Based on your ${vars.isoStandards} standards, here's what to try next:</p>
 <ul>
@@ -113,7 +113,7 @@ ${footer}`,
 
 export function expiryWarningEmail(vars: OnboardingVars) {
   return {
-    subject: 'Your trial ends in 3 days — here\'s everything you\'d keep',
+    subject: "Your trial ends in 3 days — here's everything you'd keep",
     html: `${header('Your Trial Ends Soon')}
 <p>Hi ${vars.firstName},</p>
 <p>Your Nexara trial ends on <strong>${vars.trialEndDate}</strong>. Here's what you'd keep access to with a paid plan:</p>

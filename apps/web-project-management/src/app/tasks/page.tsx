@@ -100,7 +100,9 @@ export default function TasksPage() {
               <ListChecks className="h-6 w-6 text-blue-600" />
               Tasks / WBS
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Work Breakdown Structure and task management</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+              Work Breakdown Structure and task management
+            </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -115,7 +117,9 @@ export default function TasksPage() {
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-4 mb-6">
           <div className="flex items-center gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Filter by Project
+              </label>
               <select
                 value={filterProjectId}
                 onChange={(e) => setFilterProjectId(e.target.value)}
@@ -123,7 +127,9 @@ export default function TasksPage() {
               >
                 <option value="">All Projects</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
@@ -135,25 +141,51 @@ export default function TasksPage() {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">WBS Code</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Progress</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Assigned To</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Planned Start</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Planned End</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Critical Path</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    WBS Code
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Progress
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Assigned To
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Planned Start
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Planned End
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Critical Path
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {tasks.map((task) => (
                   <tr key={task.id} className="hover:bg-gray-50 dark:bg-gray-800">
-                    <td className="px-4 py-3 text-sm font-mono text-gray-900 dark:text-gray-100">{task.taskCode}</td>
-                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{task.taskName}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{task.taskType}</td>
+                    <td className="px-4 py-3 text-sm font-mono text-gray-900 dark:text-gray-100">
+                      {task.taskCode}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                      {task.taskName}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {task.taskType}
+                    </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${statusBadge(task.status)}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${statusBadge(task.status)}`}
+                      >
                         {task.status}
                       </span>
                     </td>
@@ -165,26 +197,39 @@ export default function TasksPage() {
                             style={{ width: `${task.completionPercentage || 0}%` }}
                           />
                         </div>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{task.completionPercentage || 0}%</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {task.completionPercentage || 0}%
+                        </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{task.assignedToId || '-'}</td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                      {task.plannedStartDate ? new Date(task.plannedStartDate).toLocaleDateString() : '-'}
+                      {task.assignedToId || '-'}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                      {task.plannedEndDate ? new Date(task.plannedEndDate).toLocaleDateString() : '-'}
+                      {task.plannedStartDate
+                        ? new Date(task.plannedStartDate).toLocaleDateString()
+                        : '-'}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {task.plannedEndDate
+                        ? new Date(task.plannedEndDate).toLocaleDateString()
+                        : '-'}
                     </td>
                     <td className="px-4 py-3">
                       {task.isCriticalPath && (
-                        <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700">Critical</span>
+                        <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700">
+                          Critical
+                        </span>
                       )}
                     </td>
                   </tr>
                 ))}
                 {tasks.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={9}
+                      className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
+                    >
                       No tasks found. Create your first task.
                     </td>
                   </tr>
@@ -198,7 +243,9 @@ export default function TasksPage() {
         <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Task" size="lg">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Project
+              </label>
               <select
                 required
                 value={form.projectId}
@@ -207,13 +254,17 @@ export default function TasksPage() {
               >
                 <option value="">Select Project</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Task Code</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Task Code
+                </label>
                 <input
                   type="text"
                   required
@@ -223,7 +274,9 @@ export default function TasksPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Task Name</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Task Name
+                </label>
                 <input
                   type="text"
                   required
@@ -235,7 +288,9 @@ export default function TasksPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Task Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Task Type
+                </label>
                 <select
                   value={form.taskType}
                   onChange={(e) => setForm({ ...form, taskType: e.target.value })}
@@ -249,7 +304,9 @@ export default function TasksPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Priority
+                </label>
                 <select
                   value={form.priority}
                   onChange={(e) => setForm({ ...form, priority: e.target.value })}
@@ -263,7 +320,9 @@ export default function TasksPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Assigned To (User ID)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Assigned To (User ID)
+              </label>
               <input
                 type="text"
                 value={form.assignedToId}
@@ -273,7 +332,9 @@ export default function TasksPage() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Planned Start</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Planned Start
+                </label>
                 <input
                   type="date"
                   value={form.plannedStartDate}
@@ -282,7 +343,9 @@ export default function TasksPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Planned End</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Planned End
+                </label>
                 <input
                   type="date"
                   value={form.plannedEndDate}
@@ -291,7 +354,9 @@ export default function TasksPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duration (days)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Duration (days)
+                </label>
                 <input
                   type="number"
                   value={form.plannedDuration}
@@ -301,7 +366,9 @@ export default function TasksPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Description
+              </label>
               <textarea
                 rows={3}
                 value={form.taskDescription}

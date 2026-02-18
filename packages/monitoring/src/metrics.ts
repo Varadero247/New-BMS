@@ -112,7 +112,13 @@ export const dbQueryHistogram = databaseQueryDuration;
  * Usage: prisma.$use(prismaMetricsMiddleware);
  */
 export async function prismaMetricsMiddleware(
-  params: { model?: string; action: string; args: unknown; dataPath: string[]; runInTransaction: boolean },
+  params: {
+    model?: string;
+    action: string;
+    args: unknown;
+    dataPath: string[];
+    runInTransaction: boolean;
+  },
   next: (params: Record<string, unknown>) => Promise<unknown>
 ): Promise<unknown> {
   const start = Date.now();

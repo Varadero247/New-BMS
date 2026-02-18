@@ -18,8 +18,22 @@ beforeEach(() => {
 describe('runSaaSAuditJob', () => {
   it('returns vendor count and cost totals', async () => {
     const vendors = [
-      { name: 'AWS', category: 'hosting', monthlyCost: 500, annualCost: 6000, isActive: true, contractEnd: null },
-      { name: 'Slack', category: 'communication', monthlyCost: 50, annualCost: 600, isActive: true, contractEnd: null },
+      {
+        name: 'AWS',
+        category: 'hosting',
+        monthlyCost: 500,
+        annualCost: 6000,
+        isActive: true,
+        contractEnd: null,
+      },
+      {
+        name: 'Slack',
+        category: 'communication',
+        monthlyCost: 50,
+        annualCost: 600,
+        isActive: true,
+        contractEnd: null,
+      },
     ];
     (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue(vendors);
 
@@ -45,9 +59,30 @@ describe('runSaaSAuditJob', () => {
 
   it('groups vendors by category', async () => {
     const vendors = [
-      { name: 'AWS', category: 'hosting', monthlyCost: 500, annualCost: 6000, isActive: true, contractEnd: null },
-      { name: 'GCP', category: 'hosting', monthlyCost: 200, annualCost: 2400, isActive: true, contractEnd: null },
-      { name: 'Slack', category: 'communication', monthlyCost: 50, annualCost: 600, isActive: true, contractEnd: null },
+      {
+        name: 'AWS',
+        category: 'hosting',
+        monthlyCost: 500,
+        annualCost: 6000,
+        isActive: true,
+        contractEnd: null,
+      },
+      {
+        name: 'GCP',
+        category: 'hosting',
+        monthlyCost: 200,
+        annualCost: 2400,
+        isActive: true,
+        contractEnd: null,
+      },
+      {
+        name: 'Slack',
+        category: 'communication',
+        monthlyCost: 50,
+        annualCost: 600,
+        isActive: true,
+        contractEnd: null,
+      },
     ];
     (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue(vendors);
 
@@ -60,8 +95,22 @@ describe('runSaaSAuditJob', () => {
 
   it('only counts active vendors in cost totals', async () => {
     const vendors = [
-      { name: 'AWS', category: 'hosting', monthlyCost: 500, annualCost: 6000, isActive: true, contractEnd: null },
-      { name: 'OldTool', category: 'legacy', monthlyCost: 100, annualCost: 1200, isActive: false, contractEnd: null },
+      {
+        name: 'AWS',
+        category: 'hosting',
+        monthlyCost: 500,
+        annualCost: 6000,
+        isActive: true,
+        contractEnd: null,
+      },
+      {
+        name: 'OldTool',
+        category: 'legacy',
+        monthlyCost: 100,
+        annualCost: 1200,
+        isActive: false,
+        contractEnd: null,
+      },
     ];
     (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue(vendors);
 
@@ -74,8 +123,22 @@ describe('runSaaSAuditJob', () => {
 
   it('includes all vendors in the vendors array', async () => {
     const vendors = [
-      { name: 'AWS', category: 'hosting', monthlyCost: 500, annualCost: 6000, isActive: true, contractEnd: new Date('2027-01-01') },
-      { name: 'OldTool', category: 'legacy', monthlyCost: 100, annualCost: 1200, isActive: false, contractEnd: null },
+      {
+        name: 'AWS',
+        category: 'hosting',
+        monthlyCost: 500,
+        annualCost: 6000,
+        isActive: true,
+        contractEnd: new Date('2027-01-01'),
+      },
+      {
+        name: 'OldTool',
+        category: 'legacy',
+        monthlyCost: 100,
+        annualCost: 1200,
+        isActive: false,
+        contractEnd: null,
+      },
     ];
     (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue(vendors);
 
@@ -89,8 +152,22 @@ describe('runSaaSAuditJob', () => {
 
   it('rounds cost totals to 2 decimal places', async () => {
     const vendors = [
-      { name: 'SVC-A', category: 'tools', monthlyCost: 33.333, annualCost: 399.996, isActive: true, contractEnd: null },
-      { name: 'SVC-B', category: 'tools', monthlyCost: 66.667, annualCost: 800.004, isActive: true, contractEnd: null },
+      {
+        name: 'SVC-A',
+        category: 'tools',
+        monthlyCost: 33.333,
+        annualCost: 399.996,
+        isActive: true,
+        contractEnd: null,
+      },
+      {
+        name: 'SVC-B',
+        category: 'tools',
+        monthlyCost: 66.667,
+        annualCost: 800.004,
+        isActive: true,
+        contractEnd: null,
+      },
     ];
     (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue(vendors);
 
@@ -102,8 +179,22 @@ describe('runSaaSAuditJob', () => {
 
   it('excludes inactive vendors from category breakdown', async () => {
     const vendors = [
-      { name: 'Active', category: 'hosting', monthlyCost: 500, annualCost: 6000, isActive: true, contractEnd: null },
-      { name: 'Inactive', category: 'hosting', monthlyCost: 200, annualCost: 2400, isActive: false, contractEnd: null },
+      {
+        name: 'Active',
+        category: 'hosting',
+        monthlyCost: 500,
+        annualCost: 6000,
+        isActive: true,
+        contractEnd: null,
+      },
+      {
+        name: 'Inactive',
+        category: 'hosting',
+        monthlyCost: 200,
+        annualCost: 2400,
+        isActive: false,
+        contractEnd: null,
+      },
     ];
     (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue(vendors);
 
@@ -115,7 +206,14 @@ describe('runSaaSAuditJob', () => {
 
   it('handles vendors with zero costs', async () => {
     const vendors = [
-      { name: 'FreeTier', category: 'tools', monthlyCost: 0, annualCost: 0, isActive: true, contractEnd: null },
+      {
+        name: 'FreeTier',
+        category: 'tools',
+        monthlyCost: 0,
+        annualCost: 0,
+        isActive: true,
+        contractEnd: null,
+      },
     ];
     (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue(vendors);
 

@@ -116,21 +116,19 @@ describe('Service Auth Package', () => {
     });
 
     it('should throw for token with wrong issuer', () => {
-      const wrongToken = jwt.sign(
-        { serviceName: 'test' },
-        TEST_SECRET,
-        { issuer: 'wrong-issuer', audience: 'ims-services' }
-      );
+      const wrongToken = jwt.sign({ serviceName: 'test' }, TEST_SECRET, {
+        issuer: 'wrong-issuer',
+        audience: 'ims-services',
+      });
 
       expect(() => verifyServiceToken(wrongToken)).toThrow('Invalid service token');
     });
 
     it('should throw for token with wrong audience', () => {
-      const wrongToken = jwt.sign(
-        { serviceName: 'test' },
-        TEST_SECRET,
-        { issuer: 'ims-api-gateway', audience: 'wrong-audience' }
-      );
+      const wrongToken = jwt.sign({ serviceName: 'test' }, TEST_SECRET, {
+        issuer: 'ims-api-gateway',
+        audience: 'wrong-audience',
+      });
 
       expect(() => verifyServiceToken(wrongToken)).toThrow('Invalid service token');
     });
@@ -412,10 +410,7 @@ describe('Service Auth Package', () => {
 
       modifier(mockProxyReq);
 
-      expect(mockProxyReq.setHeader).toHaveBeenCalledWith(
-        'X-Service-Token',
-        expect.any(String)
-      );
+      expect(mockProxyReq.setHeader).toHaveBeenCalledWith('X-Service-Token', expect.any(String));
     });
 
     it('should set valid token on proxy request', () => {

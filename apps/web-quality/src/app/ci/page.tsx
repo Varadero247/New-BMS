@@ -93,12 +93,12 @@ export default function ContinuousImprovementPage() {
   }
 
   const stats = {
-    activeProjects: projects.filter(p => p.status === 'IN_PROGRESS').length,
-    completedProjects: projects.filter(p => p.status === 'COMPLETED').length,
+    activeProjects: projects.filter((p) => p.status === 'IN_PROGRESS').length,
+    completedProjects: projects.filter((p) => p.status === 'COMPLETED').length,
     totalSavings: projects.reduce((sum, p) => sum + (p.actualSavings || 0), 0),
-    upcomingKaizen: kaizenEvents.filter(k => new Date(k.startDate) > new Date()).length,
-    newIdeas: ideas.filter(i => i.status === 'SUBMITTED').length,
-    implementedIdeas: ideas.filter(i => i.status === 'IMPLEMENTED').length,
+    upcomingKaizen: kaizenEvents.filter((k) => new Date(k.startDate) > new Date()).length,
+    newIdeas: ideas.filter((i) => i.status === 'SUBMITTED').length,
+    implementedIdeas: ideas.filter((i) => i.status === 'IMPLEMENTED').length,
   };
 
   if (loading) {
@@ -107,7 +107,7 @@ export default function ContinuousImprovementPage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-24 bg-gray-200 rounded" />
             ))}
           </div>
@@ -122,8 +122,12 @@ export default function ContinuousImprovementPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Continuous Improvement</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Projects, Kaizen Events, and Employee Ideas</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Continuous Improvement
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Projects, Kaizen Events, and Employee Ideas
+            </p>
           </div>
           <div className="flex gap-2">
             <Link href="/ci/projects/new">
@@ -253,10 +257,19 @@ export default function ContinuousImprovementPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium">{project.title}</span>
-                            <Badge className={phaseColors[project.currentPhase] || 'bg-gray-100 dark:bg-gray-800'}>
+                            <Badge
+                              className={
+                                phaseColors[project.currentPhase] || 'bg-gray-100 dark:bg-gray-800'
+                              }
+                            >
                               {project.currentPhase}
                             </Badge>
-                            <Badge className={projectStatusColors[project.status] || 'bg-gray-100 dark:bg-gray-800'}>
+                            <Badge
+                              className={
+                                projectStatusColors[project.status] ||
+                                'bg-gray-100 dark:bg-gray-800'
+                              }
+                            >
                               {project.status}
                             </Badge>
                           </div>
@@ -274,7 +287,9 @@ export default function ContinuousImprovementPage() {
                         </div>
                         {project.actualSavings && (
                           <div className="text-right">
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Actual Savings</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              Actual Savings
+                            </p>
                             <p className="font-bold text-green-600">
                               ${(project.actualSavings / 1000).toFixed(0)}k
                             </p>
@@ -308,7 +323,11 @@ export default function ContinuousImprovementPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium">{event.title}</span>
-                            <Badge className={projectStatusColors[event.status] || 'bg-gray-100 dark:bg-gray-800'}>
+                            <Badge
+                              className={
+                                projectStatusColors[event.status] || 'bg-gray-100 dark:bg-gray-800'
+                              }
+                            >
                               {event.status}
                             </Badge>
                           </div>
@@ -318,7 +337,8 @@ export default function ContinuousImprovementPage() {
                             <span>{event.area}</span>
                             <span>•</span>
                             <span>
-                              {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
+                              {new Date(event.startDate).toLocaleDateString()} -{' '}
+                              {new Date(event.endDate).toLocaleDateString()}
                             </span>
                           </div>
                         </div>
@@ -358,7 +378,11 @@ export default function ContinuousImprovementPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium">{idea.title}</span>
-                            <Badge className={ideaStatusColors[idea.status] || 'bg-gray-100 dark:bg-gray-800'}>
+                            <Badge
+                              className={
+                                ideaStatusColors[idea.status] || 'bg-gray-100 dark:bg-gray-800'
+                              }
+                            >
                               {idea.status.replace('_', ' ')}
                             </Badge>
                           </div>
@@ -367,7 +391,9 @@ export default function ContinuousImprovementPage() {
                             <span>•</span>
                             <span>{idea.category.replace('_', ' ')}</span>
                             <span>•</span>
-                            <span>Submitted: {new Date(idea.submittedAt).toLocaleDateString()}</span>
+                            <span>
+                              Submitted: {new Date(idea.submittedAt).toLocaleDateString()}
+                            </span>
                           </div>
                         </div>
                       </div>

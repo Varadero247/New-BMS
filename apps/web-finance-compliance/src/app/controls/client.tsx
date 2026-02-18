@@ -1,14 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  Plus,
-  Search,
-  Edit2,
-  Trash2,
-  ShieldCheck,
-  AlertTriangle,
-} from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { Modal } from '@ims/ui';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
@@ -33,13 +26,7 @@ interface Control {
 }
 
 const STATUSES = ['ACTIVE', 'INACTIVE', 'UNDER_REVIEW', 'REMEDIATION'] as const;
-const CONTROL_TYPES = [
-  'Preventive',
-  'Detective',
-  'Corrective',
-  'Directive',
-  'Compensating',
-];
+const CONTROL_TYPES = ['Preventive', 'Detective', 'Corrective', 'Directive', 'Compensating'];
 const RISK_AREAS = [
   'Financial Reporting',
   'Tax Compliance',
@@ -119,12 +106,8 @@ export default function ControlsClient() {
       ownerName: item.ownerName || '',
       status: item.status || 'ACTIVE',
       frequency: item.frequency || '',
-      lastTestedDate: item.lastTestedDate
-        ? item.lastTestedDate.split('T')[0]
-        : '',
-      nextTestDate: item.nextTestDate
-        ? item.nextTestDate.split('T')[0]
-        : '',
+      lastTestedDate: item.lastTestedDate ? item.lastTestedDate.split('T')[0] : '',
+      nextTestDate: item.nextTestDate ? item.nextTestDate.split('T')[0] : '',
       testResult: item.testResult || '',
       evidence: item.evidence || '',
       notes: item.notes || '',
@@ -138,12 +121,8 @@ export default function ControlsClient() {
     try {
       const payload = {
         ...form,
-        lastTestedDate: form.lastTestedDate
-          ? new Date(form.lastTestedDate).toISOString()
-          : null,
-        nextTestDate: form.nextTestDate
-          ? new Date(form.nextTestDate).toISOString()
-          : null,
+        lastTestedDate: form.lastTestedDate ? new Date(form.lastTestedDate).toISOString() : null,
+        nextTestDate: form.nextTestDate ? new Date(form.nextTestDate).toISOString() : null,
       };
       if (editing) {
         await api.put(`/controls/${editing.id}`, payload);
@@ -186,9 +165,7 @@ export default function ControlsClient() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                Controls
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Controls</h1>
               <p className="text-gray-500 dark:text-gray-400 mt-1">
                 Manage financial compliance controls and testing
               </p>
@@ -319,9 +296,7 @@ export default function ControlsClient() {
                         {item.ownerName || '-'}
                       </td>
                       <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
-                        {item.nextTestDate
-                          ? new Date(item.nextTestDate).toLocaleDateString()
-                          : '-'}
+                        {item.nextTestDate ? new Date(item.nextTestDate).toLocaleDateString() : '-'}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-2">
@@ -377,9 +352,7 @@ export default function ControlsClient() {
             </label>
             <textarea
               value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
               placeholder="Describe the control..."
@@ -393,9 +366,7 @@ export default function ControlsClient() {
               </label>
               <select
                 value={form.controlType}
-                onChange={(e) =>
-                  setForm({ ...form, controlType: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, controlType: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="">Select type</option>
@@ -412,9 +383,7 @@ export default function ControlsClient() {
               </label>
               <select
                 value={form.riskArea}
-                onChange={(e) =>
-                  setForm({ ...form, riskArea: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, riskArea: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="">Select area</option>
@@ -451,9 +420,7 @@ export default function ControlsClient() {
               <input
                 type="text"
                 value={form.frequency}
-                onChange={(e) =>
-                  setForm({ ...form, frequency: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, frequency: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
                 placeholder="e.g., Monthly, Quarterly"
               />
@@ -468,9 +435,7 @@ export default function ControlsClient() {
               <input
                 type="text"
                 value={form.ownerName}
-                onChange={(e) =>
-                  setForm({ ...form, ownerName: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, ownerName: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
                 placeholder="Control owner name"
               />
@@ -482,9 +447,7 @@ export default function ControlsClient() {
               <input
                 type="text"
                 value={form.testResult}
-                onChange={(e) =>
-                  setForm({ ...form, testResult: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, testResult: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
                 placeholder="Pass, Fail, Partial"
               />
@@ -499,9 +462,7 @@ export default function ControlsClient() {
               <input
                 type="date"
                 value={form.lastTestedDate}
-                onChange={(e) =>
-                  setForm({ ...form, lastTestedDate: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, lastTestedDate: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -512,9 +473,7 @@ export default function ControlsClient() {
               <input
                 type="date"
                 value={form.nextTestDate}
-                onChange={(e) =>
-                  setForm({ ...form, nextTestDate: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, nextTestDate: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -559,8 +518,7 @@ export default function ControlsClient() {
         size="sm"
       >
         <p className="text-gray-600 dark:text-gray-400 mb-6">
-          Are you sure you want to delete this control? This action cannot be
-          undone.
+          Are you sure you want to delete this control? This action cannot be undone.
         </p>
         <div className="flex justify-end gap-3">
           <button

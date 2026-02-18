@@ -94,15 +94,15 @@ router.get('/lookup', async (req: AuthRequest, res: Response) => {
     if (!cage && !company) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Provide cage (CAGE code) or company (name) query parameter' },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Provide cage (CAGE code) or company (name) query parameter',
+        },
       });
     }
 
     // Build representative result (used as base; overlaid with DB data if available)
-    const result = generateMockOasisData(
-      cage as string | undefined,
-      company as string | undefined,
-    );
+    const result = generateMockOasisData(cage as string | undefined, company as string | undefined);
 
     // If we have a monitored-supplier record, overlay its known cert status
     let dbMatch = false;
@@ -123,17 +123,23 @@ router.get('/lookup', async (req: AuthRequest, res: Response) => {
           if (match) {
             if (known.certBody) match.certBody = known.certBody;
             if (known.certStatus) match.status = known.certStatus;
-            if (known.certExpiry) match.expiryDate = new Date(known.certExpiry).toISOString().split('T')[0];
+            if (known.certExpiry)
+              match.expiryDate = new Date(known.certExpiry).toISOString().split('T')[0];
           }
         }
       }
-    } catch { /* DB unavailable — proceed with representative data */ }
+    } catch {
+      /* DB unavailable — proceed with representative data */
+    }
 
     logger.info('OASIS lookup performed', { cage, company, dbMatch });
     res.json({ success: true, data: result });
   } catch (error) {
     logger.error('OASIS lookup error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to perform OASIS lookup' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to perform OASIS lookup' },
+    });
   }
 });
 
@@ -154,23 +160,36 @@ router.post('/monitor', async (req: AuthRequest, res: Response) => {
       },
     });
 
-    logger.info('Supplier added to OASIS monitoring', { cageCode: data.cageCode, companyName: data.companyName });
+    logger.info('Supplier added to OASIS monitoring', {
+      cageCode: data.cageCode,
+      companyName: data.companyName,
+    });
     res.status(201).json({ success: true, data: supplier });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     if ((error as any)?.code === 'P2002') {
       return res.status(409).json({
         success: false,
-        error: { code: 'DUPLICATE', message: 'Supplier with this CAGE code is already being monitored' },
+        error: {
+          code: 'DUPLICATE',
+          message: 'Supplier with this CAGE code is already being monitored',
+        },
       });
     }
     logger.error('Add monitored supplier error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add monitored supplier' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add monitored supplier' },
+    });
   }
 });
 
@@ -209,7 +228,10 @@ router.get('/monitor', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List monitored suppliers error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list monitored suppliers' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list monitored suppliers' },
+    });
   }
 });
 
@@ -241,7 +263,10 @@ router.get('/alerts', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List OASIS alerts error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list OASIS alerts' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list OASIS alerts' },
+    });
   }
 });
 
@@ -250,7 +275,9 @@ router.put('/alerts/:id/acknowledge', async (req: AuthRequest, res: Response) =>
   try {
     const existing = await prisma.oasisAlert.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     if (existing.acknowledged) {
@@ -273,7 +300,10 @@ router.put('/alerts/:id/acknowledge', async (req: AuthRequest, res: Response) =>
     res.json({ success: true, data: alert });
   } catch (error) {
     logger.error('Acknowledge alert error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to acknowledge alert' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to acknowledge alert' },
+    });
   }
 });
 

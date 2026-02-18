@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate , type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { submitResponse, getAnalytics, listResponses } from '@ims/nps';
 import { z } from 'zod';
@@ -51,7 +51,9 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       data: response,
     });
   } catch (error: unknown) {
-    logger.error('Failed to submit NPS response', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to submit NPS response', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to submit NPS response' },
@@ -73,7 +75,9 @@ router.get('/analytics', authenticate, async (req: Request, res: Response) => {
       data: analytics,
     });
   } catch (error: unknown) {
-    logger.error('Failed to get NPS analytics', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get NPS analytics', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get NPS analytics' },
@@ -109,7 +113,9 @@ router.get('/responses', authenticate, async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: unknown) {
-    logger.error('Failed to list NPS responses', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list NPS responses', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list NPS responses' },

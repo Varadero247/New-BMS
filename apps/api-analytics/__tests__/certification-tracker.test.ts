@@ -15,7 +15,10 @@ jest.mock('../src/prisma', () => ({
 }));
 
 jest.mock('@ims/auth', () => ({
-  authenticate: (_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', email: 'a@b.com' }; next(); },
+  authenticate: (_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', email: 'a@b.com' };
+    next();
+  },
 }));
 
 jest.mock('@ims/monitoring', () => ({
@@ -37,7 +40,12 @@ beforeEach(() => {
 describe('GET /api/certifications', () => {
   it('lists compliance deadlines with pagination', async () => {
     (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([
-      { id: '00000000-0000-0000-0000-000000000001', name: 'SOC 2', category: 'COMPLIANCE', status: 'UPCOMING' },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        name: 'SOC 2',
+        category: 'COMPLIANCE',
+        status: 'UPCOMING',
+      },
     ]);
     (prisma.complianceDeadline.count as jest.Mock).mockResolvedValue(1);
 
@@ -75,7 +83,10 @@ describe('GET /api/certifications/seed', () => {
 describe('GET /api/certifications/:id', () => {
   it('returns a single deadline', async () => {
     (prisma.complianceDeadline.findUnique as jest.Mock).mockResolvedValue({
-      id: '00000000-0000-0000-0000-000000000001', name: 'ISO 27001', category: 'COMPLIANCE', status: 'UPCOMING',
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'ISO 27001',
+      category: 'COMPLIANCE',
+      status: 'UPCOMING',
     });
 
     const res = await request(app).get('/api/certifications/00000000-0000-0000-0000-000000000001');
@@ -94,11 +105,16 @@ describe('GET /api/certifications/:id', () => {
 describe('POST /api/certifications', () => {
   it('creates a compliance deadline', async () => {
     (prisma.complianceDeadline.create as jest.Mock).mockResolvedValue({
-      id: 'cd-new', name: 'GDPR Audit', category: 'COMPLIANCE', status: 'UPCOMING',
+      id: 'cd-new',
+      name: 'GDPR Audit',
+      category: 'COMPLIANCE',
+      status: 'UPCOMING',
     });
 
     const res = await request(app).post('/api/certifications').send({
-      name: 'GDPR Audit', category: 'COMPLIANCE', dueDate: '2026-12-01',
+      name: 'GDPR Audit',
+      category: 'COMPLIANCE',
+      dueDate: '2026-12-01',
     });
     expect(res.status).toBe(201);
     expect(res.body.data.deadline.name).toBe('GDPR Audit');
@@ -112,17 +128,26 @@ describe('POST /api/certifications', () => {
 
 describe('PATCH /api/certifications/:id', () => {
   it('updates deadline fields', async () => {
-    (prisma.complianceDeadline.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma.complianceDeadline.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED' });
+    (prisma.complianceDeadline.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.complianceDeadline.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'COMPLETED',
+    });
 
-    const res = await request(app).patch('/api/certifications/00000000-0000-0000-0000-000000000001').send({ status: 'COMPLETED' });
+    const res = await request(app)
+      .patch('/api/certifications/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'COMPLETED' });
     expect(res.status).toBe(200);
   });
 
   it('returns 404 for missing deadline', async () => {
     (prisma.complianceDeadline.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).patch('/api/certifications/00000000-0000-0000-0000-000000000099').send({ status: 'COMPLETED' });
+    const res = await request(app)
+      .patch('/api/certifications/00000000-0000-0000-0000-000000000099')
+      .send({ status: 'COMPLETED' });
     expect(res.status).toBe(404);
   });
 });
@@ -131,7 +156,13 @@ describe('Certification tracker job', () => {
   it('marks overdue deadlines', async () => {
     const pastDate = new Date('2020-01-01');
     (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([
-      { id: '00000000-0000-0000-0000-000000000001', name: 'Overdue Cert', dueDate: pastDate, status: 'UPCOMING', lastCompletedAt: null },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        name: 'Overdue Cert',
+        dueDate: pastDate,
+        status: 'UPCOMING',
+        lastCompletedAt: null,
+      },
     ]);
     (prisma.complianceDeadline.update as jest.Mock).mockResolvedValue({});
 
@@ -148,7 +179,13 @@ describe('Certification tracker job', () => {
   it('marks deadlines due within 30 days as DUE_SOON', async () => {
     const soonDate = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
     (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([
-      { id: 'cd-2', name: 'Soon Cert', dueDate: soonDate, status: 'UPCOMING', lastCompletedAt: null },
+      {
+        id: 'cd-2',
+        name: 'Soon Cert',
+        dueDate: soonDate,
+        status: 'UPCOMING',
+        lastCompletedAt: null,
+      },
     ]);
     (prisma.complianceDeadline.update as jest.Mock).mockResolvedValue({});
 
@@ -166,7 +203,13 @@ describe('Certification tracker job', () => {
     const futureDate = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
     const recentCompletion = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([
-      { id: 'cd-3', name: 'Done Cert', dueDate: futureDate, status: 'UPCOMING', lastCompletedAt: recentCompletion },
+      {
+        id: 'cd-3',
+        name: 'Done Cert',
+        dueDate: futureDate,
+        status: 'UPCOMING',
+        lastCompletedAt: recentCompletion,
+      },
     ]);
     (prisma.complianceDeadline.update as jest.Mock).mockResolvedValue({});
 

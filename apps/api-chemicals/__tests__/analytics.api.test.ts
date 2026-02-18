@@ -13,8 +13,15 @@ jest.mock('../src/prisma', () => ({
   },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/analytics';
 import { prisma } from '../src/prisma';
@@ -23,27 +30,24 @@ const app = express();
 app.use(express.json());
 app.use('/api/analytics', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('GET /api/analytics/dashboard', () => {
   it('should return all dashboard metrics', async () => {
     // Setup mocks in order of Promise.all calls
     (prisma as any).chemRegister.count
-      .mockResolvedValueOnce(50)   // totalChemicals
-      .mockResolvedValueOnce(5);   // cmrCount
+      .mockResolvedValueOnce(50) // totalChemicals
+      .mockResolvedValueOnce(5); // cmrCount
     (prisma as any).chemCoshh.count
-      .mockResolvedValueOnce(3)    // highRiskCoshh
-      .mockResolvedValueOnce(8);   // coshhDueReview
-    (prisma as any).chemSds.count
-      .mockResolvedValueOnce(2);   // sdsOverdue
-    (prisma as any).chemMonitoring.count
-      .mockResolvedValueOnce(1);   // welExceedances
-    (prisma as any).chemInventory.count
-      .mockResolvedValueOnce(4);   // expiringStock
-    (prisma as any).chemIncident.count
-      .mockResolvedValueOnce(10);  // openIncidents
-    (prisma as any).chemIncompatAlert.count
-      .mockResolvedValueOnce(2);   // incompatAlerts
+      .mockResolvedValueOnce(3) // highRiskCoshh
+      .mockResolvedValueOnce(8); // coshhDueReview
+    (prisma as any).chemSds.count.mockResolvedValueOnce(2); // sdsOverdue
+    (prisma as any).chemMonitoring.count.mockResolvedValueOnce(1); // welExceedances
+    (prisma as any).chemInventory.count.mockResolvedValueOnce(4); // expiringStock
+    (prisma as any).chemIncident.count.mockResolvedValueOnce(10); // openIncidents
+    (prisma as any).chemIncompatAlert.count.mockResolvedValueOnce(2); // incompatAlerts
     (prisma as any).chemCoshh.groupBy.mockResolvedValue([
       { residualRiskLevel: 'VERY_LOW', _count: 5 },
       { residualRiskLevel: 'LOW', _count: 10 },

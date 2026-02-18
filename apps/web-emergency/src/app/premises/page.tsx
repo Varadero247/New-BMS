@@ -88,13 +88,33 @@ const emptyForm: PremisesForm = {
 function getFraStatusBadge(status: string) {
   switch (status) {
     case 'CURRENT':
-      return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"><CheckCircle className="h-3 w-3" />Current</span>;
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+          <CheckCircle className="h-3 w-3" />
+          Current
+        </span>
+      );
     case 'ACTION_REQUIRED':
-      return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"><AlertTriangle className="h-3 w-3" />Action Required</span>;
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+          <AlertTriangle className="h-3 w-3" />
+          Action Required
+        </span>
+      );
     case 'OVERDUE':
-      return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"><AlertTriangle className="h-3 w-3" />Overdue</span>;
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+          <AlertTriangle className="h-3 w-3" />
+          Overdue
+        </span>
+      );
     default:
-      return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"><Clock className="h-3 w-3" />Not Completed</span>;
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+          <Clock className="h-3 w-3" />
+          Not Completed
+        </span>
+      );
   }
 }
 
@@ -123,7 +143,9 @@ export default function PremisesPage() {
     }
   }, [searchTerm, typeFilter]);
 
-  useEffect(() => { loadPremises(); }, [loadPremises]);
+  useEffect(() => {
+    loadPremises();
+  }, [loadPremises]);
 
   function openCreate() {
     setForm({ ...emptyForm });
@@ -313,9 +335,11 @@ export default function PremisesPage() {
                           </TableCell>
                           <TableCell>{getFraStatusBadge(p.fraStatus)}</TableCell>
                           <TableCell className="text-sm">
-                            {p.lastDrillDate
-                              ? new Date(p.lastDrillDate).toLocaleDateString()
-                              : <span className="text-gray-400">Never</span>}
+                            {p.lastDrillDate ? (
+                              new Date(p.lastDrillDate).toLocaleDateString()
+                            ) : (
+                              <span className="text-gray-400">Never</span>
+                            )}
                           </TableCell>
                           <TableCell>
                             {p.activeIncidents > 0 ? (

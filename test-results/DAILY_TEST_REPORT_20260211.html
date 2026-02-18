@@ -1,292 +1,725 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IMS Daily Test Report - 2026-02-11</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background: #f5f5f5;
-      color: #1f2937;
-    }
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 30px;
-      border-radius: 10px;
-      margin-bottom: 30px;
-    }
-    .header h1 { font-size: 1.8em; margin-bottom: 8px; }
-    .header p { opacity: 0.9; }
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-    .summary-card {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .summary-card h3 { font-size: 0.85em; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-    .summary-card .value { font-size: 2.2em; font-weight: bold; }
-    .status-pass { color: #10b981; }
-    .status-fail { color: #ef4444; }
-    .status-warn { color: #f59e0b; }
-    .module-section {
-      background: white;
-      padding: 24px;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .module-section h2 { font-size: 1.2em; margin-bottom: 12px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
-    .module-badge {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 12px;
-      font-size: 0.75em;
-      font-weight: 600;
-      margin-left: 8px;
-    }
-    .badge-pass { background: #d1fae5; color: #065f46; }
-    .badge-new { background: #dbeafe; color: #1e40af; }
-    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
-    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e5e7eb; font-size: 0.9em; }
-    th { background: #f9fafb; font-weight: 600; }
-    .section-title { font-size: 1.4em; font-weight: 700; margin: 30px 0 16px; color: #374151; }
-    .check { color: #10b981; }
-    .progress-bar { background: #e5e7eb; border-radius: 4px; height: 8px; overflow: hidden; margin-top: 4px; }
-    .progress-fill { background: #10b981; height: 100%; border-radius: 4px; }
-    .footer { text-align: center; padding: 20px; color: #9ca3af; font-size: 0.85em; }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>IMS Platform - Daily Test Report</h1>
-    <p>Date: 2026-02-11 | Automated Testing Suite | New Business Management System</p>
-  </div>
-
-  <div class="summary-grid">
-    <div class="summary-card">
-      <h3>Test Suites</h3>
-      <div class="value status-pass">99</div>
-      <div style="font-size:0.85em;color:#6b7280;">All Passing</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IMS Daily Test Report - 2026-02-11</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f5f5f5;
+        color: #1f2937;
+      }
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+      }
+      .header h1 {
+        font-size: 1.8em;
+        margin-bottom: 8px;
+      }
+      .header p {
+        opacity: 0.9;
+      }
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+      .summary-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      .summary-card h3 {
+        font-size: 0.85em;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+      }
+      .summary-card .value {
+        font-size: 2.2em;
+        font-weight: bold;
+      }
+      .status-pass {
+        color: #10b981;
+      }
+      .status-fail {
+        color: #ef4444;
+      }
+      .status-warn {
+        color: #f59e0b;
+      }
+      .module-section {
+        background: white;
+        padding: 24px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .module-section h2 {
+        font-size: 1.2em;
+        margin-bottom: 12px;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 8px;
+      }
+      .module-badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 0.75em;
+        font-weight: 600;
+        margin-left: 8px;
+      }
+      .badge-pass {
+        background: #d1fae5;
+        color: #065f46;
+      }
+      .badge-new {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+      }
+      th,
+      td {
+        padding: 10px 12px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 0.9em;
+      }
+      th {
+        background: #f9fafb;
+        font-weight: 600;
+      }
+      .section-title {
+        font-size: 1.4em;
+        font-weight: 700;
+        margin: 30px 0 16px;
+        color: #374151;
+      }
+      .check {
+        color: #10b981;
+      }
+      .progress-bar {
+        background: #e5e7eb;
+        border-radius: 4px;
+        height: 8px;
+        overflow: hidden;
+        margin-top: 4px;
+      }
+      .progress-fill {
+        background: #10b981;
+        height: 100%;
+        border-radius: 4px;
+      }
+      .footer {
+        text-align: center;
+        padding: 20px;
+        color: #9ca3af;
+        font-size: 0.85em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>IMS Platform - Daily Test Report</h1>
+      <p>Date: 2026-02-11 | Automated Testing Suite | New Business Management System</p>
     </div>
-    <div class="summary-card">
-      <h3>Total Tests</h3>
-      <div class="value status-pass">2,579</div>
-      <div style="font-size:0.85em;color:#6b7280;">0 Failed</div>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <h3>Test Suites</h3>
+        <div class="value status-pass">99</div>
+        <div style="font-size: 0.85em; color: #6b7280">All Passing</div>
+      </div>
+      <div class="summary-card">
+        <h3>Total Tests</h3>
+        <div class="value status-pass">2,579</div>
+        <div style="font-size: 0.85em; color: #6b7280">0 Failed</div>
+      </div>
+      <div class="summary-card">
+        <h3>API Modules</h3>
+        <div class="value">10</div>
+        <div style="font-size: 0.85em; color: #6b7280">100% Covered</div>
+      </div>
+      <div class="summary-card">
+        <h3>System Health</h3>
+        <div class="value" style="font-size: 2.5em">&#x1F7E2;</div>
+        <div style="font-size: 0.85em; color: #6b7280">GREEN</div>
+      </div>
     </div>
-    <div class="summary-card">
-      <h3>API Modules</h3>
-      <div class="value">10</div>
-      <div style="font-size:0.85em;color:#6b7280;">100% Covered</div>
+
+    <div class="section-title">API Service Test Results</div>
+
+    <div class="module-section">
+      <h2>API Gateway <span class="module-badge badge-pass">11 suites PASS</span></h2>
+      <table>
+        <tr>
+          <th>Suite</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>Authentication (auth)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Users</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Dashboard</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Sessions</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Account Lockout</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>API Versioning</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>CSRF Protection</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Error Handler</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>404 Handler</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Rate Limiter</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Security Headers</td>
+          <td class="check">PASS</td>
+        </tr>
+      </table>
     </div>
-    <div class="summary-card">
-      <h3>System Health</h3>
-      <div class="value" style="font-size:2.5em;">&#x1F7E2;</div>
-      <div style="font-size:0.85em;color:#6b7280;">GREEN</div>
+
+    <div class="module-section">
+      <h2>
+        Health &amp; Safety (ISO 45001) <span class="module-badge badge-pass">7 suites PASS</span>
+      </h2>
+      <table>
+        <tr>
+          <th>Suite</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>Risks</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Incidents</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>CAPA</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Legal Register</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Metrics</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Objectives</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Training</td>
+          <td class="check">PASS</td>
+        </tr>
+      </table>
     </div>
-  </div>
 
-  <div class="section-title">API Service Test Results</div>
+    <div class="module-section">
+      <h2>Environment (ISO 14001) <span class="module-badge badge-pass">6 suites PASS</span></h2>
+      <table>
+        <tr>
+          <th>Suite</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>Aspects</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Events</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Legal Register</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Objectives</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Actions</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>CAPA</td>
+          <td class="check">PASS</td>
+        </tr>
+      </table>
+    </div>
 
-  <div class="module-section">
-    <h2>API Gateway <span class="module-badge badge-pass">11 suites PASS</span></h2>
-    <table>
-      <tr><th>Suite</th><th>Status</th></tr>
-      <tr><td>Authentication (auth)</td><td class="check">PASS</td></tr>
-      <tr><td>Users</td><td class="check">PASS</td></tr>
-      <tr><td>Dashboard</td><td class="check">PASS</td></tr>
-      <tr><td>Sessions</td><td class="check">PASS</td></tr>
-      <tr><td>Account Lockout</td><td class="check">PASS</td></tr>
-      <tr><td>API Versioning</td><td class="check">PASS</td></tr>
-      <tr><td>CSRF Protection</td><td class="check">PASS</td></tr>
-      <tr><td>Error Handler</td><td class="check">PASS</td></tr>
-      <tr><td>404 Handler</td><td class="check">PASS</td></tr>
-      <tr><td>Rate Limiter</td><td class="check">PASS</td></tr>
-      <tr><td>Security Headers</td><td class="check">PASS</td></tr>
-    </table>
-  </div>
+    <div class="module-section">
+      <h2>Quality (ISO 9001) <span class="module-badge badge-pass">15 suites PASS</span></h2>
+      <table>
+        <tr>
+          <th>Suite</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>Processes</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Non-conformances</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Actions</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Documents</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>CAPA</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Legal</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>FMEA</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Improvements</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Issues</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Objectives</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Opportunities</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Interested Parties</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Risks</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Suppliers</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Changes</td>
+          <td class="check">PASS</td>
+        </tr>
+      </table>
+    </div>
 
-  <div class="module-section">
-    <h2>Health &amp; Safety (ISO 45001) <span class="module-badge badge-pass">7 suites PASS</span></h2>
-    <table>
-      <tr><th>Suite</th><th>Status</th></tr>
-      <tr><td>Risks</td><td class="check">PASS</td></tr>
-      <tr><td>Incidents</td><td class="check">PASS</td></tr>
-      <tr><td>CAPA</td><td class="check">PASS</td></tr>
-      <tr><td>Legal Register</td><td class="check">PASS</td></tr>
-      <tr><td>Metrics</td><td class="check">PASS</td></tr>
-      <tr><td>Objectives</td><td class="check">PASS</td></tr>
-      <tr><td>Training</td><td class="check">PASS</td></tr>
-    </table>
-  </div>
+    <div class="module-section">
+      <h2>Inventory Management <span class="module-badge badge-pass">6 suites PASS</span></h2>
+      <table>
+        <tr>
+          <th>Suite</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>Products</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Warehouses</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Inventory</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Transactions</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Categories</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Suppliers</td>
+          <td class="check">PASS</td>
+        </tr>
+      </table>
+    </div>
 
-  <div class="module-section">
-    <h2>Environment (ISO 14001) <span class="module-badge badge-pass">6 suites PASS</span></h2>
-    <table>
-      <tr><th>Suite</th><th>Status</th></tr>
-      <tr><td>Aspects</td><td class="check">PASS</td></tr>
-      <tr><td>Events</td><td class="check">PASS</td></tr>
-      <tr><td>Legal Register</td><td class="check">PASS</td></tr>
-      <tr><td>Objectives</td><td class="check">PASS</td></tr>
-      <tr><td>Actions</td><td class="check">PASS</td></tr>
-      <tr><td>CAPA</td><td class="check">PASS</td></tr>
-    </table>
-  </div>
+    <div class="module-section">
+      <h2>HR Management (ISO 30414) <span class="module-badge badge-pass">8 suites PASS</span></h2>
+      <table>
+        <tr>
+          <th>Suite</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>Employees</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Departments</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Leave</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Attendance</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Documents</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Performance</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Recruitment</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Training</td>
+          <td class="check">PASS</td>
+        </tr>
+      </table>
+    </div>
 
-  <div class="module-section">
-    <h2>Quality (ISO 9001) <span class="module-badge badge-pass">15 suites PASS</span></h2>
-    <table>
-      <tr><th>Suite</th><th>Status</th></tr>
-      <tr><td>Processes</td><td class="check">PASS</td></tr>
-      <tr><td>Non-conformances</td><td class="check">PASS</td></tr>
-      <tr><td>Actions</td><td class="check">PASS</td></tr>
-      <tr><td>Documents</td><td class="check">PASS</td></tr>
-      <tr><td>CAPA</td><td class="check">PASS</td></tr>
-      <tr><td>Legal</td><td class="check">PASS</td></tr>
-      <tr><td>FMEA</td><td class="check">PASS</td></tr>
-      <tr><td>Improvements</td><td class="check">PASS</td></tr>
-      <tr><td>Issues</td><td class="check">PASS</td></tr>
-      <tr><td>Objectives</td><td class="check">PASS</td></tr>
-      <tr><td>Opportunities</td><td class="check">PASS</td></tr>
-      <tr><td>Interested Parties</td><td class="check">PASS</td></tr>
-      <tr><td>Risks</td><td class="check">PASS</td></tr>
-      <tr><td>Suppliers</td><td class="check">PASS</td></tr>
-      <tr><td>Changes</td><td class="check">PASS</td></tr>
-    </table>
-  </div>
+    <div class="module-section">
+      <h2>Payroll Management <span class="module-badge badge-pass">6 suites PASS</span></h2>
+      <table>
+        <tr>
+          <th>Suite</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>Payroll Runs</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Salary Structures</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Benefits</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Expenses</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Loans</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Tax</td>
+          <td class="check">PASS</td>
+        </tr>
+      </table>
+    </div>
 
-  <div class="module-section">
-    <h2>Inventory Management <span class="module-badge badge-pass">6 suites PASS</span></h2>
-    <table>
-      <tr><th>Suite</th><th>Status</th></tr>
-      <tr><td>Products</td><td class="check">PASS</td></tr>
-      <tr><td>Warehouses</td><td class="check">PASS</td></tr>
-      <tr><td>Inventory</td><td class="check">PASS</td></tr>
-      <tr><td>Transactions</td><td class="check">PASS</td></tr>
-      <tr><td>Categories</td><td class="check">PASS</td></tr>
-      <tr><td>Suppliers</td><td class="check">PASS</td></tr>
-    </table>
-  </div>
+    <div class="module-section">
+      <h2>Workflows Engine <span class="module-badge badge-pass">6 suites PASS</span></h2>
+      <table>
+        <tr>
+          <th>Suite</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>Definitions</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Instances</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Tasks</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Approvals</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Automation</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Templates</td>
+          <td class="check">PASS</td>
+        </tr>
+      </table>
+    </div>
 
-  <div class="module-section">
-    <h2>HR Management (ISO 30414) <span class="module-badge badge-pass">8 suites PASS</span></h2>
-    <table>
-      <tr><th>Suite</th><th>Status</th></tr>
-      <tr><td>Employees</td><td class="check">PASS</td></tr>
-      <tr><td>Departments</td><td class="check">PASS</td></tr>
-      <tr><td>Leave</td><td class="check">PASS</td></tr>
-      <tr><td>Attendance</td><td class="check">PASS</td></tr>
-      <tr><td>Documents</td><td class="check">PASS</td></tr>
-      <tr><td>Performance</td><td class="check">PASS</td></tr>
-      <tr><td>Recruitment</td><td class="check">PASS</td></tr>
-      <tr><td>Training</td><td class="check">PASS</td></tr>
-    </table>
-  </div>
+    <div class="module-section">
+      <h2>
+        AI Analysis Engine <span class="module-badge badge-pass">4 suites PASS</span>
+        <span class="module-badge badge-new">NEW</span>
+      </h2>
+      <table>
+        <tr>
+          <th>Suite</th>
+          <th>Tests</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>Analyse (ISO Analysis)</td>
+          <td>13</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Analyses (CRUD)</td>
+          <td>19</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Analyze (Quick AI - 23 types)</td>
+          <td>16</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Settings</td>
+          <td>12</td>
+          <td class="check">PASS</td>
+        </tr>
+      </table>
+    </div>
 
-  <div class="module-section">
-    <h2>Payroll Management <span class="module-badge badge-pass">6 suites PASS</span></h2>
-    <table>
-      <tr><th>Suite</th><th>Status</th></tr>
-      <tr><td>Payroll Runs</td><td class="check">PASS</td></tr>
-      <tr><td>Salary Structures</td><td class="check">PASS</td></tr>
-      <tr><td>Benefits</td><td class="check">PASS</td></tr>
-      <tr><td>Expenses</td><td class="check">PASS</td></tr>
-      <tr><td>Loans</td><td class="check">PASS</td></tr>
-      <tr><td>Tax</td><td class="check">PASS</td></tr>
-    </table>
-  </div>
+    <div class="module-section">
+      <h2>
+        Project Management (PMBOK) <span class="module-badge badge-pass">12 suites PASS</span>
+      </h2>
+      <table>
+        <tr>
+          <th>Suite</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>Projects (CRUD + Dashboard + EVM)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Tasks (WBS + Gantt)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Milestones</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Risks (Auto-scoring)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Issues (Resolve workflow)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Changes (Review + Approve)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Resources (Utilization calc)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Stakeholders (Power-Interest grid)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Documents</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Sprints (Agile)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Timesheets (Cost calc)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>Reports (RAG status)</td>
+          <td class="check">PASS</td>
+        </tr>
+      </table>
+    </div>
 
-  <div class="module-section">
-    <h2>Workflows Engine <span class="module-badge badge-pass">6 suites PASS</span></h2>
-    <table>
-      <tr><th>Suite</th><th>Status</th></tr>
-      <tr><td>Definitions</td><td class="check">PASS</td></tr>
-      <tr><td>Instances</td><td class="check">PASS</td></tr>
-      <tr><td>Tasks</td><td class="check">PASS</td></tr>
-      <tr><td>Approvals</td><td class="check">PASS</td></tr>
-      <tr><td>Automation</td><td class="check">PASS</td></tr>
-      <tr><td>Templates</td><td class="check">PASS</td></tr>
-    </table>
-  </div>
+    <div class="section-title">Shared Packages</div>
 
-  <div class="module-section">
-    <h2>AI Analysis Engine <span class="module-badge badge-pass">4 suites PASS</span> <span class="module-badge badge-new">NEW</span></h2>
-    <table>
-      <tr><th>Suite</th><th>Tests</th><th>Status</th></tr>
-      <tr><td>Analyse (ISO Analysis)</td><td>13</td><td class="check">PASS</td></tr>
-      <tr><td>Analyses (CRUD)</td><td>19</td><td class="check">PASS</td></tr>
-      <tr><td>Analyze (Quick AI - 23 types)</td><td>16</td><td class="check">PASS</td></tr>
-      <tr><td>Settings</td><td>12</td><td class="check">PASS</td></tr>
-    </table>
-  </div>
+    <div class="module-section">
+      <table>
+        <tr>
+          <th>Package</th>
+          <th>Suites</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>@ims/auth</td>
+          <td>3 (jwt, middleware, password)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>@ims/monitoring <span class="module-badge badge-new">NEW</span></td>
+          <td>3 (logger, metrics, middleware)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>@ims/audit</td>
+          <td>2 (middleware, service)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>@ims/validation</td>
+          <td>3 (middleware, sanitize, schemas)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>@ims/file-upload</td>
+          <td>2 (middleware, validators)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>@ims/secrets</td>
+          <td>2 (vault, secrets)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>@ims/service-auth</td>
+          <td>1 (service-auth)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>@ims/email</td>
+          <td>1 (email)</td>
+          <td class="check">PASS</td>
+        </tr>
+        <tr>
+          <td>@ims/resilience</td>
+          <td>1 (resilience)</td>
+          <td class="check">PASS</td>
+        </tr>
+      </table>
+    </div>
 
-  <div class="module-section">
-    <h2>Project Management (PMBOK) <span class="module-badge badge-pass">12 suites PASS</span></h2>
-    <table>
-      <tr><th>Suite</th><th>Status</th></tr>
-      <tr><td>Projects (CRUD + Dashboard + EVM)</td><td class="check">PASS</td></tr>
-      <tr><td>Tasks (WBS + Gantt)</td><td class="check">PASS</td></tr>
-      <tr><td>Milestones</td><td class="check">PASS</td></tr>
-      <tr><td>Risks (Auto-scoring)</td><td class="check">PASS</td></tr>
-      <tr><td>Issues (Resolve workflow)</td><td class="check">PASS</td></tr>
-      <tr><td>Changes (Review + Approve)</td><td class="check">PASS</td></tr>
-      <tr><td>Resources (Utilization calc)</td><td class="check">PASS</td></tr>
-      <tr><td>Stakeholders (Power-Interest grid)</td><td class="check">PASS</td></tr>
-      <tr><td>Documents</td><td class="check">PASS</td></tr>
-      <tr><td>Sprints (Agile)</td><td class="check">PASS</td></tr>
-      <tr><td>Timesheets (Cost calc)</td><td class="check">PASS</td></tr>
-      <tr><td>Reports (RAG status)</td><td class="check">PASS</td></tr>
-    </table>
-  </div>
+    <div class="section-title">Integration Tests</div>
 
-  <div class="section-title">Shared Packages</div>
+    <div class="module-section">
+      <table>
+        <tr>
+          <th>Module</th>
+          <th>Script</th>
+          <th>Assertions</th>
+        </tr>
+        <tr>
+          <td>Health &amp; Safety</td>
+          <td>test-hs-modules.sh</td>
+          <td>~70</td>
+        </tr>
+        <tr>
+          <td>Environment</td>
+          <td>test-env-modules.sh</td>
+          <td>~60</td>
+        </tr>
+        <tr>
+          <td>Quality</td>
+          <td>test-quality-modules.sh</td>
+          <td>~80</td>
+        </tr>
+        <tr>
+          <td>HR</td>
+          <td>test-hr-modules.sh</td>
+          <td>~50</td>
+        </tr>
+        <tr>
+          <td>Payroll</td>
+          <td>test-payroll-modules.sh</td>
+          <td>~40</td>
+        </tr>
+        <tr>
+          <td>Inventory</td>
+          <td>test-inventory-modules.sh</td>
+          <td>~40</td>
+        </tr>
+        <tr>
+          <td>Workflows</td>
+          <td>test-workflows-modules.sh</td>
+          <td>~40</td>
+        </tr>
+        <tr>
+          <td>Project Management <span class="module-badge badge-new">NEW</span></td>
+          <td>test-pm-modules.sh</td>
+          <td>~45</td>
+        </tr>
+      </table>
+      <p style="margin-top: 12px; font-size: 0.9em; color: #6b7280">
+        Master runner: <code>scripts/test-all-modules.sh</code>
+      </p>
+    </div>
 
-  <div class="module-section">
-    <table>
-      <tr><th>Package</th><th>Suites</th><th>Status</th></tr>
-      <tr><td>@ims/auth</td><td>3 (jwt, middleware, password)</td><td class="check">PASS</td></tr>
-      <tr><td>@ims/monitoring <span class="module-badge badge-new">NEW</span></td><td>3 (logger, metrics, middleware)</td><td class="check">PASS</td></tr>
-      <tr><td>@ims/audit</td><td>2 (middleware, service)</td><td class="check">PASS</td></tr>
-      <tr><td>@ims/validation</td><td>3 (middleware, sanitize, schemas)</td><td class="check">PASS</td></tr>
-      <tr><td>@ims/file-upload</td><td>2 (middleware, validators)</td><td class="check">PASS</td></tr>
-      <tr><td>@ims/secrets</td><td>2 (vault, secrets)</td><td class="check">PASS</td></tr>
-      <tr><td>@ims/service-auth</td><td>1 (service-auth)</td><td class="check">PASS</td></tr>
-      <tr><td>@ims/email</td><td>1 (email)</td><td class="check">PASS</td></tr>
-      <tr><td>@ims/resilience</td><td>1 (resilience)</td><td class="check">PASS</td></tr>
-    </table>
-  </div>
-
-  <div class="section-title">Integration Tests</div>
-
-  <div class="module-section">
-    <table>
-      <tr><th>Module</th><th>Script</th><th>Assertions</th></tr>
-      <tr><td>Health &amp; Safety</td><td>test-hs-modules.sh</td><td>~70</td></tr>
-      <tr><td>Environment</td><td>test-env-modules.sh</td><td>~60</td></tr>
-      <tr><td>Quality</td><td>test-quality-modules.sh</td><td>~80</td></tr>
-      <tr><td>HR</td><td>test-hr-modules.sh</td><td>~50</td></tr>
-      <tr><td>Payroll</td><td>test-payroll-modules.sh</td><td>~40</td></tr>
-      <tr><td>Inventory</td><td>test-inventory-modules.sh</td><td>~40</td></tr>
-      <tr><td>Workflows</td><td>test-workflows-modules.sh</td><td>~40</td></tr>
-      <tr><td>Project Management <span class="module-badge badge-new">NEW</span></td><td>test-pm-modules.sh</td><td>~45</td></tr>
-    </table>
-    <p style="margin-top:12px;font-size:0.9em;color:#6b7280;">Master runner: <code>scripts/test-all-modules.sh</code></p>
-  </div>
-
-  <div class="footer">
-    <p>IMS Platform Test Report | Generated 2026-02-11 | 99 suites, 2,579 tests, all passing</p>
-  </div>
-</body>
+    <div class="footer">
+      <p>IMS Platform Test Report | Generated 2026-02-11 | 99 suites, 2,579 tests, all passing</p>
+    </div>
+  </body>
 </html>

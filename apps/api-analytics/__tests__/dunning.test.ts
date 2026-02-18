@@ -1,6 +1,11 @@
 jest.mock('../src/prisma', () => ({
   prisma: {
-    dunningSequence: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn() },
+    dunningSequence: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
     vatSummary: { upsert: jest.fn() },
     cashFlowForecast: { findMany: jest.fn(), create: jest.fn(), deleteMany: jest.fn() },
     companyCashPosition: { findFirst: jest.fn() },
@@ -17,7 +22,10 @@ jest.mock('@ims/monitoring', () => ({
 }));
 
 jest.mock('@ims/auth', () => ({
-  authenticate: (_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', email: 'a@b.com' }; next(); },
+  authenticate: (_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', email: 'a@b.com' };
+    next();
+  },
 }));
 
 import { runDunningJob } from '../src/jobs/dunning.job';
@@ -43,7 +51,10 @@ describe('runDunningJob', () => {
       amountDue: 100,
     };
     (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([mockSeq]);
-    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({ ...mockSeq, currentStep: 'DAY_3' });
+    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({
+      ...mockSeq,
+      currentStep: 'DAY_3',
+    });
 
     const result = await runDunningJob();
 
@@ -52,14 +63,23 @@ describe('runDunningJob', () => {
       expect.objectContaining({
         where: { id: 'seq-1' },
         data: expect.objectContaining({ currentStep: 'DAY_3' }),
-      }),
+      })
     );
   });
 
   it('advances DAY_3 to DAY_7', async () => {
-    const mockSeq = { id: 'seq-2', currentStep: 'DAY_3', customerEmail: 'a@b.com', customerName: 'A', amountDue: 50 };
+    const mockSeq = {
+      id: 'seq-2',
+      currentStep: 'DAY_3',
+      customerEmail: 'a@b.com',
+      customerName: 'A',
+      amountDue: 50,
+    };
     (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([mockSeq]);
-    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({ ...mockSeq, currentStep: 'DAY_7' });
+    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({
+      ...mockSeq,
+      currentStep: 'DAY_7',
+    });
 
     const result = await runDunningJob();
 
@@ -67,14 +87,23 @@ describe('runDunningJob', () => {
     expect(prisma.dunningSequence.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ currentStep: 'DAY_7' }),
-      }),
+      })
     );
   });
 
   it('advances DAY_7 to DAY_9', async () => {
-    const mockSeq = { id: 'seq-3', currentStep: 'DAY_7', customerEmail: 'a@b.com', customerName: 'A', amountDue: 50 };
+    const mockSeq = {
+      id: 'seq-3',
+      currentStep: 'DAY_7',
+      customerEmail: 'a@b.com',
+      customerName: 'A',
+      amountDue: 50,
+    };
     (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([mockSeq]);
-    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({ ...mockSeq, currentStep: 'DAY_9' });
+    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({
+      ...mockSeq,
+      currentStep: 'DAY_9',
+    });
 
     const result = await runDunningJob();
 
@@ -82,14 +111,23 @@ describe('runDunningJob', () => {
     expect(prisma.dunningSequence.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ currentStep: 'DAY_9' }),
-      }),
+      })
     );
   });
 
   it('advances DAY_9 to DAY_14', async () => {
-    const mockSeq = { id: 'seq-4', currentStep: 'DAY_9', customerEmail: 'a@b.com', customerName: 'A', amountDue: 50 };
+    const mockSeq = {
+      id: 'seq-4',
+      currentStep: 'DAY_9',
+      customerEmail: 'a@b.com',
+      customerName: 'A',
+      amountDue: 50,
+    };
     (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([mockSeq]);
-    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({ ...mockSeq, currentStep: 'DAY_14' });
+    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({
+      ...mockSeq,
+      currentStep: 'DAY_14',
+    });
 
     const result = await runDunningJob();
 
@@ -97,14 +135,24 @@ describe('runDunningJob', () => {
     expect(prisma.dunningSequence.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ currentStep: 'DAY_14' }),
-      }),
+      })
     );
   });
 
   it('cancels sequence at DAY_14', async () => {
-    const mockSeq = { id: 'seq-5', currentStep: 'DAY_14', customerEmail: 'a@b.com', customerName: 'A', amountDue: 50 };
+    const mockSeq = {
+      id: 'seq-5',
+      currentStep: 'DAY_14',
+      customerEmail: 'a@b.com',
+      customerName: 'A',
+      amountDue: 50,
+    };
     (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([mockSeq]);
-    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({ ...mockSeq, currentStep: 'CANCELLED', cancelledAt: new Date() });
+    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({
+      ...mockSeq,
+      currentStep: 'CANCELLED',
+      cancelledAt: new Date(),
+    });
 
     const result = await runDunningJob();
 
@@ -116,7 +164,7 @@ describe('runDunningJob', () => {
           currentStep: 'CANCELLED',
           cancelledAt: expect.any(Date),
         }),
-      }),
+      })
     );
   });
 
@@ -131,9 +179,27 @@ describe('runDunningJob', () => {
 
   it('processes multiple sequences in one run', async () => {
     const sequences = [
-      { id: 'seq-a', currentStep: 'DAY_0', customerEmail: 'a@b.com', customerName: 'A', amountDue: 100 },
-      { id: 'seq-b', currentStep: 'DAY_3', customerEmail: 'c@d.com', customerName: 'B', amountDue: 200 },
-      { id: 'seq-c', currentStep: 'DAY_14', customerEmail: 'e@f.com', customerName: 'C', amountDue: 300 },
+      {
+        id: 'seq-a',
+        currentStep: 'DAY_0',
+        customerEmail: 'a@b.com',
+        customerName: 'A',
+        amountDue: 100,
+      },
+      {
+        id: 'seq-b',
+        currentStep: 'DAY_3',
+        customerEmail: 'c@d.com',
+        customerName: 'B',
+        amountDue: 200,
+      },
+      {
+        id: 'seq-c',
+        currentStep: 'DAY_14',
+        customerEmail: 'e@f.com',
+        customerName: 'C',
+        amountDue: 300,
+      },
     ];
     (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue(sequences);
     (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({});
@@ -146,8 +212,20 @@ describe('runDunningJob', () => {
 
   it('continues processing if one sequence fails', async () => {
     const sequences = [
-      { id: 'seq-fail', currentStep: 'DAY_0', customerEmail: 'a@b.com', customerName: 'A', amountDue: 100 },
-      { id: 'seq-ok', currentStep: 'DAY_3', customerEmail: 'c@d.com', customerName: 'B', amountDue: 200 },
+      {
+        id: 'seq-fail',
+        currentStep: 'DAY_0',
+        customerEmail: 'a@b.com',
+        customerName: 'A',
+        amountDue: 100,
+      },
+      {
+        id: 'seq-ok',
+        currentStep: 'DAY_3',
+        customerEmail: 'c@d.com',
+        customerName: 'B',
+        amountDue: 200,
+      },
     ];
     (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue(sequences);
     (prisma.dunningSequence.update as jest.Mock)
@@ -161,7 +239,13 @@ describe('runDunningJob', () => {
   });
 
   it('sets correct nextActionAt gap for DAY_0 (3 days)', async () => {
-    const mockSeq = { id: 'seq-gap', currentStep: 'DAY_0', customerEmail: 'a@b.com', customerName: 'A', amountDue: 100 };
+    const mockSeq = {
+      id: 'seq-gap',
+      currentStep: 'DAY_0',
+      customerEmail: 'a@b.com',
+      customerName: 'A',
+      amountDue: 100,
+    };
     (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([mockSeq]);
     (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({});
 
@@ -193,21 +277,23 @@ describe('POST /webhooks/stripe-dunning', () => {
       currentStep: 'DAY_0',
     });
 
-    const res = await request(app).post('/').send({
-      id: 'evt_123',
-      type: 'invoice.payment_failed',
-      data: {
-        object: {
-          id: 'inv_123',
-          customer: 'cus_abc',
-          customer_email: 'test@example.com',
-          customer_name: 'Test Co',
-          amount_due: 9900,
-          currency: 'gbp',
-          number: 'INV-001',
+    const res = await request(app)
+      .post('/')
+      .send({
+        id: 'evt_123',
+        type: 'invoice.payment_failed',
+        data: {
+          object: {
+            id: 'inv_123',
+            customer: 'cus_abc',
+            customer_email: 'test@example.com',
+            customer_name: 'Test Co',
+            amount_due: 9900,
+            currency: 'gbp',
+            number: 'INV-001',
+          },
         },
-      },
-    });
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -220,7 +306,7 @@ describe('POST /webhooks/stripe-dunning', () => {
           amountDue: 99,
           currentStep: 'DAY_0',
         }),
-      }),
+      })
     );
   });
 
@@ -232,11 +318,13 @@ describe('POST /webhooks/stripe-dunning', () => {
   });
 
   it('ignores non-payment_failed events', async () => {
-    const res = await request(app).post('/').send({
-      id: 'evt_456',
-      type: 'invoice.paid',
-      data: { object: {} },
-    });
+    const res = await request(app)
+      .post('/')
+      .send({
+        id: 'evt_456',
+        type: 'invoice.paid',
+        data: { object: {} },
+      });
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Event type ignored');
@@ -248,11 +336,13 @@ describe('POST /webhooks/stripe-dunning', () => {
       stripeInvoiceId: 'inv_dup',
     });
 
-    const res = await request(app).post('/').send({
-      id: 'evt_789',
-      type: 'invoice.payment_failed',
-      data: { object: { id: 'inv_dup', customer: 'cus_x' } },
-    });
+    const res = await request(app)
+      .post('/')
+      .send({
+        id: 'evt_789',
+        type: 'invoice.payment_failed',
+        data: { object: { id: 'inv_dup', customer: 'cus_x' } },
+      });
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Already exists');

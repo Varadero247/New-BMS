@@ -147,11 +147,7 @@ function NavItem({ item, pathname }: { item: NavigationItem; pathname: string })
           <item.icon className="w-5 h-5" />
           {item.name}
         </span>
-        {expanded ? (
-          <ChevronDown className="w-4 h-4" />
-        ) : (
-          <ChevronRight className="w-4 h-4" />
-        )}
+        {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
       </button>
       {expanded && (
         <div className="ml-4 mt-1 space-y-1 border-l pl-4">
@@ -178,11 +174,7 @@ function NavItem({ item, pathname }: { item: NavigationItem; pathname: string })
   );
 }
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuthStore();

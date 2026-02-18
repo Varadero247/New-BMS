@@ -19,12 +19,15 @@ export function useFeatureFlag(name: string): { enabled: boolean; loading: boole
     async function fetchFlag() {
       try {
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        const res = await fetch(`${API_URL}/api/feature-flags/check?name=${encodeURIComponent(name)}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        });
+        const res = await fetch(
+          `${API_URL}/api/feature-flags/check?name=${encodeURIComponent(name)}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          }
+        );
 
         if (!cancelled && res.ok) {
           const json = await res.json();
@@ -38,7 +41,9 @@ export function useFeatureFlag(name: string): { enabled: boolean; loading: boole
     }
 
     fetchFlag();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [name]);
 
   return { enabled, loading };
@@ -78,7 +83,9 @@ export function useFeatureFlags(): { flags: Record<string, boolean>; loading: bo
     }
 
     fetchFlags();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return { flags, loading };

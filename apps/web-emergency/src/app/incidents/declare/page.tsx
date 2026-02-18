@@ -3,7 +3,20 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, Button, Input, Label, Select, Textarea } from '@ims/ui';
-import { Flame, Loader2, AlertTriangle, Droplets, Wind, Zap, Skull, Cpu, Biohazard, Building, Shield, HelpCircle } from 'lucide-react';
+import {
+  Flame,
+  Loader2,
+  AlertTriangle,
+  Droplets,
+  Wind,
+  Zap,
+  Skull,
+  Cpu,
+  Biohazard,
+  Building,
+  Shield,
+  HelpCircle,
+} from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
@@ -11,14 +24,44 @@ const EMERGENCY_TYPES = [
   { value: 'FIRE', label: 'Fire', icon: Flame, color: '#EF4444', bg: '#FEF2F2' },
   { value: 'FLOOD', label: 'Flood', icon: Droplets, color: '#3B82F6', bg: '#EFF6FF' },
   { value: 'GAS_LEAK', label: 'Gas Leak', icon: Wind, color: '#F97316', bg: '#FFF7ED' },
-  { value: 'CHEMICAL_SPILL', label: 'Chemical Spill', icon: Biohazard, color: '#8B5CF6', bg: '#F5F3FF' },
-  { value: 'STRUCTURAL_FAILURE', label: 'Structural Failure', icon: Building, color: '#6B7280', bg: '#F9FAFB' },
+  {
+    value: 'CHEMICAL_SPILL',
+    label: 'Chemical Spill',
+    icon: Biohazard,
+    color: '#8B5CF6',
+    bg: '#F5F3FF',
+  },
+  {
+    value: 'STRUCTURAL_FAILURE',
+    label: 'Structural Failure',
+    icon: Building,
+    color: '#6B7280',
+    bg: '#F9FAFB',
+  },
   { value: 'POWER_OUTAGE', label: 'Power Outage', icon: Zap, color: '#EAB308', bg: '#FEFCE8' },
   { value: 'BOMB_THREAT', label: 'Bomb Threat', icon: Skull, color: '#DC2626', bg: '#FEF2F2' },
-  { value: 'MEDICAL_EMERGENCY', label: 'Medical Emergency', icon: Shield, color: '#10B981', bg: '#ECFDF5' },
+  {
+    value: 'MEDICAL_EMERGENCY',
+    label: 'Medical Emergency',
+    icon: Shield,
+    color: '#10B981',
+    bg: '#ECFDF5',
+  },
   { value: 'CYBER_ATTACK', label: 'Cyber Attack', icon: Cpu, color: '#6366F1', bg: '#EEF2FF' },
-  { value: 'PANDEMIC', label: 'Pandemic / Disease', icon: Biohazard, color: '#F59E0B', bg: '#FFFBEB' },
-  { value: 'CIVIL_UNREST', label: 'Civil Unrest', icon: AlertTriangle, color: '#EF4444', bg: '#FEF2F2' },
+  {
+    value: 'PANDEMIC',
+    label: 'Pandemic / Disease',
+    icon: Biohazard,
+    color: '#F59E0B',
+    bg: '#FFFBEB',
+  },
+  {
+    value: 'CIVIL_UNREST',
+    label: 'Civil Unrest',
+    icon: AlertTriangle,
+    color: '#EF4444',
+    bg: '#FEF2F2',
+  },
   { value: 'OTHER', label: 'Other', icon: HelpCircle, color: '#9CA3AF', bg: '#F9FAFB' },
 ] as const;
 
@@ -74,7 +117,10 @@ export default function DeclarePage() {
   });
 
   useEffect(() => {
-    api.get('/premises').then((r) => setPremises(r.data.data || [])).catch(() => {});
+    api
+      .get('/premises')
+      .then((r) => setPremises(r.data.data || []))
+      .catch(() => {});
   }, []);
 
   async function handleDeclare() {
@@ -110,10 +156,7 @@ export default function DeclarePage() {
       <Sidebar />
       <main className="flex-1 overflow-auto">
         {/* Top Banner */}
-        <div
-          className="px-8 py-4 flex items-center gap-4"
-          style={{ backgroundColor: '#F04B5A' }}
-        >
+        <div className="px-8 py-4 flex items-center gap-4" style={{ backgroundColor: '#F04B5A' }}>
           <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
             <Flame className="h-6 w-6 text-white" />
           </div>
@@ -122,9 +165,7 @@ export default function DeclarePage() {
             <p className="text-white/80 text-sm">Complete quickly — every second counts</p>
           </div>
           <div className="ml-auto">
-            <p className="text-white/60 text-xs">
-              Time: {new Date().toLocaleTimeString()}
-            </p>
+            <p className="text-white/60 text-xs">Time: {new Date().toLocaleTimeString()}</p>
           </div>
         </div>
 
@@ -222,7 +263,9 @@ export default function DeclarePage() {
                 <div>
                   <Label>
                     Brief Title *{' '}
-                    <span className="text-xs text-gray-400 font-normal">(keep it short and clear)</span>
+                    <span className="text-xs text-gray-400 font-normal">
+                      (keep it short and clear)
+                    </span>
                   </Label>
                   <Input
                     value={form.title}
@@ -241,7 +284,9 @@ export default function DeclarePage() {
                     >
                       <option value="">Select premises...</option>
                       {premises.map((p) => (
-                        <option key={p.id} value={p.id}>{p.name}</option>
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -276,7 +321,9 @@ export default function DeclarePage() {
                     <input
                       type="checkbox"
                       checked={form.evacuationRequired}
-                      onChange={(e) => setForm((f) => ({ ...f, evacuationRequired: e.target.checked }))}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, evacuationRequired: e.target.checked }))
+                      }
                       className="h-4 w-4 rounded"
                     />
                     <div>
@@ -288,7 +335,9 @@ export default function DeclarePage() {
                     <input
                       type="checkbox"
                       checked={form.peopleAccountedFor}
-                      onChange={(e) => setForm((f) => ({ ...f, peopleAccountedFor: e.target.checked }))}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, peopleAccountedFor: e.target.checked }))
+                      }
                       className="h-4 w-4 rounded"
                     />
                     <div>
@@ -304,10 +353,16 @@ export default function DeclarePage() {
           {/* Preview & Submit */}
           <div
             className="rounded-xl border-2 p-6 mb-6"
-            style={{ borderColor: selectedSeverityData?.color || '#F04B5A', backgroundColor: selectedSeverityData?.bg || '#FEE2E4' }}
+            style={{
+              borderColor: selectedSeverityData?.color || '#F04B5A',
+              backgroundColor: selectedSeverityData?.bg || '#FEE2E4',
+            }}
           >
             <div className="flex items-center gap-4 mb-4">
-              <TypeIcon className="h-10 w-10" style={{ color: selectedTypeData?.color || '#F04B5A' }} />
+              <TypeIcon
+                className="h-10 w-10"
+                style={{ color: selectedTypeData?.color || '#F04B5A' }}
+              />
               <div>
                 <p className="font-bold text-lg text-gray-900">
                   {form.title || `[${selectedTypeData?.label || 'Emergency'} Incident]`}

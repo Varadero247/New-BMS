@@ -12,7 +12,9 @@ import { randomUUID, createHash } from 'crypto';
  * Replace with a real query once per-client compliance tables are available.
  */
 function deterministicScore(clientId: string, seed: string = ''): number {
-  const hash = createHash('sha256').update(clientId + seed).digest();
+  const hash = createHash('sha256')
+    .update(clientId + seed)
+    .digest();
   return 70 + (hash[0] % 31); // 70–100
 }
 
@@ -50,21 +52,34 @@ const linkSchema = z.object({
   clientOrganisationId: z.string().trim().uuid(),
   clientOrganisationName: z.string().trim().min(1).max(200),
   permissions: z.array(z.enum(['READ', 'AUDIT', 'MANAGE', 'BILLING'])).min(1),
-  whiteLabel: z.object({
-    brandName: z.string().max(100).optional(),
-    logoUrl: z.string().trim().url().optional(),
-    primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
-  }).optional(),
+  whiteLabel: z
+    .object({
+      brandName: z.string().max(100).optional(),
+      logoUrl: z.string().trim().url().optional(),
+      primaryColor: z
+        .string()
+        .regex(/^#[0-9a-fA-F]{6}$/)
+        .optional(),
+    })
+    .optional(),
 });
 
 const updateLinkSchema = z.object({
   status: z.enum(['ACTIVE', 'SUSPENDED', 'REVOKED']).optional(),
-  permissions: z.array(z.enum(['READ', 'AUDIT', 'MANAGE', 'BILLING'])).min(1).optional(),
-  whiteLabel: z.object({
-    brandName: z.string().max(100).optional(),
-    logoUrl: z.string().trim().url().optional(),
-    primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
-  }).optional(),
+  permissions: z
+    .array(z.enum(['READ', 'AUDIT', 'MANAGE', 'BILLING']))
+    .min(1)
+    .optional(),
+  whiteLabel: z
+    .object({
+      brandName: z.string().max(100).optional(),
+      logoUrl: z.string().trim().url().optional(),
+      primaryColor: z
+        .string()
+        .regex(/^#[0-9a-fA-F]{6}$/)
+        .optional(),
+    })
+    .optional(),
 });
 
 // ── Helper: check if user has MSP/consultant role ───────────────────
@@ -92,7 +107,11 @@ router.post('/msp-link', async (req: AuthRequest, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
       });
     }
 
@@ -109,7 +128,10 @@ router.post('/msp-link', async (req: AuthRequest, res: Response) => {
     if (existing) {
       return res.status(409).json({
         success: false,
-        error: { code: 'CONFLICT', message: 'Active link already exists for this client organisation' },
+        error: {
+          code: 'CONFLICT',
+          message: 'Active link already exists for this client organisation',
+        },
       });
     }
 
@@ -133,15 +155,31 @@ router.post('/msp-link', async (req: AuthRequest, res: Response) => {
     // Persist audit entry (fire-and-forget — link creation succeeds regardless)
     void (async () => {
       try {
-        await prisma.auditLog.create({ data: { userId, action: 'MSP_LINK_CREATED', entity: 'msp_link', entityId: id, newData: link as any } });
-      } catch (e: unknown) { logger.warn('Audit log write failed', { error: (e as Error).message }); }
+        await prisma.auditLog.create({
+          data: {
+            userId,
+            action: 'MSP_LINK_CREATED',
+            entity: 'msp_link',
+            entityId: id,
+            newData: link as any,
+          },
+        });
+      } catch (e: unknown) {
+        logger.warn('Audit log write failed', { error: (e as Error).message });
+      }
     })();
 
-    logger.info('MSP link created', { linkId: id, consultant: userId, client: clientOrganisationId });
+    logger.info('MSP link created', {
+      linkId: id,
+      consultant: userId,
+      client: clientOrganisationId,
+    });
 
     res.status(201).json({ success: true, data: link });
   } catch (error: unknown) {
-    logger.error('Failed to create MSP link', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to create MSP link', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create MSP link' },
@@ -163,8 +201,7 @@ router.get('/msp-clients', async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;
     const { status, page = '1', limit = '20' } = req.query;
 
-    let clients = Array.from(mspLinks.values())
-      .filter((link) => link.consultantUserId === userId);
+    let clients = Array.from(mspLinks.values()).filter((link) => link.consultantUserId === userId);
 
     if (status) {
       clients = clients.filter((link) => link.status === status);
@@ -193,7 +230,9 @@ router.get('/msp-clients', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list MSP clients', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list MSP clients', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list MSP clients' },
@@ -213,8 +252,9 @@ router.get('/msp-dashboard', async (req: AuthRequest, res: Response) => {
     }
 
     const userId = req.user!.id;
-    const activeClients = Array.from(mspLinks.values())
-      .filter((link) => link.consultantUserId === userId && link.status === 'ACTIVE');
+    const activeClients = Array.from(mspLinks.values()).filter(
+      (link) => link.consultantUserId === userId && link.status === 'ACTIVE'
+    );
 
     // Generate compliance health summary per client
     // In production this would query each client's actual compliance data
@@ -226,8 +266,18 @@ router.get('/msp-dashboard', async (req: AuthRequest, res: Response) => {
       complianceHealth: {
         overallScore: deterministicScore(client.clientOrganisationId, 'score'),
         isoStandards: [
-          { standard: 'ISO 9001', status: 'CERTIFIED', nextAudit: '2026-06-15', daysUntilAudit: 122 },
-          { standard: 'ISO 14001', status: 'CERTIFIED', nextAudit: '2026-09-20', daysUntilAudit: 219 },
+          {
+            standard: 'ISO 9001',
+            status: 'CERTIFIED',
+            nextAudit: '2026-06-15',
+            daysUntilAudit: 122,
+          },
+          {
+            standard: 'ISO 14001',
+            status: 'CERTIFIED',
+            nextAudit: '2026-09-20',
+            daysUntilAudit: 219,
+          },
         ],
         openActions: deterministicScore(client.clientOrganisationId, 'actions') % 10,
         overdueCapa: deterministicScore(client.clientOrganisationId, 'capa') % 3,
@@ -266,10 +316,17 @@ router.get('/msp-dashboard', async (req: AuthRequest, res: Response) => {
         clientsNeedingAttention: clientHealth.filter((c) => c.alerts.length > 0).length,
         totalOpenActions: clientHealth.reduce((sum, c) => sum + c.complianceHealth.openActions, 0),
         totalOverdueCapa: clientHealth.reduce((sum, c) => sum + c.complianceHealth.overdueCapa, 0),
-        upcomingAuditsThisMonth: clientHealth.reduce((sum, c) => sum + c.complianceHealth.upcomingAudits, 0),
-        averageComplianceScore: clientHealth.length > 0
-          ? Math.round(clientHealth.reduce((sum, c) => sum + c.complianceHealth.overallScore, 0) / clientHealth.length)
-          : 0,
+        upcomingAuditsThisMonth: clientHealth.reduce(
+          (sum, c) => sum + c.complianceHealth.upcomingAudits,
+          0
+        ),
+        averageComplianceScore:
+          clientHealth.length > 0
+            ? Math.round(
+                clientHealth.reduce((sum, c) => sum + c.complianceHealth.overallScore, 0) /
+                  clientHealth.length
+              )
+            : 0,
       },
       clients: clientHealth,
       generatedAt: new Date().toISOString(),
@@ -277,7 +334,9 @@ router.get('/msp-dashboard', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: dashboard });
   } catch (error: unknown) {
-    logger.error('Failed to generate MSP dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to generate MSP dashboard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to generate MSP dashboard' },
@@ -315,7 +374,11 @@ router.put('/msp-link/:id', async (req: AuthRequest, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
       });
     }
 
@@ -329,15 +392,27 @@ router.put('/msp-link/:id', async (req: AuthRequest, res: Response) => {
 
     void (async () => {
       try {
-        await prisma.auditLog.create({ data: { userId: req.user!.id, action: 'MSP_LINK_UPDATED', entity: 'msp_link', entityId: req.params.id, newData: { status, permissions, whiteLabel } as any } });
-      } catch (e: unknown) { logger.warn('Audit log write failed', { error: (e as Error).message }); }
+        await prisma.auditLog.create({
+          data: {
+            userId: req.user!.id,
+            action: 'MSP_LINK_UPDATED',
+            entity: 'msp_link',
+            entityId: req.params.id,
+            newData: { status, permissions, whiteLabel } as any,
+          },
+        });
+      } catch (e: unknown) {
+        logger.warn('Audit log write failed', { error: (e as Error).message });
+      }
     })();
 
     logger.info('MSP link updated', { linkId: req.params.id, status, consultant: req.user!.id });
 
     res.json({ success: true, data: link });
   } catch (error: unknown) {
-    logger.error('Failed to update MSP link', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to update MSP link', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to update MSP link' },
@@ -376,15 +451,26 @@ router.delete('/msp-link/:id', async (req: AuthRequest, res: Response) => {
 
     void (async () => {
       try {
-        await prisma.auditLog.create({ data: { userId: req.user!.id, action: 'MSP_LINK_REVOKED', entity: 'msp_link', entityId: req.params.id } });
-      } catch (e: unknown) { logger.warn('Audit log write failed', { error: (e as Error).message }); }
+        await prisma.auditLog.create({
+          data: {
+            userId: req.user!.id,
+            action: 'MSP_LINK_REVOKED',
+            entity: 'msp_link',
+            entityId: req.params.id,
+          },
+        });
+      } catch (e: unknown) {
+        logger.warn('Audit log write failed', { error: (e as Error).message });
+      }
     })();
 
     logger.info('MSP link revoked', { linkId: req.params.id, consultant: req.user!.id });
 
     res.json({ success: true, data: { message: 'MSP link revoked', linkId: req.params.id } });
   } catch (error: unknown) {
-    logger.error('Failed to revoke MSP link', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to revoke MSP link', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to revoke MSP link' },
@@ -419,7 +505,12 @@ router.get('/msp-link/:id/audit-log', async (req: AuthRequest, res: Response) =>
     }
 
     // Query audit log from DB; fall back to creation entry if DB unavailable
-    let entries: Array<{ timestamp: string; action: string; user: string | null; details: string }> = [];
+    let entries: Array<{
+      timestamp: string;
+      action: string;
+      user: string | null;
+      details: string;
+    }> = [];
     let total = 0;
     try {
       const logs = await prisma.auditLog.findMany({
@@ -436,7 +527,14 @@ router.get('/msp-link/:id/audit-log', async (req: AuthRequest, res: Response) =>
       total = entries.length;
     } catch {
       // Fallback: return the in-memory link creation entry
-      entries = [{ timestamp: link.linkedAt, action: 'LINK_CREATED', user: link.consultantEmail, details: 'MSP link established' }];
+      entries = [
+        {
+          timestamp: link.linkedAt,
+          action: 'LINK_CREATED',
+          user: link.consultantEmail,
+          details: 'MSP link established',
+        },
+      ];
       total = 1;
     }
 
@@ -450,7 +548,9 @@ router.get('/msp-link/:id/audit-log', async (req: AuthRequest, res: Response) =>
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get MSP audit log', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get MSP audit log', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get MSP audit log' },

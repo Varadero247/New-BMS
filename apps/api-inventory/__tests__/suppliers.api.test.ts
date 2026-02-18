@@ -109,9 +109,7 @@ describe('Inventory Suppliers API Routes', () => {
       (mockPrisma.supplier.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.supplier.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/suppliers?status=INACTIVE')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/suppliers?status=INACTIVE').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.supplier.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -126,9 +124,7 @@ describe('Inventory Suppliers API Routes', () => {
       (mockPrisma.supplier.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.supplier.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/suppliers?isActive=true')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/suppliers?isActive=true').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.supplier.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -143,9 +139,7 @@ describe('Inventory Suppliers API Routes', () => {
       (mockPrisma.supplier.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.supplier.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/suppliers?search=acme')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/suppliers?search=acme').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.supplier.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -165,9 +159,7 @@ describe('Inventory Suppliers API Routes', () => {
       (mockPrisma.supplier.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.supplier.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/suppliers')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/suppliers').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.supplier.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -193,7 +185,14 @@ describe('Inventory Suppliers API Routes', () => {
       id: '25000000-0000-4000-a000-000000000001',
       code: 'ACME',
       name: 'Acme Corp',
-      products: [{ id: '27000000-0000-4000-a000-000000000001', sku: 'SKU001', name: 'Widget', status: 'ACTIVE' }],
+      products: [
+        {
+          id: '27000000-0000-4000-a000-000000000001',
+          sku: 'SKU001',
+          name: 'Widget',
+          status: 'ACTIVE',
+        },
+      ],
       _count: { products: 10 },
     };
 

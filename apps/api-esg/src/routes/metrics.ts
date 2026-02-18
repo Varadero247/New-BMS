@@ -11,8 +11,16 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 const dataPointCreateSchema = z.object({
-  periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodStart: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodEnd: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   value: z.number(),
   unit: z.string().trim().min(1).max(50),
   source: z.string().max(200).optional().nullable(),
@@ -23,13 +31,19 @@ const dataPointCreateSchema = z.object({
 // GET /api/metrics/:id/data-points
 router.get('/:id/data-points', async (req: Request, res: Response) => {
   try {
-    const metric = await prisma.esgMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const metric = await prisma.esgMetric.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!metric) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
     }
 
     const { page = '1', limit = '20' } = req.query;
-    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * Math.max(1, parseInt(limit as string, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page as string, 10) || 1) - 1) *
+      Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
     const where: Record<string, any> = { metricId: req.params.id, deletedAt: null };
@@ -42,11 +56,21 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data,
-      pagination: { page: Math.max(1, parseInt(page as string, 10) || 1), limit: take, total, totalPages: Math.ceil(total / take) },
+      pagination: {
+        page: Math.max(1, parseInt(page as string, 10) || 1),
+        limit: take,
+        total,
+        totalPages: Math.ceil(total / take),
+      },
     });
   } catch (error: unknown) {
-    logger.error('Error fetching data points', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch data points' } });
+    logger.error('Error fetching data points', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch data points' },
+    });
   }
 });
 
@@ -54,14 +78,25 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
 router.post('/:id/data-points', async (req: Request, res: Response) => {
   try {
     const authReq = req as AuthRequest;
-    const metric = await prisma.esgMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const metric = await prisma.esgMetric.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!metric) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
     }
 
     const parsed = dataPointCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.issues,
+        },
+      });
     }
 
     const data = parsed.data;
@@ -81,8 +116,13 @@ router.post('/:id/data-points', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: dataPoint });
   } catch (error: unknown) {
-    logger.error('Error creating data point', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create data point' } });
+    logger.error('Error creating data point', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create data point' },
+    });
   }
 });
 

@@ -111,11 +111,7 @@ export const LongContent: Story = {
 export const CustomStyle: Story = {
   render: () => (
     <div className="flex justify-center p-8">
-      <Tooltip
-        content="Custom styled tooltip"
-        placement="top"
-        className="bg-purple-600 text-white"
-      >
+      <Tooltip content="Custom styled tooltip" placement="top" className="bg-purple-600 text-white">
         <Button variant="default">Custom Tooltip</Button>
       </Tooltip>
     </div>

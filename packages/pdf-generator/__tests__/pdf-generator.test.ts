@@ -47,9 +47,7 @@ describe('pdf-generator', () => {
     it('should generate a Buffer', () => {
       const template: PDFTemplate = {
         title: 'Test Document',
-        sections: [
-          { type: 'paragraph', content: 'Hello World' },
-        ],
+        sections: [{ type: 'paragraph', content: 'Hello World' }],
       };
       const result = generatePDF(template, {});
       expect(Buffer.isBuffer(result)).toBe(true);
@@ -71,7 +69,10 @@ describe('pdf-generator', () => {
           {
             type: 'table',
             headers: ['Name', 'Value'],
-            rows: [['Item A', '100'], ['Item B', '200']],
+            rows: [
+              ['Item A', '100'],
+              ['Item B', '200'],
+            ],
           },
         ],
       };
@@ -203,7 +204,13 @@ describe('pdf-generator', () => {
       module: 'Health & Safety',
       dateGenerated: '2026-02-01',
       items: [
-        { type: 'Document', description: 'Risk Assessment', date: '2026-01-10', status: 'closed', details: 'Approved' },
+        {
+          type: 'Document',
+          description: 'Risk Assessment',
+          date: '2026-01-10',
+          status: 'closed',
+          details: 'Approved',
+        },
         { type: 'Record', description: 'Training Log', date: '2026-01-15', status: 'open' },
       ],
       preparedBy: 'Audit Manager',

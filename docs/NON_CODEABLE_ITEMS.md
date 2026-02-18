@@ -14,6 +14,7 @@
 **Why it can't be coded:** Token revocation must be done through the GitHub web UI under Settings > Developer Settings > Personal Access Tokens. The token may have repo/org access that could be exploited.
 
 **Steps:**
+
 1. Go to https://github.com/settings/tokens
 2. Find and **revoke** the token starting with `ghp_dWo`
 3. Update the git remote to use SSH or a credential helper:
@@ -33,6 +34,7 @@
 **Why it can't be coded:** Production domain names are a business decision (e.g., `app.nexara.io`, `api.nexara.io`). DNS records, SSL certificates (via cert-manager), and CDN configuration depend on the chosen domains.
 
 **Steps:**
+
 1. Decide on production domain structure (e.g., `api.nexara.io`, `app.nexara.io`)
 2. Update `deploy/k8s/overlays/production/ingress-patch.yaml` with real domains
 3. Configure DNS A/CNAME records pointing to the K8s load balancer IP
@@ -62,6 +64,7 @@
 | `SENDGRID_API_KEY` or SMTP config | For email sending |
 
 **Steps:**
+
 1. Generate a strong JWT_SECRET: `openssl rand -hex 32`
 2. Set up production PostgreSQL with strong credentials
 3. Configure all DATABASE_URL variants to point to production DB
@@ -80,13 +83,14 @@
 
 **Why it can't be coded:** Major version bumps may introduce breaking changes that need manual testing and code adjustments. The scope of changes is unknown without testing.
 
-| Package | Current | Required | Breaking Changes |
-|---------|---------|----------|-----------------|
-| ~~`nodemailer`~~ | ~~^6.9.8~~ | ~~>=7.0.11~~ | ~~DONE — Updated to ^7.0.11 in @ims/email~~ |
-| ~~`axios`~~ | ~~^1.6.x~~ | ~~>=1.13.5~~ | ~~DONE — Updated to ^1.7.9 across all 45 apps~~ |
-| `jspdf` | ^4.0.0 | >=4.1.0 | LOW RISK — Only in legacy `apps/web`, not in any active web app |
+| Package          | Current    | Required     | Breaking Changes                                                |
+| ---------------- | ---------- | ------------ | --------------------------------------------------------------- |
+| ~~`nodemailer`~~ | ~~^6.9.8~~ | ~~>=7.0.11~~ | ~~DONE — Updated to ^7.0.11 in @ims/email~~                     |
+| ~~`axios`~~      | ~~^1.6.x~~ | ~~>=1.13.5~~ | ~~DONE — Updated to ^1.7.9 across all 45 apps~~                 |
+| `jspdf`          | ^4.0.0     | >=4.1.0      | LOW RISK — Only in legacy `apps/web`, not in any active web app |
 
 **Steps:**
+
 1. ~~Run `pnpm update axios`~~ — DONE
 2. ~~Update `nodemailer` to v7~~ — DONE
 3. Monitor `jspdf` releases for v4.1.0 (low priority — legacy app only)
@@ -100,10 +104,12 @@
 **Why it can't be coded:** Replacing the library requires choosing an alternative (`exceljs`, `xlsx-populate`, or SheetJS community edition), then rewriting all Excel import/export code to use the new library's API.
 
 **Affected code locations:**
+
 - Any service importing from `xlsx` (search: `require('xlsx')` or `from 'xlsx'`)
 - Likely in analytics, finance, or reporting features
 
 **Steps:**
+
 1. Search for `xlsx` usage: `grep -r "from 'xlsx'" apps/ packages/`
 2. Evaluate alternatives (recommended: `exceljs` — actively maintained, MIT license)
 3. Rewrite Excel generation/parsing code
@@ -116,11 +122,13 @@
 **What:** `deploy/k8s/base/secrets.yaml` is tracked in git. While it contains only placeholder values, the pattern encourages putting real secrets in version control.
 
 **Why it can't be coded:** Requires infrastructure decisions:
+
 - Which secret management tool? (AWS Secrets Manager, HashiCorp Vault, Sealed Secrets, External Secrets Operator)
 - How will secrets be rotated?
 - Who has access?
 
 **Steps:**
+
 1. Choose a secret management solution
 2. Install the operator in K8s cluster (e.g., `external-secrets-operator`)
 3. Create `ExternalSecret` resources instead of `Secret` resources
@@ -138,6 +146,7 @@
 **Why it can't be coded:** Running `pnpm install` on this monorepo requires significant memory/CPU and may produce interactive prompts about peer dependency conflicts. It needs human oversight.
 
 **Steps:**
+
 1. Run `pnpm install --no-frozen-lockfile`
 2. Resolve any peer dependency warnings
 3. Run `pnpm test` to verify all 11,808 tests still pass
@@ -152,6 +161,7 @@
 **Why it can't be coded:** Requires infrastructure decisions about backup frequency, retention period, storage location, and disaster recovery procedures.
 
 **Decisions needed:**
+
 - Backup frequency (hourly? daily?)
 - Retention period (7 days? 30 days? 1 year?)
 - Storage location (S3? GCS? separate server?)
@@ -167,12 +177,14 @@
 **Why it can't be coded:** Requires choosing and deploying monitoring infrastructure.
 
 **Recommended stack:**
+
 - **Metrics:** Prometheus + Grafana (scrape `/metrics` endpoints on all 42 APIs)
 - **Logging:** ELK Stack or Loki (aggregate structured logs)
 - **Alerting:** PagerDuty/OpsGenie integration
 - **APM:** Datadog or New Relic (optional)
 
 **Steps:**
+
 1. Deploy Prometheus in K8s cluster
 2. Configure ServiceMonitor resources for each API service
 3. Import Grafana dashboards
@@ -188,6 +200,7 @@
 **Why it can't be coded:** Requires domain ownership verification and choice of certificate authority.
 
 **Steps:**
+
 1. Install cert-manager in K8s cluster
 2. Create a `ClusterIssuer` for Let's Encrypt (staging first, then production)
 3. Verify domain ownership via DNS-01 or HTTP-01 challenge
@@ -202,12 +215,14 @@
 **Why it can't be coded:** Requires an email service account and domain verification.
 
 **Options:**
+
 - SendGrid (recommended for transactional + marketing)
 - AWS SES
 - Postmark
 - Self-hosted SMTP
 
 **Steps:**
+
 1. Sign up for email service provider
 2. Verify sending domain (SPF, DKIM, DMARC records)
 3. Set `SENDGRID_API_KEY` or SMTP credentials in environment
@@ -222,6 +237,7 @@
 **Why it can't be coded:** Requires a Stripe account with live API keys.
 
 **Steps:**
+
 1. Create/configure Stripe account
 2. Set `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` in production env
 3. Configure Stripe webhook URL to point to production gateway
@@ -251,6 +267,7 @@ Commission a professional penetration test before handling real customer data. T
 ### 17. GDPR/Data Protection Assessment
 
 If operating in the EU/UK, conduct a Data Protection Impact Assessment (DPIA) covering:
+
 - User data storage and processing
 - Data retention policies
 - Right to erasure implementation
@@ -261,13 +278,13 @@ If operating in the EU/UK, conduct a Data Protection Impact Assessment (DPIA) co
 
 ## Summary
 
-| Priority | Count | Category |
-|----------|-------|----------|
-| CRITICAL | 3 | Security credentials, K8s domains, production env vars |
-| HIGH | 2 | Dependency upgrades, xlsx replacement |
-| MEDIUM | 6 | pnpm install, backups, monitoring, SSL, email, Stripe |
-| LOW | 5 | CDN, load testing, pen test, GDPR, custom email |
-| **Total** | **16** | |
+| Priority  | Count  | Category                                               |
+| --------- | ------ | ------------------------------------------------------ |
+| CRITICAL  | 3      | Security credentials, K8s domains, production env vars |
+| HIGH      | 2      | Dependency upgrades, xlsx replacement                  |
+| MEDIUM    | 6      | pnpm install, backups, monitoring, SSL, email, Stripe  |
+| LOW       | 5      | CDN, load testing, pen test, GDPR, custom email        |
+| **Total** | **16** |                                                        |
 
 **Estimated effort for CRITICAL items:** 2-4 hours (mostly configuration, not coding)
 **Estimated effort for HIGH items:** 4-8 hours (dependency testing and library replacement)

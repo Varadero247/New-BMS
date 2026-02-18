@@ -17,7 +17,7 @@ describe('IMPORT_SCHEMAS', () => {
   });
 
   it('should contain all expected record types', () => {
-    const types = IMPORT_SCHEMAS.map(s => s.recordType);
+    const types = IMPORT_SCHEMAS.map((s) => s.recordType);
     expect(types).toContain('risks');
     expect(types).toContain('incidents');
     expect(types).toContain('aspects');
@@ -77,7 +77,18 @@ describe('getImportSchema', () => {
   });
 
   it('should return the correct schema for each of the 10 types', () => {
-    const types = ['risks', 'incidents', 'aspects', 'ncrs', 'capas', 'assets', 'employees', 'contacts', 'audits', 'actions'];
+    const types = [
+      'risks',
+      'incidents',
+      'aspects',
+      'ncrs',
+      'capas',
+      'assets',
+      'employees',
+      'contacts',
+      'audits',
+      'actions',
+    ];
     for (const type of types) {
       const schema = getImportSchema(type);
       expect(schema).toBeDefined();
@@ -105,7 +116,7 @@ describe('getTemplateHeaders', () => {
 
   it('should produce a string matching all field names joined by commas', () => {
     const schema = getImportSchema('incidents')!;
-    const expected = schema.fields.map(f => f.name).join(',');
+    const expected = schema.fields.map((f) => f.name).join(',');
     expect(getTemplateHeaders('incidents')).toBe(expected);
   });
 
@@ -169,14 +180,11 @@ describe('parseCSV', () => {
   });
 
   it('should report error for missing required string field', () => {
-    const csv = [
-      'title,category,likelihood,consequence,status',
-      ',Safety,3,4,OPEN',
-    ].join('\n');
+    const csv = ['title,category,likelihood,consequence,status', ',Safety,3,4,OPEN'].join('\n');
 
     const result = parseCSV(csv, 'risks');
     expect(result.valid).toHaveLength(0);
-    expect(result.errors.some(e => e.includes('"Title" is required'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('"Title" is required'))).toBe(true);
   });
 
   it('should report error for non-numeric value in a number field', () => {
@@ -187,7 +195,7 @@ describe('parseCSV', () => {
 
     const result = parseCSV(csv, 'risks');
     expect(result.valid).toHaveLength(0);
-    expect(result.errors.some(e => e.includes('"Likelihood (1-5)" must be a number'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('"Likelihood (1-5)" must be a number'))).toBe(true);
   });
 
   it('should report error for invalid date field', () => {
@@ -198,7 +206,7 @@ describe('parseCSV', () => {
 
     const result = parseCSV(csv, 'risks');
     expect(result.valid).toHaveLength(0);
-    expect(result.errors.some(e => e.includes('"Due Date" must be a valid date'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('"Due Date" must be a valid date'))).toBe(true);
   });
 
   it('should report error for invalid enum value', () => {
@@ -209,14 +217,13 @@ describe('parseCSV', () => {
 
     const result = parseCSV(csv, 'risks');
     expect(result.valid).toHaveLength(0);
-    expect(result.errors.some(e => e.includes('"Status" must be one of'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('"Status" must be one of'))).toBe(true);
   });
 
   it('should normalize enum values to uppercase', () => {
-    const csv = [
-      'title,category,likelihood,consequence,status',
-      'Risk A,Safety,3,4,open',
-    ].join('\n');
+    const csv = ['title,category,likelihood,consequence,status', 'Risk A,Safety,3,4,open'].join(
+      '\n'
+    );
 
     const result = parseCSV(csv, 'risks');
     expect(result.valid).toHaveLength(1);
@@ -224,13 +231,10 @@ describe('parseCSV', () => {
   });
 
   it('should report error for missing required headers', () => {
-    const csv = [
-      'title,description',
-      'Risk A,some description',
-    ].join('\n');
+    const csv = ['title,description', 'Risk A,some description'].join('\n');
 
     const result = parseCSV(csv, 'risks');
-    expect(result.errors.some(e => e.includes('Missing required headers'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('Missing required headers'))).toBe(true);
   });
 
   it('should allow optional fields to be empty', () => {
@@ -279,7 +283,7 @@ describe('parseCSV', () => {
 
     const result = parseCSV(csv, 'employees');
     expect(result.valid).toHaveLength(0);
-    expect(result.errors.some(e => e.includes('"Email" must be a valid email'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('"Email" must be a valid email'))).toBe(true);
   });
 
   it('should handle quoted CSV values containing commas', () => {
@@ -377,7 +381,14 @@ describe('importRecords', () => {
   it('should store records retrievable via getImportedRecords', () => {
     const orgId = `org-store-test-${Date.now()}`;
     const rows: ParsedRow[] = [
-      { firstName: 'Alice', lastName: 'Smith', email: 'alice@example.com', department: 'Eng', jobTitle: 'Dev', startDate: '2024-01-01' },
+      {
+        firstName: 'Alice',
+        lastName: 'Smith',
+        email: 'alice@example.com',
+        department: 'Eng',
+        jobTitle: 'Dev',
+        startDate: '2024-01-01',
+      },
     ];
     importRecords(rows, 'employees', orgId);
 
@@ -396,19 +407,27 @@ describe('getImportedRecords', () => {
 
   beforeAll(() => {
     importRecords(
-      [{ title: 'Incident 1', description: 'Desc', dateOccurred: '2026-01-01', severity: 'MINOR', status: 'OPEN' }],
+      [
+        {
+          title: 'Incident 1',
+          description: 'Desc',
+          dateOccurred: '2026-01-01',
+          severity: 'MINOR',
+          status: 'OPEN',
+        },
+      ],
       'incidents',
-      orgId,
+      orgId
     );
     importRecords(
       [{ title: 'Risk 1', category: 'Safety', likelihood: 2, consequence: 3, status: 'OPEN' }],
       'risks',
-      orgId,
+      orgId
     );
     importRecords(
       [{ title: 'Risk 2', category: 'Financial', likelihood: 1, consequence: 2, status: 'CLOSED' }],
       'risks',
-      orgId,
+      orgId
     );
   });
 
@@ -458,10 +477,14 @@ describe('getImportedRecords', () => {
 
   it('should not return records belonging to a different org', () => {
     const otherOrgId = `org-other-${Date.now()}`;
-    importRecords([{ title: 'Other risk', category: 'Legal', likelihood: 1, consequence: 1, status: 'OPEN' }], 'risks', otherOrgId);
+    importRecords(
+      [{ title: 'Other risk', category: 'Legal', likelihood: 1, consequence: 1, status: 'OPEN' }],
+      'risks',
+      otherOrgId
+    );
 
     const orgRecords = getImportedRecords(orgId, 'risks');
-    const otherIds = orgRecords.map(r => r.orgId);
-    expect(otherIds.every(id => id === orgId)).toBe(true);
+    const otherIds = orgRecords.map((r) => r.orgId);
+    expect(otherIds.every((id) => id === orgId)).toBe(true);
   });
 });

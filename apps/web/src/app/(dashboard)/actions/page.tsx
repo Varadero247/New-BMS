@@ -23,11 +23,7 @@ import { Input } from '@/components/ui/input';
 import { ExportDropdown } from '@/components/ui/export-dropdown';
 import { PieChart } from '@/components/charts';
 import api from '@/lib/api';
-import {
-  exportActions,
-  exportActionsExcel,
-  type ActionExportData,
-} from '@/lib/export';
+import { exportActions, exportActionsExcel, type ActionExportData } from '@/lib/export';
 
 interface Action {
   id: string;
@@ -146,9 +142,10 @@ export default function ActionsPage() {
     return days;
   };
 
-  const filteredActions = actions.filter((action) =>
-    action.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    action.referenceNumber.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredActions = actions.filter(
+    (action) =>
+      action.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      action.referenceNumber.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleExportPDF = () => {
@@ -373,9 +370,7 @@ export default function ActionsPage() {
                             {!overdue && daysUntilDue <= 7 && daysUntilDue > 0 && (
                               <span className="text-orange-500">({daysUntilDue} days)</span>
                             )}
-                            {overdue && (
-                              <span className="text-red-500">(Overdue)</span>
-                            )}
+                            {overdue && <span className="text-red-500">(Overdue)</span>}
                           </span>
                         </div>
                       </div>
@@ -384,7 +379,9 @@ export default function ActionsPage() {
                       <span className={`text-xs font-medium ${getPriorityColor(action.priority)}`}>
                         {action.priority}
                       </span>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(action.status)}`}>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(action.status)}`}
+                      >
                         {action.status.replace('_', ' ')}
                       </span>
                       <ArrowRight className="w-4 h-4 text-muted-foreground" />

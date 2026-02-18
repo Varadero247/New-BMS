@@ -195,7 +195,7 @@ async function seedAutomotive() {
       chartType: 'XBAR_R' as const,
       usl: 25.05,
       lsl: 24.95,
-      target: 25.00,
+      target: 25.0,
       subgroupSize: 5,
       unit: 'mm',
       frequency: 'Every 2 hours',
@@ -231,8 +231,8 @@ async function seedAutomotive() {
     for (let i = 0; i < 10; i++) {
       const variation = (Math.random() - 0.5) * (chart.usl! - chart.lsl!) * 0.6;
       const value = parseFloat((baseValue + variation).toFixed(4));
-      const outOfControl = chart.usl !== null && chart.lsl !== null &&
-        (value > chart.usl || value < chart.lsl);
+      const outOfControl =
+        chart.usl !== null && chart.lsl !== null && (value > chart.usl || value < chart.lsl);
 
       await automotive.spcDataPoint.create({
         data: {
@@ -293,7 +293,7 @@ async function seedAutomotive() {
     ev: 0.0032,
     av: 0.0021,
     grr: 0.0053,
-    pv: 0.0580,
+    pv: 0.058,
     tv: 0.0582,
     ndc: 15,
     result: 'ACCEPTABLE' as const,
@@ -351,14 +351,16 @@ async function seedAutomotive() {
       id: 'csr-demo-001',
       oem: 'Ford',
       iatfClause: '8.3.2.1',
-      requirementText: 'All design records must be submitted in CATIA V5 native format with 3D PMI annotations.',
+      requirementText:
+        'All design records must be submitted in CATIA V5 native format with 3D PMI annotations.',
       complianceStatus: 'COMPLIANT' as const,
     },
     {
       id: 'csr-demo-002',
       oem: 'GM',
       iatfClause: '8.5.1.1',
-      requirementText: 'Control plans must follow GM GP-12 format including reaction plan flowchart.',
+      requirementText:
+        'Control plans must follow GM GP-12 format including reaction plan flowchart.',
       complianceStatus: 'PARTIAL' as const,
       gapNotes: 'Current template missing reaction plan flowchart section',
       actionRequired: 'Update control plan template to include GP-12 reaction plan format',
@@ -459,7 +461,8 @@ async function seedMedical() {
       title: 'DermaScan Skin Lesion Analyzer',
       deviceName: 'DermaScan AI-100',
       deviceClass: 'CLASS_II' as const,
-      intendedUse: 'AI-assisted dermatological lesion classification for clinician decision support',
+      intendedUse:
+        'AI-assisted dermatological lesion classification for clinician decision support',
       regulatoryPathway: 'De Novo',
       currentStage: 'COMPLETE' as const,
       status: 'COMPLETED' as const,
@@ -491,13 +494,15 @@ async function seedMedical() {
       source: 'HEALTHCARE_PROVIDER' as const,
       reporterName: 'Dr. Emily Chen',
       reporterContact: 'emily.chen@hospital.org',
-      description: 'Sensor readings consistently 20% higher than fingerstick reference after day 10 of 14-day wear period. Observed in 3 patients.',
+      description:
+        'Sensor readings consistently 20% higher than fingerstick reference after day 10 of 14-day wear period. Observed in 3 patients.',
       patientInvolved: true,
       injuryOccurred: false,
       malfunctionOccurred: true,
       severity: 'MAJOR' as const,
       status: 'UNDER_INVESTIGATION' as const,
-      investigationSummary: 'Returned sensors analyzed; adhesive degradation under high humidity causing sensor drift.',
+      investigationSummary:
+        'Returned sensors analyzed; adhesive degradation under high humidity causing sensor drift.',
       rootCause: 'Adhesive formulation sensitivity to humidity above 80% RH.',
       mdrReportable: true,
       mdrDecisionDate: daysAgo(12),
@@ -511,7 +516,8 @@ async function seedMedical() {
       source: 'CUSTOMER' as const,
       reporterName: 'J. Smith (Patient)',
       reporterContact: 'jsmith@email.com',
-      description: 'Velcro strap detached from brace during physical therapy session. No injury occurred.',
+      description:
+        'Velcro strap detached from brace during physical therapy session. No injury occurred.',
       patientInvolved: true,
       injuryOccurred: false,
       malfunctionOccurred: true,
@@ -533,7 +539,8 @@ async function seedMedical() {
       complaintDate: daysAgo(7),
       source: 'INTERNAL' as const,
       reporterName: 'QA Dept. - Post-market Surveillance',
-      description: 'Software v2.1 update caused intermittent classification timeout on images > 10MB. Clinician unable to get result.',
+      description:
+        'Software v2.1 update caused intermittent classification timeout on images > 10MB. Clinician unable to get result.',
       patientInvolved: false,
       injuryOccurred: false,
       malfunctionOccurred: true,
@@ -557,7 +564,8 @@ async function seedMedical() {
     refNumber: refNumber('DMR', 1),
     deviceName: 'GlucoSense X1',
     deviceClass: 'CLASS_II' as const,
-    description: 'Continuous glucose monitoring system consisting of sensor, transmitter, and mobile application',
+    description:
+      'Continuous glucose monitoring system consisting of sensor, transmitter, and mobile application',
     specifications: JSON.stringify({
       sensorLife: '14 days',
       measurementRange: '40-500 mg/dL',
@@ -607,11 +615,13 @@ async function seedMedical() {
     deviceName: 'GlucoSense X1',
     deviceClass: 'CLASS_II' as const,
     intendedUse: 'Continuous glucose monitoring',
-    riskPolicy: 'Risks are acceptable when benefits outweigh residual risk and ALARP principle is applied per ISO 14971:2019',
+    riskPolicy:
+      'Risks are acceptable when benefits outweigh residual risk and ALARP principle is applied per ISO 14971:2019',
     status: 'ACTIVE' as const,
     overallRiskAcceptable: true,
     benefitRiskAcceptable: true,
-    benefitRiskAnalysis: 'Benefits of continuous glucose monitoring (reduced HbA1c, fewer severe hypoglycemic events, improved quality of life) outweigh identified residual risks.',
+    benefitRiskAnalysis:
+      'Benefits of continuous glucose monitoring (reduced HbA1c, fewer severe hypoglycemic events, improved quality of life) outweigh identified residual risks.',
   };
 
   await medical.riskManagementFile.upsert({
@@ -646,7 +656,13 @@ async function seedMedical() {
     refNumber: refNumber('PMS', 1),
     deviceName: 'GlucoSense X1',
     deviceClass: 'Class II',
-    dataSources: ['complaints', 'MDR/MAUDE', 'literature review', 'clinical follow-up', 'field service reports'],
+    dataSources: [
+      'complaints',
+      'MDR/MAUDE',
+      'literature review',
+      'clinical follow-up',
+      'field service reports',
+    ],
     reviewFrequency: 'ANNUAL',
     status: 'ACTIVE' as const,
     lastReviewDate: daysAgo(180),
@@ -773,8 +789,10 @@ async function seedAerospace() {
     id: 'ecp-demo-001',
     refNumber: refNumber('ECP', 1),
     title: 'Replace actuator seal material - NBR to FKM',
-    description: 'Change retract actuator seal material from Nitrile (NBR) to Fluoroelastomer (FKM) for improved heat resistance in high-temperature operating environments',
-    reason: 'Service Bulletin SB-737-32-1234 recommends FKM seals for aircraft operating in desert environments',
+    description:
+      'Change retract actuator seal material from Nitrile (NBR) to Fluoroelastomer (FKM) for improved heat resistance in high-temperature operating environments',
+    reason:
+      'Service Bulletin SB-737-32-1234 recommends FKM seals for aircraft operating in desert environments',
     urgency: 'ROUTINE' as const,
     affectedItems: ['S283T002-3'],
     affectedBaselines: ['cb-demo-001'],
@@ -808,20 +826,58 @@ async function seedAerospace() {
       faiType: 'FULL' as const,
       status: 'APPROVED' as const,
       part1Data: JSON.stringify([
-        { charNum: 1, charName: 'Bore Diameter A', nominal: '2.500"', tolerance: '+0.001/-0.000', actual: '2.5004"', pass: true },
-        { charNum: 2, charName: 'Overall Length', nominal: '18.750"', tolerance: '+/-0.010', actual: '18.755"', pass: true },
-        { charNum: 3, charName: 'Surface Roughness Ra', nominal: 'Max 32 uinch', tolerance: '', actual: '24 uinch', pass: true },
+        {
+          charNum: 1,
+          charName: 'Bore Diameter A',
+          nominal: '2.500"',
+          tolerance: '+0.001/-0.000',
+          actual: '2.5004"',
+          pass: true,
+        },
+        {
+          charNum: 2,
+          charName: 'Overall Length',
+          nominal: '18.750"',
+          tolerance: '+/-0.010',
+          actual: '18.755"',
+          pass: true,
+        },
+        {
+          charNum: 3,
+          charName: 'Surface Roughness Ra',
+          nominal: 'Max 32 uinch',
+          tolerance: '',
+          actual: '24 uinch',
+          pass: true,
+        },
       ]),
       part1Status: 'COMPLETED' as const,
       part2Data: JSON.stringify([
         { docType: 'Process Spec', docNumber: 'PS-737-001', revision: 'D', available: true },
         { docType: 'Heat Treat Cert', docNumber: 'HTC-2602-042', revision: 'A', available: true },
-        { docType: 'Material Cert', docNumber: 'MTC-Ti64-2602-015', revision: 'A', available: true },
+        {
+          docType: 'Material Cert',
+          docNumber: 'MTC-Ti64-2602-015',
+          revision: 'A',
+          available: true,
+        },
       ]),
       part2Status: 'COMPLETED' as const,
       part3Data: JSON.stringify([
-        { testName: 'Hardness Test', testMethod: 'Rockwell C', requirement: 'HRC 36-42', result: 'HRC 39', pass: true },
-        { testName: 'NDT - FPI', testMethod: 'ASTM E1417', requirement: 'No linear indications > 1/16"', result: 'No indications', pass: true },
+        {
+          testName: 'Hardness Test',
+          testMethod: 'Rockwell C',
+          requirement: 'HRC 36-42',
+          result: 'HRC 39',
+          pass: true,
+        },
+        {
+          testName: 'NDT - FPI',
+          testMethod: 'ASTM E1417',
+          requirement: 'No linear indications > 1/16"',
+          result: 'No indications',
+          pass: true,
+        },
       ]),
       part3Status: 'COMPLETED' as const,
       approvedBy: 'QA Manager K. Lee',
@@ -874,7 +930,8 @@ async function seedAerospace() {
       title: 'C-Check Card 32-10-01 MLG Inspection',
       aircraftType: 'Boeing 737-800',
       aircraftReg: 'C-FXYZ',
-      description: 'Main landing gear lower drag brace cracked at station 420. Aircraft grounded per MEL.',
+      description:
+        'Main landing gear lower drag brace cracked at station 420. Aircraft grounded per MEL.',
       priority: 'AOG' as const,
       status: 'IN_PROGRESS' as const,
       assignedTo: 'Lead Tech J. Anderson',
@@ -905,7 +962,8 @@ async function seedAerospace() {
       title: 'AD 2026-03-15 Nose Gear Steering Inspection',
       aircraftType: 'Boeing 737-800',
       aircraftReg: 'C-FXYZ',
-      description: 'Airworthiness Directive compliance: Inspect nose gear steering collar for cracks per AD 2026-03-15.',
+      description:
+        'Airworthiness Directive compliance: Inspect nose gear steering collar for cracks per AD 2026-03-15.',
       priority: 'URGENT' as const,
       status: 'OPEN' as const,
       dueDate: daysFromNow(14),
@@ -971,14 +1029,17 @@ async function seedAerospace() {
     id: 'hf-demo-001',
     refNumber: refNumber('HF', 1),
     title: 'Incorrect torque value applied to MLG bolt',
-    description: 'Night shift technician used torque value from superseded AMM revision (Rev 10 instead of current Rev 12). Discrepancy caught during buy-back inspection.',
+    description:
+      'Night shift technician used torque value from superseded AMM revision (Rev 10 instead of current Rev 12). Discrepancy caught during buy-back inspection.',
     category: 'LACK_OF_KNOWLEDGE' as const,
     severity: 'HIGH' as const,
     location: 'Hangar 3 Bay 2',
     shift: 'Night',
     personnelInvolved: ['J. Anderson'],
-    rootCause: 'Technical library subscription lapsed; physical AMM copy not updated to current revision. Digital AMM system not yet deployed to night shift.',
-    correctiveAction: 'Implement digital AMM system across all shifts; retrain night shift on revision verification procedures.',
+    rootCause:
+      'Technical library subscription lapsed; physical AMM copy not updated to current revision. Digital AMM system not yet deployed to night shift.',
+    correctiveAction:
+      'Implement digital AMM system across all shifts; retrain night shift on revision verification procedures.',
     status: 'CAPA_RAISED' as const,
     capaRef: 'CAPA-2026-010',
     reportedBy: 'Inspector K. Lee',

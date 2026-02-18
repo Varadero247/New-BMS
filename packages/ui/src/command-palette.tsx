@@ -41,7 +41,7 @@ export function CommandPalette({
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setOpen(prev => !prev);
+        setOpen((prev) => !prev);
       }
     };
     document.addEventListener('keydown', handleGlobalKeyDown);
@@ -67,12 +67,12 @@ export function CommandPalette({
   const filteredItems = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return items;
-    return items.filter(item => {
+    return items.filter((item) => {
       return (
         item.label.toLowerCase().includes(q) ||
         (item.description?.toLowerCase().includes(q) ?? false) ||
         (item.category?.toLowerCase().includes(q) ?? false) ||
-        (item.keywords?.some(kw => kw.toLowerCase().includes(q)) ?? false)
+        (item.keywords?.some((kw) => kw.toLowerCase().includes(q)) ?? false)
       );
     });
   }, [items, query]);
@@ -119,10 +119,10 @@ export function CommandPalette({
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setActiveIndex(i => Math.min(i + 1, flatFiltered.length - 1));
+        setActiveIndex((i) => Math.min(i + 1, flatFiltered.length - 1));
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setActiveIndex(i => Math.max(i - 1, 0));
+        setActiveIndex((i) => Math.max(i - 1, 0));
       } else if (e.key === 'Enter') {
         e.preventDefault();
         const item = flatFiltered[activeIndex];
@@ -156,7 +156,7 @@ export function CommandPalette({
           )}
           role="dialog"
           aria-label="Command palette"
-          onClick={e => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Search input row */}
           <div className="flex items-center border-b border-border">
@@ -182,15 +182,13 @@ export function CommandPalette({
               aria-expanded={flatFiltered.length > 0}
               aria-controls="command-palette-list"
               aria-activedescendant={
-                flatFiltered[activeIndex]
-                  ? `cmd-item-${flatFiltered[activeIndex].id}`
-                  : undefined
+                flatFiltered[activeIndex] ? `cmd-item-${flatFiltered[activeIndex].id}` : undefined
               }
               aria-autocomplete="list"
               autoComplete="off"
               spellCheck={false}
               value={query}
-              onChange={e => setQuery(e.target.value)}
+              onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
               className={cn(
@@ -219,17 +217,13 @@ export function CommandPalette({
                 No results found
                 {query.trim() && (
                   <span>
-                    {' '}for &ldquo;<span className="text-foreground font-medium">{query}</span>&rdquo;
+                    {' '}
+                    for &ldquo;<span className="text-foreground font-medium">{query}</span>&rdquo;
                   </span>
                 )}
               </div>
             ) : (
-              <ul
-                id="command-palette-list"
-                ref={listRef}
-                role="listbox"
-                className="py-1"
-              >
+              <ul id="command-palette-list" ref={listRef} role="listbox" className="py-1">
                 {Array.from(grouped.entries()).map(([category, catItems]) => (
                   <li key={category} role="presentation">
                     {/* Category header */}
@@ -247,7 +241,7 @@ export function CommandPalette({
                     )}
 
                     <ul role="presentation">
-                      {catItems.map(item => {
+                      {catItems.map((item) => {
                         const currentIndex = flatIndex++;
                         const isActive = currentIndex === activeIndex;
                         const Icon = item.icon;
@@ -275,9 +269,7 @@ export function CommandPalette({
                                 <Icon
                                   className={cn(
                                     'h-4 w-4 shrink-0',
-                                    isActive
-                                      ? 'text-foreground'
-                                      : 'text-muted-foreground'
+                                    isActive ? 'text-foreground' : 'text-muted-foreground'
                                   )}
                                 />
                               )}

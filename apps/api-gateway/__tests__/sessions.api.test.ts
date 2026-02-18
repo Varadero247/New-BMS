@@ -71,9 +71,7 @@ describe('Sessions API Routes', () => {
     it('should return list of active sessions', async () => {
       mockPrisma.session.findMany.mockResolvedValueOnce(mockSessions as any);
 
-      const response = await request(app)
-        .get('/api/sessions')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -83,9 +81,7 @@ describe('Sessions API Routes', () => {
     it('should mark current session', async () => {
       mockPrisma.session.findMany.mockResolvedValueOnce(mockSessions as any);
 
-      const response = await request(app)
-        .get('/api/sessions')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
 
       expect(response.body.data[0].isCurrent).toBe(true);
       expect(response.body.data[1].isCurrent).toBe(false);
@@ -94,9 +90,7 @@ describe('Sessions API Routes', () => {
     it('should only return non-expired sessions', async () => {
       mockPrisma.session.findMany.mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/sessions')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.session.findMany).toHaveBeenCalledWith({
         where: {
@@ -112,9 +106,7 @@ describe('Sessions API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.session.findMany.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/sessions')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -167,7 +159,10 @@ describe('Sessions API Routes', () => {
         .set('Authorization', 'Bearer token');
 
       expect(mockPrisma.session.findFirst).toHaveBeenCalledWith({
-        where: { id: '54000000-0000-4000-a000-000000000001', userId: '20000000-0000-4000-a000-000000000123' },
+        where: {
+          id: '54000000-0000-4000-a000-000000000001',
+          userId: '20000000-0000-4000-a000-000000000123',
+        },
       });
     });
 
@@ -197,9 +192,7 @@ describe('Sessions API Routes', () => {
     it('should exclude current session from revocation', async () => {
       mockPrisma.session.deleteMany.mockResolvedValueOnce({ count: 0 });
 
-      await request(app)
-        .delete('/api/sessions')
-        .set('Authorization', 'Bearer token');
+      await request(app).delete('/api/sessions').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith({
         where: {

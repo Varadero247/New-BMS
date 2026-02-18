@@ -17,20 +17,44 @@ router.param('id', validateIdParam());
 const traceabilityCreateSchema = z.object({
   productName: z.string().trim().min(1).max(200),
   batchNumber: z.string().trim().min(1).max(100),
-  productionDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-  expiryDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  productionDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  expiryDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
   ingredients: z.any(),
   suppliers: z.any().optional().nullable(),
   processRecords: z.any().optional().nullable(),
   distributionRecords: z.any().optional().nullable(),
-  status: z.enum(['IN_PRODUCTION', 'IN_STORAGE', 'DISTRIBUTED', 'RECALLED', 'EXPIRED']).optional().default('IN_PRODUCTION'),
+  status: z
+    .enum(['IN_PRODUCTION', 'IN_STORAGE', 'DISTRIBUTED', 'RECALLED', 'EXPIRED'])
+    .optional()
+    .default('IN_PRODUCTION'),
 });
 
 const traceabilityUpdateSchema = z.object({
   productName: z.string().trim().min(1).max(200).optional(),
   batchNumber: z.string().trim().min(1).max(100).optional(),
-  productionDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
-  expiryDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  productionDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional(),
+  expiryDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
   ingredients: z.any().optional(),
   suppliers: z.any().optional().nullable(),
   processRecords: z.any().optional().nullable(),
@@ -57,13 +81,20 @@ router.get('/batch/:batchNumber', async (req: Request, res: Response) => {
     });
 
     if (!record) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Batch not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Batch not found' } });
     }
 
     res.json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Error fetching batch', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch batch' } });
+    logger.error('Error fetching batch', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch batch' },
+    });
   }
 });
 
@@ -93,8 +124,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing traceability records', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list traceability records' } });
+    logger.error('Error listing traceability records', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list traceability records' },
+    });
   }
 });
 
@@ -105,7 +141,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = traceabilityCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -123,8 +162,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Traceability record created', { id: record.id });
     res.status(201).json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Error creating traceability record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create traceability record' } });
+    logger.error('Error creating traceability record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create traceability record' },
+    });
   }
 });
 
@@ -138,13 +182,21 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!record) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Traceability record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Traceability record not found' },
+      });
     }
 
     res.json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Error fetching traceability record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch traceability record' } });
+    logger.error('Error fetching traceability record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch traceability record' },
+    });
   }
 });
 
@@ -153,14 +205,22 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsTraceability.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsTraceability.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Traceability record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Traceability record not found' },
+      });
     }
 
     const parsed = traceabilityUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -176,8 +236,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Traceability record updated', { id: record.id });
     res.json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Error updating traceability record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update traceability record' } });
+    logger.error('Error updating traceability record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update traceability record' },
+    });
   }
 });
 
@@ -186,9 +251,14 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsTraceability.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsTraceability.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Traceability record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Traceability record not found' },
+      });
     }
 
     await prisma.fsTraceability.update({
@@ -199,8 +269,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Traceability record deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Traceability record deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting traceability record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete traceability record' } });
+    logger.error('Error deleting traceability record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete traceability record' },
+    });
   }
 });
 

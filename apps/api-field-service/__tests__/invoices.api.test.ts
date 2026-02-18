@@ -40,7 +40,15 @@ beforeEach(() => {
 
 describe('GET /api/invoices', () => {
   it('should return invoices with pagination', async () => {
-    const invoices = [{ id: '00000000-0000-0000-0000-000000000001', number: 'FSI-2602-1234', status: 'DRAFT', job: {}, customer: {} }];
+    const invoices = [
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        number: 'FSI-2602-1234',
+        status: 'DRAFT',
+        job: {},
+        customer: {},
+      },
+    ];
     (prisma as any).fsSvcInvoice.findMany.mockResolvedValue(invoices);
     (prisma as any).fsSvcInvoice.count.mockResolvedValue(1);
 
@@ -108,9 +116,7 @@ describe('POST /api/invoices', () => {
   });
 
   it('should reject invalid data', async () => {
-    const res = await request(app)
-      .post('/api/invoices')
-      .send({ total: -1 });
+    const res = await request(app).post('/api/invoices').send({ total: -1 });
 
     expect(res.status).toBe(400);
   });
@@ -118,7 +124,12 @@ describe('POST /api/invoices', () => {
 
 describe('GET /api/invoices/:id', () => {
   it('should return an invoice by id', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', number: 'FSI-001', job: {}, customer: {} });
+    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      number: 'FSI-001',
+      job: {},
+      customer: {},
+    });
 
     const res = await request(app).get('/api/invoices/00000000-0000-0000-0000-000000000001');
 
@@ -137,8 +148,13 @@ describe('GET /api/invoices/:id', () => {
 
 describe('PUT /api/invoices/:id', () => {
   it('should update an invoice', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcInvoice.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', total: 300 });
+    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcInvoice.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      total: 300,
+    });
 
     const res = await request(app)
       .put('/api/invoices/00000000-0000-0000-0000-000000000001')
@@ -160,8 +176,13 @@ describe('PUT /api/invoices/:id', () => {
 
 describe('DELETE /api/invoices/:id', () => {
   it('should soft delete an invoice', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcInvoice.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcInvoice.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/invoices/00000000-0000-0000-0000-000000000001');
 
@@ -180,8 +201,14 @@ describe('DELETE /api/invoices/:id', () => {
 
 describe('PUT /api/invoices/:id/send', () => {
   it('should send a draft invoice', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' });
-    (prisma as any).fsSvcInvoice.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'SENT' });
+    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'DRAFT',
+    });
+    (prisma as any).fsSvcInvoice.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SENT',
+    });
 
     const res = await request(app).put('/api/invoices/00000000-0000-0000-0000-000000000001/send');
 
@@ -190,7 +217,10 @@ describe('PUT /api/invoices/:id/send', () => {
   });
 
   it('should reject if not draft', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'SENT' });
+    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SENT',
+    });
 
     const res = await request(app).put('/api/invoices/00000000-0000-0000-0000-000000000001/send');
 
@@ -208,8 +238,15 @@ describe('PUT /api/invoices/:id/send', () => {
 
 describe('PUT /api/invoices/:id/pay', () => {
   it('should mark invoice as paid', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'SENT' });
-    (prisma as any).fsSvcInvoice.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'PAID', paidDate: new Date() });
+    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SENT',
+    });
+    (prisma as any).fsSvcInvoice.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'PAID',
+      paidDate: new Date(),
+    });
 
     const res = await request(app).put('/api/invoices/00000000-0000-0000-0000-000000000001/pay');
 
@@ -218,7 +255,10 @@ describe('PUT /api/invoices/:id/pay', () => {
   });
 
   it('should reject if already paid', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'PAID' });
+    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'PAID',
+    });
 
     const res = await request(app).put('/api/invoices/00000000-0000-0000-0000-000000000001/pay');
 

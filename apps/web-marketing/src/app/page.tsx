@@ -40,11 +40,7 @@ export default function Home() {
       <Footer />
 
       {/* Login modal — triggered by hero CTAs */}
-      <LoginModal
-        isOpen={loginOpen}
-        onClose={() => setLoginOpen(false)}
-        defaultEnv="local"
-      />
+      <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} defaultEnv="local" />
     </>
   );
 }

@@ -33,7 +33,11 @@ const createSchema = z.object({
   submittedBy: z.string().max(200).optional().nullable(),
   department: z.string().max(200).optional().nullable(),
   assignedTo: z.string().max(200).optional().nullable(),
-  targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  targetDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   isoClause: z.string().max(200).optional().nullable(),
   expectedBenefit: z.string().max(2000).optional().nullable(),
   estimatedCost: z.number().nonnegative().optional().nullable(),
@@ -42,12 +46,22 @@ const createSchema = z.object({
 });
 
 const updateSchema = createSchema.partial().extend({
-  status: z.enum(['IDEA', 'UNDER_REVIEW', 'APPROVED', 'IN_PROGRESS', 'COMPLETED', 'REJECTED', 'ON_HOLD']).optional(),
-  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  status: z
+    .enum(['IDEA', 'UNDER_REVIEW', 'APPROVED', 'IN_PROGRESS', 'COMPLETED', 'REJECTED', 'ON_HOLD'])
+    .optional(),
+  completedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   actualSaving: z.number().optional().nullable(),
   reviewNotes: z.string().max(5000).optional().nullable(),
   approvedBy: z.string().max(200).optional().nullable(),
-  approvedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  approvedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
 });
 
 // GET /stats — CI statistics
@@ -56,22 +70,44 @@ router.get('/stats', async (_req: Request, res: Response) => {
     const [total, ideas, approved, inProgress, completed, byPriority] = await Promise.all([
       prisma.qualContinuousImprovement.count({ where: { deletedAt: null } as any }),
       prisma.qualContinuousImprovement.count({ where: { deletedAt: null, status: 'IDEA' } as any }),
-      prisma.qualContinuousImprovement.count({ where: { deletedAt: null, status: 'APPROVED' } as any }),
-      prisma.qualContinuousImprovement.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } as any }),
-      prisma.qualContinuousImprovement.count({ where: { deletedAt: null, status: 'COMPLETED' } as any }),
-      prisma.qualContinuousImprovement.groupBy({ by: ['priority'], where: { deletedAt: null } as any, _count: { id: true } }),
+      prisma.qualContinuousImprovement.count({
+        where: { deletedAt: null, status: 'APPROVED' } as any,
+      }),
+      prisma.qualContinuousImprovement.count({
+        where: { deletedAt: null, status: 'IN_PROGRESS' } as any,
+      }),
+      prisma.qualContinuousImprovement.count({
+        where: { deletedAt: null, status: 'COMPLETED' } as any,
+      }),
+      prisma.qualContinuousImprovement.groupBy({
+        by: ['priority'],
+        where: { deletedAt: null } as any,
+        _count: { id: true },
+      }),
     ]);
 
     res.json({
       success: true,
       data: {
-        total, ideas, approved, inProgress, completed,
-        byPriority: byPriority.map((p: Record<string, unknown>) => ({ priority: p.priority, count: (p as any)._count.id })),
+        total,
+        ideas,
+        approved,
+        inProgress,
+        completed,
+        byPriority: byPriority.map((p: Record<string, unknown>) => ({
+          priority: p.priority,
+          count: (p as any)._count.id,
+        })),
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get CI stats', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get CI stats' } });
+    logger.error('Failed to get CI stats', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get CI stats' },
+    });
   }
 });
 
@@ -86,7 +122,8 @@ router.get('/', async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { deletedAt: null };
     if (status && typeof status === 'string') where.status = status;
     if (priority && typeof priority === 'string') where.priority = priority;
-    if (category && typeof category === 'string') where.category = { contains: category, mode: 'insensitive' };
+    if (category && typeof category === 'string')
+      where.category = { contains: category, mode: 'insensitive' };
     if (search && typeof search === 'string') {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
@@ -96,14 +133,28 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      prisma.qualContinuousImprovement.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.qualContinuousImprovement.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
       prisma.qualContinuousImprovement.count({ where }),
     ]);
 
-    res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error: unknown) {
-    logger.error('Failed to list continuous improvements', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list continuous improvements' } });
+    logger.error('Failed to list continuous improvements', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list continuous improvements' },
+    });
   }
 });
 
@@ -112,7 +163,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -131,20 +189,36 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to create continuous improvement', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create continuous improvement' } });
+    logger.error('Failed to create continuous improvement', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create continuous improvement' },
+    });
   }
 });
 
 // GET /:id — Get by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await prisma.qualContinuousImprovement.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Continuous improvement not found' } });
+    const item = await prisma.qualContinuousImprovement.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!item)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Continuous improvement not found' },
+      });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to get continuous improvement', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get continuous improvement' } });
+    logger.error('Failed to get continuous improvement', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get continuous improvement' },
+    });
   }
 });
 
@@ -153,36 +227,73 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.qualContinuousImprovement.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Continuous improvement not found' } });
+    const existing = await prisma.qualContinuousImprovement.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Continuous improvement not found' },
+      });
 
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.targetDate) data.targetDate = new Date(parsed.data.targetDate);
-    if ((parsed.data as any).completedDate) data.completedDate = new Date((parsed.data as any).completedDate);
-    if ((parsed.data as any).approvedDate) data.approvedDate = new Date((parsed.data as any).approvedDate);
+    if ((parsed.data as any).completedDate)
+      data.completedDate = new Date((parsed.data as any).completedDate);
+    if ((parsed.data as any).approvedDate)
+      data.approvedDate = new Date((parsed.data as any).approvedDate);
 
-    const item = await prisma.qualContinuousImprovement.update({ where: { id: req.params.id }, data });
+    const item = await prisma.qualContinuousImprovement.update({
+      where: { id: req.params.id },
+      data,
+    });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to update continuous improvement', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update continuous improvement' } });
+    logger.error('Failed to update continuous improvement', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update continuous improvement' },
+    });
   }
 });
 
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.qualContinuousImprovement.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Continuous improvement not found' } });
+    const existing = await prisma.qualContinuousImprovement.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Continuous improvement not found' },
+      });
 
-    await prisma.qualContinuousImprovement.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualContinuousImprovement.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete continuous improvement', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete continuous improvement' } });
+    logger.error('Failed to delete continuous improvement', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete continuous improvement' },
+    });
   }
 });
 

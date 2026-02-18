@@ -43,27 +43,48 @@ const targetUpdateSchema = z.object({
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { year, status, metricId, page = '1', limit = '20' } = req.query;
-    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * Math.max(1, parseInt(limit as string, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page as string, 10) || 1) - 1) *
+      Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
     const where: Record<string, any> = { deletedAt: null };
-    if (year) { const n = parseInt(year as string, 10); if (!isNaN(n)) where.year = n; }
+    if (year) {
+      const n = parseInt(year as string, 10);
+      if (!isNaN(n)) where.year = n;
+    }
     if (status) where.status = status as string;
     if (metricId) where.metricId = metricId as string;
 
     const [data, total] = await Promise.all([
-      prisma.esgTarget.findMany({ where, skip, take, orderBy: { createdAt: 'desc' }, include: { metric: true } }),
+      prisma.esgTarget.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: { metric: true },
+      }),
       prisma.esgTarget.count({ where }),
     ]);
 
     res.json({
       success: true,
       data,
-      pagination: { page: Math.max(1, parseInt(page as string, 10) || 1), limit: take, total, totalPages: Math.ceil(total / take) },
+      pagination: {
+        page: Math.max(1, parseInt(page as string, 10) || 1),
+        limit: take,
+        total,
+        totalPages: Math.ceil(total / take),
+      },
     });
   } catch (error: unknown) {
-    logger.error('Error listing targets', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list targets' } });
+    logger.error('Error listing targets', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list targets' },
+    });
   }
 });
 
@@ -73,7 +94,14 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = targetCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.issues,
+        },
+      });
     }
 
     const data = parsed.data;
@@ -92,8 +120,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: target });
   } catch (error: unknown) {
-    logger.error('Error creating target', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create target' } });
+    logger.error('Error creating target', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create target' },
+    });
   }
 });
 
@@ -102,11 +135,19 @@ router.get('/:id/trajectory', async (req: Request, res: Response) => {
   try {
     const target = await prisma.esgTarget.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
-      include: { metric: { include: { dataPoints: { where: { deletedAt: null } as any, orderBy: { periodStart: 'asc' } } } } },
+      include: {
+        metric: {
+          include: {
+            dataPoints: { where: { deletedAt: null } as any, orderBy: { periodStart: 'asc' } },
+          },
+        },
+      },
     });
 
     if (!target) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
     }
 
     const dataPoints = target.metric?.dataPoints || [];
@@ -130,8 +171,13 @@ router.get('/:id/trajectory', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Error fetching target trajectory', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch trajectory' } });
+    logger.error('Error fetching target trajectory', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch trajectory' },
+    });
   }
 });
 
@@ -143,12 +189,19 @@ router.get('/:id', async (req: Request, res: Response) => {
       include: { metric: true },
     });
     if (!target) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
     }
     res.json({ success: true, data: target });
   } catch (error: unknown) {
-    logger.error('Error fetching target', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch target' } });
+    logger.error('Error fetching target', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch target' },
+    });
   }
 });
 
@@ -157,40 +210,76 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = targetUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.issues,
+        },
+      });
     }
 
-    const existing = await prisma.esgTarget.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.esgTarget.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
     }
 
     const updateData: Record<string, any> = { ...parsed.data };
-    if (updateData.targetValue !== undefined) updateData.targetValue = new Prisma.Decimal(updateData.targetValue);
-    if (updateData.actualValue !== undefined) updateData.actualValue = updateData.actualValue != null ? new Prisma.Decimal(updateData.actualValue) : null;
-    if (updateData.baselineValue !== undefined) updateData.baselineValue = updateData.baselineValue != null ? new Prisma.Decimal(updateData.baselineValue) : null;
+    if (updateData.targetValue !== undefined)
+      updateData.targetValue = new Prisma.Decimal(updateData.targetValue);
+    if (updateData.actualValue !== undefined)
+      updateData.actualValue =
+        updateData.actualValue != null ? new Prisma.Decimal(updateData.actualValue) : null;
+    if (updateData.baselineValue !== undefined)
+      updateData.baselineValue =
+        updateData.baselineValue != null ? new Prisma.Decimal(updateData.baselineValue) : null;
 
-    const target = await prisma.esgTarget.update({ where: { id: req.params.id }, data: updateData });
+    const target = await prisma.esgTarget.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
     res.json({ success: true, data: target });
   } catch (error: unknown) {
-    logger.error('Error updating target', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update target' } });
+    logger.error('Error updating target', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update target' },
+    });
   }
 });
 
 // DELETE /api/targets/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgTarget.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.esgTarget.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
     }
 
-    await prisma.esgTarget.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.esgTarget.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Target deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting target', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete target' } });
+    logger.error('Error deleting target', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete target' },
+    });
   }
 });
 

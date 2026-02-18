@@ -61,8 +61,13 @@ router.get('/triggered', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: alerts });
   } catch (error: unknown) {
-    logger.error('Failed to get triggered alerts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get triggered alerts' } });
+    logger.error('Failed to get triggered alerts', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get triggered alerts' },
+    });
   }
 });
 
@@ -80,7 +85,8 @@ router.get('/', async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { deletedAt: null };
 
     if (typeof status === 'string' && status.length > 0) where.status = status;
-    if (typeof metric === 'string' && metric.length > 0) where.metric = { contains: metric, mode: 'insensitive' };
+    if (typeof metric === 'string' && metric.length > 0)
+      where.metric = { contains: metric, mode: 'insensitive' };
     if (typeof condition === 'string' && condition.length > 0) where.condition = condition;
     if (typeof search === 'string' && search.length > 0) {
       where.name = { contains: search, mode: 'insensitive' };
@@ -102,8 +108,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list alerts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list alerts' } });
+    logger.error('Failed to list alerts', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list alerts' },
+    });
   }
 });
 
@@ -116,7 +127,14 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = alertCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const data = parsed.data;
@@ -136,8 +154,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Alert created', { id: alert.id, name: alert.name });
     res.status(201).json({ success: true, data: alert });
   } catch (error: unknown) {
-    logger.error('Failed to create alert', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create alert' } });
+    logger.error('Failed to create alert', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create alert' },
+    });
   }
 });
 
@@ -152,11 +175,16 @@ router.put('/:id/acknowledge', async (req: Request, res: Response) => {
 
     const alert = await prisma.analyticsAlert.findFirst({ where: { id, deletedAt: null } as any });
     if (!alert) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     if (alert.status !== 'TRIGGERED') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Alert is not in TRIGGERED state' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Alert is not in TRIGGERED state' },
+      });
     }
 
     const updated = await prisma.analyticsAlert.update({
@@ -170,8 +198,13 @@ router.put('/:id/acknowledge', async (req: Request, res: Response) => {
     logger.info('Alert acknowledged', { id });
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Failed to acknowledge alert', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to acknowledge alert' } });
+    logger.error('Failed to acknowledge alert', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to acknowledge alert' },
+    });
   }
 });
 
@@ -185,11 +218,16 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
 
     const alert = await prisma.analyticsAlert.findFirst({ where: { id, deletedAt: null } as any });
     if (!alert) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     if (alert.status === 'RESOLVED') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Alert is already resolved' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Alert is already resolved' },
+      });
     }
 
     const updated = await prisma.analyticsAlert.update({
@@ -200,8 +238,13 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
     logger.info('Alert resolved', { id });
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Failed to resolve alert', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to resolve alert' } });
+    logger.error('Failed to resolve alert', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to resolve alert' },
+    });
   }
 });
 
@@ -218,13 +261,19 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!alert) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     res.json({ success: true, data: alert });
   } catch (error: unknown) {
-    logger.error('Failed to get alert', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get alert' } });
+    logger.error('Failed to get alert', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get alert' } });
   }
 });
 
@@ -236,14 +285,25 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsAlert.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsAlert.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     const parsed = alertUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const updated = await prisma.analyticsAlert.update({
@@ -253,8 +313,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Failed to update alert', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update alert' } });
+    logger.error('Failed to update alert', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update alert' },
+    });
   }
 });
 
@@ -266,9 +331,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsAlert.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsAlert.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     await prisma.analyticsAlert.update({
@@ -278,8 +347,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { message: 'Alert deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete alert', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete alert' } });
+    logger.error('Failed to delete alert', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete alert' },
+    });
   }
 });
 

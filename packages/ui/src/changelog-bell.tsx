@@ -21,10 +21,22 @@ export interface ChangelogBellProps {
 }
 
 const categoryChip: Record<ChangelogEntry['category'], { label: string; className: string }> = {
-  new_feature: { label: 'New', className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
-  improvement: { label: 'Improved', className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
-  bug_fix: { label: 'Fix', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
-  security: { label: 'Security', className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
+  new_feature: {
+    label: 'New',
+    className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+  },
+  improvement: {
+    label: 'Improved',
+    className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  },
+  bug_fix: {
+    label: 'Fix',
+    className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  },
+  security: {
+    label: 'Security',
+    className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+  },
 };
 
 function timeAgo(date: string | Date): string {
@@ -86,7 +98,13 @@ export function ChangelogBell({
         aria-haspopup="true"
       >
         {/* Megaphone SVG */}
-        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <svg
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.8}
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -130,7 +148,12 @@ export function ChangelogBell({
                       className="px-4 py-3 border-b border-border last:border-b-0 hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex items-start gap-2 mb-1">
-                        <span className={cn('px-1.5 py-0.5 text-[10px] font-semibold rounded', chip.className)}>
+                        <span
+                          className={cn(
+                            'px-1.5 py-0.5 text-[10px] font-semibold rounded',
+                            chip.className
+                          )}
+                        >
                           {chip.label}
                         </span>
                         <span className="text-[10px] text-muted-foreground/70 mt-0.5">
@@ -138,7 +161,9 @@ export function ChangelogBell({
                         </span>
                       </div>
                       <p className="text-sm font-medium text-foreground">{entry.title}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{entry.description}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                        {entry.description}
+                      </p>
                     </li>
                   );
                 })}
@@ -151,7 +176,10 @@ export function ChangelogBell({
             <div className="px-4 py-2.5 border-t border-border shrink-0">
               <button
                 type="button"
-                onClick={() => { onViewAll(); setOpen(false); }}
+                onClick={() => {
+                  onViewAll();
+                  setOpen(false);
+                }}
                 className="w-full text-center text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline"
               >
                 View All Changes

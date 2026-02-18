@@ -3,7 +3,13 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    cmmsMeterReading: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    cmmsMeterReading: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
   },
   Prisma: { Decimal: jest.fn((v: any) => v) },
 }));
@@ -158,14 +164,18 @@ describe('Meters Routes', () => {
       prisma.cmmsMeterReading.findFirst.mockResolvedValue(mockReading);
       prisma.cmmsMeterReading.update.mockResolvedValue({ ...mockReading, reading: 5100 });
 
-      const res = await request(app).put('/api/meters/00000000-0000-0000-0000-000000000001').send({ reading: 5100 });
+      const res = await request(app)
+        .put('/api/meters/00000000-0000-0000-0000-000000000001')
+        .send({ reading: 5100 });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent reading', async () => {
       prisma.cmmsMeterReading.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/meters/00000000-0000-0000-0000-000000000099').send({ reading: 5100 });
+      const res = await request(app)
+        .put('/api/meters/00000000-0000-0000-0000-000000000099')
+        .send({ reading: 5100 });
       expect(res.status).toBe(404);
     });
   });

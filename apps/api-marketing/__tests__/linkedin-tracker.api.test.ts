@@ -37,24 +37,29 @@ import { prisma } from '../src/prisma';
 
 const app = express();
 app.use(express.json());
-app.use((req: any, _res: any, next: any) => { req.user = { id: 'admin-1' }; next(); });
+app.use((req: any, _res: any, next: any) => {
+  req.user = { id: 'admin-1' };
+  next();
+});
 app.use('/api/linkedin', linkedinRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('POST /api/linkedin/outreach', () => {
   it('creates outreach with valid data', async () => {
     (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(5);
-    (prisma.mktLinkedInOutreach.create as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.mktLinkedInOutreach.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
 
-    const res = await request(app)
-      .post('/api/linkedin/outreach')
-      .send({
-        prospectName: 'John Doe',
-        company: 'TechCorp',
-        linkedinUrl: 'https://linkedin.com/in/johndoe',
-        template: 'ISO_CONSULTANT',
-      });
+    const res = await request(app).post('/api/linkedin/outreach').send({
+      prospectName: 'John Doe',
+      company: 'TechCorp',
+      linkedinUrl: 'https://linkedin.com/in/johndoe',
+      template: 'ISO_CONSULTANT',
+    });
 
     expect(res.status).toBe(201);
   });
@@ -62,36 +67,30 @@ describe('POST /api/linkedin/outreach', () => {
   it('returns 429 when daily limit reached', async () => {
     (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(20);
 
-    const res = await request(app)
-      .post('/api/linkedin/outreach')
-      .send({
-        prospectName: 'John Doe',
-        company: 'TechCorp',
-        linkedinUrl: 'https://linkedin.com/in/johndoe',
-        template: 'ISO_CONSULTANT',
-      });
+    const res = await request(app).post('/api/linkedin/outreach').send({
+      prospectName: 'John Doe',
+      company: 'TechCorp',
+      linkedinUrl: 'https://linkedin.com/in/johndoe',
+      template: 'ISO_CONSULTANT',
+    });
 
     expect(res.status).toBe(429);
     expect(res.body.error.code).toBe('DAILY_LIMIT_REACHED');
   });
 
   it('returns 400 for invalid template', async () => {
-    const res = await request(app)
-      .post('/api/linkedin/outreach')
-      .send({
-        prospectName: 'John Doe',
-        company: 'TechCorp',
-        linkedinUrl: 'https://linkedin.com/in/johndoe',
-        template: 'INVALID',
-      });
+    const res = await request(app).post('/api/linkedin/outreach').send({
+      prospectName: 'John Doe',
+      company: 'TechCorp',
+      linkedinUrl: 'https://linkedin.com/in/johndoe',
+      template: 'INVALID',
+    });
 
     expect(res.status).toBe(400);
   });
 
   it('returns 400 for missing required fields', async () => {
-    const res = await request(app)
-      .post('/api/linkedin/outreach')
-      .send({ prospectName: 'John' });
+    const res = await request(app).post('/api/linkedin/outreach').send({ prospectName: 'John' });
 
     expect(res.status).toBe(400);
   });
@@ -99,7 +98,9 @@ describe('POST /api/linkedin/outreach', () => {
 
 describe('GET /api/linkedin/outreach', () => {
   it('returns outreach list with daily stats', async () => {
-    (prisma.mktLinkedInOutreach.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
+    (prisma.mktLinkedInOutreach.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001' },
+    ]);
     (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(3);
 
     const res = await request(app).get('/api/linkedin/outreach');
@@ -113,8 +114,14 @@ describe('GET /api/linkedin/outreach', () => {
 
 describe('PATCH /api/linkedin/outreach/:id', () => {
   it('updates status with timestamp', async () => {
-    (prisma.mktLinkedInOutreach.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'PENDING' });
-    (prisma.mktLinkedInOutreach.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'SENT' });
+    (prisma.mktLinkedInOutreach.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'PENDING',
+    });
+    (prisma.mktLinkedInOutreach.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SENT',
+    });
 
     const res = await request(app)
       .patch('/api/linkedin/outreach/00000000-0000-0000-0000-000000000001')

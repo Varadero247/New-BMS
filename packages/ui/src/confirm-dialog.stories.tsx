@@ -69,9 +69,7 @@ export const InfoVariant: Story = {
 
     return (
       <>
-        <Button onClick={() => setIsOpen(true)}>
-          Confirm Action
-        </Button>
+        <Button onClick={() => setIsOpen(true)}>Confirm Action</Button>
         <ConfirmDialog
           isOpen={isOpen}
           onConfirm={() => {
@@ -95,7 +93,7 @@ export const Loading: Story = {
 
     const handleConfirm = async () => {
       setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       setLoading(false);
       setIsOpen(false);
       alert('Completed!');
@@ -103,9 +101,7 @@ export const Loading: Story = {
 
     return (
       <>
-        <Button onClick={() => setIsOpen(true)}>
-          Process
-        </Button>
+        <Button onClick={() => setIsOpen(true)}>Process</Button>
         <ConfirmDialog
           isOpen={isOpen}
           onConfirm={handleConfirm}
@@ -126,9 +122,7 @@ export const CustomLabels: Story = {
 
     return (
       <>
-        <Button onClick={() => setIsOpen(true)}>
-          Publish
-        </Button>
+        <Button onClick={() => setIsOpen(true)}>Publish</Button>
         <ConfirmDialog
           isOpen={isOpen}
           onConfirm={() => {

@@ -19,7 +19,13 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const { projectId, employeeId, page = '1', limit = '50' } = req.query;
 
     if (!projectId && !employeeId) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'projectId or employeeId query parameter is required' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'projectId or employeeId query parameter is required',
+        },
+      });
     }
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -50,7 +56,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List timesheets error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list timesheets' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list timesheets' },
+    });
   }
 });
 
@@ -58,7 +67,7 @@ const createTimesheetSchema = z.object({
   projectId: z.string().trim().min(1).max(200),
   taskId: z.string().optional(),
   employeeId: z.string().trim().min(1).max(200),
-  workDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  workDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   hoursWorked: z.number().min(0),
   overtime: z.number().optional(),
   activityType: z.enum(['DEVELOPMENT', 'TESTING', 'DESIGN', 'MEETING', 'DOCUMENTATION', 'ADMIN']),
@@ -99,85 +108,125 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: timesheet });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
     logger.error('Create timesheet error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create timesheet' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create timesheet' },
+    });
   }
 });
 
 // PUT /api/timesheets/:id - Update timesheet
-router.put('/:id', checkOwnership(prisma.projectTimesheet), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectTimesheet.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Timesheet not found' } });
+router.put(
+  '/:id',
+  checkOwnership(prisma.projectTimesheet),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectTimesheet.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Timesheet not found' } });
+      }
+
+      const parsed = updateTimesheetSchema.safeParse(req.body);
+      if (!parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+        });
+      const data = parsed.data;
+      const updateData = { ...data } as Record<string, unknown>;
+
+      if (data.workDate) updateData.workDate = new Date(data.workDate);
+
+      // Recalculate total cost if relevant fields changed
+      const hourlyRate = data.hourlyRate ?? existing.hourlyRate;
+      const billableHours = data.billableHours ?? existing.billableHours;
+      if (hourlyRate && billableHours) {
+        updateData.totalCost = hourlyRate * billableHours;
+      }
+
+      const timesheet = await prisma.projectTimesheet.update({
+        where: { id: req.params.id },
+        data: updateData,
+      });
+
+      res.json({ success: true, data: timesheet });
+    } catch (error) {
+      logger.error('Update timesheet error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update timesheet' },
+      });
     }
-
-    const parsed = updateTimesheetSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const data = parsed.data;
-    const updateData = { ...data } as Record<string, unknown>;
-
-    if (data.workDate) updateData.workDate = new Date(data.workDate);
-
-    // Recalculate total cost if relevant fields changed
-    const hourlyRate = data.hourlyRate ?? existing.hourlyRate;
-    const billableHours = data.billableHours ?? existing.billableHours;
-    if (hourlyRate && billableHours) {
-      updateData.totalCost = hourlyRate * billableHours;
-    }
-
-    const timesheet = await prisma.projectTimesheet.update({
-      where: { id: req.params.id },
-      data: updateData,
-    });
-
-    res.json({ success: true, data: timesheet });
-  } catch (error) {
-    logger.error('Update timesheet error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update timesheet' } });
   }
-});
+);
 
 // PUT /api/timesheets/:id/approve - Approve timesheet
-router.put('/:id/approve', checkOwnership(prisma.projectTimesheet), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectTimesheet.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Timesheet not found' } });
+router.put(
+  '/:id/approve',
+  checkOwnership(prisma.projectTimesheet),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectTimesheet.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Timesheet not found' } });
+      }
+
+      const timesheet = await prisma.projectTimesheet.update({
+        where: { id: req.params.id },
+        data: {
+          status: 'APPROVED',
+          approvedBy: req.user?.id,
+          approvedAt: new Date(),
+        },
+      });
+
+      res.json({ success: true, data: timesheet });
+    } catch (error) {
+      logger.error('Approve timesheet error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to approve timesheet' },
+      });
     }
-
-    const timesheet = await prisma.projectTimesheet.update({
-      where: { id: req.params.id },
-      data: {
-        status: 'APPROVED',
-        approvedBy: req.user?.id,
-        approvedAt: new Date(),
-      },
-    });
-
-    res.json({ success: true, data: timesheet });
-  } catch (error) {
-    logger.error('Approve timesheet error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve timesheet' } });
   }
-});
+);
 
 // DELETE /api/timesheets/:id - Delete timesheet
-router.delete('/:id', checkOwnership(prisma.projectTimesheet), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectTimesheet.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Timesheet not found' } });
-    }
+router.delete(
+  '/:id',
+  checkOwnership(prisma.projectTimesheet),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectTimesheet.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Timesheet not found' } });
+      }
 
-    await prisma.projectTimesheet.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete timesheet error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete timesheet' } });
+      await prisma.projectTimesheet.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete timesheet error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete timesheet' },
+      });
+    }
   }
-});
+);
 
 export default router;

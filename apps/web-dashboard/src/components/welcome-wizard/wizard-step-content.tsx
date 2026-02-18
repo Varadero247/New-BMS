@@ -40,9 +40,21 @@ export const WIZARD_STEPS: WizardStep[] = [
     body: 'Manage ISO 45001 (Health & Safety), ISO 14001 (Environmental), ISO 9001 (Quality), ISO 27001 (InfoSec), ISO 42001 (AI Management), ISO 37001 (Anti-Bribery), and more. Each standard has its own registers, audit trails, CAPA workflows, and document controls.',
     icon: Shield,
     integrations: [
-      { from: 'Quality NCRs', to: 'CAPA Workflows', description: 'Non-conformances automatically create corrective action requests' },
-      { from: 'Env Aspects', to: 'ESG Reporting', description: 'Environmental aspect data flows into sustainability reports' },
-      { from: 'Audit Findings', to: 'Risk Register', description: 'Audit non-conformances update risk scores automatically' },
+      {
+        from: 'Quality NCRs',
+        to: 'CAPA Workflows',
+        description: 'Non-conformances automatically create corrective action requests',
+      },
+      {
+        from: 'Env Aspects',
+        to: 'ESG Reporting',
+        description: 'Environmental aspect data flows into sustainability reports',
+      },
+      {
+        from: 'Audit Findings',
+        to: 'Risk Register',
+        description: 'Audit non-conformances update risk scores automatically',
+      },
     ],
   },
   {
@@ -51,9 +63,21 @@ export const WIZARD_STEPS: WizardStep[] = [
     body: 'Inventory, HR, Payroll, Project Management, Finance, CRM, CMMS, Field Service, Analytics, and Workflows. All operational modules share data so you get a single source of truth across departments.',
     icon: Wrench,
     integrations: [
-      { from: 'CMMS Work Orders', to: 'Inventory Parts', description: 'Maintenance jobs automatically reserve and consume spare parts' },
-      { from: 'HR Training', to: 'Certifications', description: 'Employee training completions update competency matrices' },
-      { from: 'Field Service Jobs', to: 'Finance Invoicing', description: 'Completed field jobs generate invoices automatically' },
+      {
+        from: 'CMMS Work Orders',
+        to: 'Inventory Parts',
+        description: 'Maintenance jobs automatically reserve and consume spare parts',
+      },
+      {
+        from: 'HR Training',
+        to: 'Certifications',
+        description: 'Employee training completions update competency matrices',
+      },
+      {
+        from: 'Field Service Jobs',
+        to: 'Finance Invoicing',
+        description: 'Completed field jobs generate invoices automatically',
+      },
     ],
   },
   {
@@ -62,19 +86,39 @@ export const WIZARD_STEPS: WizardStep[] = [
     body: 'Enterprise Risk Register with bow-tie analysis, Incident Management, Internal Audits, Complaints, Regulatory Monitor, Management Review, Permit to Work, and Emergency Response. All governance modules feed into a unified risk picture.',
     icon: AlertTriangle,
     integrations: [
-      { from: 'Incidents', to: 'Risk Scores', description: 'Reported incidents automatically adjust risk likelihood ratings' },
-      { from: 'Audit Findings', to: 'CAPA Actions', description: 'Non-conformances from audits create tracked corrective actions' },
-      { from: 'Reg Changes', to: 'Compliance Calendar', description: 'New regulatory changes appear as action items on your calendar' },
+      {
+        from: 'Incidents',
+        to: 'Risk Scores',
+        description: 'Reported incidents automatically adjust risk likelihood ratings',
+      },
+      {
+        from: 'Audit Findings',
+        to: 'CAPA Actions',
+        description: 'Non-conformances from audits create tracked corrective actions',
+      },
+      {
+        from: 'Reg Changes',
+        to: 'Compliance Calendar',
+        description: 'New regulatory changes appear as action items on your calendar',
+      },
     ],
   },
   {
     title: 'AI Intelligence',
     subtitle: '35+ analysis types',
-    body: 'AI-powered root-cause analysis, compliance gap detection, predictive risk scoring, semantic search across all documents, and automated report generation. The AI learns from your organisation\'s data to provide contextual recommendations.',
+    body: "AI-powered root-cause analysis, compliance gap detection, predictive risk scoring, semantic search across all documents, and automated report generation. The AI learns from your organisation's data to provide contextual recommendations.",
     icon: Brain,
     integrations: [
-      { from: 'AI Insights', to: 'Dashboard KPIs', description: 'AI analysis results surface as actionable items on your dashboard' },
-      { from: 'Documents', to: 'Gap Analysis', description: 'Upload policies and the AI identifies compliance gaps automatically' },
+      {
+        from: 'AI Insights',
+        to: 'Dashboard KPIs',
+        description: 'AI analysis results surface as actionable items on your dashboard',
+      },
+      {
+        from: 'Documents',
+        to: 'Gap Analysis',
+        description: 'Upload policies and the AI identifies compliance gaps automatically',
+      },
     ],
   },
   {
@@ -83,12 +127,20 @@ export const WIZARD_STEPS: WizardStep[] = [
     body: 'Pre-built templates covering 34 modules in DOCX format, mapped to specific ISO clauses. Use them as-is or customise them. Templates feed into the document management system for version control and approval workflows.',
     icon: FileText,
     integrations: [
-      { from: 'Templates', to: 'Documents Module', description: 'Generate controlled documents from templates with auto-numbering' },
-      { from: 'Templates', to: 'Evidence Packs', description: 'Bundle templates into audit-ready evidence packs for certification' },
+      {
+        from: 'Templates',
+        to: 'Documents Module',
+        description: 'Generate controlled documents from templates with auto-numbering',
+      },
+      {
+        from: 'Templates',
+        to: 'Evidence Packs',
+        description: 'Bundle templates into audit-ready evidence packs for certification',
+      },
     ],
   },
   {
-    title: 'You\'re All Set!',
+    title: "You're All Set!",
     subtitle: 'Start exploring',
     body: 'You\'ve seen the highlights. Use the checklist below to get started, or take a guided tour of the dashboard. You can always reopen this guide from the sidebar under "Help & Discovery".',
     icon: CheckCircle2,
@@ -135,11 +187,17 @@ export function WizardStepContent({ stepIndex }: WizardStepContentProps) {
                 className="flex items-start gap-3 p-3 rounded-lg bg-[var(--raised,#1e293b)] border border-[var(--border,#334155)]"
               >
                 <div className="flex items-center gap-2 shrink-0 mt-0.5">
-                  <span className="text-xs font-medium text-[var(--teal-core,#14b8a6)]">{integ.from}</span>
+                  <span className="text-xs font-medium text-[var(--teal-core,#14b8a6)]">
+                    {integ.from}
+                  </span>
                   <ArrowRight className="h-3 w-3 text-[var(--steel,#94a3b8)]" />
-                  <span className="text-xs font-medium text-[var(--blue-mid,#3b82f6)]">{integ.to}</span>
+                  <span className="text-xs font-medium text-[var(--blue-mid,#3b82f6)]">
+                    {integ.to}
+                  </span>
                 </div>
-                <span className="text-xs text-[var(--steel,#94a3b8)] leading-relaxed">{integ.description}</span>
+                <span className="text-xs text-[var(--steel,#94a3b8)] leading-relaxed">
+                  {integ.description}
+                </span>
               </div>
             ))}
           </div>

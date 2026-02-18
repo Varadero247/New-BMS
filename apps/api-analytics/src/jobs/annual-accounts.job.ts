@@ -35,7 +35,7 @@ export async function runAnnualAccountsJob(fiscalYearOverride?: string): Promise
 
   const fiscalYear = `${fyStartYear}-${fyEndYear}`;
   const fyStartMonth = `${fyStartYear}-04`; // April
-  const fyEndMonth = `${fyEndYear}-03`;      // March
+  const fyEndMonth = `${fyEndYear}-03`; // March
 
   logger.info('Starting annual accounts generation', { fiscalYear, fyStartMonth, fyEndMonth });
 
@@ -91,9 +91,12 @@ export async function runAnnualAccountsJob(fiscalYearOverride?: string): Promise
       avgMrr: snapshots.length > 0 ? Math.round((totalRevenue / snapshots.length) * 100) / 100 : 0,
       endingMrr: snapshots.length > 0 ? Number(snapshots[snapshots.length - 1].mrr) : 0,
       endingCustomers: snapshots.length > 0 ? snapshots[snapshots.length - 1].customers : 0,
-      avgArpu: snapshots.length > 0
-        ? Math.round(snapshots.reduce((sum, s) => sum + Number(s.arpu || 0), 0) / snapshots.length * 100) / 100
-        : 0,
+      avgArpu:
+        snapshots.length > 0
+          ? Math.round(
+              (snapshots.reduce((sum, s) => sum + Number(s.arpu || 0), 0) / snapshots.length) * 100
+            ) / 100
+          : 0,
     },
   };
 

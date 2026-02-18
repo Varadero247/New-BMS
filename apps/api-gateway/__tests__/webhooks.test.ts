@@ -16,19 +16,36 @@ jest.mock('@ims/monitoring', () => ({
 }));
 
 const mockCreateEndpoint = jest.fn().mockReturnValue({
-  id: '00000000-0000-0000-0000-000000000001', name: 'Test Webhook', url: 'https://example.com/hook',
-  secret: 'whsec_abcdefghijklmnop', events: ['ncr.created'], enabled: true, orgId: 'org-1',
-  headers: null, lastTriggeredAt: null, failureCount: 0,
-  createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+  id: '00000000-0000-0000-0000-000000000001',
+  name: 'Test Webhook',
+  url: 'https://example.com/hook',
+  secret: 'whsec_abcdefghijklmnop',
+  events: ['ncr.created'],
+  enabled: true,
+  orgId: 'org-1',
+  headers: null,
+  lastTriggeredAt: null,
+  failureCount: 0,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
 });
 const mockListEndpoints = jest.fn().mockReturnValue([]);
 const mockGetEndpoint = jest.fn().mockReturnValue({
-  id: '00000000-0000-0000-0000-000000000001', orgId: 'org-1', name: 'Test', url: 'https://example.com/hook',
-  secret: 'whsec_abcdefghijklmnop', events: ['ncr.created'], enabled: true,
-  headers: null, lastTriggeredAt: null, failureCount: 0,
+  id: '00000000-0000-0000-0000-000000000001',
+  orgId: 'org-1',
+  name: 'Test',
+  url: 'https://example.com/hook',
+  secret: 'whsec_abcdefghijklmnop',
+  events: ['ncr.created'],
+  enabled: true,
+  headers: null,
+  lastTriggeredAt: null,
+  failureCount: 0,
 });
 const mockUpdateEndpoint = jest.fn().mockReturnValue({
-  id: '00000000-0000-0000-0000-000000000001', name: 'Updated', secret: 'whsec_abcdefghijklmnop',
+  id: '00000000-0000-0000-0000-000000000001',
+  name: 'Updated',
+  secret: 'whsec_abcdefghijklmnop',
 });
 const mockDeleteEndpoint = jest.fn().mockReturnValue(true);
 const mockDispatch = jest.fn().mockReturnValue([{ id: 'del-1', status: 'PENDING' }]);
@@ -59,11 +76,20 @@ describe('Webhooks Routes', () => {
 
   describe('GET /api/admin/webhooks', () => {
     it('returns webhook endpoints with masked secrets', async () => {
-      mockListEndpoints.mockReturnValue([{
-        id: '00000000-0000-0000-0000-000000000001', name: 'Test', url: 'https://example.com',
-        secret: 'whsec_abcdefghijklmnop', events: ['ncr.created'], enabled: true,
-        orgId: 'org-1', headers: null, lastTriggeredAt: null, failureCount: 0,
-      }]);
+      mockListEndpoints.mockReturnValue([
+        {
+          id: '00000000-0000-0000-0000-000000000001',
+          name: 'Test',
+          url: 'https://example.com',
+          secret: 'whsec_abcdefghijklmnop',
+          events: ['ncr.created'],
+          enabled: true,
+          orgId: 'org-1',
+          headers: null,
+          lastTriggeredAt: null,
+          failureCount: 0,
+        },
+      ]);
       const res = await request(app).get('/api/admin/webhooks');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -116,21 +142,27 @@ describe('Webhooks Routes', () => {
 
   describe('DELETE /api/admin/webhooks/:id', () => {
     it('deletes a webhook endpoint', async () => {
-      const res = await request(app).delete('/api/admin/webhooks/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/admin/webhooks/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
 
     it('returns 404 for non-existent', async () => {
       mockGetEndpoint.mockReturnValueOnce(undefined);
-      const res = await request(app).delete('/api/admin/webhooks/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/admin/webhooks/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
     });
   });
 
   describe('POST /api/admin/webhooks/:id/test', () => {
     it('sends a test ping event', async () => {
-      const res = await request(app).post('/api/admin/webhooks/00000000-0000-0000-0000-000000000001/test');
+      const res = await request(app).post(
+        '/api/admin/webhooks/00000000-0000-0000-0000-000000000001/test'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -139,7 +171,9 @@ describe('Webhooks Routes', () => {
   describe('GET /api/admin/webhooks/:id/deliveries', () => {
     it('returns delivery log', async () => {
       mockListDeliveries.mockReturnValue([{ id: 'd1', status: 'SUCCESS', responseCode: 200 }]);
-      const res = await request(app).get('/api/admin/webhooks/00000000-0000-0000-0000-000000000001/deliveries');
+      const res = await request(app).get(
+        '/api/admin/webhooks/00000000-0000-0000-0000-000000000001/deliveries'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });

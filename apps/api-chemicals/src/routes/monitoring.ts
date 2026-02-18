@@ -18,13 +18,22 @@ const createMonitoringSchema = z.object({
   monitoringType: monitoringTypeEnum,
   location: z.string().optional(),
   sampledBy: z.string().optional(),
-  sampledAt: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime({ offset: true })),
+  sampledAt: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().trim().datetime({ offset: true })),
   resultValue: z.number().optional(),
   resultUnit: z.string().optional(),
   welTwaLimit: z.number().optional(),
   welStelLimit: z.number().optional(),
   reportUrl: z.string().trim().url('Invalid URL').optional(),
-  nextMonitoringDue: z.string().trim().datetime({ offset: true }).optional().or(z.string().trim().datetime({ offset: true }).optional()),
+  nextMonitoringDue: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .optional()
+    .or(z.string().trim().datetime({ offset: true }).optional()),
   actionTaken: z.string().optional(),
 });
 
@@ -35,7 +44,10 @@ router.get('/overdue', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const data = await prisma.chemMonitoring.findMany({
-      where: { nextMonitoringDue: { lte: new Date() }, chemical: { orgId, isActive: true, deletedAt: null } },
+      where: {
+        nextMonitoringDue: { lte: new Date() },
+        chemical: { orgId, isActive: true, deletedAt: null },
+      },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
       orderBy: { nextMonitoringDue: 'asc' },
       take: 500,
@@ -43,7 +55,10 @@ router.get('/overdue', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to fetch overdue monitoring', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue monitoring' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue monitoring' },
+    });
   }
 });
 
@@ -53,15 +68,26 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const [total, aboveWel, atWel, belowWel, overdue] = await Promise.all([
       prisma.chemMonitoring.count({ where: { chemical: { orgId, deletedAt: null } as any } }),
-      prisma.chemMonitoring.count({ where: { resultVsWel: 'ABOVE_WEL', chemical: { orgId, deletedAt: null } as any } }),
-      prisma.chemMonitoring.count({ where: { resultVsWel: 'AT_WEL', chemical: { orgId, deletedAt: null } as any } }),
-      prisma.chemMonitoring.count({ where: { resultVsWel: 'BELOW_WEL', chemical: { orgId, deletedAt: null } as any } }),
-      prisma.chemMonitoring.count({ where: { nextMonitoringDue: { lte: new Date() }, chemical: { orgId, deletedAt: null } } }),
+      prisma.chemMonitoring.count({
+        where: { resultVsWel: 'ABOVE_WEL', chemical: { orgId, deletedAt: null } as any },
+      }),
+      prisma.chemMonitoring.count({
+        where: { resultVsWel: 'AT_WEL', chemical: { orgId, deletedAt: null } as any },
+      }),
+      prisma.chemMonitoring.count({
+        where: { resultVsWel: 'BELOW_WEL', chemical: { orgId, deletedAt: null } as any },
+      }),
+      prisma.chemMonitoring.count({
+        where: { nextMonitoringDue: { lte: new Date() }, chemical: { orgId, deletedAt: null } },
+      }),
     ]);
     res.json({ success: true, data: { total, aboveWel, atWel, belowWel, overdue } });
   } catch (error: unknown) {
     logger.error('Failed to fetch monitoring dashboard', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch monitoring dashboard' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch monitoring dashboard' },
+    });
   }
 });
 
@@ -73,19 +99,34 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
     if (chemicalId) where.chemicalId = chemicalId as any;
     if (welResult) where.resultVsWel = welResult as any;
-    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
     const [data, total] = await Promise.all([
       prisma.chemMonitoring.findMany({
-        where, skip, take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100),
+        where,
+        skip,
+        take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100),
         orderBy: { sampledAt: 'desc' },
         include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
       }),
       prisma.chemMonitoring.count({ where }),
     ]);
-    res.json({ success: true, data, pagination: { page: Math.max(1, parseInt(page, 10) || 1), limit: Math.max(1, parseInt(limit, 10) || 20), total, totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)) } });
+    res.json({
+      success: true,
+      data,
+      pagination: {
+        page: Math.max(1, parseInt(page, 10) || 1),
+        limit: Math.max(1, parseInt(limit, 10) || 20),
+        total,
+        totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)),
+      },
+    });
   } catch (error: unknown) {
     logger.error('Failed to fetch monitoring records', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch monitoring records' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch monitoring records' },
+    });
   }
 });
 
@@ -93,12 +134,21 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createMonitoringSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const d = parsed.data;
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
 
-    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, orgId, deletedAt: null } as any });
-    if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
+    const chemical = await prisma.chemRegister.findFirst({
+      where: { id: d.chemicalId, orgId, deletedAt: null } as any,
+    });
+    if (!chemical)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
 
     // Auto-calculate WEL percentage and status
     let percentageOfWel: number | null = null;
@@ -124,7 +174,10 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to create monitoring record', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' },
+    });
   }
 });
 
@@ -132,15 +185,31 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateMonitoringSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
-    const existing = await prisma.chemMonitoring.findFirst({ where: { id: req.params.id, chemical: { orgId, deletedAt: null } } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Monitoring record not found' } });
-    const data = await prisma.chemMonitoring.update({ where: { id: req.params.id }, data: parsed.data });
+    const existing = await prisma.chemMonitoring.findFirst({
+      where: { id: req.params.id, chemical: { orgId, deletedAt: null } },
+    });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Monitoring record not found' },
+      });
+    const data = await prisma.chemMonitoring.update({
+      where: { id: req.params.id },
+      data: parsed.data,
+    });
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to update monitoring record', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' },
+    });
   }
 });
 

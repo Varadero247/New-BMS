@@ -44,7 +44,13 @@ const orderCreateSchema = z.object({
   items: z.any(),
   shippingAddress: z.any().optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
-  expectedDelivery: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  expectedDelivery: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
 });
 
 const orderUpdateSchema = z.object({
@@ -52,11 +58,25 @@ const orderUpdateSchema = z.object({
   items: z.any().optional(),
   shippingAddress: z.any().optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
-  expectedDelivery: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  expectedDelivery: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
 });
 
 const statusUpdateSchema = z.object({
-  status: z.enum(['DRAFT', 'SUBMITTED', 'CONFIRMED', 'IN_PROGRESS', 'SHIPPED', 'DELIVERED', 'CANCELLED']),
+  status: z.enum([
+    'DRAFT',
+    'SUBMITTED',
+    'CONFIRMED',
+    'IN_PROGRESS',
+    'SHIPPED',
+    'DELIVERED',
+    'CANCELLED',
+  ]),
 });
 
 // ---------------------------------------------------------------------------
@@ -86,8 +106,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing orders', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list orders' } });
+    logger.error('Error listing orders', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list orders' },
+    });
   }
 });
 
@@ -100,7 +125,10 @@ router.post('/', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = orderCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const data = parsed.data;
@@ -125,8 +153,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Order created', { id: order.id, orderNumber });
     return res.status(201).json({ success: true, data: order });
   } catch (error: unknown) {
-    logger.error('Error creating order', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create order' } });
+    logger.error('Error creating order', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create order' },
+    });
   }
 });
 
@@ -141,13 +174,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!order) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Order not found' } });
     }
 
     return res.json({ success: true, data: order });
   } catch (error: unknown) {
-    logger.error('Error fetching order', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch order' } });
+    logger.error('Error fetching order', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch order' },
+    });
   }
 });
 
@@ -159,14 +199,19 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = orderUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const existing = await prisma.portalOrder.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Order not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -185,8 +230,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Order updated', { id: updated.id });
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Error updating order', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update order' } });
+    logger.error('Error updating order', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update order' },
+    });
   }
 });
 
@@ -198,14 +248,19 @@ router.put('/:id/status', async (req: Request, res: Response) => {
   try {
     const parsed = statusUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const existing = await prisma.portalOrder.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Order not found' } });
     }
 
     const updated = await prisma.portalOrder.update({
@@ -216,8 +271,13 @@ router.put('/:id/status', async (req: Request, res: Response) => {
     logger.info('Order status updated', { id: updated.id, status: parsed.data.status });
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Error updating order status', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update order status' } });
+    logger.error('Error updating order status', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update order status' },
+    });
   }
 });
 

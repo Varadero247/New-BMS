@@ -10,9 +10,7 @@ import {
   isValidMeaning,
   type ElectronicSignature,
 } from '@ims/esig';
-import {
-  createEnhancedAuditService,
-} from '@ims/audit';
+import { createEnhancedAuditService } from '@ims/audit';
 
 const logger = createLogger('api-gateway-audit');
 const router = Router();
@@ -25,8 +23,14 @@ router.use(authenticate);
 router.get('/trail', async (req: AuthRequest, res: Response) => {
   try {
     const {
-      userId, resourceType, resourceId, action,
-      startDate, endDate, page = '1', limit = '50',
+      userId,
+      resourceType,
+      resourceId,
+      action,
+      startDate,
+      endDate,
+      page = '1',
+      limit = '50',
     } = req.query;
 
     const result = await auditService.query({
@@ -42,8 +46,13 @@ router.get('/trail', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: result });
   } catch (error) {
-    logger.error('Failed to query audit trail', { error: error instanceof Error ? error.message : String(error) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to query audit trail' } });
+    logger.error('Failed to query audit trail', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to query audit trail' },
+    });
   }
 });
 
@@ -53,19 +62,20 @@ router.get('/trail/:resourceType/:resourceId', async (req: AuthRequest, res: Res
     const { resourceType, resourceId } = req.params;
     const { page = '1', limit = '50' } = req.query;
 
-    const result = await auditService.getResourceHistory(
-      resourceType,
-      resourceId,
-      {
-        page: Math.max(1, parseInt(page as string, 10) || 1),
-        limit: Math.min(Math.max(1, parseInt(limit as string, 10) || 50), 100),
-      }
-    );
+    const result = await auditService.getResourceHistory(resourceType, resourceId, {
+      page: Math.max(1, parseInt(page as string, 10) || 1),
+      limit: Math.min(Math.max(1, parseInt(limit as string, 10) || 50), 100),
+    });
 
     res.json({ success: true, data: result });
   } catch (error) {
-    logger.error('Failed to get resource history', { error: error instanceof Error ? error.message : String(error) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get resource history' } });
+    logger.error('Failed to get resource history', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get resource history' },
+    });
   }
 });
 
@@ -75,8 +85,13 @@ router.get('/trail/verify/:entryId', async (req: AuthRequest, res: Response) => 
     const result = await auditService.verifyEntry(req.params.entryId);
     res.json({ success: true, data: result });
   } catch (error) {
-    logger.error('Failed to verify audit entry', { error: error instanceof Error ? error.message : String(error) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to verify audit entry' } });
+    logger.error('Failed to verify audit entry', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to verify audit entry' },
+    });
   }
 });
 
@@ -179,10 +194,17 @@ router.post('/esignature', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: safeSignature });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
-    logger.error('Failed to create e-signature', { error: error instanceof Error ? error.message : String(error) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create electronic signature' } });
+    logger.error('Failed to create e-signature', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create electronic signature' },
+    });
   }
 });
 
@@ -220,8 +242,13 @@ router.get('/esignature/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: verification });
   } catch (error) {
-    logger.error('Failed to verify e-signature', { error: error instanceof Error ? error.message : String(error) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to verify signature' } });
+    logger.error('Failed to verify e-signature', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to verify signature' },
+    });
   }
 });
 

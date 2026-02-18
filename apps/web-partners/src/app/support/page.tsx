@@ -44,7 +44,10 @@ export default function SupportPage() {
 
   useEffect(() => {
     const token = localStorage.getItem('partner_token');
-    if (!token) { router.push('/login'); return; }
+    if (!token) {
+      router.push('/login');
+      return;
+    }
     fetchTickets();
   }, []);
 
@@ -113,7 +116,12 @@ export default function SupportPage() {
           {error && (
             <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center justify-between">
               <p className="text-sm text-red-400">{error}</p>
-              <button onClick={() => setError('')} className="text-red-500 hover:text-red-300 ml-4 text-sm">Dismiss</button>
+              <button
+                onClick={() => setError('')}
+                className="text-red-500 hover:text-red-300 ml-4 text-sm"
+              >
+                Dismiss
+              </button>
             </div>
           )}
 
@@ -186,17 +194,23 @@ export default function SupportPage() {
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-white">{ticket.subject}</h3>
                     <div className="flex items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded-full text-xs ${priorityColor[ticket.priority] || ''}`}>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-xs ${priorityColor[ticket.priority] || ''}`}
+                      >
                         {ticket.priority}
                       </span>
-                      <span className={`px-2 py-0.5 rounded-full text-xs ${statusColor[ticket.status] || ''}`}>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-xs ${statusColor[ticket.status] || ''}`}
+                      >
                         {ticket.status.replace(/_/g, ' ')}
                       </span>
                     </div>
                   </div>
                   <p className="text-sm text-gray-400 line-clamp-1">{ticket.description}</p>
                   <div className="flex items-center justify-between mt-3">
-                    <span className="text-xs text-gray-500">{new Date(ticket.createdAt).toLocaleDateString('en-GB')}</span>
+                    <span className="text-xs text-gray-500">
+                      {new Date(ticket.createdAt).toLocaleDateString('en-GB')}
+                    </span>
                     {ticket.slaTarget && (
                       <span className="text-xs text-gray-500">
                         SLA: {new Date(ticket.slaTarget).toLocaleString('en-GB')}

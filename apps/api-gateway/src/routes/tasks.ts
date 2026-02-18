@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate , type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 import {
@@ -29,7 +29,10 @@ const createTaskSchema = z.object({
   assigneeId: z.string().trim().min(1).max(200),
   assigneeName: z.string().trim().min(1).max(200),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional().default('MEDIUM'),
-  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  dueDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
 });
 
 const updateTaskSchema = z.object({
@@ -38,7 +41,10 @@ const updateTaskSchema = z.object({
   assigneeId: z.string().trim().min(1).max(200).optional(),
   assigneeName: z.string().trim().min(1).max(200).optional(),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
-  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  dueDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETE', 'CANCELLED']).optional(),
 });
 
@@ -58,7 +64,9 @@ router.get('/my-tasks', authenticate, async (req: Request, res: Response) => {
       data: grouped,
     });
   } catch (error: unknown) {
-    logger.error('Failed to get my tasks', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get my tasks', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get my tasks' },
@@ -77,7 +85,11 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message, details: parsed.error.errors },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.errors[0].message,
+          details: parsed.error.errors,
+        },
       });
     }
 
@@ -108,7 +120,9 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       data: task,
     });
   } catch (error: unknown) {
-    logger.error('Failed to create task', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to create task', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create task' },
@@ -141,7 +155,9 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: unknown) {
-    logger.error('Failed to list tasks', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list tasks', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list tasks' },
@@ -192,7 +208,11 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message, details: parsed.error.errors },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.errors[0].message,
+          details: parsed.error.errors,
+        },
       });
     }
 

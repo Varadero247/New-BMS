@@ -2,9 +2,18 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
   AIDisclosure,
 } from '@ims/ui';
 import { Plus, AlertTriangle, Loader2, Search, Sparkles } from 'lucide-react';
@@ -52,7 +61,14 @@ const TYPE_FILTER_TABS = [
 ] as const;
 
 const MEDIA_OPTIONS = [
-  'AIR', 'WATER', 'GROUNDWATER', 'SOIL', 'BIODIVERSITY', 'HUMAN_HEALTH', 'NOISE', 'OTHER',
+  'AIR',
+  'WATER',
+  'GROUNDWATER',
+  'SOIL',
+  'BIODIVERSITY',
+  'HUMAN_HEALTH',
+  'NOISE',
+  'OTHER',
 ] as const;
 
 const RCA_METHODS = [
@@ -243,24 +259,30 @@ export default function EventsClient() {
     }
   }, [searchQuery, statusFilter]);
 
-  useEffect(() => { loadEvents(); }, [loadEvents]);
+  useEffect(() => {
+    loadEvents();
+  }, [loadEvents]);
 
   function openModal() {
-    setForm({ ...emptyForm, dateOfEvent: `${new Date().toISOString().split('T')[0]}T09:00`, dateReported: new Date().toISOString().split('T')[0] });
+    setForm({
+      ...emptyForm,
+      dateOfEvent: `${new Date().toISOString().split('T')[0]}T09:00`,
+      dateReported: new Date().toISOString().split('T')[0],
+    });
     setSection(0);
     setAiGenerated(false);
     setShowModal(true);
   }
 
   function updateForm(field: keyof EventForm, value: unknown) {
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   function toggleMediaAffected(media: string) {
-    setForm(prev => {
+    setForm((prev) => {
       const current = prev.mediaAffected;
       const updated = current.includes(media)
-        ? current.filter(m => m !== media)
+        ? current.filter((m) => m !== media)
         : [...current, media];
       return { ...prev, mediaAffected: updated };
     });
@@ -279,7 +301,7 @@ export default function EventsClient() {
         substanceInvolved: form.substanceInvolved,
       });
       const data = res.data.data || res.data;
-      setForm(prev => ({
+      setForm((prev) => ({
         ...prev,
         rootCause: data.rootCauseAnalysis || prev.rootCause,
         immediateActions: data.immediateActions || prev.immediateActions,
@@ -319,23 +341,29 @@ export default function EventsClient() {
   }
 
   const getSeverityColor = (severity: string) => {
-    const s = SEVERITIES.find(sv => sv.value === severity);
+    const s = SEVERITIES.find((sv) => sv.value === severity);
     return s?.color || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'REPORTED': return 'bg-red-100 text-red-800';
-      case 'UNDER_INVESTIGATION': return 'bg-yellow-100 text-yellow-800';
-      case 'CONTAINED': return 'bg-blue-100 text-blue-800';
-      case 'REMEDIATED': return 'bg-green-100 text-green-800';
-      case 'CLOSED': return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
-      default: return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
+      case 'REPORTED':
+        return 'bg-red-100 text-red-800';
+      case 'UNDER_INVESTIGATION':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'CONTAINED':
+        return 'bg-blue-100 text-blue-800';
+      case 'REMEDIATED':
+        return 'bg-green-100 text-green-800';
+      case 'CLOSED':
+        return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
+      default:
+        return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
     }
   };
 
   // Filter events by type tab and status
-  const filteredEvents = events.filter(e => {
+  const filteredEvents = events.filter((e) => {
     if (typeFilter !== 'ALL' && e.eventType !== typeFilter) return false;
     if (statusFilter !== 'all' && e.status !== statusFilter) return false;
     if (searchQuery) {
@@ -352,12 +380,19 @@ export default function EventsClient() {
 
   const metrics = {
     total: events.length,
-    open: events.filter(e => e.status !== 'CLOSED' && e.status !== 'REMEDIATED').length,
-    underInvestigation: events.filter(e => e.status === 'UNDER_INVESTIGATION').length,
-    criticalMajor: events.filter(e => e.severity === 'CRITICAL' || e.severity === 'MAJOR' || e.severity === 'CATASTROPHIC').length,
+    open: events.filter((e) => e.status !== 'CLOSED' && e.status !== 'REMEDIATED').length,
+    underInvestigation: events.filter((e) => e.status === 'UNDER_INVESTIGATION').length,
+    criticalMajor: events.filter(
+      (e) => e.severity === 'CRITICAL' || e.severity === 'MAJOR' || e.severity === 'CATASTROPHIC'
+    ).length,
   };
 
-  const sections = ['Event Classification & Details', 'Environmental Impact', 'Investigation & Impact Assessment', 'Actions & AI Analysis'];
+  const sections = [
+    'Event Classification & Details',
+    'Environmental Impact',
+    'Investigation & Impact Assessment',
+    'Actions & AI Analysis',
+  ];
 
   return (
     <div className="p-8">
@@ -365,10 +400,17 @@ export default function EventsClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Environmental Events</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Track and manage environmental incidents, spills, and non-conformances</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Environmental Events
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Track and manage environmental incidents, spills, and non-conformances
+            </p>
           </div>
-          <Button onClick={openModal} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
+          <Button
+            onClick={openModal}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+          >
             <Plus className="h-4 w-4" />
             Report Event
           </Button>
@@ -412,7 +454,7 @@ export default function EventsClient() {
 
         {/* Type Filter Tabs */}
         <div className="flex gap-1 mb-6 overflow-x-auto border-b">
-          {TYPE_FILTER_TABS.map(tab => (
+          {TYPE_FILTER_TABS.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setTypeFilter(tab.value)}
@@ -425,8 +467,7 @@ export default function EventsClient() {
               {tab.label}
               {tab.value === 'ALL'
                 ? ` (${events.length})`
-                : ` (${events.filter(e => e.eventType === tab.value).length})`
-              }
+                : ` (${events.filter((e) => e.eventType === tab.value).length})`}
             </button>
           ))}
         </div>
@@ -437,19 +478,24 @@ export default function EventsClient() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              aria-label="Search events..." placeholder="Search events..."
+              aria-label="Search events..."
+              placeholder="Search events..."
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
           <select
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
+            onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
           >
             <option value="all">All Statuses</option>
-            {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+            {STATUSES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -457,8 +503,10 @@ export default function EventsClient() {
         <div className="flex gap-2 mb-6">
           {STATUSES.map((s, i) => (
             <div key={s.value} className="flex items-center">
-              <div className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(s.value)}`}>
-                {s.label} ({events.filter(e => e.status === s.value).length})
+              <div
+                className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(s.value)}`}
+              >
+                {s.label} ({events.filter((e) => e.status === s.value).length})
               </div>
               {i < STATUSES.length - 1 && (
                 <span className="mx-1 text-gray-300 dark:text-gray-600">&rarr;</span>
@@ -475,13 +523,13 @@ export default function EventsClient() {
           <CardContent>
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3, 4].map(i => (
+                {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="h-24 bg-gray-200 rounded" />
                 ))}
               </div>
             ) : filteredEvents.length > 0 ? (
               <div className="space-y-4">
-                {filteredEvents.map(event => (
+                {filteredEvents.map((event) => (
                   <div
                     key={event.id}
                     className={`p-4 border rounded-lg hover:border-green-300 transition-colors cursor-pointer ${
@@ -493,27 +541,42 @@ export default function EventsClient() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <span className="text-xs font-mono text-gray-400 dark:text-gray-500">{event.referenceNumber}</span>
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getSeverityColor(event.severity)}`}>
+                          <span className="text-xs font-mono text-gray-400 dark:text-gray-500">
+                            {event.referenceNumber}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-xs font-medium ${getSeverityColor(event.severity)}`}
+                          >
                             {event.severity}
                           </span>
                           <Badge variant="outline" className="text-xs">
-                            {EVENT_TYPES.find(t => t.value === event.eventType)?.label || event.eventType.replace(/_/g, ' ')}
+                            {EVENT_TYPES.find((t) => t.value === event.eventType)?.label ||
+                              event.eventType.replace(/_/g, ' ')}
                           </Badge>
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(event.status)}`}>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(event.status)}`}
+                          >
                             {event.status.replace(/_/g, ' ')}
                           </span>
                           {event.regulatoryNotification && (
-                            <Badge variant="destructive" className="text-xs">Regulatory</Badge>
+                            <Badge variant="destructive" className="text-xs">
+                              Regulatory
+                            </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-900 dark:text-gray-100 font-medium mb-1">{event.location} &mdash; {event.department}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{event.description}</p>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 font-medium mb-1">
+                          {event.location} &mdash; {event.department}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                          {event.description}
+                        </p>
                       </div>
                       <div className="text-sm text-gray-400 dark:text-gray-500 text-right ml-4 shrink-0">
                         <div>{new Date(event.dateOfEvent).toLocaleDateString()}</div>
                         <div className="text-xs">Date of Event</div>
-                        <div className="text-xs mt-1 text-gray-300 dark:text-gray-600">Reported by {event.reportedBy}</div>
+                        <div className="text-xs mt-1 text-gray-300 dark:text-gray-600">
+                          Reported by {event.reportedBy}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -533,7 +596,12 @@ export default function EventsClient() {
         </Card>
 
         {/* Report Event Modal */}
-        <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Report Environmental Event" size="full">
+        <Modal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          title="Report Environmental Event"
+          size="full"
+        >
           {/* Section Tabs */}
           <div className="flex gap-1 mb-6 border-b overflow-x-auto">
             {sections.map((s, i) => (
@@ -558,25 +626,41 @@ export default function EventsClient() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Event Type *</Label>
-                    <Select value={form.eventType} onChange={e => updateForm('eventType', e.target.value)}>
-                      {EVENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                    <Select
+                      value={form.eventType}
+                      onChange={(e) => updateForm('eventType', e.target.value)}
+                    >
+                      {EVENT_TYPES.map((t) => (
+                        <option key={t.value} value={t.value}>
+                          {t.label}
+                        </option>
+                      ))}
                     </Select>
                   </div>
                   <div>
                     <Label>Severity *</Label>
-                    <Select value={form.severity} onChange={e => updateForm('severity', e.target.value)}>
-                      {SEVERITIES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                    <Select
+                      value={form.severity}
+                      onChange={(e) => updateForm('severity', e.target.value)}
+                    >
+                      {SEVERITIES.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          {s.label}
+                        </option>
+                      ))}
                     </Select>
                   </div>
                 </div>
 
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-green-800 mb-3">Regulatory Notification</h3>
+                  <h3 className="text-sm font-medium text-green-800 mb-3">
+                    Regulatory Notification
+                  </h3>
                   <label className="flex items-center gap-2 mb-3">
                     <input
                       type="checkbox"
                       checked={form.regulatoryNotification}
-                      onChange={e => updateForm('regulatoryNotification', e.target.checked)}
+                      onChange={(e) => updateForm('regulatoryNotification', e.target.checked)}
                       className="rounded"
                     />
                     <span className="text-sm">Regulatory notification required</span>
@@ -587,7 +671,7 @@ export default function EventsClient() {
                         <Label>Regulatory Body</Label>
                         <Input
                           value={form.regulatoryBody}
-                          onChange={e => updateForm('regulatoryBody', e.target.value)}
+                          onChange={(e) => updateForm('regulatoryBody', e.target.value)}
                           placeholder="e.g., Environment Agency"
                         />
                       </div>
@@ -595,7 +679,7 @@ export default function EventsClient() {
                         <Label>Notification Reference</Label>
                         <Input
                           value={form.notificationReference}
-                          onChange={e => updateForm('notificationReference', e.target.value)}
+                          onChange={(e) => updateForm('notificationReference', e.target.value)}
                           placeholder="Reference number"
                         />
                       </div>
@@ -609,7 +693,7 @@ export default function EventsClient() {
                     <Input
                       type="datetime-local"
                       value={form.dateOfEvent}
-                      onChange={e => updateForm('dateOfEvent', e.target.value)}
+                      onChange={(e) => updateForm('dateOfEvent', e.target.value)}
                     />
                   </div>
                   <div>
@@ -617,7 +701,7 @@ export default function EventsClient() {
                     <Input
                       type="date"
                       value={form.dateReported}
-                      onChange={e => updateForm('dateReported', e.target.value)}
+                      onChange={(e) => updateForm('dateReported', e.target.value)}
                     />
                   </div>
                 </div>
@@ -627,7 +711,7 @@ export default function EventsClient() {
                     <Label>Location *</Label>
                     <Input
                       value={form.location}
-                      onChange={e => updateForm('location', e.target.value)}
+                      onChange={(e) => updateForm('location', e.target.value)}
                       placeholder="Where did the event occur?"
                     />
                   </div>
@@ -635,7 +719,7 @@ export default function EventsClient() {
                     <Label>GPS Coordinates</Label>
                     <Input
                       value={form.gpsCoordinates}
-                      onChange={e => updateForm('gpsCoordinates', e.target.value)}
+                      onChange={(e) => updateForm('gpsCoordinates', e.target.value)}
                       placeholder="e.g., 51.5074, -0.1278"
                     />
                   </div>
@@ -646,7 +730,7 @@ export default function EventsClient() {
                     <Label>Department *</Label>
                     <Input
                       value={form.department}
-                      onChange={e => updateForm('department', e.target.value)}
+                      onChange={(e) => updateForm('department', e.target.value)}
                       placeholder="Responsible department"
                     />
                   </div>
@@ -654,7 +738,7 @@ export default function EventsClient() {
                     <Label>Reported By *</Label>
                     <Input
                       value={form.reportedBy}
-                      onChange={e => updateForm('reportedBy', e.target.value)}
+                      onChange={(e) => updateForm('reportedBy', e.target.value)}
                       placeholder="Name of reporter"
                     />
                   </div>
@@ -664,7 +748,7 @@ export default function EventsClient() {
                   <Label>Description *</Label>
                   <Textarea
                     value={form.description}
-                    onChange={e => updateForm('description', e.target.value)}
+                    onChange={(e) => updateForm('description', e.target.value)}
                     placeholder="Detailed description of the environmental event..."
                     rows={4}
                   />
@@ -674,7 +758,7 @@ export default function EventsClient() {
                   <Label>Immediate Cause</Label>
                   <Textarea
                     value={form.immediateCause}
-                    onChange={e => updateForm('immediateCause', e.target.value)}
+                    onChange={(e) => updateForm('immediateCause', e.target.value)}
                     placeholder="What directly caused the event?"
                     rows={2}
                   />
@@ -684,7 +768,7 @@ export default function EventsClient() {
                   <Label>Contributing Factors</Label>
                   <Textarea
                     value={form.contributingFactors}
-                    onChange={e => updateForm('contributingFactors', e.target.value)}
+                    onChange={(e) => updateForm('contributingFactors', e.target.value)}
                     placeholder="What other factors contributed?"
                     rows={2}
                   />
@@ -698,8 +782,11 @@ export default function EventsClient() {
                 <div>
                   <Label className="mb-2 block">Environmental Media Affected</Label>
                   <div className="grid grid-cols-4 gap-3">
-                    {MEDIA_OPTIONS.map(media => (
-                      <label key={media} className="flex items-center gap-2 p-2 border rounded-lg hover:bg-green-50 cursor-pointer">
+                    {MEDIA_OPTIONS.map((media) => (
+                      <label
+                        key={media}
+                        className="flex items-center gap-2 p-2 border rounded-lg hover:bg-green-50 cursor-pointer"
+                      >
                         <input
                           type="checkbox"
                           checked={form.mediaAffected.includes(media)}
@@ -717,7 +804,7 @@ export default function EventsClient() {
                     <Label>Substance Involved</Label>
                     <Input
                       value={form.substanceInvolved}
-                      onChange={e => updateForm('substanceInvolved', e.target.value)}
+                      onChange={(e) => updateForm('substanceInvolved', e.target.value)}
                       placeholder="e.g., Diesel, Hydraulic oil"
                     />
                   </div>
@@ -725,7 +812,7 @@ export default function EventsClient() {
                     <Label>Concentration</Label>
                     <Input
                       value={form.concentration}
-                      onChange={e => updateForm('concentration', e.target.value)}
+                      onChange={(e) => updateForm('concentration', e.target.value)}
                       placeholder="e.g., 50mg/L"
                     />
                   </div>
@@ -737,7 +824,7 @@ export default function EventsClient() {
                     <Input
                       type="number"
                       value={form.quantityReleased}
-                      onChange={e => updateForm('quantityReleased', e.target.value)}
+                      onChange={(e) => updateForm('quantityReleased', e.target.value)}
                       placeholder="Amount"
                     />
                   </div>
@@ -745,7 +832,7 @@ export default function EventsClient() {
                     <Label>Unit</Label>
                     <Input
                       value={form.quantityUnit}
-                      onChange={e => updateForm('quantityUnit', e.target.value)}
+                      onChange={(e) => updateForm('quantityUnit', e.target.value)}
                       placeholder="e.g., litres, kg"
                     />
                   </div>
@@ -753,20 +840,22 @@ export default function EventsClient() {
                     <Label>Receptor Distance</Label>
                     <Input
                       value={form.receptorDistance}
-                      onChange={e => updateForm('receptorDistance', e.target.value)}
+                      onChange={(e) => updateForm('receptorDistance', e.target.value)}
                       placeholder="e.g., 50m from watercourse"
                     />
                   </div>
                 </div>
 
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-green-800 mb-3">Containment & Response</h3>
+                  <h3 className="text-sm font-medium text-green-800 mb-3">
+                    Containment & Response
+                  </h3>
                   <div className="flex flex-wrap gap-6 mb-4">
                     <label className="flex items-center gap-2">
                       <input
                         type="checkbox"
                         checked={form.areaSecured}
-                        onChange={e => updateForm('areaSecured', e.target.checked)}
+                        onChange={(e) => updateForm('areaSecured', e.target.checked)}
                         className="rounded"
                       />
                       <span className="text-sm">Area Secured</span>
@@ -775,7 +864,7 @@ export default function EventsClient() {
                       <input
                         type="checkbox"
                         checked={form.spillKitUsed}
-                        onChange={e => updateForm('spillKitUsed', e.target.checked)}
+                        onChange={(e) => updateForm('spillKitUsed', e.target.checked)}
                         className="rounded"
                       />
                       <span className="text-sm">Spill Kit Used</span>
@@ -784,7 +873,7 @@ export default function EventsClient() {
                       <input
                         type="checkbox"
                         checked={form.emergencyServicesCalled}
-                        onChange={e => updateForm('emergencyServicesCalled', e.target.checked)}
+                        onChange={(e) => updateForm('emergencyServicesCalled', e.target.checked)}
                         className="rounded"
                       />
                       <span className="text-sm">Emergency Services Called</span>
@@ -795,7 +884,7 @@ export default function EventsClient() {
                     <Label>Immediate Actions Taken</Label>
                     <Textarea
                       value={form.immediateActions}
-                      onChange={e => updateForm('immediateActions', e.target.value)}
+                      onChange={(e) => updateForm('immediateActions', e.target.value)}
                       placeholder="Describe the immediate response actions..."
                       rows={3}
                     />
@@ -806,7 +895,7 @@ export default function EventsClient() {
                       <Label>Materials Used</Label>
                       <Input
                         value={form.materialsUsed}
-                        onChange={e => updateForm('materialsUsed', e.target.value)}
+                        onChange={(e) => updateForm('materialsUsed', e.target.value)}
                         placeholder="e.g., Absorbent pads, booms"
                       />
                     </div>
@@ -814,7 +903,7 @@ export default function EventsClient() {
                       <Label>Cleanup Duration</Label>
                       <Input
                         value={form.cleanupDuration}
-                        onChange={e => updateForm('cleanupDuration', e.target.value)}
+                        onChange={(e) => updateForm('cleanupDuration', e.target.value)}
                         placeholder="e.g., 4 hours"
                       />
                     </div>
@@ -829,16 +918,30 @@ export default function EventsClient() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>RCA Method</Label>
-                    <Select value={form.rcaMethod} onChange={e => updateForm('rcaMethod', e.target.value)}>
+                    <Select
+                      value={form.rcaMethod}
+                      onChange={(e) => updateForm('rcaMethod', e.target.value)}
+                    >
                       <option value="">Select method...</option>
-                      {RCA_METHODS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                      {RCA_METHODS.map((m) => (
+                        <option key={m.value} value={m.value}>
+                          {m.label}
+                        </option>
+                      ))}
                     </Select>
                   </div>
                   <div>
                     <Label>Reputational Impact</Label>
-                    <Select value={form.reputationalImpact} onChange={e => updateForm('reputationalImpact', e.target.value)}>
+                    <Select
+                      value={form.reputationalImpact}
+                      onChange={(e) => updateForm('reputationalImpact', e.target.value)}
+                    >
                       <option value="">Select level...</option>
-                      {REPUTATIONAL_IMPACT_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+                      {REPUTATIONAL_IMPACT_OPTIONS.map((r) => (
+                        <option key={r.value} value={r.value}>
+                          {r.label}
+                        </option>
+                      ))}
                     </Select>
                   </div>
                 </div>
@@ -847,7 +950,7 @@ export default function EventsClient() {
                   <Label>Root Cause</Label>
                   <Textarea
                     value={form.rootCause}
-                    onChange={e => updateForm('rootCause', e.target.value)}
+                    onChange={(e) => updateForm('rootCause', e.target.value)}
                     placeholder="Describe the identified root cause..."
                     rows={3}
                   />
@@ -857,7 +960,7 @@ export default function EventsClient() {
                   <Label>Environmental Damage Assessment</Label>
                   <Textarea
                     value={form.environmentalDamage}
-                    onChange={e => updateForm('environmentalDamage', e.target.value)}
+                    onChange={(e) => updateForm('environmentalDamage', e.target.value)}
                     placeholder="Describe the extent of environmental damage..."
                     rows={3}
                   />
@@ -870,7 +973,7 @@ export default function EventsClient() {
                       <input
                         type="checkbox"
                         checked={form.biodiversityImpact}
-                        onChange={e => updateForm('biodiversityImpact', e.target.checked)}
+                        onChange={(e) => updateForm('biodiversityImpact', e.target.checked)}
                         className="rounded"
                       />
                       <span className="text-sm font-medium">Biodiversity Impact</span>
@@ -880,7 +983,7 @@ export default function EventsClient() {
                       <input
                         type="checkbox"
                         checked={form.waterCourseImpact}
-                        onChange={e => updateForm('waterCourseImpact', e.target.checked)}
+                        onChange={(e) => updateForm('waterCourseImpact', e.target.checked)}
                         className="rounded"
                       />
                       <span className="text-sm font-medium">Water Course Impact</span>
@@ -890,7 +993,7 @@ export default function EventsClient() {
                       <input
                         type="checkbox"
                         checked={form.airQualityImpact}
-                        onChange={e => updateForm('airQualityImpact', e.target.checked)}
+                        onChange={(e) => updateForm('airQualityImpact', e.target.checked)}
                         className="rounded"
                       />
                       <span className="text-sm font-medium">Air Quality Impact</span>
@@ -903,7 +1006,7 @@ export default function EventsClient() {
                   <Input
                     type="number"
                     value={form.remediationCost}
-                    onChange={e => updateForm('remediationCost', e.target.value)}
+                    onChange={(e) => updateForm('remediationCost', e.target.value)}
                     placeholder="Estimated cost"
                   />
                 </div>
@@ -918,7 +1021,7 @@ export default function EventsClient() {
                     <input
                       type="checkbox"
                       checked={form.capaRequired}
-                      onChange={e => updateForm('capaRequired', e.target.checked)}
+                      onChange={(e) => updateForm('capaRequired', e.target.checked)}
                       className="rounded"
                     />
                     <span className="text-sm font-medium">CAPA Required</span>
@@ -927,7 +1030,7 @@ export default function EventsClient() {
                     <input
                       type="checkbox"
                       checked={form.monitoringRequired}
-                      onChange={e => updateForm('monitoringRequired', e.target.checked)}
+                      onChange={(e) => updateForm('monitoringRequired', e.target.checked)}
                       className="rounded"
                     />
                     <span className="text-sm font-medium">Monitoring Required</span>
@@ -938,7 +1041,7 @@ export default function EventsClient() {
                   <Label>Preventive Measures</Label>
                   <Textarea
                     value={form.preventiveMeasures}
-                    onChange={e => updateForm('preventiveMeasures', e.target.value)}
+                    onChange={(e) => updateForm('preventiveMeasures', e.target.value)}
                     placeholder="What measures will prevent recurrence?"
                     rows={3}
                   />
@@ -950,7 +1053,7 @@ export default function EventsClient() {
                     <Input
                       type="date"
                       value={form.followUpDate}
-                      onChange={e => updateForm('followUpDate', e.target.value)}
+                      onChange={(e) => updateForm('followUpDate', e.target.value)}
                     />
                   </div>
                 )}
@@ -959,7 +1062,7 @@ export default function EventsClient() {
                   <Label>Lessons Learned</Label>
                   <Textarea
                     value={form.lessonsLearned}
-                    onChange={e => updateForm('lessonsLearned', e.target.value)}
+                    onChange={(e) => updateForm('lessonsLearned', e.target.value)}
                     placeholder="Key takeaways and lessons from this event..."
                     rows={3}
                   />
@@ -979,26 +1082,42 @@ export default function EventsClient() {
                       className="border-emerald-300 text-emerald-700 hover:bg-emerald-100"
                     >
                       {aiLoading ? (
-                        <><Loader2 className="h-4 w-4 animate-spin mr-2" />Generating...</>
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Generating...
+                        </>
                       ) : (
-                        <><Sparkles className="h-4 w-4 mr-2" />Generate AI Investigation Report</>
+                        <>
+                          <Sparkles className="h-4 w-4 mr-2" />
+                          Generate AI Investigation Report
+                        </>
                       )}
                     </Button>
                   </div>
                   <p className="text-xs text-emerald-600 mb-3">
-                    Fill in event details on previous tabs first, then generate an AI-assisted investigation report. Results will populate relevant fields above.
+                    Fill in event details on previous tabs first, then generate an AI-assisted
+                    investigation report. Results will populate relevant fields above.
                   </p>
                   {aiGenerated && (
                     <div className="bg-white dark:bg-gray-900 border border-emerald-200 rounded-lg p-3 mt-2">
-                      <AIDisclosure variant="inline" provider="claude" analysisType="Event Analysis" confidence={0.85} />
-                      <p className="text-xs font-medium text-emerald-700 mb-2 mt-2">AI analysis has been applied to the form fields above:</p>
+                      <AIDisclosure
+                        variant="inline"
+                        provider="claude"
+                        analysisType="Event Analysis"
+                        confidence={0.85}
+                      />
+                      <p className="text-xs font-medium text-emerald-700 mb-2 mt-2">
+                        AI analysis has been applied to the form fields above:
+                      </p>
                       <ul className="text-xs text-emerald-600 space-y-1 list-disc list-inside">
                         <li>Root Cause (Investigation tab)</li>
                         <li>Immediate Actions (Environmental Impact tab)</li>
                         <li>Preventive Measures (this tab)</li>
                         <li>Lessons Learned (this tab)</li>
                       </ul>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">All AI-generated content is editable. Review and adjust as needed.</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                        All AI-generated content is editable. Review and adjust as needed.
+                      </p>
                     </div>
                   )}
                 </div>
@@ -1010,7 +1129,7 @@ export default function EventsClient() {
             <div className="flex justify-between w-full">
               <div className="flex gap-2">
                 {section > 0 && (
-                  <Button variant="outline" onClick={() => setSection(s => s - 1)}>
+                  <Button variant="outline" onClick={() => setSection((s) => s - 1)}>
                     Previous
                   </Button>
                 )}
@@ -1020,17 +1139,29 @@ export default function EventsClient() {
                   Cancel
                 </Button>
                 {section < 3 ? (
-                  <Button onClick={() => setSection(s => s + 1)} className="bg-green-600 hover:bg-green-700">
+                  <Button
+                    onClick={() => setSection((s) => s + 1)}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
                     Next
                   </Button>
                 ) : (
                   <Button
                     onClick={handleSubmit}
-                    disabled={submitting || !form.description || !form.location || !form.department || !form.reportedBy}
+                    disabled={
+                      submitting ||
+                      !form.description ||
+                      !form.location ||
+                      !form.department ||
+                      !form.reportedBy
+                    }
                     className="bg-green-600 hover:bg-green-700"
                   >
                     {submitting ? (
-                      <><Loader2 className="h-4 w-4 animate-spin mr-2" />Submitting...</>
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Submitting...
+                      </>
                     ) : (
                       'Submit Event'
                     )}

@@ -1,9 +1,4 @@
-import {
-  createAuditPlan,
-  calculateAuditScore,
-  getClausesByStatus,
-  getMandatoryGaps,
-} from '../src';
+import { createAuditPlan, calculateAuditScore, getClausesByStatus, getMandatoryGaps } from '../src';
 import type { AuditPlan, AuditClauseStatus } from '../src';
 
 describe('createAuditPlan', () => {
@@ -61,49 +56,49 @@ describe('createAuditPlan', () => {
 
   it('should set all clauses to NOT_STARTED status', () => {
     const plan = createAuditPlan('ISO_9001', 'INTERNAL', 'Test', 'Test');
-    plan!.clauses.forEach(c => {
+    plan!.clauses.forEach((c) => {
       expect(c.status).toBe('NOT_STARTED');
     });
   });
 
   it('should set empty findings for all clauses', () => {
     const plan = createAuditPlan('ISO_9001', 'INTERNAL', 'Test', 'Test');
-    plan!.clauses.forEach(c => {
+    plan!.clauses.forEach((c) => {
       expect(c.findings).toHaveLength(0);
     });
   });
 
   it('should set empty objectiveEvidence for all clauses', () => {
     const plan = createAuditPlan('ISO_9001', 'INTERNAL', 'Test', 'Test');
-    plan!.clauses.forEach(c => {
+    plan!.clauses.forEach((c) => {
       expect(c.objectiveEvidence).toHaveLength(0);
     });
   });
 
   it('should set empty auditorNotes for all clauses', () => {
     const plan = createAuditPlan('ISO_9001', 'INTERNAL', 'Test', 'Test');
-    plan!.clauses.forEach(c => {
+    plan!.clauses.forEach((c) => {
       expect(c.auditorNotes).toBe('');
     });
   });
 
   it('should include questions from the standard', () => {
     const plan = createAuditPlan('ISO_9001', 'INTERNAL', 'Test', 'Test');
-    plan!.clauses.forEach(c => {
+    plan!.clauses.forEach((c) => {
       expect(c.questions.length).toBeGreaterThan(0);
     });
   });
 
   it('should include evidence from the standard', () => {
     const plan = createAuditPlan('ISO_9001', 'INTERNAL', 'Test', 'Test');
-    plan!.clauses.forEach(c => {
+    plan!.clauses.forEach((c) => {
       expect(c.evidence.length).toBeGreaterThan(0);
     });
   });
 
   it('should preserve mandatory flag from checklist', () => {
     const plan = createAuditPlan('ISO_9001', 'INTERNAL', 'Test', 'Test');
-    const mandatoryCount = plan!.clauses.filter(c => c.mandatory).length;
+    const mandatoryCount = plan!.clauses.filter((c) => c.mandatory).length;
     expect(mandatoryCount).toBeGreaterThan(0);
   });
 
@@ -117,9 +112,12 @@ describe('createAuditPlan', () => {
 
   it('should support all audit types', () => {
     const types: Array<'INTERNAL' | 'EXTERNAL' | 'SURVEILLANCE' | 'CERTIFICATION'> = [
-      'INTERNAL', 'EXTERNAL', 'SURVEILLANCE', 'CERTIFICATION'
+      'INTERNAL',
+      'EXTERNAL',
+      'SURVEILLANCE',
+      'CERTIFICATION',
     ];
-    types.forEach(type => {
+    types.forEach((type) => {
       const plan = createAuditPlan('ISO_9001', type, 'Test', 'Test');
       expect(plan!.auditType).toBe(type);
     });
@@ -127,7 +125,10 @@ describe('createAuditPlan', () => {
 });
 
 describe('calculateAuditScore', () => {
-  function createTestPlan(statuses: AuditClauseStatus['status'][], mandatoryFlags?: boolean[]): AuditPlan {
+  function createTestPlan(
+    statuses: AuditClauseStatus['status'][],
+    mandatoryFlags?: boolean[]
+  ): AuditPlan {
     const clauses: AuditClauseStatus[] = statuses.map((status, i) => ({
       clause: `${i + 1}.1`,
       title: `Clause ${i + 1}`,
@@ -222,8 +223,13 @@ describe('calculateAuditScore', () => {
 
   it('should handle mixed statuses', () => {
     const plan = createTestPlan([
-      'CONFORMING', 'MINOR_NC', 'MAJOR_NC', 'OBSERVATION',
-      'NOT_APPLICABLE', 'NOT_STARTED', 'IN_PROGRESS',
+      'CONFORMING',
+      'MINOR_NC',
+      'MAJOR_NC',
+      'OBSERVATION',
+      'NOT_APPLICABLE',
+      'NOT_STARTED',
+      'IN_PROGRESS',
     ]);
     const score = calculateAuditScore(plan);
     expect(score.total).toBe(7);
@@ -352,73 +358,49 @@ describe('getMandatoryGaps', () => {
   }
 
   it('should return mandatory clauses that are not CONFORMING', () => {
-    const plan = createTestPlan(
-      ['MINOR_NC', 'CONFORMING', 'MAJOR_NC'],
-      [true, true, true]
-    );
+    const plan = createTestPlan(['MINOR_NC', 'CONFORMING', 'MAJOR_NC'], [true, true, true]);
     const gaps = getMandatoryGaps(plan);
     expect(gaps).toHaveLength(2);
   });
 
   it('should exclude non-mandatory clauses', () => {
-    const plan = createTestPlan(
-      ['MINOR_NC', 'MINOR_NC'],
-      [true, false]
-    );
+    const plan = createTestPlan(['MINOR_NC', 'MINOR_NC'], [true, false]);
     const gaps = getMandatoryGaps(plan);
     expect(gaps).toHaveLength(1);
   });
 
   it('should exclude NOT_APPLICABLE mandatory clauses', () => {
-    const plan = createTestPlan(
-      ['NOT_APPLICABLE', 'MINOR_NC'],
-      [true, true]
-    );
+    const plan = createTestPlan(['NOT_APPLICABLE', 'MINOR_NC'], [true, true]);
     const gaps = getMandatoryGaps(plan);
     expect(gaps).toHaveLength(1);
   });
 
   it('should return empty when all mandatory clauses are CONFORMING', () => {
-    const plan = createTestPlan(
-      ['CONFORMING', 'CONFORMING'],
-      [true, true]
-    );
+    const plan = createTestPlan(['CONFORMING', 'CONFORMING'], [true, true]);
     const gaps = getMandatoryGaps(plan);
     expect(gaps).toHaveLength(0);
   });
 
   it('should include NOT_STARTED mandatory clauses as gaps', () => {
-    const plan = createTestPlan(
-      ['NOT_STARTED', 'CONFORMING'],
-      [true, true]
-    );
+    const plan = createTestPlan(['NOT_STARTED', 'CONFORMING'], [true, true]);
     const gaps = getMandatoryGaps(plan);
     expect(gaps).toHaveLength(1);
   });
 
   it('should include IN_PROGRESS mandatory clauses as gaps', () => {
-    const plan = createTestPlan(
-      ['IN_PROGRESS', 'CONFORMING'],
-      [true, true]
-    );
+    const plan = createTestPlan(['IN_PROGRESS', 'CONFORMING'], [true, true]);
     const gaps = getMandatoryGaps(plan);
     expect(gaps).toHaveLength(1);
   });
 
   it('should include OBSERVATION mandatory clauses as gaps', () => {
-    const plan = createTestPlan(
-      ['OBSERVATION', 'CONFORMING'],
-      [true, true]
-    );
+    const plan = createTestPlan(['OBSERVATION', 'CONFORMING'], [true, true]);
     const gaps = getMandatoryGaps(plan);
     expect(gaps).toHaveLength(1);
   });
 
   it('should return empty for no mandatory clauses', () => {
-    const plan = createTestPlan(
-      ['MINOR_NC', 'MAJOR_NC'],
-      [false, false]
-    );
+    const plan = createTestPlan(['MINOR_NC', 'MAJOR_NC'], [false, false]);
     const gaps = getMandatoryGaps(plan);
     expect(gaps).toHaveLength(0);
   });

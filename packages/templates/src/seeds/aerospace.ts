@@ -70,7 +70,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         id: 'additional_changes',
         label: 'Additional Changes Not Included in Revision Level',
         type: 'textarea',
-        placeholder: 'List any engineering changes, deviations, or waivers not reflected in the current drawing revision.',
+        placeholder:
+          'List any engineering changes, deviations, or waivers not reflected in the current drawing revision.',
         helpText: 'Include ECN numbers, concession references, or customer-approved deviations.',
         width: 'full',
       },
@@ -145,7 +146,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Detail Part Accountability',
         type: 'table',
         required: true,
-        helpText: 'List all detail parts, sub-assemblies, and raw materials for this assembly. For each detail, reference its own FAI or indicate if partial/full FAI is required.',
+        helpText:
+          'List all detail parts, sub-assemblies, and raw materials for this assembly. For each detail, reference its own FAI or indicate if partial/full FAI is required.',
         columns: [
           {
             id: 'detail_part_number',
@@ -291,7 +293,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Material Certificate (Mill Cert) Available',
         type: 'checkbox',
         required: true,
-        helpText: 'Confirm that the material test report / mill certificate is on file and meets specification requirements.',
+        helpText:
+          'Confirm that the material test report / mill certificate is on file and meets specification requirements.',
       },
       {
         id: 'material_lot_number',
@@ -335,7 +338,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Process Approval / Nadcap Certification Available',
         type: 'checkbox',
         required: true,
-        helpText: 'Confirm the special process supplier holds current approval (Nadcap, customer approval, or equivalent).',
+        helpText:
+          'Confirm the special process supplier holds current approval (Nadcap, customer approval, or equivalent).',
       },
       {
         id: 'nadcap_cert_number',
@@ -361,7 +365,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Functional Test Procedures',
         type: 'table',
         required: true,
-        helpText: 'List all functional tests, performance tests, and acceptance tests required for the first article.',
+        helpText:
+          'List all functional tests, performance tests, and acceptance tests required for the first article.',
         columns: [
           {
             id: 'test_number',
@@ -408,7 +413,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Test Results Summary',
         type: 'textarea',
         required: true,
-        placeholder: 'Provide overall summary of functional test results, any deviations, and disposition of any failures.',
+        placeholder:
+          'Provide overall summary of functional test results, any deviations, and disposition of any failures.',
         validation: { minLength: 20, maxLength: 5000 },
         width: 'full',
       },
@@ -505,7 +511,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Characteristics',
         type: 'table',
         required: true,
-        helpText: 'Record every design characteristic from the drawing. Number sequentially. Identify all critical and major characteristics.',
+        helpText:
+          'Record every design characteristic from the drawing. Number sequentially. Identify all critical and major characteristics.',
         columns: [
           {
             id: 'char_number',
@@ -554,7 +561,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
             id: 'designed_tooling',
             label: 'Designed Tooling Used',
             type: 'checkbox',
-            helpText: 'Check if a designed (not standard) tooling, fixture, or gauge was used for this measurement.',
+            helpText:
+              'Check if a designed (not standard) tooling, fixture, or gauge was used for this measurement.',
           },
         ],
         width: 'full',
@@ -570,7 +578,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Remarks',
         type: 'textarea',
         placeholder: 'Any non-conformances, deviations, concessions, or additional notes.',
-        helpText: 'Document any characteristics that did not meet requirements and reference the disposition (concession, rework, etc.).',
+        helpText:
+          'Document any characteristics that did not meet requirements and reference the disposition (concession, rework, etc.).',
         width: 'full',
       },
       {
@@ -702,7 +711,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         id: 'affected_drawings',
         label: 'Affected Drawings / Documents',
         type: 'textarea',
-        placeholder: 'List all drawing numbers, specifications, and documents that require revision.',
+        placeholder:
+          'List all drawing numbers, specifications, and documents that require revision.',
         width: 'half',
       },
       {
@@ -710,7 +720,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Change Classification',
         type: 'select',
         required: true,
-        helpText: 'Major: affects form/fit/function, interface, safety, reliability, or contractual requirements. Minor: all others.',
+        helpText:
+          'Major: affects form/fit/function, interface, safety, reliability, or contractual requirements. Minor: all others.',
         options: [
           { label: 'Major (Class I)', value: 'major' },
           { label: 'Minor (Class II)', value: 'minor' },
@@ -742,7 +753,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Description of Change',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the proposed change in detail. Include before/after comparison where applicable.',
+        placeholder:
+          'Describe the proposed change in detail. Include before/after comparison where applicable.',
         validation: { minLength: 50, maxLength: 10000 },
         width: 'full',
       },
@@ -751,7 +763,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Reason for Change',
         type: 'textarea',
         required: true,
-        placeholder: 'Explain why the change is necessary (e.g. safety improvement, weight reduction, obsolescence, cost reduction, customer requirement).',
+        placeholder:
+          'Explain why the change is necessary (e.g. safety improvement, weight reduction, obsolescence, cost reduction, customer requirement).',
         validation: { minLength: 20, maxLength: 5000 },
         width: 'full',
       },
@@ -817,8 +830,10 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Effectivity',
         type: 'textarea',
         required: true,
-        placeholder: 'Define the effectivity point (e.g. Ship Set 45 and subsequent, from Lot 2026-Q3, retrofit required for all in-service units).',
-        helpText: 'Specify whether the change applies to new production, in-service retrofit, or both.',
+        placeholder:
+          'Define the effectivity point (e.g. Ship Set 45 and subsequent, from Lot 2026-Q3, retrofit required for all in-service units).',
+        helpText:
+          'Specify whether the change applies to new production, in-service retrofit, or both.',
         width: 'full',
       },
       {
@@ -832,7 +847,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Approval Routing',
         type: 'table',
         required: true,
-        helpText: 'Route to all required approvers. Major changes typically require customer and airworthiness authority approval.',
+        helpText:
+          'Route to all required approvers. Major changes typically require customer and airworthiness authority approval.',
         columns: [
           {
             id: 'role',
@@ -986,7 +1002,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Task Card / AMM Reference',
         type: 'text',
         placeholder: 'e.g. AMM 32-11-01, SB 737-32-1234',
-        helpText: 'Reference to the Aircraft Maintenance Manual, Service Bulletin, or Airworthiness Directive.',
+        helpText:
+          'Reference to the Aircraft Maintenance Manual, Service Bulletin, or Airworthiness Directive.',
         width: 'half',
       },
       {
@@ -1072,7 +1089,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Inspection Requirements',
         type: 'textarea',
         required: true,
-        placeholder: 'Define inspection hold points, required inspection stamps (RII, mandatory inspection, etc.).',
+        placeholder:
+          'Define inspection hold points, required inspection stamps (RII, mandatory inspection, etc.).',
         width: 'full',
       },
       {
@@ -1080,7 +1098,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Work Step Sign-Off',
         type: 'table',
         required: true,
-        helpText: 'Each critical step must be signed off by the performing mechanic and inspected where required.',
+        helpText:
+          'Each critical step must be signed off by the performing mechanic and inspected where required.',
         columns: [
           {
             id: 'step',
@@ -1129,7 +1148,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         id: 'release_to_service',
         label: 'Release to Service (CRS)',
         type: 'signature',
-        helpText: 'Certificate of Release to Service — signed by authorized certifying staff per Part 145 / Part 43.',
+        helpText:
+          'Certificate of Release to Service — signed by authorized certifying staff per Part 145 / Part 43.',
         width: 'half',
       },
     ],
@@ -1203,8 +1223,10 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Access Requirements',
         type: 'textarea',
         required: true,
-        placeholder: 'Panels to be removed, scaffolding required, jacking requirements, safety precautions.',
-        helpText: 'Document all access requirements and safety precautions before inspection begins.',
+        placeholder:
+          'Panels to be removed, scaffolding required, jacking requirements, safety precautions.',
+        helpText:
+          'Document all access requirements and safety precautions before inspection begins.',
         width: 'half',
       },
       {
@@ -1229,7 +1251,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         id: 'ndt_qualification',
         label: 'NDT Qualification Required',
         type: 'select',
-        helpText: 'For NDT inspections, specify the minimum qualification level per EN 4179 / NAS 410.',
+        helpText:
+          'For NDT inspections, specify the minimum qualification level per EN 4179 / NAS 410.',
         options: [
           { label: 'N/A — Visual Inspection', value: 'na' },
           { label: 'Level 1 (under Level 2 supervision)', value: 'level_1' },
@@ -1304,7 +1327,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Findings',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe all findings including location, extent, and measurements. If no findings, state "No defects found".',
+        placeholder:
+          'Describe all findings including location, extent, and measurements. If no findings, state "No defects found".',
         helpText: 'Include photographs, sketches, or NDT records as attachments.',
         validation: { minLength: 10, maxLength: 10000 },
         width: 'full',
@@ -1328,7 +1352,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Follow-Up Work Order / SRM Reference',
         type: 'text',
         placeholder: 'e.g. WO-2026-0045, SRM 51-70-11',
-        helpText: 'Reference to follow-up work order or Structural Repair Manual chapter if repair is needed.',
+        helpText:
+          'Reference to follow-up work order or Structural Repair Manual chapter if repair is needed.',
         width: 'half',
       },
       {
@@ -1452,7 +1477,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Task Being Performed',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the specific task, including AMM/SRM reference, step number, and what was expected.',
+        placeholder:
+          'Describe the specific task, including AMM/SRM reference, step number, and what was expected.',
         width: 'full',
       },
       {
@@ -1542,7 +1568,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
           'E (Environment) — Physical working conditions:\n\n' +
           'L-L (Liveware-Liveware) — Communication, teamwork, supervision:\n\n' +
           'L (Liveware, central) — Individual capabilities, limitations:',
-        helpText: 'The SHELL model examines the interfaces between the central human element (Liveware) and Software, Hardware, Environment, and other Liveware.',
+        helpText:
+          'The SHELL model examines the interfaces between the central human element (Liveware) and Software, Hardware, Environment, and other Liveware.',
         validation: { minLength: 100, maxLength: 15000 },
         width: 'full',
       },
@@ -1551,7 +1578,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Contributing Factors Summary',
         type: 'textarea',
         required: true,
-        placeholder: 'Summarize the primary and secondary contributing factors. Identify the chain of events and error-producing conditions.',
+        placeholder:
+          'Summarize the primary and secondary contributing factors. Identify the chain of events and error-producing conditions.',
         width: 'full',
       },
       {
@@ -1698,7 +1726,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Attendees',
         type: 'textarea',
         required: true,
-        placeholder: 'Name — Title / Function\ne.g. John Doe — Quality Director\nJane Smith — VP Operations',
+        placeholder:
+          'Name — Title / Function\ne.g. John Doe — Quality Director\nJane Smith — VP Operations',
         helpText: 'Top management with executive responsibility must attend (AS9100D clause 5.1).',
         width: 'full',
       },
@@ -1713,7 +1742,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Audit Results',
         type: 'textarea',
         required: true,
-        placeholder: 'Summary of internal audits, customer audits, certification body (CB) audits, and regulatory audits. Include major/minor findings and closure status.',
+        placeholder:
+          'Summary of internal audits, customer audits, certification body (CB) audits, and regulatory audits. Include major/minor findings and closure status.',
         width: 'full',
       },
       {
@@ -1721,8 +1751,10 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Customer Satisfaction & Feedback',
         type: 'textarea',
         required: true,
-        placeholder: 'Customer scorecards, satisfaction surveys, formal feedback, complaints, warranty claims.',
-        helpText: 'Per AS9100D 9.1.2 — monitor customer perception including on-time delivery and quality performance.',
+        placeholder:
+          'Customer scorecards, satisfaction surveys, formal feedback, complaints, warranty claims.',
+        helpText:
+          'Per AS9100D 9.1.2 — monitor customer perception including on-time delivery and quality performance.',
         width: 'full',
       },
       {
@@ -1730,7 +1762,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Supplier Performance',
         type: 'textarea',
         required: true,
-        placeholder: 'Supplier quality metrics, delivery performance, audit results, approved supplier list changes, SCAR status.',
+        placeholder:
+          'Supplier quality metrics, delivery performance, audit results, approved supplier list changes, SCAR status.',
         helpText: 'Per AS9100D 8.4 — external provider performance including risk-based controls.',
         width: 'full',
       },
@@ -1739,8 +1772,10 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'On-Time Delivery Performance',
         type: 'textarea',
         required: true,
-        placeholder: 'OTD metrics by programme/customer, root causes for late deliveries, improvement actions.',
-        helpText: 'AS9100D specific requirement — on-time delivery is a key aerospace performance indicator.',
+        placeholder:
+          'OTD metrics by programme/customer, root causes for late deliveries, improvement actions.',
+        helpText:
+          'AS9100D specific requirement — on-time delivery is a key aerospace performance indicator.',
         width: 'full',
       },
       {
@@ -1748,7 +1783,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Quality Objectives & KPIs',
         type: 'textarea',
         required: true,
-        placeholder: 'Status against quality objectives: scrap rate, rework rate, first pass yield, customer escapes, cost of quality.',
+        placeholder:
+          'Status against quality objectives: scrap rate, rework rate, first pass yield, customer escapes, cost of quality.',
         width: 'full',
       },
       {
@@ -1756,7 +1792,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Risks & Opportunities (Risk-Based Thinking)',
         type: 'textarea',
         required: true,
-        placeholder: 'Status of risk register, new risks identified, effectiveness of risk mitigation actions, opportunities for improvement.',
+        placeholder:
+          'Status of risk register, new risks identified, effectiveness of risk mitigation actions, opportunities for improvement.',
         helpText: 'Per AS9100D 6.1 — actions to address risks and opportunities.',
         width: 'full',
       },
@@ -1765,8 +1802,10 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Product Safety',
         type: 'textarea',
         required: true,
-        placeholder: 'Product safety incidents, product safety reviews, airworthiness concerns, mandatory occurrence reports.',
-        helpText: 'AS9100D 8.1.1 — product safety is a mandatory management review input in aerospace.',
+        placeholder:
+          'Product safety incidents, product safety reviews, airworthiness concerns, mandatory occurrence reports.',
+        helpText:
+          'AS9100D 8.1.1 — product safety is a mandatory management review input in aerospace.',
         width: 'full',
       },
       {
@@ -1774,8 +1813,10 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Counterfeit Part Prevention',
         type: 'textarea',
         required: true,
-        placeholder: 'Counterfeit detection events, suspect parts, supplier verification activities, prevention programme effectiveness.',
-        helpText: 'AS9100D 8.1.4 — counterfeit or suspect unapproved part prevention and detection.',
+        placeholder:
+          'Counterfeit detection events, suspect parts, supplier verification activities, prevention programme effectiveness.',
+        helpText:
+          'AS9100D 8.1.4 — counterfeit or suspect unapproved part prevention and detection.',
         width: 'full',
       },
       {
@@ -1783,7 +1824,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Nonconformity & Corrective Action Status',
         type: 'textarea',
         required: true,
-        placeholder: 'Open NCRs, CAPA metrics, effectiveness reviews, recurring nonconformities, trends.',
+        placeholder:
+          'Open NCRs, CAPA metrics, effectiveness reviews, recurring nonconformities, trends.',
         width: 'full',
       },
       {
@@ -1866,7 +1908,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Resource Needs',
         type: 'textarea',
         required: true,
-        placeholder: 'Approved resource allocations: personnel, equipment, facility, budget, training investments.',
+        placeholder:
+          'Approved resource allocations: personnel, equipment, facility, budget, training investments.',
         helpText: 'Per AS9100D 9.3.3(b) — resource needs identified during the review.',
         width: 'full',
       },
@@ -1874,7 +1917,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         id: 'objectives_update',
         label: 'Quality Objectives Update',
         type: 'textarea',
-        placeholder: 'Any updates or revisions to quality objectives and targets for the next review period.',
+        placeholder:
+          'Any updates or revisions to quality objectives and targets for the next review period.',
         width: 'full',
       },
       {
@@ -1888,7 +1932,8 @@ export const aerospaceTemplates: TemplateDefinition[] = [
         label: 'Next Review Date',
         type: 'date',
         required: true,
-        helpText: 'AS9100D requires management reviews at planned intervals. Typically quarterly or semi-annually for aerospace.',
+        helpText:
+          'AS9100D requires management reviews at planned intervals. Typically quarterly or semi-annually for aerospace.',
         width: 'half',
       },
       {

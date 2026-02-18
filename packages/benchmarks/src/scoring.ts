@@ -38,7 +38,7 @@ export function getBenchmark(kpi: BenchmarkKPI, industry: IndustrySegment): Benc
 export function calculatePercentile(
   value: number,
   kpi: BenchmarkKPI,
-  industry: IndustrySegment,
+  industry: IndustrySegment
 ): number {
   const kpiData = BENCHMARK_DATA[kpi];
   if (!kpiData) return 50;
@@ -83,7 +83,7 @@ export function calculatePercentile(
 export function generateBenchmarkNarrative(
   value: number,
   kpi: BenchmarkKPI,
-  industry: IndustrySegment,
+  industry: IndustrySegment
 ): string {
   const benchmark = getBenchmark(kpi, industry);
   if (!benchmark) {
@@ -95,12 +95,20 @@ export function generateBenchmarkNarrative(
   const industryLabel = industry.replace(/_/g, ' ');
 
   const comparison = benchmark.lowerIsBetter
-    ? (value < benchmark.average ? 'better' : 'worse')
-    : (value > benchmark.average ? 'better' : 'worse');
+    ? value < benchmark.average
+      ? 'better'
+      : 'worse'
+    : value > benchmark.average
+      ? 'better'
+      : 'worse';
 
   const vsAverage = benchmark.lowerIsBetter
-    ? (value < benchmark.average ? 'below' : 'above')
-    : (value > benchmark.average ? 'above' : 'below');
+    ? value < benchmark.average
+      ? 'below'
+      : 'above'
+    : value > benchmark.average
+      ? 'above'
+      : 'below';
 
   let performance: string;
   if (percentile >= 90) {
@@ -115,9 +123,11 @@ export function generateBenchmarkNarrative(
     performance = 'significantly below average';
   }
 
-  return `Your ${kpiLabel} (${value}${benchmark.unit === '%' ? '%' : ' ' + benchmark.unit}) is ${comparison} than ${percentile}% of ${industryLabel} companies. ` +
+  return (
+    `Your ${kpiLabel} (${value}${benchmark.unit === '%' ? '%' : ' ' + benchmark.unit}) is ${comparison} than ${percentile}% of ${industryLabel} companies. ` +
     `This is ${performance}, with the industry average at ${benchmark.average}${benchmark.unit === '%' ? '%' : ' ' + benchmark.unit}. ` +
-    `Best-in-class is ${benchmark.bestInClass}${benchmark.unit === '%' ? '%' : ' ' + benchmark.unit}.`;
+    `Best-in-class is ${benchmark.bestInClass}${benchmark.unit === '%' ? '%' : ' ' + benchmark.unit}.`
+  );
 }
 
 function formatKPILabel(kpi: BenchmarkKPI): string {

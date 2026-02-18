@@ -238,33 +238,45 @@ export default function FishbonePage() {
               {CATEGORIES.map((cat) => {
                 const colors = getCategoryColor(cat.color);
                 return (
-                  <div key={cat.key} className={`p-4 rounded-lg border ${colors.border} ${colors.bg}`}>
+                  <div
+                    key={cat.key}
+                    className={`p-4 rounded-lg border ${colors.border} ${colors.bg}`}
+                  >
                     <div className="flex items-center gap-2 mb-3">
                       <cat.icon className={`w-5 h-5 ${colors.text}`} />
                       <span className={`font-medium ${colors.text}`}>{cat.label}</span>
                     </div>
                     <div className="space-y-2">
-                      {(formData[cat.key as keyof typeof formData] as string[]).map((cause, idx) => (
-                        <div key={idx} className="flex gap-2">
-                          <Input
-                            value={cause}
-                            onChange={(e) =>
-                              updateCauseInCategory(cat.key as keyof typeof formData, idx, e.target.value)
-                            }
-                            placeholder={`${cat.label} cause...`}
-                            className="bg-white"
-                          />
-                          {(formData[cat.key as keyof typeof formData] as string[]).length > 1 && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeCauseFromCategory(cat.key as keyof typeof formData, idx)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
+                      {(formData[cat.key as keyof typeof formData] as string[]).map(
+                        (cause, idx) => (
+                          <div key={idx} className="flex gap-2">
+                            <Input
+                              value={cause}
+                              onChange={(e) =>
+                                updateCauseInCategory(
+                                  cat.key as keyof typeof formData,
+                                  idx,
+                                  e.target.value
+                                )
+                              }
+                              placeholder={`${cat.label} cause...`}
+                              className="bg-white"
+                            />
+                            {(formData[cat.key as keyof typeof formData] as string[]).length >
+                              1 && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  removeCauseFromCategory(cat.key as keyof typeof formData, idx)
+                                }
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        )
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
@@ -295,8 +307,15 @@ export default function FishbonePage() {
               <Button variant="outline" onClick={() => setShowForm(false)}>
                 Cancel
               </Button>
-              <Button onClick={createAnalysis} disabled={creating || !formData.title || !formData.problemStatement}>
-                {creating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              <Button
+                onClick={createAnalysis}
+                disabled={creating || !formData.title || !formData.problemStatement}
+              >
+                {creating ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
                 Save Analysis
               </Button>
             </div>
@@ -322,7 +341,8 @@ export default function FishbonePage() {
             })}
           </div>
           <p className="text-sm text-muted-foreground text-center mt-4">
-            The Fishbone diagram organizes potential causes into 6 categories (6M) to systematically identify root causes.
+            The Fishbone diagram organizes potential causes into 6 categories (6M) to systematically
+            identify root causes.
           </p>
         </CardContent>
       </Card>
@@ -344,16 +364,21 @@ export default function FishbonePage() {
                     <div>
                       <h3 className="font-medium">{analysis.title}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(analysis.createdAt).toLocaleDateString()} • {analysis.sourceType.replace('_', ' ')}
+                        {new Date(analysis.createdAt).toLocaleDateString()} •{' '}
+                        {analysis.sourceType.replace('_', ' ')}
                       </p>
                     </div>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(analysis.status)}`}>
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(analysis.status)}`}
+                    >
                       {analysis.status}
                     </span>
                   </div>
 
                   <div className="p-3 bg-red-50 rounded-lg mb-4">
-                    <p className="text-sm font-medium text-red-700">Effect: {analysis.problemStatement}</p>
+                    <p className="text-sm font-medium text-red-700">
+                      Effect: {analysis.problemStatement}
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
@@ -363,7 +388,9 @@ export default function FishbonePage() {
                       if (!causes || causes.length === 0) return null;
                       return (
                         <div key={cat.key} className={`p-2 rounded ${colors.bg}`}>
-                          <p className={`text-xs font-medium ${colors.text} mb-1`}>{cat.label.split(' ')[0]}</p>
+                          <p className={`text-xs font-medium ${colors.text} mb-1`}>
+                            {cat.label.split(' ')[0]}
+                          </p>
                           <ul className="text-xs space-y-1">
                             {causes.map((cause, idx) => (
                               <li key={idx}>• {cause}</li>
@@ -377,7 +404,8 @@ export default function FishbonePage() {
                   {analysis.rootCause && (
                     <div className="p-3 bg-green-50 rounded-lg">
                       <p className="text-sm">
-                        <span className="font-medium text-green-700">Root Cause:</span> {analysis.rootCause}
+                        <span className="font-medium text-green-700">Root Cause:</span>{' '}
+                        {analysis.rootCause}
                       </p>
                     </div>
                   )}

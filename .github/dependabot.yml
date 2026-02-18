@@ -1,62 +1,62 @@
 version: 2
 updates:
   # JavaScript/TypeScript dependencies
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "UTC"
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'UTC'
     open-pull-requests-limit: 10
     groups:
       # Group minor and patch updates together
       minor-and-patch:
         patterns:
-          - "*"
+          - '*'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
       # Keep major updates separate
       major:
         patterns:
-          - "*"
+          - '*'
         update-types:
-          - "major"
+          - 'major'
     labels:
-      - "dependencies"
-      - "automated"
+      - 'dependencies'
+      - 'automated'
     reviewers:
-      - "team-leads"
+      - 'team-leads'
     commit-message:
-      prefix: "chore(deps)"
+      prefix: 'chore(deps)'
     ignore:
       # Ignore specific packages if needed
       # - dependency-name: "some-package"
       #   versions: ["1.x"]
 
   # GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     labels:
-      - "dependencies"
-      - "ci"
-      - "automated"
+      - 'dependencies'
+      - 'ci'
+      - 'automated'
     commit-message:
-      prefix: "chore(ci)"
+      prefix: 'chore(ci)'
 
   # Docker
-  - package-ecosystem: "docker"
-    directory: "/deploy/docker"
+  - package-ecosystem: 'docker'
+    directory: '/deploy/docker'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     labels:
-      - "dependencies"
-      - "docker"
-      - "automated"
+      - 'dependencies'
+      - 'docker'
+      - 'automated'
     commit-message:
-      prefix: "chore(docker)"
+      prefix: 'chore(docker)'

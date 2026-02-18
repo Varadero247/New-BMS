@@ -34,7 +34,9 @@ function buildRecommendations(audit: AuditRecord): string[] {
     recs.push('Confirm customer satisfaction data and measurement results are available');
     recs.push('Review corrective action records and evidence of continual improvement');
   } else if (standard.includes('14001')) {
-    recs.push('Gather evidence of environmental aspects/impacts register and legal compliance evaluation');
+    recs.push(
+      'Gather evidence of environmental aspects/impacts register and legal compliance evaluation'
+    );
     recs.push('Ensure environmental monitoring data and emergency response test records are ready');
     recs.push('Confirm objectives, targets, and environmental performance metrics are documented');
   } else if (standard.includes('45001')) {
@@ -43,7 +45,9 @@ function buildRecommendations(audit: AuditRecord): string[] {
     recs.push('Confirm worker consultation and participation records are available');
   } else if (standard.includes('27001')) {
     recs.push('Ensure the Statement of Applicability (SoA) is current and signed off');
-    recs.push('Prepare asset inventory, risk treatment plan, and residual risk acceptance evidence');
+    recs.push(
+      'Prepare asset inventory, risk treatment plan, and residual risk acceptance evidence'
+    );
     recs.push('Gather access control reviews, vulnerability scan results, and patch records');
   } else if (standard.includes('22301')) {
     recs.push('Confirm Business Continuity Plans are tested, exercised, and up-to-date');
@@ -148,7 +152,9 @@ router.post('/:id/generate', authenticate, async (req: Request, res: Response) =
 
     res.json({ success: true, data: report });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },

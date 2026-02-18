@@ -3,11 +3,7 @@ import { Request, Response, NextFunction, RequestHandler } from 'express';
 import path from 'path';
 import crypto from 'crypto';
 import fs from 'fs';
-import {
-  MAX_FILE_SIZE,
-  getAllAllowedMimeTypes,
-  ALLOWED_EXTENSIONS,
-} from './config';
+import { MAX_FILE_SIZE, getAllAllowedMimeTypes, ALLOWED_EXTENSIONS } from './config';
 import {
   validateFilename,
   validateExtension,
@@ -72,11 +68,9 @@ function createStorage(options: UploadOptions): StorageEngine {
 /**
  * Create file filter for multer
  */
-function createFileFilter(options: UploadOptions): (
-  req: Request,
-  file: Express.Multer.File,
-  cb: FileFilterCallback
-) => void {
+function createFileFilter(
+  options: UploadOptions
+): (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => void {
   const allowedMimes = options.allowedMimeTypes || getAllAllowedMimeTypes();
   const allowedExts = options.allowedExtensions || ALLOWED_EXTENSIONS;
 
@@ -154,9 +148,7 @@ export function uploadFields(
  * Post-upload validation middleware
  * Validates file content after upload (for magic byte checking)
  */
-export function validateUploadedFile(
-  options: { deleteOnFail?: boolean } = {}
-): RequestHandler {
+export function validateUploadedFile(options: { deleteOnFail?: boolean } = {}): RequestHandler {
   return async (req: Request, res: Response, next: NextFunction) => {
     const file = req.file;
     if (!file) {

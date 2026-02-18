@@ -57,7 +57,12 @@ const mockSchedule = {
   lastPerformed: null,
   nextDue: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   deletedAt: null,
-  asset: { id: ASSET_ID, assetNumber: 'ASSET-001', name: 'Hydraulic Press', location: 'Plant Floor A' },
+  asset: {
+    id: ASSET_ID,
+    assetNumber: 'ASSET-001',
+    name: 'Hydraulic Press',
+    location: 'Plant Floor A',
+  },
 };
 
 beforeEach(() => {
@@ -211,7 +216,9 @@ describe('POST /api/scheduler/:id/complete', () => {
       nextDue: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     });
 
-    const res = await request(app).post(`/api/scheduler/${SCHEDULE_ID}/complete`).send({ completedDate: '2026-02-16' });
+    const res = await request(app)
+      .post(`/api/scheduler/${SCHEDULE_ID}/complete`)
+      .send({ completedDate: '2026-02-16' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -259,9 +266,14 @@ describe('GET /api/scheduler/:id', () => {
 describe('PUT /api/scheduler/:id', () => {
   it('updates schedule successfully', async () => {
     (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(mockSchedule);
-    (mockPrisma.cmmsPreventivePlan.update as jest.Mock).mockResolvedValue({ ...mockSchedule, frequency: 'QUARTERLY' });
+    (mockPrisma.cmmsPreventivePlan.update as jest.Mock).mockResolvedValue({
+      ...mockSchedule,
+      frequency: 'QUARTERLY',
+    });
 
-    const res = await request(app).put(`/api/scheduler/${SCHEDULE_ID}`).send({ frequency: 'QUARTERLY' });
+    const res = await request(app)
+      .put(`/api/scheduler/${SCHEDULE_ID}`)
+      .send({ frequency: 'QUARTERLY' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -269,12 +281,16 @@ describe('PUT /api/scheduler/:id', () => {
   it('returns 404 when not found', async () => {
     (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put(`/api/scheduler/${SCHEDULE_ID}`).send({ frequency: 'QUARTERLY' });
+    const res = await request(app)
+      .put(`/api/scheduler/${SCHEDULE_ID}`)
+      .send({ frequency: 'QUARTERLY' });
     expect(res.status).toBe(404);
   });
 
   it('returns 400 on validation error', async () => {
-    const res = await request(app).put(`/api/scheduler/${SCHEDULE_ID}`).send({ frequency: 'EVERY_HOUR' });
+    const res = await request(app)
+      .put(`/api/scheduler/${SCHEDULE_ID}`)
+      .send({ frequency: 'EVERY_HOUR' });
     expect(res.status).toBe(400);
   });
 
@@ -282,7 +298,9 @@ describe('PUT /api/scheduler/:id', () => {
     (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(mockSchedule);
     (mockPrisma.cmmsPreventivePlan.update as jest.Mock).mockRejectedValue(new Error('fail'));
 
-    const res = await request(app).put(`/api/scheduler/${SCHEDULE_ID}`).send({ frequency: 'QUARTERLY' });
+    const res = await request(app)
+      .put(`/api/scheduler/${SCHEDULE_ID}`)
+      .send({ frequency: 'QUARTERLY' });
     expect(res.status).toBe(500);
   });
 });
@@ -290,7 +308,10 @@ describe('PUT /api/scheduler/:id', () => {
 describe('DELETE /api/scheduler/:id', () => {
   it('soft deletes schedule successfully', async () => {
     (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(mockSchedule);
-    (mockPrisma.cmmsPreventivePlan.update as jest.Mock).mockResolvedValue({ ...mockSchedule, deletedAt: new Date() });
+    (mockPrisma.cmmsPreventivePlan.update as jest.Mock).mockResolvedValue({
+      ...mockSchedule,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete(`/api/scheduler/${SCHEDULE_ID}`);
     expect(res.status).toBe(200);

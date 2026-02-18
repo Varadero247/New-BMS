@@ -38,14 +38,7 @@ export function NexaraIcon({ size = 16, className }: NexaraIconProps) {
       <circle cx="40" cy="40" r="7" fill={`url(#${gId})`} />
       <circle cx="40" cy="40" r="3" fill="white" opacity="0.92" />
       <defs>
-        <linearGradient
-          id={gId}
-          x1="0"
-          y1="0"
-          x2="80"
-          y2="80"
-          gradientUnits="userSpaceOnUse"
-        >
+        <linearGradient id={gId} x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#3B78F5" />
           <stop offset="60%" stopColor="#5B94FF" />
           <stop offset="100%" stopColor="#00C4A8" />

@@ -34,36 +34,48 @@ router.get('/courses', scopeToUser, async (req: Request, res: Response) => {
     res.json({ success: true, data: courses });
   } catch (error) {
     logger.error('Error fetching courses', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch courses' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch courses' },
+    });
   }
 });
 
 // GET /api/training/courses/:id - Get single course
-router.get('/courses/:id', checkOwnership(prisma.hRTrainingCourse), async (req: Request, res: Response) => {
-  try {
-    const course = await prisma.hRTrainingCourse.findUnique({
-      where: { id: req.params.id },
-      include: {
-        sessions: {
-          orderBy: { startDate: 'asc' },
-          include: {
-            _count: { select: { enrollments: true } },
+router.get(
+  '/courses/:id',
+  checkOwnership(prisma.hRTrainingCourse),
+  async (req: Request, res: Response) => {
+    try {
+      const course = await prisma.hRTrainingCourse.findUnique({
+        where: { id: req.params.id },
+        include: {
+          sessions: {
+            orderBy: { startDate: 'asc' },
+            include: {
+              _count: { select: { enrollments: true } },
+            },
           },
+          _count: { select: { enrollments: true } },
         },
-        _count: { select: { enrollments: true } },
-      },
-    });
+      });
 
-    if (!course) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Course not found' } });
+      if (!course) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Course not found' } });
+      }
+
+      res.json({ success: true, data: course });
+    } catch (error) {
+      logger.error('Error fetching course', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch course' },
+      });
     }
-
-    res.json({ success: true, data: course });
-  } catch (error) {
-    logger.error('Error fetching course', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch course' } });
   }
-});
+);
 
 // POST /api/training/courses - Create course
 router.post('/courses', async (req: Request, res: Response) => {
@@ -75,7 +87,16 @@ router.post('/courses', async (req: Request, res: Response) => {
       category: z.string().trim().min(1).max(100),
       provider: z.string().optional(),
       instructorName: z.string().optional(),
-      deliveryMethod: z.enum(['CLASSROOM', 'VIRTUAL', 'E_LEARNING', 'ON_THE_JOB', 'SELF_PACED', 'BLENDED', 'WORKSHOP', 'SEMINAR']),
+      deliveryMethod: z.enum([
+        'CLASSROOM',
+        'VIRTUAL',
+        'E_LEARNING',
+        'ON_THE_JOB',
+        'SELF_PACED',
+        'BLENDED',
+        'WORKSHOP',
+        'SEMINAR',
+      ]),
       duration: z.number().nonnegative(),
       maxParticipants: z.number().optional(),
       prerequisites: z.array(z.string()).default([]),
@@ -94,10 +115,15 @@ router.post('/courses', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: course });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating course', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create course' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create course' },
+    });
   }
 });
 
@@ -129,7 +155,10 @@ router.get('/sessions', async (req: Request, res: Response) => {
     res.json({ success: true, data: sessions });
   } catch (error) {
     logger.error('Error fetching sessions', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch sessions' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch sessions' },
+    });
   }
 });
 
@@ -138,8 +167,8 @@ router.post('/sessions', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       courseId: z.string().trim().uuid(),
-      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-      endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      endDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       location: z.string().optional(),
       isVirtual: z.boolean().default(false),
       meetingUrl: z.string().trim().url().optional(),
@@ -168,10 +197,15 @@ router.post('/sessions', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: session });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating session', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create session' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create session' },
+    });
   }
 });
 
@@ -201,7 +235,10 @@ router.get('/enrollments', async (req: Request, res: Response) => {
     res.json({ success: true, data: enrollments });
   } catch (error) {
     logger.error('Error fetching enrollments', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch enrollments' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch enrollments' },
+    });
   }
 });
 
@@ -252,50 +289,74 @@ router.post('/enrollments', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: enrollment });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating enrollment', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create enrollment' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create enrollment' },
+    });
   }
 });
 
 // PUT /api/training/enrollments/:id - Update enrollment
-router.put('/enrollments/:id', checkOwnership(prisma.hRTrainingEnrollment), async (req: Request, res: Response) => {
-  try {
-    const schema = z.object({
-      status: z.enum(['ENROLLED', 'WAITLISTED', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CANCELLED', 'NO_SHOW']).optional(),
-      attendancePercent: z.number().min(0).max(100).optional(),
-      assessmentScore: z.number().nonnegative().optional(),
-      passed: z.boolean().optional(),
-      certificateUrl: z.string().trim().url('Invalid URL').optional(),
-      feedbackRating: z.number().min(1).max(5).optional(),
-      feedbackComments: z.string().optional(),
-    });
+router.put(
+  '/enrollments/:id',
+  checkOwnership(prisma.hRTrainingEnrollment),
+  async (req: Request, res: Response) => {
+    try {
+      const schema = z.object({
+        status: z
+          .enum([
+            'ENROLLED',
+            'WAITLISTED',
+            'IN_PROGRESS',
+            'COMPLETED',
+            'FAILED',
+            'CANCELLED',
+            'NO_SHOW',
+          ])
+          .optional(),
+        attendancePercent: z.number().min(0).max(100).optional(),
+        assessmentScore: z.number().nonnegative().optional(),
+        passed: z.boolean().optional(),
+        certificateUrl: z.string().trim().url('Invalid URL').optional(),
+        feedbackRating: z.number().min(1).max(5).optional(),
+        feedbackComments: z.string().optional(),
+      });
 
-    const data = schema.parse(req.body);
+      const data = schema.parse(req.body);
 
-    const updateData = { ...data } as Record<string, unknown>;
-    if (data.status === 'COMPLETED') {
-      updateData.completedAt = new Date();
+      const updateData = { ...data } as Record<string, unknown>;
+      if (data.status === 'COMPLETED') {
+        updateData.completedAt = new Date();
+      }
+      if (data.assessmentScore !== undefined) {
+        updateData.assessmentDate = new Date();
+      }
+
+      const enrollment = await prisma.hRTrainingEnrollment.update({
+        where: { id: req.params.id },
+        data: updateData,
+      });
+
+      res.json({ success: true, data: enrollment });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res
+          .status(400)
+          .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      }
+      logger.error('Error updating enrollment', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update enrollment' },
+      });
     }
-    if (data.assessmentScore !== undefined) {
-      updateData.assessmentDate = new Date();
-    }
-
-    const enrollment = await prisma.hRTrainingEnrollment.update({
-      where: { id: req.params.id },
-      data: updateData,
-    });
-
-    res.json({ success: true, data: enrollment });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
-    }
-    logger.error('Error updating enrollment', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update enrollment' } });
   }
-});
+);
 
 // Certifications
 // GET /api/training/certifications - Get employee certifications
@@ -326,7 +387,10 @@ router.get('/certifications', async (req: Request, res: Response) => {
     res.json({ success: true, data: certifications });
   } catch (error) {
     logger.error('Error fetching certifications', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch certifications' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch certifications' },
+    });
   }
 });
 
@@ -339,8 +403,11 @@ router.post('/certifications', async (req: Request, res: Response) => {
       issuingOrganization: z.string(),
       credentialId: z.string().optional(),
       credentialUrl: z.string().trim().url().optional(),
-      issueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-      expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      issueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      expiryDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       doesNotExpire: z.boolean().default(false),
       renewalRequired: z.boolean().default(false),
       certificateUrl: z.string().trim().url('Invalid URL').optional(),
@@ -361,10 +428,15 @@ router.post('/certifications', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: certification });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating certification', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create certification' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create certification' },
+    });
   }
 });
 
@@ -412,7 +484,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
 
     // Extract session counts by status
     const sessionCounts: Record<string, number> = {};
-    sessionsByStatus.forEach(s => {
+    sessionsByStatus.forEach((s) => {
       sessionCounts[s.status] = s._count.id;
     });
 
@@ -423,20 +495,20 @@ router.get('/stats', async (_req: Request, res: Response) => {
 
     // Extract enrollment counts by status
     const enrollmentCounts: Record<string, number> = {};
-    enrollmentsByStatus.forEach(e => {
+    enrollmentsByStatus.forEach((e) => {
       enrollmentCounts[e.status] = e._count.id;
     });
 
     const totalEnrollments = enrollmentsByStatus.reduce((acc, e) => acc + e._count.id, 0);
-    const activeEnrollments = (enrollmentCounts['ENROLLED'] || 0) + (enrollmentCounts['IN_PROGRESS'] || 0);
+    const activeEnrollments =
+      (enrollmentCounts['ENROLLED'] || 0) + (enrollmentCounts['IN_PROGRESS'] || 0);
     const completedEnrollments = enrollmentCounts['COMPLETED'] || 0;
     const droppedEnrollments = enrollmentCounts['CANCELLED'] || 0;
     const failedEnrollments = enrollmentCounts['FAILED'] || 0;
 
     // Calculate completion rate
-    const completionRate = totalEnrollments > 0
-      ? Math.round((completedEnrollments / totalEnrollments) * 1000) / 10
-      : 0;
+    const completionRate =
+      totalEnrollments > 0 ? Math.round((completedEnrollments / totalEnrollments) * 1000) / 10 : 0;
 
     // Get upcoming courses (next 30 days)
     const upcomingCourses = await prisma.hRTrainingSession.findMany({
@@ -489,9 +561,9 @@ router.get('/stats', async (_req: Request, res: Response) => {
         failedEnrollments,
         completedThisMonth,
         completionRate,
-        avgScore: Math.round(((scoreStats._avg?.assessmentScore || 0) as any || 0) * 10) / 10,
+        avgScore: Math.round((((scoreStats._avg?.assessmentScore || 0) as any) || 0) * 10) / 10,
         expiringCertifications,
-        upcomingCourses: upcomingCourses.map(c => ({
+        upcomingCourses: upcomingCourses.map((c) => ({
           id: c.id,
           title: c.course.name,
           code: c.course.code,
@@ -504,7 +576,10 @@ router.get('/stats', async (_req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching training stats', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' },
+    });
   }
 });
 

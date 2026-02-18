@@ -59,7 +59,9 @@ describe('Stakeholders API Routes', () => {
 
   describe('GET /api/stakeholders', () => {
     it('should return list of stakeholders for a given projectId', async () => {
-      (mockPrisma.projectStakeholder.findMany as jest.Mock).mockResolvedValueOnce([mockStakeholder]);
+      (mockPrisma.projectStakeholder.findMany as jest.Mock).mockResolvedValueOnce([
+        mockStakeholder,
+      ]);
       (mockPrisma.projectStakeholder.count as jest.Mock).mockResolvedValueOnce(1);
 
       const response = await request(app)
@@ -90,7 +92,9 @@ describe('Stakeholders API Routes', () => {
     });
 
     it('should handle database errors with 500', async () => {
-      (mockPrisma.projectStakeholder.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.projectStakeholder.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/stakeholders?projectId=project-1')
@@ -214,7 +218,9 @@ describe('Stakeholders API Routes', () => {
     });
 
     it('should handle database errors with 500', async () => {
-      (mockPrisma.projectStakeholder.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.projectStakeholder.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/stakeholders')
@@ -229,7 +235,9 @@ describe('Stakeholders API Routes', () => {
 
   describe('PUT /api/stakeholders/:id', () => {
     it('should update a stakeholder successfully', async () => {
-      (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(mockStakeholder);
+      (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockStakeholder
+      );
       (mockPrisma.projectStakeholder.update as jest.Mock).mockResolvedValueOnce({
         ...mockStakeholder,
         stakeholderName: 'Updated Name',
@@ -265,7 +273,9 @@ describe('Stakeholders API Routes', () => {
         interestLevel: 5,
         stakeholderCategory: 'MANAGE_CLOSELY',
       };
-      (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(existingStakeholder);
+      (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(
+        existingStakeholder
+      );
       (mockPrisma.projectStakeholder.update as jest.Mock).mockResolvedValueOnce({
         ...existingStakeholder,
         powerLevel: 2,
@@ -287,7 +297,9 @@ describe('Stakeholders API Routes', () => {
     });
 
     it('should handle database errors with 500', async () => {
-      (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/stakeholders/46000000-0000-4000-a000-000000000001')
@@ -302,7 +314,9 @@ describe('Stakeholders API Routes', () => {
 
   describe('DELETE /api/stakeholders/:id', () => {
     it('should delete a stakeholder successfully', async () => {
-      (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(mockStakeholder);
+      (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockStakeholder
+      );
       (mockPrisma.projectStakeholder.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
@@ -329,7 +343,9 @@ describe('Stakeholders API Routes', () => {
     });
 
     it('should handle database errors with 500', async () => {
-      (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/stakeholders/46000000-0000-4000-a000-000000000001')

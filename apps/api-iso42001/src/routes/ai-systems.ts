@@ -44,7 +44,11 @@ const aiSystemCreateSchema = z.object({
   purpose: z.string().max(2000).optional().nullable(),
   vendor: z.string().max(200).optional().nullable(),
   version: z.string().max(50).optional().nullable(),
-  deploymentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  deploymentDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   owner: z.string().max(200).optional().nullable(),
   department: z.string().max(200).optional().nullable(),
   dataTypes: z.string().max(2000).optional().nullable(),
@@ -55,24 +59,32 @@ const aiSystemCreateSchema = z.object({
 const aiSystemUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   description: z.string().trim().min(1).max(4000).optional(),
-  category: z.enum([
-    'MACHINE_LEARNING',
-    'DEEP_LEARNING',
-    'NATURAL_LANGUAGE_PROCESSING',
-    'COMPUTER_VISION',
-    'ROBOTICS',
-    'EXPERT_SYSTEM',
-    'GENERATIVE_AI',
-    'RECOMMENDATION_SYSTEM',
-    'SPEECH_RECOGNITION',
-    'OTHER',
-  ]).optional(),
+  category: z
+    .enum([
+      'MACHINE_LEARNING',
+      'DEEP_LEARNING',
+      'NATURAL_LANGUAGE_PROCESSING',
+      'COMPUTER_VISION',
+      'ROBOTICS',
+      'EXPERT_SYSTEM',
+      'GENERATIVE_AI',
+      'RECOMMENDATION_SYSTEM',
+      'SPEECH_RECOGNITION',
+      'OTHER',
+    ])
+    .optional(),
   riskTier: z.enum(['UNACCEPTABLE', 'HIGH', 'LIMITED', 'MINIMAL']).optional(),
-  status: z.enum(['ACTIVE', 'INACTIVE', 'DEVELOPMENT', 'DECOMMISSIONED', 'UNDER_REVIEW']).optional(),
+  status: z
+    .enum(['ACTIVE', 'INACTIVE', 'DEVELOPMENT', 'DECOMMISSIONED', 'UNDER_REVIEW'])
+    .optional(),
   purpose: z.string().max(2000).optional().nullable(),
   vendor: z.string().max(200).optional().nullable(),
   version: z.string().max(50).optional().nullable(),
-  deploymentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  deploymentDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   owner: z.string().max(200).optional().nullable(),
   department: z.string().max(200).optional().nullable(),
   dataTypes: z.string().max(2000).optional().nullable(),
@@ -141,8 +153,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list AI systems', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list AI systems' } });
+    logger.error('Failed to list AI systems', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list AI systems' },
+    });
   }
 });
 
@@ -151,7 +168,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = aiSystemCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -181,8 +205,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('AI system created', { systemId: system.id, reference });
     res.status(201).json({ success: true, data: system });
   } catch (error: unknown) {
-    logger.error('Failed to create AI system', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create AI system' } });
+    logger.error('Failed to create AI system', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create AI system' },
+    });
   }
 });
 
@@ -193,18 +222,27 @@ router.get('/:id/risks', async (req: Request, res: Response) => {
 
     const system = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } as any });
     if (!system) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
     }
 
     const risks = await prisma.aiRiskAssessment.findMany({
       where: { systemId: id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: risks });
   } catch (error: unknown) {
-    logger.error('Failed to get risks for AI system', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get risks for AI system' } });
+    logger.error('Failed to get risks for AI system', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get risks for AI system' },
+    });
   }
 });
 
@@ -215,18 +253,27 @@ router.get('/:id/incidents', async (req: Request, res: Response) => {
 
     const system = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } as any });
     if (!system) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
     }
 
     const incidents = await prisma.aiIncident.findMany({
       where: { systemId: id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: incidents });
   } catch (error: unknown) {
-    logger.error('Failed to get incidents for AI system', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get incidents for AI system' } });
+    logger.error('Failed to get incidents for AI system', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get incidents for AI system' },
+    });
   }
 });
 
@@ -242,13 +289,21 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!system) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
     }
 
     res.json({ success: true, data: system });
   } catch (error: unknown) {
-    logger.error('Failed to get AI system', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get AI system' } });
+    logger.error('Failed to get AI system', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get AI system' },
+    });
   }
 });
 
@@ -259,12 +314,21 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = aiSystemUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const existing = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -272,9 +336,12 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       where: { id },
       data: {
         ...parsed.data,
-        deploymentDate: parsed.data.deploymentDate !== undefined
-          ? (parsed.data.deploymentDate ? new Date(parsed.data.deploymentDate) : null)
-          : undefined,
+        deploymentDate:
+          parsed.data.deploymentDate !== undefined
+            ? parsed.data.deploymentDate
+              ? new Date(parsed.data.deploymentDate)
+              : null
+            : undefined,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
       } as any,
@@ -283,8 +350,14 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     logger.info('AI system updated', { systemId: id });
     res.json({ success: true, data: system });
   } catch (error: unknown) {
-    logger.error('Failed to update AI system', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update AI system' } });
+    logger.error('Failed to update AI system', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update AI system' },
+    });
   }
 });
 
@@ -296,7 +369,9 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -311,8 +386,14 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     logger.info('AI system soft-deleted', { systemId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete AI system', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete AI system' } });
+    logger.error('Failed to delete AI system', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete AI system' },
+    });
   }
 });
 

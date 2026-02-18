@@ -13,7 +13,16 @@ const captureSchema = z.object({
   name: z.string().trim().min(1).max(200),
   company: z.string().optional(),
   jobTitle: z.string().optional(),
-  source: z.enum(['ROI_CALCULATOR', 'CHATBOT', 'LANDING_PAGE', 'PARTNER_REFERRAL', 'ORGANIC_SEARCH', 'PAID_ADS', 'DIRECT', 'LINKEDIN']),
+  source: z.enum([
+    'ROI_CALCULATOR',
+    'CHATBOT',
+    'LANDING_PAGE',
+    'PARTNER_REFERRAL',
+    'ORGANIC_SEARCH',
+    'PAID_ADS',
+    'DIRECT',
+    'LINKEDIN',
+  ]),
   industry: z.string().optional(),
   employeeCount: z.string().optional(),
   isoCount: z.number().int().optional(),
@@ -49,7 +58,9 @@ router.post('/capture', async (req: Request, res: Response) => {
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { source, page = '1', limit = '25' } = req.query;
-    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * Math.max(1, parseInt(limit as string, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page as string, 10) || 1) - 1) *
+      Math.max(1, parseInt(limit as string, 10) || 20);
 
     const where: Record<string, unknown> = {};
     if (source) where.source = source;
@@ -64,7 +75,10 @@ router.get('/', async (req: Request, res: Response) => {
       prisma.mktLead.count({ where }),
     ]);
 
-    res.json({ success: true, data: { leads, total, page: Math.max(1, parseInt(page as string, 10) || 1) } });
+    res.json({
+      success: true,
+      data: { leads, total, page: Math.max(1, parseInt(page as string, 10) || 1) },
+    });
   } catch (error) {
     logger.error('Failed to fetch leads', { error: String(error) });
     res.status(500).json({

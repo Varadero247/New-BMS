@@ -15,10 +15,7 @@ import { Regulation, RelevanceScore, OrgProfile } from './types';
  * @param orgProfile - Organisation profile with standards, industry, jurisdiction
  * @returns Relevance score with breakdown
  */
-export function calculateRelevance(
-  regulation: Regulation,
-  orgProfile: OrgProfile,
-): RelevanceScore {
+export function calculateRelevance(regulation: Regulation, orgProfile: OrgProfile): RelevanceScore {
   let score = 0;
   const matchedStandards: string[] = [];
   const matchedCategories: string[] = [];
@@ -40,7 +37,9 @@ export function calculateRelevance(
       const matchesTitle = regulation.title.toLowerCase().includes(normalizedStandard);
       const matchesDesc = regulation.description.toLowerCase().includes(normalizedStandard);
       const matchesStandards = regulation.standards.some(
-        (s) => s.toLowerCase().includes(normalizedStandard) || normalizedStandard.includes(s.toLowerCase()),
+        (s) =>
+          s.toLowerCase().includes(normalizedStandard) ||
+          normalizedStandard.includes(s.toLowerCase())
       );
 
       if (matchesTitle || matchesDesc || matchesStandards) {
@@ -64,9 +63,10 @@ export function calculateRelevance(
   }
 
   // Industry keyword match (15 points)
-  const industryMatch = regulation.keywords.some(
-    (kw) => kw.toLowerCase().includes(orgProfile.industry.toLowerCase()),
-  ) || regulation.description.toLowerCase().includes(orgProfile.industry.toLowerCase());
+  const industryMatch =
+    regulation.keywords.some((kw) =>
+      kw.toLowerCase().includes(orgProfile.industry.toLowerCase())
+    ) || regulation.description.toLowerCase().includes(orgProfile.industry.toLowerCase());
 
   if (industryMatch) {
     score += 15;
@@ -74,7 +74,7 @@ export function calculateRelevance(
 
   // Recency bonus (10 points) - regulations from last 30 days get full bonus
   const daysSincePublished = Math.floor(
-    (Date.now() - regulation.publishedDate.getTime()) / (1000 * 60 * 60 * 24),
+    (Date.now() - regulation.publishedDate.getTime()) / (1000 * 60 * 60 * 24)
   );
   if (daysSincePublished <= 30) {
     score += 10;
@@ -105,7 +105,7 @@ export function calculateRelevance(
 export function filterRelevant(
   regulations: Regulation[],
   orgProfile: OrgProfile,
-  threshold: number = 30,
+  threshold: number = 30
 ): RelevanceScore[] {
   return regulations
     .map((reg) => calculateRelevance(reg, orgProfile))

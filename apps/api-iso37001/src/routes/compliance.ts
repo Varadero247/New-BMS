@@ -24,8 +24,24 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
-const CATEGORIES = ['POLICY', 'PROCEDURE', 'CONTROL', 'TRAINING', 'DUE_DILIGENCE', 'REPORTING', 'MONITORING', 'MANAGEMENT_REVIEW', 'OTHER'] as const;
-const STATUSES = ['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NOT_APPLICABLE', 'UNDER_REVIEW'] as const;
+const CATEGORIES = [
+  'POLICY',
+  'PROCEDURE',
+  'CONTROL',
+  'TRAINING',
+  'DUE_DILIGENCE',
+  'REPORTING',
+  'MONITORING',
+  'MANAGEMENT_REVIEW',
+  'OTHER',
+] as const;
+const STATUSES = [
+  'COMPLIANT',
+  'NON_COMPLIANT',
+  'PARTIALLY_COMPLIANT',
+  'NOT_APPLICABLE',
+  'UNDER_REVIEW',
+] as const;
 
 const createSchema = z.object({
   title: z.string().trim().min(1).max(300),
@@ -34,8 +50,16 @@ const createSchema = z.object({
   category: z.enum(CATEGORIES).default('OTHER'),
   owner: z.string().max(200).optional().nullable(),
   department: z.string().max(200).optional().nullable(),
-  assessmentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
-  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  assessmentDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
+  nextReviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   evidence: z.string().max(5000).optional().nullable(),
   gaps: z.string().max(5000).optional().nullable(),
   remediation: z.string().max(5000).optional().nullable(),
@@ -46,7 +70,11 @@ const createSchema = z.object({
 
 const updateSchema = createSchema.partial().extend({
   status: z.enum(STATUSES).optional(),
-  closedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  closedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   closedBy: z.string().max(200).optional().nullable(),
   closureNotes: z.string().max(5000).optional().nullable(),
 });
@@ -58,8 +86,14 @@ router.get('/stats', async (_req: Request, res: Response) => {
       prisma.abCompliance.count({ where: { deletedAt: null } as any }),
       prisma.abCompliance.count({ where: { deletedAt: null, status: 'COMPLIANT' } as any }),
       prisma.abCompliance.count({ where: { deletedAt: null, status: 'NON_COMPLIANT' } as any }),
-      prisma.abCompliance.count({ where: { deletedAt: null, status: 'PARTIALLY_COMPLIANT' } as any }),
-      prisma.abCompliance.groupBy({ by: ['category'], where: { deletedAt: null } as any, _count: { id: true } }),
+      prisma.abCompliance.count({
+        where: { deletedAt: null, status: 'PARTIALLY_COMPLIANT' } as any,
+      }),
+      prisma.abCompliance.groupBy({
+        by: ['category'],
+        where: { deletedAt: null } as any,
+        _count: { id: true },
+      }),
     ]);
 
     const complianceRate = total > 0 ? Math.round((compliant / total) * 100) : 0;
@@ -67,13 +101,25 @@ router.get('/stats', async (_req: Request, res: Response) => {
     res.json({
       success: true,
       data: {
-        total, compliant, nonCompliant, partial, complianceRate,
-        byCategory: byCategory.map((c: Record<string, unknown>) => ({ category: c.category, count: (c as any)._count.id })),
+        total,
+        compliant,
+        nonCompliant,
+        partial,
+        complianceRate,
+        byCategory: byCategory.map((c: Record<string, unknown>) => ({
+          category: c.category,
+          count: (c as any)._count.id,
+        })),
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get compliance stats', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance stats' } });
+    logger.error('Failed to get compliance stats', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance stats' },
+    });
   }
 });
 
@@ -88,7 +134,8 @@ router.get('/', async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { deletedAt: null };
     if (status && typeof status === 'string') where.status = status;
     if (category && typeof category === 'string') where.category = category;
-    if (isoClause && typeof isoClause === 'string') where.isoClause = { contains: isoClause, mode: 'insensitive' };
+    if (isoClause && typeof isoClause === 'string')
+      where.isoClause = { contains: isoClause, mode: 'insensitive' };
     if (search && typeof search === 'string') {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
@@ -108,8 +155,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list compliance records', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list compliance records' } });
+    logger.error('Failed to list compliance records', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list compliance records' },
+    });
   }
 });
 
@@ -118,7 +170,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -141,20 +200,36 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Compliance record created', { id: record.id, referenceNumber });
     res.status(201).json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Failed to create compliance record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create compliance record' } });
+    logger.error('Failed to create compliance record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create compliance record' },
+    });
   }
 });
 
 // GET /:id — Get by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const record = await prisma.abCompliance.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!record) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance record not found' } });
+    const record = await prisma.abCompliance.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!record)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Compliance record not found' },
+      });
     res.json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Failed to get compliance record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance record' } });
+    logger.error('Failed to get compliance record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance record' },
+    });
   }
 });
 
@@ -163,11 +238,24 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.abCompliance.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance record not found' } });
+    const existing = await prisma.abCompliance.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Compliance record not found' },
+      });
 
     const userId = (req as AuthRequest).user?.id || 'system';
     const data: Record<string, unknown> = { ...parsed.data, updatedBy: userId };
@@ -175,27 +263,47 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (parsed.data.assessmentDate) data.assessmentDate = new Date(parsed.data.assessmentDate);
     if (parsed.data.nextReviewDate) data.nextReviewDate = new Date(parsed.data.nextReviewDate);
     if (parsed.data.remediationDue) data.remediationDue = new Date(parsed.data.remediationDue);
-    if ((parsed.data as any).closedDate) data.closedDate = new Date((parsed.data as any).closedDate);
+    if ((parsed.data as any).closedDate)
+      data.closedDate = new Date((parsed.data as any).closedDate);
 
     const record = await prisma.abCompliance.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Failed to update compliance record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update compliance record' } });
+    logger.error('Failed to update compliance record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update compliance record' },
+    });
   }
 });
 
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.abCompliance.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance record not found' } });
+    const existing = await prisma.abCompliance.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Compliance record not found' },
+      });
 
-    await prisma.abCompliance.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
+    await prisma.abCompliance.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id },
+    });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete compliance record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete compliance record' } });
+    logger.error('Failed to delete compliance record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete compliance record' },
+    });
   }
 });
 

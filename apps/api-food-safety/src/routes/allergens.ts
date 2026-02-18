@@ -72,8 +72,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing allergens', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list allergens' } });
+    logger.error('Error listing allergens', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list allergens' },
+    });
   }
 });
 
@@ -84,7 +89,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = allergenCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -102,8 +110,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Allergen created', { id: allergen.id, code });
     res.status(201).json({ success: true, data: allergen });
   } catch (error: unknown) {
-    logger.error('Error creating allergen', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create allergen' } });
+    logger.error('Error creating allergen', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create allergen' },
+    });
   }
 });
 
@@ -117,13 +130,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!allergen) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Allergen not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Allergen not found' } });
     }
 
     res.json({ success: true, data: allergen });
   } catch (error: unknown) {
-    logger.error('Error fetching allergen', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch allergen' } });
+    logger.error('Error fetching allergen', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch allergen' },
+    });
   }
 });
 
@@ -132,14 +152,21 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsAllergen.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsAllergen.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Allergen not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Allergen not found' } });
     }
 
     const parsed = allergenUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const allergen = await prisma.fsAllergen.update({
@@ -150,8 +177,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Allergen updated', { id: allergen.id });
     res.json({ success: true, data: allergen });
   } catch (error: unknown) {
-    logger.error('Error updating allergen', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update allergen' } });
+    logger.error('Error updating allergen', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update allergen' },
+    });
   }
 });
 
@@ -160,9 +192,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsAllergen.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsAllergen.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Allergen not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Allergen not found' } });
     }
 
     await prisma.fsAllergen.update({
@@ -173,8 +209,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Allergen deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Allergen deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting allergen', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete allergen' } });
+    logger.error('Error deleting allergen', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete allergen' },
+    });
   }
 });
 

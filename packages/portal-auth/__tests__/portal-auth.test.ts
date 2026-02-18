@@ -1,4 +1,10 @@
-import { signPortalToken, verifyPortalToken, portalAuthenticate, requirePortalPermission, requirePortalType } from '../src';
+import {
+  signPortalToken,
+  verifyPortalToken,
+  portalAuthenticate,
+  requirePortalPermission,
+  requirePortalType,
+} from '../src';
 import type { PortalUser } from '../src';
 
 const TEST_SECRET = 'test-portal-secret-key-for-testing-only';

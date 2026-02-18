@@ -74,8 +74,22 @@ router.get('/', async (req: Request, res: Response) => {
 
     const [items, total] = await Promise.all([
       prisma.portalUser.findMany({
-        where, skip, take: limit, orderBy: { createdAt: 'desc' },
-        select: { id: true, email: true, name: true, company: true, role: true, portalType: true, status: true, phone: true, createdAt: true, updatedAt: true },
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          company: true,
+          role: true,
+          portalType: true,
+          status: true,
+          phone: true,
+          createdAt: true,
+          updatedAt: true,
+        },
       }),
       prisma.portalUser.count({ where }),
     ]);
@@ -86,8 +100,12 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing portal users', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list users' } });
+    logger.error('Error listing portal users', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list users' } });
   }
 });
 
@@ -100,7 +118,10 @@ router.post('/', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = userCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const data = parsed.data;
@@ -109,7 +130,9 @@ router.post('/', async (req: Request, res: Response) => {
       where: { email: data.email, deletedAt: null } as any,
     });
     if (existing) {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Email already registered' } });
+      return res
+        .status(409)
+        .json({ success: false, error: { code: 'CONFLICT', message: 'Email already registered' } });
     }
 
     const user = await prisma.portalUser.create({
@@ -125,17 +148,30 @@ router.post('/', async (req: Request, res: Response) => {
         createdBy: auth.user!.id,
       },
       select: {
-        id: true, email: true, name: true, company: true,
-        role: true, portalType: true, status: true, phone: true,
-        createdBy: true, createdAt: true, updatedAt: true,
+        id: true,
+        email: true,
+        name: true,
+        company: true,
+        role: true,
+        portalType: true,
+        status: true,
+        phone: true,
+        createdBy: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
 
     logger.info('Portal user created', { id: user.id, email: user.email });
     return res.status(201).json({ success: true, data: user });
   } catch (error: unknown) {
-    logger.error('Error creating portal user', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create user' } });
+    logger.error('Error creating portal user', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create user' },
+    });
   }
 });
 
@@ -150,7 +186,10 @@ router.post('/invite', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = inviteSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const data = parsed.data;
@@ -175,8 +214,13 @@ router.post('/invite', async (req: Request, res: Response) => {
     logger.info('Portal invitation sent', { id: invitation.id, email: invitation.email });
     return res.status(201).json({ success: true, data: invitation });
   } catch (error: unknown) {
-    logger.error('Error sending invitation', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to send invitation' } });
+    logger.error('Error sending invitation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to send invitation' },
+    });
   }
 });
 
@@ -191,20 +235,34 @@ router.get('/:id', async (req: Request, res: Response) => {
     const user = await prisma.portalUser.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
       select: {
-        id: true, email: true, name: true, company: true,
-        role: true, portalType: true, status: true, phone: true,
-        createdBy: true, createdAt: true, updatedAt: true,
+        id: true,
+        email: true,
+        name: true,
+        company: true,
+        role: true,
+        portalType: true,
+        status: true,
+        phone: true,
+        createdBy: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
 
     if (!user) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
     }
 
     return res.json({ success: true, data: user });
   } catch (error: unknown) {
-    logger.error('Error fetching user', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch user' } });
+    logger.error('Error fetching user', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch user' } });
   }
 });
 
@@ -216,31 +274,49 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = userUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const existing = await prisma.portalUser.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
     }
 
     const updated = await prisma.portalUser.update({
       where: { id: req.params.id },
       data: parsed.data,
       select: {
-        id: true, email: true, name: true, company: true,
-        role: true, portalType: true, status: true, phone: true,
-        createdBy: true, createdAt: true, updatedAt: true,
+        id: true,
+        email: true,
+        name: true,
+        company: true,
+        role: true,
+        portalType: true,
+        status: true,
+        phone: true,
+        createdBy: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
 
     logger.info('Portal user updated', { id: updated.id });
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Error updating user', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update user' } });
+    logger.error('Error updating user', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update user' },
+    });
   }
 });
 
@@ -254,7 +330,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
     }
 
     const deactivated = await prisma.portalUser.update({
@@ -265,8 +343,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Portal user deactivated', { id: deactivated.id });
     return res.json({ success: true, data: { id: deactivated.id, status: 'INACTIVE' } });
   } catch (error: unknown) {
-    logger.error('Error deactivating user', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to deactivate user' } });
+    logger.error('Error deactivating user', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to deactivate user' },
+    });
   }
 });
 

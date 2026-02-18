@@ -17,7 +17,10 @@ router.post('/enqueue/:partnerId', async (req: Request, res: Response) => {
     const { partnerId } = req.params;
     const parsed = enqueuePartnerSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { email, name } = parsed.data;

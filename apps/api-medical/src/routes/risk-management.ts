@@ -81,10 +81,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: rmf });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create RMF error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create risk management file' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create risk management file' },
+    });
   }
 });
 
@@ -122,37 +132,50 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List RMFs error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list risk management files' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list risk management files' },
+    });
   }
 });
 
 // ============================================
 // 3. GET /:id - Get RMF with hazards and controls
 // ============================================
-router.get('/:id', checkOwnership(prisma.riskManagementFile), async (req: AuthRequest, res: Response) => {
-  try {
-    const rmf = await prisma.riskManagementFile.findUnique({
-      where: { id: req.params.id },
-      include: {
-        hazards: {
-          orderBy: { createdAt: 'asc' },
-          include: {
-            controls: { orderBy: { createdAt: 'asc' } },
+router.get(
+  '/:id',
+  checkOwnership(prisma.riskManagementFile),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const rmf = await prisma.riskManagementFile.findUnique({
+        where: { id: req.params.id },
+        include: {
+          hazards: {
+            orderBy: { createdAt: 'asc' },
+            include: {
+              controls: { orderBy: { createdAt: 'asc' } },
+            },
           },
         },
-      },
-    });
+      });
 
-    if (!rmf || rmf.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk management file not found' } });
+      if (!rmf || rmf.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Risk management file not found' },
+        });
+      }
+
+      res.json({ success: true, data: rmf });
+    } catch (error) {
+      logger.error('Get RMF error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk management file' },
+      });
     }
-
-    res.json({ success: true, data: rmf });
-  } catch (error) {
-    logger.error('Get RMF error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk management file' } });
   }
-});
+);
 
 // ============================================
 // 4. POST /:id/hazards - Add hazard identification
@@ -161,14 +184,26 @@ router.post('/:id/hazards', async (req: AuthRequest, res: Response) => {
   try {
     const rmf = await prisma.riskManagementFile.findUnique({ where: { id: req.params.id } });
     if (!rmf || rmf.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk management file not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Risk management file not found' },
+      });
     }
 
     const schema = z.object({
       hazardCategory: z.enum([
-        'ENERGY', 'BIOLOGICAL', 'ENVIRONMENTAL', 'WRONG_OUTPUT',
-        'USE_ERROR', 'FUNCTIONALITY', 'CHEMICAL', 'ELECTROMAGNETIC',
-        'RADIATION', 'MECHANICAL', 'THERMAL', 'OTHER',
+        'ENERGY',
+        'BIOLOGICAL',
+        'ENVIRONMENTAL',
+        'WRONG_OUTPUT',
+        'USE_ERROR',
+        'FUNCTIONALITY',
+        'CHEMICAL',
+        'ELECTROMAGNETIC',
+        'RADIATION',
+        'MECHANICAL',
+        'THERMAL',
+        'OTHER',
       ]),
       hazardDescription: z.string().trim().min(1).max(2000),
       hazardousSituation: z.string().trim().min(1).max(200),
@@ -205,10 +240,20 @@ router.post('/:id/hazards', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: hazard });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create hazard error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create hazard' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create hazard' },
+    });
   }
 });
 
@@ -219,18 +264,26 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
   try {
     const rmf = await prisma.riskManagementFile.findUnique({ where: { id: req.params.id } });
     if (!rmf || rmf.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk management file not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Risk management file not found' },
+      });
     }
 
     const hazard = await prisma.hazard.findUnique({ where: { id: req.params.hazardId } });
     if (!hazard || (hazard as any).fileId !== req.params.id) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Hazard not found in this risk management file' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Hazard not found in this risk management file' },
+      });
     }
 
     const controlSchema = z.object({
       controlType: z.enum(['INHERENT_SAFETY', 'PROTECTIVE_MEASURE', 'INFORMATION_FOR_SAFETY']),
       description: z.string().trim().min(1).max(2000),
-      implementationStatus: z.enum(['PLANNED', 'IN_PROGRESS', 'IMPLEMENTED', 'VERIFIED']).optional() as any,
+      implementationStatus: z
+        .enum(['PLANNED', 'IN_PROGRESS', 'IMPLEMENTED', 'VERIFIED'])
+        .optional() as any,
       verificationMethod: z.string().optional(),
     });
 
@@ -250,11 +303,13 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
     // Build hazard update data
     const updateData: Record<string, unknown> = {};
     if (data.hazardDescription !== undefined) updateData.hazardDescription = data.hazardDescription;
-    if (data.hazardousSituation !== undefined) updateData.hazardousSituation = data.hazardousSituation;
+    if (data.hazardousSituation !== undefined)
+      updateData.hazardousSituation = data.hazardousSituation;
     if (data.harm !== undefined) updateData.harm = data.harm;
     if (data.severityAfter !== undefined) updateData.severityAfter = data.severityAfter;
     if (data.probabilityAfter !== undefined) updateData.probabilityAfter = data.probabilityAfter;
-    if (data.residualRiskAcceptable !== undefined) updateData.residualRiskAcceptable = data.residualRiskAcceptable;
+    if (data.residualRiskAcceptable !== undefined)
+      updateData.residualRiskAcceptable = data.residualRiskAcceptable;
     if (data.notes !== undefined) updateData.notes = data.notes;
 
     // Recalculate riskLevelAfter if severity/probability changed
@@ -268,7 +323,7 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
     let createdControls: Record<string, unknown>[] = [];
     if (data.controls && data.controls.length > 0) {
       createdControls = await Promise.all(
-        data.controls.map(control =>
+        data.controls.map((control) =>
           prisma.riskControl.create({
             data: {
               hazardId: req.params.hazardId,
@@ -292,10 +347,20 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
     res.json({ success: true, data: updatedHazard });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update hazard error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update hazard' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update hazard' },
+    });
   }
 });
 
@@ -306,7 +371,10 @@ router.post('/:id/benefit-risk', async (req: AuthRequest, res: Response) => {
   try {
     const rmf = await prisma.riskManagementFile.findUnique({ where: { id: req.params.id } });
     if (!rmf || rmf.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk management file not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Risk management file not found' },
+      });
     }
 
     const schema = z.object({
@@ -331,10 +399,20 @@ router.post('/:id/benefit-risk', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: updatedRmf });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Benefit-risk analysis error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit benefit-risk analysis' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to submit benefit-risk analysis' },
+    });
   }
 });
 
@@ -356,7 +434,10 @@ router.get('/:id/report', async (req: AuthRequest, res: Response) => {
     });
 
     if (!rmf || rmf.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk management file not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Risk management file not found' },
+      });
     }
 
     // Summary statistics
@@ -364,26 +445,28 @@ router.get('/:id/report', async (req: AuthRequest, res: Response) => {
 
     // Hazards by initial risk level
     const byRiskLevelBefore: Record<string, number> = {};
-    rmf.hazards.forEach(h => {
+    rmf.hazards.forEach((h) => {
       byRiskLevelBefore[h.riskLevelBefore] = (byRiskLevelBefore[h.riskLevelBefore] || 0) + 1;
     });
 
     // Hazards by residual risk level
     const byRiskLevelAfter: Record<string, number> = {};
-    rmf.hazards.forEach(h => {
+    rmf.hazards.forEach((h) => {
       if (h.riskLevelAfter) {
         byRiskLevelAfter[h.riskLevelAfter] = (byRiskLevelAfter[h.riskLevelAfter] || 0) + 1;
       }
     });
 
     // Controls statistics
-    const allControls = rmf.hazards.flatMap(h => h.controls);
-    const controlsImplemented = allControls.filter(c => c.implementationStatus === 'IMPLEMENTED' || c.implementationStatus === 'VERIFIED').length;
+    const allControls = rmf.hazards.flatMap((h) => h.controls);
+    const controlsImplemented = allControls.filter(
+      (c) => c.implementationStatus === 'IMPLEMENTED' || c.implementationStatus === 'VERIFIED'
+    ).length;
 
     // Residual risk summary
-    const acceptable = rmf.hazards.filter(h => h.residualRiskAcceptable === true).length;
-    const unacceptable = rmf.hazards.filter(h => h.residualRiskAcceptable === false).length;
-    const notEvaluated = rmf.hazards.filter(h => h.residualRiskAcceptable === null).length;
+    const acceptable = rmf.hazards.filter((h) => h.residualRiskAcceptable === true).length;
+    const unacceptable = rmf.hazards.filter((h) => h.residualRiskAcceptable === false).length;
+    const notEvaluated = rmf.hazards.filter((h) => h.residualRiskAcceptable === null).length;
 
     const summary = {
       totalHazards,
@@ -407,7 +490,10 @@ router.get('/:id/report', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Risk management report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate risk management report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate risk management report' },
+    });
   }
 });
 
@@ -424,20 +510,23 @@ router.get('/:id/residual', async (req: AuthRequest, res: Response) => {
     });
 
     if (!rmf || rmf.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk management file not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Risk management file not found' },
+      });
     }
 
     // Aggregate hazards by riskLevelAfter
     const byRiskLevelAfter: Record<string, number> = {};
-    rmf.hazards.forEach(h => {
+    rmf.hazards.forEach((h) => {
       const level = h.riskLevelAfter || 'NOT_EVALUATED';
       byRiskLevelAfter[level] = (byRiskLevelAfter[level] || 0) + 1;
     });
 
     // Count acceptable vs unacceptable
-    const acceptable = rmf.hazards.filter(h => h.residualRiskAcceptable === true).length;
-    const unacceptable = rmf.hazards.filter(h => h.residualRiskAcceptable === false).length;
-    const notEvaluated = rmf.hazards.filter(h => h.residualRiskAcceptable === null).length;
+    const acceptable = rmf.hazards.filter((h) => h.residualRiskAcceptable === true).length;
+    const unacceptable = rmf.hazards.filter((h) => h.residualRiskAcceptable === false).length;
+    const notEvaluated = rmf.hazards.filter((h) => h.residualRiskAcceptable === null).length;
 
     res.json({
       success: true,
@@ -458,7 +547,10 @@ router.get('/:id/residual', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Residual risk summary error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get residual risk summary' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get residual risk summary' },
+    });
   }
 });
 

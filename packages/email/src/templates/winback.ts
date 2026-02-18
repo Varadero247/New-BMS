@@ -53,18 +53,22 @@ ${footer}`,
 export function day3ReasonEmail(vars: WinBackVars) {
   const links = vars.reasonLinks;
   return {
-    subject: 'We\'d love to understand — what made you cancel?',
+    subject: "We'd love to understand — what made you cancel?",
     html: `${header('Help Us Improve')}
 <p>Hi ${vars.firstName},</p>
 <p>We'd love to understand why you cancelled. Click the reason that fits best:</p>
 <div style="margin: 20px 0;">
-  ${links ? `
+  ${
+    links
+      ? `
   <p><a href="${links.price}" style="color: #1B3A6B; font-weight: 600;">Too expensive</a></p>
   <p><a href="${links.features}" style="color: #1B3A6B; font-weight: 600;">Missing a feature I need</a></p>
   <p><a href="${links.time}" style="color: #1B3A6B; font-weight: 600;">Not enough time to implement</a></p>
   <p><a href="${links.competitor}" style="color: #1B3A6B; font-weight: 600;">Switching to a different solution</a></p>
   <p><a href="${links.business}" style="color: #1B3A6B; font-weight: 600;">Business circumstances changed</a></p>
-  ` : '<p>We\'d love your feedback.</p>'}
+  `
+      : "<p>We'd love your feedback.</p>"
+  }
 </div>
 <p>Your response helps us build a better product.</p>
 <p>Best,<br>The Nexara Team</p>
@@ -75,7 +79,7 @@ ${footer}`,
 
 export function day7PriceEmail(vars: WinBackVars) {
   return {
-    subject: 'We\'d love to keep you — here\'s a plan that works better',
+    subject: "We'd love to keep you — here's a plan that works better",
     html: `${header('A Better Plan for You')}
 <p>Hi ${vars.firstName},</p>
 <p>We heard pricing was a concern. Here's what we can offer:</p>

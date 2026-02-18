@@ -45,7 +45,9 @@ export function Sidebar() {
     <aside className="w-64 bg-card border-r border-border flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-border bg-sky-50 dark:bg-sky-900/10">
-        <h1 className="text-xl font-bold font-display text-sky-900 dark:text-sky-100">Inventory Control</h1>
+        <h1 className="text-xl font-bold font-display text-sky-900 dark:text-sky-100">
+          Inventory Control
+        </h1>
         <p className="text-xs text-sky-600 dark:text-sky-400 mt-1">Stock Management System</p>
       </div>
 
@@ -66,7 +68,9 @@ export function Sidebar() {
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
                 >
-                  <Icon className={`h-5 w-5 ${isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                  <Icon
+                    className={`h-5 w-5 ${isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`}
+                  />
                   <span className="text-sm font-medium">{item.name}</span>
                 </Link>
               </li>

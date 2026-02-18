@@ -21,7 +21,9 @@ function generateReferenceNumber(): string {
   const date = new Date();
   const year = date.getFullYear().toString().slice(-2);
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const random = (parseInt(randomUUID().replace(/-/g,'').slice(0,4),16) % 10000).toString().padStart(4,'0');
+  const random = (parseInt(randomUUID().replace(/-/g, '').slice(0, 4), 16) % 10000)
+    .toString()
+    .padStart(4, '0');
   return `INC-${year}${month}-${random}`;
 }
 
@@ -41,9 +43,25 @@ function getInvestigationDueDate(severity: string): Date {
   }
 }
 
-const INCIDENT_TYPES = ['INJURY', 'NEAR_MISS', 'DANGEROUS_OCCURRENCE', 'OCCUPATIONAL_ILLNESS', 'PROPERTY_DAMAGE', 'FIRST_AID', 'MEDICAL_TREATMENT', 'LOST_TIME'] as const;
+const INCIDENT_TYPES = [
+  'INJURY',
+  'NEAR_MISS',
+  'DANGEROUS_OCCURRENCE',
+  'OCCUPATIONAL_ILLNESS',
+  'PROPERTY_DAMAGE',
+  'FIRST_AID',
+  'MEDICAL_TREATMENT',
+  'LOST_TIME',
+] as const;
 const SEVERITIES = ['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL', 'CATASTROPHIC'] as const;
-const STATUSES = ['OPEN', 'UNDER_INVESTIGATION', 'AWAITING_ACTIONS', 'ACTIONS_IN_PROGRESS', 'VERIFICATION', 'CLOSED'] as const;
+const STATUSES = [
+  'OPEN',
+  'UNDER_INVESTIGATION',
+  'AWAITING_ACTIONS',
+  'ACTIONS_IN_PROGRESS',
+  'VERIFICATION',
+  'CLOSED',
+] as const;
 
 // GET /api/incidents - List incidents
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
@@ -77,7 +95,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List incidents error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list incidents' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list incidents' },
+    });
   }
 });
 
@@ -90,13 +111,18 @@ router.get('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, res
     });
 
     if (!incident) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     }
 
     res.json({ success: true, data: incident });
   } catch (error) {
     logger.error('Get incident error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get incident' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get incident' },
+    });
   }
 });
 
@@ -110,7 +136,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       severity: z.enum(SEVERITIES).default('MODERATE'),
       category: z.string().optional(),
       location: z.string().optional(),
-      dateOccurred: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      dateOccurred: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       personsInvolved: z.string().optional(),
       injuryType: z.string().optional(),
       bodyPart: z.string().optional(),
@@ -126,10 +155,16 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       riddorReportable: z.boolean().optional(),
       regulatoryReference: z.string().optional(),
       reportedToAuthority: z.boolean().optional(),
-      reportedToAuthorityDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      reportedToAuthorityDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       reportedBy: z.string().optional(),
       investigationRequired: z.boolean().optional(),
-      investigationDueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      investigationDueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       immediateCause: z.string().optional(),
       rootCauses: z.string().optional(),
       contributingFactors: z.string().optional(),
@@ -145,12 +180,15 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const data = schema.parse(req.body);
 
     // Auto-set RIDDOR and investigation for Critical/Major
-    const isSevere = data.severity === 'CRITICAL' || data.severity === 'CATASTROPHIC' || data.severity === 'MAJOR';
+    const isSevere =
+      data.severity === 'CRITICAL' || data.severity === 'CATASTROPHIC' || data.severity === 'MAJOR';
     const riddorReportable = data.riddorReportable ?? isSevere;
     const investigationRequired = data.investigationRequired ?? isSevere;
     const investigationDueDate = data.investigationDueDate
       ? new Date(data.investigationDueDate)
-      : investigationRequired ? getInvestigationDueDate(data.severity) : null;
+      : investigationRequired
+        ? getInvestigationDueDate(data.severity)
+        : null;
 
     const incident = await prisma.incident.create({
       data: {
@@ -179,7 +217,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         riddorReportable,
         regulatoryReference: data.regulatoryReference,
         reportedToAuthority: data.reportedToAuthority ?? false,
-        reportedToAuthorityDate: data.reportedToAuthorityDate ? new Date(data.reportedToAuthorityDate) : null,
+        reportedToAuthorityDate: data.reportedToAuthorityDate
+          ? new Date(data.reportedToAuthorityDate)
+          : null,
         reportedBy: data.reportedBy,
         investigationRequired,
         investigationDueDate,
@@ -199,10 +239,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: incident });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create incident error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create incident' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create incident' },
+    });
   }
 });
 
@@ -211,7 +261,9 @@ router.patch('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, r
   try {
     const existing = await prisma.incident.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     }
 
     const schema = z.object({
@@ -239,10 +291,16 @@ router.patch('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, r
       riddorReportable: z.boolean().optional(),
       regulatoryReference: z.string().optional(),
       reportedToAuthority: z.boolean().optional(),
-      reportedToAuthorityDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      reportedToAuthorityDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       reportedBy: z.string().optional(),
       investigationRequired: z.boolean().optional(),
-      investigationDueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      investigationDueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       aiImmediateCause: z.string().optional(),
       aiUnderlyingCause: z.string().optional(),
       aiRootCause: z.string().optional(),
@@ -254,8 +312,10 @@ router.patch('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, r
     const data = schema.parse(req.body);
 
     const updateData: any = { ...data };
-    if (data.reportedToAuthorityDate) updateData.reportedToAuthorityDate = new Date(data.reportedToAuthorityDate);
-    if (data.investigationDueDate) updateData.investigationDueDate = new Date(data.investigationDueDate);
+    if (data.reportedToAuthorityDate)
+      updateData.reportedToAuthorityDate = new Date(data.reportedToAuthorityDate);
+    if (data.investigationDueDate)
+      updateData.investigationDueDate = new Date(data.investigationDueDate);
     if (data.status === 'CLOSED') updateData.closedAt = new Date();
 
     const incident = await prisma.incident.update({
@@ -266,10 +326,20 @@ router.patch('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, r
     res.json({ success: true, data: incident });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update incident error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update incident' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update incident' },
+    });
   }
 });
 
@@ -278,14 +348,19 @@ router.delete('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, 
   try {
     const existing = await prisma.incident.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     }
 
     await prisma.incident.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete incident error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete incident' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete incident' },
+    });
   }
 });
 

@@ -27,15 +27,31 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
     ] = await Promise.all([
       prisma.chemRegister.count({ where: baseWhere }),
       prisma.chemRegister.count({ where: { ...baseWhere, isCmr: true } }),
-      prisma.chemCoshh.count({ where: { orgId, deletedAt: null, residualRiskLevel: { in: ['VERY_HIGH', 'UNACCEPTABLE'] } as any } }),
-      prisma.chemSds.count({ where: { status: 'CURRENT', nextReviewDate: { lte: new Date() }, chemical: { orgId, deletedAt: null } } }),
       prisma.chemCoshh.count({
         where: {
-          orgId, status: 'ACTIVE', deletedAt: null,
+          orgId,
+          deletedAt: null,
+          residualRiskLevel: { in: ['VERY_HIGH', 'UNACCEPTABLE'] } as any,
+        },
+      }),
+      prisma.chemSds.count({
+        where: {
+          status: 'CURRENT',
+          nextReviewDate: { lte: new Date() },
+          chemical: { orgId, deletedAt: null },
+        },
+      }),
+      prisma.chemCoshh.count({
+        where: {
+          orgId,
+          status: 'ACTIVE',
+          deletedAt: null,
           reviewDate: { lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) } as any,
         },
       }),
-      prisma.chemMonitoring.count({ where: { resultVsWel: 'ABOVE_WEL', chemical: { orgId, deletedAt: null } as any } }),
+      prisma.chemMonitoring.count({
+        where: { resultVsWel: 'ABOVE_WEL', chemical: { orgId, deletedAt: null } as any },
+      }),
       prisma.chemInventory.count({
         where: {
           isActive: true,
@@ -44,7 +60,9 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
         },
       }),
       prisma.chemIncident.count({ where: { orgId } }),
-      prisma.chemIncompatAlert.count({ where: { isActive: true, chemical: { orgId, deletedAt: null } as any } }),
+      prisma.chemIncompatAlert.count({
+        where: { isActive: true, chemical: { orgId, deletedAt: null } as any },
+      }),
       // Risk level breakdown from COSHH assessments
       prisma.chemCoshh.groupBy({
         by: ['residualRiskLevel'],
@@ -82,7 +100,10 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to fetch analytics dashboard', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch analytics dashboard' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch analytics dashboard' },
+    });
   }
 });
 

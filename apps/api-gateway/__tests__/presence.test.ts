@@ -41,7 +41,9 @@ describe('Presence Routes', () => {
 
   describe('GET /api/presence', () => {
     it('returns current viewers', async () => {
-      mockGetPresence.mockReturnValue([{ userId: 'u2', userName: 'Jane', lockedAt: new Date().toISOString() }]);
+      mockGetPresence.mockReturnValue([
+        { userId: 'u2', userName: 'Jane', lockedAt: new Date().toISOString() },
+      ]);
       const res = await request(app).get('/api/presence?recordType=ncr&recordId=r1');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -59,7 +61,10 @@ describe('Presence Routes', () => {
     });
 
     it('returns lock conflict when held by another user', async () => {
-      mockAcquireLock.mockReturnValueOnce({ acquired: false, lockedBy: { userName: 'Jane', userId: 'u2' } });
+      mockAcquireLock.mockReturnValueOnce({
+        acquired: false,
+        lockedBy: { userName: 'Jane', userId: 'u2' },
+      });
       const res = await request(app)
         .post('/api/presence/lock')
         .send({ recordType: 'ncr', recordId: 'r1' });

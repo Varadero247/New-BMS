@@ -48,7 +48,7 @@ function calculateRiskFields(data: {
     data.unableToMeetTerms,
     data.violationOfRegulations,
     data.reputationImpact,
-    data.costOfCorrection,
+    data.costOfCorrection
   );
   const riskFactor = probabilityRating * consequenceRating;
   const riskLevel = calculateRiskLevel(riskFactor);
@@ -95,7 +95,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List risks error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list risks' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list risks' } });
   }
 });
 
@@ -107,13 +109,17 @@ router.get('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res
     });
 
     if (!risk) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     }
 
     res.json({ success: true, data: risk });
   } catch (error) {
     logger.error('Get risk error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk' } });
   }
 });
 
@@ -121,7 +127,16 @@ router.get('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      process: z.enum(['STRATEGIC', 'FINANCE', 'HR', 'OPERATIONS', 'MARKETING_SALES', 'IT', 'COMPLIANCE_LEGAL', 'ALL_PROCESSES']),
+      process: z.enum([
+        'STRATEGIC',
+        'FINANCE',
+        'HR',
+        'OPERATIONS',
+        'MARKETING_SALES',
+        'IT',
+        'COMPLIANCE_LEGAL',
+        'ALL_PROCESSES',
+      ]),
       riskDescription: z.string().trim().min(1).max(2000),
       reportedBy: z.string().optional(),
       likelihood: z.number().int().min(1).max(6).default(1),
@@ -132,11 +147,19 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       violationOfRegulations: z.number().int().min(0).max(5).default(0),
       reputationImpact: z.number().int().min(0).max(5).default(0),
       costOfCorrection: z.number().int().min(0).max(5).default(0),
-      treatmentOption: z.enum(['ACCEPT', 'REDUCE', 'TRANSFER', 'AVOID', 'CONTINGENCY']).default('ACCEPT'),
+      treatmentOption: z
+        .enum(['ACCEPT', 'REDUCE', 'TRANSFER', 'AVOID', 'CONTINGENCY'])
+        .default('ACCEPT'),
       treatmentActions: z.string().optional(),
       responsiblePerson: z.string().optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      reviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       status: z.enum(['OPEN', 'BEING_TREATED', 'MONITORED', 'CLOSED', 'ACCEPTED']).default('OPEN'),
     });
 
@@ -174,10 +197,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: risk });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create risk error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create risk' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create risk' },
+    });
   }
 });
 
@@ -186,11 +219,24 @@ router.put('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res
   try {
     const existing = await prisma.qualRisk.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     }
 
     const schema = z.object({
-      process: z.enum(['STRATEGIC', 'FINANCE', 'HR', 'OPERATIONS', 'MARKETING_SALES', 'IT', 'COMPLIANCE_LEGAL', 'ALL_PROCESSES']).optional(),
+      process: z
+        .enum([
+          'STRATEGIC',
+          'FINANCE',
+          'HR',
+          'OPERATIONS',
+          'MARKETING_SALES',
+          'IT',
+          'COMPLIANCE_LEGAL',
+          'ALL_PROCESSES',
+        ])
+        .optional(),
       riskDescription: z.string().trim().min(1).max(2000).optional(),
       reportedBy: z.string().nullable().optional(),
       likelihood: z.number().int().min(1).max(6).optional(),
@@ -204,8 +250,16 @@ router.put('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res
       treatmentOption: z.enum(['ACCEPT', 'REDUCE', 'TRANSFER', 'AVOID', 'CONTINGENCY']).optional(),
       treatmentActions: z.string().nullable().optional(),
       responsiblePerson: z.string().nullable().optional(),
-      dueDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      reviewDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      reviewDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       status: z.enum(['OPEN', 'BEING_TREATED', 'MONITORED', 'CLOSED', 'ACCEPTED']).optional(),
     });
 
@@ -232,17 +286,28 @@ router.put('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res
         riskFactor: calculated.riskFactor,
         riskLevel: calculated.riskLevel,
         dueDate: data.dueDate === null ? null : data.dueDate ? new Date(data.dueDate) : undefined,
-        reviewDate: data.reviewDate === null ? null : data.reviewDate ? new Date(data.reviewDate) : undefined,
+        reviewDate:
+          data.reviewDate === null ? null : data.reviewDate ? new Date(data.reviewDate) : undefined,
       },
     });
 
     res.json({ success: true, data: risk });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update risk error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update risk' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update risk' },
+    });
   }
 });
 
@@ -251,7 +316,9 @@ router.delete('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, 
   try {
     const existing = await prisma.qualRisk.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     }
 
     await prisma.qualRisk.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
@@ -259,7 +326,10 @@ router.delete('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, 
     res.status(204).send();
   } catch (error) {
     logger.error('Delete risk error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete risk' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete risk' },
+    });
   }
 });
 

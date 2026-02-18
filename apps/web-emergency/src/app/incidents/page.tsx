@@ -113,7 +113,9 @@ export default function IncidentsPage() {
     }
   }, [statusFilter, searchTerm]);
 
-  useEffect(() => { loadIncidents(); }, [loadIncidents]);
+  useEffect(() => {
+    loadIncidents();
+  }, [loadIncidents]);
 
   const activeIncidents = incidents.filter((i) => i.status === 'ACTIVE');
   const controlledIncidents = incidents.filter((i) => i.status === 'CONTROLLED');
@@ -162,7 +164,8 @@ export default function IncidentsPage() {
               >
                 <Siren className="h-5 w-5 text-white animate-pulse" />
                 <h2 className="text-white font-bold text-lg">
-                  {activeIncidents.length} ACTIVE EMERGENCY INCIDENT{activeIncidents.length > 1 ? 'S' : ''}
+                  {activeIncidents.length} ACTIVE EMERGENCY INCIDENT
+                  {activeIncidents.length > 1 ? 'S' : ''}
                 </h2>
               </div>
               <div className="p-4 space-y-3" style={{ backgroundColor: '#FEE2E4' }}>
@@ -173,11 +176,14 @@ export default function IncidentsPage() {
                       <div className="flex-1">
                         <p className="font-bold text-gray-900">{inc.title}</p>
                         <p className="text-sm text-gray-600">
-                          {inc.premisesName} · {inc.type.replace(/_/g, ' ')} · {elapsed(inc.declaredAt)} elapsed
+                          {inc.premisesName} · {inc.type.replace(/_/g, ' ')} ·{' '}
+                          {elapsed(inc.declaredAt)} elapsed
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${SEVERITY_STYLES[inc.severity] || ''}`}>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-xs font-bold ${SEVERITY_STYLES[inc.severity] || ''}`}
+                        >
                           {inc.severity}
                         </span>
                         <ChevronRight className="h-5 w-5 text-gray-400" />
@@ -195,7 +201,8 @@ export default function IncidentsPage() {
               <div className="px-6 py-3 bg-amber-100 dark:bg-amber-900/30 flex items-center gap-3">
                 <AlertTriangle className="h-5 w-5 text-amber-600" />
                 <h2 className="font-bold text-amber-900 dark:text-amber-200">
-                  {controlledIncidents.length} Incident{controlledIncidents.length > 1 ? 's' : ''} Being Controlled
+                  {controlledIncidents.length} Incident{controlledIncidents.length > 1 ? 's' : ''}{' '}
+                  Being Controlled
                 </h2>
               </div>
               <div className="p-4 space-y-2">
@@ -225,7 +232,9 @@ export default function IncidentsPage() {
             </Card>
             <Card>
               <CardContent className="pt-6 text-center">
-                <p className="text-3xl font-bold" style={{ color: '#F04B5A' }}>{activeIncidents.length}</p>
+                <p className="text-3xl font-bold" style={{ color: '#F04B5A' }}>
+                  {activeIncidents.length}
+                </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
               </CardContent>
             </Card>
@@ -315,7 +324,9 @@ export default function IncidentsPage() {
                           </TableCell>
                           <TableCell className="text-sm">{inc.premisesName}</TableCell>
                           <TableCell>
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${SEVERITY_STYLES[inc.severity] || ''}`}>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-xs font-medium ${SEVERITY_STYLES[inc.severity] || ''}`}
+                            >
                               {inc.severity}
                             </span>
                           </TableCell>
@@ -352,10 +363,7 @@ export default function IncidentsPage() {
                   <Flame className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-gray-500 dark:text-gray-400">No incidents found</p>
                   <Link href="/incidents/declare">
-                    <Button
-                      className="mt-4 text-white"
-                      style={{ backgroundColor: '#F04B5A' }}
-                    >
+                    <Button className="mt-4 text-white" style={{ backgroundColor: '#F04B5A' }}>
                       <Plus className="h-4 w-4 mr-2" />
                       Declare Emergency
                     </Button>

@@ -15,14 +15,7 @@ router.param('id', validateIdParam());
 // GET /api/attendance - Get attendance records
 router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
-    const {
-      employeeId,
-      startDate,
-      endDate,
-      status,
-      page = '1',
-      limit = '50',
-    } = req.query;
+    const { employeeId, startDate, endDate, status, page = '1', limit = '50' } = req.query;
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
@@ -42,7 +35,13 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
         where,
         include: {
           employee: {
-            select: { id: true, firstName: true, lastName: true, employeeNumber: true, departmentId: true },
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              employeeNumber: true,
+              departmentId: true,
+            },
           },
           shift: true,
         },
@@ -60,7 +59,10 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching attendance', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch attendance' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch attendance' },
+    });
   }
 });
 
@@ -92,7 +94,7 @@ router.get('/summary', async (req: Request, res: Response) => {
 
     // Extract individual counts
     const statusCounts: Record<string, number> = {};
-    summary.forEach(s => {
+    summary.forEach((s) => {
       statusCounts[s.status] = s._count.id;
     });
 
@@ -126,7 +128,7 @@ router.get('/summary', async (req: Request, res: Response) => {
     });
 
     const todayStatusCounts: Record<string, number> = {};
-    todaySummary.forEach(s => {
+    todaySummary.forEach((s) => {
       todayStatusCounts[s.status] = s._count.id;
     });
 
@@ -160,7 +162,7 @@ router.get('/summary', async (req: Request, res: Response) => {
       });
 
       const dayCounts: Record<string, number> = {};
-      dayRecords.forEach(r => {
+      dayRecords.forEach((r) => {
         dayCounts[r.status] = r._count.id;
       });
 
@@ -200,7 +202,10 @@ router.get('/summary', async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching attendance summary', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch summary' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch summary' },
+    });
   }
 });
 
@@ -210,7 +215,16 @@ router.post('/clock-in', async (req: Request, res: Response) => {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
       location: z.string().optional(),
-      method: z.enum(['MANUAL', 'BIOMETRIC', 'CARD_SWIPE', 'MOBILE_APP', 'WEB_PORTAL', 'FACIAL_RECOGNITION']).default('WEB_PORTAL'),
+      method: z
+        .enum([
+          'MANUAL',
+          'BIOMETRIC',
+          'CARD_SWIPE',
+          'MOBILE_APP',
+          'WEB_PORTAL',
+          'FACIAL_RECOGNITION',
+        ])
+        .default('WEB_PORTAL'),
     });
 
     const { employeeId, location, method } = schema.parse(req.body);
@@ -272,10 +286,14 @@ router.post('/clock-in', async (req: Request, res: Response) => {
     res.json({ success: true, data: attendance });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error clocking in', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to clock in' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to clock in' } });
   }
 });
 
@@ -285,7 +303,16 @@ router.post('/clock-out', async (req: Request, res: Response) => {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
       location: z.string().optional(),
-      method: z.enum(['MANUAL', 'BIOMETRIC', 'CARD_SWIPE', 'MOBILE_APP', 'WEB_PORTAL', 'FACIAL_RECOGNITION']).default('WEB_PORTAL'),
+      method: z
+        .enum([
+          'MANUAL',
+          'BIOMETRIC',
+          'CARD_SWIPE',
+          'MOBILE_APP',
+          'WEB_PORTAL',
+          'FACIAL_RECOGNITION',
+        ])
+        .default('WEB_PORTAL'),
     });
 
     const { employeeId, location, method } = schema.parse(req.body);
@@ -333,10 +360,14 @@ router.post('/clock-out', async (req: Request, res: Response) => {
     res.json({ success: true, data: attendance });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error clocking out', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to clock out' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to clock out' } });
   }
 });
 
@@ -346,7 +377,18 @@ router.put('/:id', checkOwnership(prisma.attendance), async (req: Request, res: 
     const schema = z.object({
       clockIn: z.string().optional(),
       clockOut: z.string().optional(),
-      status: z.enum(['PRESENT', 'ABSENT', 'HALF_DAY', 'ON_LEAVE', 'HOLIDAY', 'WEEKEND', 'WORK_FROM_HOME', 'LATE']).optional(),
+      status: z
+        .enum([
+          'PRESENT',
+          'ABSENT',
+          'HALF_DAY',
+          'ON_LEAVE',
+          'HOLIDAY',
+          'WEEKEND',
+          'WORK_FROM_HOME',
+          'LATE',
+        ])
+        .optional(),
       notes: z.string().optional(),
     });
 
@@ -370,10 +412,15 @@ router.put('/:id', checkOwnership(prisma.attendance), async (req: Request, res: 
     res.json({ success: true, data: attendance });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error updating attendance', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update attendance' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update attendance' },
+    });
   }
 });
 
@@ -382,10 +429,15 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
-      date: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      date: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       clockIn: z.string().optional(),
       clockOut: z.string().optional(),
-      status: z.enum(['PRESENT', 'ABSENT', 'LATE', 'HALF_DAY', 'ON_LEAVE', 'WORK_FROM_HOME', 'HOLIDAY']).default('PRESENT'),
+      status: z
+        .enum(['PRESENT', 'ABSENT', 'LATE', 'HALF_DAY', 'ON_LEAVE', 'WORK_FROM_HOME', 'HOLIDAY'])
+        .default('PRESENT'),
       notes: z.string().optional(),
     });
 
@@ -420,7 +472,10 @@ router.post('/', async (req: Request, res: Response) => {
       const workedMs = createData.clockOut.getTime() - createData.clockIn.getTime();
       createData.workedHours = Math.round((workedMs / 3600000) * 100) / 100;
       const standardHours = 8;
-      createData.overtimeHours = Math.max(0, Math.round((createData.workedHours - standardHours) * 100) / 100);
+      createData.overtimeHours = Math.max(
+        0,
+        Math.round((createData.workedHours - standardHours) * 100) / 100
+      );
     }
 
     const attendance = await prisma.attendance.upsert({
@@ -437,10 +492,15 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: attendance });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating manual attendance', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create attendance record' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create attendance record' },
+    });
   }
 });
 
@@ -451,12 +511,16 @@ router.get('/shifts/all', async (_req: Request, res: Response) => {
     const shifts = await prisma.workShift.findMany({
       where: { isActive: true, deletedAt: null } as any,
       include: { _count: { select: { employees: true } } },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: shifts });
   } catch (error) {
     logger.error('Error fetching shifts', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch shifts' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch shifts' },
+    });
   }
 });
 
@@ -488,10 +552,15 @@ router.post('/shifts', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: shift });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating shift', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create shift' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create shift' },
+    });
   }
 });
 

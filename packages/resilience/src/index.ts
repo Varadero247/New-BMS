@@ -159,7 +159,9 @@ export function getAllCircuitBreakers(): Map<string, CircuitBreaker<unknown[], u
 /**
  * Get the state of a circuit breaker
  */
-export function getCircuitBreakerState(breaker: CircuitBreaker<unknown[], unknown>): CircuitBreakerState {
+export function getCircuitBreakerState(
+  breaker: CircuitBreaker<unknown[], unknown>
+): CircuitBreakerState {
   if (breaker.opened) return 'OPEN';
   if (breaker.halfOpen) return 'HALF_OPEN';
   return 'CLOSED';
@@ -168,7 +170,10 @@ export function getCircuitBreakerState(breaker: CircuitBreaker<unknown[], unknow
 /**
  * Get stats for all circuit breakers
  */
-export function getCircuitBreakerStats(): Record<string, { state: CircuitBreakerState; stats: unknown }> {
+export function getCircuitBreakerStats(): Record<
+  string,
+  { state: CircuitBreakerState; stats: unknown }
+> {
   const result: Record<string, { state: CircuitBreakerState; stats: unknown }> = {};
 
   for (const [name, breaker] of circuitBreakerRegistry) {
@@ -234,10 +239,7 @@ const DEFAULT_RETRY_OPTIONS: Required<Omit<RetryOptions, 'onRetry' | 'isRetryabl
 /**
  * Execute a function with retry logic
  */
-export async function withRetry<T>(
-  fn: () => Promise<T>,
-  options: RetryOptions = {}
-): Promise<T> {
+export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
   const opts = { ...DEFAULT_RETRY_OPTIONS, ...options };
   let lastError: Error | undefined;
 
@@ -375,10 +377,7 @@ export interface ServiceClientOptions extends CircuitBreakerOptions {
 export function createServiceClient(options: ServiceClientOptions) {
   const { baseUrl, headers = {}, retryOptions, ...breakerOptions } = options;
 
-  const makeRequest = async <T>(
-    path: string,
-    requestOptions: RequestInit = {}
-  ): Promise<T> => {
+  const makeRequest = async <T>(path: string, requestOptions: RequestInit = {}): Promise<T> => {
     const url = `${baseUrl}${path}`;
     const response = await fetch(url, {
       ...requestOptions,
@@ -390,7 +389,9 @@ export function createServiceClient(options: ServiceClientOptions) {
     });
 
     if (!response.ok) {
-      const error: Error & { status?: number } = new Error(`HTTP ${response.status}: ${response.statusText}`);
+      const error: Error & { status?: number } = new Error(
+        `HTTP ${response.status}: ${response.statusText}`
+      );
       error.status = response.status;
       throw error;
     }

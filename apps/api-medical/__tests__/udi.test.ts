@@ -149,14 +149,12 @@ describe('UDI Routes', () => {
       (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.udiDevice.create as jest.Mock).mockResolvedValue({ ...mockDevice });
 
-      const res = await request(app)
-        .post('/api/udi/devices')
-        .send({
-          deviceName: 'Cardiac Monitor Pro',
-          modelNumber: 'CM-PRO-100',
-          manufacturer: 'MedTech Corp',
-          deviceClass: 'CLASS_IIA',
-        });
+      const res = await request(app).post('/api/udi/devices').send({
+        deviceName: 'Cardiac Monitor Pro',
+        modelNumber: 'CM-PRO-100',
+        manufacturer: 'MedTech Corp',
+        deviceClass: 'CLASS_IIA',
+      });
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -165,13 +163,11 @@ describe('UDI Routes', () => {
     });
 
     it('should return 400 when deviceName is missing', async () => {
-      const res = await request(app)
-        .post('/api/udi/devices')
-        .send({
-          modelNumber: 'CM-PRO-100',
-          manufacturer: 'MedTech Corp',
-          deviceClass: 'CLASS_IIA',
-        });
+      const res = await request(app).post('/api/udi/devices').send({
+        modelNumber: 'CM-PRO-100',
+        manufacturer: 'MedTech Corp',
+        deviceClass: 'CLASS_IIA',
+      });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -179,13 +175,11 @@ describe('UDI Routes', () => {
     });
 
     it('should return 400 when modelNumber is missing', async () => {
-      const res = await request(app)
-        .post('/api/udi/devices')
-        .send({
-          deviceName: 'Cardiac Monitor Pro',
-          manufacturer: 'MedTech Corp',
-          deviceClass: 'CLASS_IIA',
-        });
+      const res = await request(app).post('/api/udi/devices').send({
+        deviceName: 'Cardiac Monitor Pro',
+        manufacturer: 'MedTech Corp',
+        deviceClass: 'CLASS_IIA',
+      });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -193,14 +187,12 @@ describe('UDI Routes', () => {
     });
 
     it('should return 400 for invalid deviceClass', async () => {
-      const res = await request(app)
-        .post('/api/udi/devices')
-        .send({
-          deviceName: 'Cardiac Monitor Pro',
-          modelNumber: 'CM-PRO-100',
-          manufacturer: 'MedTech Corp',
-          deviceClass: 'INVALID_CLASS',
-        });
+      const res = await request(app).post('/api/udi/devices').send({
+        deviceName: 'Cardiac Monitor Pro',
+        modelNumber: 'CM-PRO-100',
+        manufacturer: 'MedTech Corp',
+        deviceClass: 'INVALID_CLASS',
+      });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -211,14 +203,12 @@ describe('UDI Routes', () => {
       (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.udiDevice.create as jest.Mock).mockRejectedValue(new Error('DB failure'));
 
-      const res = await request(app)
-        .post('/api/udi/devices')
-        .send({
-          deviceName: 'Cardiac Monitor Pro',
-          modelNumber: 'CM-PRO-100',
-          manufacturer: 'MedTech Corp',
-          deviceClass: 'CLASS_IIA',
-        });
+      const res = await request(app).post('/api/udi/devices').send({
+        deviceName: 'Cardiac Monitor Pro',
+        modelNumber: 'CM-PRO-100',
+        manufacturer: 'MedTech Corp',
+        deviceClass: 'CLASS_IIA',
+      });
 
       expect(res.status).toBe(500);
       expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -395,11 +385,12 @@ describe('UDI Routes', () => {
 
     it('should create a PI record with optional fields only', async () => {
       (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(mockDevice);
-      (mockPrisma.udiPiRecord.create as jest.Mock).mockResolvedValue({ ...mockPiRecord, lotNumber: null });
+      (mockPrisma.udiPiRecord.create as jest.Mock).mockResolvedValue({
+        ...mockPiRecord,
+        lotNumber: null,
+      });
 
-      const res = await request(app)
-        .post(`/api/udi/devices/${mockDevice.id}/pi`)
-        .send({});
+      const res = await request(app).post(`/api/udi/devices/${mockDevice.id}/pi`).send({});
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -426,7 +417,9 @@ describe('UDI Routes', () => {
     it('should return 404 when device not found', async () => {
       (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/udi/devices/00000000-0000-0000-0000-000000000099/submissions');
+      const res = await request(app).get(
+        '/api/udi/devices/00000000-0000-0000-0000-000000000099/submissions'
+      );
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -437,8 +430,9 @@ describe('UDI Routes', () => {
       (mockPrisma.udiSubmission.findMany as jest.Mock).mockResolvedValue([]);
       (mockPrisma.udiSubmission.count as jest.Mock).mockResolvedValue(0);
 
-      const res = await request(app)
-        .get(`/api/udi/devices/${mockDevice.id}/submissions?status=PENDING&database=GUDID`);
+      const res = await request(app).get(
+        `/api/udi/devices/${mockDevice.id}/submissions?status=PENDING&database=GUDID`
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(0);
@@ -470,7 +464,9 @@ describe('UDI Routes', () => {
       (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/udi/devices/00000000-0000-0000-0000-000000000099/submissions/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/udi/devices/00000000-0000-0000-0000-000000000099/submissions/00000000-0000-0000-0000-000000000001'
+        )
         .send({ status: 'ACCEPTED' });
 
       expect(res.status).toBe(404);

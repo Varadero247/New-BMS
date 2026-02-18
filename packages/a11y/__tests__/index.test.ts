@@ -222,10 +222,7 @@ describe('@ims/a11y', () => {
       const addListenerMock = jest.fn();
       const removeListenerMock = jest.fn();
       const mockContainer = {
-        querySelectorAll: jest.fn().mockReturnValue([
-          { focus: jest.fn() },
-          { focus: jest.fn() },
-        ]),
+        querySelectorAll: jest.fn().mockReturnValue([{ focus: jest.fn() }, { focus: jest.fn() }]),
         addEventListener: addListenerMock,
         removeEventListener: removeListenerMock,
       } as unknown as HTMLElement;
@@ -237,9 +234,7 @@ describe('@ims/a11y', () => {
     it('should add keydown event listener to container', () => {
       const addListenerMock = jest.fn();
       const mockContainer = {
-        querySelectorAll: jest.fn().mockReturnValue([
-          { focus: jest.fn() },
-        ]),
+        querySelectorAll: jest.fn().mockReturnValue([{ focus: jest.fn() }]),
         addEventListener: addListenerMock,
         removeEventListener: jest.fn(),
       } as unknown as HTMLElement;
@@ -252,9 +247,7 @@ describe('@ims/a11y', () => {
     it('should remove keydown event listener on cleanup', () => {
       const removeListenerMock = jest.fn();
       const mockContainer = {
-        querySelectorAll: jest.fn().mockReturnValue([
-          { focus: jest.fn() },
-        ]),
+        querySelectorAll: jest.fn().mockReturnValue([{ focus: jest.fn() }]),
         addEventListener: jest.fn(),
         removeEventListener: removeListenerMock,
       } as unknown as HTMLElement;
@@ -269,11 +262,13 @@ describe('@ims/a11y', () => {
       let addedHandler: any;
       let removedHandler: any;
       const mockContainer = {
-        querySelectorAll: jest.fn().mockReturnValue([
-          { focus: jest.fn() },
-        ]),
-        addEventListener: jest.fn((_event: string, handler: any) => { addedHandler = handler; }),
-        removeEventListener: jest.fn((_event: string, handler: any) => { removedHandler = handler; }),
+        querySelectorAll: jest.fn().mockReturnValue([{ focus: jest.fn() }]),
+        addEventListener: jest.fn((_event: string, handler: any) => {
+          addedHandler = handler;
+        }),
+        removeEventListener: jest.fn((_event: string, handler: any) => {
+          removedHandler = handler;
+        }),
       } as unknown as HTMLElement;
 
       const cleanup = trapFocus(mockContainer);

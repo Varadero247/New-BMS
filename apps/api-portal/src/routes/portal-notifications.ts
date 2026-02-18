@@ -43,7 +43,12 @@ router.get('/', async (req: Request, res: Response) => {
     if (isRead === 'false') where.isRead = false;
 
     const [items, total] = await Promise.all([
-      prisma.portalNotification.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.portalNotification.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
       prisma.portalNotification.count({ where }),
     ]);
 
@@ -53,8 +58,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing notifications', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list notifications' } });
+    logger.error('Error listing notifications', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list notifications' },
+    });
   }
 });
 
@@ -66,7 +76,13 @@ router.put('/read-all', async (req: Request, res: Response) => {
   try {
     const parsed = markReadSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.errors[0]?.message || 'Invalid input',
+        },
+      });
     }
 
     const auth = req as AuthRequest;
@@ -79,8 +95,13 @@ router.put('/read-all', async (req: Request, res: Response) => {
     logger.info('All notifications marked as read', { count: result.count });
     return res.json({ success: true, data: { updated: result.count } });
   } catch (error: unknown) {
-    logger.error('Error marking all as read', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to mark all as read' } });
+    logger.error('Error marking all as read', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to mark all as read' },
+    });
   }
 });
 
@@ -92,7 +113,13 @@ router.put('/:id/read', async (req: Request, res: Response) => {
   try {
     const parsed = markReadSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.errors[0]?.message || 'Invalid input',
+        },
+      });
     }
 
     const auth = req as AuthRequest;
@@ -102,7 +129,9 @@ router.put('/:id/read', async (req: Request, res: Response) => {
     });
 
     if (!notification) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Notification not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Notification not found' } });
     }
 
     const updated = await prisma.portalNotification.update({
@@ -113,8 +142,13 @@ router.put('/:id/read', async (req: Request, res: Response) => {
     logger.info('Notification marked as read', { id: updated.id });
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Error marking notification as read', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to mark as read' } });
+    logger.error('Error marking notification as read', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to mark as read' },
+    });
   }
 });
 

@@ -35,16 +35,20 @@ export default function TrainingPage() {
     }
   }
 
-  const upcomingTrainings = trainings.filter(t => t.status === 'SCHEDULED');
-  const completedTrainings = trainings.filter(t => t.status === 'COMPLETED');
+  const upcomingTrainings = trainings.filter((t) => t.status === 'SCHEDULED');
+  const completedTrainings = trainings.filter((t) => t.status === 'COMPLETED');
 
   return (
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Quality Training</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Quality awareness and competency training</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Quality Training
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Quality awareness and competency training
+            </p>
           </div>
           <Button className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
@@ -120,25 +124,34 @@ export default function TrainingPage() {
             <CardContent>
               {loading ? (
                 <div className="animate-pulse space-y-4">
-                  {[1, 2, 3].map(i => (
+                  {[1, 2, 3].map((i) => (
                     <div key={i} className="h-20 bg-gray-200 rounded" />
                   ))}
                 </div>
               ) : upcomingTrainings.length > 0 ? (
                 <div className="space-y-4">
                   {upcomingTrainings.map((training) => (
-                    <div key={training.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 transition-colors">
+                    <div
+                      key={training.id}
+                      className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 transition-colors"
+                    >
                       <div className="flex items-start justify-between">
                         <div>
                           <Badge variant="default">{training.trainingType}</Badge>
-                          <h3 className="font-medium text-gray-900 dark:text-gray-100 mt-1">{training.title}</h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{training.description}</p>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100 mt-1">
+                            {training.title}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {training.description}
+                          </p>
                         </div>
                         <div className="text-sm text-right">
                           <p className="text-blue-600 font-medium">
                             {new Date(training.scheduledDate).toLocaleDateString()}
                           </p>
-                          <p className="text-xs text-gray-400 dark:text-gray-500">{training.participants} participants</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">
+                            {training.participants} participants
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -163,21 +176,28 @@ export default function TrainingPage() {
             <CardContent>
               {loading ? (
                 <div className="animate-pulse space-y-4">
-                  {[1, 2, 3].map(i => (
+                  {[1, 2, 3].map((i) => (
                     <div key={i} className="h-20 bg-gray-200 rounded" />
                   ))}
                 </div>
               ) : completedTrainings.length > 0 ? (
                 <div className="space-y-4">
                   {completedTrainings.slice(0, 5).map((training) => (
-                    <div key={training.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div
+                      key={training.id}
+                      className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                    >
                       <div className="flex items-start justify-between">
                         <div>
                           <div className="flex items-center gap-2">
                             <Badge variant="secondary">{training.trainingType}</Badge>
-                            <Badge variant="outline" className="text-green-600">Completed</Badge>
+                            <Badge variant="outline" className="text-green-600">
+                              Completed
+                            </Badge>
                           </div>
-                          <h3 className="font-medium text-gray-900 dark:text-gray-100 mt-1">{training.title}</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100 mt-1">
+                            {training.title}
+                          </h3>
                         </div>
                         <div className="text-sm text-right">
                           <p className="text-gray-600">
@@ -185,7 +205,9 @@ export default function TrainingPage() {
                               ? new Date(training.completedDate).toLocaleDateString()
                               : 'N/A'}
                           </p>
-                          <p className="text-xs text-gray-400 dark:text-gray-500">{training.participants} trained</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">
+                            {training.participants} trained
+                          </p>
                         </div>
                       </div>
                     </div>

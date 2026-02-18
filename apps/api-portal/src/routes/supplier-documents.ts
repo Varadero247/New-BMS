@@ -40,7 +40,10 @@ router.post('/', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = documentUploadSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const data = parsed.data;
@@ -64,8 +67,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Supplier document uploaded', { id: document.id, title: document.title });
     return res.status(201).json({ success: true, data: document });
   } catch (error: unknown) {
-    logger.error('Error uploading document', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to upload document' } });
+    logger.error('Error uploading document', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to upload document' },
+    });
   }
 });
 
@@ -99,8 +107,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing supplier documents', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list documents' } });
+    logger.error('Error listing supplier documents', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list documents' },
+    });
   }
 });
 

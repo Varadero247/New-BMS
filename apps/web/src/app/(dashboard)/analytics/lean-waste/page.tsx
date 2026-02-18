@@ -290,7 +290,10 @@ export default function LeanWastePage() {
                 const colors = getCategoryColor(cat.color);
                 const values = formData[cat.key as keyof typeof formData] as string[];
                 return (
-                  <div key={cat.key} className={`p-3 rounded-lg border ${colors.border} ${colors.bg}`}>
+                  <div
+                    key={cat.key}
+                    className={`p-3 rounded-lg border ${colors.border} ${colors.bg}`}
+                  >
                     <div className="flex items-center gap-2 mb-2">
                       <cat.icon className={`w-4 h-4 ${colors.text}`} />
                       <span className={`text-sm font-medium ${colors.text}`}>{cat.label}</span>
@@ -301,7 +304,9 @@ export default function LeanWastePage() {
                         <div key={idx} className="flex gap-1">
                           <Input
                             value={item}
-                            onChange={(e) => updateItem(cat.key as keyof typeof formData, idx, e.target.value)}
+                            onChange={(e) =>
+                              updateItem(cat.key as keyof typeof formData, idx, e.target.value)
+                            }
                             placeholder="Identified waste..."
                             className="bg-white text-xs h-8"
                           />
@@ -351,7 +356,11 @@ export default function LeanWastePage() {
                 onClick={createAnalysis}
                 disabled={creating || !formData.title || !formData.processName}
               >
-                {creating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                {creating ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
                 Save Analysis
               </Button>
             </div>
@@ -379,7 +388,9 @@ export default function LeanWastePage() {
             })}
           </div>
           <p className="text-sm text-muted-foreground text-center mt-4">
-            Remember the 8 wastes with the acronym <strong>DOWNTIME</strong>: Defects, Overproduction, Waiting, Non-utilized talent, Transportation, Inventory, Motion, Extra-processing
+            Remember the 8 wastes with the acronym <strong>DOWNTIME</strong>: Defects,
+            Overproduction, Waiting, Non-utilized talent, Transportation, Inventory, Motion,
+            Extra-processing
           </p>
         </CardContent>
       </Card>
@@ -393,22 +404,22 @@ export default function LeanWastePage() {
           {analyses.length > 0 ? (
             <div className="space-y-6">
               {analyses.map((analysis) => (
-                <div
-                  key={analysis.id}
-                  className="p-4 border rounded-lg"
-                >
+                <div key={analysis.id} className="p-4 border rounded-lg">
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="font-medium">{analysis.title}</h3>
                       <p className="text-sm text-muted-foreground">
-                        Process: {analysis.processName} • {new Date(analysis.createdAt).toLocaleDateString()}
+                        Process: {analysis.processName} •{' '}
+                        {new Date(analysis.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium">
                         {analysis.totalWastes} wastes
                       </span>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(analysis.status)}`}>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(analysis.status)}`}
+                      >
                         {analysis.status}
                       </span>
                     </div>
@@ -423,13 +434,17 @@ export default function LeanWastePage() {
                       return (
                         <div key={cat.key} className={`p-2 rounded ${colors.bg}`}>
                           <div className="flex items-center justify-between mb-1">
-                            <span className={`text-xs font-medium ${colors.text}`}>{cat.label}</span>
+                            <span className={`text-xs font-medium ${colors.text}`}>
+                              {cat.label}
+                            </span>
                             <span className={`text-xs font-bold ${colors.text}`}>{count}</span>
                           </div>
                           {count > 0 && (
                             <ul className="text-xs space-y-0.5">
                               {wastes.slice(0, 2).map((w, i) => (
-                                <li key={i} className="truncate">• {w}</li>
+                                <li key={i} className="truncate">
+                                  • {w}
+                                </li>
                               ))}
                               {count > 2 && (
                                 <li className="text-muted-foreground">+{count - 2} more</li>
@@ -444,7 +459,8 @@ export default function LeanWastePage() {
                   {analysis.recommendations && (
                     <div className="p-3 bg-green-50 rounded-lg">
                       <p className="text-sm">
-                        <span className="font-medium text-green-700">Recommendations:</span> {analysis.recommendations}
+                        <span className="font-medium text-green-700">Recommendations:</span>{' '}
+                        {analysis.recommendations}
                       </p>
                     </div>
                   )}

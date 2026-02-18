@@ -8,11 +8,14 @@ export const gateway = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-gateway.interceptors.request.use((config) => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-}, (error) => Promise.reject(error));
+gateway.interceptors.request.use(
+  (config) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 gateway.interceptors.response.use(
   (response) => response,

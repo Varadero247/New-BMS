@@ -12,7 +12,7 @@ export class IntercomClient {
       const resp = await fetch(`${this.baseUrl}${path}`, {
         ...options,
         headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
+          Authorization: `Bearer ${this.accessToken}`,
           'Content-Type': 'application/json',
           'Intercom-Version': '2.10',
           ...options.headers,

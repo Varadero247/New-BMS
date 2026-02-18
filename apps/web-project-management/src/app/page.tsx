@@ -1,7 +1,14 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { FolderKanban, ListChecks, AlertCircle, AlertTriangle, Flag, DollarSign } from 'lucide-react';
+import {
+  FolderKanban,
+  ListChecks,
+  AlertCircle,
+  AlertTriangle,
+  Flag,
+  DollarSign,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface DashboardStats {
@@ -43,7 +50,9 @@ export default function ProjectManagementDashboard() {
       const milestones = milestonesRes.data.data || [];
 
       const activeProjects = projects.filter((p: any) => p.status === 'ACTIVE');
-      const openIssues = issues.filter((i: any) => i.status === 'OPEN' || i.status === 'IN_PROGRESS');
+      const openIssues = issues.filter(
+        (i: any) => i.status === 'OPEN' || i.status === 'IN_PROGRESS'
+      );
       const openRisks = risks.filter((r: any) => r.status === 'OPEN' || r.status === 'IDENTIFIED');
 
       const now = new Date();
@@ -54,13 +63,16 @@ export default function ProjectManagementDashboard() {
       });
 
       // Calculate budget health as percentage of projects within budget
-      const projectsWithBudget = projects.filter((p: any) => p.plannedBudget && p.plannedBudget > 0);
-      const withinBudget = projectsWithBudget.filter((p: any) =>
-        !p.actualBudget || p.actualBudget <= p.plannedBudget
+      const projectsWithBudget = projects.filter(
+        (p: any) => p.plannedBudget && p.plannedBudget > 0
       );
-      const budgetHealth = projectsWithBudget.length > 0
-        ? Math.round((withinBudget.length / projectsWithBudget.length) * 100)
-        : 100;
+      const withinBudget = projectsWithBudget.filter(
+        (p: any) => !p.actualBudget || p.actualBudget <= p.plannedBudget
+      );
+      const budgetHealth =
+        projectsWithBudget.length > 0
+          ? Math.round((withinBudget.length / projectsWithBudget.length) * 100)
+          : 100;
 
       setStats({
         activeProjects: activeProjects.length,
@@ -90,7 +102,7 @@ export default function ProjectManagementDashboard() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-3 gap-4">
-            {[1, 2, 3, 4, 5, 6].map(i => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
@@ -109,12 +121,36 @@ export default function ProjectManagementDashboard() {
   ];
 
   const colorMap: Record<string, { bg: string; iconBg: string; iconText: string }> = {
-    blue: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-blue-100 dark:bg-blue-900', iconText: 'text-blue-600' },
-    indigo: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-indigo-100 dark:bg-indigo-900', iconText: 'text-indigo-600' },
-    amber: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-amber-100 dark:bg-amber-900', iconText: 'text-amber-600' },
-    red: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-red-100 dark:bg-red-900', iconText: 'text-red-600' },
-    purple: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-purple-100 dark:bg-purple-900', iconText: 'text-purple-600' },
-    green: { bg: 'bg-white dark:bg-gray-900', iconBg: 'bg-green-100 dark:bg-green-900', iconText: 'text-green-600' },
+    blue: {
+      bg: 'bg-white dark:bg-gray-900',
+      iconBg: 'bg-blue-100 dark:bg-blue-900',
+      iconText: 'text-blue-600',
+    },
+    indigo: {
+      bg: 'bg-white dark:bg-gray-900',
+      iconBg: 'bg-indigo-100 dark:bg-indigo-900',
+      iconText: 'text-indigo-600',
+    },
+    amber: {
+      bg: 'bg-white dark:bg-gray-900',
+      iconBg: 'bg-amber-100 dark:bg-amber-900',
+      iconText: 'text-amber-600',
+    },
+    red: {
+      bg: 'bg-white dark:bg-gray-900',
+      iconBg: 'bg-red-100 dark:bg-red-900',
+      iconText: 'text-red-600',
+    },
+    purple: {
+      bg: 'bg-white dark:bg-gray-900',
+      iconBg: 'bg-purple-100 dark:bg-purple-900',
+      iconText: 'text-purple-600',
+    },
+    green: {
+      bg: 'bg-white dark:bg-gray-900',
+      iconBg: 'bg-green-100 dark:bg-green-900',
+      iconText: 'text-green-600',
+    },
   };
 
   return (
@@ -122,14 +158,27 @@ export default function ProjectManagementDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Project Management Dashboard</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">PMBOK / ISO 21500 Project Management</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Project Management Dashboard
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            PMBOK / ISO 21500 Project Management
+          </p>
         </div>
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
             <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-            <button onClick={() => { setError(''); setLoading(true); loadData(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+            <button
+              onClick={() => {
+                setError('');
+                setLoading(true);
+                loadData();
+              }}
+              className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0"
+            >
+              Retry
+            </button>
           </div>
         )}
 
@@ -166,33 +215,50 @@ export default function ProjectManagementDashboard() {
             {recentProjects.length > 0 ? (
               <div className="space-y-3">
                 {recentProjects.map((project: any) => (
-                  <div key={project.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div
+                    key={project.id}
+                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                  >
                     <div className="flex-1">
                       <p className="font-medium text-sm">{project.projectName}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{project.projectCode}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          project.status === 'ACTIVE' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
-                          project.status === 'PLANNING' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
-                          project.status === 'ON_HOLD' ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300' :
-                          project.status === 'COMPLETED' ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300' :
-                          'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
-                        }`}>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {project.projectCode}
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full ${
+                            project.status === 'ACTIVE'
+                              ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                              : project.status === 'PLANNING'
+                                ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                                : project.status === 'ON_HOLD'
+                                  ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300'
+                                  : project.status === 'COMPLETED'
+                                    ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300'
+                                    : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                          }`}
+                        >
                           {project.status}
                         </span>
                         {project.projectHealth && (
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            project.projectHealth === 'GREEN' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
-                            project.projectHealth === 'AMBER' ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300' :
-                            'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
-                          }`}>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              project.projectHealth === 'GREEN'
+                                ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                                : project.projectHealth === 'AMBER'
+                                  ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300'
+                                  : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                            }`}
+                          >
                             {project.projectHealth}
                           </span>
                         )}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-medium">{project.completionPercentage || 0}%</div>
+                      <div className="text-sm font-medium">
+                        {project.completionPercentage || 0}%
+                      </div>
                       <div className="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mt-1">
                         <div
                           className="h-2 bg-blue-600 rounded-full"

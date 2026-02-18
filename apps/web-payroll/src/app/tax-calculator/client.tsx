@@ -116,19 +116,30 @@ function calculateTax(salary: number, jurisdiction: JurisdictionConfig) {
     }
   }
 
-  const niContribution = salary > jurisdiction.niThreshold
-    ? ((salary - jurisdiction.niThreshold) * jurisdiction.niRate) / 100
-    : 0;
+  const niContribution =
+    salary > jurisdiction.niThreshold
+      ? ((salary - jurisdiction.niThreshold) * jurisdiction.niRate) / 100
+      : 0;
   const pension = (salary * jurisdiction.pensionRate) / 100;
-  const studentLoan = salary > jurisdiction.studentLoanThreshold && jurisdiction.studentLoanRate > 0
-    ? ((salary - jurisdiction.studentLoanThreshold) * jurisdiction.studentLoanRate) / 100
-    : 0;
+  const studentLoan =
+    salary > jurisdiction.studentLoanThreshold && jurisdiction.studentLoanRate > 0
+      ? ((salary - jurisdiction.studentLoanThreshold) * jurisdiction.studentLoanRate) / 100
+      : 0;
 
   const totalDeductions = totalTax + niContribution + pension + studentLoan;
   const netPay = salary - totalDeductions;
   const effectiveRate = salary > 0 ? (totalTax / salary) * 100 : 0;
 
-  return { totalTax, bandBreakdown, niContribution, pension, studentLoan, totalDeductions, netPay, effectiveRate };
+  return {
+    totalTax,
+    bandBreakdown,
+    niContribution,
+    pension,
+    studentLoan,
+    totalDeductions,
+    netPay,
+    effectiveRate,
+  };
 }
 
 function formatMoney(amount: number, symbol: string) {
@@ -149,20 +160,26 @@ export default function TaxCalculatorClient() {
   const compareResult = compareJurisdiction
     ? calculateTax(salary, jurisdictions.find((j) => j.id === compareJurisdiction)!)
     : null;
-  const compareJ = compareJurisdiction ? jurisdictions.find((j) => j.id === compareJurisdiction)! : null;
+  const compareJ = compareJurisdiction
+    ? jurisdictions.find((j) => j.id === compareJurisdiction)!
+    : null;
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Tax Calculator</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Multi-jurisdiction payroll tax estimation tool</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Multi-jurisdiction payroll tax estimation tool
+        </p>
       </div>
 
       {/* Input Section */}
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Annual Gross Salary</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Annual Gross Salary
+            </label>
             <div className="relative">
               <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input
@@ -174,41 +191,57 @@ export default function TaxCalculatorClient() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jurisdiction</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Jurisdiction
+            </label>
             <select
               value={selectedJurisdiction}
               onChange={(e) => setSelectedJurisdiction(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               {jurisdictions.map((j) => (
-                <option key={j.id} value={j.id}>{j.name}</option>
+                <option key={j.id} value={j.id}>
+                  {j.name}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Compare With</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Compare With
+            </label>
             <select
               value={compareJurisdiction || ''}
               onChange={(e) => setCompareJurisdiction(e.target.value || null)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option value="">None</option>
-              {jurisdictions.filter((j) => j.id !== selectedJurisdiction).map((j) => (
-                <option key={j.id} value={j.id}>{j.name}</option>
-              ))}
+              {jurisdictions
+                .filter((j) => j.id !== selectedJurisdiction)
+                .map((j) => (
+                  <option key={j.id} value={j.id}>
+                    {j.name}
+                  </option>
+                ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Display Period</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Display Period
+            </label>
             <div className="flex rounded-lg border border-gray-300 overflow-hidden">
               <button
                 onClick={() => setPeriod('annual')}
                 className={`flex-1 py-2 text-sm font-medium ${period === 'annual' ? 'bg-green-600 text-white' : 'bg-white dark:bg-gray-900 text-gray-600'}`}
-              >Annual</button>
+              >
+                Annual
+              </button>
               <button
                 onClick={() => setPeriod('monthly')}
                 className={`flex-1 py-2 text-sm font-medium ${period === 'monthly' ? 'bg-green-600 text-white' : 'bg-white dark:bg-gray-900 text-gray-600'}`}
-              >Monthly</button>
+              >
+                Monthly
+              </button>
             </div>
           </div>
         </div>
@@ -221,7 +254,9 @@ export default function TaxCalculatorClient() {
                 onChange={(e) => setIncludeStudentLoan(e.target.checked)}
                 className="rounded border-gray-300 text-green-600 focus:ring-green-500"
               />
-              Include student loan repayment (Plan 2: {jurisdiction.studentLoanRate}% above {jurisdiction.symbol}{jurisdiction.studentLoanThreshold.toLocaleString()})
+              Include student loan repayment (Plan 2: {jurisdiction.studentLoanRate}% above{' '}
+              {jurisdiction.symbol}
+              {jurisdiction.studentLoanThreshold.toLocaleString()})
             </label>
           </div>
         )}
@@ -237,28 +272,48 @@ export default function TaxCalculatorClient() {
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Gross Pay</p>
-              <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{formatMoney(salary / divisor, jurisdiction.symbol)}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">
+                Gross Pay
+              </p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                {formatMoney(salary / divisor, jurisdiction.symbol)}
+              </p>
             </div>
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Income Tax</p>
-              <p className="text-xl font-bold text-red-700 mt-1">{formatMoney(result.totalTax / divisor, jurisdiction.symbol)}</p>
-              <p className="text-xs text-gray-400 dark:text-gray-500">{result.effectiveRate.toFixed(1)}% effective</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">
+                Income Tax
+              </p>
+              <p className="text-xl font-bold text-red-700 mt-1">
+                {formatMoney(result.totalTax / divisor, jurisdiction.symbol)}
+              </p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">
+                {result.effectiveRate.toFixed(1)}% effective
+              </p>
             </div>
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Deductions</p>
-              <p className="text-xl font-bold text-amber-700 mt-1">{formatMoney(result.totalDeductions / divisor, jurisdiction.symbol)}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">
+                Deductions
+              </p>
+              <p className="text-xl font-bold text-amber-700 mt-1">
+                {formatMoney(result.totalDeductions / divisor, jurisdiction.symbol)}
+              </p>
             </div>
             <div className="bg-green-50 border border-green-200 rounded-xl p-4">
               <p className="text-xs text-green-600 uppercase font-medium">Net Pay</p>
-              <p className="text-xl font-bold text-green-700 mt-1">{formatMoney(result.netPay / divisor, jurisdiction.symbol)}</p>
-              <p className="text-xs text-green-500">{((result.netPay / salary) * 100).toFixed(1)}% take-home</p>
+              <p className="text-xl font-bold text-green-700 mt-1">
+                {formatMoney(result.netPay / divisor, jurisdiction.symbol)}
+              </p>
+              <p className="text-xs text-green-500">
+                {((result.netPay / salary) * 100).toFixed(1)}% take-home
+              </p>
             </div>
           </div>
 
           {/* Tax Band Visualization */}
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Tax Band Breakdown</h4>
+            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+              Tax Band Breakdown
+            </h4>
             <div className="w-full h-8 flex rounded-lg overflow-hidden mb-3">
               {result.bandBreakdown.map((b, i) => {
                 const width = (b.taxable / salary) * 100;
@@ -283,12 +338,18 @@ export default function TaxCalculatorClient() {
                 <div key={i} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <div className={`w-3 h-3 rounded ${b.band.color}`} />
-                    <span className="text-gray-700 dark:text-gray-300">{b.band.name} ({b.band.rate}%)</span>
+                    <span className="text-gray-700 dark:text-gray-300">
+                      {b.band.name} ({b.band.rate}%)
+                    </span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="text-gray-500 dark:text-gray-400">{formatMoney(b.taxable / divisor, jurisdiction.symbol)}</span>
+                    <span className="text-gray-500 dark:text-gray-400">
+                      {formatMoney(b.taxable / divisor, jurisdiction.symbol)}
+                    </span>
                     <ArrowRight className="h-3 w-3 text-gray-300 dark:text-gray-600" />
-                    <span className="font-medium text-gray-800">{formatMoney(b.tax / divisor, jurisdiction.symbol)}</span>
+                    <span className="font-medium text-gray-800">
+                      {formatMoney(b.tax / divisor, jurisdiction.symbol)}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -297,25 +358,41 @@ export default function TaxCalculatorClient() {
 
           {/* Other Deductions */}
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Other Deductions</h4>
+            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+              Other Deductions
+            </h4>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">National Insurance / Social Security ({jurisdiction.niRate}%)</span>
-                <span className="font-medium">{formatMoney(result.niContribution / divisor, jurisdiction.symbol)}</span>
+                <span className="text-gray-600">
+                  National Insurance / Social Security ({jurisdiction.niRate}%)
+                </span>
+                <span className="font-medium">
+                  {formatMoney(result.niContribution / divisor, jurisdiction.symbol)}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Pension Contribution ({jurisdiction.pensionRate}%)</span>
-                <span className="font-medium">{formatMoney(result.pension / divisor, jurisdiction.symbol)}</span>
+                <span className="text-gray-600">
+                  Pension Contribution ({jurisdiction.pensionRate}%)
+                </span>
+                <span className="font-medium">
+                  {formatMoney(result.pension / divisor, jurisdiction.symbol)}
+                </span>
               </div>
               {includeStudentLoan && jurisdiction.studentLoanRate > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Student Loan ({jurisdiction.studentLoanRate}%)</span>
-                  <span className="font-medium">{formatMoney(result.studentLoan / divisor, jurisdiction.symbol)}</span>
+                  <span className="text-gray-600">
+                    Student Loan ({jurisdiction.studentLoanRate}%)
+                  </span>
+                  <span className="font-medium">
+                    {formatMoney(result.studentLoan / divisor, jurisdiction.symbol)}
+                  </span>
                 </div>
               )}
               <div className="flex justify-between text-sm font-semibold border-t border-gray-200 dark:border-gray-700 pt-2">
                 <span className="text-gray-800">Total Deductions</span>
-                <span className="text-red-700">{formatMoney(result.totalDeductions / divisor, jurisdiction.symbol)}</span>
+                <span className="text-red-700">
+                  {formatMoney(result.totalDeductions / divisor, jurisdiction.symbol)}
+                </span>
               </div>
             </div>
           </div>
@@ -330,34 +407,60 @@ export default function TaxCalculatorClient() {
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Gross Pay</p>
-                <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{formatMoney(salary / divisor, compareJ.symbol)}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">
+                  Gross Pay
+                </p>
+                <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                  {formatMoney(salary / divisor, compareJ.symbol)}
+                </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Income Tax</p>
-                <p className="text-xl font-bold text-red-700 mt-1">{formatMoney(compareResult.totalTax / divisor, compareJ.symbol)}</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">{compareResult.effectiveRate.toFixed(1)}% effective</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">
+                  Income Tax
+                </p>
+                <p className="text-xl font-bold text-red-700 mt-1">
+                  {formatMoney(compareResult.totalTax / divisor, compareJ.symbol)}
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">
+                  {compareResult.effectiveRate.toFixed(1)}% effective
+                </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Deductions</p>
-                <p className="text-xl font-bold text-amber-700 mt-1">{formatMoney(compareResult.totalDeductions / divisor, compareJ.symbol)}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">
+                  Deductions
+                </p>
+                <p className="text-xl font-bold text-amber-700 mt-1">
+                  {formatMoney(compareResult.totalDeductions / divisor, compareJ.symbol)}
+                </p>
               </div>
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                 <p className="text-xs text-blue-600 uppercase font-medium">Net Pay</p>
-                <p className="text-xl font-bold text-blue-700 mt-1">{formatMoney(compareResult.netPay / divisor, compareJ.symbol)}</p>
-                <p className="text-xs text-blue-500">{((compareResult.netPay / salary) * 100).toFixed(1)}% take-home</p>
+                <p className="text-xl font-bold text-blue-700 mt-1">
+                  {formatMoney(compareResult.netPay / divisor, compareJ.symbol)}
+                </p>
+                <p className="text-xs text-blue-500">
+                  {((compareResult.netPay / salary) * 100).toFixed(1)}% take-home
+                </p>
               </div>
             </div>
 
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Tax Band Breakdown</h4>
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                Tax Band Breakdown
+              </h4>
               <div className="w-full h-8 flex rounded-lg overflow-hidden mb-3">
                 {compareResult.bandBreakdown.map((b, i) => {
                   const width = (b.taxable / salary) * 100;
                   return (
-                    <div key={i} className={`${b.band.color} relative`} style={{ width: `${width}%` }}>
+                    <div
+                      key={i}
+                      className={`${b.band.color} relative`}
+                      style={{ width: `${width}%` }}
+                    >
                       {width > 8 && (
-                        <span className="absolute inset-0 flex items-center justify-center text-xs text-white font-medium">{b.band.rate}%</span>
+                        <span className="absolute inset-0 flex items-center justify-center text-xs text-white font-medium">
+                          {b.band.rate}%
+                        </span>
                       )}
                     </div>
                   );
@@ -368,9 +471,13 @@ export default function TaxCalculatorClient() {
                   <div key={i} className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <div className={`w-3 h-3 rounded ${b.band.color}`} />
-                      <span className="text-gray-700 dark:text-gray-300">{b.band.name} ({b.band.rate}%)</span>
+                      <span className="text-gray-700 dark:text-gray-300">
+                        {b.band.name} ({b.band.rate}%)
+                      </span>
                     </div>
-                    <span className="font-medium text-gray-800">{formatMoney(b.tax / divisor, compareJ.symbol)}</span>
+                    <span className="font-medium text-gray-800">
+                      {formatMoney(b.tax / divisor, compareJ.symbol)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -385,14 +492,26 @@ export default function TaxCalculatorClient() {
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
                   <span className="text-indigo-700">Tax Difference</span>
-                  <span className={`font-medium ${result.totalTax > compareResult.totalTax ? 'text-green-700' : 'text-red-700'}`}>
-                    {result.totalTax > compareResult.totalTax ? '-' : '+'}{formatMoney(Math.abs(result.totalTax - compareResult.totalTax) / divisor, jurisdiction.symbol)}
+                  <span
+                    className={`font-medium ${result.totalTax > compareResult.totalTax ? 'text-green-700' : 'text-red-700'}`}
+                  >
+                    {result.totalTax > compareResult.totalTax ? '-' : '+'}
+                    {formatMoney(
+                      Math.abs(result.totalTax - compareResult.totalTax) / divisor,
+                      jurisdiction.symbol
+                    )}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-indigo-700">Net Pay Difference</span>
-                  <span className={`font-medium ${result.netPay < compareResult.netPay ? 'text-green-700' : 'text-red-700'}`}>
-                    {compareResult.netPay > result.netPay ? '+' : ''}{formatMoney((compareResult.netPay - result.netPay) / divisor, jurisdiction.symbol)}
+                  <span
+                    className={`font-medium ${result.netPay < compareResult.netPay ? 'text-green-700' : 'text-red-700'}`}
+                  >
+                    {compareResult.netPay > result.netPay ? '+' : ''}
+                    {formatMoney(
+                      (compareResult.netPay - result.netPay) / divisor,
+                      jurisdiction.symbol
+                    )}
                   </span>
                 </div>
               </div>
@@ -403,17 +522,22 @@ export default function TaxCalculatorClient() {
 
       {/* Quick Salary Presets */}
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Quick Salary Presets</h4>
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+          Quick Salary Presets
+        </h4>
         <div className="flex flex-wrap gap-2">
           {[25000, 35000, 50000, 75000, 100000, 150000, 200000].map((s) => (
             <button
               key={s}
               onClick={() => setSalary(s)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                salary === s ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'
+                salary === s
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              {jurisdiction.symbol}{(s / 1000).toFixed(0)}k
+              {jurisdiction.symbol}
+              {(s / 1000).toFixed(0)}k
             </button>
           ))}
         </div>

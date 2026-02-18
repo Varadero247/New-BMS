@@ -18,11 +18,7 @@ const roiCalculateSchema = z.object({
   industry: z.string().optional(),
 });
 
-function calculateROI(data: {
-  isoCount?: number;
-  employeeCount?: string;
-  currentSpend?: number;
-}) {
+function calculateROI(data: { isoCount?: number; employeeCount?: string; currentSpend?: number }) {
   const isoCount = data.isoCount || 1;
   const recommendedTier = isoCount >= 4 ? 'Enterprise' : 'Professional';
   const pricePerUser = recommendedTier === 'Enterprise' ? 19 : 29;
@@ -117,7 +113,10 @@ router.get('/history', authenticate, async (req: Request, res: Response) => {
   }
 });
 
-async function pushToHubSpot(data: z.infer<typeof roiCalculateSchema>, roi: ReturnType<typeof calculateROI>) {
+async function pushToHubSpot(
+  data: z.infer<typeof roiCalculateSchema>,
+  roi: ReturnType<typeof calculateROI>
+) {
   const apiKey = process.env.HUBSPOT_API_KEY;
   if (!apiKey) return;
 
@@ -129,7 +128,7 @@ async function pushToHubSpot(data: z.infer<typeof roiCalculateSchema>, roi: Retu
     await fetch('https://api.hubapi.com/crm/v3/objects/contacts', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

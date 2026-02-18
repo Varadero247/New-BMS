@@ -26,7 +26,14 @@ async function generateRefNumber(): Promise<string> {
 // GET / - List legal obligations
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
-    const { page = '1', limit = '20', obligationType, complianceStatus, status, search } = req.query;
+    const {
+      page = '1',
+      limit = '20',
+      obligationType,
+      complianceStatus,
+      status,
+      search,
+    } = req.query;
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
@@ -62,7 +69,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List legal obligations error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list legal obligations' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list legal obligations' },
+    });
   }
 });
 
@@ -74,13 +84,19 @@ router.get('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, re
     });
 
     if (!legal) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Legal obligation not found' },
+      });
     }
 
     res.json({ success: true, data: legal });
   } catch (error) {
     logger.error('Get legal obligation error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get legal obligation' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get legal obligation' },
+    });
   }
 });
 
@@ -89,7 +105,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      obligationType: z.enum(['PRODUCT_STANDARD', 'CUSTOMER_CONTRACT', 'REGULATORY', 'INDUSTRY_CODE', 'CERTIFICATION_REQUIREMENT', 'VOLUNTARY_COMMITMENT']),
+      obligationType: z.enum([
+        'PRODUCT_STANDARD',
+        'CUSTOMER_CONTRACT',
+        'REGULATORY',
+        'INDUSTRY_CODE',
+        'CERTIFICATION_REQUIREMENT',
+        'VOLUNTARY_COMMITMENT',
+      ]),
       issuingBody: z.string().optional(),
       referenceDoc: z.string().optional(),
       description: z.string().trim().min(1).max(2000),
@@ -99,15 +122,31 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       contractNumber: z.string().optional(),
       productServiceScope: z.string().optional(),
       certificationBody: z.string().optional(),
-      complianceStatus: z.enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'NOT_ASSESSED', 'UNDER_REVIEW']).default('NOT_ASSESSED'),
+      complianceStatus: z
+        .enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'NOT_ASSESSED', 'UNDER_REVIEW'])
+        .default('NOT_ASSESSED'),
       complianceNotes: z.string().optional(),
       gapAnalysis: z.string().optional(),
-      lastAssessmentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      nextAssessmentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      lastAssessmentDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      nextAssessmentDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       responsiblePerson: z.string().optional(),
-      reviewFrequency: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE']).default('ANNUALLY'),
-      effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      reviewFrequency: z
+        .enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'])
+        .default('ANNUALLY'),
+      effectiveDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      expiryDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       status: z.enum(['ACTIVE', 'PENDING', 'EXPIRED', 'SUPERSEDED', 'WITHDRAWN']).default('ACTIVE'),
       trackedInHs: z.boolean().default(false),
       trackedInEnv: z.boolean().default(false),
@@ -130,10 +169,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: legal });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create legal obligation error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create legal obligation' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create legal obligation' },
+    });
   }
 });
 
@@ -142,12 +191,24 @@ router.put('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, re
   try {
     const existing = await prisma.qualLegal.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Legal obligation not found' },
+      });
     }
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200).optional(),
-      obligationType: z.enum(['PRODUCT_STANDARD', 'CUSTOMER_CONTRACT', 'REGULATORY', 'INDUSTRY_CODE', 'CERTIFICATION_REQUIREMENT', 'VOLUNTARY_COMMITMENT']).optional(),
+      obligationType: z
+        .enum([
+          'PRODUCT_STANDARD',
+          'CUSTOMER_CONTRACT',
+          'REGULATORY',
+          'INDUSTRY_CODE',
+          'CERTIFICATION_REQUIREMENT',
+          'VOLUNTARY_COMMITMENT',
+        ])
+        .optional(),
       issuingBody: z.string().nullable().optional(),
       referenceDoc: z.string().nullable().optional(),
       description: z.string().optional(),
@@ -157,15 +218,35 @@ router.put('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, re
       contractNumber: z.string().nullable().optional(),
       productServiceScope: z.string().nullable().optional(),
       certificationBody: z.string().nullable().optional(),
-      complianceStatus: z.enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'NOT_ASSESSED', 'UNDER_REVIEW']).optional(),
+      complianceStatus: z
+        .enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'NOT_ASSESSED', 'UNDER_REVIEW'])
+        .optional(),
       complianceNotes: z.string().nullable().optional(),
       gapAnalysis: z.string().nullable().optional(),
-      lastAssessmentDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      nextAssessmentDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      lastAssessmentDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      nextAssessmentDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       responsiblePerson: z.string().nullable().optional(),
-      reviewFrequency: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE']).optional(),
-      effectiveDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      expiryDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      reviewFrequency: z
+        .enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'])
+        .optional(),
+      effectiveDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      expiryDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       status: z.enum(['ACTIVE', 'PENDING', 'EXPIRED', 'SUPERSEDED', 'WITHDRAWN']).optional(),
       trackedInHs: z.boolean().optional(),
       trackedInEnv: z.boolean().optional(),
@@ -180,10 +261,26 @@ router.put('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, re
 
     const updateData = {
       ...data,
-      lastAssessmentDate: data.lastAssessmentDate ? new Date(data.lastAssessmentDate) : data.lastAssessmentDate === null ? null : undefined,
-      nextAssessmentDate: data.nextAssessmentDate ? new Date(data.nextAssessmentDate) : data.nextAssessmentDate === null ? null : undefined,
-      effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : data.effectiveDate === null ? null : undefined,
-      expiryDate: data.expiryDate ? new Date(data.expiryDate) : data.expiryDate === null ? null : undefined,
+      lastAssessmentDate: data.lastAssessmentDate
+        ? new Date(data.lastAssessmentDate)
+        : data.lastAssessmentDate === null
+          ? null
+          : undefined,
+      nextAssessmentDate: data.nextAssessmentDate
+        ? new Date(data.nextAssessmentDate)
+        : data.nextAssessmentDate === null
+          ? null
+          : undefined,
+      effectiveDate: data.effectiveDate
+        ? new Date(data.effectiveDate)
+        : data.effectiveDate === null
+          ? null
+          : undefined,
+      expiryDate: data.expiryDate
+        ? new Date(data.expiryDate)
+        : data.expiryDate === null
+          ? null
+          : undefined,
     };
 
     const legal = await prisma.qualLegal.update({
@@ -194,10 +291,20 @@ router.put('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, re
     res.json({ success: true, data: legal });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update legal obligation error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update legal obligation' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update legal obligation' },
+    });
   }
 });
 
@@ -206,15 +313,24 @@ router.delete('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest,
   try {
     const existing = await prisma.qualLegal.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Legal obligation not found' },
+      });
     }
 
-    await prisma.qualLegal.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualLegal.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
 
     res.status(204).send();
   } catch (error) {
     logger.error('Delete legal obligation error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete legal obligation' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete legal obligation' },
+    });
   }
 });
 

@@ -13,11 +13,7 @@ import type { AuthRequest } from './types';
  * 4. Checks the user is still active
  * 5. Updates the session's lastActivityAt timestamp
  */
-export async function authenticate(
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) {
+export async function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const authHeader = req.headers.authorization;
 
@@ -118,11 +114,7 @@ export function requireRole(...roles: string[]) {
 /**
  * Optional authentication - doesn't fail if no token provided
  */
-export function optionalAuth(
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) {
+export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith('Bearer ')) {

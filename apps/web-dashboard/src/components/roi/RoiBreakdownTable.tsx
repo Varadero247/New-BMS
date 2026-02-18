@@ -7,7 +7,11 @@ interface Props {
 }
 
 const formatGBP = (value: number) =>
-  new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 }).format(value);
+  new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP',
+    maximumFractionDigits: 0,
+  }).format(value);
 
 export function RoiBreakdownTable({ results }: Props) {
   const rows = [
@@ -48,30 +52,42 @@ export function RoiBreakdownTable({ results }: Props) {
           <tr className="border-b border-border bg-muted/50">
             <th className="px-4 py-3 text-left font-medium text-muted-foreground">Category</th>
             <th className="px-4 py-3 text-right font-medium text-muted-foreground">Value</th>
-            <th className="hidden px-4 py-3 text-left font-medium text-muted-foreground sm:table-cell">Detail</th>
+            <th className="hidden px-4 py-3 text-left font-medium text-muted-foreground sm:table-cell">
+              Detail
+            </th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => (
             <tr key={row.label} className="border-b border-border">
               <td className="px-4 py-3 text-foreground">{row.label}</td>
-              <td className="px-4 py-3 text-right font-medium text-secondary">{formatGBP(row.value)}</td>
+              <td className="px-4 py-3 text-right font-medium text-secondary">
+                {formatGBP(row.value)}
+              </td>
               <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">{row.detail}</td>
             </tr>
           ))}
           <tr className="border-b border-border bg-secondary/5">
             <td className="px-4 py-3 font-semibold text-foreground">TOTAL</td>
-            <td className="px-4 py-3 text-right font-bold text-secondary">{formatGBP(results.totalValue)}</td>
-            <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">{results.roiPercent}% Year-1 ROI</td>
+            <td className="px-4 py-3 text-right font-bold text-secondary">
+              {formatGBP(results.totalValue)}
+            </td>
+            <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
+              {results.roiPercent}% Year-1 ROI
+            </td>
           </tr>
           <tr className="border-b border-border bg-muted/30">
             <td className="px-4 py-3 text-muted-foreground">Nexara annual cost</td>
-            <td className="px-4 py-3 text-right font-medium text-destructive">-{formatGBP(results.nexaraCost)}</td>
+            <td className="px-4 py-3 text-right font-medium text-destructive">
+              -{formatGBP(results.nexaraCost)}
+            </td>
             <td className="hidden px-4 py-3 sm:table-cell" />
           </tr>
           <tr>
             <td className="px-4 py-3 font-bold text-foreground">Net Year-1 benefit</td>
-            <td className="px-4 py-3 text-right text-lg font-bold text-primary">{formatGBP(results.netBenefit)}</td>
+            <td className="px-4 py-3 text-right text-lg font-bold text-primary">
+              {formatGBP(results.netBenefit)}
+            </td>
             <td className="hidden px-4 py-3 sm:table-cell" />
           </tr>
         </tbody>

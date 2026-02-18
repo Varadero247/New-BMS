@@ -1,13 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  TrendingUp,
-  Calendar,
-  Filter,
-  Download,
-  RefreshCw,
-} from 'lucide-react';
+import { TrendingUp, Calendar, Filter, Download, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TrendChart } from '@/components/charts';
@@ -193,11 +187,7 @@ export default function TrendsPage() {
             <CardTitle className="text-base">Incidents Trend</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <TrendChart
-              data={incidentTrendData}
-              label="Incidents"
-              color="#ef4444"
-            />
+            <TrendChart data={incidentTrendData} label="Incidents" color="#ef4444" />
           </CardContent>
         </Card>
 
@@ -206,11 +196,7 @@ export default function TrendsPage() {
             <CardTitle className="text-base">Risks Trend</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <TrendChart
-              data={riskTrendData}
-              label="Risks"
-              color="#f97316"
-            />
+            <TrendChart data={riskTrendData} label="Risks" color="#f97316" />
           </CardContent>
         </Card>
 
@@ -219,11 +205,7 @@ export default function TrendsPage() {
             <CardTitle className="text-base">Actions Trend</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <TrendChart
-              data={actionTrendData}
-              label="Actions"
-              color="#3b82f6"
-            />
+            <TrendChart data={actionTrendData} label="Actions" color="#3b82f6" />
           </CardContent>
         </Card>
 
@@ -232,11 +214,7 @@ export default function TrendsPage() {
             <CardTitle className="text-base">Non-Conformances Trend</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <TrendChart
-              data={ncTrendData}
-              label="NCs"
-              color="#8b5cf6"
-            />
+            <TrendChart data={ncTrendData} label="NCs" color="#8b5cf6" />
           </CardContent>
         </Card>
       </div>
@@ -261,11 +239,26 @@ export default function TrendsPage() {
               </thead>
               <tbody>
                 {trends.map((t) => {
-                  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                  const months = [
+                    'Jan',
+                    'Feb',
+                    'Mar',
+                    'Apr',
+                    'May',
+                    'Jun',
+                    'Jul',
+                    'Aug',
+                    'Sep',
+                    'Oct',
+                    'Nov',
+                    'Dec',
+                  ];
                   const total = t.incidentCount + t.riskCount + t.actionCount + t.ncCount;
                   return (
                     <tr key={t.month} className="border-b hover:bg-muted/50">
-                      <td className="p-2">{months[t.month - 1]} {t.year}</td>
+                      <td className="p-2">
+                        {months[t.month - 1]} {t.year}
+                      </td>
                       <td className="text-right p-2">{t.incidentCount}</td>
                       <td className="text-right p-2">{t.riskCount}</td>
                       <td className="text-right p-2">{t.actionCount}</td>

@@ -43,12 +43,12 @@ const canEdit = usePermission('quality', 'EDIT_ALL');
 
 ## Exports
 
-| Export | Description |
-|--------|-------------|
-| `PLATFORM_ROLES` | All 39 role definitions |
-| `getRoleById` / `getRolesByIds` | Look up role definitions |
-| `resolvePermissions` | Merge multiple roles into effective permissions |
-| `hasPermission` | Check if permissions include a specific level |
-| `requirePermission` | Express middleware for permission checks |
-| `attachPermissions` | Express middleware to resolve user permissions |
-| `scopeByPermission` | Generate Prisma `where` clause based on permissions |
+| Export                          | Description                                         |
+| ------------------------------- | --------------------------------------------------- |
+| `PLATFORM_ROLES`                | All 39 role definitions                             |
+| `getRoleById` / `getRolesByIds` | Look up role definitions                            |
+| `resolvePermissions`            | Merge multiple roles into effective permissions     |
+| `hasPermission`                 | Check if permissions include a specific level       |
+| `requirePermission`             | Express middleware for permission checks            |
+| `attachPermissions`             | Express middleware to resolve user permissions      |
+| `scopeByPermission`             | Generate Prisma `where` clause based on permissions |

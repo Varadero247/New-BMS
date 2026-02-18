@@ -42,9 +42,7 @@ let sdk: NodeSDK | null = null;
 export function initTracing(config: TracingConfig): NodeSDK | null {
   const otlpEndpoint = config.otlpEndpoint || process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
   const isEnabled =
-    config.enabled === true ||
-    !!otlpEndpoint ||
-    process.env.OTEL_TRACING_ENABLED === 'true';
+    config.enabled === true || !!otlpEndpoint || process.env.OTEL_TRACING_ENABLED === 'true';
 
   if (!isEnabled) {
     return null;
@@ -80,12 +78,20 @@ export function initTracing(config: TracingConfig): NodeSDK | null {
 
   // Graceful shutdown on SIGTERM
   process.on('SIGTERM', () => {
-    sdk?.shutdown()
+    sdk
+      ?.shutdown()
       .then(() => logger.info('Tracing terminated', { serviceName: config.serviceName }))
-      .catch((error) => logger.error('Error terminating tracing', { error: error instanceof Error ? error.message : String(error) }));
+      .catch((error) =>
+        logger.error('Error terminating tracing', {
+          error: error instanceof Error ? error.message : String(error),
+        })
+      );
   });
 
-  logger.info('Tracing initialized', { serviceName: config.serviceName, endpoint: otlpEndpoint || 'default' });
+  logger.info('Tracing initialized', {
+    serviceName: config.serviceName,
+    endpoint: otlpEndpoint || 'default',
+  });
   return sdk;
 }
 
@@ -176,7 +182,11 @@ export function getTraceContext(): { traceId: string; spanId: string } | null {
  * Express middleware to extract trace info and add to request
  */
 export function traceMiddleware() {
-  return (req: { traceId?: string; spanId?: string }, res: { setHeader: (name: string, value: string) => void }, next: () => void) => {
+  return (
+    req: { traceId?: string; spanId?: string },
+    res: { setHeader: (name: string, value: string) => void },
+    next: () => void
+  ) => {
     const span = trace.getActiveSpan();
     if (span) {
       const spanContext = span.spanContext();
@@ -202,9 +212,7 @@ export function traceMiddleware() {
  */
 export async function withSpan<T>(name: string, fn: () => T | Promise<T>): Promise<T> {
   const endpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
-  const isEnabled =
-    !!endpoint ||
-    process.env.OTEL_TRACING_ENABLED === 'true';
+  const isEnabled = !!endpoint || process.env.OTEL_TRACING_ENABLED === 'true';
 
   if (!isEnabled) {
     return fn();

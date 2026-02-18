@@ -5,17 +5,33 @@ jest.mock('../src/prisma', () => ({
   prisma: { incIncident: { update: jest.fn() } },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/investigation';
 import { prisma } from '../src/prisma';
-const app = express(); app.use(express.json()); app.use('/api/investigation', router);
-beforeEach(() => { jest.clearAllMocks(); });
+const app = express();
+app.use(express.json());
+app.use('/api/investigation', router);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('POST /api/investigation/:id/assign', () => {
   it('should assign an investigator successfully', async () => {
-    const updated = { id: '00000000-0000-0000-0000-000000000001', investigator: 'user-2', investigatorName: 'Jane Doe', status: 'INVESTIGATING' };
+    const updated = {
+      id: '00000000-0000-0000-0000-000000000001',
+      investigator: 'user-2',
+      investigatorName: 'Jane Doe',
+      status: 'INVESTIGATING',
+    };
     (prisma as any).incIncident.update.mockResolvedValue(updated);
     const res = await request(app)
       .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')

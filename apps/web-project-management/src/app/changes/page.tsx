@@ -98,7 +98,9 @@ export default function ChangesPage() {
               <GitPullRequest className="h-6 w-6 text-blue-600" />
               Change Requests
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage project change requests</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+              Manage project change requests
+            </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -113,7 +115,9 @@ export default function ChangesPage() {
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-4 mb-6">
           <div className="flex items-center gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Filter by Project
+              </label>
               <select
                 value={filterProjectId}
                 onChange={(e) => setFilterProjectId(e.target.value)}
@@ -121,7 +125,9 @@ export default function ChangesPage() {
               >
                 <option value="">All Projects</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
@@ -133,30 +139,60 @@ export default function ChangesPage() {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Code</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Priority</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Urgency</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Requested By</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Code
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Title
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Priority
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Urgency
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Requested By
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Date
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {changes.map((change) => (
                   <tr key={change.id} className="hover:bg-gray-50 dark:bg-gray-800">
-                    <td className="px-4 py-3 text-sm font-mono text-gray-900 dark:text-gray-100">{change.changeCode}</td>
-                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{change.changeTitle}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{change.changeType}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{change.priority}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{change.urgency}</td>
+                    <td className="px-4 py-3 text-sm font-mono text-gray-900 dark:text-gray-100">
+                      {change.changeCode}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                      {change.changeTitle}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {change.changeType}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {change.priority}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {change.urgency}
+                    </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${statusBadge(change.status)}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${statusBadge(change.status)}`}
+                      >
                         {change.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{change.requestedBy || '-'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {change.requestedBy || '-'}
+                    </td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                       {change.createdAt ? new Date(change.createdAt).toLocaleDateString() : '-'}
                     </td>
@@ -164,7 +200,10 @@ export default function ChangesPage() {
                 ))}
                 {changes.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={8}
+                      className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
+                    >
                       No change requests found. Create your first change request.
                     </td>
                   </tr>
@@ -175,10 +214,17 @@ export default function ChangesPage() {
         </div>
 
         {/* Create Modal */}
-        <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Change Request" size="lg">
+        <Modal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          title="Create Change Request"
+          size="lg"
+        >
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Project
+              </label>
               <select
                 required
                 value={form.projectId}
@@ -187,13 +233,17 @@ export default function ChangesPage() {
               >
                 <option value="">Select Project</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Change Code</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Change Code
+                </label>
                 <input
                   type="text"
                   required
@@ -203,7 +253,9 @@ export default function ChangesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Change Title</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Change Title
+                </label>
                 <input
                   type="text"
                   required
@@ -215,7 +267,9 @@ export default function ChangesPage() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Type
+                </label>
                 <select
                   value={form.changeType}
                   onChange={(e) => setForm({ ...form, changeType: e.target.value })}
@@ -231,7 +285,9 @@ export default function ChangesPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Priority
+                </label>
                 <select
                   value={form.priority}
                   onChange={(e) => setForm({ ...form, priority: e.target.value })}
@@ -244,7 +300,9 @@ export default function ChangesPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Urgency</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Urgency
+                </label>
                 <select
                   value={form.urgency}
                   onChange={(e) => setForm({ ...form, urgency: e.target.value })}
@@ -258,7 +316,9 @@ export default function ChangesPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Requested By</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Requested By
+              </label>
               <input
                 type="text"
                 value={form.requestedBy}
@@ -267,7 +327,9 @@ export default function ChangesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Description
+              </label>
               <textarea
                 rows={3}
                 value={form.changeDescription}
@@ -276,7 +338,9 @@ export default function ChangesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason for Change</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Reason for Change
+              </label>
               <textarea
                 rows={3}
                 value={form.changeReason}

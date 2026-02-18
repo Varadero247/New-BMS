@@ -73,11 +73,11 @@ const mockRecord = {
 describe('GET /api/monitoring/dashboard', () => {
   it('should return monitoring dashboard summary', async () => {
     (prisma as any).aiMonitoring.count
-      .mockResolvedValueOnce(50)  // total
-      .mockResolvedValueOnce(35)  // normal
-      .mockResolvedValueOnce(8)   // warning
-      .mockResolvedValueOnce(5)   // alert
-      .mockResolvedValueOnce(2);  // critical
+      .mockResolvedValueOnce(50) // total
+      .mockResolvedValueOnce(35) // normal
+      .mockResolvedValueOnce(8) // warning
+      .mockResolvedValueOnce(5) // alert
+      .mockResolvedValueOnce(2); // critical
     (prisma as any).aiMonitoring.groupBy.mockResolvedValue([
       { metricType: 'PERFORMANCE', _count: { id: 20 } },
       { metricType: 'ACCURACY', _count: { id: 15 } },
@@ -141,11 +141,16 @@ describe('GET /api/monitoring/system/:systemId', () => {
     (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
     (prisma as any).aiMonitoring.count.mockResolvedValue(0);
 
-    await request(app).get('/api/monitoring/system/00000000-0000-0000-0000-000000000001?status=WARNING');
+    await request(app).get(
+      '/api/monitoring/system/00000000-0000-0000-0000-000000000001?status=WARNING'
+    );
 
     expect((prisma as any).aiMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ systemId: '00000000-0000-0000-0000-000000000001', status: 'WARNING' }),
+        where: expect.objectContaining({
+          systemId: '00000000-0000-0000-0000-000000000001',
+          status: 'WARNING',
+        }),
       })
     );
   });
@@ -154,7 +159,9 @@ describe('GET /api/monitoring/system/:systemId', () => {
     (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
     (prisma as any).aiMonitoring.count.mockResolvedValue(0);
 
-    await request(app).get('/api/monitoring/system/00000000-0000-0000-0000-000000000001?metricType=BIAS');
+    await request(app).get(
+      '/api/monitoring/system/00000000-0000-0000-0000-000000000001?metricType=BIAS'
+    );
 
     expect((prisma as any).aiMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -167,7 +174,9 @@ describe('GET /api/monitoring/system/:systemId', () => {
     (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
     (prisma as any).aiMonitoring.count.mockResolvedValue(50);
 
-    const res = await request(app).get('/api/monitoring/system/00000000-0000-0000-0000-000000000001?page=2&limit=10');
+    const res = await request(app).get(
+      '/api/monitoring/system/00000000-0000-0000-0000-000000000001?page=2&limit=10'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.pagination.page).toBe(2);
@@ -178,7 +187,9 @@ describe('GET /api/monitoring/system/:systemId', () => {
   it('should return 500 on database error', async () => {
     (prisma as any).aiMonitoring.findMany.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/monitoring/system/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/monitoring/system/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -251,7 +262,9 @@ describe('GET /api/monitoring', () => {
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
-            expect.objectContaining({ metricName: expect.objectContaining({ contains: 'accuracy' }) }),
+            expect.objectContaining({
+              metricName: expect.objectContaining({ contains: 'accuracy' }),
+            }),
           ]),
         }),
       })
@@ -314,7 +327,7 @@ describe('POST /api/monitoring', () => {
       metricName: 'Error Rate',
       metricType: 'ERROR_RATE',
       value: 0.15,
-      threshold: 0.10,
+      threshold: 0.1,
       thresholdType: 'ABOVE',
     });
 
@@ -333,7 +346,7 @@ describe('POST /api/monitoring', () => {
       metricName: 'Error Rate',
       metricType: 'ERROR_RATE',
       value: 0.05,
-      threshold: 0.10,
+      threshold: 0.1,
       thresholdType: 'ABOVE',
     });
 
@@ -456,9 +469,7 @@ describe('PUT /api/monitoring/:id', () => {
   it('should return 404 when record not found for update', async () => {
     (prisma as any).aiMonitoring.findFirst.mockResolvedValue(null);
 
-    const res = await request(app)
-      .put(`/api/monitoring/${UUID2}`)
-      .send({ notes: 'Update notes' });
+    const res = await request(app).put(`/api/monitoring/${UUID2}`).send({ notes: 'Update notes' });
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -468,9 +479,7 @@ describe('PUT /api/monitoring/:id', () => {
     (prisma as any).aiMonitoring.findFirst.mockResolvedValue(mockRecord);
     (prisma as any).aiMonitoring.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app)
-      .put(`/api/monitoring/${UUID1}`)
-      .send({ notes: 'Test' });
+    const res = await request(app).put(`/api/monitoring/${UUID1}`).send({ notes: 'Test' });
 
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

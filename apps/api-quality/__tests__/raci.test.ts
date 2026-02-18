@@ -194,7 +194,10 @@ describe('RACI Routes', () => {
   describe('PUT /api/raci/:id', () => {
     it('should update a RACI entry', async () => {
       (prisma.qualRaci.findFirst as jest.Mock).mockResolvedValue(mockRaci);
-      (prisma.qualRaci.update as jest.Mock).mockResolvedValue({ ...mockRaci, raciType: 'CONSULTED' });
+      (prisma.qualRaci.update as jest.Mock).mockResolvedValue({
+        ...mockRaci,
+        raciType: 'CONSULTED',
+      });
 
       const res = await request(app).put('/api/raci/00000000-0000-0000-0000-000000000001').send({
         raciType: 'CONSULTED',
@@ -229,7 +232,10 @@ describe('RACI Routes', () => {
   describe('DELETE /api/raci/:id', () => {
     it('should soft delete a RACI entry', async () => {
       (prisma.qualRaci.findFirst as jest.Mock).mockResolvedValue(mockRaci);
-      (prisma.qualRaci.update as jest.Mock).mockResolvedValue({ ...mockRaci, deletedAt: new Date().toISOString() });
+      (prisma.qualRaci.update as jest.Mock).mockResolvedValue({
+        ...mockRaci,
+        deletedAt: new Date().toISOString(),
+      });
 
       const res = await request(app).delete('/api/raci/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);

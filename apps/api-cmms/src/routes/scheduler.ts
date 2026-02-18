@@ -20,27 +20,59 @@ function calcNextDue(lastPerformed: Date | null, frequency: string): Date {
   const base = lastPerformed ?? new Date();
   const next = new Date(base);
   switch (frequency) {
-    case 'DAILY':       next.setDate(next.getDate() + 1); break;
-    case 'WEEKLY':      next.setDate(next.getDate() + 7); break;
-    case 'BIWEEKLY':    next.setDate(next.getDate() + 14); break;
-    case 'MONTHLY':     next.setMonth(next.getMonth() + 1); break;
-    case 'QUARTERLY':   next.setMonth(next.getMonth() + 3); break;
-    case 'BIANNUAL':    next.setMonth(next.getMonth() + 6); break;
-    case 'ANNUAL':      next.setFullYear(next.getFullYear() + 1); break;
-    default:            next.setMonth(next.getMonth() + 1); break;
+    case 'DAILY':
+      next.setDate(next.getDate() + 1);
+      break;
+    case 'WEEKLY':
+      next.setDate(next.getDate() + 7);
+      break;
+    case 'BIWEEKLY':
+      next.setDate(next.getDate() + 14);
+      break;
+    case 'MONTHLY':
+      next.setMonth(next.getMonth() + 1);
+      break;
+    case 'QUARTERLY':
+      next.setMonth(next.getMonth() + 3);
+      break;
+    case 'BIANNUAL':
+      next.setMonth(next.getMonth() + 6);
+      break;
+    case 'ANNUAL':
+      next.setFullYear(next.getFullYear() + 1);
+      break;
+    default:
+      next.setMonth(next.getMonth() + 1);
+      break;
   }
   return next;
 }
 
 const scheduleCompleteSchema = z.object({
-  completedDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  completedDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional(),
 });
 
 const scheduleSchema = z.object({
   assetId: z.string().trim().min(1).max(200),
   name: z.string().trim().min(1).max(300),
   description: z.string().max(2000).optional().nullable(),
-  frequency: z.enum(['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'BIANNUAL', 'ANNUAL', 'AS_NEEDED']).default('MONTHLY'),
+  frequency: z
+    .enum([
+      'DAILY',
+      'WEEKLY',
+      'BIWEEKLY',
+      'MONTHLY',
+      'QUARTERLY',
+      'BIANNUAL',
+      'ANNUAL',
+      'AS_NEEDED',
+    ])
+    .default('MONTHLY'),
   tasks: z.array(z.string()).default([]),
   assignedTo: z.string().max(200).optional().nullable(),
   estimatedDuration: z.number().int().min(0).optional().nullable(),
@@ -80,10 +112,19 @@ router.get('/upcoming', async (req: Request, res: Response) => {
       prisma.cmmsPreventivePlan.count({ where }),
     ]);
 
-    res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error: unknown) {
-    logger.error('Failed to list upcoming maintenance', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list upcoming maintenance' } });
+    logger.error('Failed to list upcoming maintenance', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list upcoming maintenance' },
+    });
   }
 });
 
@@ -111,10 +152,19 @@ router.get('/overdue', async (req: Request, res: Response) => {
       prisma.cmmsPreventivePlan.count({ where }),
     ]);
 
-    res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error: unknown) {
-    logger.error('Failed to list overdue maintenance', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list overdue maintenance' } });
+    logger.error('Failed to list overdue maintenance', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list overdue maintenance' },
+    });
   }
 });
 
@@ -135,7 +185,8 @@ router.get('/calendar', async (req: Request, res: Response) => {
       },
       orderBy: { nextDue: 'asc' },
       include: { asset: { select: { id: true, name: true } } },
-      take: 1000});
+      take: 1000,
+    });
 
     // Also include work orders scheduled this month
     const workOrders = await prisma.cmmsWorkOrder.findMany({
@@ -145,12 +196,18 @@ router.get('/calendar', async (req: Request, res: Response) => {
       },
       orderBy: { scheduledStart: 'asc' },
       include: { asset: { select: { id: true, name: true } } },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: { year, month: month + 1, scheduled, workOrders } });
   } catch (error: unknown) {
-    logger.error('Failed to get calendar', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get maintenance calendar' } });
+    logger.error('Failed to get calendar', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get maintenance calendar' },
+    });
   }
 });
 
@@ -184,10 +241,19 @@ router.get('/', async (req: Request, res: Response) => {
       prisma.cmmsPreventivePlan.count({ where }),
     ]);
 
-    res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error: unknown) {
-    logger.error('Failed to list schedules', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list maintenance schedules' } });
+    logger.error('Failed to list schedules', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list maintenance schedules' },
+    });
   }
 });
 
@@ -196,7 +262,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = scheduleSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -224,8 +297,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to create schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create maintenance schedule' } });
+    logger.error('Failed to create schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create maintenance schedule' },
+    });
   }
 });
 
@@ -234,12 +312,25 @@ router.post('/:id/complete', async (req: Request, res: Response) => {
   try {
     const completeParsed = scheduleCompleteSchema.safeParse(req.body);
     if (!completeParsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: completeParsed.error.errors[0]?.message || 'Invalid completion data' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: completeParsed.error.errors[0]?.message || 'Invalid completion data',
+        },
+      });
     }
-    const completedDate = completeParsed.data.completedDate ? new Date(completeParsed.data.completedDate) : new Date();
+    const completedDate = completeParsed.data.completedDate
+      ? new Date(completeParsed.data.completedDate)
+      : new Date();
 
-    const existing = await prisma.cmmsPreventivePlan.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
+    const existing = await prisma.cmmsPreventivePlan.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
 
     const nextDue = calcNextDue(completedDate, existing.frequency);
 
@@ -250,8 +341,13 @@ router.post('/:id/complete', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to complete schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete maintenance schedule' } });
+    logger.error('Failed to complete schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete maintenance schedule' },
+    });
   }
 });
 
@@ -262,11 +358,19 @@ router.get('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
       include: { asset: { select: { id: true, name: true, location: true } } },
     });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
+    if (!item)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to get schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get maintenance schedule' } });
+    logger.error('Failed to get schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get maintenance schedule' },
+    });
   }
 });
 
@@ -275,11 +379,23 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = updateScheduleSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.cmmsPreventivePlan.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
+    const existing = await prisma.cmmsPreventivePlan.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.lastPerformed) data.lastPerformed = new Date(parsed.data.lastPerformed);
@@ -288,29 +404,47 @@ router.put('/:id', async (req: Request, res: Response) => {
     // Auto-recalculate nextDue if frequency or lastPerformed changed but nextDue not explicitly set
     if ((parsed.data.frequency || parsed.data.lastPerformed) && !parsed.data.nextDue) {
       const newFrequency = parsed.data.frequency || existing.frequency;
-      const newLastPerformed = data.lastPerformed as Date | null || existing.lastPerformed;
+      const newLastPerformed = (data.lastPerformed as Date | null) || existing.lastPerformed;
       data.nextDue = calcNextDue(newLastPerformed, newFrequency);
     }
 
     const item = await prisma.cmmsPreventivePlan.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to update schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update maintenance schedule' } });
+    logger.error('Failed to update schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update maintenance schedule' },
+    });
   }
 });
 
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsPreventivePlan.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
+    const existing = await prisma.cmmsPreventivePlan.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
 
-    await prisma.cmmsPreventivePlan.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.cmmsPreventivePlan.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete maintenance schedule' } });
+    logger.error('Failed to delete schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete maintenance schedule' },
+    });
   }
 });
 

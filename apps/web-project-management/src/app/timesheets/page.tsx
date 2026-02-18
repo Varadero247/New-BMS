@@ -102,7 +102,9 @@ export default function TimesheetsPage() {
               <Clock className="h-6 w-6 text-blue-600" />
               Timesheets
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Time tracking and timesheet management</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+              Time tracking and timesheet management
+            </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -117,7 +119,9 @@ export default function TimesheetsPage() {
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-4 mb-6">
           <div className="flex items-center gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Filter by Project
+              </label>
               <select
                 value={filterProjectId}
                 onChange={(e) => setFilterProjectId(e.target.value)}
@@ -125,12 +129,16 @@ export default function TimesheetsPage() {
               >
                 <option value="">All Projects</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Employee ID</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Filter by Employee ID
+              </label>
               <input
                 type="text"
                 value={filterEmployeeId}
@@ -147,33 +155,67 @@ export default function TimesheetsPage() {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Project</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Task</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Employee</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Hours</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Overtime</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Activity</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Billable</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Project
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Task
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Employee
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Hours
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Overtime
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Activity
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Billable
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {timesheets.map((ts) => (
                   <tr key={ts.id} className="hover:bg-gray-50 dark:bg-gray-800">
-                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{ts.project?.projectName || ts.projectId}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{ts.task?.taskName || ts.taskId || '-'}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{ts.employeeId}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                      {ts.project?.projectName || ts.projectId}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {ts.task?.taskName || ts.taskId || '-'}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {ts.employeeId}
+                    </td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                       {ts.workDate ? new Date(ts.workDate).toLocaleDateString() : '-'}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">{ts.hoursWorked}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{ts.overtime || 0}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{ts.activityType}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
+                      {ts.hoursWorked}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {ts.overtime || 0}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {ts.activityType}
+                    </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        ts.isBillable ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-700'
-                      }`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${
+                          ts.isBillable
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                        }`}
+                      >
                         {ts.isBillable ? 'Yes' : 'No'}
                       </span>
                     </td>
@@ -186,7 +228,10 @@ export default function TimesheetsPage() {
                 ))}
                 {timesheets.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={9}
+                      className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
+                    >
                       No timesheet entries found. Create your first entry.
                     </td>
                   </tr>
@@ -197,11 +242,18 @@ export default function TimesheetsPage() {
         </div>
 
         {/* Create Modal */}
-        <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="New Timesheet Entry" size="lg">
+        <Modal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          title="New Timesheet Entry"
+          size="lg"
+        >
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Project
+                </label>
                 <select
                   required
                   value={form.projectId}
@@ -210,12 +262,16 @@ export default function TimesheetsPage() {
                 >
                   <option value="">Select Project</option>
                   {projects.map((p) => (
-                    <option key={p.id} value={p.id}>{p.projectName}</option>
+                    <option key={p.id} value={p.id}>
+                      {p.projectName}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Task ID</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Task ID
+                </label>
                 <input
                   type="text"
                   value={form.taskId}
@@ -226,7 +282,9 @@ export default function TimesheetsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee ID</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Employee ID
+                </label>
                 <input
                   type="text"
                   required
@@ -236,7 +294,9 @@ export default function TimesheetsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Work Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Work Date
+                </label>
                 <input
                   type="date"
                   required
@@ -248,7 +308,9 @@ export default function TimesheetsPage() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hours Worked</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Hours Worked
+                </label>
                 <input
                   type="number"
                   step="0.5"
@@ -259,7 +321,9 @@ export default function TimesheetsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Overtime</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Overtime
+                </label>
                 <input
                   type="number"
                   step="0.5"
@@ -269,7 +333,9 @@ export default function TimesheetsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Activity Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Activity Type
+                </label>
                 <select
                   value={form.activityType}
                   onChange={(e) => setForm({ ...form, activityType: e.target.value })}
@@ -299,7 +365,9 @@ export default function TimesheetsPage() {
               <span className="text-sm text-gray-700 dark:text-gray-300">Billable</span>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Description
+              </label>
               <textarea
                 rows={3}
                 value={form.description}

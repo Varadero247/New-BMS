@@ -87,15 +87,26 @@ export default function SuppliersPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Category</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Rating</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Name
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Category
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Rating
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Status
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map((item) => (
-                      <tr key={item.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <tr
+                        key={item.id}
+                        className="border-b hover:bg-gray-50 dark:hover:bg-gray-800"
+                      >
                         <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
                           {(item.name as string) || '-'}
                         </td>

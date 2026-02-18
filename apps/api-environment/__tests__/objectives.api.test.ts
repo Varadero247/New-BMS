@@ -62,7 +62,9 @@ describe('Environment Objectives API Routes', () => {
         category: 'EMISSIONS',
         status: 'IN_PROGRESS',
         owner: 'John Smith',
-        milestones: [{ id: '1b000000-0000-4000-a000-000000000001', title: 'Phase 1', completed: false }],
+        milestones: [
+          { id: '1b000000-0000-4000-a000-000000000001', title: 'Phase 1', completed: false },
+        ],
       },
       {
         id: '15000000-0000-4000-a000-000000000002',
@@ -100,9 +102,7 @@ describe('Environment Objectives API Routes', () => {
       (mockPrisma.envObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/objectives')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/objectives').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envObjective.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -163,9 +163,7 @@ describe('Environment Objectives API Routes', () => {
       (mockPrisma.envObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/objectives?search=carbon')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/objectives?search=carbon').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envObjective.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -185,9 +183,7 @@ describe('Environment Objectives API Routes', () => {
       (mockPrisma.envObjective.findMany as jest.Mock).mockResolvedValueOnce(mockObjectives);
       (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/objectives')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/objectives').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envObjective.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -256,7 +252,9 @@ describe('Environment Objectives API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.envObjective.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envObjective.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/objectives/15000000-0000-4000-a000-000000000001')
@@ -341,7 +339,12 @@ describe('Environment Objectives API Routes', () => {
       const response = await request(app)
         .post('/api/objectives')
         .set('Authorization', 'Bearer token')
-        .send({ objectiveStatement: 'Statement', category: 'EMISSIONS', targetDate: '2027-12-31', owner: 'John' });
+        .send({
+          objectiveStatement: 'Statement',
+          category: 'EMISSIONS',
+          targetDate: '2027-12-31',
+          owner: 'John',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -361,7 +364,12 @@ describe('Environment Objectives API Routes', () => {
       const response = await request(app)
         .post('/api/objectives')
         .set('Authorization', 'Bearer token')
-        .send({ title: 'Title', objectiveStatement: 'Statement', targetDate: '2027-12-31', owner: 'John' });
+        .send({
+          title: 'Title',
+          objectiveStatement: 'Statement',
+          targetDate: '2027-12-31',
+          owner: 'John',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -371,7 +379,12 @@ describe('Environment Objectives API Routes', () => {
       const response = await request(app)
         .post('/api/objectives')
         .set('Authorization', 'Bearer token')
-        .send({ title: 'Title', objectiveStatement: 'Statement', category: 'EMISSIONS', owner: 'John' });
+        .send({
+          title: 'Title',
+          objectiveStatement: 'Statement',
+          category: 'EMISSIONS',
+          owner: 'John',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -465,7 +478,9 @@ describe('Environment Objectives API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.envObjective.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envObjective.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/objectives/15000000-0000-4000-a000-000000000001')
@@ -479,7 +494,9 @@ describe('Environment Objectives API Routes', () => {
 
   describe('DELETE /api/objectives/:id', () => {
     it('should delete objective successfully', async () => {
-      (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
+      (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '15000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.envObjective.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
@@ -505,7 +522,9 @@ describe('Environment Objectives API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.envObjective.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envObjective.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/objectives/15000000-0000-4000-a000-000000000001')

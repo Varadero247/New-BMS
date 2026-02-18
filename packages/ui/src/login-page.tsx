@@ -98,21 +98,30 @@ export function LoginPage({
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--ink, #080B12)' }}>
-        <div className="h-8 w-8 animate-spin rounded-full border-4" style={{ borderColor: 'var(--border, #1E2E48)', borderTopColor: 'var(--blue-hi, #5B94FF)' }} />
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: 'var(--ink, #080B12)' }}
+      >
+        <div
+          className="h-8 w-8 animate-spin rounded-full border-4"
+          style={{
+            borderColor: 'var(--border, #1E2E48)',
+            borderTopColor: 'var(--blue-hi, #5B94FF)',
+          }}
+        />
       </div>
     );
   }
 
   const accentMap: Record<string, { accent: string; glow: string }> = {
-    red:    { accent: 'var(--m-safety, #F04B5A)',  glow: 'rgba(240,75,90,0.15)' },
-    green:  { accent: 'var(--m-env, #00C4A8)',     glow: 'rgba(0,196,168,0.15)' },
-    blue:   { accent: 'var(--m-quality, #3B78F5)', glow: 'rgba(59,120,245,0.15)' },
-    purple: { accent: 'var(--m-hr, #9B6FEA)',      glow: 'rgba(155,111,234,0.15)' },
-    orange: { accent: 'var(--m-crm, #FB923C)',     glow: 'rgba(251,146,60,0.15)' },
+    red: { accent: 'var(--m-safety, #F04B5A)', glow: 'rgba(240,75,90,0.15)' },
+    green: { accent: 'var(--m-env, #00C4A8)', glow: 'rgba(0,196,168,0.15)' },
+    blue: { accent: 'var(--m-quality, #3B78F5)', glow: 'rgba(59,120,245,0.15)' },
+    purple: { accent: 'var(--m-hr, #9B6FEA)', glow: 'rgba(155,111,234,0.15)' },
+    orange: { accent: 'var(--m-crm, #FB923C)', glow: 'rgba(251,146,60,0.15)' },
     indigo: { accent: 'var(--blue-core, #2660D8)', glow: 'rgba(38,96,216,0.15)' },
-    teal:   { accent: 'var(--teal-core, #00C4A8)', glow: 'rgba(0,196,168,0.15)' },
-    amber:  { accent: 'var(--m-payroll, #F59E0B)', glow: 'rgba(245,158,11,0.15)' },
+    teal: { accent: 'var(--teal-core, #00C4A8)', glow: 'rgba(0,196,168,0.15)' },
+    amber: { accent: 'var(--m-payroll, #F59E0B)', glow: 'rgba(245,158,11,0.15)' },
   };
 
   const accent = accentMap[themeColor] || accentMap.blue;
@@ -175,12 +184,16 @@ export function LoginPage({
                   border: '1px solid rgba(240,75,90,0.3)',
                 }}
               >
-                <p className="text-sm" style={{ color: '#F04B5A' }}>{error}</p>
+                <p className="text-sm" style={{ color: '#F04B5A' }}>
+                  {error}
+                </p>
               </div>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" style={{ color: 'var(--silver, #8EA8CC)' }}>Email</Label>
+              <Label htmlFor="email" style={{ color: 'var(--silver, #8EA8CC)' }}>
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -200,7 +213,9 @@ export function LoginPage({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" style={{ color: 'var(--silver, #8EA8CC)' }}>Password</Label>
+              <Label htmlFor="password" style={{ color: 'var(--silver, #8EA8CC)' }}>
+                Password
+              </Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -240,7 +255,9 @@ export function LoginPage({
                   style={{ borderColor: 'var(--border, #1E2E48)' }}
                   disabled={loading}
                 />
-                <span className="text-sm" style={{ color: 'var(--steel, #5A7099)' }}>Remember me</span>
+                <span className="text-sm" style={{ color: 'var(--steel, #5A7099)' }}>
+                  Remember me
+                </span>
               </label>
               <a
                 href="#"

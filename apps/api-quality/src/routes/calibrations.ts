@@ -30,8 +30,16 @@ const createSchema = z.object({
   standardUsed: z.string().max(500).optional().nullable(),
   acceptanceCriteria: z.string().max(2000).optional().nullable(),
   calibrationFrequency: z.string().max(100).optional().nullable(),
-  lastCalibrationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
-  nextCalibrationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  lastCalibrationDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
+  nextCalibrationDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   calibratedBy: z.string().max(200).optional().nullable(),
   certificateNumber: z.string().max(200).optional().nullable(),
   results: z.string().max(5000).optional().nullable(),
@@ -65,14 +73,28 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      prisma.qualCalibration.findMany({ where, skip, take: limit, orderBy: { nextCalibrationDate: 'asc' } }),
+      prisma.qualCalibration.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { nextCalibrationDate: 'asc' },
+      }),
       prisma.qualCalibration.count({ where }),
     ]);
 
-    res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error: unknown) {
-    logger.error('Failed to list calibrations', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list calibrations' } });
+    logger.error('Failed to list calibrations', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list calibrations' },
+    });
   }
 });
 
@@ -81,7 +103,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -91,8 +120,12 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         referenceNumber,
         ...parsed.data,
-        lastCalibrationDate: parsed.data.lastCalibrationDate ? new Date(parsed.data.lastCalibrationDate) : null,
-        nextCalibrationDate: parsed.data.nextCalibrationDate ? new Date(parsed.data.nextCalibrationDate) : null,
+        lastCalibrationDate: parsed.data.lastCalibrationDate
+          ? new Date(parsed.data.lastCalibrationDate)
+          : null,
+        nextCalibrationDate: parsed.data.nextCalibrationDate
+          ? new Date(parsed.data.nextCalibrationDate)
+          : null,
         status: 'CURRENT',
         organisationId: (authReq.user as any)?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
@@ -101,20 +134,35 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to create calibration', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create calibration' } });
+    logger.error('Failed to create calibration', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create calibration' },
+    });
   }
 });
 
 // GET /:id — Get calibration by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await prisma.qualCalibration.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Calibration not found' } });
+    const item = await prisma.qualCalibration.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!item)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Calibration not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to get calibration', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get calibration' } });
+    logger.error('Failed to get calibration', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get calibration' },
+    });
   }
 });
 
@@ -123,35 +171,67 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.qualCalibration.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Calibration not found' } });
+    const existing = await prisma.qualCalibration.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Calibration not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
-    if (parsed.data.lastCalibrationDate) data.lastCalibrationDate = new Date(parsed.data.lastCalibrationDate);
-    if (parsed.data.nextCalibrationDate) data.nextCalibrationDate = new Date(parsed.data.nextCalibrationDate);
+    if (parsed.data.lastCalibrationDate)
+      data.lastCalibrationDate = new Date(parsed.data.lastCalibrationDate);
+    if (parsed.data.nextCalibrationDate)
+      data.nextCalibrationDate = new Date(parsed.data.nextCalibrationDate);
 
     const item = await prisma.qualCalibration.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to update calibration', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update calibration' } });
+    logger.error('Failed to update calibration', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update calibration' },
+    });
   }
 });
 
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.qualCalibration.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Calibration not found' } });
+    const existing = await prisma.qualCalibration.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Calibration not found' } });
 
-    await prisma.qualCalibration.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualCalibration.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete calibration', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete calibration' } });
+    logger.error('Failed to delete calibration', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete calibration' },
+    });
   }
 });
 

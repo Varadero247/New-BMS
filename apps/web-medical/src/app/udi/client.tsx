@@ -2,14 +2,31 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
 } from '@ims/ui';
 import {
-  Plus, Search, Loader2, Filter,
-  Barcode, Box, CheckCircle2, Clock,
-  ChevronLeft, Send, Tag,
+  Plus,
+  Search,
+  Loader2,
+  Filter,
+  Barcode,
+  Box,
+  CheckCircle2,
+  Clock,
+  ChevronLeft,
+  Send,
+  Tag,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -70,22 +87,35 @@ const DEVICE_STATUSES = ['DRAFT', 'ACTIVE', 'SUSPENDED', 'DISCONTINUED'] as cons
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getClassBadgeVariant(cls: string): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
+function getClassBadgeVariant(
+  cls: string
+): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
   switch (cls) {
-    case 'CLASS_I': return 'info';
-    case 'CLASS_II': return 'warning';
-    case 'CLASS_III': return 'danger';
-    default: return 'outline';
+    case 'CLASS_I':
+      return 'info';
+    case 'CLASS_II':
+      return 'warning';
+    case 'CLASS_III':
+      return 'danger';
+    default:
+      return 'outline';
   }
 }
 
-function getStatusBadgeVariant(status: string): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
+function getStatusBadgeVariant(
+  status: string
+): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
   switch (status) {
-    case 'DRAFT': return 'secondary';
-    case 'ACTIVE': return 'success';
-    case 'SUSPENDED': return 'warning';
-    case 'DISCONTINUED': return 'danger';
-    default: return 'outline';
+    case 'DRAFT':
+      return 'secondary';
+    case 'ACTIVE':
+      return 'success';
+    case 'SUSPENDED':
+      return 'warning';
+    case 'DISCONTINUED':
+      return 'danger';
+    default:
+      return 'outline';
   }
 }
 
@@ -185,68 +215,80 @@ export default function UDIClient() {
   // Handlers
   // ---------------------------------------------------------------------------
 
-  const handleCreate = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post('/udi/devices', form);
-      setShowCreateModal(false);
-      setForm(emptyDeviceForm);
-      fetchDevices();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create device');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [form, fetchDevices]);
+  const handleCreate = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post('/udi/devices', form);
+        setShowCreateModal(false);
+        setForm(emptyDeviceForm);
+        fetchDevices();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create device');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [form, fetchDevices]
+  );
 
-  const handleAddDI = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedDevice) return;
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post(`/udi/devices/${selectedDevice.id}/di`, diForm);
-      setShowDIModal(false);
-      setDIForm(emptyDIForm);
-      fetchDeviceDetail(selectedDevice.id);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to add DI record');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [selectedDevice, diForm, fetchDeviceDetail]);
+  const handleAddDI = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!selectedDevice) return;
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post(`/udi/devices/${selectedDevice.id}/di`, diForm);
+        setShowDIModal(false);
+        setDIForm(emptyDIForm);
+        fetchDeviceDetail(selectedDevice.id);
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to add DI record');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [selectedDevice, diForm, fetchDeviceDetail]
+  );
 
-  const handleAddPI = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedDevice) return;
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post(`/udi/devices/${selectedDevice.id}/pi`, piForm);
-      setShowPIModal(false);
-      setPIForm(emptyPIForm);
-      fetchDeviceDetail(selectedDevice.id);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to add PI record');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [selectedDevice, piForm, fetchDeviceDetail]);
+  const handleAddPI = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!selectedDevice) return;
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post(`/udi/devices/${selectedDevice.id}/pi`, piForm);
+        setShowPIModal(false);
+        setPIForm(emptyPIForm);
+        fetchDeviceDetail(selectedDevice.id);
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to add PI record');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [selectedDevice, piForm, fetchDeviceDetail]
+  );
 
-  const openDetail = useCallback(async (device: Device) => {
-    await fetchDeviceDetail(device.id);
-    setActiveTab('di');
-    setView('detail');
-  }, [fetchDeviceDetail]);
+  const openDetail = useCallback(
+    async (device: Device) => {
+      await fetchDeviceDetail(device.id);
+      setActiveTab('di');
+      setView('detail');
+    },
+    [fetchDeviceDetail]
+  );
 
   // ---------------------------------------------------------------------------
   // Filtered data
   // ---------------------------------------------------------------------------
 
   const filteredDevices = useMemo(() => {
-    return devices.filter(d => {
+    return devices.filter((d) => {
       if (statusFilter !== 'all' && d.status !== statusFilter) return false;
       if (classFilter !== 'all' && d.deviceClass !== classFilter) return false;
       if (searchQuery) {
@@ -256,7 +298,8 @@ export default function UDIClient() {
           !d.referenceNumber?.toLowerCase().includes(q) &&
           !d.modelNumber?.toLowerCase().includes(q) &&
           !d.manufacturer?.toLowerCase().includes(q)
-        ) return false;
+        )
+          return false;
       }
       return true;
     });
@@ -269,10 +312,10 @@ export default function UDIClient() {
   const stats = useMemo(() => {
     return {
       total: devices.length,
-      active: devices.filter(d => d.status === 'ACTIVE').length,
-      classI: devices.filter(d => d.deviceClass === 'CLASS_I').length,
-      classII: devices.filter(d => d.deviceClass === 'CLASS_II').length,
-      classIII: devices.filter(d => d.deviceClass === 'CLASS_III').length,
+      active: devices.filter((d) => d.status === 'ACTIVE').length,
+      classI: devices.filter((d) => d.deviceClass === 'CLASS_I').length,
+      classII: devices.filter((d) => d.deviceClass === 'CLASS_II').length,
+      classIII: devices.filter((d) => d.deviceClass === 'CLASS_III').length,
     };
   }, [devices]);
 
@@ -297,7 +340,10 @@ export default function UDIClient() {
         <div className="max-w-7xl mx-auto">
           {/* Back navigation */}
           <button
-            onClick={() => { setView('list'); setSelectedDevice(null); }}
+            onClick={() => {
+              setView('list');
+              setSelectedDevice(null);
+            }}
             className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-teal-600 mb-6 transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -305,7 +351,9 @@ export default function UDIClient() {
           </button>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-6">{error}</div>
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-6">
+              {error}
+            </div>
           )}
 
           {/* Device Info Card */}
@@ -314,7 +362,9 @@ export default function UDIClient() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedDevice.referenceNumber}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {selectedDevice.referenceNumber}
+                    </h1>
                     <Badge variant={getClassBadgeVariant(selectedDevice.deviceClass)}>
                       {selectedDevice.deviceClass?.replace(/_/g, ' ')}
                     </Badge>
@@ -322,34 +372,59 @@ export default function UDIClient() {
                       {selectedDevice.status}
                     </Badge>
                   </div>
-                  <p className="text-lg text-gray-700 dark:text-gray-300 mb-1">{selectedDevice.deviceName}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Model: {selectedDevice.modelNumber} | Manufacturer: {selectedDevice.manufacturer}</p>
+                  <p className="text-lg text-gray-700 dark:text-gray-300 mb-1">
+                    {selectedDevice.deviceName}
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Model: {selectedDevice.modelNumber} | Manufacturer:{' '}
+                    {selectedDevice.manufacturer}
+                  </p>
                 </div>
               </div>
 
               {selectedDevice.description && (
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mt-4">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Description</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedDevice.description}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Description
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                    {selectedDevice.description}
+                  </p>
                 </div>
               )}
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">DI Records</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 font-semibold">{selectedDevice.diRecords?.length || 0}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    DI Records
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 font-semibold">
+                    {selectedDevice.diRecords?.length || 0}
+                  </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">PI Records</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 font-semibold">{selectedDevice.piRecords?.length || 0}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    PI Records
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 font-semibold">
+                    {selectedDevice.piRecords?.length || 0}
+                  </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Submissions</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 font-semibold">{selectedDevice.submissions?.length || 0}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Submissions
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 font-semibold">
+                    {selectedDevice.submissions?.length || 0}
+                  </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Created</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">{formatDate(selectedDevice.createdAt)}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Created
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    {formatDate(selectedDevice.createdAt)}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -396,7 +471,11 @@ export default function UDIClient() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">Device Identifier (DI) Records</CardTitle>
                   <Button
-                    onClick={() => { setDIForm(emptyDIForm); setError(''); setShowDIModal(true); }}
+                    onClick={() => {
+                      setDIForm(emptyDIForm);
+                      setError('');
+                      setShowDIModal(true);
+                    }}
                     className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
                     size="sm"
                   >
@@ -411,23 +490,37 @@ export default function UDIClient() {
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">DI Number</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Issuing Agency</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Created</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            DI Number
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Issuing Agency
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Status
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Created
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                         {selectedDevice.diRecords.map((di) => (
                           <tr key={di.id} className="hover:bg-gray-50 dark:bg-gray-800">
-                            <td className="px-6 py-4 text-sm font-mono text-gray-900 dark:text-gray-100">{di.diNumber}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{di.issuingAgency}</td>
+                            <td className="px-6 py-4 text-sm font-mono text-gray-900 dark:text-gray-100">
+                              {di.diNumber}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                              {di.issuingAgency}
+                            </td>
                             <td className="px-6 py-4">
                               <Badge variant={di.status === 'ACTIVE' ? 'success' : 'secondary'}>
                                 {di.status}
                               </Badge>
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatDate(di.createdAt)}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                              {formatDate(di.createdAt)}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -436,7 +529,9 @@ export default function UDIClient() {
                 ) : (
                   <div className="text-center py-8">
                     <Barcode className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">No DI records yet. Add the first Device Identifier.</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      No DI records yet. Add the first Device Identifier.
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -450,7 +545,11 @@ export default function UDIClient() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">Production Identifier (PI) Records</CardTitle>
                   <Button
-                    onClick={() => { setPIForm(emptyPIForm); setError(''); setShowPIModal(true); }}
+                    onClick={() => {
+                      setPIForm(emptyPIForm);
+                      setError('');
+                      setShowPIModal(true);
+                    }}
                     className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
                     size="sm"
                   >
@@ -465,21 +564,41 @@ export default function UDIClient() {
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Lot Number</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Serial Number</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Mfg Date</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Exp Date</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Created</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Lot Number
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Serial Number
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Mfg Date
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Exp Date
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Created
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                         {selectedDevice.piRecords.map((pi) => (
                           <tr key={pi.id} className="hover:bg-gray-50 dark:bg-gray-800">
-                            <td className="px-6 py-4 text-sm font-mono text-gray-900 dark:text-gray-100">{pi.lotNumber || '--'}</td>
-                            <td className="px-6 py-4 text-sm font-mono text-gray-700 dark:text-gray-300">{pi.serialNumber || '--'}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatDate(pi.manufacturingDate)}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatDate(pi.expirationDate)}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatDate(pi.createdAt)}</td>
+                            <td className="px-6 py-4 text-sm font-mono text-gray-900 dark:text-gray-100">
+                              {pi.lotNumber || '--'}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-mono text-gray-700 dark:text-gray-300">
+                              {pi.serialNumber || '--'}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                              {formatDate(pi.manufacturingDate)}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                              {formatDate(pi.expirationDate)}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                              {formatDate(pi.createdAt)}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -488,7 +607,9 @@ export default function UDIClient() {
                 ) : (
                   <div className="text-center py-8">
                     <Tag className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">No PI records yet. Add lot/serial/date information.</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      No PI records yet. Add lot/serial/date information.
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -507,23 +628,45 @@ export default function UDIClient() {
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Database</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Submission Date</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Reference ID</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Database
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Submission Date
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Status
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Reference ID
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                         {selectedDevice.submissions.map((sub) => (
                           <tr key={sub.id} className="hover:bg-gray-50 dark:bg-gray-800">
-                            <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{sub.database}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatDate(sub.submissionDate)}</td>
+                            <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {sub.database}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                              {formatDate(sub.submissionDate)}
+                            </td>
                             <td className="px-6 py-4">
-                              <Badge variant={sub.status === 'ACCEPTED' ? 'success' : sub.status === 'PENDING' ? 'warning' : 'secondary'}>
+                              <Badge
+                                variant={
+                                  sub.status === 'ACCEPTED'
+                                    ? 'success'
+                                    : sub.status === 'PENDING'
+                                      ? 'warning'
+                                      : 'secondary'
+                                }
+                              >
                                 {sub.status}
                               </Badge>
                             </td>
-                            <td className="px-6 py-4 text-sm font-mono text-gray-700 dark:text-gray-300">{sub.referenceId || '--'}</td>
+                            <td className="px-6 py-4 text-sm font-mono text-gray-700 dark:text-gray-300">
+                              {sub.referenceId || '--'}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -532,7 +675,9 @@ export default function UDIClient() {
                 ) : (
                   <div className="text-center py-8">
                     <Send className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">No database submissions yet.</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      No database submissions yet.
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -552,7 +697,9 @@ export default function UDIClient() {
           <form onSubmit={handleAddDI}>
             <div className="space-y-4">
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
               )}
               <div>
                 <Label htmlFor="di-number">DI Number *</Label>
@@ -579,11 +726,18 @@ export default function UDIClient() {
               </div>
             </div>
             <ModalFooter>
-              <Button type="button" variant="outline" onClick={() => setShowDIModal(false)}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setShowDIModal(false)}>
+                Cancel
+              </Button>
               <Button type="submit" disabled={submitting}>
                 {submitting ? (
-                  <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Adding...</span>
-                ) : 'Add DI Record'}
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Adding...
+                  </span>
+                ) : (
+                  'Add DI Record'
+                )}
               </Button>
             </ModalFooter>
           </form>
@@ -601,7 +755,9 @@ export default function UDIClient() {
           <form onSubmit={handleAddPI}>
             <div className="space-y-4">
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
               )}
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -645,11 +801,18 @@ export default function UDIClient() {
               </div>
             </div>
             <ModalFooter>
-              <Button type="button" variant="outline" onClick={() => setShowPIModal(false)}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setShowPIModal(false)}>
+                Cancel
+              </Button>
               <Button type="submit" disabled={submitting}>
                 {submitting ? (
-                  <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Adding...</span>
-                ) : 'Add PI Record'}
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Adding...
+                  </span>
+                ) : (
+                  'Add PI Record'
+                )}
               </Button>
             </ModalFooter>
           </form>
@@ -668,7 +831,9 @@ export default function UDIClient() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">UDI Management</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Unique Device Identification System Management</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Unique Device Identification System Management
+          </p>
         </div>
 
         {/* Summary Stats */}
@@ -724,7 +889,8 @@ export default function UDIClient() {
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
-              aria-label="Search by device name, reference, model, or manufacturer..." placeholder="Search by device name, reference, model, or manufacturer..."
+              aria-label="Search by device name, reference, model, or manufacturer..."
+              placeholder="Search by device name, reference, model, or manufacturer..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -739,12 +905,18 @@ export default function UDIClient() {
             <Filter className="h-4 w-4" />
             Filters
             {(statusFilter !== 'all' || classFilter !== 'all') && (
-              <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-teal-100 text-teal-700">Active</span>
+              <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-teal-100 text-teal-700">
+                Active
+              </span>
             )}
           </Button>
 
           <Button
-            onClick={() => { setForm(emptyDeviceForm); setError(''); setShowCreateModal(true); }}
+            onClick={() => {
+              setForm(emptyDeviceForm);
+              setError('');
+              setShowCreateModal(true);
+            }}
             className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
           >
             <Plus className="h-4 w-4" />
@@ -762,8 +934,10 @@ export default function UDIClient() {
                 className="w-40"
               >
                 <option value="all">All Statuses</option>
-                {DEVICE_STATUSES.map(s => (
-                  <option key={s} value={s}>{s}</option>
+                {DEVICE_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -775,8 +949,10 @@ export default function UDIClient() {
                 className="w-40"
               >
                 <option value="all">All Classes</option>
-                {DEVICE_CLASSES.map(c => (
-                  <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>
+                {DEVICE_CLASSES.map((c) => (
+                  <option key={c} value={c}>
+                    {c.replace(/_/g, ' ')}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -802,19 +978,33 @@ export default function UDIClient() {
         </div>
 
         {/* Devices Table */}
-        {loading ? <LoadingSpinner /> : filteredDevices.length > 0 ? (
+        {loading ? (
+          <LoadingSpinner />
+        ) : filteredDevices.length > 0 ? (
           <Card>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Ref #</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Device Name</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Model</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Manufacturer</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Class</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Ref #
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Device Name
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Model
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Manufacturer
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Class
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Status
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -825,16 +1015,24 @@ export default function UDIClient() {
                         onClick={() => openDetail(d)}
                       >
                         <td className="px-6 py-4">
-                          <span className="text-sm font-mono text-gray-600">{d.referenceNumber || '--'}</span>
+                          <span className="text-sm font-mono text-gray-600">
+                            {d.referenceNumber || '--'}
+                          </span>
                         </td>
                         <td className="px-6 py-4">
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{d.deviceName}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {d.deviceName}
+                          </p>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-gray-700 dark:text-gray-300">{d.modelNumber || '--'}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            {d.modelNumber || '--'}
+                          </span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-gray-700 dark:text-gray-300">{d.manufacturer || '--'}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            {d.manufacturer || '--'}
+                          </span>
                         </td>
                         <td className="px-6 py-4">
                           <Badge variant={getClassBadgeVariant(d.deviceClass)}>
@@ -842,9 +1040,7 @@ export default function UDIClient() {
                           </Badge>
                         </td>
                         <td className="px-6 py-4">
-                          <Badge variant={getStatusBadgeVariant(d.status)}>
-                            {d.status}
-                          </Badge>
+                          <Badge variant={getStatusBadgeVariant(d.status)}>{d.status}</Badge>
                         </td>
                       </tr>
                     ))}
@@ -856,10 +1052,18 @@ export default function UDIClient() {
         ) : (
           <div className="text-center py-16">
             <Barcode className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No devices found</h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">Register medical devices and manage their UDI records.</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              No devices found
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
+              Register medical devices and manage their UDI records.
+            </p>
             <Button
-              onClick={() => { setForm(emptyDeviceForm); setError(''); setShowCreateModal(true); }}
+              onClick={() => {
+                setForm(emptyDeviceForm);
+                setError('');
+                setShowCreateModal(true);
+              }}
               className="bg-teal-600 hover:bg-teal-700"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -881,7 +1085,9 @@ export default function UDIClient() {
         <form onSubmit={handleCreate}>
           <div className="space-y-4">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
             )}
 
             <div>
@@ -925,8 +1131,10 @@ export default function UDIClient() {
                 value={form.deviceClass}
                 onChange={(e) => setForm({ ...form, deviceClass: e.target.value })}
               >
-                {DEVICE_CLASSES.map(c => (
-                  <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>
+                {DEVICE_CLASSES.map((c) => (
+                  <option key={c} value={c}>
+                    {c.replace(/_/g, ' ')}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -944,11 +1152,18 @@ export default function UDIClient() {
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={submitting}>
               {submitting ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating...</span>
-              ) : 'Register Device'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                'Register Device'
+              )}
             </Button>
           </ModalFooter>
         </form>

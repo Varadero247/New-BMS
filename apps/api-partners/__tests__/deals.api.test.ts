@@ -25,10 +25,15 @@ import { prisma } from '../src/prisma';
 const app = express();
 app.use(express.json());
 // Mock partner auth
-app.use((req: any, _res: any, next: any) => { req.partner = { id: 'partner-1' }; next(); });
+app.use((req: any, _res: any, next: any) => {
+  req.partner = { id: 'partner-1' };
+  next();
+});
 app.use('/api/deals', dealsRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockDeal = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -48,7 +53,10 @@ const mockDeal = {
 
 describe('POST /api/deals', () => {
   it('creates a deal with valid data', async () => {
-    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ id: 'partner-1', tier: 'REFERRAL' });
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({
+      id: 'partner-1',
+      tier: 'REFERRAL',
+    });
     (prisma.mktPartnerDeal.create as jest.Mock).mockResolvedValue(mockDeal);
 
     const res = await request(app)
@@ -67,9 +75,7 @@ describe('POST /api/deals', () => {
   });
 
   it('returns 400 for missing required fields', async () => {
-    const res = await request(app)
-      .post('/api/deals')
-      .send({ companyName: 'ClientCo' });
+    const res = await request(app).post('/api/deals').send({ companyName: 'ClientCo' });
 
     expect(res.status).toBe(400);
   });
@@ -89,7 +95,10 @@ describe('POST /api/deals', () => {
   });
 
   it('sets commission rate from partner tier', async () => {
-    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ id: 'partner-1', tier: 'RESELLER' });
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({
+      id: 'partner-1',
+      tier: 'RESELLER',
+    });
     (prisma.mktPartnerDeal.create as jest.Mock).mockResolvedValue(mockDeal);
 
     await request(app)
@@ -110,15 +119,13 @@ describe('POST /api/deals', () => {
   });
 
   it('requires at least one ISO standard', async () => {
-    const res = await request(app)
-      .post('/api/deals')
-      .send({
-        companyName: 'Co',
-        contactName: 'Jane',
-        contactEmail: 'jane@co.com',
-        estimatedUsers: 10,
-        isoStandards: [],
-      });
+    const res = await request(app).post('/api/deals').send({
+      companyName: 'Co',
+      contactName: 'Jane',
+      contactEmail: 'jane@co.com',
+      estimatedUsers: 10,
+      isoStandards: [],
+    });
 
     expect(res.status).toBe(400);
   });
@@ -152,8 +159,14 @@ describe('GET /api/deals', () => {
 
 describe('PATCH /api/deals/:id/status', () => {
   it('transitions SUBMITTED → IN_DEMO', async () => {
-    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({ ...mockDeal, status: 'SUBMITTED' });
-    (prisma.mktPartnerDeal.update as jest.Mock).mockResolvedValue({ ...mockDeal, status: 'IN_DEMO' });
+    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({
+      ...mockDeal,
+      status: 'SUBMITTED',
+    });
+    (prisma.mktPartnerDeal.update as jest.Mock).mockResolvedValue({
+      ...mockDeal,
+      status: 'IN_DEMO',
+    });
 
     const res = await request(app)
       .patch('/api/deals/00000000-0000-0000-0000-000000000001/status')
@@ -163,8 +176,14 @@ describe('PATCH /api/deals/:id/status', () => {
   });
 
   it('transitions IN_DEMO → NEGOTIATING', async () => {
-    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({ ...mockDeal, status: 'IN_DEMO' });
-    (prisma.mktPartnerDeal.update as jest.Mock).mockResolvedValue({ ...mockDeal, status: 'NEGOTIATING' });
+    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({
+      ...mockDeal,
+      status: 'IN_DEMO',
+    });
+    (prisma.mktPartnerDeal.update as jest.Mock).mockResolvedValue({
+      ...mockDeal,
+      status: 'NEGOTIATING',
+    });
 
     const res = await request(app)
       .patch('/api/deals/00000000-0000-0000-0000-000000000001/status')
@@ -175,7 +194,10 @@ describe('PATCH /api/deals/:id/status', () => {
 
   it('calculates commission on CLOSED_WON', async () => {
     (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({
-      ...mockDeal, status: 'NEGOTIATING', estimatedACV: 10000, commissionRate: 0.25,
+      ...mockDeal,
+      status: 'NEGOTIATING',
+      estimatedACV: 10000,
+      commissionRate: 0.25,
     });
     (prisma.mktPartnerDeal.update as jest.Mock).mockResolvedValue({});
 
@@ -196,7 +218,10 @@ describe('PATCH /api/deals/:id/status', () => {
   });
 
   it('rejects invalid transition SUBMITTED → CLOSED_WON', async () => {
-    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({ ...mockDeal, status: 'SUBMITTED' });
+    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({
+      ...mockDeal,
+      status: 'SUBMITTED',
+    });
 
     const res = await request(app)
       .patch('/api/deals/00000000-0000-0000-0000-000000000001/status')
@@ -207,7 +232,10 @@ describe('PATCH /api/deals/:id/status', () => {
   });
 
   it('rejects transition from CLOSED_WON', async () => {
-    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({ ...mockDeal, status: 'CLOSED_WON' });
+    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({
+      ...mockDeal,
+      status: 'CLOSED_WON',
+    });
 
     const res = await request(app)
       .patch('/api/deals/00000000-0000-0000-0000-000000000001/status')
@@ -217,7 +245,10 @@ describe('PATCH /api/deals/:id/status', () => {
   });
 
   it('rejects transition from CLOSED_LOST', async () => {
-    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({ ...mockDeal, status: 'CLOSED_LOST' });
+    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({
+      ...mockDeal,
+      status: 'CLOSED_LOST',
+    });
 
     const res = await request(app)
       .patch('/api/deals/00000000-0000-0000-0000-000000000001/status')
@@ -237,7 +268,10 @@ describe('PATCH /api/deals/:id/status', () => {
   });
 
   it('returns 404 when deal belongs to different partner', async () => {
-    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({ ...mockDeal, partnerId: 'other-partner' });
+    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({
+      ...mockDeal,
+      partnerId: 'other-partner',
+    });
 
     const res = await request(app)
       .patch('/api/deals/00000000-0000-0000-0000-000000000001/status')

@@ -45,7 +45,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/incidents', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockIncident = prisma.femEmergencyIncident as any;
 const mockTimeline = prisma.femIncidentTimelineEvent as any;
@@ -198,16 +200,22 @@ describe('POST /api/incidents', () => {
   });
 
   it('creates incident with evacuation fields', async () => {
-    const withEvac = { ...fakeIncident, evacuationOrdered: true, evacuationType: 'FULL_EVACUATION' };
+    const withEvac = {
+      ...fakeIncident,
+      evacuationOrdered: true,
+      evacuationType: 'FULL_EVACUATION',
+    };
     mockIncident.count.mockResolvedValue(0);
     mockIncident.create.mockResolvedValue(withEvac);
     mockTimeline.create.mockResolvedValue({ id: 'tl-1' });
 
-    const res = await request(app).post('/api/incidents').send({
-      ...validDeclareBody,
-      evacuationOrdered: true,
-      evacuationType: 'FULL_EVACUATION',
-    });
+    const res = await request(app)
+      .post('/api/incidents')
+      .send({
+        ...validDeclareBody,
+        evacuationOrdered: true,
+        evacuationType: 'FULL_EVACUATION',
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.data.evacuationOrdered).toBe(true);
@@ -248,7 +256,9 @@ describe('PUT /api/incidents/:id', () => {
     mockIncident.update.mockResolvedValue(updated);
     mockTimeline.create.mockResolvedValue({ id: 'tl-2' });
 
-    const res = await request(app).put(`/api/incidents/${INCIDENT_ID}`).send({ status: 'CONTAINED' });
+    const res = await request(app)
+      .put(`/api/incidents/${INCIDENT_ID}`)
+      .send({ status: 'CONTAINED' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -258,7 +268,9 @@ describe('PUT /api/incidents/:id', () => {
   it('returns 404 when incident does not exist on update', async () => {
     mockIncident.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/incidents/00000000-0000-0000-0000-000000000999').send({ status: 'CONTAINED' });
+    const res = await request(app)
+      .put('/api/incidents/00000000-0000-0000-0000-000000000999')
+      .send({ status: 'CONTAINED' });
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -286,7 +298,9 @@ describe('POST /api/incidents/:id/close', () => {
   it('returns 404 when incident does not exist on close', async () => {
     mockIncident.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/incidents/00000000-0000-0000-0000-000000000999/close').send({});
+    const res = await request(app)
+      .post('/api/incidents/00000000-0000-0000-0000-000000000999/close')
+      .send({});
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -295,7 +309,12 @@ describe('POST /api/incidents/:id/close', () => {
 
 describe('POST /api/incidents/:id/decision', () => {
   it('logs a decision for an incident', async () => {
-    const decision = { id: 'dec-1', incidentId: INCIDENT_ID, decisionMaker: 'Incident Commander', decisionMade: 'Evacuate north wing' };
+    const decision = {
+      id: 'dec-1',
+      incidentId: INCIDENT_ID,
+      decisionMaker: 'Incident Commander',
+      decisionMade: 'Evacuate north wing',
+    };
     mockIncident.findFirst.mockResolvedValue(fakeIncident);
     mockDecision.create.mockResolvedValue(decision);
     mockTimeline.create.mockResolvedValue({ id: 'tl-3' });
@@ -324,11 +343,13 @@ describe('POST /api/incidents/:id/decision', () => {
   it('returns 404 when incident not found for decision', async () => {
     mockIncident.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/incidents/00000000-0000-0000-0000-000000000999/decision').send({
-      decisionMaker: 'IC',
-      situationSummary: 'Fire',
-      decisionMade: 'Evacuate',
-    });
+    const res = await request(app)
+      .post('/api/incidents/00000000-0000-0000-0000-000000000999/decision')
+      .send({
+        decisionMaker: 'IC',
+        situationSummary: 'Fire',
+        decisionMade: 'Evacuate',
+      });
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -337,7 +358,12 @@ describe('POST /api/incidents/:id/decision', () => {
 
 describe('POST /api/incidents/:id/resource', () => {
   it('logs a resource deployment', async () => {
-    const resourceLog = { id: 'res-1', incidentId: INCIDENT_ID, resourceType: 'FIRE_ENGINE', resourceName: 'Engine 1' };
+    const resourceLog = {
+      id: 'res-1',
+      incidentId: INCIDENT_ID,
+      resourceType: 'FIRE_ENGINE',
+      resourceName: 'Engine 1',
+    };
     mockIncident.findFirst.mockResolvedValue(fakeIncident);
     mockResource.create.mockResolvedValue(resourceLog);
     mockTimeline.create.mockResolvedValue({ id: 'tl-4' });
@@ -364,10 +390,12 @@ describe('POST /api/incidents/:id/resource', () => {
   it('returns 404 when incident not found for resource', async () => {
     mockIncident.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/incidents/00000000-0000-0000-0000-000000000999/resource').send({
-      resourceType: 'AMBULANCE',
-      resourceName: 'Amb 1',
-    });
+    const res = await request(app)
+      .post('/api/incidents/00000000-0000-0000-0000-000000000999/resource')
+      .send({
+        resourceType: 'AMBULANCE',
+        resourceName: 'Amb 1',
+      });
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -376,7 +404,14 @@ describe('POST /api/incidents/:id/resource', () => {
 
 describe('POST /api/incidents/:id/communication', () => {
   it('logs a communication entry', async () => {
-    const commLog = { id: 'comm-1', incidentId: INCIDENT_ID, communicationType: 'INTERNAL', recipient: 'All Staff', method: 'EMAIL', messageContent: 'Evacuate now' };
+    const commLog = {
+      id: 'comm-1',
+      incidentId: INCIDENT_ID,
+      communicationType: 'INTERNAL',
+      recipient: 'All Staff',
+      method: 'EMAIL',
+      messageContent: 'Evacuate now',
+    };
     mockIncident.findFirst.mockResolvedValue(fakeIncident);
     mockComm.create.mockResolvedValue(commLog);
     mockTimeline.create.mockResolvedValue({ id: 'tl-5' });
@@ -407,12 +442,14 @@ describe('POST /api/incidents/:id/communication', () => {
   it('returns 404 when incident not found for communication', async () => {
     mockIncident.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/incidents/00000000-0000-0000-0000-000000000999/communication').send({
-      communicationType: 'EXTERNAL',
-      recipient: 'Press',
-      method: 'PHONE',
-      messageContent: 'Incident contained',
-    });
+    const res = await request(app)
+      .post('/api/incidents/00000000-0000-0000-0000-000000000999/communication')
+      .send({
+        communicationType: 'EXTERNAL',
+        recipient: 'Press',
+        method: 'PHONE',
+        messageContent: 'Incident contained',
+      });
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -421,7 +458,12 @@ describe('POST /api/incidents/:id/communication', () => {
 
 describe('POST /api/incidents/:id/timeline', () => {
   it('adds a timeline event', async () => {
-    const event = { id: 'evt-1', incidentId: INCIDENT_ID, eventType: 'UPDATE', description: 'Water supply cut' };
+    const event = {
+      id: 'evt-1',
+      incidentId: INCIDENT_ID,
+      eventType: 'UPDATE',
+      description: 'Water supply cut',
+    };
     mockIncident.findFirst.mockResolvedValue(fakeIncident);
     mockTimeline.create.mockResolvedValue(event);
 
@@ -447,10 +489,12 @@ describe('POST /api/incidents/:id/timeline', () => {
   it('returns 404 when incident not found for timeline', async () => {
     mockIncident.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/incidents/00000000-0000-0000-0000-000000000999/timeline').send({
-      eventType: 'UPDATE',
-      description: 'Some update',
-    });
+    const res = await request(app)
+      .post('/api/incidents/00000000-0000-0000-0000-000000000999/timeline')
+      .send({
+        eventType: 'UPDATE',
+        description: 'Some update',
+      });
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -460,8 +504,20 @@ describe('POST /api/incidents/:id/timeline', () => {
 describe('GET /api/incidents/:id/timeline', () => {
   it('returns the chronological timeline for an incident', async () => {
     const events = [
-      { id: 'evt-1', incidentId: INCIDENT_ID, eventType: 'DECLARED', description: 'Declared', timestamp: new Date().toISOString() },
-      { id: 'evt-2', incidentId: INCIDENT_ID, eventType: 'UPDATE', description: 'Fire spreading', timestamp: new Date().toISOString() },
+      {
+        id: 'evt-1',
+        incidentId: INCIDENT_ID,
+        eventType: 'DECLARED',
+        description: 'Declared',
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: 'evt-2',
+        incidentId: INCIDENT_ID,
+        eventType: 'UPDATE',
+        description: 'Fire spreading',
+        timestamp: new Date().toISOString(),
+      },
     ];
     mockTimeline.findMany.mockResolvedValue(events);
 

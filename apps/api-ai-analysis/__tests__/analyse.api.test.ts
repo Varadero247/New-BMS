@@ -24,13 +24,17 @@ jest.mock('../src/prisma', () => ({
   },
 }));
 
-jest.mock('@ims/resilience', () => ({
-  createCircuitBreaker: (fn: any) => ({
-    fire: fn,
-    on: () => {},
-    fallback: () => {},
+jest.mock(
+  '@ims/resilience',
+  () => ({
+    createCircuitBreaker: (fn: any) => ({
+      fire: fn,
+      on: () => {},
+      fallback: () => {},
+    }),
   }),
-}), { virtual: true });
+  { virtual: true }
+);
 
 jest.mock('@ims/auth', () => ({
   authenticate: (req: any, res: any, next: any) => {
@@ -41,7 +45,11 @@ jest.mock('@ims/auth', () => ({
         error: { code: 'UNAUTHORIZED', message: 'No token provided' },
       });
     }
-    req.user = { id: '20000000-0000-4000-a000-000000000001', email: 'admin@ims.local', role: 'ADMIN' };
+    req.user = {
+      id: '20000000-0000-4000-a000-000000000001',
+      email: 'admin@ims.local',
+      role: 'ADMIN',
+    };
     next();
   },
   requireRole: () => (req: any, res: any, next: any) => next(),
@@ -121,7 +129,8 @@ describe('POST /api/analyse', () => {
       choices: [
         {
           message: {
-            content: 'Root cause: Inadequate fall protection. Action: Install guardrails. ISO clause 6.1.2: Risk assessment gap.',
+            content:
+              'Root cause: Inadequate fall protection. Action: Install guardrails. ISO clause 6.1.2: Risk assessment gap.',
           },
         },
       ],
@@ -152,9 +161,7 @@ describe('POST /api/analyse', () => {
   // 1. Returns 401 without auth
   // -------------------------------------------------------
   it('returns 401 without auth', async () => {
-    const response = await request(app)
-      .post('/api/analyse')
-      .send(validPayload);
+    const response = await request(app).post('/api/analyse').send(validPayload);
 
     expect(response.status).toBe(401);
     expect(response.body.success).toBe(false);
@@ -424,9 +431,7 @@ describe('POST /api/analyse', () => {
   // 12. Returns 500 on internal error
   // -------------------------------------------------------
   it('returns 500 on internal error', async () => {
-    mockPrisma.aISettings.findFirst.mockRejectedValueOnce(
-      new Error('Database connection failed')
-    );
+    mockPrisma.aISettings.findFirst.mockRejectedValueOnce(new Error('Database connection failed'));
 
     const response = await request(app)
       .post('/api/analyse')

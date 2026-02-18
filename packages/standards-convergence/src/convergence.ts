@@ -1,27 +1,31 @@
 import { CLAUSE_STANDARD_MAP } from './clause-map';
-import { ISOStandard, AnnexSLClause, RecordType, ConvergentRecord, ConvergenceScore } from './types';
+import {
+  ISOStandard,
+  AnnexSLClause,
+  RecordType,
+  ConvergentRecord,
+  ConvergenceScore,
+} from './types';
 
 export function getStandardsForClause(clause: AnnexSLClause): ISOStandard[] {
-  const mapping = CLAUSE_STANDARD_MAP.find(m => m.clause === clause);
+  const mapping = CLAUSE_STANDARD_MAP.find((m) => m.clause === clause);
   return mapping?.standards || [];
 }
 
 export function getClausesForStandard(standard: ISOStandard): AnnexSLClause[] {
-  return CLAUSE_STANDARD_MAP
-    .filter(m => m.standards.includes(standard))
-    .map(m => m.clause);
+  return CLAUSE_STANDARD_MAP.filter((m) => m.standards.includes(standard)).map((m) => m.clause);
 }
 
 export function getSharedClauses(standards: ISOStandard[]): AnnexSLClause[] {
-  return CLAUSE_STANDARD_MAP
-    .filter(m => standards.every(s => m.standards.includes(s)))
-    .map(m => m.clause);
+  return CLAUSE_STANDARD_MAP.filter((m) => standards.every((s) => m.standards.includes(s))).map(
+    (m) => m.clause
+  );
 }
 
 export function createConvergentRecord(
   id: string,
   recordType: RecordType,
-  clauses: AnnexSLClause[],
+  clauses: AnnexSLClause[]
 ): ConvergentRecord {
   const satisfiesStandards = new Set<ISOStandard>();
   const clauseRefs: Partial<Record<ISOStandard, AnnexSLClause[]>> = {};
@@ -45,14 +49,14 @@ export function createConvergentRecord(
 
 export function calculateConvergenceScore(
   records: ConvergentRecord[],
-  standard: ISOStandard,
+  standard: ISOStandard
 ): ConvergenceScore {
   const totalClauses = getClausesForStandard(standard).length;
   const satisfiedClauses = new Set<AnnexSLClause>();
 
   for (const record of records) {
     const refs = record.clauseRefs[standard] || [];
-    refs.forEach(c => satisfiedClauses.add(c));
+    refs.forEach((c) => satisfiedClauses.add(c));
   }
 
   return {
@@ -70,14 +74,14 @@ export function getConvergenceBenefit(standards: ISOStandard[]): {
 } {
   const sharedClauses = getSharedClauses(standards).length;
   const totalClausesIfSeparate = standards.reduce(
-    (sum, std) => sum + getClausesForStandard(std).length, 0
+    (sum, std) => sum + getClausesForStandard(std).length,
+    0
   );
-  const totalWithConvergence = new Set(
-    standards.flatMap(std => getClausesForStandard(std))
-  ).size;
-  const reductionPercent = totalClausesIfSeparate > 0
-    ? Math.round(((totalClausesIfSeparate - totalWithConvergence) / totalClausesIfSeparate) * 100)
-    : 0;
+  const totalWithConvergence = new Set(standards.flatMap((std) => getClausesForStandard(std))).size;
+  const reductionPercent =
+    totalClausesIfSeparate > 0
+      ? Math.round(((totalClausesIfSeparate - totalWithConvergence) / totalClausesIfSeparate) * 100)
+      : 0;
 
   return { sharedClauses, totalClausesIfSeparate, reductionPercent };
 }

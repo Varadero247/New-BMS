@@ -1,12 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  ShieldCheck,
-  FileCheck2,
-  CalendarClock,
-  AlertTriangle,
-} from 'lucide-react';
+import { ShieldCheck, FileCheck2, CalendarClock, AlertTriangle } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
@@ -80,10 +75,7 @@ export default function DashboardPage() {
               ).length
             : 0,
           overdueDeadlines: Array.isArray(hmrc)
-            ? hmrc.filter(
-                (d: any) =>
-                  new Date(d.dueDate) < now && d.status !== 'SUBMITTED'
-              ).length
+            ? hmrc.filter((d: any) => new Date(d.dueDate) < now && d.status !== 'SUBMITTED').length
             : 0,
           sodConflicts: Array.isArray(sod)
             ? sod.filter((r: any) => r.isActive !== false).length
@@ -110,10 +102,7 @@ export default function DashboardPage() {
             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg"
-                />
+                <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg" />
               ))}
             </div>
           </div>
@@ -135,9 +124,7 @@ export default function DashboardPage() {
                   <h2 className="text-lg font-semibold text-red-800 dark:text-red-200">
                     Error Loading Dashboard
                   </h2>
-                  <p className="text-sm text-red-600 dark:text-red-400 mt-1">
-                    {error}
-                  </p>
+                  <p className="text-sm text-red-600 dark:text-red-400 mt-1">{error}</p>
                 </div>
               </div>
               <button
@@ -234,19 +221,13 @@ export default function DashboardPage() {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {kpi.label}
-                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{kpi.label}</p>
                     <p className="text-2xl font-bold mt-1 text-gray-900 dark:text-gray-100">
                       {kpi.value}
                     </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                      {kpi.sub}
-                    </p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{kpi.sub}</p>
                   </div>
-                  <div className={`p-3 rounded-lg ${kpi.bgIcon}`}>
-                    {kpi.icon}
-                  </div>
+                  <div className={`p-3 rounded-lg ${kpi.bgIcon}`}>{kpi.icon}</div>
                 </div>
               </div>
             ))}

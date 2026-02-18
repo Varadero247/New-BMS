@@ -3,7 +3,14 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    cmmsAsset: { findMany: jest.fn(), findFirst: jest.fn(), findUnique: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    cmmsAsset: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
     cmmsWorkOrder: { findMany: jest.fn() },
     cmmsInspection: { findMany: jest.fn() },
     cmmsMeterReading: { findMany: jest.fn() },
@@ -160,7 +167,12 @@ describe('Assets Routes', () => {
   // --- GET /:id ---
   describe('GET /api/assets/:id', () => {
     it('should return an asset by ID', async () => {
-      prisma.cmmsAsset.findFirst.mockResolvedValue({ ...mockAsset, workOrders: [], preventivePlans: [], inspections: [] });
+      prisma.cmmsAsset.findFirst.mockResolvedValue({
+        ...mockAsset,
+        workOrders: [],
+        preventivePlans: [],
+        inspections: [],
+      });
 
       const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
@@ -182,7 +194,9 @@ describe('Assets Routes', () => {
       prisma.cmmsAsset.findFirst.mockResolvedValue(mockAsset);
       prisma.cmmsAsset.update.mockResolvedValue({ ...mockAsset, name: 'Updated CNC' });
 
-      const res = await request(app).put('/api/assets/00000000-0000-0000-0000-000000000001').send({ name: 'Updated CNC' });
+      const res = await request(app)
+        .put('/api/assets/00000000-0000-0000-0000-000000000001')
+        .send({ name: 'Updated CNC' });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -190,12 +204,16 @@ describe('Assets Routes', () => {
     it('should return 404 for non-existent asset', async () => {
       prisma.cmmsAsset.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/assets/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
+      const res = await request(app)
+        .put('/api/assets/00000000-0000-0000-0000-000000000099')
+        .send({ name: 'Updated' });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for invalid data', async () => {
-      const res = await request(app).put('/api/assets/00000000-0000-0000-0000-000000000001').send({ assetType: 'INVALID' });
+      const res = await request(app)
+        .put('/api/assets/00000000-0000-0000-0000-000000000001')
+        .send({ assetType: 'INVALID' });
       expect(res.status).toBe(400);
     });
   });
@@ -228,7 +246,9 @@ describe('Assets Routes', () => {
       prisma.cmmsMeterReading.findMany.mockResolvedValue([]);
       prisma.cmmsDowntime.findMany.mockResolvedValue([]);
 
-      const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001/history');
+      const res = await request(app).get(
+        '/api/assets/00000000-0000-0000-0000-000000000001/history'
+      );
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveProperty('workOrders');
       expect(res.body.data).toHaveProperty('inspections');
@@ -239,7 +259,9 @@ describe('Assets Routes', () => {
     it('should return 404 for non-existent asset', async () => {
       prisma.cmmsAsset.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000099/history');
+      const res = await request(app).get(
+        '/api/assets/00000000-0000-0000-0000-000000000099/history'
+      );
       expect(res.status).toBe(404);
     });
   });
@@ -256,7 +278,9 @@ describe('Assets Routes', () => {
         serialNumber: 'SN-12345',
       });
 
-      const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001/qr-code');
+      const res = await request(app).get(
+        '/api/assets/00000000-0000-0000-0000-000000000001/qr-code'
+      );
       expect(res.status).toBe(200);
       expect(res.body.data.type).toBe('CMMS_ASSET');
       expect(res.body.data.code).toBe('ASSET-1001');
@@ -265,7 +289,9 @@ describe('Assets Routes', () => {
     it('should return 404 for non-existent asset', async () => {
       prisma.cmmsAsset.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000099/qr-code');
+      const res = await request(app).get(
+        '/api/assets/00000000-0000-0000-0000-000000000099/qr-code'
+      );
       expect(res.status).toBe(404);
     });
   });

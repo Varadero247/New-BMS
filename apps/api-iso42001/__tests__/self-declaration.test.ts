@@ -46,7 +46,8 @@ const mockDeclaration = {
   reference: 'AI42-DEC-2602-8888',
   title: 'Nexara ISO 42001 Self-Declaration of Conformance',
   scope: 'All AI-based products and services offered by Nexara Ltd',
-  conformanceStatement: 'Nexara Ltd declares that its AI Management System conforms to the requirements of ISO 42001:2023...',
+  conformanceStatement:
+    'Nexara Ltd declares that its AI Management System conforms to the requirements of ISO 42001:2023...',
   standard: 'ISO 42001:2023',
   status: 'DRAFT',
   declarationDate: new Date('2026-02-01'),
@@ -138,7 +139,8 @@ describe('POST /api/self-declaration', () => {
   const validPayload = {
     title: 'ISO 42001 Self-Declaration 2026',
     scope: 'Customer-facing AI services',
-    conformanceStatement: 'We declare conformance with ISO 42001:2023 for all covered AI systems...',
+    conformanceStatement:
+      'We declare conformance with ISO 42001:2023 for all covered AI systems...',
     declarationDate: '2026-03-01',
     validUntil: '2027-03-01',
   };
@@ -276,9 +278,7 @@ describe('PUT /api/self-declaration/:id', () => {
   it('should return 404 when updating non-existent declaration', async () => {
     (prisma as any).aiSelfDeclaration.findFirst.mockResolvedValue(null);
 
-    const res = await request(app)
-      .put(`/api/self-declaration/${UUID2}`)
-      .send({ title: 'Updated' });
+    const res = await request(app).put(`/api/self-declaration/${UUID2}`).send({ title: 'Updated' });
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -297,9 +297,7 @@ describe('PUT /api/self-declaration/:id', () => {
     (prisma as any).aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
     (prisma as any).aiSelfDeclaration.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app)
-      .put(`/api/self-declaration/${UUID1}`)
-      .send({ title: 'Updated' });
+    const res = await request(app).put(`/api/self-declaration/${UUID1}`).send({ title: 'Updated' });
 
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

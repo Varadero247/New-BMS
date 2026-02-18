@@ -15,8 +15,23 @@ const router: IRouter = Router();
 router.use(authenticate);
 router.param('id', validateIdParam());
 
-const LEGAL_CATEGORIES = ['PRIMARY_LEGISLATION', 'SUBORDINATE_LEGISLATION', 'ACOP', 'HSE_GUIDANCE', 'INTERNATIONAL_STANDARD', 'INDUSTRY_STANDARD', 'CONTRACTUAL', 'VOLUNTARY'] as const;
-const COMPLIANCE_STATUSES = ['COMPLIANT', 'PARTIAL', 'NON_COMPLIANT', 'UNDER_REVIEW', 'NOT_ASSESSED'] as const;
+const LEGAL_CATEGORIES = [
+  'PRIMARY_LEGISLATION',
+  'SUBORDINATE_LEGISLATION',
+  'ACOP',
+  'HSE_GUIDANCE',
+  'INTERNATIONAL_STANDARD',
+  'INDUSTRY_STANDARD',
+  'CONTRACTUAL',
+  'VOLUNTARY',
+] as const;
+const COMPLIANCE_STATUSES = [
+  'COMPLIANT',
+  'PARTIAL',
+  'NON_COMPLIANT',
+  'UNDER_REVIEW',
+  'NOT_ASSESSED',
+] as const;
 const LEGAL_STATUSES = ['ACTIVE', 'REVIEW_DUE', 'SUPERSEDED', 'ARCHIVED'] as const;
 
 // Generate reference number LR-001, LR-002, etc.
@@ -58,7 +73,12 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     const [requirements, total] = await Promise.all([
-      prisma.legalRequirement.findMany({ where, skip, take: limitNum, orderBy: { createdAt: 'desc' } }),
+      prisma.legalRequirement.findMany({
+        where,
+        skip,
+        take: limitNum,
+        orderBy: { createdAt: 'desc' },
+      }),
       prisma.legalRequirement.count({ where }),
     ]);
 
@@ -69,27 +89,40 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List legal requirements error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list legal requirements' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list legal requirements' },
+    });
   }
 });
 
 // GET /api/legal/:id - Get single legal requirement
-router.get('/:id', checkOwnership(prisma.legalRequirement), async (req: AuthRequest, res: Response) => {
-  try {
-    const requirement = await prisma.legalRequirement.findUnique({
-      where: { id: req.params.id },
-    });
+router.get(
+  '/:id',
+  checkOwnership(prisma.legalRequirement),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const requirement = await prisma.legalRequirement.findUnique({
+        where: { id: req.params.id },
+      });
 
-    if (!requirement || (requirement as any).deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal requirement not found' } });
+      if (!requirement || (requirement as any).deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Legal requirement not found' },
+        });
+      }
+
+      res.json({ success: true, data: requirement });
+    } catch (error) {
+      logger.error('Get legal requirement error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get legal requirement' },
+      });
     }
-
-    res.json({ success: true, data: requirement });
-  } catch (error) {
-    logger.error('Get legal requirement error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get legal requirement' } });
   }
-});
+);
 
 // POST /api/legal - Create legal requirement
 router.post('/', async (req: AuthRequest, res: Response) => {
@@ -102,8 +135,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       legislationRef: z.string().optional(),
       section: z.string().optional(),
       applicableAreas: z.string().optional(),
-      effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      effectiveDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      reviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       complianceStatus: z.enum(COMPLIANCE_STATUSES).optional(),
       complianceNotes: z.string().optional(),
       responsiblePerson: z.string().optional(),
@@ -149,81 +188,127 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: requirement });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create legal requirement error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create legal requirement' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create legal requirement' },
+    });
   }
 });
 
 // PATCH /api/legal/:id - Update legal requirement
-router.patch('/:id', checkOwnership(prisma.legalRequirement), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.legalRequirement.findUnique({ where: { id: req.params.id } });
-    if (!existing || (existing as any).deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal requirement not found' } });
+router.patch(
+  '/:id',
+  checkOwnership(prisma.legalRequirement),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.legalRequirement.findUnique({ where: { id: req.params.id } });
+      if (!existing || (existing as any).deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Legal requirement not found' },
+        });
+      }
+
+      const schema = z.object({
+        title: z.string().trim().min(1).max(200).optional(),
+        description: z.string().optional(),
+        category: z.enum(LEGAL_CATEGORIES).optional(),
+        jurisdiction: z.string().optional(),
+        legislationRef: z.string().optional(),
+        section: z.string().optional(),
+        applicableAreas: z.string().optional(),
+        effectiveDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        reviewDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        complianceStatus: z.enum(COMPLIANCE_STATUSES).optional(),
+        complianceNotes: z.string().optional(),
+        responsiblePerson: z.string().optional(),
+        aiKeyObligations: z.string().optional(),
+        aiGapAnalysis: z.string().optional(),
+        aiRequiredActions: z.string().optional(),
+        aiEvidenceRequired: z.string().optional(),
+        aiPenaltyForNonCompliance: z.string().optional(),
+        aiAssessmentGenerated: z.boolean().optional(),
+        status: z.enum(LEGAL_STATUSES).optional(),
+      });
+
+      const data = schema.parse(req.body);
+
+      const updateData: any = { ...data };
+      if (data.effectiveDate) updateData.effectiveDate = new Date(data.effectiveDate);
+      if (data.reviewDate) updateData.reviewDate = new Date(data.reviewDate);
+      if (data.complianceStatus && data.complianceStatus !== existing.complianceStatus) {
+        updateData.lastReviewedAt = new Date();
+      }
+
+      const requirement = await prisma.legalRequirement.update({
+        where: { id: req.params.id },
+        data: updateData,
+      });
+
+      res.json({ success: true, data: requirement });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update legal requirement error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update legal requirement' },
+      });
     }
-
-    const schema = z.object({
-      title: z.string().trim().min(1).max(200).optional(),
-      description: z.string().optional(),
-      category: z.enum(LEGAL_CATEGORIES).optional(),
-      jurisdiction: z.string().optional(),
-      legislationRef: z.string().optional(),
-      section: z.string().optional(),
-      applicableAreas: z.string().optional(),
-      effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      complianceStatus: z.enum(COMPLIANCE_STATUSES).optional(),
-      complianceNotes: z.string().optional(),
-      responsiblePerson: z.string().optional(),
-      aiKeyObligations: z.string().optional(),
-      aiGapAnalysis: z.string().optional(),
-      aiRequiredActions: z.string().optional(),
-      aiEvidenceRequired: z.string().optional(),
-      aiPenaltyForNonCompliance: z.string().optional(),
-      aiAssessmentGenerated: z.boolean().optional(),
-      status: z.enum(LEGAL_STATUSES).optional(),
-    });
-
-    const data = schema.parse(req.body);
-
-    const updateData: any = { ...data };
-    if (data.effectiveDate) updateData.effectiveDate = new Date(data.effectiveDate);
-    if (data.reviewDate) updateData.reviewDate = new Date(data.reviewDate);
-    if (data.complianceStatus && data.complianceStatus !== existing.complianceStatus) {
-      updateData.lastReviewedAt = new Date();
-    }
-
-    const requirement = await prisma.legalRequirement.update({
-      where: { id: req.params.id },
-      data: updateData,
-    });
-
-    res.json({ success: true, data: requirement });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
-    }
-    logger.error('Update legal requirement error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update legal requirement' } });
   }
-});
+);
 
 // DELETE /api/legal/:id - Delete legal requirement
-router.delete('/:id', checkOwnership(prisma.legalRequirement), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.legalRequirement.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal requirement not found' } });
-    }
+router.delete(
+  '/:id',
+  checkOwnership(prisma.legalRequirement),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.legalRequirement.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Legal requirement not found' },
+        });
+      }
 
-    await prisma.legalRequirement.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete legal requirement error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete legal requirement' } });
+      await prisma.legalRequirement.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete legal requirement error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete legal requirement' },
+      });
+    }
   }
-});
+);
 
 export default router;

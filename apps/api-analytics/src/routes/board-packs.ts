@@ -41,7 +41,10 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Failed to list board packs', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list board packs' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list board packs' },
+    });
   }
 });
 
@@ -55,13 +58,18 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!boardPack) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Board pack not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Board pack not found' } });
     }
 
     res.json({ success: true, data: boardPack });
   } catch (err) {
     logger.error('Failed to get board pack', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get board pack' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get board pack' },
+    });
   }
 });
 
@@ -75,12 +83,17 @@ router.patch('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Board pack not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Board pack not found' } });
     }
 
     const parsed = updateBoardPackSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { status } = parsed.data;
@@ -93,7 +106,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
     if (!validTransitions[existing.status]?.includes(status)) {
       return res.status(400).json({
         success: false,
-        error: { code: 'INVALID_TRANSITION', message: `Cannot transition from ${existing.status} to ${status}` },
+        error: {
+          code: 'INVALID_TRANSITION',
+          message: `Cannot transition from ${existing.status} to ${status}`,
+        },
       });
     }
 
@@ -108,7 +124,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: boardPack });
   } catch (err) {
     logger.error('Failed to update board pack', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update board pack' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update board pack' },
+    });
   }
 });
 

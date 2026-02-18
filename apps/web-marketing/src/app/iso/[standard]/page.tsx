@@ -49,7 +49,10 @@ export default async function ISOStandardPage({ params }: Props) {
             Nexara
           </Link>
           <div className="flex items-center gap-6">
-            <Link href="/roi-calculator" className="text-sm text-gray-400 dark:text-gray-500 hover:text-white transition-colors">
+            <Link
+              href="/roi-calculator"
+              className="text-sm text-gray-400 dark:text-gray-500 hover:text-white transition-colors"
+            >
               ROI Calculator
             </Link>
             <Link
@@ -96,7 +99,10 @@ export default async function ISOStandardPage({ params }: Props) {
         </h2>
         <div className="space-y-4">
           {iso.requirements.map((req, i) => (
-            <div key={i} className="flex items-start gap-4 rounded-xl border border-white/10 bg-white/[0.02] p-5">
+            <div
+              key={i}
+              className="flex items-start gap-4 rounded-xl border border-white/10 bg-white/[0.02] p-5"
+            >
               <div className="shrink-0 w-8 h-8 rounded-lg bg-[#1B3A6B]/30 flex items-center justify-center text-[#60A5FA] font-bold text-sm">
                 {i + 1}
               </div>
@@ -116,12 +122,24 @@ export default async function ISOStandardPage({ params }: Props) {
             {iso.features.map((feature, i) => (
               <div key={i} className="rounded-xl border border-white/10 bg-[#0B1120] p-6">
                 <div className="w-10 h-10 rounded-lg bg-[#1B3A6B]/30 flex items-center justify-center mb-4">
-                  <svg className="w-5 h-5 text-[#60A5FA]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="w-5 h-5 text-[#60A5FA]"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-400 dark:text-gray-500 text-sm leading-relaxed">{feature.desc}</p>
+                <p className="text-gray-400 dark:text-gray-500 text-sm leading-relaxed">
+                  {feature.desc}
+                </p>
               </div>
             ))}
           </div>
@@ -135,9 +153,22 @@ export default async function ISOStandardPage({ params }: Props) {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {iso.keyFeatures.map((kf, i) => (
-            <div key={i} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-5 py-4">
-              <svg className="w-5 h-5 text-[#34D399] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <div
+              key={i}
+              className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-5 py-4"
+            >
+              <svg
+                className="w-5 h-5 text-[#34D399] shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
               <span className="text-gray-200 text-sm">{kf}</span>
             </div>
@@ -152,8 +183,9 @@ export default async function ISOStandardPage({ params }: Props) {
             Trusted by {iso.industries[0]} &amp; {iso.industries[1]} organisations
           </h2>
           <p className="text-gray-400 dark:text-gray-500 mb-10">
-            Nexara is used by companies in {iso.industries[0].toLowerCase()}, {iso.industries[1].toLowerCase()}, and
-            dozens more industries to manage {iso.number} compliance.
+            Nexara is used by companies in {iso.industries[0].toLowerCase()},{' '}
+            {iso.industries[1].toLowerCase()}, and dozens more industries to manage {iso.number}{' '}
+            compliance.
           </p>
           <div className="flex items-center justify-center gap-4">
             {iso.industries.map((industry) => (
@@ -178,17 +210,25 @@ export default async function ISOStandardPage({ params }: Props) {
             <div key={n} className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
               <div className="flex items-center gap-1 mb-4">
                 {[...Array(5)].map((_, i) => (
-                  <svg key={i} className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    key={i}
+                    className="w-4 h-4 text-yellow-500"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
                 ))}
               </div>
               <p className="text-gray-400 dark:text-gray-500 text-sm italic mb-4 leading-relaxed">
-                &ldquo;Nexara transformed how we manage {iso.number}. What used to take weeks now takes hours.&rdquo;
+                &ldquo;Nexara transformed how we manage {iso.number}. What used to take weeks now
+                takes hours.&rdquo;
               </p>
               <div>
                 <p className="text-white text-sm font-semibold">Customer Name</p>
-                <p className="text-gray-500 dark:text-gray-400 text-xs">{iso.industries[n - 1]} &mdash; Quality Manager</p>
+                <p className="text-gray-500 dark:text-gray-400 text-xs">
+                  {iso.industries[n - 1]} &mdash; Quality Manager
+                </p>
               </div>
             </div>
           ))}
@@ -201,8 +241,8 @@ export default async function ISOStandardPage({ params }: Props) {
           Ready to simplify {iso.number}?
         </h2>
         <p className="text-gray-400 dark:text-gray-500 mb-8 max-w-xl mx-auto">
-          Join thousands of organisations managing {iso.number} compliance with Nexara.
-          Start your free 21-day trial today.
+          Join thousands of organisations managing {iso.number} compliance with Nexara. Start your
+          free 21-day trial today.
         </p>
         <Link
           href={`/signup?source=iso-${standard}`}
@@ -217,9 +257,15 @@ export default async function ISOStandardPage({ params }: Props) {
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500 dark:text-gray-400">
           <p>&copy; {new Date().getFullYear()} Nexara. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-white transition-colors">
+              Terms
+            </Link>
+            <Link href="/" className="hover:text-white transition-colors">
+              Home
+            </Link>
           </div>
         </div>
       </footer>

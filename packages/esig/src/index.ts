@@ -9,12 +9,7 @@ export type {
 } from './types';
 
 // Signature operations
-export {
-  createSignature,
-  verifySignature,
-  isValidMeaning,
-  getValidMeanings,
-} from './signature';
+export { createSignature, verifySignature, isValidMeaning, getValidMeanings } from './signature';
 
 // Checksum utilities
 export {

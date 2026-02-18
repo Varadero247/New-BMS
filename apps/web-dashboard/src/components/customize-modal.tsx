@@ -18,19 +18,41 @@ import { Lock, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from 'lucide-react';
 
 const SECTION_MODULES: Record<SectionId, string[]> = {
   'iso-compliance': [
-    'Health & Safety', 'Environmental', 'Quality', 'ESG', 'Food Safety',
-    'Energy', 'ISO 42001 (AI)', 'ISO 37001', 'InfoSec', 'Aerospace',
+    'Health & Safety',
+    'Environmental',
+    'Quality',
+    'ESG',
+    'Food Safety',
+    'Energy',
+    'ISO 42001 (AI)',
+    'ISO 37001',
+    'InfoSec',
+    'Aerospace',
   ],
-  'operations': [
-    'Inventory', 'HR Management', 'Payroll', 'Workflows', 'Project Management',
-    'Finance', 'CRM', 'CMMS', 'Field Service', 'Analytics',
+  operations: [
+    'Inventory',
+    'HR Management',
+    'Payroll',
+    'Workflows',
+    'Project Management',
+    'Finance',
+    'CRM',
+    'CMMS',
+    'Field Service',
+    'Analytics',
   ],
-  'portals-specialist': [
-    'Customer Portal', 'Supplier Portal', 'Medical Devices', 'Automotive',
-  ],
+  'portals-specialist': ['Customer Portal', 'Supplier Portal', 'Medical Devices', 'Automotive'],
 };
 
-function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: () => void; disabled?: boolean }) {
+function Toggle({
+  checked,
+  onChange,
+  disabled,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  disabled?: boolean;
+}) {
   return (
     <button
       type="button"
@@ -42,8 +64,8 @@ function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (
         disabled
           ? 'cursor-not-allowed bg-gray-200 dark:bg-gray-700'
           : checked
-          ? 'bg-blue-600'
-          : 'bg-gray-300 dark:bg-gray-600'
+            ? 'bg-blue-600'
+            : 'bg-gray-300 dark:bg-gray-600'
       }`}
     >
       <span
@@ -56,12 +78,20 @@ function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (
 }
 
 export function CustomizeModal() {
-  const { customizeOpen, closeCustomize, config, toggleWidget, toggleSection, toggleModule, moveSection, resetToDefaults } =
-    useDashboardStore();
+  const {
+    customizeOpen,
+    closeCustomize,
+    config,
+    toggleWidget,
+    toggleSection,
+    toggleModule,
+    moveSection,
+    resetToDefaults,
+  } = useDashboardStore();
   const { hasPermission, permissions } = useRBACContext();
   const [expandedSections, setExpandedSections] = useState<Record<SectionId, boolean>>({
     'iso-compliance': true,
-    'operations': false,
+    operations: false,
     'portals-specialist': false,
   });
 
@@ -97,13 +127,12 @@ export function CustomizeModal() {
                   className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{meta.label}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {meta.label}
+                    </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{meta.description}</p>
                   </div>
-                  <Toggle
-                    checked={config.widgets[id].visible}
-                    onChange={() => toggleWidget(id)}
-                  />
+                  <Toggle checked={config.widgets[id].visible} onChange={() => toggleWidget(id)} />
                 </div>
               );
             })}
@@ -122,7 +151,10 @@ export function CustomizeModal() {
               const isExpanded = expandedSections[sectionId];
 
               return (
-                <div key={sectionId} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                <div
+                  key={sectionId}
+                  className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+                >
                   {/* Section Header */}
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800">
                     <button
@@ -135,8 +167,12 @@ export function CustomizeModal() {
                         <ChevronDown className="h-4 w-4 text-gray-400 shrink-0" />
                       )}
                       <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{sectionMeta.label}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{sectionMeta.description}</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {sectionMeta.label}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {sectionMeta.description}
+                        </p>
                       </div>
                     </button>
                     <div className="flex items-center gap-2 shrink-0">
@@ -178,7 +214,9 @@ export function CustomizeModal() {
                             className="flex items-center justify-between px-4 py-2.5 pl-10"
                           >
                             <div className="flex items-center gap-2">
-                              <span className={`text-sm ${hasAccess ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}>
+                              <span
+                                className={`text-sm ${hasAccess ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}
+                              >
                                 {moduleName}
                               </span>
                               {!hasAccess && (

@@ -28,8 +28,20 @@ const announcementCreateSchema = z.object({
   content: z.string().min(1).max(10000),
   portalType: z.enum(['CUSTOMER', 'SUPPLIER']),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']),
-  publishedAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
-  expiresAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  publishedAt: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
+  expiresAt: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
 });
 
 const announcementUpdateSchema = z.object({
@@ -38,8 +50,20 @@ const announcementUpdateSchema = z.object({
   portalType: z.enum(['CUSTOMER', 'SUPPLIER']).optional(),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
   isActive: z.boolean().optional(),
-  publishedAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
-  expiresAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  publishedAt: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
+  expiresAt: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
 });
 
 // ---------------------------------------------------------------------------
@@ -60,7 +84,12 @@ router.get('/', async (req: Request, res: Response) => {
     if (portalType) where.portalType = portalType;
 
     const [items, total] = await Promise.all([
-      prisma.portalAnnouncement.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.portalAnnouncement.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
       prisma.portalAnnouncement.count({ where }),
     ]);
 
@@ -70,8 +99,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing announcements', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list announcements' } });
+    logger.error('Error listing announcements', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list announcements' },
+    });
   }
 });
 
@@ -84,7 +118,10 @@ router.post('/', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = announcementCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const data = parsed.data;
@@ -105,8 +142,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Announcement created', { id: announcement.id });
     return res.status(201).json({ success: true, data: announcement });
   } catch (error: unknown) {
-    logger.error('Error creating announcement', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create announcement' } });
+    logger.error('Error creating announcement', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create announcement' },
+    });
   }
 });
 
@@ -118,14 +160,19 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = announcementUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const existing = await prisma.portalAnnouncement.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Announcement not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Announcement not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -140,8 +187,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Announcement updated', { id: updated.id });
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Error updating announcement', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update announcement' } });
+    logger.error('Error updating announcement', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update announcement' },
+    });
   }
 });
 
@@ -155,7 +207,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Announcement not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Announcement not found' } });
     }
 
     await prisma.portalAnnouncement.update({
@@ -166,8 +220,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Announcement deleted', { id: req.params.id });
     return res.json({ success: true, data: { id: req.params.id } });
   } catch (error: unknown) {
-    logger.error('Error deleting announcement', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete announcement' } });
+    logger.error('Error deleting announcement', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete announcement' },
+    });
   }
 });
 

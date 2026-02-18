@@ -53,7 +53,10 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Failed to list meetings', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list meetings' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list meetings' },
+    });
   }
 });
 
@@ -67,13 +70,18 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!meeting) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meeting not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Meeting not found' } });
     }
 
     res.json({ success: true, data: meeting });
   } catch (err) {
     logger.error('Failed to get meeting', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get meeting' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get meeting' },
+    });
   }
 });
 
@@ -84,7 +92,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createMeetingSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { title, type, date, attendees, summary, actionItems } = parsed.data;
@@ -104,7 +115,10 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: meeting });
   } catch (err) {
     logger.error('Failed to create meeting', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create meeting' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create meeting' },
+    });
   }
 });
 
@@ -118,12 +132,17 @@ router.patch('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meeting not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Meeting not found' } });
     }
 
     const parsed = updateMeetingSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { title, type, date, attendees, summary, actionItems } = parsed.data;
@@ -143,7 +162,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: meeting });
   } catch (err) {
     logger.error('Failed to update meeting', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update meeting' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update meeting' },
+    });
   }
 });
 
@@ -157,7 +179,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meeting not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Meeting not found' } });
     }
 
     await prisma.meetingNote.delete({
@@ -168,7 +192,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { message: 'Meeting deleted' } });
   } catch (err) {
     logger.error('Failed to delete meeting', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete meeting' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete meeting' },
+    });
   }
 });
 
@@ -182,7 +209,9 @@ router.patch('/:id/actions/:actionIndex', async (req: Request, res: Response) =>
     });
 
     if (!meeting) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meeting not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Meeting not found' } });
     }
 
     const actionIndex = parseInt(req.params.actionIndex, 10);
@@ -209,7 +238,10 @@ router.patch('/:id/actions/:actionIndex', async (req: Request, res: Response) =>
     res.json({ success: true, data: updated });
   } catch (err) {
     logger.error('Failed to toggle action item', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to toggle action item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to toggle action item' },
+    });
   }
 });
 

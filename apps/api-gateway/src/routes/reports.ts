@@ -51,7 +51,9 @@ function generateHtmlTemplate(title: string, content: Record<string, any>): stri
           body = `<table><thead><tr>${headers.map((h) => `<th>${h}</th>`).join('')}</tr></thead><tbody>${value.map((row) => `<tr>${headers.map((h) => `<td>${row[h] ?? ''}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
         }
       } else if (typeof value === 'object' && value !== null) {
-        body = `<dl>${Object.entries(value).map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
+        body = `<dl>${Object.entries(value)
+          .map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`)
+          .join('')}</dl>`;
       } else {
         body = `<p>${value}</p>`;
       }
@@ -97,8 +99,12 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
     const data = managementReviewSchema.parse(req.body);
 
     const validModules = [
-      'health-safety', 'environment', 'quality',
-      'automotive', 'medical', 'aerospace',
+      'health-safety',
+      'environment',
+      'quality',
+      'automotive',
+      'medical',
+      'aerospace',
     ];
 
     if (!validModules.includes(module)) {
@@ -114,12 +120,13 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
     // Map module to ISO standard enum
     const standardMap: Record<string, string> = {
       'health-safety': 'ISO_45001',
-      'environment': 'ISO_14001',
-      'quality': 'ISO_9001',
+      environment: 'ISO_14001',
+      quality: 'ISO_9001',
     };
 
     const standard = standardMap[module];
-    const reportTitle = data.title || `Management Review Report — ${module.toUpperCase()} (${data.period})`;
+    const reportTitle =
+      data.title || `Management Review Report — ${module.toUpperCase()} (${data.period})`;
 
     // Gather data based on flags
     const reportContent: Record<string, any> = {
@@ -212,7 +219,9 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
       const now = new Date();
       const actionSummary = {
         total: actions.length,
-        overdue: actions.filter((a) => a.status !== 'COMPLETED' && a.status !== 'CANCELLED' && new Date(a.dueDate) < now).length,
+        overdue: actions.filter(
+          (a) => a.status !== 'COMPLETED' && a.status !== 'CANCELLED' && new Date(a.dueDate) < now
+        ).length,
         completed: actions.filter((a) => a.status === 'COMPLETED').length,
         inProgress: actions.filter((a) => a.status === 'IN_PROGRESS').length,
         open: actions.filter((a) => a.status === 'OPEN').length,
@@ -226,7 +235,9 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
         where: { standard: standard as any },
       });
 
-      reportContent.compliance = complianceScore || { message: 'No compliance score data available' };
+      reportContent.compliance = complianceScore || {
+        message: 'No compliance score data available',
+      };
     }
 
     const htmlTemplate = generateHtmlTemplate(reportTitle, reportContent);
@@ -276,7 +287,9 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
         },
       });
     }
-    logger.error('Failed to generate management review report', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to generate management review report', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to generate management review report' },
@@ -291,7 +304,8 @@ router.post('/audit/:auditId', async (req: AuthRequest, res: Response) => {
   try {
     const { auditId } = req.params;
     const bodyParsed = z.object({ title: z.string().max(200).optional() }).safeParse(req.body);
-    const title = (bodyParsed.success ? bodyParsed.data.title : undefined) || `Audit Report — ${auditId}`;
+    const title =
+      (bodyParsed.success ? bodyParsed.data.title : undefined) || `Audit Report — ${auditId}`;
 
     // Fetch audit-related data from the audit logs
     const auditEntries = await prisma.auditLog.findMany({
@@ -368,7 +382,9 @@ router.post('/audit/:auditId', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Failed to generate audit report', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to generate audit report', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to generate audit report' },
@@ -393,43 +409,55 @@ router.post('/kpi-pack', async (req: AuthRequest, res: Response) => {
     const trends = await prisma.monthlyTrend.findMany({
       where: { year, month },
       orderBy: [{ standard: 'asc' }, { metric: 'asc' }],
-      take: 1000});
+      take: 1000,
+    });
 
     // Fetch compliance scores for all standards
     const complianceScores = await prisma.complianceScore.findMany({
       orderBy: { standard: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Fetch action stats
     const now = new Date();
     const allActions = await prisma.action.findMany({
       where: { deletedAt: null } as any,
       select: { status: true, dueDate: true, standard: true },
-      take: 1000});
+      take: 1000,
+    });
 
     const actionKPIs = {
       total: allActions.length,
       completedOnTime: allActions.filter((a) => a.status === 'COMPLETED').length,
-      overdue: allActions.filter((a) => a.status !== 'COMPLETED' && a.status !== 'CANCELLED' && new Date(a.dueDate) < now).length,
-      completionRate: allActions.length > 0
-        ? Math.round((allActions.filter((a) => a.status === 'COMPLETED').length / allActions.length) * 100)
-        : 0,
+      overdue: allActions.filter(
+        (a) => a.status !== 'COMPLETED' && a.status !== 'CANCELLED' && new Date(a.dueDate) < now
+      ).length,
+      completionRate:
+        allActions.length > 0
+          ? Math.round(
+              (allActions.filter((a) => a.status === 'COMPLETED').length / allActions.length) * 100
+            )
+          : 0,
     };
 
     // Fetch incident stats
     const allIncidents = await prisma.incident.findMany({
       where: { deletedAt: null } as any,
       select: { status: true, severity: true, standard: true, dateOccurred: true },
-      take: 1000});
+      take: 1000,
+    });
 
     const incidentKPIs = {
       total: allIncidents.length,
       open: allIncidents.filter((i) => i.status !== 'CLOSED').length,
       closed: allIncidents.filter((i) => i.status === 'CLOSED').length,
       critical: allIncidents.filter((i) => i.severity === 'CRITICAL').length,
-      closeRate: allIncidents.length > 0
-        ? Math.round((allIncidents.filter((i) => i.status === 'CLOSED').length / allIncidents.length) * 100)
-        : 0,
+      closeRate:
+        allIncidents.length > 0
+          ? Math.round(
+              (allIncidents.filter((i) => i.status === 'CLOSED').length / allIncidents.length) * 100
+            )
+          : 0,
     };
 
     const reportContent: Record<string, any> = {
@@ -500,7 +528,9 @@ router.post('/kpi-pack', async (req: AuthRequest, res: Response) => {
         },
       });
     }
-    logger.error('Failed to generate KPI pack', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to generate KPI pack', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to generate KPI pack' },
@@ -521,7 +551,8 @@ router.post('/compliance-summary', async (req: AuthRequest, res: Response) => {
       where: {
         standard: { in: data.standards as any[] },
       },
-      take: 1000});
+      take: 1000,
+    });
 
     const reportContent: Record<string, any> = {
       overview: {
@@ -552,15 +583,16 @@ router.post('/compliance-summary', async (req: AuthRequest, res: Response) => {
         .map((cs) => ({
           standard: cs.standard,
           overallScore: cs.overallScore,
-          weakestArea: [
-            { area: 'risk', score: cs.riskScore },
-            { area: 'incident', score: cs.incidentScore },
-            { area: 'legal', score: cs.legalScore },
-            { area: 'objective', score: cs.objectiveScore },
-            { area: 'action', score: cs.actionScore },
-          ]
-            .filter((a) => a.score !== null)
-            .sort((a, b) => (a.score || 0) - (b.score || 0))[0]?.area || 'unknown',
+          weakestArea:
+            [
+              { area: 'risk', score: cs.riskScore },
+              { area: 'incident', score: cs.incidentScore },
+              { area: 'legal', score: cs.legalScore },
+              { area: 'objective', score: cs.objectiveScore },
+              { area: 'action', score: cs.actionScore },
+            ]
+              .filter((a) => a.score !== null)
+              .sort((a, b) => (a.score || 0) - (b.score || 0))[0]?.area || 'unknown',
         }));
 
       reportContent.complianceGaps = gaps;
@@ -642,7 +674,9 @@ router.post('/compliance-summary', async (req: AuthRequest, res: Response) => {
         },
       });
     }
-    logger.error('Failed to generate compliance summary', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to generate compliance summary', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to generate compliance summary' },
@@ -695,7 +729,9 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Failed to list reports', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to list reports', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list reports' },
@@ -723,7 +759,9 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: report });
   } catch (error) {
-    logger.error('Failed to get report', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to get report', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get report' },

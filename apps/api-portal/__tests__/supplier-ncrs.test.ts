@@ -39,7 +39,12 @@ beforeEach(() => {
 describe('GET /api/supplier/ncrs', () => {
   it('should list NCRs', async () => {
     const items = [
-      { id: '00000000-0000-0000-0000-000000000001', reportType: 'NCR', description: 'Material defect', status: 'OPEN' },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        reportType: 'NCR',
+        description: 'Material defect',
+        status: 'OPEN',
+      },
     ];
     (prisma as any).portalQualityReport.findMany.mockResolvedValue(items);
     (prisma as any).portalQualityReport.count.mockResolvedValue(1);
@@ -80,9 +85,19 @@ describe('GET /api/supplier/ncrs', () => {
 
 describe('POST /api/supplier/ncrs/:id/response', () => {
   it('should submit a corrective action response', async () => {
-    const ncr = { id: '00000000-0000-0000-0000-000000000001', portalUserId: 'user-123', reportType: 'NCR', status: 'OPEN', attachments: null };
+    const ncr = {
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      reportType: 'NCR',
+      status: 'OPEN',
+      attachments: null,
+    };
     (prisma as any).portalQualityReport.findFirst.mockResolvedValue(ncr);
-    (prisma as any).portalQualityReport.update.mockResolvedValue({ ...ncr, status: 'INVESTIGATING', resolution: 'Fixed material source' });
+    (prisma as any).portalQualityReport.update.mockResolvedValue({
+      ...ncr,
+      status: 'INVESTIGATING',
+      resolution: 'Fixed material source',
+    });
 
     const res = await request(app)
       .post('/api/supplier/ncrs/00000000-0000-0000-0000-000000000001/response')
@@ -103,7 +118,13 @@ describe('POST /api/supplier/ncrs/:id/response', () => {
   });
 
   it('should return 400 if NCR already closed', async () => {
-    const ncr = { id: '00000000-0000-0000-0000-000000000001', portalUserId: 'user-123', reportType: 'NCR', status: 'CLOSED', attachments: null };
+    const ncr = {
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      reportType: 'NCR',
+      status: 'CLOSED',
+      attachments: null,
+    };
     (prisma as any).portalQualityReport.findFirst.mockResolvedValue(ncr);
 
     const res = await request(app)

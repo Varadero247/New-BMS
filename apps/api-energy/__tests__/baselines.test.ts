@@ -17,7 +17,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -40,7 +44,13 @@ beforeEach(() => {
 describe('GET /api/baselines', () => {
   it('should return paginated baselines', async () => {
     const mockBaselines = [
-      { id: 'e6000000-0000-4000-a000-000000000001', name: 'Baseline 2025', year: 2025, status: 'DRAFT', deletedAt: null },
+      {
+        id: 'e6000000-0000-4000-a000-000000000001',
+        name: 'Baseline 2025',
+        year: 2025,
+        status: 'DRAFT',
+        deletedAt: null,
+      },
     ];
     (prisma.energyBaseline.findMany as jest.Mock).mockResolvedValue(mockBaselines);
     (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(1);
@@ -131,7 +141,12 @@ describe('POST /api/baselines', () => {
 
 describe('GET /api/baselines/:id', () => {
   it('should return a baseline', async () => {
-    const mock = { id: 'e6000000-0000-4000-a000-000000000001', name: 'Baseline', year: 2025, targets: [] };
+    const mock = {
+      id: 'e6000000-0000-4000-a000-000000000001',
+      name: 'Baseline',
+      year: 2025,
+      targets: [],
+    };
     (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue(mock);
 
     const res = await request(app).get('/api/baselines/e6000000-0000-4000-a000-000000000001');
@@ -151,10 +166,18 @@ describe('GET /api/baselines/:id', () => {
 
 describe('PUT /api/baselines/:id', () => {
   it('should update a baseline', async () => {
-    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({ id: 'e6000000-0000-4000-a000-000000000001', deletedAt: null });
-    (prisma.energyBaseline.update as jest.Mock).mockResolvedValue({ id: 'e6000000-0000-4000-a000-000000000001', name: 'Updated' });
+    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e6000000-0000-4000-a000-000000000001',
+      deletedAt: null,
+    });
+    (prisma.energyBaseline.update as jest.Mock).mockResolvedValue({
+      id: 'e6000000-0000-4000-a000-000000000001',
+      name: 'Updated',
+    });
 
-    const res = await request(app).put('/api/baselines/e6000000-0000-4000-a000-000000000001').send({ name: 'Updated' });
+    const res = await request(app)
+      .put('/api/baselines/e6000000-0000-4000-a000-000000000001')
+      .send({ name: 'Updated' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.name).toBe('Updated');
@@ -163,13 +186,17 @@ describe('PUT /api/baselines/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/baselines/00000000-0000-0000-0000-000000000099').send({ name: 'X' });
+    const res = await request(app)
+      .put('/api/baselines/00000000-0000-0000-0000-000000000099')
+      .send({ name: 'X' });
 
     expect(res.status).toBe(404);
   });
 
   it('should reject invalid update body', async () => {
-    const res = await request(app).put('/api/baselines/e6000000-0000-4000-a000-000000000001').send({ year: 'not-a-number' });
+    const res = await request(app)
+      .put('/api/baselines/e6000000-0000-4000-a000-000000000001')
+      .send({ year: 'not-a-number' });
 
     expect(res.status).toBe(400);
   });
@@ -177,8 +204,14 @@ describe('PUT /api/baselines/:id', () => {
 
 describe('DELETE /api/baselines/:id', () => {
   it('should soft delete a baseline', async () => {
-    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({ id: 'e6000000-0000-4000-a000-000000000001', deletedAt: null });
-    (prisma.energyBaseline.update as jest.Mock).mockResolvedValue({ id: 'e6000000-0000-4000-a000-000000000001', deletedAt: new Date() });
+    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e6000000-0000-4000-a000-000000000001',
+      deletedAt: null,
+    });
+    (prisma.energyBaseline.update as jest.Mock).mockResolvedValue({
+      id: 'e6000000-0000-4000-a000-000000000001',
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/baselines/e6000000-0000-4000-a000-000000000001');
 
@@ -197,19 +230,35 @@ describe('DELETE /api/baselines/:id', () => {
 
 describe('PUT /api/baselines/:id/approve', () => {
   it('should approve a DRAFT baseline', async () => {
-    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({ id: 'e6000000-0000-4000-a000-000000000001', status: 'DRAFT', deletedAt: null });
-    (prisma.energyBaseline.update as jest.Mock).mockResolvedValue({ id: 'e6000000-0000-4000-a000-000000000001', status: 'ACTIVE', approvedBy: '00000000-0000-4000-a000-000000000123' });
+    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e6000000-0000-4000-a000-000000000001',
+      status: 'DRAFT',
+      deletedAt: null,
+    });
+    (prisma.energyBaseline.update as jest.Mock).mockResolvedValue({
+      id: 'e6000000-0000-4000-a000-000000000001',
+      status: 'ACTIVE',
+      approvedBy: '00000000-0000-4000-a000-000000000123',
+    });
 
-    const res = await request(app).put('/api/baselines/e6000000-0000-4000-a000-000000000001/approve');
+    const res = await request(app).put(
+      '/api/baselines/e6000000-0000-4000-a000-000000000001/approve'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('ACTIVE');
   });
 
   it('should reject if not DRAFT', async () => {
-    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({ id: 'e6000000-0000-4000-a000-000000000001', status: 'ACTIVE', deletedAt: null });
+    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e6000000-0000-4000-a000-000000000001',
+      status: 'ACTIVE',
+      deletedAt: null,
+    });
 
-    const res = await request(app).put('/api/baselines/e6000000-0000-4000-a000-000000000001/approve');
+    const res = await request(app).put(
+      '/api/baselines/e6000000-0000-4000-a000-000000000001/approve'
+    );
 
     expect(res.status).toBe(400);
   });
@@ -217,7 +266,9 @@ describe('PUT /api/baselines/:id/approve', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/baselines/00000000-0000-0000-0000-000000000099/approve');
+    const res = await request(app).put(
+      '/api/baselines/00000000-0000-0000-0000-000000000099/approve'
+    );
 
     expect(res.status).toBe(404);
   });

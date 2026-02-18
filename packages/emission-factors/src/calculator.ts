@@ -41,10 +41,13 @@ const UNIT_CONVERSIONS: Record<string, Record<string, number>> = {
  * @param factorSet - Factor set to use (DEFRA, EPA)
  * @returns The emission factor or undefined
  */
-export function getEmissionFactor(fuelType: FuelType, factorSet: FactorSet = 'DEFRA'): EmissionFactor | undefined {
+export function getEmissionFactor(
+  fuelType: FuelType,
+  factorSet: FactorSet = 'DEFRA'
+): EmissionFactor | undefined {
   const factors = FACTOR_SETS[factorSet];
   if (!factors) return undefined;
-  return factors.find(f => f.type === fuelType);
+  return factors.find((f) => f.type === fuelType);
 }
 
 /**
@@ -78,7 +81,7 @@ export function calculateEmission(
   fuelType: FuelType,
   quantity: number,
   unit: string,
-  factorSet: FactorSet = 'DEFRA',
+  factorSet: FactorSet = 'DEFRA'
 ): EmissionResult {
   const factor = getEmissionFactor(fuelType, factorSet);
   if (!factor) {

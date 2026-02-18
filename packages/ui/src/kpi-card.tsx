@@ -51,10 +51,7 @@ export function KpiCard({ label, value, trend, className }: KpiCardProps) {
         {value}
       </div>
       {trend && (
-        <div
-          className="mt-1 text-[0.7rem]"
-          style={{ color: trendColor }}
-        >
+        <div className="mt-1 text-[0.7rem]" style={{ color: trendColor }}>
           {trend.direction === 'up' && '\u2191 '}
           {trend.direction === 'down' && '\u2193 '}
           {trend.direction === 'warn' && '\u26A0 '}

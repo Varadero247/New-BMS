@@ -70,7 +70,10 @@ router.get('/', async (req: Request, res: Response) => {
 
     const where: Record<string, unknown> = { deletedAt: null };
 
-    if (year) { const n = parseInt(String(year), 10); if (!isNaN(n)) where.year = n; }
+    if (year) {
+      const n = parseInt(String(year), 10);
+      if (!isNaN(n)) where.year = n;
+    }
     if (status && typeof status === 'string') {
       where.status = status;
     }
@@ -96,8 +99,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list baselines', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list baselines' } });
+    logger.error('Failed to list baselines', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list baselines' },
+    });
   }
 });
 
@@ -109,7 +117,11 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = baselineCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -132,8 +144,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Baseline created', { baselineId: baseline.id });
     res.status(201).json({ success: true, data: baseline });
   } catch (error: unknown) {
-    logger.error('Failed to create baseline', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create baseline' } });
+    logger.error('Failed to create baseline', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create baseline' },
+    });
   }
 });
 
@@ -151,13 +168,21 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!baseline) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     res.json({ success: true, data: baseline });
   } catch (error: unknown) {
-    logger.error('Failed to get baseline', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get baseline' } });
+    logger.error('Failed to get baseline', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get baseline' },
+    });
   }
 });
 
@@ -170,12 +195,20 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = baselineUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
-    const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyBaseline.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -191,8 +224,14 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Baseline updated', { baselineId: id });
     res.json({ success: true, data: baseline });
   } catch (error: unknown) {
-    logger.error('Failed to update baseline', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update baseline' } });
+    logger.error('Failed to update baseline', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update baseline' },
+    });
   }
 });
 
@@ -204,9 +243,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyBaseline.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     await prisma.energyBaseline.update({
@@ -217,8 +260,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Baseline soft-deleted', { baselineId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete baseline', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete baseline' } });
+    logger.error('Failed to delete baseline', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete baseline' },
+    });
   }
 });
 
@@ -231,13 +280,20 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     const { id } = req.params;
     const authReq = req as AuthRequest;
 
-    const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyBaseline.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     if (existing.status !== 'DRAFT') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Only DRAFT baselines can be approved' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Only DRAFT baselines can be approved' },
+      });
     }
 
     const baseline = await prisma.energyBaseline.update({
@@ -252,8 +308,14 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     logger.info('Baseline approved', { baselineId: id });
     res.json({ success: true, data: baseline });
   } catch (error: unknown) {
-    logger.error('Failed to approve baseline', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve baseline' } });
+    logger.error('Failed to approve baseline', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve baseline' },
+    });
   }
 });
 

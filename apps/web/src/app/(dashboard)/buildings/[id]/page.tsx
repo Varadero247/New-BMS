@@ -43,7 +43,13 @@ const buildingData = {
 };
 
 const environmentalData = [
-  { label: 'Temperature', value: '72°F', icon: Thermometer, color: 'text-orange-500', status: 'normal' },
+  {
+    label: 'Temperature',
+    value: '72°F',
+    icon: Thermometer,
+    color: 'text-orange-500',
+    status: 'normal',
+  },
   { label: 'Humidity', value: '45%', icon: Droplets, color: 'text-blue-500', status: 'normal' },
   { label: 'Air Quality', value: 'Good', icon: Wind, color: 'text-green-500', status: 'normal' },
   { label: 'Energy Usage', value: '847 kWh', icon: Zap, color: 'text-yellow-500', status: 'high' },
@@ -63,17 +69,15 @@ export default function BuildingDetailPage({ params }: { params: Promise<{ id: s
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
-          <Link
-            href="/buildings"
-            className="p-2 hover:bg-muted rounded-lg transition-colors"
-          >
+          <Link href="/buildings" className="p-2 hover:bg-muted rounded-lg transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
             <h1 className="text-2xl font-bold">{buildingData.name}</h1>
             <p className="text-muted-foreground flex items-center gap-1">
               <MapPin className="w-4 h-4" />
-              {buildingData.address}, {buildingData.city}, {buildingData.state} {buildingData.zipCode}
+              {buildingData.address}, {buildingData.city}, {buildingData.state}{' '}
+              {buildingData.zipCode}
             </p>
           </div>
         </div>
@@ -184,17 +188,14 @@ export default function BuildingDetailPage({ params }: { params: Promise<{ id: s
           <CardContent>
             <div className="space-y-4">
               {recentAlerts.map((alert) => (
-                <div
-                  key={alert.id}
-                  className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg"
-                >
+                <div key={alert.id} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
                   <div
                     className={`w-2 h-2 mt-2 rounded-full ${
                       alert.severity === 'critical'
                         ? 'bg-red-500'
                         : alert.severity === 'warning'
-                        ? 'bg-yellow-500'
-                        : 'bg-blue-500'
+                          ? 'bg-yellow-500'
+                          : 'bg-blue-500'
                     }`}
                   />
                   <div className="flex-1 min-w-0">
@@ -223,7 +224,9 @@ export default function BuildingDetailPage({ params }: { params: Promise<{ id: s
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">Floor</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">Type</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">Devices</th>
-                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">Actions</th>
+                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>

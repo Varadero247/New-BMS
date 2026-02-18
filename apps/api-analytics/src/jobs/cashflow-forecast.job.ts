@@ -49,7 +49,10 @@ export async function runCashFlowForecastJob(): Promise<{ weeksCreated: number }
   }
 
   // Get planned expenses
-  let totalWeeklyExpenses = Object.values(DEFAULT_WEEKLY_EXPENSES).reduce((sum, val) => sum + val, 0);
+  let totalWeeklyExpenses = Object.values(DEFAULT_WEEKLY_EXPENSES).reduce(
+    (sum, val) => sum + val,
+    0
+  );
 
   try {
     const expenses = await prisma.plannedExpense.findMany({
@@ -60,11 +63,16 @@ export async function runCashFlowForecastJob(): Promise<{ weeksCreated: number }
       totalWeeklyExpenses = expenses.reduce((sum, exp) => {
         const amount = Number(exp.amount);
         switch (exp.frequency) {
-          case 'MONTHLY': return sum + amount / 4.33;
-          case 'QUARTERLY': return sum + amount / 13;
-          case 'ANNUAL': return sum + amount / 52;
-          case 'ONE_OFF': return sum; // One-offs handled separately
-          default: return sum + amount / 4.33;
+          case 'MONTHLY':
+            return sum + amount / 4.33;
+          case 'QUARTERLY':
+            return sum + amount / 13;
+          case 'ANNUAL':
+            return sum + amount / 52;
+          case 'ONE_OFF':
+            return sum; // One-offs handled separately
+          default:
+            return sum + amount / 4.33;
         }
       }, 0);
     }

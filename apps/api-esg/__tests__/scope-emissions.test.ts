@@ -13,7 +13,12 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN', orgId: 'org-001' };
+    req.user = {
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'test@test.com',
+      role: 'ADMIN',
+      orgId: 'org-001',
+    };
     next();
   }),
 }));
@@ -108,7 +113,9 @@ describe('GET /api/scope-emissions', () => {
   });
 
   it('should return 500 when database query fails', async () => {
-    (prisma.esgScopeEmission.findMany as jest.Mock).mockRejectedValue(new Error('DB connection lost'));
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockRejectedValue(
+      new Error('DB connection lost')
+    );
 
     const res = await request(app).get('/api/scope-emissions');
     expect(res.status).toBe(500);

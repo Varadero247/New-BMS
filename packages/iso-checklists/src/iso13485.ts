@@ -623,7 +623,8 @@ export const iso13485Checklist: StandardChecklist = {
     },
     {
       clause: '7.5.7',
-      title: 'Particular requirements for validation of processes for sterilization and sterile barrier systems',
+      title:
+        'Particular requirements for validation of processes for sterilization and sterile barrier systems',
       questions: [
         'Has the organization validated sterilization processes and sterile barrier system packaging processes prior to implementation and following product or process changes?',
         'Are records of the results and conclusions of validation, and necessary actions from the validation, maintained?',

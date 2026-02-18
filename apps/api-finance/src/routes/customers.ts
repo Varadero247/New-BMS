@@ -10,7 +10,11 @@ const router: Router = Router();
 router.use(authenticate);
 
 function generateCode(name: string, rand: number): string {
-  const slug = name.replace(/[^A-Z0-9]/gi, '').toUpperCase().slice(0, 6).padEnd(3, 'X');
+  const slug = name
+    .replace(/[^A-Z0-9]/gi, '')
+    .toUpperCase()
+    .slice(0, 6)
+    .padEnd(3, 'X');
   return `CUST-${slug}-${rand.toString().padStart(4, '0')}`;
 }
 
@@ -80,8 +84,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list customers', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list customers' } });
+    logger.error('Failed to list customers', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list customers' },
+    });
   }
 });
 
@@ -98,20 +107,36 @@ router.get('/:id', async (req: Request, res: Response, next) => {
           where: { deletedAt: null } as any,
           orderBy: { issueDate: 'desc' },
           take: 10,
-          select: { id: true, reference: true, issueDate: true, dueDate: true, status: true, total: true, amountDue: true },
+          select: {
+            id: true,
+            reference: true,
+            issueDate: true,
+            dueDate: true,
+            status: true,
+            total: true,
+            amountDue: true,
+          },
         },
         _count: { select: { invoices: true } },
       },
     });
 
     if (!customer) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
     res.json({ success: true, data: customer });
   } catch (error: unknown) {
-    logger.error('Failed to get customer', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get customer' } });
+    logger.error('Failed to get customer', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get customer' },
+    });
   }
 });
 
@@ -120,7 +145,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -131,7 +163,8 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         code,
         ...parsed.data,
-        creditLimit: parsed.data.creditLimit != null ? new Prisma.Decimal(parsed.data.creditLimit) : null,
+        creditLimit:
+          parsed.data.creditLimit != null ? new Prisma.Decimal(parsed.data.creditLimit) : null,
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -139,11 +172,24 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Customer created', { customerId: customer.id, code });
     res.status(201).json({ success: true, data: customer });
   } catch (error: unknown) {
-    logger.error('Failed to create customer', { error: error instanceof Error ? error.message : 'Unknown error' });
-    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Customer code must be unique' } });
+    logger.error('Failed to create customer', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    if (
+      error != null &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as any).code === 'P2002'
+    ) {
+      return res.status(409).json({
+        success: false,
+        error: { code: 'CONFLICT', message: 'Customer code must be unique' },
+      });
     }
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create customer' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create customer' },
+    });
   }
 });
 
@@ -154,12 +200,21 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const existing = await prisma.finCustomer.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -169,7 +224,9 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       where: { id },
       data: {
         ...rest,
-        ...(creditLimit !== undefined ? { creditLimit: creditLimit != null ? new Prisma.Decimal(creditLimit) : null } : {}),
+        ...(creditLimit !== undefined
+          ? { creditLimit: creditLimit != null ? new Prisma.Decimal(creditLimit) : null }
+          : {}),
         updatedAt: new Date(),
       },
     });
@@ -177,8 +234,14 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     logger.info('Customer updated', { customerId: id });
     res.json({ success: true, data: customer });
   } catch (error: unknown) {
-    logger.error('Failed to update customer', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update customer' } });
+    logger.error('Failed to update customer', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update customer' },
+    });
   }
 });
 
@@ -190,12 +253,22 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.finCustomer.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
-    const invoiceCount = await prisma.finInvoice.count({ where: { customerId: id, deletedAt: null } as any });
+    const invoiceCount = await prisma.finInvoice.count({
+      where: { customerId: id, deletedAt: null } as any,
+    });
     if (invoiceCount > 0) {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: `Cannot delete customer: ${invoiceCount} invoice(s) exist` } });
+      return res.status(409).json({
+        success: false,
+        error: {
+          code: 'CONFLICT',
+          message: `Cannot delete customer: ${invoiceCount} invoice(s) exist`,
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -207,8 +280,14 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     logger.info('Customer soft-deleted', { customerId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete customer', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete customer' } });
+    logger.error('Failed to delete customer', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete customer' },
+    });
   }
 });
 

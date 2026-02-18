@@ -13,7 +13,9 @@ test.describe('Finance CRUD', () => {
   });
 
   test('should display Finance dashboard', async ({ page }) => {
-    await expect(page.locator('text=/Finance|Account|Invoice|Budget/i').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=/Finance|Account|Invoice|Budget/i').first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should list accounts via API', async ({ page }) => {

@@ -22,7 +22,9 @@ jest.mock('@ims/monitoring', () => ({
 
 jest.mock('@ims/email', () => ({
   sendEmail: jest.fn().mockResolvedValue({ success: true }),
-  monthlyReportEmail: jest.fn().mockReturnValue({ subject: 'test', html: '<p>test</p>', text: 'test' }),
+  monthlyReportEmail: jest
+    .fn()
+    .mockReturnValue({ subject: 'test', html: '<p>test</p>', text: 'test' }),
 }));
 
 jest.mock('../src/jobs/ai-variance', () => ({
@@ -46,10 +48,7 @@ jest.mock('@ims/hubspot-client', () => ({
   })),
 }));
 
-import {
-  calculateAmortisation,
-  calculateFounderIncome,
-} from '../src/jobs/monthly-snapshot.job';
+import { calculateAmortisation, calculateFounderIncome } from '../src/jobs/monthly-snapshot.job';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -88,7 +87,7 @@ describe('Dual Loan Model', () => {
   // -------------------------------------------------------------------------
   // Director's Loan and Starter Loan parameters
   // -------------------------------------------------------------------------
-  describe('Director\'s Loan (£320k @ 8% / 36m)', () => {
+  describe("Director's Loan (£320k @ 8% / 36m)", () => {
     it('has a monthly payment of approximately £10,028', () => {
       const result = calculateAmortisation(320000, 0.08, 36, 1);
       expect(result.payment).toBeCloseTo(10028, 0);
@@ -151,7 +150,7 @@ describe('Dual Loan Model', () => {
       expect(result.dirLoanBalance).toBeGreaterThan(0);
     });
 
-    it('Month 26: starter loan done (0), director\'s still active', () => {
+    it("Month 26: starter loan done (0), director's still active", () => {
       const result = calculateFounderIncome(26);
       expect(result.starterLoanPayment).toBe(0);
       expect(result.starterLoanBalance).toBe(0);
@@ -159,7 +158,7 @@ describe('Dual Loan Model', () => {
       expect(result.dirLoanBalance).toBeGreaterThan(0);
     });
 
-    it('Month 38: director\'s loan last payment (36 payments from M3)', () => {
+    it("Month 38: director's loan last payment (36 payments from M3)", () => {
       // Director's starts M3, so payment #36 = month 38
       const result = calculateFounderIncome(38);
       expect(result.dirLoanPayment).toBeGreaterThan(0);

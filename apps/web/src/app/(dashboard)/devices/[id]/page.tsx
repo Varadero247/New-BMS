@@ -45,10 +45,22 @@ const readings = [
 ];
 
 const recentActivity = [
-  { id: 1, action: 'Temperature adjusted', value: '72°F → 70°F', time: '10 min ago', user: 'System' },
+  {
+    id: 1,
+    action: 'Temperature adjusted',
+    value: '72°F → 70°F',
+    time: '10 min ago',
+    user: 'System',
+  },
   { id: 2, action: 'Mode changed', value: 'Cooling', time: '1 hour ago', user: 'John Smith' },
   { id: 3, action: 'Filter status check', value: 'OK', time: '6 hours ago', user: 'System' },
-  { id: 4, action: 'Scheduled maintenance', value: 'Completed', time: '2 days ago', user: 'Mike Tech' },
+  {
+    id: 4,
+    action: 'Scheduled maintenance',
+    value: 'Completed',
+    time: '2 days ago',
+    user: 'Mike Tech',
+  },
 ];
 
 const statusColors: Record<string, string> = {
@@ -67,16 +79,15 @@ export default function DeviceDetailPage({ params }: { params: Promise<{ id: str
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
-          <Link
-            href="/devices"
-            className="p-2 hover:bg-muted rounded-lg transition-colors"
-          >
+          <Link href="/devices" className="p-2 hover:bg-muted rounded-lg transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold">{deviceData.name}</h1>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[deviceData.status]}`}>
+              <span
+                className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[deviceData.status]}`}
+              >
                 {deviceData.status}
               </span>
             </div>
@@ -165,10 +176,7 @@ export default function DeviceDetailPage({ params }: { params: Promise<{ id: str
           <CardContent>
             <div className="grid sm:grid-cols-2 gap-4">
               {readings.map((reading) => (
-                <div
-                  key={reading.label}
-                  className="p-4 bg-muted/50 rounded-lg"
-                >
+                <div key={reading.label} className="p-4 bg-muted/50 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-muted-foreground">{reading.label}</span>
                     {reading.status === 'warning' && (
@@ -188,9 +196,13 @@ export default function DeviceDetailPage({ params }: { params: Promise<{ id: str
                 <div className="p-4 border rounded-lg">
                   <label className="text-sm font-medium">Temperature</label>
                   <div className="flex items-center gap-2 mt-2">
-                    <Button variant="outline" size="sm">-</Button>
+                    <Button variant="outline" size="sm">
+                      -
+                    </Button>
                     <span className="text-lg font-bold flex-1 text-center">70°F</span>
-                    <Button variant="outline" size="sm">+</Button>
+                    <Button variant="outline" size="sm">
+                      +
+                    </Button>
                   </div>
                 </div>
                 <div className="p-4 border rounded-lg">

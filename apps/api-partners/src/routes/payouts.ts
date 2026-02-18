@@ -4,7 +4,6 @@ import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { type AuthRequest } from '@ims/auth';
 
-
 const logger = createLogger('api-partners:payouts');
 const router = Router();
 
@@ -29,7 +28,8 @@ router.get('/', async (req: Request, res: Response) => {
     const payouts = await prisma.mktPartnerPayout.findMany({
       where: { partnerId },
       orderBy: { requestedAt: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Calculate available balance
     const unpaidDeals = await prisma.mktPartnerDeal.findMany({
@@ -39,7 +39,8 @@ router.get('/', async (req: Request, res: Response) => {
         commissionPaid: false,
         commissionValue: { not: null },
       },
-      take: 1000});
+      take: 1000,
+    });
 
     const availableBalance = unpaidDeals.reduce((sum, d) => sum + (d.commissionValue || 0), 0);
 
@@ -66,7 +67,13 @@ router.post('/request', async (req: Request, res: Response) => {
   try {
     const parsed = requestPayoutSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.errors[0]?.message || 'Invalid input',
+        },
+      });
     }
 
     const partnerId = (req as any).partner?.id;
@@ -85,7 +92,8 @@ router.post('/request', async (req: Request, res: Response) => {
         commissionPaid: false,
         commissionValue: { not: null },
       },
-      take: 1000});
+      take: 1000,
+    });
 
     const totalAmount = unpaidDeals.reduce((sum, d) => sum + (d.commissionValue || 0), 0);
 

@@ -190,7 +190,9 @@ describe('Quality Investigations API Routes', () => {
     it('should return a single investigation', async () => {
       mockPrisma.qualInvestigation.findFirst.mockResolvedValue(mockInvestigation);
 
-      const res = await request(app).get('/api/investigations/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).get(
+        '/api/investigations/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -200,7 +202,9 @@ describe('Quality Investigations API Routes', () => {
     it('should return 404 when investigation not found', async () => {
       mockPrisma.qualInvestigation.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/investigations/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).get(
+        '/api/investigations/00000000-0000-0000-0000-000000000099'
+      );
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -209,7 +213,9 @@ describe('Quality Investigations API Routes', () => {
     it('should return 500 on database error', async () => {
       mockPrisma.qualInvestigation.findFirst.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/investigations/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).get(
+        '/api/investigations/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(res.status).toBe(500);
     });
@@ -254,9 +260,14 @@ describe('Quality Investigations API Routes', () => {
   describe('DELETE /api/investigations/:id', () => {
     it('should soft delete an investigation', async () => {
       mockPrisma.qualInvestigation.findFirst.mockResolvedValue(mockInvestigation);
-      mockPrisma.qualInvestigation.update.mockResolvedValue({ ...mockInvestigation, deletedAt: new Date() });
+      mockPrisma.qualInvestigation.update.mockResolvedValue({
+        ...mockInvestigation,
+        deletedAt: new Date(),
+      });
 
-      const res = await request(app).delete('/api/investigations/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/investigations/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -266,7 +277,9 @@ describe('Quality Investigations API Routes', () => {
     it('should return 404 when investigation not found', async () => {
       mockPrisma.qualInvestigation.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/investigations/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/investigations/00000000-0000-0000-0000-000000000099'
+      );
 
       expect(res.status).toBe(404);
     });
@@ -275,7 +288,9 @@ describe('Quality Investigations API Routes', () => {
       mockPrisma.qualInvestigation.findFirst.mockResolvedValue(mockInvestigation);
       mockPrisma.qualInvestigation.update.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/investigations/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/investigations/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(res.status).toBe(500);
     });

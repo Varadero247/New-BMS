@@ -22,7 +22,9 @@ jest.mock('@ims/monitoring', () => ({
 
 jest.mock('@ims/email', () => ({
   sendEmail: jest.fn().mockResolvedValue({ success: true }),
-  monthlyReportEmail: jest.fn().mockReturnValue({ subject: 'test', html: '<p>test</p>', text: 'test' }),
+  monthlyReportEmail: jest
+    .fn()
+    .mockReturnValue({ subject: 'test', html: '<p>test</p>', text: 'test' }),
 }));
 
 jest.mock('../src/jobs/ai-variance', () => ({
@@ -62,22 +64,26 @@ beforeEach(() => {
 describe('collectStripeMetrics', () => {
   it('returns default values when Stripe is unavailable', async () => {
     const metrics = await collectStripeMetrics();
-    expect(metrics).toEqual(expect.objectContaining({
-      mrr: expect.any(Number),
-      arr: expect.any(Number),
-      customers: expect.any(Number),
-    }));
+    expect(metrics).toEqual(
+      expect.objectContaining({
+        mrr: expect.any(Number),
+        arr: expect.any(Number),
+        customers: expect.any(Number),
+      })
+    );
   });
 });
 
 describe('collectHubSpotMetrics', () => {
   it('returns default values when HubSpot is unavailable', async () => {
     const metrics = await collectHubSpotMetrics();
-    expect(metrics).toEqual(expect.objectContaining({
-      pipelineValue: expect.any(Number),
-      pipelineDeals: expect.any(Number),
-      newLeads: expect.any(Number),
-    }));
+    expect(metrics).toEqual(
+      expect.objectContaining({
+        pipelineValue: expect.any(Number),
+        pipelineDeals: expect.any(Number),
+        newLeads: expect.any(Number),
+      })
+    );
   });
 });
 
@@ -179,8 +185,16 @@ describe('runMonthlySnapshot', () => {
       plannedChurnPct: 0,
       plannedArpu: 0,
     });
-    (prisma.monthlySnapshot.upsert as jest.Mock).mockResolvedValue({ id: mockId, month: '2026-02' });
-    (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({ id: mockId, month: '2026-02', mrr: 0, arr: 0 });
+    (prisma.monthlySnapshot.upsert as jest.Mock).mockResolvedValue({
+      id: mockId,
+      month: '2026-02',
+    });
+    (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({
+      id: mockId,
+      month: '2026-02',
+      mrr: 0,
+      arr: 0,
+    });
 
     const result = await runMonthlySnapshot();
     expect(result).toBe(mockId);

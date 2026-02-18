@@ -1,13 +1,8 @@
 import { Router, Request, Response } from 'express';
-import { authenticate , type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
-import {
-  acquireLock,
-  releaseLock,
-  refreshLock,
-  getPresence,
-} from '@ims/presence';
+import { acquireLock, releaseLock, refreshLock, getPresence } from '@ims/presence';
 
 const logger = createLogger('api-gateway:presence');
 const router = Router();
@@ -30,10 +25,18 @@ router.get('/', authenticate, (req: Request, res: Response) => {
   try {
     const { recordType, recordId } = req.query;
 
-    if (!recordType || !recordId || typeof recordType !== 'string' || typeof recordId !== 'string') {
+    if (
+      !recordType ||
+      !recordId ||
+      typeof recordType !== 'string' ||
+      typeof recordId !== 'string'
+    ) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'recordType and recordId query parameters are required' },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'recordType and recordId query parameters are required',
+        },
       });
     }
 
@@ -44,7 +47,9 @@ router.get('/', authenticate, (req: Request, res: Response) => {
       data: { viewers },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get presence', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get presence', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get presence' },
@@ -90,7 +95,9 @@ router.post('/lock', authenticate, (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: unknown) {
-    logger.error('Failed to acquire lock', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to acquire lock', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to acquire lock' },
@@ -122,7 +129,9 @@ router.delete('/lock', authenticate, (req: Request, res: Response) => {
       data: { released: true },
     });
   } catch (error: unknown) {
-    logger.error('Failed to release lock', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to release lock', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to release lock' },
@@ -152,7 +161,9 @@ router.put('/refresh', authenticate, (req: Request, res: Response) => {
       data: { refreshed: true },
     });
   } catch (error: unknown) {
-    logger.error('Failed to refresh lock', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to refresh lock', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to refresh lock' },

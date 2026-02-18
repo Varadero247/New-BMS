@@ -22,6 +22,7 @@ Currently, all services share a single PostgreSQL database with a unified Prisma
 ```
 
 **Configuration:**
+
 ```env
 DATABASE_URL=postgresql://user:pass@localhost:5432/ims
 ```
@@ -125,49 +126,49 @@ CORE_DATABASE_URL=postgresql://user:pass@localhost:5432/ims_core
 
 Each microservice has its own schema file:
 
-| Service | Schema File | Database | Key Models |
-|---------|-------------|----------|------------|
-| HR | `hr.prisma` | `ims_hr` | Employee, Department, Position, Leave, Training |
-| Payroll | `payroll.prisma` | `ims_payroll` | PayrollRun, Payslip, Deduction, Benefit |
-| Quality | `quality.prisma` | `ims_quality` | QualInterestedParty, QualIssue, QualRisk, QualOpportunity, QualProcess, QualNonConformance, QualAction, QualDocument, QualCapa, QualCapaAction, QualLegal, QualFmea, QualFmeaRow, QualImprovement, QualSupplier, QualChange, QualObjective, QualMilestone (18 models, 50+ enums) |
-| Health & Safety | `health-safety.prisma` | `ims_health_safety` | Incident, Hazard, RiskAssessment |
-| Environment | `environment.prisma` | `ims_environment` | EnvAspect, EnvEvent, EnvLegal, EnvObjective, EnvMilestone, EnvAction, EnvCapa, EnvCapaAction, WasteRecord, MonitoringData, EnvironmentalMetric |
-| Inventory | `inventory.prisma` | `ims_inventory` | Item, Stock, Movement |
-| Workflows | `workflows.prisma` | `ims_workflows` | Definition, Instance, Task |
-| AI Analysis | `ai.prisma` | `ims_ai_analysis` | Analysis, Insight, Metric |
-| Project Management | `project-management.prisma` | `ims_project_management` | Project, ProjectTask, ProjectMilestone, ProjectRisk, ProjectIssue, ProjectChange, ProjectResource, ProjectStakeholder, ProjectDocument, ProjectSprint, ProjectUserStory, ProjectTimesheet, ProjectExpense, ProjectStatusReport (14 models) |
-| Automotive | `automotive.prisma` | `ims_automotive` | APQP, PPAP, FMEA, ControlPlan, MSA, SPC, LPA, CSR (18 models) |
-| Medical | `medical.prisma` | `ims_medical` | DHF, DMR, DHR, Complaint, PMS, RiskMgmt, UDI, SoftwareValidation (27 models) |
-| Aerospace | `aerospace.prisma` | `ims_aerospace` | FAI, ConfigMgmt, WorkOrder, HumanFactors, OASIS (11 models) |
-| Finance | `finance.prisma` | `ims_finance` | Accounts, Transactions, Budgets, Invoices (23 models) |
-| CRM | `crm.prisma` | `ims_crm` | Contacts, Opportunities, Campaigns (17 models) |
-| InfoSec | `infosec.prisma` | `ims_infosec` | ISO 27001 controls, risks, incidents (14 models) |
-| ESG | `esg.prisma` | `ims_esg` | Environmental, Social, Governance metrics (15 models) |
-| CMMS | `cmms.prisma` | `ims_cmms` | Work orders, Assets, Maintenance (16 models) |
-| Portal | `portal.prisma` | `ims_portal` | Portal users, Documents (12 models) |
-| Food Safety | `food-safety.prisma` | `ims_food_safety` | HACCP, hazard analysis (14 models) |
-| Energy | `energy.prisma` | `ims_energy` | ISO 50001, energy baselines (12 models) |
-| Analytics | `analytics.prisma` | `ims_analytics` | Dashboards, Reports, Datasets (10 models) |
-| Field Service | `field-service.prisma` | `ims_field_service` | Work orders, Dispatch (14 models) |
-| ISO 42001 | `iso42001.prisma` | `ims_iso42001` | AI Management System (7 models) |
-| ISO 37001 | `iso37001.prisma` | `ims_iso37001` | Anti-Bribery (6 models) |
-| Marketing | `marketing.prisma` | `ims_marketing` | Leads, partners, campaigns (13 models) |
-| Risk (ERM) | `risk.prisma` | `ims_risk` | ISO 31000:2018 — registers, controls, KRIs, bow-tie, appetite (10 models) |
-| Training | `training.prisma` | `ims_training` | Courses, records, competencies (5 models) |
-| Suppliers | `suppliers.prisma` | `ims_suppliers` | Suppliers, scorecards (4 models) |
-| Assets | `assets.prisma` | `ims_assets` | Register, work orders, calibration (4 models) |
-| Documents | `documents.prisma` | `ims_documents` | Documents, versions, approvals (4 models) |
-| Complaints | `complaints.prisma` | `ims_complaints` | Complaints, actions (3 models) |
-| Contracts | `contracts.prisma` | `ims_contracts` | Contracts, approvals, clauses (4 models) |
-| PTW | `ptw.prisma` | `ims_ptw` | Permits, method statements (3 models) |
-| Reg Monitor | `reg-monitor.prisma` | `ims_reg_monitor` | Regulatory changes, obligations (3 models) |
-| Incidents | `incidents.prisma` | `ims_incidents` | Incident management (1 model, 30+ fields) |
-| Audits | `audits.prisma` | `ims_audits` | Audits, findings, checklists (4 models) |
-| Mgmt Review | `mgmt-review.prisma` | `ims_mgmt_review` | Management reviews (1 model) |
-| Wizard | `wizard.prisma` | `ims_wizard` | Setup wizard state (2 models) |
-| Partner Portal | `partner-portal.prisma` | `ims_partner_portal` | Referrals, commission, support (4 models) |
-| Chemicals | `chemicals.prisma` | `ims_chemicals` | COSHH, SDS, GHS, inventory (10 models) |
-| Emergency | `emergency.prisma` | `ims_emergency` | FRA, BCP, PEEP, wardens, drills (16 models) |
+| Service            | Schema File                 | Database                 | Key Models                                                                                                                                                                                                                                                                       |
+| ------------------ | --------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| HR                 | `hr.prisma`                 | `ims_hr`                 | Employee, Department, Position, Leave, Training                                                                                                                                                                                                                                  |
+| Payroll            | `payroll.prisma`            | `ims_payroll`            | PayrollRun, Payslip, Deduction, Benefit                                                                                                                                                                                                                                          |
+| Quality            | `quality.prisma`            | `ims_quality`            | QualInterestedParty, QualIssue, QualRisk, QualOpportunity, QualProcess, QualNonConformance, QualAction, QualDocument, QualCapa, QualCapaAction, QualLegal, QualFmea, QualFmeaRow, QualImprovement, QualSupplier, QualChange, QualObjective, QualMilestone (18 models, 50+ enums) |
+| Health & Safety    | `health-safety.prisma`      | `ims_health_safety`      | Incident, Hazard, RiskAssessment                                                                                                                                                                                                                                                 |
+| Environment        | `environment.prisma`        | `ims_environment`        | EnvAspect, EnvEvent, EnvLegal, EnvObjective, EnvMilestone, EnvAction, EnvCapa, EnvCapaAction, WasteRecord, MonitoringData, EnvironmentalMetric                                                                                                                                   |
+| Inventory          | `inventory.prisma`          | `ims_inventory`          | Item, Stock, Movement                                                                                                                                                                                                                                                            |
+| Workflows          | `workflows.prisma`          | `ims_workflows`          | Definition, Instance, Task                                                                                                                                                                                                                                                       |
+| AI Analysis        | `ai.prisma`                 | `ims_ai_analysis`        | Analysis, Insight, Metric                                                                                                                                                                                                                                                        |
+| Project Management | `project-management.prisma` | `ims_project_management` | Project, ProjectTask, ProjectMilestone, ProjectRisk, ProjectIssue, ProjectChange, ProjectResource, ProjectStakeholder, ProjectDocument, ProjectSprint, ProjectUserStory, ProjectTimesheet, ProjectExpense, ProjectStatusReport (14 models)                                       |
+| Automotive         | `automotive.prisma`         | `ims_automotive`         | APQP, PPAP, FMEA, ControlPlan, MSA, SPC, LPA, CSR (18 models)                                                                                                                                                                                                                    |
+| Medical            | `medical.prisma`            | `ims_medical`            | DHF, DMR, DHR, Complaint, PMS, RiskMgmt, UDI, SoftwareValidation (27 models)                                                                                                                                                                                                     |
+| Aerospace          | `aerospace.prisma`          | `ims_aerospace`          | FAI, ConfigMgmt, WorkOrder, HumanFactors, OASIS (11 models)                                                                                                                                                                                                                      |
+| Finance            | `finance.prisma`            | `ims_finance`            | Accounts, Transactions, Budgets, Invoices (23 models)                                                                                                                                                                                                                            |
+| CRM                | `crm.prisma`                | `ims_crm`                | Contacts, Opportunities, Campaigns (17 models)                                                                                                                                                                                                                                   |
+| InfoSec            | `infosec.prisma`            | `ims_infosec`            | ISO 27001 controls, risks, incidents (14 models)                                                                                                                                                                                                                                 |
+| ESG                | `esg.prisma`                | `ims_esg`                | Environmental, Social, Governance metrics (15 models)                                                                                                                                                                                                                            |
+| CMMS               | `cmms.prisma`               | `ims_cmms`               | Work orders, Assets, Maintenance (16 models)                                                                                                                                                                                                                                     |
+| Portal             | `portal.prisma`             | `ims_portal`             | Portal users, Documents (12 models)                                                                                                                                                                                                                                              |
+| Food Safety        | `food-safety.prisma`        | `ims_food_safety`        | HACCP, hazard analysis (14 models)                                                                                                                                                                                                                                               |
+| Energy             | `energy.prisma`             | `ims_energy`             | ISO 50001, energy baselines (12 models)                                                                                                                                                                                                                                          |
+| Analytics          | `analytics.prisma`          | `ims_analytics`          | Dashboards, Reports, Datasets (10 models)                                                                                                                                                                                                                                        |
+| Field Service      | `field-service.prisma`      | `ims_field_service`      | Work orders, Dispatch (14 models)                                                                                                                                                                                                                                                |
+| ISO 42001          | `iso42001.prisma`           | `ims_iso42001`           | AI Management System (7 models)                                                                                                                                                                                                                                                  |
+| ISO 37001          | `iso37001.prisma`           | `ims_iso37001`           | Anti-Bribery (6 models)                                                                                                                                                                                                                                                          |
+| Marketing          | `marketing.prisma`          | `ims_marketing`          | Leads, partners, campaigns (13 models)                                                                                                                                                                                                                                           |
+| Risk (ERM)         | `risk.prisma`               | `ims_risk`               | ISO 31000:2018 — registers, controls, KRIs, bow-tie, appetite (10 models)                                                                                                                                                                                                        |
+| Training           | `training.prisma`           | `ims_training`           | Courses, records, competencies (5 models)                                                                                                                                                                                                                                        |
+| Suppliers          | `suppliers.prisma`          | `ims_suppliers`          | Suppliers, scorecards (4 models)                                                                                                                                                                                                                                                 |
+| Assets             | `assets.prisma`             | `ims_assets`             | Register, work orders, calibration (4 models)                                                                                                                                                                                                                                    |
+| Documents          | `documents.prisma`          | `ims_documents`          | Documents, versions, approvals (4 models)                                                                                                                                                                                                                                        |
+| Complaints         | `complaints.prisma`         | `ims_complaints`         | Complaints, actions (3 models)                                                                                                                                                                                                                                                   |
+| Contracts          | `contracts.prisma`          | `ims_contracts`          | Contracts, approvals, clauses (4 models)                                                                                                                                                                                                                                         |
+| PTW                | `ptw.prisma`                | `ims_ptw`                | Permits, method statements (3 models)                                                                                                                                                                                                                                            |
+| Reg Monitor        | `reg-monitor.prisma`        | `ims_reg_monitor`        | Regulatory changes, obligations (3 models)                                                                                                                                                                                                                                       |
+| Incidents          | `incidents.prisma`          | `ims_incidents`          | Incident management (1 model, 30+ fields)                                                                                                                                                                                                                                        |
+| Audits             | `audits.prisma`             | `ims_audits`             | Audits, findings, checklists (4 models)                                                                                                                                                                                                                                          |
+| Mgmt Review        | `mgmt-review.prisma`        | `ims_mgmt_review`        | Management reviews (1 model)                                                                                                                                                                                                                                                     |
+| Wizard             | `wizard.prisma`             | `ims_wizard`             | Setup wizard state (2 models)                                                                                                                                                                                                                                                    |
+| Partner Portal     | `partner-portal.prisma`     | `ims_partner_portal`     | Referrals, commission, support (4 models)                                                                                                                                                                                                                                        |
+| Chemicals          | `chemicals.prisma`          | `ims_chemicals`          | COSHH, SDS, GHS, inventory (10 models)                                                                                                                                                                                                                                           |
+| Emergency          | `emergency.prisma`          | `ims_emergency`          | FRA, BCP, PEEP, wardens, drills (16 models)                                                                                                                                                                                                                                      |
 
 **Total: 43 schemas, 585+ models across all domains.**
 
@@ -180,6 +181,7 @@ Each microservice has its own schema file:
 3. Each generates its own Prisma client
 
 **Available Schemas:**
+
 - `core.prisma` - Users, Sessions, Audit, API Keys
 - `hr.prisma` - Employees, Departments, Leave, Training
 - `payroll.prisma` - PayrollRuns, Payslips, Benefits, Loans
@@ -215,6 +217,7 @@ Run the database creation script:
 ```
 
 This creates:
+
 - `ims_core`
 - `ims_hr`
 - `ims_payroll`
@@ -244,12 +247,14 @@ This creates:
 ### Phase 3: Data Migration (Complete)
 
 **Generate all Prisma clients:**
+
 ```bash
 cd packages/database
 pnpm generate:all
 ```
 
 **Or generate individual clients:**
+
 ```bash
 pnpm generate:core
 pnpm generate:hr
@@ -258,11 +263,13 @@ pnpm generate:payroll
 ```
 
 **Push schemas to databases:**
+
 ```bash
 pnpm push:all
 ```
 
 **Migrate data from monolithic database:**
+
 ```bash
 ./scripts/migrate-data.sh all    # Migrate all services
 ./scripts/migrate-data.sh hr     # Migrate HR only
@@ -289,7 +296,7 @@ When services need data from other domains:
 ```typescript
 // HR service needs user info
 const user = await fetch('http://api-gateway/api/v1/users/123', {
-  headers: { 'X-Service-Token': serviceToken }
+  headers: { 'X-Service-Token': serviceToken },
 });
 ```
 
@@ -407,6 +414,7 @@ ISO37001_DATABASE_URL=postgresql://ims_iso37001:pass@db-iso37001.prod:5432/ims_i
 All 41 domain schemas include `@@index([deletedAt])` on every model that supports soft deletes. There are 342 such indexes in total. These indexes ensure that the default query filter `WHERE "deletedAt" IS NULL` remains performant even on large tables.
 
 Example from a schema:
+
 ```prisma
 model RiskRegister {
   // ... fields ...
@@ -455,4 +463,5 @@ pg_restore -h localhost -U postgres -d ims --clean --if-exists backup_file.dump
 ## Database Tables
 
 ### Project Management
+
 `projects`, `project_tasks`, `project_milestones`, `project_risks`, `project_issues`, `project_changes`, `project_resources`, `project_stakeholders`, `project_documents`, `project_sprints`, `project_user_stories`, `project_timesheets`, `project_expenses`, `project_status_reports`

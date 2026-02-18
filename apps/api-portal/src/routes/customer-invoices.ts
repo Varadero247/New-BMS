@@ -24,7 +24,9 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const paymentIntentSchema = z.object({
-  paymentMethod: z.enum(['BANK_TRANSFER', 'CREDIT_CARD', 'CHECK', 'OTHER']).default('BANK_TRANSFER'),
+  paymentMethod: z
+    .enum(['BANK_TRANSFER', 'CREDIT_CARD', 'CHECK', 'OTHER'])
+    .default('BANK_TRANSFER'),
   notes: z.string().max(1000).optional().nullable(),
 });
 
@@ -56,8 +58,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing invoices', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list invoices' } });
+    logger.error('Error listing invoices', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list invoices' },
+    });
   }
 });
 
@@ -73,13 +80,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!invoice) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
     }
 
     return res.json({ success: true, data: invoice });
   } catch (error: unknown) {
-    logger.error('Error fetching invoice', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch invoice' } });
+    logger.error('Error fetching invoice', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch invoice' },
+    });
   }
 });
 
@@ -92,7 +106,10 @@ router.post('/:id/pay', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = paymentIntentSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const invoice = await prisma.portalOrder.findFirst({
@@ -100,7 +117,9 @@ router.post('/:id/pay', async (req: Request, res: Response) => {
     });
 
     if (!invoice) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
     }
 
     const updated = await prisma.portalOrder.update({
@@ -111,11 +130,19 @@ router.post('/:id/pay', async (req: Request, res: Response) => {
       },
     });
 
-    logger.info('Payment intent recorded', { orderId: updated.id, method: parsed.data.paymentMethod });
+    logger.info('Payment intent recorded', {
+      orderId: updated.id,
+      method: parsed.data.paymentMethod,
+    });
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Error recording payment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to record payment' } });
+    logger.error('Error recording payment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to record payment' },
+    });
   }
 });
 

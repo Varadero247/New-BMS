@@ -53,7 +53,9 @@ app.use(express.json());
 app.use('/api/campaigns', campaignRouter);
 app.use('/api/email-sequences', emailSequenceRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockCampaign = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -241,7 +243,9 @@ describe('GET /api/campaigns/:id/performance', () => {
       { id: 'm-4', status: 'CONVERTED' },
     ]);
 
-    const res = await request(app).get('/api/campaigns/00000000-0000-0000-0000-000000000001/performance');
+    const res = await request(app).get(
+      '/api/campaigns/00000000-0000-0000-0000-000000000001/performance'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -257,7 +261,9 @@ describe('GET /api/campaigns/:id/performance', () => {
     (prisma as any).crmCampaign.findFirst.mockResolvedValue(mockCampaign);
     (prisma as any).crmCampaignMember.findMany.mockResolvedValue([]);
 
-    const res = await request(app).get('/api/campaigns/00000000-0000-0000-0000-000000000001/performance');
+    const res = await request(app).get(
+      '/api/campaigns/00000000-0000-0000-0000-000000000001/performance'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.totalMembers).toBe(0);
@@ -267,7 +273,9 @@ describe('GET /api/campaigns/:id/performance', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmCampaign.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/campaigns/00000000-0000-0000-0000-000000000099/performance');
+    const res = await request(app).get(
+      '/api/campaigns/00000000-0000-0000-0000-000000000099/performance'
+    );
 
     expect(res.status).toBe(404);
   });
@@ -276,11 +284,17 @@ describe('GET /api/campaigns/:id/performance', () => {
 describe('POST /api/campaigns/:id/contacts', () => {
   it('should add contacts to campaign', async () => {
     (prisma as any).crmCampaign.findFirst.mockResolvedValue(mockCampaign);
-    (prisma as any).crmCampaignMember.create.mockResolvedValue({ id: 'member-1', campaignId: 'camp-1', contactId: 'c-1' });
-
-    const res = await request(app).post('/api/campaigns/00000000-0000-0000-0000-000000000001/contacts').send({
-      contactIds: ['c-1'],
+    (prisma as any).crmCampaignMember.create.mockResolvedValue({
+      id: 'member-1',
+      campaignId: 'camp-1',
+      contactId: 'c-1',
     });
+
+    const res = await request(app)
+      .post('/api/campaigns/00000000-0000-0000-0000-000000000001/contacts')
+      .send({
+        contactIds: ['c-1'],
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -290,7 +304,9 @@ describe('POST /api/campaigns/:id/contacts', () => {
   it('should return 400 for missing contactIds', async () => {
     (prisma as any).crmCampaign.findFirst.mockResolvedValue(mockCampaign);
 
-    const res = await request(app).post('/api/campaigns/00000000-0000-0000-0000-000000000001/contacts').send({});
+    const res = await request(app)
+      .post('/api/campaigns/00000000-0000-0000-0000-000000000001/contacts')
+      .send({});
 
     expect(res.status).toBe(400);
   });
@@ -298,9 +314,11 @@ describe('POST /api/campaigns/:id/contacts', () => {
   it('should return 400 for empty contactIds array', async () => {
     (prisma as any).crmCampaign.findFirst.mockResolvedValue(mockCampaign);
 
-    const res = await request(app).post('/api/campaigns/00000000-0000-0000-0000-000000000001/contacts').send({
-      contactIds: [],
-    });
+    const res = await request(app)
+      .post('/api/campaigns/00000000-0000-0000-0000-000000000001/contacts')
+      .send({
+        contactIds: [],
+      });
 
     expect(res.status).toBe(400);
   });
@@ -308,9 +326,11 @@ describe('POST /api/campaigns/:id/contacts', () => {
   it('should return 404 when campaign not found', async () => {
     (prisma as any).crmCampaign.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/campaigns/00000000-0000-0000-0000-000000000099/contacts').send({
-      contactIds: ['c-1'],
-    });
+    const res = await request(app)
+      .post('/api/campaigns/00000000-0000-0000-0000-000000000099/contacts')
+      .send({
+        contactIds: ['c-1'],
+      });
 
     expect(res.status).toBe(404);
   });
@@ -380,9 +400,14 @@ describe('GET /api/email-sequences', () => {
 describe('PUT /api/email-sequences/:id', () => {
   it('should update email sequence', async () => {
     (prisma as any).crmEmailSequence.findFirst.mockResolvedValue(mockSequence);
-    (prisma as any).crmEmailSequence.update.mockResolvedValue({ ...mockSequence, name: 'Updated Series' });
+    (prisma as any).crmEmailSequence.update.mockResolvedValue({
+      ...mockSequence,
+      name: 'Updated Series',
+    });
 
-    const res = await request(app).put('/api/email-sequences/00000000-0000-0000-0000-000000000001').send({ name: 'Updated Series' });
+    const res = await request(app)
+      .put('/api/email-sequences/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated Series' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -391,7 +416,9 @@ describe('PUT /api/email-sequences/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmEmailSequence.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/email-sequences/00000000-0000-0000-0000-000000000099').send({ name: 'Test' });
+    const res = await request(app)
+      .put('/api/email-sequences/00000000-0000-0000-0000-000000000099')
+      .send({ name: 'Test' });
 
     expect(res.status).toBe(404);
   });
@@ -400,11 +427,17 @@ describe('PUT /api/email-sequences/:id', () => {
 describe('PUT /api/email-sequences/:id/enroll', () => {
   it('should enroll contacts', async () => {
     (prisma as any).crmEmailSequence.findFirst.mockResolvedValue(mockSequence);
-    (prisma as any).crmEmailEnrollment.create.mockResolvedValue({ id: 'enroll-1', sequenceId: 'seq-1', contactId: 'c-1' });
-
-    const res = await request(app).put('/api/email-sequences/00000000-0000-0000-0000-000000000001/enroll').send({
-      contactIds: ['c-1', 'c-2'],
+    (prisma as any).crmEmailEnrollment.create.mockResolvedValue({
+      id: 'enroll-1',
+      sequenceId: 'seq-1',
+      contactId: 'c-1',
     });
+
+    const res = await request(app)
+      .put('/api/email-sequences/00000000-0000-0000-0000-000000000001/enroll')
+      .send({
+        contactIds: ['c-1', 'c-2'],
+      });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -413,7 +446,9 @@ describe('PUT /api/email-sequences/:id/enroll', () => {
   it('should return 400 for missing contactIds', async () => {
     (prisma as any).crmEmailSequence.findFirst.mockResolvedValue(mockSequence);
 
-    const res = await request(app).put('/api/email-sequences/00000000-0000-0000-0000-000000000001/enroll').send({});
+    const res = await request(app)
+      .put('/api/email-sequences/00000000-0000-0000-0000-000000000001/enroll')
+      .send({});
 
     expect(res.status).toBe(400);
   });
@@ -421,9 +456,11 @@ describe('PUT /api/email-sequences/:id/enroll', () => {
   it('should return 400 for empty contactIds array', async () => {
     (prisma as any).crmEmailSequence.findFirst.mockResolvedValue(mockSequence);
 
-    const res = await request(app).put('/api/email-sequences/00000000-0000-0000-0000-000000000001/enroll').send({
-      contactIds: [],
-    });
+    const res = await request(app)
+      .put('/api/email-sequences/00000000-0000-0000-0000-000000000001/enroll')
+      .send({
+        contactIds: [],
+      });
 
     expect(res.status).toBe(400);
   });
@@ -431,9 +468,11 @@ describe('PUT /api/email-sequences/:id/enroll', () => {
   it('should return 404 when sequence not found', async () => {
     (prisma as any).crmEmailSequence.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/email-sequences/00000000-0000-0000-0000-000000000099/enroll').send({
-      contactIds: ['c-1'],
-    });
+    const res = await request(app)
+      .put('/api/email-sequences/00000000-0000-0000-0000-000000000099/enroll')
+      .send({
+        contactIds: ['c-1'],
+      });
 
     expect(res.status).toBe(404);
   });

@@ -25,11 +25,7 @@ export const Default: Story = {
     const [sig, setSig] = useState<SignatureData | null>(null);
     return (
       <div>
-        <SignatureCapture
-          onSign={setSig}
-          signerName="John Smith"
-          purpose="approval"
-        />
+        <SignatureCapture onSign={setSig} signerName="John Smith" purpose="approval" />
         {sig && (
           <div style={{ marginTop: '16px', fontSize: '14px', color: '#666' }}>
             Signature captured at {new Date(sig.signedAt).toLocaleString()}

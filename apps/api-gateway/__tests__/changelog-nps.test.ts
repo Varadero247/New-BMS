@@ -20,7 +20,13 @@ const mockListEntries = jest.fn().mockReturnValue({ entries: [], total: 0 });
 const mockListAllEntries = jest.fn().mockReturnValue({ entries: [], total: 0 });
 const mockGetUnreadCount = jest.fn().mockReturnValue(0);
 const mockMarkAsRead = jest.fn();
-const mockCreateEntry = jest.fn().mockReturnValue({ id: 'cl-1', title: 'New feature', category: 'new_feature', publishedAt: new Date().toISOString(), isPublished: true });
+const mockCreateEntry = jest.fn().mockReturnValue({
+  id: 'cl-1',
+  title: 'New feature',
+  category: 'new_feature',
+  publishedAt: new Date().toISOString(),
+  isPublished: true,
+});
 
 jest.mock('@ims/changelog', () => ({
   listEntries: (...args: any[]) => mockListEntries(...args),
@@ -31,8 +37,12 @@ jest.mock('@ims/changelog', () => ({
 }));
 
 // NPS mocks — exact function names from @ims/nps
-const mockSubmitResponse = jest.fn().mockReturnValue({ id: 'nps-1', score: 9, category: 'promoter' });
-const mockGetAnalytics = jest.fn().mockReturnValue({ npsScore: 42, total: 10, promoters: 6, passives: 2, detractors: 2 });
+const mockSubmitResponse = jest
+  .fn()
+  .mockReturnValue({ id: 'nps-1', score: 9, category: 'promoter' });
+const mockGetAnalytics = jest
+  .fn()
+  .mockReturnValue({ npsScore: 42, total: 10, promoters: 6, passives: 2, detractors: 2 });
 const mockListResponses = jest.fn().mockReturnValue({ responses: [], total: 0 });
 
 jest.mock('@ims/nps', () => ({
@@ -57,7 +67,14 @@ describe('Changelog Routes', () => {
   describe('GET /api/changelog', () => {
     it('returns published changelog entries (public)', async () => {
       mockListEntries.mockReturnValue({
-        entries: [{ id: 'cl-1', title: 'New feature', category: 'new_feature', publishedAt: new Date().toISOString() }],
+        entries: [
+          {
+            id: 'cl-1',
+            title: 'New feature',
+            category: 'new_feature',
+            publishedAt: new Date().toISOString(),
+          },
+        ],
         total: 1,
       });
       const res = await request(app).get('/api/changelog');
@@ -94,7 +111,12 @@ describe('Changelog Routes', () => {
     it('creates a changelog entry (admin)', async () => {
       const res = await request(app)
         .post('/api/changelog')
-        .send({ title: 'New Feature', description: 'Details here', category: 'new_feature', modules: ['quality'] });
+        .send({
+          title: 'New Feature',
+          description: 'Details here',
+          category: 'new_feature',
+          modules: ['quality'],
+        });
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
     });
@@ -128,16 +150,12 @@ describe('NPS Routes', () => {
     });
 
     it('rejects score below 0', async () => {
-      const res = await request(app)
-        .post('/api/nps')
-        .send({ score: -1 });
+      const res = await request(app).post('/api/nps').send({ score: -1 });
       expect(res.status).toBe(400);
     });
 
     it('rejects score above 10', async () => {
-      const res = await request(app)
-        .post('/api/nps')
-        .send({ score: 11 });
+      const res = await request(app).post('/api/nps').send({ score: 11 });
       expect(res.status).toBe(400);
     });
   });

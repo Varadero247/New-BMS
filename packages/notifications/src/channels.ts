@@ -63,10 +63,14 @@ export class SmsChannel implements Channel {
  */
 export function createChannel(type: NotificationChannel): Channel {
   switch (type) {
-    case 'in_app': return new InAppChannel();
-    case 'email': return new EmailChannel();
-    case 'push': return new PushChannel();
-    case 'sms': return new SmsChannel();
+    case 'in_app':
+      return new InAppChannel();
+    case 'email':
+      return new EmailChannel();
+    case 'push':
+      return new PushChannel();
+    case 'sms':
+      return new SmsChannel();
     default:
       throw new Error(`Unknown channel type: ${type}`);
   }

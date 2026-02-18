@@ -3,13 +3,26 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    chemDisposal: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    chemDisposal: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
     chemRegister: { findFirst: jest.fn() },
   },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/disposal';
 import { prisma } from '../src/prisma';
@@ -18,7 +31,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/disposal', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockChemical = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -40,7 +55,12 @@ const mockDisposal = {
   ewcCode: '07 01 04',
   disposedBy: 'user-1',
   createdBy: 'user-1',
-  chemical: { id: '00000000-0000-0000-0000-000000000001', productName: 'Acetone', casNumber: '67-64-1', wasteClassification: 'HAZARDOUS' },
+  chemical: {
+    id: '00000000-0000-0000-0000-000000000001',
+    productName: 'Acetone',
+    casNumber: '67-64-1',
+    wasteClassification: 'HAZARDOUS',
+  },
 };
 
 const validDisposalBody = {
@@ -70,10 +90,14 @@ describe('GET /api/disposal', () => {
     (prisma as any).chemDisposal.findMany.mockResolvedValue([]);
     (prisma as any).chemDisposal.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/disposal?chemicalId=00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/disposal?chemicalId=00000000-0000-0000-0000-000000000001'
+    );
     expect(res.status).toBe(200);
     expect((prisma as any).chemDisposal.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ chemicalId: '00000000-0000-0000-0000-000000000001' }) })
+      expect.objectContaining({
+        where: expect.objectContaining({ chemicalId: '00000000-0000-0000-0000-000000000001' }),
+      })
     );
   });
 
@@ -121,14 +145,16 @@ describe('POST /api/disposal', () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
     (prisma as any).chemDisposal.create.mockResolvedValue(mockDisposal);
 
-    const res = await request(app).post('/api/disposal').send({
-      ...validDisposalBody,
-      wasteContractorName: 'Waste Corp Ltd',
-      consignmentNoteRef: 'CN-2026-001',
-      ewcCode: '07 01 04',
-      collectionSite: 'Main plant',
-      disposalFacility: 'Licensed incinerator',
-    });
+    const res = await request(app)
+      .post('/api/disposal')
+      .send({
+        ...validDisposalBody,
+        wasteContractorName: 'Waste Corp Ltd',
+        consignmentNoteRef: 'CN-2026-001',
+        ewcCode: '07 01 04',
+        collectionSite: 'Main plant',
+        disposalFacility: 'Licensed incinerator',
+      });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });
@@ -146,10 +172,12 @@ describe('POST /api/disposal', () => {
   });
 
   it('should return 400 when quantityDisposed is negative', async () => {
-    const res = await request(app).post('/api/disposal').send({
-      ...validDisposalBody,
-      quantityDisposed: -5,
-    });
+    const res = await request(app)
+      .post('/api/disposal')
+      .send({
+        ...validDisposalBody,
+        quantityDisposed: -5,
+      });
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -170,10 +198,12 @@ describe('POST /api/disposal', () => {
   it('should return 404 when chemical does not exist', async () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/disposal').send({
-      ...validDisposalBody,
-      chemicalId: '00000000-0000-0000-0000-000000000099',
-    });
+    const res = await request(app)
+      .post('/api/disposal')
+      .send({
+        ...validDisposalBody,
+        chemicalId: '00000000-0000-0000-0000-000000000099',
+      });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -194,7 +224,10 @@ describe('POST /api/disposal', () => {
 describe('PUT /api/disposal/:id', () => {
   it('should update an existing disposal record', async () => {
     (prisma as any).chemDisposal.findFirst.mockResolvedValue(mockDisposal);
-    (prisma as any).chemDisposal.update.mockResolvedValue({ ...mockDisposal, certificateRef: 'CERT-2026-001' });
+    (prisma as any).chemDisposal.update.mockResolvedValue({
+      ...mockDisposal,
+      certificateRef: 'CERT-2026-001',
+    });
 
     const res = await request(app).put('/api/disposal/00000000-0000-0000-0000-000000000060').send({
       certificateRef: 'CERT-2026-001',

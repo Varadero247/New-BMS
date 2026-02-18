@@ -34,14 +34,29 @@ jest.mock('@ims/shared', () => ({
 import headstartRouter from '../src/routes/headstart';
 
 const ALL_STANDARDS = [
-  'ISO_9001', 'ISO_14001', 'ISO_45001', 'ISO_27001',
-  'ISO_22000', 'ISO_50001', 'ISO_42001', 'ISO_37001',
+  'ISO_9001',
+  'ISO_14001',
+  'ISO_45001',
+  'ISO_27001',
+  'ISO_22000',
+  'ISO_50001',
+  'ISO_42001',
+  'ISO_37001',
 ] as const;
 
 const ALL_INDUSTRIES = [
-  'MANUFACTURING', 'HEALTHCARE', 'FOOD_BEVERAGE', 'CONSTRUCTION',
-  'TECHNOLOGY', 'PROFESSIONAL_SERVICES', 'ENERGY', 'AUTOMOTIVE',
-  'AEROSPACE', 'LOGISTICS', 'RETAIL', 'OTHER',
+  'MANUFACTURING',
+  'HEALTHCARE',
+  'FOOD_BEVERAGE',
+  'CONSTRUCTION',
+  'TECHNOLOGY',
+  'PROFESSIONAL_SERVICES',
+  'ENERGY',
+  'AUTOMOTIVE',
+  'AEROSPACE',
+  'LOGISTICS',
+  'RETAIL',
+  'OTHER',
 ] as const;
 
 const validPayload = {
@@ -65,9 +80,7 @@ describe('Quality Headstart API Routes', () => {
   // ==========================================================
   describe('POST /api/headstart', () => {
     it('should return 201 with a valid single-standard assessment (ISO_9001)', async () => {
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(validPayload);
+      const res = await request(app).post('/api/headstart').send(validPayload);
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -85,9 +98,7 @@ describe('Quality Headstart API Routes', () => {
     });
 
     it('should populate all sections for a single standard', async () => {
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(validPayload);
+      const res = await request(app).post('/api/headstart').send(validPayload);
 
       const pack = res.body.data.standardPacks[0];
       expect(pack.standard).toBe('ISO_9001');
@@ -101,9 +112,7 @@ describe('Quality Headstart API Routes', () => {
     });
 
     it('should return totalDocuments, totalRisks, totalObjectives, totalAudits counts', async () => {
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(validPayload);
+      const res = await request(app).post('/api/headstart').send(validPayload);
 
       const data = res.body.data;
       expect(typeof data.totalDocuments).toBe('number');
@@ -117,9 +126,7 @@ describe('Quality Headstart API Routes', () => {
     });
 
     it('should not return convergenceInfo for single standard', async () => {
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(validPayload);
+      const res = await request(app).post('/api/headstart').send(validPayload);
 
       expect(res.body.data.convergenceInfo).toBeNull();
     });
@@ -349,9 +356,7 @@ describe('Quality Headstart API Routes', () => {
     });
 
     it('should set organisationName to null when not provided', async () => {
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(validPayload);
+      const res = await request(app).post('/api/headstart').send(validPayload);
 
       expect(res.status).toBe(201);
       expect(res.body.data.organisationName).toBeNull();
@@ -368,9 +373,7 @@ describe('Quality Headstart API Routes', () => {
     });
 
     it('should return completenessScore 90 for WORKING_TOWARDS', async () => {
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(validPayload);
+      const res = await request(app).post('/api/headstart').send(validPayload);
 
       expect(res.body.data.standardPacks[0].completenessScore).toBe(90);
       expect(res.body.data.overallCompletenessScore).toBe(90);
@@ -399,9 +402,7 @@ describe('Quality Headstart API Routes', () => {
 
     it('should return 400 when standards field is missing', async () => {
       const { standards, ...rest } = validPayload;
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(rest);
+      const res = await request(app).post('/api/headstart').send(rest);
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -409,9 +410,7 @@ describe('Quality Headstart API Routes', () => {
 
     it('should return 400 when industry is missing', async () => {
       const { industry, ...rest } = validPayload;
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(rest);
+      const res = await request(app).post('/api/headstart').send(rest);
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -419,9 +418,7 @@ describe('Quality Headstart API Routes', () => {
 
     it('should return 400 when organisationSize is missing', async () => {
       const { organisationSize, ...rest } = validPayload;
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(rest);
+      const res = await request(app).post('/api/headstart').send(rest);
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -429,9 +426,7 @@ describe('Quality Headstart API Routes', () => {
 
     it('should return 400 when certificationStatus is missing', async () => {
       const { certificationStatus, ...rest } = validPayload;
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(rest);
+      const res = await request(app).post('/api/headstart').send(rest);
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -478,9 +473,7 @@ describe('Quality Headstart API Routes', () => {
 
     // Clause structure validation
     it('should return clauses with number, title, and description', async () => {
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(validPayload);
+      const res = await request(app).post('/api/headstart').send(validPayload);
 
       const clause = res.body.data.standardPacks[0].clauses[0];
       expect(clause).toHaveProperty('number');
@@ -490,9 +483,7 @@ describe('Quality Headstart API Routes', () => {
 
     // Document structure validation
     it('should return documents with title, clause, and description', async () => {
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(validPayload);
+      const res = await request(app).post('/api/headstart').send(validPayload);
 
       const doc = res.body.data.standardPacks[0].documents[0];
       expect(doc).toHaveProperty('title');
@@ -502,9 +493,7 @@ describe('Quality Headstart API Routes', () => {
 
     // Risk structure validation
     it('should return risks with title, clause, likelihood, impact, category', async () => {
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(validPayload);
+      const res = await request(app).post('/api/headstart').send(validPayload);
 
       const risk = res.body.data.standardPacks[0].risks[0];
       expect(risk).toHaveProperty('title');
@@ -518,9 +507,7 @@ describe('Quality Headstart API Routes', () => {
 
     // Audit schedule structure
     it('should return auditSchedule with area, clause, frequency, month', async () => {
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(validPayload);
+      const res = await request(app).post('/api/headstart').send(validPayload);
 
       const audit = res.body.data.standardPacks[0].auditSchedule[0];
       expect(audit).toHaveProperty('area');
@@ -532,9 +519,7 @@ describe('Quality Headstart API Routes', () => {
 
     // Legal register structure
     it('should return legalRegister with title, jurisdiction, clause', async () => {
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(validPayload);
+      const res = await request(app).post('/api/headstart').send(validPayload);
 
       const legal = res.body.data.standardPacks[0].legalRegister[0];
       expect(legal).toHaveProperty('title');
@@ -585,9 +570,7 @@ describe('Quality Headstart API Routes', () => {
 
     beforeAll(async () => {
       // Create an assessment to list
-      const res = await request(app)
-        .post('/api/headstart')
-        .send(validPayload);
+      const res = await request(app).post('/api/headstart').send(validPayload);
       createdId = res.body.data.id;
     });
 

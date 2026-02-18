@@ -52,46 +52,487 @@ const querySchema = z.object({
 
 const SEED_RISKS: UnifiedRisk[] = [
   // Quality risks (ISO 9001)
-  { id: 'ur-001', refNumber: 'QMS-RSK-2026-001', source: 'quality', isoStandard: 'ISO 9001:2015', title: 'Supplier non-conformance rate exceeding 5% threshold', likelihood: 4, severity: 4, score: 16, treatment: 'MITIGATE', owner: 'Alice Thompson', status: 'OPEN', dueDate: '2026-03-15', module: 'Quality', url: 'http://localhost:3003/risks/ur-001' },
-  { id: 'ur-002', refNumber: 'QMS-RSK-2026-002', source: 'quality', isoStandard: 'ISO 9001:2015', title: 'Calibration drift on CMM equipment beyond tolerance', likelihood: 3, severity: 5, score: 15, treatment: 'MITIGATE', owner: 'Ivan Quality', status: 'IN_PROGRESS', dueDate: '2026-02-28', module: 'Quality', url: 'http://localhost:3003/risks/ur-002' },
-  { id: 'ur-003', refNumber: 'QMS-RSK-2026-003', source: 'quality', isoStandard: 'ISO 9001:2015', title: 'Incomplete design verification records for new product line', likelihood: 3, severity: 3, score: 9, treatment: 'MITIGATE', owner: 'Carol Davis', status: 'OPEN', dueDate: '2026-04-01', module: 'Quality', url: 'http://localhost:3003/risks/ur-003' },
-  { id: 'ur-004', refNumber: 'QMS-RSK-2026-004', source: 'quality', isoStandard: 'ISO 9001:2015', title: 'Customer complaint trend increasing in Q1', likelihood: 3, severity: 4, score: 12, treatment: 'MITIGATE', owner: 'Alice Thompson', status: 'OPEN', dueDate: '2026-03-30', module: 'Quality', url: 'http://localhost:3003/risks/ur-004' },
-  { id: 'ur-005', refNumber: 'QMS-RSK-2026-005', source: 'quality', isoStandard: 'ISO 9001:2015', title: 'Document control backlog — 23 documents past review date', likelihood: 2, severity: 3, score: 6, treatment: 'ACCEPT', owner: 'Carol Davis', status: 'MONITORING', module: 'Quality', url: 'http://localhost:3003/risks/ur-005' },
+  {
+    id: 'ur-001',
+    refNumber: 'QMS-RSK-2026-001',
+    source: 'quality',
+    isoStandard: 'ISO 9001:2015',
+    title: 'Supplier non-conformance rate exceeding 5% threshold',
+    likelihood: 4,
+    severity: 4,
+    score: 16,
+    treatment: 'MITIGATE',
+    owner: 'Alice Thompson',
+    status: 'OPEN',
+    dueDate: '2026-03-15',
+    module: 'Quality',
+    url: 'http://localhost:3003/risks/ur-001',
+  },
+  {
+    id: 'ur-002',
+    refNumber: 'QMS-RSK-2026-002',
+    source: 'quality',
+    isoStandard: 'ISO 9001:2015',
+    title: 'Calibration drift on CMM equipment beyond tolerance',
+    likelihood: 3,
+    severity: 5,
+    score: 15,
+    treatment: 'MITIGATE',
+    owner: 'Ivan Quality',
+    status: 'IN_PROGRESS',
+    dueDate: '2026-02-28',
+    module: 'Quality',
+    url: 'http://localhost:3003/risks/ur-002',
+  },
+  {
+    id: 'ur-003',
+    refNumber: 'QMS-RSK-2026-003',
+    source: 'quality',
+    isoStandard: 'ISO 9001:2015',
+    title: 'Incomplete design verification records for new product line',
+    likelihood: 3,
+    severity: 3,
+    score: 9,
+    treatment: 'MITIGATE',
+    owner: 'Carol Davis',
+    status: 'OPEN',
+    dueDate: '2026-04-01',
+    module: 'Quality',
+    url: 'http://localhost:3003/risks/ur-003',
+  },
+  {
+    id: 'ur-004',
+    refNumber: 'QMS-RSK-2026-004',
+    source: 'quality',
+    isoStandard: 'ISO 9001:2015',
+    title: 'Customer complaint trend increasing in Q1',
+    likelihood: 3,
+    severity: 4,
+    score: 12,
+    treatment: 'MITIGATE',
+    owner: 'Alice Thompson',
+    status: 'OPEN',
+    dueDate: '2026-03-30',
+    module: 'Quality',
+    url: 'http://localhost:3003/risks/ur-004',
+  },
+  {
+    id: 'ur-005',
+    refNumber: 'QMS-RSK-2026-005',
+    source: 'quality',
+    isoStandard: 'ISO 9001:2015',
+    title: 'Document control backlog — 23 documents past review date',
+    likelihood: 2,
+    severity: 3,
+    score: 6,
+    treatment: 'ACCEPT',
+    owner: 'Carol Davis',
+    status: 'MONITORING',
+    module: 'Quality',
+    url: 'http://localhost:3003/risks/ur-005',
+  },
 
   // Health & Safety risks (ISO 45001)
-  { id: 'ur-006', refNumber: 'HS-RSK-2026-001', source: 'health_safety', isoStandard: 'ISO 45001:2018', title: 'Manual handling injuries in warehouse operations', likelihood: 4, severity: 5, score: 20, treatment: 'MITIGATE', owner: 'Bob Smith', status: 'OPEN', dueDate: '2026-02-20', module: 'Health & Safety', url: 'http://localhost:3001/risks/ur-006' },
-  { id: 'ur-007', refNumber: 'HS-RSK-2026-002', source: 'health_safety', isoStandard: 'ISO 45001:2018', title: 'Noise exposure levels exceeding 85dB in press shop', likelihood: 5, severity: 3, score: 15, treatment: 'MITIGATE', owner: 'Bob Smith', status: 'IN_PROGRESS', dueDate: '2026-03-01', module: 'Health & Safety', url: 'http://localhost:3001/risks/ur-007' },
-  { id: 'ur-008', refNumber: 'HS-RSK-2026-003', source: 'health_safety', isoStandard: 'ISO 45001:2018', title: 'Contractor safety induction compliance gap', likelihood: 3, severity: 4, score: 12, treatment: 'MITIGATE', owner: 'Mike Johnson', status: 'OPEN', dueDate: '2026-03-15', module: 'Health & Safety', url: 'http://localhost:3001/risks/ur-008' },
-  { id: 'ur-009', refNumber: 'HS-RSK-2026-004', source: 'health_safety', isoStandard: 'ISO 45001:2018', title: 'Fire suppression system maintenance overdue in Building C', likelihood: 2, severity: 5, score: 10, treatment: 'MITIGATE', owner: 'Mike Johnson', status: 'IN_PROGRESS', dueDate: '2026-02-25', module: 'Health & Safety', url: 'http://localhost:3001/risks/ur-009' },
-  { id: 'ur-010', refNumber: 'HS-RSK-2026-005', source: 'health_safety', isoStandard: 'ISO 45001:2018', title: 'Lone worker policy not covering night shift operations', likelihood: 2, severity: 3, score: 6, treatment: 'MITIGATE', owner: 'Bob Smith', status: 'OPEN', dueDate: '2026-04-10', module: 'Health & Safety', url: 'http://localhost:3001/risks/ur-010' },
+  {
+    id: 'ur-006',
+    refNumber: 'HS-RSK-2026-001',
+    source: 'health_safety',
+    isoStandard: 'ISO 45001:2018',
+    title: 'Manual handling injuries in warehouse operations',
+    likelihood: 4,
+    severity: 5,
+    score: 20,
+    treatment: 'MITIGATE',
+    owner: 'Bob Smith',
+    status: 'OPEN',
+    dueDate: '2026-02-20',
+    module: 'Health & Safety',
+    url: 'http://localhost:3001/risks/ur-006',
+  },
+  {
+    id: 'ur-007',
+    refNumber: 'HS-RSK-2026-002',
+    source: 'health_safety',
+    isoStandard: 'ISO 45001:2018',
+    title: 'Noise exposure levels exceeding 85dB in press shop',
+    likelihood: 5,
+    severity: 3,
+    score: 15,
+    treatment: 'MITIGATE',
+    owner: 'Bob Smith',
+    status: 'IN_PROGRESS',
+    dueDate: '2026-03-01',
+    module: 'Health & Safety',
+    url: 'http://localhost:3001/risks/ur-007',
+  },
+  {
+    id: 'ur-008',
+    refNumber: 'HS-RSK-2026-003',
+    source: 'health_safety',
+    isoStandard: 'ISO 45001:2018',
+    title: 'Contractor safety induction compliance gap',
+    likelihood: 3,
+    severity: 4,
+    score: 12,
+    treatment: 'MITIGATE',
+    owner: 'Mike Johnson',
+    status: 'OPEN',
+    dueDate: '2026-03-15',
+    module: 'Health & Safety',
+    url: 'http://localhost:3001/risks/ur-008',
+  },
+  {
+    id: 'ur-009',
+    refNumber: 'HS-RSK-2026-004',
+    source: 'health_safety',
+    isoStandard: 'ISO 45001:2018',
+    title: 'Fire suppression system maintenance overdue in Building C',
+    likelihood: 2,
+    severity: 5,
+    score: 10,
+    treatment: 'MITIGATE',
+    owner: 'Mike Johnson',
+    status: 'IN_PROGRESS',
+    dueDate: '2026-02-25',
+    module: 'Health & Safety',
+    url: 'http://localhost:3001/risks/ur-009',
+  },
+  {
+    id: 'ur-010',
+    refNumber: 'HS-RSK-2026-005',
+    source: 'health_safety',
+    isoStandard: 'ISO 45001:2018',
+    title: 'Lone worker policy not covering night shift operations',
+    likelihood: 2,
+    severity: 3,
+    score: 6,
+    treatment: 'MITIGATE',
+    owner: 'Bob Smith',
+    status: 'OPEN',
+    dueDate: '2026-04-10',
+    module: 'Health & Safety',
+    url: 'http://localhost:3001/risks/ur-010',
+  },
 
   // Environment risks (ISO 14001)
-  { id: 'ur-011', refNumber: 'ENV-RSK-2026-001', source: 'environment', isoStandard: 'ISO 14001:2015', title: 'Chemical storage bund integrity compromised', likelihood: 3, severity: 5, score: 15, treatment: 'MITIGATE', owner: 'Eve Green', status: 'OPEN', dueDate: '2026-02-28', module: 'Environment', url: 'http://localhost:3002/risks/ur-011' },
-  { id: 'ur-012', refNumber: 'ENV-RSK-2026-002', source: 'environment', isoStandard: 'ISO 14001:2015', title: 'Waste segregation failures increasing contamination risk', likelihood: 4, severity: 3, score: 12, treatment: 'MITIGATE', owner: 'Eve Green', status: 'IN_PROGRESS', dueDate: '2026-03-10', module: 'Environment', url: 'http://localhost:3002/risks/ur-012' },
-  { id: 'ur-013', refNumber: 'ENV-RSK-2026-003', source: 'environment', isoStandard: 'ISO 14001:2015', title: 'Stormwater discharge exceeding consent limits', likelihood: 2, severity: 4, score: 8, treatment: 'MITIGATE', owner: 'Eve Green', status: 'MONITORING', module: 'Environment', url: 'http://localhost:3002/risks/ur-013' },
-  { id: 'ur-014', refNumber: 'ENV-RSK-2026-004', source: 'environment', isoStandard: 'ISO 14001:2015', title: 'Refrigerant leak potential from aging HVAC units', likelihood: 3, severity: 3, score: 9, treatment: 'MITIGATE', owner: 'Karl Maintenance', status: 'OPEN', dueDate: '2026-05-01', module: 'Environment', url: 'http://localhost:3002/risks/ur-014' },
-  { id: 'ur-015', refNumber: 'ENV-RSK-2026-005', source: 'environment', isoStandard: 'ISO 14001:2015', title: 'Carbon reporting methodology gaps for Scope 3', likelihood: 2, severity: 2, score: 4, treatment: 'ACCEPT', owner: 'Eve Green', status: 'MONITORING', module: 'Environment', url: 'http://localhost:3002/risks/ur-015' },
+  {
+    id: 'ur-011',
+    refNumber: 'ENV-RSK-2026-001',
+    source: 'environment',
+    isoStandard: 'ISO 14001:2015',
+    title: 'Chemical storage bund integrity compromised',
+    likelihood: 3,
+    severity: 5,
+    score: 15,
+    treatment: 'MITIGATE',
+    owner: 'Eve Green',
+    status: 'OPEN',
+    dueDate: '2026-02-28',
+    module: 'Environment',
+    url: 'http://localhost:3002/risks/ur-011',
+  },
+  {
+    id: 'ur-012',
+    refNumber: 'ENV-RSK-2026-002',
+    source: 'environment',
+    isoStandard: 'ISO 14001:2015',
+    title: 'Waste segregation failures increasing contamination risk',
+    likelihood: 4,
+    severity: 3,
+    score: 12,
+    treatment: 'MITIGATE',
+    owner: 'Eve Green',
+    status: 'IN_PROGRESS',
+    dueDate: '2026-03-10',
+    module: 'Environment',
+    url: 'http://localhost:3002/risks/ur-012',
+  },
+  {
+    id: 'ur-013',
+    refNumber: 'ENV-RSK-2026-003',
+    source: 'environment',
+    isoStandard: 'ISO 14001:2015',
+    title: 'Stormwater discharge exceeding consent limits',
+    likelihood: 2,
+    severity: 4,
+    score: 8,
+    treatment: 'MITIGATE',
+    owner: 'Eve Green',
+    status: 'MONITORING',
+    module: 'Environment',
+    url: 'http://localhost:3002/risks/ur-013',
+  },
+  {
+    id: 'ur-014',
+    refNumber: 'ENV-RSK-2026-004',
+    source: 'environment',
+    isoStandard: 'ISO 14001:2015',
+    title: 'Refrigerant leak potential from aging HVAC units',
+    likelihood: 3,
+    severity: 3,
+    score: 9,
+    treatment: 'MITIGATE',
+    owner: 'Karl Maintenance',
+    status: 'OPEN',
+    dueDate: '2026-05-01',
+    module: 'Environment',
+    url: 'http://localhost:3002/risks/ur-014',
+  },
+  {
+    id: 'ur-015',
+    refNumber: 'ENV-RSK-2026-005',
+    source: 'environment',
+    isoStandard: 'ISO 14001:2015',
+    title: 'Carbon reporting methodology gaps for Scope 3',
+    likelihood: 2,
+    severity: 2,
+    score: 4,
+    treatment: 'ACCEPT',
+    owner: 'Eve Green',
+    status: 'MONITORING',
+    module: 'Environment',
+    url: 'http://localhost:3002/risks/ur-015',
+  },
 
   // InfoSec risks (ISO 27001)
-  { id: 'ur-016', refNumber: 'SEC-RSK-2026-001', source: 'infosec', isoStandard: 'ISO 27001:2022', title: 'Unpatched critical vulnerability in web application framework', likelihood: 4, severity: 5, score: 20, treatment: 'MITIGATE', owner: 'Frank Security', status: 'OPEN', dueDate: '2026-02-18', module: 'Information Security', url: 'http://localhost:3015/risks/ur-016' },
-  { id: 'ur-017', refNumber: 'SEC-RSK-2026-002', source: 'infosec', isoStandard: 'ISO 27001:2022', title: 'Third-party vendor access not reviewed in 6 months', likelihood: 3, severity: 4, score: 12, treatment: 'MITIGATE', owner: 'Frank Security', status: 'IN_PROGRESS', dueDate: '2026-03-01', module: 'Information Security', url: 'http://localhost:3015/risks/ur-017' },
-  { id: 'ur-018', refNumber: 'SEC-RSK-2026-003', source: 'infosec', isoStandard: 'ISO 27001:2022', title: 'Backup restoration test not performed in current quarter', likelihood: 2, severity: 4, score: 8, treatment: 'MITIGATE', owner: 'Frank Security', status: 'OPEN', dueDate: '2026-03-31', module: 'Information Security', url: 'http://localhost:3015/risks/ur-018' },
-  { id: 'ur-019', refNumber: 'SEC-RSK-2026-004', source: 'infosec', isoStandard: 'ISO 27001:2022', title: 'Phishing simulation click rate above 15% threshold', likelihood: 4, severity: 3, score: 12, treatment: 'MITIGATE', owner: 'Jane HR', status: 'IN_PROGRESS', module: 'Information Security', url: 'http://localhost:3015/risks/ur-019' },
-  { id: 'ur-020', refNumber: 'SEC-RSK-2026-005', source: 'infosec', isoStandard: 'ISO 27001:2022', title: 'Legacy system running unsupported OS version', likelihood: 3, severity: 3, score: 9, treatment: 'TRANSFER', owner: 'Frank Security', status: 'OPEN', dueDate: '2026-06-30', module: 'Information Security', url: 'http://localhost:3015/risks/ur-020' },
+  {
+    id: 'ur-016',
+    refNumber: 'SEC-RSK-2026-001',
+    source: 'infosec',
+    isoStandard: 'ISO 27001:2022',
+    title: 'Unpatched critical vulnerability in web application framework',
+    likelihood: 4,
+    severity: 5,
+    score: 20,
+    treatment: 'MITIGATE',
+    owner: 'Frank Security',
+    status: 'OPEN',
+    dueDate: '2026-02-18',
+    module: 'Information Security',
+    url: 'http://localhost:3015/risks/ur-016',
+  },
+  {
+    id: 'ur-017',
+    refNumber: 'SEC-RSK-2026-002',
+    source: 'infosec',
+    isoStandard: 'ISO 27001:2022',
+    title: 'Third-party vendor access not reviewed in 6 months',
+    likelihood: 3,
+    severity: 4,
+    score: 12,
+    treatment: 'MITIGATE',
+    owner: 'Frank Security',
+    status: 'IN_PROGRESS',
+    dueDate: '2026-03-01',
+    module: 'Information Security',
+    url: 'http://localhost:3015/risks/ur-017',
+  },
+  {
+    id: 'ur-018',
+    refNumber: 'SEC-RSK-2026-003',
+    source: 'infosec',
+    isoStandard: 'ISO 27001:2022',
+    title: 'Backup restoration test not performed in current quarter',
+    likelihood: 2,
+    severity: 4,
+    score: 8,
+    treatment: 'MITIGATE',
+    owner: 'Frank Security',
+    status: 'OPEN',
+    dueDate: '2026-03-31',
+    module: 'Information Security',
+    url: 'http://localhost:3015/risks/ur-018',
+  },
+  {
+    id: 'ur-019',
+    refNumber: 'SEC-RSK-2026-004',
+    source: 'infosec',
+    isoStandard: 'ISO 27001:2022',
+    title: 'Phishing simulation click rate above 15% threshold',
+    likelihood: 4,
+    severity: 3,
+    score: 12,
+    treatment: 'MITIGATE',
+    owner: 'Jane HR',
+    status: 'IN_PROGRESS',
+    module: 'Information Security',
+    url: 'http://localhost:3015/risks/ur-019',
+  },
+  {
+    id: 'ur-020',
+    refNumber: 'SEC-RSK-2026-005',
+    source: 'infosec',
+    isoStandard: 'ISO 27001:2022',
+    title: 'Legacy system running unsupported OS version',
+    likelihood: 3,
+    severity: 3,
+    score: 9,
+    treatment: 'TRANSFER',
+    owner: 'Frank Security',
+    status: 'OPEN',
+    dueDate: '2026-06-30',
+    module: 'Information Security',
+    url: 'http://localhost:3015/risks/ur-020',
+  },
 
   // AI risks (ISO 42001)
-  { id: 'ur-021', refNumber: 'AI-RSK-2026-001', source: 'ai', isoStandard: 'ISO 42001:2023', title: 'Bias detected in recruitment screening model outputs', likelihood: 3, severity: 5, score: 15, treatment: 'MITIGATE', owner: 'Heidi AI', status: 'OPEN', dueDate: '2026-03-01', module: 'AI Management', url: 'http://localhost:3024/risks/ur-021' },
-  { id: 'ur-022', refNumber: 'AI-RSK-2026-002', source: 'ai', isoStandard: 'ISO 42001:2023', title: 'Insufficient explainability for credit scoring model', likelihood: 3, severity: 4, score: 12, treatment: 'MITIGATE', owner: 'Heidi AI', status: 'IN_PROGRESS', dueDate: '2026-04-15', module: 'AI Management', url: 'http://localhost:3024/risks/ur-022' },
-  { id: 'ur-023', refNumber: 'AI-RSK-2026-003', source: 'ai', isoStandard: 'ISO 42001:2023', title: 'Training data quality issues — missing edge cases', likelihood: 4, severity: 3, score: 12, treatment: 'MITIGATE', owner: 'Heidi AI', status: 'OPEN', module: 'AI Management', url: 'http://localhost:3024/risks/ur-023' },
-  { id: 'ur-024', refNumber: 'AI-RSK-2026-004', source: 'ai', isoStandard: 'ISO 42001:2023', title: 'Model drift monitoring not implemented for production models', likelihood: 2, severity: 3, score: 6, treatment: 'MITIGATE', owner: 'Heidi AI', status: 'OPEN', dueDate: '2026-05-01', module: 'AI Management', url: 'http://localhost:3024/risks/ur-024' },
-  { id: 'ur-025', refNumber: 'AI-RSK-2026-005', source: 'ai', isoStandard: 'ISO 42001:2023', title: 'Human oversight process gaps for automated decisions', likelihood: 2, severity: 4, score: 8, treatment: 'MITIGATE', owner: 'Heidi AI', status: 'MONITORING', module: 'AI Management', url: 'http://localhost:3024/risks/ur-025' },
+  {
+    id: 'ur-021',
+    refNumber: 'AI-RSK-2026-001',
+    source: 'ai',
+    isoStandard: 'ISO 42001:2023',
+    title: 'Bias detected in recruitment screening model outputs',
+    likelihood: 3,
+    severity: 5,
+    score: 15,
+    treatment: 'MITIGATE',
+    owner: 'Heidi AI',
+    status: 'OPEN',
+    dueDate: '2026-03-01',
+    module: 'AI Management',
+    url: 'http://localhost:3024/risks/ur-021',
+  },
+  {
+    id: 'ur-022',
+    refNumber: 'AI-RSK-2026-002',
+    source: 'ai',
+    isoStandard: 'ISO 42001:2023',
+    title: 'Insufficient explainability for credit scoring model',
+    likelihood: 3,
+    severity: 4,
+    score: 12,
+    treatment: 'MITIGATE',
+    owner: 'Heidi AI',
+    status: 'IN_PROGRESS',
+    dueDate: '2026-04-15',
+    module: 'AI Management',
+    url: 'http://localhost:3024/risks/ur-022',
+  },
+  {
+    id: 'ur-023',
+    refNumber: 'AI-RSK-2026-003',
+    source: 'ai',
+    isoStandard: 'ISO 42001:2023',
+    title: 'Training data quality issues — missing edge cases',
+    likelihood: 4,
+    severity: 3,
+    score: 12,
+    treatment: 'MITIGATE',
+    owner: 'Heidi AI',
+    status: 'OPEN',
+    module: 'AI Management',
+    url: 'http://localhost:3024/risks/ur-023',
+  },
+  {
+    id: 'ur-024',
+    refNumber: 'AI-RSK-2026-004',
+    source: 'ai',
+    isoStandard: 'ISO 42001:2023',
+    title: 'Model drift monitoring not implemented for production models',
+    likelihood: 2,
+    severity: 3,
+    score: 6,
+    treatment: 'MITIGATE',
+    owner: 'Heidi AI',
+    status: 'OPEN',
+    dueDate: '2026-05-01',
+    module: 'AI Management',
+    url: 'http://localhost:3024/risks/ur-024',
+  },
+  {
+    id: 'ur-025',
+    refNumber: 'AI-RSK-2026-005',
+    source: 'ai',
+    isoStandard: 'ISO 42001:2023',
+    title: 'Human oversight process gaps for automated decisions',
+    likelihood: 2,
+    severity: 4,
+    score: 8,
+    treatment: 'MITIGATE',
+    owner: 'Heidi AI',
+    status: 'MONITORING',
+    module: 'AI Management',
+    url: 'http://localhost:3024/risks/ur-025',
+  },
 
   // Energy risks (ISO 50001)
-  { id: 'ur-026', refNumber: 'ENR-RSK-2026-001', source: 'energy', isoStandard: 'ISO 50001:2018', title: 'Compressed air system leakage causing 20% energy waste', likelihood: 5, severity: 3, score: 15, treatment: 'MITIGATE', owner: 'Karl Maintenance', status: 'OPEN', dueDate: '2026-03-15', module: 'Energy Management', url: 'http://localhost:3021/risks/ur-026' },
-  { id: 'ur-027', refNumber: 'ENR-RSK-2026-002', source: 'energy', isoStandard: 'ISO 50001:2018', title: 'Energy baseline not updated after production line expansion', likelihood: 3, severity: 2, score: 6, treatment: 'MITIGATE', owner: 'Heidi Energy', status: 'OPEN', dueDate: '2026-04-01', module: 'Energy Management', url: 'http://localhost:3021/risks/ur-027' },
-  { id: 'ur-028', refNumber: 'ENR-RSK-2026-003', source: 'energy', isoStandard: 'ISO 50001:2018', title: 'Peak demand charges exceeding budget by 15%', likelihood: 4, severity: 2, score: 8, treatment: 'MITIGATE', owner: 'Heidi Energy', status: 'IN_PROGRESS', module: 'Energy Management', url: 'http://localhost:3021/risks/ur-028' },
-  { id: 'ur-029', refNumber: 'ENR-RSK-2026-004', source: 'energy', isoStandard: 'ISO 50001:2018', title: 'Sub-metering coverage only 60% of significant energy uses', likelihood: 2, severity: 2, score: 4, treatment: 'ACCEPT', owner: 'Heidi Energy', status: 'MONITORING', module: 'Energy Management', url: 'http://localhost:3021/risks/ur-029' },
-  { id: 'ur-030', refNumber: 'ENR-RSK-2026-005', source: 'energy', isoStandard: 'ISO 50001:2018', title: 'HVAC scheduling not optimised for occupancy patterns', likelihood: 1, severity: 2, score: 2, treatment: 'ACCEPT', owner: 'Karl Maintenance', status: 'MONITORING', module: 'Energy Management', url: 'http://localhost:3021/risks/ur-030' },
+  {
+    id: 'ur-026',
+    refNumber: 'ENR-RSK-2026-001',
+    source: 'energy',
+    isoStandard: 'ISO 50001:2018',
+    title: 'Compressed air system leakage causing 20% energy waste',
+    likelihood: 5,
+    severity: 3,
+    score: 15,
+    treatment: 'MITIGATE',
+    owner: 'Karl Maintenance',
+    status: 'OPEN',
+    dueDate: '2026-03-15',
+    module: 'Energy Management',
+    url: 'http://localhost:3021/risks/ur-026',
+  },
+  {
+    id: 'ur-027',
+    refNumber: 'ENR-RSK-2026-002',
+    source: 'energy',
+    isoStandard: 'ISO 50001:2018',
+    title: 'Energy baseline not updated after production line expansion',
+    likelihood: 3,
+    severity: 2,
+    score: 6,
+    treatment: 'MITIGATE',
+    owner: 'Heidi Energy',
+    status: 'OPEN',
+    dueDate: '2026-04-01',
+    module: 'Energy Management',
+    url: 'http://localhost:3021/risks/ur-027',
+  },
+  {
+    id: 'ur-028',
+    refNumber: 'ENR-RSK-2026-003',
+    source: 'energy',
+    isoStandard: 'ISO 50001:2018',
+    title: 'Peak demand charges exceeding budget by 15%',
+    likelihood: 4,
+    severity: 2,
+    score: 8,
+    treatment: 'MITIGATE',
+    owner: 'Heidi Energy',
+    status: 'IN_PROGRESS',
+    module: 'Energy Management',
+    url: 'http://localhost:3021/risks/ur-028',
+  },
+  {
+    id: 'ur-029',
+    refNumber: 'ENR-RSK-2026-004',
+    source: 'energy',
+    isoStandard: 'ISO 50001:2018',
+    title: 'Sub-metering coverage only 60% of significant energy uses',
+    likelihood: 2,
+    severity: 2,
+    score: 4,
+    treatment: 'ACCEPT',
+    owner: 'Heidi Energy',
+    status: 'MONITORING',
+    module: 'Energy Management',
+    url: 'http://localhost:3021/risks/ur-029',
+  },
+  {
+    id: 'ur-030',
+    refNumber: 'ENR-RSK-2026-005',
+    source: 'energy',
+    isoStandard: 'ISO 50001:2018',
+    title: 'HVAC scheduling not optimised for occupancy patterns',
+    likelihood: 1,
+    severity: 2,
+    score: 2,
+    treatment: 'ACCEPT',
+    owner: 'Karl Maintenance',
+    status: 'MONITORING',
+    module: 'Energy Management',
+    url: 'http://localhost:3021/risks/ur-030',
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -127,8 +568,9 @@ function buildSummary(risks: UnifiedRisk[]) {
     else low++;
   }
 
-  const redZoneCount = risks.filter(r => r.score >= 12).length;
-  const redZonePercent = risks.length > 0 ? Math.round((redZoneCount / risks.length) * 100 * 10) / 10 : 0;
+  const redZoneCount = risks.filter((r) => r.score >= 12).length;
+  const redZonePercent =
+    risks.length > 0 ? Math.round((redZoneCount / risks.length) * 100 * 10) / 10 : 0;
 
   return {
     total: risks.length,
@@ -148,7 +590,11 @@ router.get('/', requirePermission('analytics', 1), async (req: Request, res: Res
     if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid query parameters', details: parsed.error.flatten() },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid query parameters',
+          details: parsed.error.flatten(),
+        },
       });
     }
 
@@ -160,19 +606,19 @@ router.get('/', requirePermission('analytics', 1), async (req: Request, res: Res
     let filtered = [...SEED_RISKS];
 
     if (source) {
-      filtered = filtered.filter(r => r.source === source);
+      filtered = filtered.filter((r) => r.source === source);
     }
     if (minScore !== undefined) {
-      filtered = filtered.filter(r => r.score >= minScore);
+      filtered = filtered.filter((r) => r.score >= minScore);
     }
     if (maxScore !== undefined) {
-      filtered = filtered.filter(r => r.score <= maxScore);
+      filtered = filtered.filter((r) => r.score <= maxScore);
     }
     if (status) {
-      filtered = filtered.filter(r => r.status === status);
+      filtered = filtered.filter((r) => r.status === status);
     }
     if (owner) {
-      filtered = filtered.filter(r => r.owner.toLowerCase().includes(owner.toLowerCase()));
+      filtered = filtered.filter((r) => r.owner.toLowerCase().includes(owner.toLowerCase()));
     }
 
     // Sort
@@ -199,7 +645,12 @@ router.get('/', requirePermission('analytics', 1), async (req: Request, res: Res
     const summary = buildSummary(filtered);
     const heatmap = buildHeatmap(filtered);
 
-    logger.info('Unified risk register queried', { total: filtered.length, source, minScore, maxScore });
+    logger.info('Unified risk register queried', {
+      total: filtered.length,
+      source,
+      minScore,
+      maxScore,
+    });
 
     res.json({
       success: true,
@@ -211,8 +662,13 @@ router.get('/', requirePermission('analytics', 1), async (req: Request, res: Res
       pagination: { page, limit, total, totalPages },
     });
   } catch (error: unknown) {
-    logger.error('Failed to query unified risks', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to query unified risks' } });
+    logger.error('Failed to query unified risks', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to query unified risks' },
+    });
   }
 });
 
@@ -223,16 +679,23 @@ router.get('/', requirePermission('analytics', 1), async (req: Request, res: Res
 router.get('/:id', requirePermission('analytics', 1), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const risk = SEED_RISKS.find(r => r.id === id);
+    const risk = SEED_RISKS.find((r) => r.id === id);
 
     if (!risk) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     }
 
     res.json({ success: true, data: risk });
   } catch (error: unknown) {
-    logger.error('Failed to get unified risk', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get unified risk' } });
+    logger.error('Failed to get unified risk', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get unified risk' },
+    });
   }
 });
 

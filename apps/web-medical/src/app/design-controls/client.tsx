@@ -2,15 +2,34 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
 } from '@ims/ui';
 import {
-  Plus, Search, Loader2, Pencil, Filter,
-  ArrowRight, ChevronDown, ChevronUp,
-  AlertTriangle, CheckSquare, Shield,
-  FileText, Clock, User,
+  Plus,
+  Search,
+  Loader2,
+  Pencil,
+  Filter,
+  ArrowRight,
+  ChevronDown,
+  ChevronUp,
+  AlertTriangle,
+  CheckSquare,
+  Shield,
+  FileText,
+  Clock,
+  User,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -60,14 +79,7 @@ const REGULATORY_PATHWAYS = [
   'Other',
 ] as const;
 
-const STATUSES = [
-  'DRAFT',
-  'ACTIVE',
-  'IN_PROGRESS',
-  'ON_HOLD',
-  'COMPLETED',
-  'CANCELLED',
-] as const;
+const STATUSES = ['DRAFT', 'ACTIVE', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED'] as const;
 
 const STAGE_DESCRIPTIONS: Record<string, string> = {
   Planning: 'Define design plan, team, and milestones per 7.3.2',
@@ -85,74 +97,118 @@ const STAGE_DESCRIPTIONS: Record<string, string> = {
 
 function getDeviceClassColor(deviceClass: string): string {
   switch (deviceClass) {
-    case 'I': return 'bg-blue-100 text-blue-800';
-    case 'II': return 'bg-orange-100 text-orange-800';
-    case 'III': return 'bg-red-100 text-red-800';
-    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
+    case 'I':
+      return 'bg-blue-100 text-blue-800';
+    case 'II':
+      return 'bg-orange-100 text-orange-800';
+    case 'III':
+      return 'bg-red-100 text-red-800';
+    default:
+      return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   }
 }
 
-function getDeviceClassBadgeVariant(deviceClass: string): 'info' | 'warning' | 'danger' | 'secondary' {
+function getDeviceClassBadgeVariant(
+  deviceClass: string
+): 'info' | 'warning' | 'danger' | 'secondary' {
   switch (deviceClass) {
-    case 'I': return 'info';
-    case 'II': return 'warning';
-    case 'III': return 'danger';
-    default: return 'secondary';
+    case 'I':
+      return 'info';
+    case 'II':
+      return 'warning';
+    case 'III':
+      return 'danger';
+    default:
+      return 'secondary';
   }
 }
 
 function getStageColor(stage: string): string {
   switch (stage) {
-    case 'Planning': return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
-    case 'Input': return 'bg-blue-100 text-blue-800';
-    case 'Output': return 'bg-indigo-100 text-indigo-800';
-    case 'Review': return 'bg-purple-100 text-purple-800';
-    case 'Verification': return 'bg-amber-100 text-amber-800';
-    case 'Validation': return 'bg-teal-100 text-teal-800';
-    case 'Transfer': return 'bg-green-100 text-green-800';
-    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
+    case 'Planning':
+      return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
+    case 'Input':
+      return 'bg-blue-100 text-blue-800';
+    case 'Output':
+      return 'bg-indigo-100 text-indigo-800';
+    case 'Review':
+      return 'bg-purple-100 text-purple-800';
+    case 'Verification':
+      return 'bg-amber-100 text-amber-800';
+    case 'Validation':
+      return 'bg-teal-100 text-teal-800';
+    case 'Transfer':
+      return 'bg-green-100 text-green-800';
+    default:
+      return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   }
 }
 
-function getStageBadgeVariant(stage: string): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
+function getStageBadgeVariant(
+  stage: string
+): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
   switch (stage) {
-    case 'Planning': return 'secondary';
-    case 'Input': return 'info';
-    case 'Output': return 'info';
-    case 'Review': return 'warning';
-    case 'Verification': return 'warning';
-    case 'Validation': return 'success';
-    case 'Transfer': return 'success';
-    default: return 'outline';
+    case 'Planning':
+      return 'secondary';
+    case 'Input':
+      return 'info';
+    case 'Output':
+      return 'info';
+    case 'Review':
+      return 'warning';
+    case 'Verification':
+      return 'warning';
+    case 'Validation':
+      return 'success';
+    case 'Transfer':
+      return 'success';
+    default:
+      return 'outline';
   }
 }
 
 function getStatusColor(status: string): string {
   switch (status) {
-    case 'DRAFT': return 'bg-gray-100 dark:bg-gray-800 text-gray-700';
-    case 'ACTIVE': return 'bg-teal-100 text-teal-700';
-    case 'IN_PROGRESS': return 'bg-blue-100 text-blue-700';
-    case 'ON_HOLD': return 'bg-amber-100 text-amber-700';
-    case 'COMPLETED': return 'bg-green-100 text-green-700';
-    case 'CANCELLED': return 'bg-red-100 text-red-700';
-    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700';
+    case 'DRAFT':
+      return 'bg-gray-100 dark:bg-gray-800 text-gray-700';
+    case 'ACTIVE':
+      return 'bg-teal-100 text-teal-700';
+    case 'IN_PROGRESS':
+      return 'bg-blue-100 text-blue-700';
+    case 'ON_HOLD':
+      return 'bg-amber-100 text-amber-700';
+    case 'COMPLETED':
+      return 'bg-green-100 text-green-700';
+    case 'CANCELLED':
+      return 'bg-red-100 text-red-700';
+    default:
+      return 'bg-gray-100 dark:bg-gray-800 text-gray-700';
   }
 }
 
-function getStatusBadgeVariant(status: string): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
+function getStatusBadgeVariant(
+  status: string
+): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
   switch (status) {
-    case 'DRAFT': return 'secondary';
-    case 'ACTIVE': return 'info';
-    case 'IN_PROGRESS': return 'info';
-    case 'ON_HOLD': return 'warning';
-    case 'COMPLETED': return 'success';
-    case 'CANCELLED': return 'danger';
-    default: return 'outline';
+    case 'DRAFT':
+      return 'secondary';
+    case 'ACTIVE':
+      return 'info';
+    case 'IN_PROGRESS':
+      return 'info';
+    case 'ON_HOLD':
+      return 'warning';
+    case 'COMPLETED':
+      return 'success';
+    case 'CANCELLED':
+      return 'danger';
+    default:
+      return 'outline';
   }
 }
 
 function getStageIndex(stage: string): number {
-  return DESIGN_STAGES.indexOf(stage as typeof DESIGN_STAGES[number]);
+  return DESIGN_STAGES.indexOf(stage as (typeof DESIGN_STAGES)[number]);
 }
 
 // ---------------------------------------------------------------------------
@@ -224,45 +280,51 @@ export default function DesignControlsClient() {
   // Create handler
   // ---------------------------------------------------------------------------
 
-  const handleCreate = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post('/design-controls', form);
-      setShowCreateModal(false);
-      setForm(emptyForm);
-      fetchDesignControls();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create design control record');
-      console.error('Failed to create design control:', err);
-    } finally {
-      setSubmitting(false);
-    }
-  }, [form, fetchDesignControls]);
+  const handleCreate = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post('/design-controls', form);
+        setShowCreateModal(false);
+        setForm(emptyForm);
+        fetchDesignControls();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create design control record');
+        console.error('Failed to create design control:', err);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [form, fetchDesignControls]
+  );
 
   // ---------------------------------------------------------------------------
   // Edit handler
   // ---------------------------------------------------------------------------
 
-  const handleEdit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingRecord) return;
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.put(`/design-controls/${editingRecord.id}`, form);
-      setShowEditModal(false);
-      setEditingRecord(null);
-      setForm(emptyForm);
-      fetchDesignControls();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to update design control record');
-      console.error('Failed to update design control:', err);
-    } finally {
-      setSubmitting(false);
-    }
-  }, [form, editingRecord, fetchDesignControls]);
+  const handleEdit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!editingRecord) return;
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.put(`/design-controls/${editingRecord.id}`, form);
+        setShowEditModal(false);
+        setEditingRecord(null);
+        setForm(emptyForm);
+        fetchDesignControls();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to update design control record');
+        console.error('Failed to update design control:', err);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [form, editingRecord, fetchDesignControls]
+  );
 
   // ---------------------------------------------------------------------------
   // Open edit modal
@@ -298,7 +360,7 @@ export default function DesignControlsClient() {
   // ---------------------------------------------------------------------------
 
   const filteredDesignControls = useMemo(() => {
-    return designControls.filter(dc => {
+    return designControls.filter((dc) => {
       if (stageFilter !== 'all' && dc.currentStage !== stageFilter) return false;
       if (statusFilter !== 'all' && dc.status !== statusFilter) return false;
       if (deviceClassFilter !== 'all' && dc.deviceClass !== deviceClassFilter) return false;
@@ -318,19 +380,26 @@ export default function DesignControlsClient() {
   // Summary stats
   // ---------------------------------------------------------------------------
 
-  const summaryStats = useMemo(() => ({
-    total: designControls.length,
-    active: designControls.filter(dc => dc.status === 'ACTIVE' || dc.status === 'IN_PROGRESS').length,
-    completed: designControls.filter(dc => dc.status === 'COMPLETED').length,
-    onHold: designControls.filter(dc => dc.status === 'ON_HOLD').length,
-    classI: designControls.filter(dc => dc.deviceClass === 'I').length,
-    classII: designControls.filter(dc => dc.deviceClass === 'II').length,
-    classIII: designControls.filter(dc => dc.deviceClass === 'III').length,
-    byStage: DESIGN_STAGES.reduce((acc, stage) => {
-      acc[stage] = designControls.filter(dc => dc.currentStage === stage).length;
-      return acc;
-    }, {} as Record<string, number>),
-  }), [designControls]);
+  const summaryStats = useMemo(
+    () => ({
+      total: designControls.length,
+      active: designControls.filter((dc) => dc.status === 'ACTIVE' || dc.status === 'IN_PROGRESS')
+        .length,
+      completed: designControls.filter((dc) => dc.status === 'COMPLETED').length,
+      onHold: designControls.filter((dc) => dc.status === 'ON_HOLD').length,
+      classI: designControls.filter((dc) => dc.deviceClass === 'I').length,
+      classII: designControls.filter((dc) => dc.deviceClass === 'II').length,
+      classIII: designControls.filter((dc) => dc.deviceClass === 'III').length,
+      byStage: DESIGN_STAGES.reduce(
+        (acc, stage) => {
+          acc[stage] = designControls.filter((dc) => dc.currentStage === stage).length;
+          return acc;
+        },
+        {} as Record<string, number>
+      ),
+    }),
+    [designControls]
+  );
 
   // ---------------------------------------------------------------------------
   // Loading spinner
@@ -347,7 +416,13 @@ export default function DesignControlsClient() {
   // Design Control Form (shared between create and edit)
   // ---------------------------------------------------------------------------
 
-  const DesignControlForm = ({ onSubmit, isEdit }: { onSubmit: (e: React.FormEvent) => Promise<void>; isEdit: boolean }) => (
+  const DesignControlForm = ({
+    onSubmit,
+    isEdit,
+  }: {
+    onSubmit: (e: React.FormEvent) => Promise<void>;
+    isEdit: boolean;
+  }) => (
     <form onSubmit={onSubmit}>
       <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
         {error && (
@@ -411,16 +486,20 @@ export default function DesignControlsClient() {
                 value={form.deviceClass}
                 onChange={(e) => setForm({ ...form, deviceClass: e.target.value })}
               >
-                {DEVICE_CLASSES.map(cls => (
+                {DEVICE_CLASSES.map((cls) => (
                   <option key={cls} value={cls}>
-                    Class {cls} {cls === 'I' ? '(Low Risk)' : cls === 'II' ? '(Moderate Risk)' : '(High Risk)'}
+                    Class {cls}{' '}
+                    {cls === 'I' ? '(Low Risk)' : cls === 'II' ? '(Moderate Risk)' : '(High Risk)'}
                   </option>
                 ))}
               </Select>
               <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                {form.deviceClass === 'I' && 'General controls only (e.g., bandages, examination gloves)'}
-                {form.deviceClass === 'II' && 'General + special controls (e.g., powered wheelchairs, infusion pumps)'}
-                {form.deviceClass === 'III' && 'General + special controls + premarket approval (e.g., pacemakers, heart valves)'}
+                {form.deviceClass === 'I' &&
+                  'General controls only (e.g., bandages, examination gloves)'}
+                {form.deviceClass === 'II' &&
+                  'General + special controls (e.g., powered wheelchairs, infusion pumps)'}
+                {form.deviceClass === 'III' &&
+                  'General + special controls + premarket approval (e.g., pacemakers, heart valves)'}
               </p>
             </div>
 
@@ -431,8 +510,10 @@ export default function DesignControlsClient() {
                 value={form.regulatoryPathway}
                 onChange={(e) => setForm({ ...form, regulatoryPathway: e.target.value })}
               >
-                {REGULATORY_PATHWAYS.map(pathway => (
-                  <option key={pathway} value={pathway}>{pathway}</option>
+                {REGULATORY_PATHWAYS.map((pathway) => (
+                  <option key={pathway} value={pathway}>
+                    {pathway}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -453,8 +534,10 @@ export default function DesignControlsClient() {
                   value={form.currentStage}
                   onChange={(e) => setForm({ ...form, currentStage: e.target.value })}
                 >
-                  {DESIGN_STAGES.map(stage => (
-                    <option key={stage} value={stage}>{stage}</option>
+                  {DESIGN_STAGES.map((stage) => (
+                    <option key={stage} value={stage}>
+                      {stage}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -466,8 +549,10 @@ export default function DesignControlsClient() {
                   value={form.status}
                   onChange={(e) => setForm({ ...form, status: e.target.value })}
                 >
-                  {STATUSES.map(s => (
-                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                  {STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -475,7 +560,9 @@ export default function DesignControlsClient() {
 
             {/* Stage progress visualization */}
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Design Stage Progress:</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                Design Stage Progress:
+              </p>
               <div className="flex items-center gap-1">
                 {DESIGN_STAGES.map((stage, index) => {
                   const currentIndex = getStageIndex(form.currentStage);
@@ -490,16 +577,18 @@ export default function DesignControlsClient() {
                           isCompleted
                             ? 'bg-teal-500 text-white'
                             : isCurrent
-                            ? 'bg-teal-100 text-teal-700 border-2 border-teal-400'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                              ? 'bg-teal-100 text-teal-700 border-2 border-teal-400'
+                              : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
                         }`}
                       >
                         {stage}
                       </div>
                       {index < DESIGN_STAGES.length - 1 && (
-                        <ArrowRight className={`h-3 w-3 mx-0.5 flex-shrink-0 ${
-                          isCompleted ? 'text-teal-500' : 'text-gray-300'
-                        }`} />
+                        <ArrowRight
+                          className={`h-3 w-3 mx-0.5 flex-shrink-0 ${
+                            isCompleted ? 'text-teal-500' : 'text-gray-300'
+                          }`}
+                        />
                       )}
                     </div>
                   );
@@ -538,7 +627,7 @@ export default function DesignControlsClient() {
         <Button
           type="button"
           variant="outline"
-          onClick={() => isEdit ? setShowEditModal(false) : setShowCreateModal(false)}
+          onClick={() => (isEdit ? setShowEditModal(false) : setShowCreateModal(false))}
         >
           Cancel
         </Button>
@@ -548,7 +637,11 @@ export default function DesignControlsClient() {
               <Loader2 className="h-4 w-4 animate-spin" />
               {isEdit ? 'Updating...' : 'Creating...'}
             </span>
-          ) : isEdit ? 'Update Design Control' : 'Create Design Control'}
+          ) : isEdit ? (
+            'Update Design Control'
+          ) : (
+            'Create Design Control'
+          )}
         </Button>
       </ModalFooter>
     </form>
@@ -564,7 +657,9 @@ export default function DesignControlsClient() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Design Controls</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 13485 Clause 7.3 -- Design and Development Controls</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            ISO 13485 Clause 7.3 -- Design and Development Controls
+          </p>
         </div>
 
         {/* Summary Metrics */}
@@ -635,21 +730,31 @@ export default function DesignControlsClient() {
                       stageFilter === stage
                         ? 'bg-teal-500 text-white shadow-md'
                         : summaryStats.byStage[stage] > 0
-                        ? 'bg-teal-50 border border-teal-200 hover:bg-teal-100'
-                        : 'bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100'
+                          ? 'bg-teal-50 border border-teal-200 hover:bg-teal-100'
+                          : 'bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100'
                     }`}
                     onClick={() => setStageFilter(stageFilter === stage ? 'all' : stage)}
                   >
-                    <p className={`text-lg font-bold ${
-                      stageFilter === stage ? 'text-white' :
-                      summaryStats.byStage[stage] > 0 ? 'text-teal-700' : 'text-gray-400'
-                    }`}>
+                    <p
+                      className={`text-lg font-bold ${
+                        stageFilter === stage
+                          ? 'text-white'
+                          : summaryStats.byStage[stage] > 0
+                            ? 'text-teal-700'
+                            : 'text-gray-400'
+                      }`}
+                    >
                       {summaryStats.byStage[stage]}
                     </p>
-                    <p className={`text-xs font-medium ${
-                      stageFilter === stage ? 'text-teal-100' :
-                      summaryStats.byStage[stage] > 0 ? 'text-teal-600' : 'text-gray-400'
-                    }`}>
+                    <p
+                      className={`text-xs font-medium ${
+                        stageFilter === stage
+                          ? 'text-teal-100'
+                          : summaryStats.byStage[stage] > 0
+                            ? 'text-teal-600'
+                            : 'text-gray-400'
+                      }`}
+                    >
                       {stage}
                     </p>
                   </div>
@@ -667,7 +772,8 @@ export default function DesignControlsClient() {
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
-              aria-label="Search by name, reference, device, or assignee..." placeholder="Search by name, reference, device, or assignee..."
+              aria-label="Search by name, reference, device, or assignee..."
+              placeholder="Search by name, reference, device, or assignee..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -689,7 +795,11 @@ export default function DesignControlsClient() {
           </Button>
 
           <Button
-            onClick={() => { setForm(emptyForm); setError(''); setShowCreateModal(true); }}
+            onClick={() => {
+              setForm(emptyForm);
+              setError('');
+              setShowCreateModal(true);
+            }}
             className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
           >
             <Plus className="h-4 w-4" />
@@ -708,8 +818,10 @@ export default function DesignControlsClient() {
                 className="w-40"
               >
                 <option value="all">All Stages</option>
-                {DESIGN_STAGES.map(s => (
-                  <option key={s} value={s}>{s}</option>
+                {DESIGN_STAGES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -722,8 +834,10 @@ export default function DesignControlsClient() {
                 className="w-40"
               >
                 <option value="all">All Statuses</option>
-                {STATUSES.map(s => (
-                  <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                {STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s.replace(/_/g, ' ')}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -736,8 +850,10 @@ export default function DesignControlsClient() {
                 className="w-40"
               >
                 <option value="all">All Classes</option>
-                {DEVICE_CLASSES.map(c => (
-                  <option key={c} value={c}>Class {c}</option>
+                {DEVICE_CLASSES.map((c) => (
+                  <option key={c} value={c}>
+                    Class {c}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -745,7 +861,11 @@ export default function DesignControlsClient() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => { setStageFilter('all'); setStatusFilter('all'); setDeviceClassFilter('all'); }}
+              onClick={() => {
+                setStageFilter('all');
+                setStatusFilter('all');
+                setDeviceClassFilter('all');
+              }}
               className="mt-4"
             >
               Clear Filters
@@ -756,12 +876,15 @@ export default function DesignControlsClient() {
         {/* Results count */}
         <div className="flex items-center justify-between mb-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Showing {filteredDesignControls.length} of {designControls.length} design control records
+            Showing {filteredDesignControls.length} of {designControls.length} design control
+            records
           </p>
         </div>
 
         {/* Design Controls Table */}
-        {loading ? <LoadingSpinner /> : filteredDesignControls.length > 0 ? (
+        {loading ? (
+          <LoadingSpinner />
+        ) : filteredDesignControls.length > 0 ? (
           <Card>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
@@ -805,8 +928,12 @@ export default function DesignControlsClient() {
                         </td>
                         <td className="px-6 py-4">
                           <div>
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{dc.name}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{dc.deviceName}</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {dc.name}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                              {dc.deviceName}
+                            </p>
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -832,11 +959,16 @@ export default function DesignControlsClient() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <User className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">{dc.assignedTo || '--'}</span>
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              {dc.assignedTo || '--'}
+                            </span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                          <div
+                            className="flex items-center gap-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Button
                               variant="outline"
                               size="sm"
@@ -858,12 +990,19 @@ export default function DesignControlsClient() {
         ) : (
           <div className="text-center py-16">
             <Pencil className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No design control records found</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              No design control records found
+            </h3>
             <p className="text-gray-500 dark:text-gray-400 mb-6">
-              Start by creating a new design control project to track your medical device development per ISO 13485 Clause 7.3.
+              Start by creating a new design control project to track your medical device
+              development per ISO 13485 Clause 7.3.
             </p>
             <Button
-              onClick={() => { setForm(emptyForm); setError(''); setShowCreateModal(true); }}
+              onClick={() => {
+                setForm(emptyForm);
+                setError('');
+                setShowCreateModal(true);
+              }}
               className="bg-teal-600 hover:bg-teal-700"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -890,7 +1029,10 @@ export default function DesignControlsClient() {
       {/* ====================================================================== */}
       <Modal
         isOpen={showEditModal}
-        onClose={() => { setShowEditModal(false); setEditingRecord(null); }}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingRecord(null);
+        }}
         title={`Edit: ${editingRecord?.name || 'Design Control'}`}
         size="lg"
       >
@@ -902,7 +1044,10 @@ export default function DesignControlsClient() {
       {/* ====================================================================== */}
       <Modal
         isOpen={showDetailModal}
-        onClose={() => { setShowDetailModal(false); setSelectedRecord(null); }}
+        onClose={() => {
+          setShowDetailModal(false);
+          setSelectedRecord(null);
+        }}
         title={selectedRecord?.name || 'Design Control Details'}
         size="lg"
       >
@@ -920,13 +1065,17 @@ export default function DesignControlsClient() {
                 {selectedRecord.status?.replace(/_/g, ' ')}
               </Badge>
               {selectedRecord.referenceNumber && (
-                <span className="text-sm font-mono text-gray-500 dark:text-gray-400">{selectedRecord.referenceNumber}</span>
+                <span className="text-sm font-mono text-gray-500 dark:text-gray-400">
+                  {selectedRecord.referenceNumber}
+                </span>
               )}
             </div>
 
             {/* Stage progress */}
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Design Stage Progress:</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                Design Stage Progress:
+              </p>
               <div className="flex items-center gap-1">
                 {DESIGN_STAGES.map((stage, index) => {
                   const currentIndex = getStageIndex(selectedRecord.currentStage);
@@ -940,16 +1089,18 @@ export default function DesignControlsClient() {
                           isCompleted
                             ? 'bg-teal-500 text-white'
                             : isCurrent
-                            ? 'bg-teal-100 text-teal-700 border-2 border-teal-400'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                              ? 'bg-teal-100 text-teal-700 border-2 border-teal-400'
+                              : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
                         }`}
                       >
                         {stage}
                       </div>
                       {index < DESIGN_STAGES.length - 1 && (
-                        <ArrowRight className={`h-3 w-3 mx-0.5 flex-shrink-0 ${
-                          isCompleted ? 'text-teal-500' : 'text-gray-300'
-                        }`} />
+                        <ArrowRight
+                          className={`h-3 w-3 mx-0.5 flex-shrink-0 ${
+                            isCompleted ? 'text-teal-500' : 'text-gray-300'
+                          }`}
+                        />
                       )}
                     </div>
                   );
@@ -960,22 +1111,34 @@ export default function DesignControlsClient() {
             {/* Detail fields */}
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Device Name</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100">{selectedRecord.deviceName || '--'}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Device Name
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100">
+                  {selectedRecord.deviceName || '--'}
+                </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Regulatory Pathway</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100">{selectedRecord.regulatoryPathway || '--'}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Regulatory Pathway
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100">
+                  {selectedRecord.regulatoryPathway || '--'}
+                </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Assigned To</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Assigned To
+                </p>
                 <p className="text-sm text-gray-900 dark:text-gray-100 flex items-center gap-1">
                   <User className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   {selectedRecord.assignedTo || '--'}
                 </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Created</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Created
+                </p>
                 <p className="text-sm text-gray-900 dark:text-gray-100 flex items-center gap-1">
                   <Clock className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   {new Date(selectedRecord.createdAt).toLocaleDateString()}
@@ -985,8 +1148,12 @@ export default function DesignControlsClient() {
 
             {/* Description */}
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Description</p>
-              <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedRecord.description || 'No description provided.'}</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                Description
+              </p>
+              <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                {selectedRecord.description || 'No description provided.'}
+              </p>
             </div>
 
             {/* Current stage requirements */}
@@ -1002,7 +1169,10 @@ export default function DesignControlsClient() {
             <ModalFooter>
               <Button
                 variant="outline"
-                onClick={() => { setShowDetailModal(false); setSelectedRecord(null); }}
+                onClick={() => {
+                  setShowDetailModal(false);
+                  setSelectedRecord(null);
+                }}
               >
                 Close
               </Button>

@@ -43,7 +43,12 @@ beforeEach(() => {
 describe('GET /api/certifications', () => {
   it('should return a paginated list of compliance deadlines', async () => {
     const deadlines = [
-      { id: '00000000-0000-0000-0000-000000000001', name: 'ISO 27001 Audit', category: 'COMPLIANCE', status: 'UPCOMING' },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        name: 'ISO 27001 Audit',
+        category: 'COMPLIANCE',
+        status: 'UPCOMING',
+      },
       { id: 'dl-2', name: 'DMCC Renewal', category: 'LICENCE', status: 'UPCOMING' },
     ];
     (prisma as any).complianceDeadline.findMany.mockResolvedValue(deadlines);
@@ -121,7 +126,12 @@ describe('GET /api/certifications/seed', () => {
 // ===================================================================
 describe('GET /api/certifications/:id', () => {
   it('should return a compliance deadline by ID', async () => {
-    const deadline = { id: '00000000-0000-0000-0000-000000000001', name: 'ISO 27001 Audit', category: 'COMPLIANCE', status: 'UPCOMING' };
+    const deadline = {
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'ISO 27001 Audit',
+      category: 'COMPLIANCE',
+      status: 'UPCOMING',
+    };
     (prisma as any).complianceDeadline.findUnique.mockResolvedValue(deadline);
 
     const res = await request(app).get('/api/certifications/00000000-0000-0000-0000-000000000001');
@@ -212,12 +222,19 @@ describe('POST /api/certifications', () => {
 // ===================================================================
 describe('PATCH /api/certifications/:id', () => {
   it('should update a compliance deadline', async () => {
-    const existing = { id: '00000000-0000-0000-0000-000000000001', name: 'Old Name', category: 'COMPLIANCE', status: 'UPCOMING' };
+    const existing = {
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Old Name',
+      category: 'COMPLIANCE',
+      status: 'UPCOMING',
+    };
     const updated = { ...existing, name: 'Updated Name', status: 'COMPLETED' };
     (prisma as any).complianceDeadline.findUnique.mockResolvedValue(existing);
     (prisma as any).complianceDeadline.update.mockResolvedValue(updated);
 
-    const res = await request(app).patch('/api/certifications/00000000-0000-0000-0000-000000000001').send({ name: 'Updated Name', status: 'COMPLETED' });
+    const res = await request(app)
+      .patch('/api/certifications/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated Name', status: 'COMPLETED' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -227,7 +244,9 @@ describe('PATCH /api/certifications/:id', () => {
   it('should return 404 for a non-existent deadline', async () => {
     (prisma as any).complianceDeadline.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).patch('/api/certifications/00000000-0000-0000-0000-000000000099').send({ status: 'COMPLETED' });
+    const res = await request(app)
+      .patch('/api/certifications/00000000-0000-0000-0000-000000000099')
+      .send({ status: 'COMPLETED' });
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -236,7 +255,9 @@ describe('PATCH /api/certifications/:id', () => {
   it('should handle server errors', async () => {
     (prisma as any).complianceDeadline.findUnique.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).patch('/api/certifications/00000000-0000-0000-0000-000000000001').send({ status: 'COMPLETED' });
+    const res = await request(app)
+      .patch('/api/certifications/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'COMPLETED' });
 
     expect(res.status).toBe(500);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

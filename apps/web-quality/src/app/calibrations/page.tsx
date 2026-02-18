@@ -3,7 +3,18 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
+} from '@ims/ui';
 import { Plus, Search, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -80,16 +91,43 @@ export default function CalibrationsPage() {
       if (filterStatus) params.status = filterStatus;
       const res = await api.get('/calibrations', { params });
       setItems(res.data.data);
-      setPagination(p => ({ ...p, total: res.data.pagination.total, totalPages: res.data.pagination.totalPages }));
-    } catch { /* empty */ }
+      setPagination((p) => ({
+        ...p,
+        total: res.data.pagination.total,
+        totalPages: res.data.pagination.totalPages,
+      }));
+    } catch {
+      /* empty */
+    }
     setLoading(false);
   }, [pagination.page, search, filterStatus]);
 
-  useEffect(() => { fetchItems(); }, [fetchItems]);
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
 
   const openCreate = () => {
     setEditItem(null);
-    setForm({ equipmentName: '', equipmentId: '', manufacturer: '', modelNumber: '', serialNumber: '', location: '', calibrationMethod: '', standardUsed: '', acceptanceCriteria: '', calibrationFrequency: '', lastCalibrationDate: '', nextCalibrationDate: '', calibratedBy: '', certificateNumber: '', results: '', deviation: '', adjustments: '', notes: '' });
+    setForm({
+      equipmentName: '',
+      equipmentId: '',
+      manufacturer: '',
+      modelNumber: '',
+      serialNumber: '',
+      location: '',
+      calibrationMethod: '',
+      standardUsed: '',
+      acceptanceCriteria: '',
+      calibrationFrequency: '',
+      lastCalibrationDate: '',
+      nextCalibrationDate: '',
+      calibratedBy: '',
+      certificateNumber: '',
+      results: '',
+      deviation: '',
+      adjustments: '',
+      notes: '',
+    });
     setModalOpen(true);
   };
 
@@ -127,7 +165,9 @@ export default function CalibrationsPage() {
       }
       setModalOpen(false);
       fetchItems();
-    } catch { /* empty */ }
+    } catch {
+      /* empty */
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -135,7 +175,9 @@ export default function CalibrationsPage() {
     try {
       await api.delete(`/calibrations/${id}`);
       fetchItems();
-    } catch { /* empty */ }
+    } catch {
+      /* empty */
+    }
   };
 
   return (
@@ -143,31 +185,85 @@ export default function CalibrationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Calibration Register</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 §7.1.5 — Monitoring and measuring resources</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Calibration Register
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            ISO 9001:2015 §7.1.5 — Monitoring and measuring resources
+          </p>
         </div>
-        <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Calibration</Button>
+        <Button onClick={openCreate}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Calibration
+        </Button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-blue-600">{pagination.total}</div><div className="text-sm text-gray-500 dark:text-gray-400">Total Equipment</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-green-600">{items.filter(i => i.status === 'CURRENT').length}</div><div className="text-sm text-gray-500 dark:text-gray-400">Current</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-yellow-600">{items.filter(i => i.status === 'DUE').length}</div><div className="text-sm text-gray-500 dark:text-gray-400">Due</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold text-red-600">{items.filter(i => i.status === 'OVERDUE').length}</div><div className="text-sm text-gray-500 dark:text-gray-400">Overdue</div></CardContent></Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-blue-600">{pagination.total}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Total Equipment</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-green-600">
+              {items.filter((i) => i.status === 'CURRENT').length}
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Current</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-yellow-600">
+              {items.filter((i) => i.status === 'DUE').length}
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Due</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-red-600">
+              {items.filter((i) => i.status === 'OVERDUE').length}
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Overdue</div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Filters */}
       <div className="flex gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
-          <Input aria-label="Search equipment..." placeholder="Search equipment..." value={search} onChange={e => { setSearch(e.target.value); setPagination(p => ({ ...p, page: 1 })); }} className="pl-10" />
+          <Input
+            aria-label="Search equipment..."
+            placeholder="Search equipment..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPagination((p) => ({ ...p, page: 1 }));
+            }}
+            className="pl-10"
+          />
         </div>
-        <Select value={filterStatus} onChange={e => { setFilterStatus(e.target.value); setPagination(p => ({ ...p, page: 1 })); }}>
+        <Select
+          value={filterStatus}
+          onChange={(e) => {
+            setFilterStatus(e.target.value);
+            setPagination((p) => ({ ...p, page: 1 }));
+          }}
+        >
           <option value="">All Statuses</option>
-          {STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
+          {STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {s.replace(/_/g, ' ')}
+            </option>
+          ))}
         </Select>
-        <Button variant="outline" onClick={fetchItems}><RefreshCw className="h-4 w-4" /></Button>
+        <Button variant="outline" onClick={fetchItems}>
+          <RefreshCw className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Table */}
@@ -177,36 +273,74 @@ export default function CalibrationsPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 dark:bg-gray-800 border-b">
                 <tr>
-                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Reference</th>
-                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Equipment</th>
-                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Serial No.</th>
-                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Location</th>
-                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Status</th>
-                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Next Due</th>
-                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Actions</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                    Reference
+                  </th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                    Equipment
+                  </th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                    Serial No.
+                  </th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                    Location
+                  </th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                    Status
+                  </th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                    Next Due
+                  </th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {loading ? (
-                  <tr><td colSpan={7} className="p-8 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
-                ) : items.length === 0 ? (
-                  <tr><td colSpan={7} className="p-8 text-center text-gray-500 dark:text-gray-400">No calibration records found</td></tr>
-                ) : items.map(item => (
-                  <tr key={item.id} className="hover:bg-gray-50 dark:bg-gray-800">
-                    <td className="p-3 font-mono text-xs text-blue-600">{item.referenceNumber}</td>
-                    <td className="p-3 font-medium">{item.equipmentName}</td>
-                    <td className="p-3 text-gray-600">{item.serialNumber || '—'}</td>
-                    <td className="p-3 text-gray-600">{item.location || '—'}</td>
-                    <td className="p-3"><Badge variant={statusColors[item.status] as any}>{item.status.replace(/_/g, ' ')}</Badge></td>
-                    <td className="p-3 text-gray-600">{item.nextCalibrationDate ? new Date(item.nextCalibrationDate).toLocaleDateString() : '—'}</td>
-                    <td className="p-3">
-                      <div className="flex gap-1">
-                        <Button variant="outline" size="sm" onClick={() => openEdit(item)}>Edit</Button>
-                        <Button variant="outline" size="sm" onClick={() => handleDelete(item.id)}>Delete</Button>
-                      </div>
+                  <tr>
+                    <td colSpan={7} className="p-8 text-center text-gray-500 dark:text-gray-400">
+                      Loading...
                     </td>
                   </tr>
-                ))}
+                ) : items.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="p-8 text-center text-gray-500 dark:text-gray-400">
+                      No calibration records found
+                    </td>
+                  </tr>
+                ) : (
+                  items.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                      <td className="p-3 font-mono text-xs text-blue-600">
+                        {item.referenceNumber}
+                      </td>
+                      <td className="p-3 font-medium">{item.equipmentName}</td>
+                      <td className="p-3 text-gray-600">{item.serialNumber || '—'}</td>
+                      <td className="p-3 text-gray-600">{item.location || '—'}</td>
+                      <td className="p-3">
+                        <Badge variant={statusColors[item.status] as any}>
+                          {item.status.replace(/_/g, ' ')}
+                        </Badge>
+                      </td>
+                      <td className="p-3 text-gray-600">
+                        {item.nextCalibrationDate
+                          ? new Date(item.nextCalibrationDate).toLocaleDateString()
+                          : '—'}
+                      </td>
+                      <td className="p-3">
+                        <div className="flex gap-1">
+                          <Button variant="outline" size="sm" onClick={() => openEdit(item)}>
+                            Edit
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleDelete(item.id)}>
+                            Delete
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -216,34 +350,156 @@ export default function CalibrationsPage() {
       {/* Pagination */}
       {pagination.totalPages > 1 && (
         <div className="flex justify-center gap-2">
-          <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}>Previous</Button>
-          <span className="text-sm text-gray-500 dark:text-gray-400 py-2">Page {pagination.page} of {pagination.totalPages}</span>
-          <Button variant="outline" size="sm" disabled={pagination.page >= pagination.totalPages} onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}>Next</Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={pagination.page <= 1}
+            onClick={() => setPagination((p) => ({ ...p, page: p.page - 1 }))}
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-gray-500 dark:text-gray-400 py-2">
+            Page {pagination.page} of {pagination.totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={pagination.page >= pagination.totalPages}
+            onClick={() => setPagination((p) => ({ ...p, page: p.page + 1 }))}
+          >
+            Next
+          </Button>
         </div>
       )}
 
       {/* Modal */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editItem ? 'Edit Calibration' : 'Add Calibration'} size="lg">
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editItem ? 'Edit Calibration' : 'Add Calibration'}
+        size="lg"
+      >
         <div className="grid grid-cols-2 gap-4">
-          <div><Label>Equipment Name *</Label><Input value={form.equipmentName} onChange={e => setForm(f => ({ ...f, equipmentName: e.target.value }))} /></div>
-          <div><Label>Equipment ID</Label><Input value={form.equipmentId} onChange={e => setForm(f => ({ ...f, equipmentId: e.target.value }))} /></div>
-          <div><Label>Manufacturer</Label><Input value={form.manufacturer} onChange={e => setForm(f => ({ ...f, manufacturer: e.target.value }))} /></div>
-          <div><Label>Model Number</Label><Input value={form.modelNumber} onChange={e => setForm(f => ({ ...f, modelNumber: e.target.value }))} /></div>
-          <div><Label>Serial Number</Label><Input value={form.serialNumber} onChange={e => setForm(f => ({ ...f, serialNumber: e.target.value }))} /></div>
-          <div><Label>Location</Label><Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} /></div>
-          <div><Label>Calibration Frequency</Label><Input value={form.calibrationFrequency} onChange={e => setForm(f => ({ ...f, calibrationFrequency: e.target.value }))} placeholder="e.g. Annual" /></div>
-          <div><Label>Calibrated By</Label><Input value={form.calibratedBy} onChange={e => setForm(f => ({ ...f, calibratedBy: e.target.value }))} /></div>
-          <div><Label>Last Calibration Date</Label><Input type="date" value={form.lastCalibrationDate} onChange={e => setForm(f => ({ ...f, lastCalibrationDate: e.target.value }))} /></div>
-          <div><Label>Next Calibration Date</Label><Input type="date" value={form.nextCalibrationDate} onChange={e => setForm(f => ({ ...f, nextCalibrationDate: e.target.value }))} /></div>
-          <div><Label>Standard Used</Label><Input value={form.standardUsed} onChange={e => setForm(f => ({ ...f, standardUsed: e.target.value }))} /></div>
-          <div><Label>Certificate Number</Label><Input value={form.certificateNumber} onChange={e => setForm(f => ({ ...f, certificateNumber: e.target.value }))} /></div>
-          <div className="col-span-2"><Label>Calibration Method</Label><Textarea value={form.calibrationMethod} onChange={e => setForm(f => ({ ...f, calibrationMethod: e.target.value }))} /></div>
-          <div className="col-span-2"><Label>Acceptance Criteria</Label><Textarea value={form.acceptanceCriteria} onChange={e => setForm(f => ({ ...f, acceptanceCriteria: e.target.value }))} /></div>
-          <div className="col-span-2"><Label>Results</Label><Textarea value={form.results} onChange={e => setForm(f => ({ ...f, results: e.target.value }))} /></div>
-          <div className="col-span-2"><Label>Notes</Label><Textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} /></div>
+          <div>
+            <Label>Equipment Name *</Label>
+            <Input
+              value={form.equipmentName}
+              onChange={(e) => setForm((f) => ({ ...f, equipmentName: e.target.value }))}
+            />
+          </div>
+          <div>
+            <Label>Equipment ID</Label>
+            <Input
+              value={form.equipmentId}
+              onChange={(e) => setForm((f) => ({ ...f, equipmentId: e.target.value }))}
+            />
+          </div>
+          <div>
+            <Label>Manufacturer</Label>
+            <Input
+              value={form.manufacturer}
+              onChange={(e) => setForm((f) => ({ ...f, manufacturer: e.target.value }))}
+            />
+          </div>
+          <div>
+            <Label>Model Number</Label>
+            <Input
+              value={form.modelNumber}
+              onChange={(e) => setForm((f) => ({ ...f, modelNumber: e.target.value }))}
+            />
+          </div>
+          <div>
+            <Label>Serial Number</Label>
+            <Input
+              value={form.serialNumber}
+              onChange={(e) => setForm((f) => ({ ...f, serialNumber: e.target.value }))}
+            />
+          </div>
+          <div>
+            <Label>Location</Label>
+            <Input
+              value={form.location}
+              onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
+            />
+          </div>
+          <div>
+            <Label>Calibration Frequency</Label>
+            <Input
+              value={form.calibrationFrequency}
+              onChange={(e) => setForm((f) => ({ ...f, calibrationFrequency: e.target.value }))}
+              placeholder="e.g. Annual"
+            />
+          </div>
+          <div>
+            <Label>Calibrated By</Label>
+            <Input
+              value={form.calibratedBy}
+              onChange={(e) => setForm((f) => ({ ...f, calibratedBy: e.target.value }))}
+            />
+          </div>
+          <div>
+            <Label>Last Calibration Date</Label>
+            <Input
+              type="date"
+              value={form.lastCalibrationDate}
+              onChange={(e) => setForm((f) => ({ ...f, lastCalibrationDate: e.target.value }))}
+            />
+          </div>
+          <div>
+            <Label>Next Calibration Date</Label>
+            <Input
+              type="date"
+              value={form.nextCalibrationDate}
+              onChange={(e) => setForm((f) => ({ ...f, nextCalibrationDate: e.target.value }))}
+            />
+          </div>
+          <div>
+            <Label>Standard Used</Label>
+            <Input
+              value={form.standardUsed}
+              onChange={(e) => setForm((f) => ({ ...f, standardUsed: e.target.value }))}
+            />
+          </div>
+          <div>
+            <Label>Certificate Number</Label>
+            <Input
+              value={form.certificateNumber}
+              onChange={(e) => setForm((f) => ({ ...f, certificateNumber: e.target.value }))}
+            />
+          </div>
+          <div className="col-span-2">
+            <Label>Calibration Method</Label>
+            <Textarea
+              value={form.calibrationMethod}
+              onChange={(e) => setForm((f) => ({ ...f, calibrationMethod: e.target.value }))}
+            />
+          </div>
+          <div className="col-span-2">
+            <Label>Acceptance Criteria</Label>
+            <Textarea
+              value={form.acceptanceCriteria}
+              onChange={(e) => setForm((f) => ({ ...f, acceptanceCriteria: e.target.value }))}
+            />
+          </div>
+          <div className="col-span-2">
+            <Label>Results</Label>
+            <Textarea
+              value={form.results}
+              onChange={(e) => setForm((f) => ({ ...f, results: e.target.value }))}
+            />
+          </div>
+          <div className="col-span-2">
+            <Label>Notes</Label>
+            <Textarea
+              value={form.notes}
+              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+            />
+          </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setModalOpen(false)}>
+            Cancel
+          </Button>
           <Button onClick={handleSave}>{editItem ? 'Update' : 'Create'}</Button>
         </ModalFooter>
       </Modal>

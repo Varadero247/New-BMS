@@ -3,7 +3,13 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    cmmsPart: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    cmmsPart: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
     cmmsPartUsage: { create: jest.fn() },
   },
   Prisma: { Decimal: jest.fn((v: any) => v) },
@@ -34,7 +40,7 @@ const mockPart = {
   description: 'Deep groove ball bearing',
   category: 'Bearings',
   manufacturer: 'SKF',
-  unitCost: 25.50,
+  unitCost: 25.5,
   quantity: 100,
   minStock: 10,
   maxStock: 500,
@@ -155,14 +161,18 @@ describe('Parts Routes', () => {
       prisma.cmmsPart.findFirst.mockResolvedValue(mockPart);
       prisma.cmmsPart.update.mockResolvedValue({ ...mockPart, name: 'Updated Bearing' });
 
-      const res = await request(app).put('/api/parts/00000000-0000-0000-0000-000000000001').send({ name: 'Updated Bearing' });
+      const res = await request(app)
+        .put('/api/parts/00000000-0000-0000-0000-000000000001')
+        .send({ name: 'Updated Bearing' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent part', async () => {
       prisma.cmmsPart.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/parts/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
+      const res = await request(app)
+        .put('/api/parts/00000000-0000-0000-0000-000000000099')
+        .send({ name: 'Updated' });
       expect(res.status).toBe(404);
     });
   });
@@ -192,40 +202,48 @@ describe('Parts Routes', () => {
         workOrderId: 'wo-1',
         partId: 'part-1',
         quantity: 2,
-        unitCost: 25.50,
-        totalCost: 51.00,
+        unitCost: 25.5,
+        totalCost: 51.0,
       });
       prisma.cmmsPart.update.mockResolvedValue({ ...mockPart, quantity: 98 });
 
-      const res = await request(app).post('/api/parts/00000000-0000-0000-0000-000000000001/usage').send({
-        workOrderId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        quantity: 2,
-      });
+      const res = await request(app)
+        .post('/api/parts/00000000-0000-0000-0000-000000000001/usage')
+        .send({
+          workOrderId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+          quantity: 2,
+        });
       expect(res.status).toBe(201);
     });
 
     it('should return 400 for insufficient stock', async () => {
       prisma.cmmsPart.findFirst.mockResolvedValue({ ...mockPart, quantity: 1 });
 
-      const res = await request(app).post('/api/parts/00000000-0000-0000-0000-000000000001/usage').send({
-        workOrderId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        quantity: 5,
-      });
+      const res = await request(app)
+        .post('/api/parts/00000000-0000-0000-0000-000000000001/usage')
+        .send({
+          workOrderId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+          quantity: 5,
+        });
       expect(res.status).toBe(400);
     });
 
     it('should return 404 for non-existent part', async () => {
       prisma.cmmsPart.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).post('/api/parts/00000000-0000-0000-0000-000000000099/usage').send({
-        workOrderId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        quantity: 2,
-      });
+      const res = await request(app)
+        .post('/api/parts/00000000-0000-0000-0000-000000000099/usage')
+        .send({
+          workOrderId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+          quantity: 2,
+        });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for invalid data', async () => {
-      const res = await request(app).post('/api/parts/00000000-0000-0000-0000-000000000001/usage').send({});
+      const res = await request(app)
+        .post('/api/parts/00000000-0000-0000-0000-000000000001/usage')
+        .send({});
       expect(res.status).toBe(400);
     });
   });

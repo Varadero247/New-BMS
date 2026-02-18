@@ -2,13 +2,13 @@
 
 ## Prerequisites
 
-| Tool | Version | Install |
-|------|---------|---------|
-| Node.js | 20.x | `nvm install 20 && nvm use 20` |
-| pnpm | 8+ | `npm install -g pnpm` |
-| PostgreSQL | 14+ | See OS-specific instructions below |
-| Redis | 6+ | Via Docker or system package |
-| Docker | 20+ | For Redis and optional containerised services |
+| Tool       | Version | Install                                       |
+| ---------- | ------- | --------------------------------------------- |
+| Node.js    | 20.x    | `nvm install 20 && nvm use 20`                |
+| pnpm       | 8+      | `npm install -g pnpm`                         |
+| PostgreSQL | 14+     | See OS-specific instructions below            |
+| Redis      | 6+      | Via Docker or system package                  |
+| Docker     | 20+     | For Redis and optional containerised services |
 
 ### Ubuntu/Debian
 
@@ -206,6 +206,7 @@ packages/[name]/
 ```
 
 Then run `pnpm install` and reference it in consuming apps:
+
 ```json
 "@ims/[name]": "workspace:*"
 ```
@@ -214,16 +215,16 @@ Then run `pnpm install` and reference it in consuming apps:
 
 ## Script Reference
 
-| Script | Command | Description |
-|--------|---------|-------------|
-| dev | `pnpm dev` | Start all services |
-| build | `pnpm turbo build` | Build all packages and apps |
-| test | `pnpm test` | Run all Jest tests (~8,037) |
-| lint | `pnpm turbo lint` | Lint all packages |
-| clean | `pnpm turbo clean` | Remove dist/.next dirs |
+| Script    | Command                           | Description                   |
+| --------- | --------------------------------- | ----------------------------- |
+| dev       | `pnpm dev`                        | Start all services            |
+| build     | `pnpm turbo build`                | Build all packages and apps   |
+| test      | `pnpm test`                       | Run all Jest tests (~8,037)   |
+| lint      | `pnpm turbo lint`                 | Lint all packages             |
+| clean     | `pnpm turbo clean`                | Remove dist/.next dirs        |
 | start:all | `./scripts/start-all-services.sh` | Background start all services |
-| stop:all | `./scripts/stop-all-services.sh` | Stop all services |
-| check | `./scripts/check-services.sh` | Health check all services |
+| stop:all  | `./scripts/stop-all-services.sh`  | Stop all services             |
+| check     | `./scripts/check-services.sh`     | Health check all services     |
 
 ---
 
@@ -244,8 +245,6 @@ Then run `pnpm install` and reference it in consuming apps:
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "eslint.workingDirectories": [{ "mode": "auto" }],
-  "tailwindCSS.experimental.classRegex": [
-    ["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
-  ]
+  "tailwindCSS.experimental.classRegex": [["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]]
 }
 ```

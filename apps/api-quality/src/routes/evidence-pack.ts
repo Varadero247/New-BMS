@@ -66,7 +66,10 @@ interface ClauseDef {
 const ISO_CLAUSES: Record<string, ClauseDef[]> = {
   ISO_9001: [
     { clauseNumber: '4.1', clauseTitle: 'Understanding the organization and its context' },
-    { clauseNumber: '4.2', clauseTitle: 'Understanding the needs and expectations of interested parties' },
+    {
+      clauseNumber: '4.2',
+      clauseTitle: 'Understanding the needs and expectations of interested parties',
+    },
     { clauseNumber: '4.3', clauseTitle: 'Determining the scope of the QMS' },
     { clauseNumber: '4.4', clauseTitle: 'Quality management system and its processes' },
     { clauseNumber: '5.1', clauseTitle: 'Leadership and commitment' },
@@ -83,7 +86,10 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
     { clauseNumber: '8.1', clauseTitle: 'Operational planning and control' },
     { clauseNumber: '8.2', clauseTitle: 'Requirements for products and services' },
     { clauseNumber: '8.3', clauseTitle: 'Design and development of products and services' },
-    { clauseNumber: '8.4', clauseTitle: 'Control of externally provided processes, products and services' },
+    {
+      clauseNumber: '8.4',
+      clauseTitle: 'Control of externally provided processes, products and services',
+    },
     { clauseNumber: '8.5', clauseTitle: 'Production and service provision' },
     { clauseNumber: '8.6', clauseTitle: 'Release of products and services' },
     { clauseNumber: '8.7', clauseTitle: 'Control of nonconforming outputs' },
@@ -96,13 +102,19 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
   ],
   ISO_14001: [
     { clauseNumber: '4.1', clauseTitle: 'Understanding the organization and its context' },
-    { clauseNumber: '4.2', clauseTitle: 'Understanding the needs and expectations of interested parties' },
+    {
+      clauseNumber: '4.2',
+      clauseTitle: 'Understanding the needs and expectations of interested parties',
+    },
     { clauseNumber: '4.3', clauseTitle: 'Determining the scope of the EMS' },
     { clauseNumber: '4.4', clauseTitle: 'Environmental management system' },
     { clauseNumber: '5.1', clauseTitle: 'Leadership and commitment' },
     { clauseNumber: '5.2', clauseTitle: 'Environmental policy' },
     { clauseNumber: '5.3', clauseTitle: 'Organizational roles, responsibilities and authorities' },
-    { clauseNumber: '6.1', clauseTitle: 'Actions to address risks and opportunities — Environmental aspects' },
+    {
+      clauseNumber: '6.1',
+      clauseTitle: 'Actions to address risks and opportunities — Environmental aspects',
+    },
     { clauseNumber: '6.2', clauseTitle: 'Environmental objectives and planning to achieve them' },
     { clauseNumber: '7.1', clauseTitle: 'Resources' },
     { clauseNumber: '7.2', clauseTitle: 'Competence' },
@@ -120,14 +132,21 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
   ],
   ISO_45001: [
     { clauseNumber: '4.1', clauseTitle: 'Understanding the organization and its context' },
-    { clauseNumber: '4.2', clauseTitle: 'Understanding the needs and expectations of workers and other interested parties' },
+    {
+      clauseNumber: '4.2',
+      clauseTitle:
+        'Understanding the needs and expectations of workers and other interested parties',
+    },
     { clauseNumber: '4.3', clauseTitle: 'Determining the scope of the OH&S management system' },
     { clauseNumber: '4.4', clauseTitle: 'OH&S management system' },
     { clauseNumber: '5.1', clauseTitle: 'Leadership and commitment' },
     { clauseNumber: '5.2', clauseTitle: 'OH&S policy' },
     { clauseNumber: '5.3', clauseTitle: 'Organizational roles, responsibilities and authorities' },
     { clauseNumber: '5.4', clauseTitle: 'Consultation and participation of workers' },
-    { clauseNumber: '6.1', clauseTitle: 'Actions to address risks and opportunities — Hazard identification' },
+    {
+      clauseNumber: '6.1',
+      clauseTitle: 'Actions to address risks and opportunities — Hazard identification',
+    },
     { clauseNumber: '6.2', clauseTitle: 'OH&S objectives and planning to achieve them' },
     { clauseNumber: '7.1', clauseTitle: 'Resources' },
     { clauseNumber: '7.2', clauseTitle: 'Competence' },
@@ -145,14 +164,24 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
   ],
   ISO_27001: [
     { clauseNumber: '4.1', clauseTitle: 'Understanding the organization and its context' },
-    { clauseNumber: '4.2', clauseTitle: 'Understanding the needs and expectations of interested parties' },
+    {
+      clauseNumber: '4.2',
+      clauseTitle: 'Understanding the needs and expectations of interested parties',
+    },
     { clauseNumber: '4.3', clauseTitle: 'Determining the scope of the ISMS' },
     { clauseNumber: '4.4', clauseTitle: 'Information security management system' },
     { clauseNumber: '5.1', clauseTitle: 'Leadership and commitment' },
     { clauseNumber: '5.2', clauseTitle: 'Information security policy' },
     { clauseNumber: '5.3', clauseTitle: 'Organizational roles, responsibilities and authorities' },
-    { clauseNumber: '6.1', clauseTitle: 'Actions to address risks and opportunities — Information security risk assessment' },
-    { clauseNumber: '6.2', clauseTitle: 'Information security objectives and planning to achieve them' },
+    {
+      clauseNumber: '6.1',
+      clauseTitle:
+        'Actions to address risks and opportunities — Information security risk assessment',
+    },
+    {
+      clauseNumber: '6.2',
+      clauseTitle: 'Information security objectives and planning to achieve them',
+    },
     { clauseNumber: '6.3', clauseTitle: 'Planning of changes' },
     { clauseNumber: '7.1', clauseTitle: 'Resources' },
     { clauseNumber: '7.2', clauseTitle: 'Competence' },
@@ -170,7 +199,10 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
   ],
   IATF_16949: [
     { clauseNumber: '4.1', clauseTitle: 'Understanding the organization and its context' },
-    { clauseNumber: '4.2', clauseTitle: 'Understanding the needs and expectations of interested parties' },
+    {
+      clauseNumber: '4.2',
+      clauseTitle: 'Understanding the needs and expectations of interested parties',
+    },
     { clauseNumber: '4.3', clauseTitle: 'Determining the scope of the QMS' },
     { clauseNumber: '4.4', clauseTitle: 'Quality management system and its processes' },
     { clauseNumber: '5.1', clauseTitle: 'Leadership and commitment — Corporate responsibility' },
@@ -182,9 +214,15 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
     { clauseNumber: '7.2', clauseTitle: 'Competence — On-the-job training' },
     { clauseNumber: '7.5', clauseTitle: 'Documented information — Engineering specifications' },
     { clauseNumber: '8.1', clauseTitle: 'Operational planning and control — Control plans' },
-    { clauseNumber: '8.2', clauseTitle: 'Requirements for products and services — Special characteristics' },
+    {
+      clauseNumber: '8.2',
+      clauseTitle: 'Requirements for products and services — Special characteristics',
+    },
     { clauseNumber: '8.3', clauseTitle: 'Design and development — APQP/PPAP' },
-    { clauseNumber: '8.4', clauseTitle: 'Control of externally provided processes — Supplier development' },
+    {
+      clauseNumber: '8.4',
+      clauseTitle: 'Control of externally provided processes — Supplier development',
+    },
     { clauseNumber: '8.5', clauseTitle: 'Production and service provision — SPC, FMEA' },
     { clauseNumber: '8.7', clauseTitle: 'Control of nonconforming outputs — Customer waivers' },
     { clauseNumber: '9.1', clauseTitle: 'Monitoring, measurement — Customer satisfaction, KPIs' },
@@ -195,7 +233,10 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
   ],
   ISO_13485: [
     { clauseNumber: '4.1', clauseTitle: 'Quality management system — General requirements' },
-    { clauseNumber: '4.2', clauseTitle: 'Documentation requirements — Quality manual, device files' },
+    {
+      clauseNumber: '4.2',
+      clauseTitle: 'Documentation requirements — Quality manual, device files',
+    },
     { clauseNumber: '5.1', clauseTitle: 'Management commitment' },
     { clauseNumber: '5.2', clauseTitle: 'Customer focus' },
     { clauseNumber: '5.3', clauseTitle: 'Quality policy' },
@@ -210,7 +251,10 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
     { clauseNumber: '7.2', clauseTitle: 'Customer-related processes — Regulatory requirements' },
     { clauseNumber: '7.3', clauseTitle: 'Design and development — Design controls' },
     { clauseNumber: '7.4', clauseTitle: 'Purchasing — Supplier evaluation' },
-    { clauseNumber: '7.5', clauseTitle: 'Production and service provision — Validation, traceability' },
+    {
+      clauseNumber: '7.5',
+      clauseTitle: 'Production and service provision — Validation, traceability',
+    },
     { clauseNumber: '7.6', clauseTitle: 'Control of monitoring and measuring equipment' },
     { clauseNumber: '8.1', clauseTitle: 'General — Monitoring, measurement, analysis' },
     { clauseNumber: '8.2', clauseTitle: 'Monitoring and measurement — Complaints, audits' },
@@ -220,7 +264,10 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
   ],
   AS9100D: [
     { clauseNumber: '4.1', clauseTitle: 'Understanding the organization and its context' },
-    { clauseNumber: '4.2', clauseTitle: 'Understanding the needs and expectations of interested parties' },
+    {
+      clauseNumber: '4.2',
+      clauseTitle: 'Understanding the needs and expectations of interested parties',
+    },
     { clauseNumber: '4.3', clauseTitle: 'Determining the scope of the QMS' },
     { clauseNumber: '4.4', clauseTitle: 'Quality management system and its processes' },
     { clauseNumber: '5.1', clauseTitle: 'Leadership and commitment — Airworthiness' },
@@ -231,11 +278,20 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
     { clauseNumber: '7.1', clauseTitle: 'Resources — Calibration, tooling' },
     { clauseNumber: '7.2', clauseTitle: 'Competence — Awareness of product safety' },
     { clauseNumber: '7.5', clauseTitle: 'Documented information — Configuration management' },
-    { clauseNumber: '8.1', clauseTitle: 'Operational planning and control — Risk management, project management' },
+    {
+      clauseNumber: '8.1',
+      clauseTitle: 'Operational planning and control — Risk management, project management',
+    },
     { clauseNumber: '8.2', clauseTitle: 'Requirements for products and services' },
     { clauseNumber: '8.3', clauseTitle: 'Design and development — Verification, validation' },
-    { clauseNumber: '8.4', clauseTitle: 'Control of externally provided processes — Supplier monitoring' },
-    { clauseNumber: '8.5', clauseTitle: 'Production and service provision — FOD prevention, special processes' },
+    {
+      clauseNumber: '8.4',
+      clauseTitle: 'Control of externally provided processes — Supplier monitoring',
+    },
+    {
+      clauseNumber: '8.5',
+      clauseTitle: 'Production and service provision — FOD prevention, special processes',
+    },
     { clauseNumber: '8.7', clauseTitle: 'Control of nonconforming outputs — Scrap, MRB' },
     { clauseNumber: '9.1', clauseTitle: 'Monitoring, measurement — KPIs, on-time delivery' },
     { clauseNumber: '9.2', clauseTitle: 'Internal audit' },
@@ -245,7 +301,10 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
   ],
   ISO_22000: [
     { clauseNumber: '4.1', clauseTitle: 'Understanding the organization and its context' },
-    { clauseNumber: '4.2', clauseTitle: 'Understanding the needs and expectations of interested parties' },
+    {
+      clauseNumber: '4.2',
+      clauseTitle: 'Understanding the needs and expectations of interested parties',
+    },
     { clauseNumber: '4.3', clauseTitle: 'Determining the scope of the FSMS' },
     { clauseNumber: '4.4', clauseTitle: 'Food safety management system' },
     { clauseNumber: '5.1', clauseTitle: 'Leadership and commitment' },
@@ -275,14 +334,20 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
   ],
   ISO_50001: [
     { clauseNumber: '4.1', clauseTitle: 'Understanding the organization and its context' },
-    { clauseNumber: '4.2', clauseTitle: 'Understanding the needs and expectations of interested parties' },
+    {
+      clauseNumber: '4.2',
+      clauseTitle: 'Understanding the needs and expectations of interested parties',
+    },
     { clauseNumber: '4.3', clauseTitle: 'Determining the scope of the EnMS' },
     { clauseNumber: '4.4', clauseTitle: 'Energy management system' },
     { clauseNumber: '5.1', clauseTitle: 'Leadership and commitment' },
     { clauseNumber: '5.2', clauseTitle: 'Energy policy' },
     { clauseNumber: '5.3', clauseTitle: 'Organizational roles, responsibilities and authorities' },
     { clauseNumber: '6.1', clauseTitle: 'Actions to address risks and opportunities' },
-    { clauseNumber: '6.2', clauseTitle: 'Objectives, energy targets, and planning to achieve them' },
+    {
+      clauseNumber: '6.2',
+      clauseTitle: 'Objectives, energy targets, and planning to achieve them',
+    },
     { clauseNumber: '6.3', clauseTitle: 'Energy review' },
     { clauseNumber: '6.4', clauseTitle: 'Energy performance indicators' },
     { clauseNumber: '6.5', clauseTitle: 'Energy baseline' },
@@ -294,7 +359,10 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
     { clauseNumber: '8.1', clauseTitle: 'Operational planning and control' },
     { clauseNumber: '8.2', clauseTitle: 'Design — Energy performance considerations' },
     { clauseNumber: '8.3', clauseTitle: 'Procurement — Energy services, products, equipment' },
-    { clauseNumber: '9.1', clauseTitle: 'Monitoring, measurement, analysis and evaluation of energy performance' },
+    {
+      clauseNumber: '9.1',
+      clauseTitle: 'Monitoring, measurement, analysis and evaluation of energy performance',
+    },
     { clauseNumber: '9.2', clauseTitle: 'Internal audit' },
     { clauseNumber: '9.3', clauseTitle: 'Management review' },
     { clauseNumber: '10.1', clauseTitle: 'Nonconformity and corrective action' },
@@ -302,13 +370,19 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
   ],
   ISO_42001: [
     { clauseNumber: '4.1', clauseTitle: 'Understanding the organization and its context' },
-    { clauseNumber: '4.2', clauseTitle: 'Understanding the needs and expectations of interested parties' },
+    {
+      clauseNumber: '4.2',
+      clauseTitle: 'Understanding the needs and expectations of interested parties',
+    },
     { clauseNumber: '4.3', clauseTitle: 'Determining the scope of the AIMS' },
     { clauseNumber: '4.4', clauseTitle: 'AI management system' },
     { clauseNumber: '5.1', clauseTitle: 'Leadership and commitment' },
     { clauseNumber: '5.2', clauseTitle: 'AI policy' },
     { clauseNumber: '5.3', clauseTitle: 'Organizational roles, responsibilities and authorities' },
-    { clauseNumber: '6.1', clauseTitle: 'Actions to address risks and opportunities — AI risk assessment' },
+    {
+      clauseNumber: '6.1',
+      clauseTitle: 'Actions to address risks and opportunities — AI risk assessment',
+    },
     { clauseNumber: '6.2', clauseTitle: 'AI objectives and planning to achieve them' },
     { clauseNumber: '7.1', clauseTitle: 'Resources' },
     { clauseNumber: '7.2', clauseTitle: 'Competence' },
@@ -327,13 +401,23 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
   ],
   ISO_37001: [
     { clauseNumber: '4.1', clauseTitle: 'Understanding the organization and its context' },
-    { clauseNumber: '4.2', clauseTitle: 'Understanding the needs and expectations of interested parties' },
+    {
+      clauseNumber: '4.2',
+      clauseTitle: 'Understanding the needs and expectations of interested parties',
+    },
     { clauseNumber: '4.3', clauseTitle: 'Determining the scope of the ABMS' },
     { clauseNumber: '4.4', clauseTitle: 'Anti-bribery management system' },
     { clauseNumber: '4.5', clauseTitle: 'Bribery risk assessment' },
-    { clauseNumber: '5.1', clauseTitle: 'Leadership and commitment — Governing body, top management' },
+    {
+      clauseNumber: '5.1',
+      clauseTitle: 'Leadership and commitment — Governing body, top management',
+    },
     { clauseNumber: '5.2', clauseTitle: 'Anti-bribery policy' },
-    { clauseNumber: '5.3', clauseTitle: 'Organizational roles, responsibilities and authorities — Anti-bribery compliance function' },
+    {
+      clauseNumber: '5.3',
+      clauseTitle:
+        'Organizational roles, responsibilities and authorities — Anti-bribery compliance function',
+    },
     { clauseNumber: '6.1', clauseTitle: 'Actions to address risks and opportunities' },
     { clauseNumber: '6.2', clauseTitle: 'Anti-bribery objectives and planning to achieve them' },
     { clauseNumber: '7.1', clauseTitle: 'Resources' },
@@ -366,7 +450,7 @@ const ISO_CLAUSES: Record<string, ClauseDef[]> = {
 async function buildEvidencePackSections(
   standard: string,
   dateFrom: string | null,
-  dateTo: string | null,
+  dateTo: string | null
 ): Promise<{ sections: EvidenceSection[]; totalDocuments: number; totalRecords: number }> {
   const clauses = ISO_CLAUSES[standard] || ISO_CLAUSES.ISO_9001;
   const dateFilter: { createdAt?: { gte?: Date; lte?: Date } } = {};
@@ -392,16 +476,41 @@ async function buildEvidencePackSections(
   let changeCount = 0;
 
   try {
-    [documentCount, ncCount, capaCount, riskCount, objectiveCount, partyCount, legalCount, supplierCount, improvementCount, processCount, fmeaCount, changeCount] = await Promise.all([
-      prisma.qualDocument.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
-      prisma.qualNonConformance.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+    [
+      documentCount,
+      ncCount,
+      capaCount,
+      riskCount,
+      objectiveCount,
+      partyCount,
+      legalCount,
+      supplierCount,
+      improvementCount,
+      processCount,
+      fmeaCount,
+      changeCount,
+    ] = await Promise.all([
+      prisma.qualDocument
+        .count({ where: { deletedAt: null, ...dateFilter } as any })
+        .catch(() => 0),
+      prisma.qualNonConformance
+        .count({ where: { deletedAt: null, ...dateFilter } as any })
+        .catch(() => 0),
       prisma.qualCapa.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
       prisma.qualRisk.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
-      prisma.qualObjective.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
-      prisma.qualInterestedParty.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualObjective
+        .count({ where: { deletedAt: null, ...dateFilter } as any })
+        .catch(() => 0),
+      prisma.qualInterestedParty
+        .count({ where: { deletedAt: null, ...dateFilter } as any })
+        .catch(() => 0),
       prisma.qualLegal.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
-      prisma.qualSupplier.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
-      prisma.qualImprovement.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualSupplier
+        .count({ where: { deletedAt: null, ...dateFilter } as any })
+        .catch(() => 0),
+      prisma.qualImprovement
+        .count({ where: { deletedAt: null, ...dateFilter } as any })
+        .catch(() => 0),
       prisma.qualProcess.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
       prisma.qualFmea.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
       prisma.qualChange.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
@@ -470,13 +579,16 @@ interface DataCounts {
 
 function buildClauseDataMap(
   standard: string,
-  counts: DataCounts,
+  counts: DataCounts
 ): Record<string, { documents: number; records: number }> {
   const map: Record<string, { documents: number; records: number }> = {};
 
   // Common mappings across most standards (Annex SL structure)
   // Clause 4.1 — Context: issues
-  map['4.1'] = { documents: Math.min(counts.documentCount, 2), records: counts.partyCount > 0 ? 1 : 0 };
+  map['4.1'] = {
+    documents: Math.min(counts.documentCount, 2),
+    records: counts.partyCount > 0 ? 1 : 0,
+  };
   // Clause 4.2 — Interested parties
   map['4.2'] = { documents: counts.partyCount > 0 ? 1 : 0, records: counts.partyCount };
   // Clause 4.3 — Scope
@@ -537,9 +649,18 @@ function buildClauseDataMap(
   map['9.2'] = { documents: Math.min(counts.documentCount, 2), records: 0 };
   map['9.3'] = { documents: Math.min(counts.documentCount, 1), records: 0 };
   // Clause 10.x — Improvement
-  map['10.1'] = { documents: Math.min(counts.improvementCount, 5), records: counts.improvementCount };
-  map['10.2'] = { documents: Math.min(counts.capaCount, 5), records: counts.capaCount + counts.ncCount };
-  map['10.3'] = { documents: Math.min(counts.improvementCount, 3), records: counts.improvementCount };
+  map['10.1'] = {
+    documents: Math.min(counts.improvementCount, 5),
+    records: counts.improvementCount,
+  };
+  map['10.2'] = {
+    documents: Math.min(counts.capaCount, 5),
+    records: counts.capaCount + counts.ncCount,
+  };
+  map['10.3'] = {
+    documents: Math.min(counts.improvementCount, 3),
+    records: counts.improvementCount,
+  };
 
   // Standard-specific overrides
   if (standard === 'ISO_14001') {
@@ -551,7 +672,10 @@ function buildClauseDataMap(
     map['5.4'] = { documents: Math.min(counts.documentCount, 1), records: 0 }; // Worker consultation
     map['6.1'] = { documents: Math.min(counts.riskCount, 5), records: counts.riskCount }; // Hazards
     map['8.2'] = { documents: Math.min(counts.documentCount, 2), records: 0 }; // Emergency preparedness
-    map['10.2'] = { documents: Math.min(counts.capaCount + counts.ncCount, 5), records: counts.capaCount + counts.ncCount }; // Incidents
+    map['10.2'] = {
+      documents: Math.min(counts.capaCount + counts.ncCount, 5),
+      records: counts.capaCount + counts.ncCount,
+    }; // Incidents
   }
 
   if (standard === 'ISO_27001') {
@@ -701,11 +825,18 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e) => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Generate evidence pack error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate evidence pack' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate evidence pack' },
+    });
   }
 });
 
@@ -748,7 +879,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List evidence packs error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list evidence packs' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list evidence packs' },
+    });
   }
 });
 
@@ -758,13 +892,18 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     const pack = evidencePackStore.get(req.params.id);
 
     if (!pack) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Evidence pack not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Evidence pack not found' } });
     }
 
     res.json({ success: true, data: pack });
   } catch (error) {
     logger.error('Get evidence pack error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get evidence pack' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get evidence pack' },
+    });
   }
 });
 
@@ -774,7 +913,9 @@ router.get('/:id/download', async (req: AuthRequest, res: Response) => {
     const pack = evidencePackStore.get(req.params.id);
 
     if (!pack) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Evidence pack not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Evidence pack not found' } });
     }
 
     if (pack.status === 'GENERATING') {
@@ -822,7 +963,10 @@ router.get('/:id/download', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Download evidence pack error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to download evidence pack' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to download evidence pack' },
+    });
   }
 });
 

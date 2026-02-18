@@ -12,14 +12,7 @@ export { LoginPage, type LoginPageProps } from './login-page';
 export { Button, buttonVariants, type ButtonProps } from './button';
 
 // Card
-export {
-  Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from './card';
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card';
 
 // Input
 export { Input, type InputProps } from './input';
@@ -85,10 +78,18 @@ export { GlobalSearch, type GlobalSearchProps, type SearchResult } from './globa
 export { CommandPalette, type CommandPaletteProps, type CommandItem } from './command-palette';
 
 // Notification Centre
-export { NotificationCentre, type NotificationCentreProps, type Notification } from './notification-centre';
+export {
+  NotificationCentre,
+  type NotificationCentreProps,
+  type Notification,
+} from './notification-centre';
 
 // Onboarding Checklist
-export { OnboardingChecklist, type OnboardingChecklistProps, type OnboardingStep } from './onboarding-checklist';
+export {
+  OnboardingChecklist,
+  type OnboardingChecklistProps,
+  type OnboardingStep,
+} from './onboarding-checklist';
 
 // Plan Badge
 export { PlanBadge, type PlanBadgeProps, type PlanTier } from './plan-badge';
@@ -97,10 +98,28 @@ export { PlanBadge, type PlanBadgeProps, type PlanTier } from './plan-badge';
 export { DataTable, type DataTableProps, type DataTableColumn } from './data-table';
 
 // Form
-export { FormGroup, FormField, FormError, FormActions, type FormGroupProps, type FormFieldProps, type FormErrorProps, type FormActionsProps } from './form';
+export {
+  FormGroup,
+  FormField,
+  FormError,
+  FormActions,
+  type FormGroupProps,
+  type FormFieldProps,
+  type FormErrorProps,
+  type FormActionsProps,
+} from './form';
 
 // Tabs
-export { Tabs, TabsList, TabsTrigger, TabsContent, type TabsProps, type TabsListProps, type TabsTriggerProps, type TabsContentProps } from './tabs';
+export {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  type TabsProps,
+  type TabsListProps,
+  type TabsTriggerProps,
+  type TabsContentProps,
+} from './tabs';
 
 // Status Indicator
 export { StatusIndicator, type StatusIndicatorProps, type ServiceStatus } from './status-indicator';
@@ -133,7 +152,15 @@ export { Skeleton, type SkeletonProps } from './skeleton';
 export { Alert, type AlertProps, type AlertVariant } from './alert';
 
 // Dropdown Menu
-export { DropdownMenu, DropdownItem, DropdownLabel, DropdownSeparator, type DropdownMenuProps, type DropdownItemProps, type DropdownLabelProps } from './dropdown-menu';
+export {
+  DropdownMenu,
+  DropdownItem,
+  DropdownLabel,
+  DropdownSeparator,
+  type DropdownMenuProps,
+  type DropdownItemProps,
+  type DropdownLabelProps,
+} from './dropdown-menu';
 
 // Stat Card
 export { StatCard, type StatCardProps } from './stat-card';
@@ -157,7 +184,14 @@ export { ThemeSwitch, type ThemeSwitchProps } from './theme-switch';
 export { RecordPresence, type RecordPresenceProps } from './record-presence';
 
 // Activity Feed
-export { ActivityFeed, ActivityFeedInline, type ActivityFeedProps, type ActivityFeedInlineProps, type ActivityEntry, type ActivityAction as ActivityActionType } from './activity-feed';
+export {
+  ActivityFeed,
+  ActivityFeedInline,
+  type ActivityFeedProps,
+  type ActivityFeedInlineProps,
+  type ActivityEntry,
+  type ActivityAction as ActivityActionType,
+} from './activity-feed';
 
 // Comment Thread
 export { CommentThread, type CommentThreadProps } from './comment-thread';
@@ -167,7 +201,12 @@ export { QuickAddTask, type QuickAddTaskProps } from './quick-add-task';
 
 // Photo Capture & Annotation
 export { PhotoCapture, type PhotoCaptureProps } from './photo-capture';
-export { PhotoAnnotation, type PhotoAnnotationProps, type AnnotationTool, type AnnotationColor } from './photo-annotation';
+export {
+  PhotoAnnotation,
+  type PhotoAnnotationProps,
+  type AnnotationTool,
+  type AnnotationColor,
+} from './photo-annotation';
 
 // QR Code
 export { QRCodeDisplay, QRScanner, type QRCodeDisplayProps, type QRScannerProps } from './qr-code';
@@ -176,23 +215,45 @@ export { QRCodeDisplay, QRScanner, type QRCodeDisplayProps, type QRScannerProps 
 export { BulkImportWizard, type BulkImportWizardProps } from './csv-import';
 
 // Digital Signature
-export { SignatureCapture, type SignatureCaptureProps, type SignatureData } from './signature-capture';
+export {
+  SignatureCapture,
+  type SignatureCaptureProps,
+  type SignatureData,
+} from './signature-capture';
 
 // GPS Location
 export { useGeoLocation, type GeoLocation, type UseGeoLocationResult } from './use-geo-location';
 export { LocationDisplay, type LocationDisplayProps } from './location-display';
 
 // Offline Inspection Form
-export { OfflineInspectionForm, type OfflineInspectionFormProps, type InspectionQuestion, type InspectionSection } from './offline-form';
+export {
+  OfflineInspectionForm,
+  type OfflineInspectionFormProps,
+  type InspectionQuestion,
+  type InspectionSection,
+} from './offline-form';
 
 // Tour Manager (Guided Tours)
-export { TourManager, TourStep, useTour, TOURS, type TourManagerProps, type TourStepProps, type TourStepConfig, type TourConfig } from './tour-manager';
+export {
+  TourManager,
+  TourStep,
+  useTour,
+  TOURS,
+  type TourManagerProps,
+  type TourStepProps,
+  type TourStepConfig,
+  type TourConfig,
+} from './tour-manager';
 
 // Help Tooltip
 export { HelpTooltip, type HelpTooltipProps } from './help-tooltip';
 
 // Changelog Bell
-export { ChangelogBell, type ChangelogBellProps, type ChangelogEntry as ChangelogEntryUI } from './changelog-bell';
+export {
+  ChangelogBell,
+  type ChangelogBellProps,
+  type ChangelogEntry as ChangelogEntryUI,
+} from './changelog-bell';
 
 // NPS Survey
 export { NpsSurvey, type NpsSurveyProps } from './nps-survey';
@@ -218,7 +279,11 @@ export { NexaraIcon, type NexaraIconProps } from './nexara-icon';
 export { AppNav, NavTab, type AppNavProps, type NavTabProps } from './app-nav';
 
 // AppSidebar
-export { AppSidebar, type AppSidebarProps, type SidebarItem as NexaraSidebarItem } from './app-sidebar';
+export {
+  AppSidebar,
+  type AppSidebarProps,
+  type SidebarItem as NexaraSidebarItem,
+} from './app-sidebar';
 
 // KpiCard
 export { KpiCard, type KpiCardProps } from './kpi-card';
@@ -242,7 +307,18 @@ export { ChangelogBanner, type ChangelogBannerProps } from './changelog-banner';
 export { PageShell, type PageShellProps } from './page-shell';
 
 // HeroSection
-export { HeroSection, HeroButton, type HeroSectionProps, type HeroButtonProps } from './hero-section';
+export {
+  HeroSection,
+  HeroButton,
+  type HeroSectionProps,
+  type HeroButtonProps,
+} from './hero-section';
 
 // GHS Pictograms (Chemical Management)
-export { GhsPictogram, GhsPictogramGroup, type GhsPictogramProps, type GhsPictogramGroupProps, type GhsPictogramType } from './ghs-pictogram';
+export {
+  GhsPictogram,
+  GhsPictogramGroup,
+  type GhsPictogramProps,
+  type GhsPictogramGroupProps,
+  type GhsPictogramType,
+} from './ghs-pictogram';

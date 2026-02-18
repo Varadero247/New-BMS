@@ -176,7 +176,12 @@ export function calculateQualityMetrics(input: QualityMetricsInput): QualityMetr
     defectOpportunities,
   } = input;
 
-  const totalCOPQ = calculateCOPQ(preventionCost, appraisalCost, internalFailureCost, externalFailureCost);
+  const totalCOPQ = calculateCOPQ(
+    preventionCost,
+    appraisalCost,
+    internalFailureCost,
+    externalFailureCost
+  );
   const dpmo = calculateDPMO(defectiveUnits, totalUnits, defectOpportunities);
   const firstPassYield = calculateFPY(totalUnits, defectiveUnits);
   const processSigma = calculateSigma(dpmo);

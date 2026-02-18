@@ -40,7 +40,12 @@ beforeEach(() => {
 describe('GET /api/release-notes', () => {
   it('should return a paginated list of changelogs', async () => {
     const changelogs = [
-      { id: '00000000-0000-0000-0000-000000000001', version: '2.1.0', title: 'Major release', publishedAt: new Date() },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        version: '2.1.0',
+        title: 'Major release',
+        publishedAt: new Date(),
+      },
       { id: 'cl-2', version: '2.0.1', title: 'Bug fix', publishedAt: new Date() },
     ];
     (prisma as any).changelog.findMany.mockResolvedValue(changelogs);
@@ -102,7 +107,12 @@ describe('GET /api/release-notes', () => {
 // ===================================================================
 describe('GET /api/release-notes/:id', () => {
   it('should return a changelog by ID', async () => {
-    const changelog = { id: '00000000-0000-0000-0000-000000000001', version: '2.1.0', title: 'Major release', publishedAt: new Date() };
+    const changelog = {
+      id: '00000000-0000-0000-0000-000000000001',
+      version: '2.1.0',
+      title: 'Major release',
+      publishedAt: new Date(),
+    };
     (prisma as any).changelog.findUnique.mockResolvedValue(changelog);
 
     const res = await request(app).get('/api/release-notes/00000000-0000-0000-0000-000000000001');

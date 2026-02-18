@@ -2,14 +2,30 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
 } from '@ims/ui';
 import {
-  Plus, Search, Loader2, Filter,
-  AlertTriangle, Shield, FileText,
-  ChevronLeft, Eye, BarChart3,
+  Plus,
+  Search,
+  Loader2,
+  Filter,
+  AlertTriangle,
+  Shield,
+  FileText,
+  ChevronLeft,
+  Eye,
+  BarChart3,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -99,11 +115,7 @@ const HAZARD_CATEGORIES = [
   'USE_ERROR',
 ] as const;
 
-const CONTROL_TYPES = [
-  'INHERENT_SAFETY',
-  'PROTECTIVE_MEASURE',
-  'INFORMATION_FOR_SAFETY',
-] as const;
+const CONTROL_TYPES = ['INHERENT_SAFETY', 'PROTECTIVE_MEASURE', 'INFORMATION_FOR_SAFETY'] as const;
 
 const RISK_LEVELS = ['NEGLIGIBLE', 'LOW', 'MEDIUM', 'HIGH', 'UNACCEPTABLE'] as const;
 
@@ -111,25 +123,41 @@ const RISK_LEVELS = ['NEGLIGIBLE', 'LOW', 'MEDIUM', 'HIGH', 'UNACCEPTABLE'] as c
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getStatusBadgeVariant(status: string): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
+function getStatusBadgeVariant(
+  status: string
+): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
   switch (status) {
-    case 'DRAFT': return 'secondary';
-    case 'ACTIVE': return 'info';
-    case 'UNDER_REVIEW': return 'warning';
-    case 'APPROVED': return 'success';
-    case 'CLOSED': return 'danger';
-    default: return 'outline';
+    case 'DRAFT':
+      return 'secondary';
+    case 'ACTIVE':
+      return 'info';
+    case 'UNDER_REVIEW':
+      return 'warning';
+    case 'APPROVED':
+      return 'success';
+    case 'CLOSED':
+      return 'danger';
+    default:
+      return 'outline';
   }
 }
 
-function getRiskBadgeVariant(level: string): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
+function getRiskBadgeVariant(
+  level: string
+): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
   switch (level) {
-    case 'NEGLIGIBLE': return 'secondary';
-    case 'LOW': return 'success';
-    case 'MEDIUM': return 'warning';
-    case 'HIGH': return 'danger';
-    case 'UNACCEPTABLE': return 'danger';
-    default: return 'outline';
+    case 'NEGLIGIBLE':
+      return 'secondary';
+    case 'LOW':
+      return 'success';
+    case 'MEDIUM':
+      return 'warning';
+    case 'HIGH':
+      return 'danger';
+    case 'UNACCEPTABLE':
+      return 'danger';
+    default:
+      return 'outline';
   }
 }
 
@@ -145,12 +173,18 @@ function getRiskLevel(severity: number, probability: number): string {
 function getRiskMatrixColor(severity: number, probability: number): string {
   const level = getRiskLevel(severity, probability);
   switch (level) {
-    case 'NEGLIGIBLE': return 'bg-green-500 text-white';
-    case 'LOW': return 'bg-green-300 text-green-900';
-    case 'MEDIUM': return 'bg-yellow-400 text-yellow-900';
-    case 'HIGH': return 'bg-orange-500 text-white';
-    case 'UNACCEPTABLE': return 'bg-red-600 text-white';
-    default: return 'bg-gray-200 text-gray-600';
+    case 'NEGLIGIBLE':
+      return 'bg-green-500 text-white';
+    case 'LOW':
+      return 'bg-green-300 text-green-900';
+    case 'MEDIUM':
+      return 'bg-yellow-400 text-yellow-900';
+    case 'HIGH':
+      return 'bg-orange-500 text-white';
+    case 'UNACCEPTABLE':
+      return 'bg-red-600 text-white';
+    default:
+      return 'bg-gray-200 text-gray-600';
   }
 }
 
@@ -269,104 +303,124 @@ export default function RiskManagementClient() {
   // Handlers
   // ---------------------------------------------------------------------------
 
-  const handleCreateRmf = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post('/risk', rmfForm);
-      setShowCreateModal(false);
-      setRmfForm(emptyRmfForm);
-      fetchRiskFiles();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create risk management file');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [rmfForm, fetchRiskFiles]);
+  const handleCreateRmf = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post('/risk', rmfForm);
+        setShowCreateModal(false);
+        setRmfForm(emptyRmfForm);
+        fetchRiskFiles();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create risk management file');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [rmfForm, fetchRiskFiles]
+  );
 
-  const handleAddHazard = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedRmf) return;
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post(`/risk/${selectedRmf.id}/hazards`, {
-        ...hazardForm,
-        severityBefore: Number(hazardForm.severityBefore),
-        probabilityBefore: Number(hazardForm.probabilityBefore),
-      });
-      setShowAddHazardModal(false);
-      setHazardForm(emptyHazardForm);
-      fetchRmfDetail(selectedRmf.id);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to add hazard');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [selectedRmf, hazardForm, fetchRmfDetail]);
+  const handleAddHazard = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!selectedRmf) return;
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post(`/risk/${selectedRmf.id}/hazards`, {
+          ...hazardForm,
+          severityBefore: Number(hazardForm.severityBefore),
+          probabilityBefore: Number(hazardForm.probabilityBefore),
+        });
+        setShowAddHazardModal(false);
+        setHazardForm(emptyHazardForm);
+        fetchRmfDetail(selectedRmf.id);
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to add hazard');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [selectedRmf, hazardForm, fetchRmfDetail]
+  );
 
-  const handleAddControl = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedRmf || !selectedHazard) return;
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.put(`/risk/${selectedRmf.id}/hazards/${selectedHazard.id}`, {
-        addControl: controlForm,
-      });
-      setShowAddControlModal(false);
-      setControlForm(emptyControlForm);
-      fetchRmfDetail(selectedRmf.id);
-      // Refresh hazard detail
-      const updatedRmf = await api.get(`/risk/${selectedRmf.id}`);
-      const updatedHazard = (updatedRmf.data.data as RMFDetail).hazards.find(
-        (h: Hazard) => h.id === selectedHazard.id
-      );
-      if (updatedHazard) setSelectedHazard(updatedHazard);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to add control');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [selectedRmf, selectedHazard, controlForm, fetchRmfDetail]);
+  const handleAddControl = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!selectedRmf || !selectedHazard) return;
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.put(`/risk/${selectedRmf.id}/hazards/${selectedHazard.id}`, {
+          addControl: controlForm,
+        });
+        setShowAddControlModal(false);
+        setControlForm(emptyControlForm);
+        fetchRmfDetail(selectedRmf.id);
+        // Refresh hazard detail
+        const updatedRmf = await api.get(`/risk/${selectedRmf.id}`);
+        const updatedHazard = (updatedRmf.data.data as RMFDetail).hazards.find(
+          (h: Hazard) => h.id === selectedHazard.id
+        );
+        if (updatedHazard) setSelectedHazard(updatedHazard);
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to add control');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [selectedRmf, selectedHazard, controlForm, fetchRmfDetail]
+  );
 
-  const handleBenefitRisk = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedRmf) return;
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post(`/risk/${selectedRmf.id}/benefit-risk`, benefitRiskForm);
-      setShowBenefitRiskModal(false);
-      fetchRmfDetail(selectedRmf.id);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to save benefit-risk analysis');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [selectedRmf, benefitRiskForm, fetchRmfDetail]);
+  const handleBenefitRisk = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!selectedRmf) return;
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post(`/risk/${selectedRmf.id}/benefit-risk`, benefitRiskForm);
+        setShowBenefitRiskModal(false);
+        fetchRmfDetail(selectedRmf.id);
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to save benefit-risk analysis');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [selectedRmf, benefitRiskForm, fetchRmfDetail]
+  );
 
-  const openDetail = useCallback(async (rmf: RiskManagementFile) => {
-    await fetchRmfDetail(rmf.id);
-    setView('detail');
-  }, [fetchRmfDetail]);
+  const openDetail = useCallback(
+    async (rmf: RiskManagementFile) => {
+      await fetchRmfDetail(rmf.id);
+      setView('detail');
+    },
+    [fetchRmfDetail]
+  );
 
   // ---------------------------------------------------------------------------
   // Filtered data
   // ---------------------------------------------------------------------------
 
   const filteredRiskFiles = useMemo(() => {
-    return riskFiles.filter(rf => {
+    return riskFiles.filter((rf) => {
       if (statusFilter !== 'all' && rf.status !== statusFilter) return false;
-      if (deviceNameFilter && !rf.deviceName?.toLowerCase().includes(deviceNameFilter.toLowerCase())) return false;
+      if (
+        deviceNameFilter &&
+        !rf.deviceName?.toLowerCase().includes(deviceNameFilter.toLowerCase())
+      )
+        return false;
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         if (
           !rf.title?.toLowerCase().includes(q) &&
           !rf.referenceNumber?.toLowerCase().includes(q) &&
           !rf.deviceName?.toLowerCase().includes(q)
-        ) return false;
+        )
+          return false;
       }
       return true;
     });
@@ -376,12 +430,16 @@ export default function RiskManagementClient() {
   // Stats
   // ---------------------------------------------------------------------------
 
-  const stats = useMemo(() => ({
-    total: riskFiles.length,
-    active: riskFiles.filter(rf => rf.status === 'ACTIVE' || rf.status === 'UNDER_REVIEW').length,
-    totalHazards: riskFiles.reduce((sum, rf) => sum + (rf.hazardCount || 0), 0),
-    highRiskCount: riskFiles.reduce((sum, rf) => sum + (rf.highRiskCount || 0), 0),
-  }), [riskFiles]);
+  const stats = useMemo(
+    () => ({
+      total: riskFiles.length,
+      active: riskFiles.filter((rf) => rf.status === 'ACTIVE' || rf.status === 'UNDER_REVIEW')
+        .length,
+      totalHazards: riskFiles.reduce((sum, rf) => sum + (rf.hazardCount || 0), 0),
+      highRiskCount: riskFiles.reduce((sum, rf) => sum + (rf.highRiskCount || 0), 0),
+    }),
+    [riskFiles]
+  );
 
   // ---------------------------------------------------------------------------
   // Risk Matrix for detail view
@@ -391,7 +449,7 @@ export default function RiskManagementClient() {
     if (!selectedRmf?.hazards) return null;
     // Count hazards in each cell of the 5x5 matrix
     const matrix: number[][] = Array.from({ length: 5 }, () => Array(5).fill(0));
-    selectedRmf.hazards.forEach(h => {
+    selectedRmf.hazards.forEach((h) => {
       const sev = Math.min(Math.max(h.severityBefore, 1), 5);
       const prob = Math.min(Math.max(h.probabilityBefore, 1), 5);
       matrix[sev - 1][prob - 1]++;
@@ -406,7 +464,9 @@ export default function RiskManagementClient() {
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center py-16">
       <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
-      <span className="ml-3 text-gray-500 dark:text-gray-400">Loading risk management files...</span>
+      <span className="ml-3 text-gray-500 dark:text-gray-400">
+        Loading risk management files...
+      </span>
     </div>
   );
 
@@ -420,7 +480,11 @@ export default function RiskManagementClient() {
         <div className="max-w-7xl mx-auto">
           {/* Back navigation */}
           <button
-            onClick={() => { setView('list'); setSelectedRmf(null); setSelectedHazard(null); }}
+            onClick={() => {
+              setView('list');
+              setSelectedRmf(null);
+              setSelectedHazard(null);
+            }}
             className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-teal-600 mb-6 transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -433,15 +497,29 @@ export default function RiskManagementClient() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedRmf.title}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {selectedRmf.title}
+                    </h1>
                     <Badge variant={getStatusBadgeVariant(selectedRmf.status)}>
                       {selectedRmf.status?.replace(/_/g, ' ')}
                     </Badge>
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 font-mono mb-2">{selectedRmf.referenceNumber}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-mono mb-2">
+                    {selectedRmf.referenceNumber}
+                  </p>
                   <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <span>Device: <strong>{selectedRmf.deviceName}</strong></span>
-                    <Badge variant={selectedRmf.deviceClass === 'III' ? 'danger' : selectedRmf.deviceClass === 'II' ? 'warning' : 'info'}>
+                    <span>
+                      Device: <strong>{selectedRmf.deviceName}</strong>
+                    </span>
+                    <Badge
+                      variant={
+                        selectedRmf.deviceClass === 'III'
+                          ? 'danger'
+                          : selectedRmf.deviceClass === 'II'
+                            ? 'warning'
+                            : 'info'
+                      }
+                    >
                       Class {selectedRmf.deviceClass}
                     </Badge>
                   </div>
@@ -487,8 +565,12 @@ export default function RiskManagementClient() {
 
               {selectedRmf.riskPolicy && (
                 <div className="mt-3 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Risk Acceptability Policy</p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">{selectedRmf.riskPolicy}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Risk Acceptability Policy
+                  </p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    {selectedRmf.riskPolicy}
+                  </p>
                 </div>
               )}
 
@@ -497,14 +579,22 @@ export default function RiskManagementClient() {
                 <div className="mt-4 flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-500 dark:text-gray-400">Overall Risk:</span>
-                    <Badge variant={selectedRmf.benefitRisk.overallRiskAcceptable ? 'success' : 'danger'}>
-                      {selectedRmf.benefitRisk.overallRiskAcceptable ? 'Acceptable' : 'Not Acceptable'}
+                    <Badge
+                      variant={selectedRmf.benefitRisk.overallRiskAcceptable ? 'success' : 'danger'}
+                    >
+                      {selectedRmf.benefitRisk.overallRiskAcceptable
+                        ? 'Acceptable'
+                        : 'Not Acceptable'}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-500 dark:text-gray-400">Benefit-Risk:</span>
-                    <Badge variant={selectedRmf.benefitRisk.benefitRiskAcceptable ? 'success' : 'danger'}>
-                      {selectedRmf.benefitRisk.benefitRiskAcceptable ? 'Acceptable' : 'Not Acceptable'}
+                    <Badge
+                      variant={selectedRmf.benefitRisk.benefitRiskAcceptable ? 'success' : 'danger'}
+                    >
+                      {selectedRmf.benefitRisk.benefitRiskAcceptable
+                        ? 'Acceptable'
+                        : 'Not Acceptable'}
                     </Badge>
                   </div>
                 </div>
@@ -524,24 +614,38 @@ export default function RiskManagementClient() {
                     <thead>
                       <tr>
                         <th className="p-2 text-xs text-gray-500 dark:text-gray-400 w-24"></th>
-                        <th className="p-2 text-xs text-center text-gray-600 font-semibold" colSpan={5}>
+                        <th
+                          className="p-2 text-xs text-center text-gray-600 font-semibold"
+                          colSpan={5}
+                        >
                           Probability of Occurrence
                         </th>
                       </tr>
                       <tr>
                         <th className="p-2 text-xs text-gray-500 dark:text-gray-400"></th>
-                        {[1, 2, 3, 4, 5].map(p => (
-                          <th key={p} className="p-2 text-xs text-center text-gray-600 w-20">P{p}</th>
+                        {[1, 2, 3, 4, 5].map((p) => (
+                          <th key={p} className="p-2 text-xs text-center text-gray-600 w-20">
+                            P{p}
+                          </th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {[5, 4, 3, 2, 1].map(sev => (
+                      {[5, 4, 3, 2, 1].map((sev) => (
                         <tr key={sev}>
                           <td className="p-2 text-xs text-gray-600 font-medium text-right pr-3">
-                            S{sev} {sev === 5 ? '(Catastrophic)' : sev === 4 ? '(Critical)' : sev === 3 ? '(Serious)' : sev === 2 ? '(Minor)' : '(Negligible)'}
+                            S{sev}{' '}
+                            {sev === 5
+                              ? '(Catastrophic)'
+                              : sev === 4
+                                ? '(Critical)'
+                                : sev === 3
+                                  ? '(Serious)'
+                                  : sev === 2
+                                    ? '(Minor)'
+                                    : '(Negligible)'}
                           </td>
-                          {[1, 2, 3, 4, 5].map(prob => {
+                          {[1, 2, 3, 4, 5].map((prob) => {
                             const count = hazardMatrix[sev - 1][prob - 1];
                             return (
                               <td
@@ -558,11 +662,21 @@ export default function RiskManagementClient() {
                     </tbody>
                   </table>
                   <div className="flex items-center gap-4 mt-4 text-xs">
-                    <div className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-green-500 inline-block"></span> Negligible</div>
-                    <div className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-green-300 inline-block"></span> Low</div>
-                    <div className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-yellow-400 inline-block"></span> Medium</div>
-                    <div className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-orange-500 inline-block"></span> High</div>
-                    <div className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-red-600 inline-block"></span> Unacceptable</div>
+                    <div className="flex items-center gap-1">
+                      <span className="w-4 h-4 rounded bg-green-500 inline-block"></span> Negligible
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="w-4 h-4 rounded bg-green-300 inline-block"></span> Low
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="w-4 h-4 rounded bg-yellow-400 inline-block"></span> Medium
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="w-4 h-4 rounded bg-orange-500 inline-block"></span> High
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="w-4 h-4 rounded bg-red-600 inline-block"></span> Unacceptable
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -575,7 +689,11 @@ export default function RiskManagementClient() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">Identified Hazards</CardTitle>
                 <Button
-                  onClick={() => { setHazardForm(emptyHazardForm); setError(''); setShowAddHazardModal(true); }}
+                  onClick={() => {
+                    setHazardForm(emptyHazardForm);
+                    setError('');
+                    setShowAddHazardModal(true);
+                  }}
                   className="bg-teal-600 hover:bg-teal-700"
                   size="sm"
                 >
@@ -590,15 +708,33 @@ export default function RiskManagementClient() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Hazard ID</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Category</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Description</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Harm</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Sev</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Prob</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Risk Level</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Controls</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Residual</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Hazard ID
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Category
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Description
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Harm
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Sev
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Prob
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Risk Level
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Controls
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Residual
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -606,19 +742,28 @@ export default function RiskManagementClient() {
                         <tr
                           key={hazard.id}
                           className="hover:bg-gray-50 dark:bg-gray-800 transition-colors cursor-pointer"
-                          onClick={() => { setSelectedHazard(hazard); setShowHazardDetailModal(true); }}
+                          onClick={() => {
+                            setSelectedHazard(hazard);
+                            setShowHazardDetailModal(true);
+                          }}
                         >
                           <td className="px-6 py-4">
-                            <span className="text-sm font-mono text-gray-600">{hazard.hazardId || '--'}</span>
+                            <span className="text-sm font-mono text-gray-600">
+                              {hazard.hazardId || '--'}
+                            </span>
                           </td>
                           <td className="px-6 py-4">
                             <Badge variant="outline">{hazard.category?.replace(/_/g, ' ')}</Badge>
                           </td>
                           <td className="px-6 py-4">
-                            <p className="text-sm text-gray-900 dark:text-gray-100 max-w-xs truncate">{hazard.description}</p>
+                            <p className="text-sm text-gray-900 dark:text-gray-100 max-w-xs truncate">
+                              {hazard.description}
+                            </p>
                           </td>
                           <td className="px-6 py-4">
-                            <p className="text-sm text-gray-700 dark:text-gray-300 max-w-xs truncate">{hazard.harm}</p>
+                            <p className="text-sm text-gray-700 dark:text-gray-300 max-w-xs truncate">
+                              {hazard.harm}
+                            </p>
                           </td>
                           <td className="px-6 py-4">
                             <span className="text-sm font-medium">{hazard.severityBefore}</span>
@@ -632,7 +777,9 @@ export default function RiskManagementClient() {
                             </Badge>
                           </td>
                           <td className="px-6 py-4">
-                            <span className="text-sm text-gray-700 dark:text-gray-300">{hazard.controlsCount || hazard.controls?.length || 0}</span>
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              {hazard.controlsCount || hazard.controls?.length || 0}
+                            </span>
                           </td>
                           <td className="px-6 py-4">
                             {hazard.riskLevelAfter ? (
@@ -651,9 +798,15 @@ export default function RiskManagementClient() {
               ) : (
                 <div className="text-center py-12">
                   <AlertTriangle className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                  <p className="text-gray-500 dark:text-gray-400 mb-4">No hazards identified yet.</p>
+                  <p className="text-gray-500 dark:text-gray-400 mb-4">
+                    No hazards identified yet.
+                  </p>
                   <Button
-                    onClick={() => { setHazardForm(emptyHazardForm); setError(''); setShowAddHazardModal(true); }}
+                    onClick={() => {
+                      setHazardForm(emptyHazardForm);
+                      setError('');
+                      setShowAddHazardModal(true);
+                    }}
                     className="bg-teal-600 hover:bg-teal-700"
                     size="sm"
                   >
@@ -678,7 +831,9 @@ export default function RiskManagementClient() {
           <form onSubmit={handleAddHazard}>
             <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
               )}
 
               <div className="space-y-4">
@@ -689,8 +844,10 @@ export default function RiskManagementClient() {
                     value={hazardForm.category}
                     onChange={(e) => setHazardForm({ ...hazardForm, category: e.target.value })}
                   >
-                    {HAZARD_CATEGORIES.map(c => (
-                      <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>
+                    {HAZARD_CATEGORIES.map((c) => (
+                      <option key={c} value={c}>
+                        {c.replace(/_/g, ' ')}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -710,7 +867,9 @@ export default function RiskManagementClient() {
                   <Textarea
                     id="haz-situation"
                     value={hazardForm.hazardousSituation}
-                    onChange={(e) => setHazardForm({ ...hazardForm, hazardousSituation: e.target.value })}
+                    onChange={(e) =>
+                      setHazardForm({ ...hazardForm, hazardousSituation: e.target.value })
+                    }
                     rows={2}
                     required
                     placeholder="Describe the foreseeable sequence of events leading to harm"
@@ -734,7 +893,9 @@ export default function RiskManagementClient() {
                     <Select
                       id="haz-severity"
                       value={String(hazardForm.severityBefore)}
-                      onChange={(e) => setHazardForm({ ...hazardForm, severityBefore: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setHazardForm({ ...hazardForm, severityBefore: Number(e.target.value) })
+                      }
                     >
                       <option value="1">1 - Negligible</option>
                       <option value="2">2 - Minor</option>
@@ -748,7 +909,9 @@ export default function RiskManagementClient() {
                     <Select
                       id="haz-probability"
                       value={String(hazardForm.probabilityBefore)}
-                      onChange={(e) => setHazardForm({ ...hazardForm, probabilityBefore: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setHazardForm({ ...hazardForm, probabilityBefore: Number(e.target.value) })
+                      }
                     >
                       <option value="1">1 - Improbable</option>
                       <option value="2">2 - Remote</option>
@@ -761,8 +924,14 @@ export default function RiskManagementClient() {
 
                 {/* Preview risk level */}
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 flex items-center gap-3">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Estimated Risk Level:</span>
-                  <Badge variant={getRiskBadgeVariant(getRiskLevel(hazardForm.severityBefore, hazardForm.probabilityBefore))}>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    Estimated Risk Level:
+                  </span>
+                  <Badge
+                    variant={getRiskBadgeVariant(
+                      getRiskLevel(hazardForm.severityBefore, hazardForm.probabilityBefore)
+                    )}
+                  >
                     {getRiskLevel(hazardForm.severityBefore, hazardForm.probabilityBefore)}
                   </Badge>
                   <span className="text-xs text-gray-400 dark:text-gray-500">
@@ -773,11 +942,18 @@ export default function RiskManagementClient() {
             </div>
 
             <ModalFooter>
-              <Button type="button" variant="outline" onClick={() => setShowAddHazardModal(false)}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setShowAddHazardModal(false)}>
+                Cancel
+              </Button>
               <Button type="submit" disabled={submitting}>
                 {submitting ? (
-                  <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Adding...</span>
-                ) : 'Add Hazard'}
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Adding...
+                  </span>
+                ) : (
+                  'Add Hazard'
+                )}
               </Button>
             </ModalFooter>
           </form>
@@ -788,7 +964,10 @@ export default function RiskManagementClient() {
         {/* ================================================================ */}
         <Modal
           isOpen={showHazardDetailModal}
-          onClose={() => { setShowHazardDetailModal(false); setSelectedHazard(null); }}
+          onClose={() => {
+            setShowHazardDetailModal(false);
+            setSelectedHazard(null);
+          }}
           title={selectedHazard ? `Hazard: ${selectedHazard.hazardId}` : 'Hazard Details'}
           size="lg"
         >
@@ -808,37 +987,63 @@ export default function RiskManagementClient() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Severity (Before)</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">{selectedHazard.severityBefore} / 5</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Severity (Before)
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    {selectedHazard.severityBefore} / 5
+                  </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Probability (Before)</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">{selectedHazard.probabilityBefore} / 5</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Probability (Before)
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    {selectedHazard.probabilityBefore} / 5
+                  </p>
                 </div>
               </div>
 
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Description</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedHazard.description}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Description
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                  {selectedHazard.description}
+                </p>
               </div>
 
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Hazardous Situation</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedHazard.hazardousSituation}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Hazardous Situation
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                  {selectedHazard.hazardousSituation}
+                </p>
               </div>
 
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Harm</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedHazard.harm}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Harm
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                  {selectedHazard.harm}
+                </p>
               </div>
 
               {/* Risk Controls */}
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Risk Controls</h3>
+                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                    Risk Controls
+                  </h3>
                   <Button
                     size="sm"
-                    onClick={() => { setControlForm(emptyControlForm); setError(''); setShowAddControlModal(true); }}
+                    onClick={() => {
+                      setControlForm(emptyControlForm);
+                      setError('');
+                      setShowAddControlModal(true);
+                    }}
                     className="bg-teal-600 hover:bg-teal-700"
                   >
                     <Plus className="h-3 w-3 mr-1" />
@@ -848,19 +1053,29 @@ export default function RiskManagementClient() {
                 {selectedHazard.controls && selectedHazard.controls.length > 0 ? (
                   <div className="space-y-3">
                     {selectedHazard.controls.map((ctrl, idx) => (
-                      <div key={ctrl.id || idx} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                      <div
+                        key={ctrl.id || idx}
+                        className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700"
+                      >
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge variant={
-                            ctrl.controlType === 'INHERENT_SAFETY' ? 'success' :
-                            ctrl.controlType === 'PROTECTIVE_MEASURE' ? 'warning' : 'info'
-                          }>
+                          <Badge
+                            variant={
+                              ctrl.controlType === 'INHERENT_SAFETY'
+                                ? 'success'
+                                : ctrl.controlType === 'PROTECTIVE_MEASURE'
+                                  ? 'warning'
+                                  : 'info'
+                            }
+                          >
                             {ctrl.controlType?.replace(/_/g, ' ')}
                           </Badge>
                           {ctrl.verified && <Badge variant="success">Verified</Badge>}
                         </div>
                         <p className="text-sm text-gray-800">{ctrl.description}</p>
                         {ctrl.verificationMethod && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Verification: {ctrl.verificationMethod}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Verification: {ctrl.verificationMethod}
+                          </p>
                         )}
                       </div>
                     ))}
@@ -871,21 +1086,32 @@ export default function RiskManagementClient() {
               </div>
 
               {/* Residual Risk */}
-              {selectedHazard.severityAfter !== null && selectedHazard.probabilityAfter !== null && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
-                    <p className="text-xs font-medium text-teal-700 uppercase mb-1">Residual Severity</p>
-                    <p className="text-sm text-teal-900">{selectedHazard.severityAfter} / 5</p>
+              {selectedHazard.severityAfter !== null &&
+                selectedHazard.probabilityAfter !== null && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
+                      <p className="text-xs font-medium text-teal-700 uppercase mb-1">
+                        Residual Severity
+                      </p>
+                      <p className="text-sm text-teal-900">{selectedHazard.severityAfter} / 5</p>
+                    </div>
+                    <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
+                      <p className="text-xs font-medium text-teal-700 uppercase mb-1">
+                        Residual Probability
+                      </p>
+                      <p className="text-sm text-teal-900">{selectedHazard.probabilityAfter} / 5</p>
+                    </div>
                   </div>
-                  <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
-                    <p className="text-xs font-medium text-teal-700 uppercase mb-1">Residual Probability</p>
-                    <p className="text-sm text-teal-900">{selectedHazard.probabilityAfter} / 5</p>
-                  </div>
-                </div>
-              )}
+                )}
 
               <ModalFooter>
-                <Button variant="outline" onClick={() => { setShowHazardDetailModal(false); setSelectedHazard(null); }}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowHazardDetailModal(false);
+                    setSelectedHazard(null);
+                  }}
+                >
                   Close
                 </Button>
               </ModalFooter>
@@ -905,7 +1131,9 @@ export default function RiskManagementClient() {
           <form onSubmit={handleAddControl}>
             <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
               )}
 
               <div className="space-y-4">
@@ -914,16 +1142,23 @@ export default function RiskManagementClient() {
                   <Select
                     id="ctrl-type"
                     value={controlForm.controlType}
-                    onChange={(e) => setControlForm({ ...controlForm, controlType: e.target.value })}
+                    onChange={(e) =>
+                      setControlForm({ ...controlForm, controlType: e.target.value })
+                    }
                   >
-                    {CONTROL_TYPES.map(t => (
-                      <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
+                    {CONTROL_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {t.replace(/_/g, ' ')}
+                      </option>
                     ))}
                   </Select>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                    {controlForm.controlType === 'INHERENT_SAFETY' && 'Eliminate or reduce the hazard by design (most preferred)'}
-                    {controlForm.controlType === 'PROTECTIVE_MEASURE' && 'Add protective measures in the device or manufacturing process'}
-                    {controlForm.controlType === 'INFORMATION_FOR_SAFETY' && 'Provide information for safety (labels, instructions, warnings)'}
+                    {controlForm.controlType === 'INHERENT_SAFETY' &&
+                      'Eliminate or reduce the hazard by design (most preferred)'}
+                    {controlForm.controlType === 'PROTECTIVE_MEASURE' &&
+                      'Add protective measures in the device or manufacturing process'}
+                    {controlForm.controlType === 'INFORMATION_FOR_SAFETY' &&
+                      'Provide information for safety (labels, instructions, warnings)'}
                   </p>
                 </div>
                 <div>
@@ -931,7 +1166,9 @@ export default function RiskManagementClient() {
                   <Textarea
                     id="ctrl-description"
                     value={controlForm.description}
-                    onChange={(e) => setControlForm({ ...controlForm, description: e.target.value })}
+                    onChange={(e) =>
+                      setControlForm({ ...controlForm, description: e.target.value })
+                    }
                     rows={3}
                     required
                     placeholder="Describe the risk control measure"
@@ -942,7 +1179,9 @@ export default function RiskManagementClient() {
                   <Textarea
                     id="ctrl-verification"
                     value={controlForm.verificationMethod}
-                    onChange={(e) => setControlForm({ ...controlForm, verificationMethod: e.target.value })}
+                    onChange={(e) =>
+                      setControlForm({ ...controlForm, verificationMethod: e.target.value })
+                    }
                     rows={2}
                     required
                     placeholder="How will this control be verified effective?"
@@ -952,11 +1191,18 @@ export default function RiskManagementClient() {
             </div>
 
             <ModalFooter>
-              <Button type="button" variant="outline" onClick={() => setShowAddControlModal(false)}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setShowAddControlModal(false)}>
+                Cancel
+              </Button>
               <Button type="submit" disabled={submitting}>
                 {submitting ? (
-                  <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Adding...</span>
-                ) : 'Add Control'}
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Adding...
+                  </span>
+                ) : (
+                  'Add Control'
+                )}
               </Button>
             </ModalFooter>
           </form>
@@ -974,7 +1220,9 @@ export default function RiskManagementClient() {
           <form onSubmit={handleBenefitRisk}>
             <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
               )}
 
               <div className="space-y-4">
@@ -984,7 +1232,12 @@ export default function RiskManagementClient() {
                       type="checkbox"
                       id="br-overallRisk"
                       checked={benefitRiskForm.overallRiskAcceptable}
-                      onChange={(e) => setBenefitRiskForm({ ...benefitRiskForm, overallRiskAcceptable: e.target.checked })}
+                      onChange={(e) =>
+                        setBenefitRiskForm({
+                          ...benefitRiskForm,
+                          overallRiskAcceptable: e.target.checked,
+                        })
+                      }
                       className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                     />
                     <Label htmlFor="br-overallRisk">Overall Residual Risk is Acceptable</Label>
@@ -996,7 +1249,12 @@ export default function RiskManagementClient() {
                       type="checkbox"
                       id="br-benefitRisk"
                       checked={benefitRiskForm.benefitRiskAcceptable}
-                      onChange={(e) => setBenefitRiskForm({ ...benefitRiskForm, benefitRiskAcceptable: e.target.checked })}
+                      onChange={(e) =>
+                        setBenefitRiskForm({
+                          ...benefitRiskForm,
+                          benefitRiskAcceptable: e.target.checked,
+                        })
+                      }
                       className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                     />
                     <Label htmlFor="br-benefitRisk">Benefits Outweigh Residual Risks</Label>
@@ -1007,7 +1265,9 @@ export default function RiskManagementClient() {
                   <Textarea
                     id="br-analysis"
                     value={benefitRiskForm.analysis}
-                    onChange={(e) => setBenefitRiskForm({ ...benefitRiskForm, analysis: e.target.value })}
+                    onChange={(e) =>
+                      setBenefitRiskForm({ ...benefitRiskForm, analysis: e.target.value })
+                    }
                     rows={6}
                     required
                     placeholder="Document the benefit-risk analysis rationale including clinical benefits, residual risks, and comparison with alternative treatments/devices..."
@@ -1017,11 +1277,22 @@ export default function RiskManagementClient() {
             </div>
 
             <ModalFooter>
-              <Button type="button" variant="outline" onClick={() => setShowBenefitRiskModal(false)}>Cancel</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowBenefitRiskModal(false)}
+              >
+                Cancel
+              </Button>
               <Button type="submit" disabled={submitting}>
                 {submitting ? (
-                  <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Saving...</span>
-                ) : 'Save Benefit-Risk Analysis'}
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving...
+                  </span>
+                ) : (
+                  'Save Benefit-Risk Analysis'
+                )}
               </Button>
             </ModalFooter>
           </form>
@@ -1032,7 +1303,10 @@ export default function RiskManagementClient() {
         {/* ================================================================ */}
         <Modal
           isOpen={showReportModal}
-          onClose={() => { setShowReportModal(false); setRiskReport(null); }}
+          onClose={() => {
+            setShowReportModal(false);
+            setRiskReport(null);
+          }}
           title="Risk Management Report"
           size="lg"
         >
@@ -1040,23 +1314,35 @@ export default function RiskManagementClient() {
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Total Hazards</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{riskReport.totalHazards}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Total Hazards
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    {riskReport.totalHazards}
+                  </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Controls Implemented</p>
-                  <p className="text-2xl font-bold text-teal-600">{riskReport.controlsImplemented}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Controls Implemented
+                  </p>
+                  <p className="text-2xl font-bold text-teal-600">
+                    {riskReport.controlsImplemented}
+                  </p>
                 </div>
               </div>
 
               {riskReport.hazardsByRiskLevel && (
                 <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Hazards by Initial Risk Level</h3>
+                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">
+                    Hazards by Initial Risk Level
+                  </h3>
                   <div className="flex items-center gap-3 flex-wrap">
                     {Object.entries(riskReport.hazardsByRiskLevel).map(([level, count]) => (
                       <div key={level} className="flex items-center gap-2">
                         <Badge variant={getRiskBadgeVariant(level)}>{level}</Badge>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{count as number}</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          {count as number}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -1065,26 +1351,42 @@ export default function RiskManagementClient() {
 
               {riskReport.residualRiskSummary && (
                 <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Residual Risk Summary</h3>
+                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">
+                    Residual Risk Summary
+                  </h3>
                   <div className="flex items-center gap-3 flex-wrap">
                     {Object.entries(riskReport.residualRiskSummary).map(([level, count]) => (
                       <div key={level} className="flex items-center gap-2">
                         <Badge variant={getRiskBadgeVariant(level)}>{level}</Badge>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{count as number}</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          {count as number}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              <div className={`rounded-lg p-4 ${riskReport.overallAcceptable ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-                <p className={`text-sm font-medium ${riskReport.overallAcceptable ? 'text-green-700' : 'text-red-700'}`}>
+              <div
+                className={`rounded-lg p-4 ${riskReport.overallAcceptable ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}
+              >
+                <p
+                  className={`text-sm font-medium ${riskReport.overallAcceptable ? 'text-green-700' : 'text-red-700'}`}
+                >
                   Overall Risk: {riskReport.overallAcceptable ? 'ACCEPTABLE' : 'NOT ACCEPTABLE'}
                 </p>
               </div>
 
               <ModalFooter>
-                <Button variant="outline" onClick={() => { setShowReportModal(false); setRiskReport(null); }}>Close</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowReportModal(false);
+                    setRiskReport(null);
+                  }}
+                >
+                  Close
+                </Button>
               </ModalFooter>
             </div>
           ) : (
@@ -1108,7 +1410,9 @@ export default function RiskManagementClient() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Risk Management</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 14971 -- Application of Risk Management to Medical Devices</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            ISO 14971 -- Application of Risk Management to Medical Devices
+          </p>
         </div>
 
         {/* Summary Stats */}
@@ -1164,7 +1468,8 @@ export default function RiskManagementClient() {
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
-              aria-label="Search by title, reference, or device..." placeholder="Search by title, reference, or device..."
+              aria-label="Search by title, reference, or device..."
+              placeholder="Search by title, reference, or device..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -1179,12 +1484,18 @@ export default function RiskManagementClient() {
             <Filter className="h-4 w-4" />
             Filters
             {(statusFilter !== 'all' || deviceNameFilter) && (
-              <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-teal-100 text-teal-700">Active</span>
+              <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-teal-100 text-teal-700">
+                Active
+              </span>
             )}
           </Button>
 
           <Button
-            onClick={() => { setRmfForm(emptyRmfForm); setError(''); setShowCreateModal(true); }}
+            onClick={() => {
+              setRmfForm(emptyRmfForm);
+              setError('');
+              setShowCreateModal(true);
+            }}
             className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
           >
             <Plus className="h-4 w-4" />
@@ -1202,8 +1513,10 @@ export default function RiskManagementClient() {
                 className="w-40"
               >
                 <option value="all">All Statuses</option>
-                {RMF_STATUSES.map(s => (
-                  <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                {RMF_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s.replace(/_/g, ' ')}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -1219,7 +1532,10 @@ export default function RiskManagementClient() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => { setStatusFilter('all'); setDeviceNameFilter(''); }}
+              onClick={() => {
+                setStatusFilter('all');
+                setDeviceNameFilter('');
+              }}
               className="mt-4"
             >
               Clear Filters
@@ -1235,20 +1551,36 @@ export default function RiskManagementClient() {
         </div>
 
         {/* Risk Files Table */}
-        {loading ? <LoadingSpinner /> : filteredRiskFiles.length > 0 ? (
+        {loading ? (
+          <LoadingSpinner />
+        ) : filteredRiskFiles.length > 0 ? (
           <Card>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Ref #</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Title</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Device</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Class</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Hazards</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">High Risk</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Ref #
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Title
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Device
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Class
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Status
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Hazards
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        High Risk
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -1259,16 +1591,30 @@ export default function RiskManagementClient() {
                         onClick={() => openDetail(rf)}
                       >
                         <td className="px-6 py-4">
-                          <span className="text-sm font-mono text-gray-600">{rf.referenceNumber || '--'}</span>
+                          <span className="text-sm font-mono text-gray-600">
+                            {rf.referenceNumber || '--'}
+                          </span>
                         </td>
                         <td className="px-6 py-4">
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{rf.title}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {rf.title}
+                          </p>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-gray-700 dark:text-gray-300">{rf.deviceName}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            {rf.deviceName}
+                          </span>
                         </td>
                         <td className="px-6 py-4">
-                          <Badge variant={rf.deviceClass === 'III' ? 'danger' : rf.deviceClass === 'II' ? 'warning' : 'info'}>
+                          <Badge
+                            variant={
+                              rf.deviceClass === 'III'
+                                ? 'danger'
+                                : rf.deviceClass === 'II'
+                                  ? 'warning'
+                                  : 'info'
+                            }
+                          >
                             Class {rf.deviceClass}
                           </Badge>
                         </td>
@@ -1278,7 +1624,9 @@ export default function RiskManagementClient() {
                           </Badge>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-gray-700 dark:text-gray-300">{rf.hazardCount || 0}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            {rf.hazardCount || 0}
+                          </span>
                         </td>
                         <td className="px-6 py-4">
                           {(rf.highRiskCount || 0) > 0 ? (
@@ -1297,10 +1645,18 @@ export default function RiskManagementClient() {
         ) : (
           <div className="text-center py-16">
             <Shield className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No risk management files found</h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">Create a risk management file to begin ISO 14971 risk analysis for a medical device.</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              No risk management files found
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
+              Create a risk management file to begin ISO 14971 risk analysis for a medical device.
+            </p>
             <Button
-              onClick={() => { setRmfForm(emptyRmfForm); setError(''); setShowCreateModal(true); }}
+              onClick={() => {
+                setRmfForm(emptyRmfForm);
+                setError('');
+                setShowCreateModal(true);
+              }}
               className="bg-teal-600 hover:bg-teal-700"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -1322,11 +1678,15 @@ export default function RiskManagementClient() {
         <form onSubmit={handleCreateRmf}>
           <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
             )}
 
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Risk File Identification</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+                Risk File Identification
+              </h3>
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="rmf-title">Title *</Label>
@@ -1355,9 +1715,14 @@ export default function RiskManagementClient() {
                     value={rmfForm.deviceClass}
                     onChange={(e) => setRmfForm({ ...rmfForm, deviceClass: e.target.value })}
                   >
-                    {DEVICE_CLASSES.map(cls => (
+                    {DEVICE_CLASSES.map((cls) => (
                       <option key={cls} value={cls}>
-                        Class {cls} {cls === 'I' ? '(Low Risk)' : cls === 'II' ? '(Moderate Risk)' : '(High Risk)'}
+                        Class {cls}{' '}
+                        {cls === 'I'
+                          ? '(Low Risk)'
+                          : cls === 'II'
+                            ? '(Moderate Risk)'
+                            : '(High Risk)'}
                       </option>
                     ))}
                   </Select>
@@ -1366,7 +1731,9 @@ export default function RiskManagementClient() {
             </div>
 
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Use & Policy</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+                Use & Policy
+              </h3>
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="rmf-intendedUse">Intended Use / Intended Purpose *</Label>
@@ -1394,11 +1761,18 @@ export default function RiskManagementClient() {
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={submitting}>
               {submitting ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating...</span>
-              ) : 'Create Risk File'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                'Create Risk File'
+              )}
             </Button>
           </ModalFooter>
         </form>

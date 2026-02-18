@@ -22,7 +22,7 @@ export function convertCurrency(amount: number, fromRate: number, toRate: number
 export function calculateFxGainLoss(
   originalAmount: number,
   originalRate: number,
-  currentRate: number,
+  currentRate: number
 ): number {
   if (originalRate <= 0) throw new Error('originalRate must be positive');
   if (currentRate <= 0) throw new Error('currentRate must be positive');

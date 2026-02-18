@@ -165,9 +165,7 @@ describe('HR Training API Routes', () => {
     it('should order by name ascending', async () => {
       (mockPrisma.hRTrainingCourse.findMany as jest.Mock).mockResolvedValueOnce(mockCourses);
 
-      await request(app)
-        .get('/api/training/courses')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/training/courses').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.hRTrainingCourse.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -177,7 +175,9 @@ describe('HR Training API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.hRTrainingCourse.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.hRTrainingCourse.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/training/courses')
@@ -194,7 +194,12 @@ describe('HR Training API Routes', () => {
       code: 'SAF-101',
       name: 'Safety Fundamentals',
       sessions: [
-        { id: '2d100000-0000-4000-a000-000000000001', sessionCode: 'S001', startDate: new Date(), _count: { enrollments: 5 } },
+        {
+          id: '2d100000-0000-4000-a000-000000000001',
+          sessionCode: 'S001',
+          startDate: new Date(),
+          _count: { enrollments: 5 },
+        },
       ],
       _count: { enrollments: 25 },
     };
@@ -224,7 +229,9 @@ describe('HR Training API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.hRTrainingCourse.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.hRTrainingCourse.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/training/courses/2d000000-0000-4000-a000-000000000001')
@@ -282,7 +289,9 @@ describe('HR Training API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.hRTrainingCourse.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.hRTrainingCourse.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/training/courses')
@@ -352,7 +361,9 @@ describe('HR Training API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.hRTrainingSession.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.hRTrainingSession.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/training/sessions')
@@ -424,7 +435,9 @@ describe('HR Training API Routes', () => {
 
     it('should handle database errors', async () => {
       (mockPrisma.hRTrainingSession.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.hRTrainingSession.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.hRTrainingSession.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/training/sessions')
@@ -443,14 +456,21 @@ describe('HR Training API Routes', () => {
         employeeId: '2a000000-0000-4000-a000-000000000001',
         courseId: '2d000000-0000-4000-a000-000000000001',
         status: 'ENROLLED',
-        employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' },
+        employee: {
+          id: '2a000000-0000-4000-a000-000000000001',
+          firstName: 'John',
+          lastName: 'Doe',
+          employeeNumber: 'EMP001',
+        },
         course: { name: 'Safety Fundamentals', code: 'SAF-101' },
         session: { sessionCode: 'S001', startDate: new Date(), endDate: new Date() },
       },
     ];
 
     it('should return list of enrollments', async () => {
-      (mockPrisma.hRTrainingEnrollment.findMany as jest.Mock).mockResolvedValueOnce(mockEnrollments);
+      (mockPrisma.hRTrainingEnrollment.findMany as jest.Mock).mockResolvedValueOnce(
+        mockEnrollments
+      );
 
       const response = await request(app)
         .get('/api/training/enrollments')
@@ -510,7 +530,9 @@ describe('HR Training API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.hRTrainingEnrollment.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.hRTrainingEnrollment.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/training/enrollments')
@@ -584,7 +606,9 @@ describe('HR Training API Routes', () => {
         enrolledCount: 5,
         maxParticipants: 20,
       });
-      (mockPrisma.hRTrainingEnrollment.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.hRTrainingEnrollment.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/training/enrollments')
@@ -624,7 +648,9 @@ describe('HR Training API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.hRTrainingEnrollment.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.hRTrainingEnrollment.update as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/training/enrollments/2e000000-0000-4000-a000-000000000001')
@@ -643,7 +669,12 @@ describe('HR Training API Routes', () => {
         name: 'AWS Solutions Architect',
         issuingOrganization: 'Amazon',
         status: 'ACTIVE',
-        employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' },
+        employee: {
+          id: '2a000000-0000-4000-a000-000000000001',
+          firstName: 'John',
+          lastName: 'Doe',
+          employeeNumber: 'EMP001',
+        },
       },
     ];
 
@@ -692,7 +723,9 @@ describe('HR Training API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.employeeCertification.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.employeeCertification.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/training/certifications')
@@ -740,7 +773,9 @@ describe('HR Training API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.employeeCertification.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.employeeCertification.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/training/certifications')
@@ -760,11 +795,13 @@ describe('HR Training API Routes', () => {
         { status: 'COMPLETED', _count: { id: 5 } },
       ]);
       (mockPrisma.hRTrainingEnrollment.groupBy as jest.Mock)
-        .mockResolvedValueOnce([ // enrollmentsByStatus
+        .mockResolvedValueOnce([
+          // enrollmentsByStatus
           { status: 'ENROLLED', _count: { id: 10 } },
           { status: 'COMPLETED', _count: { id: 20 } },
         ])
-        .mockResolvedValueOnce([ // popularCoursesRaw
+        .mockResolvedValueOnce([
+          // popularCoursesRaw
           { courseId: '2d000000-0000-4000-a000-000000000001', _count: { id: 25 } },
         ]);
       (mockPrisma.hRTrainingEnrollment.count as jest.Mock).mockResolvedValueOnce(5); // completedThisMonth

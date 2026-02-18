@@ -20,7 +20,11 @@ jest.mock('../src/prisma', () => ({
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, res: any, next: any) => {
     if (req.headers.authorization) {
-      req.user = { id: '20000000-0000-4000-a000-000000000001', email: 'admin@ims.local', role: 'ADMIN' };
+      req.user = {
+        id: '20000000-0000-4000-a000-000000000001',
+        email: 'admin@ims.local',
+        role: 'ADMIN',
+      };
       next();
     } else {
       res.status(401).json({
@@ -188,9 +192,21 @@ describe('AI Analyze API Routes', () => {
   // -------------------------------------------------------
   it('POST /api/analyze returns success for LEGAL_REFERENCES type', async () => {
     const legalRefs = [
-      { regulation: 'Health and Safety at Work Act 1974', section: 'Section 2', relevance: 'General duty of care' },
-      { regulation: 'Management of Health and Safety at Work Regulations 1999', section: 'Regulation 3', relevance: 'Risk assessment' },
-      { regulation: 'Workplace (Health, Safety and Welfare) Regulations 1992', section: 'Regulation 5', relevance: 'Workplace maintenance' },
+      {
+        regulation: 'Health and Safety at Work Act 1974',
+        section: 'Section 2',
+        relevance: 'General duty of care',
+      },
+      {
+        regulation: 'Management of Health and Safety at Work Regulations 1999',
+        section: 'Regulation 3',
+        relevance: 'Risk assessment',
+      },
+      {
+        regulation: 'Workplace (Health, Safety and Welfare) Regulations 1992',
+        section: 'Regulation 5',
+        relevance: 'Workplace maintenance',
+      },
     ];
 
     mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
@@ -202,7 +218,11 @@ describe('AI Analyze API Routes', () => {
       .set('Authorization', 'Bearer test-token')
       .send({
         type: 'LEGAL_REFERENCES',
-        context: { riskTitle: 'Slip hazard', riskDescription: 'Wet floor in canteen', riskCategory: 'Workplace Safety' },
+        context: {
+          riskTitle: 'Slip hazard',
+          riskDescription: 'Wet floor in canteen',
+          riskCategory: 'Workplace Safety',
+        },
       });
 
     expect(response.status).toBe(200);
@@ -222,7 +242,16 @@ describe('AI Analyze API Routes', () => {
     // array matching, so the AI response must be structured without top-level array
     // values to parse correctly via the object regex fallback.
     const envResult = {
-      scoring: { severity: 3, probability: 2, duration: 4, extent: 2, reversibility: 3, regulatory: 4, stakeholder: 2, rationale: 'Moderate impact' },
+      scoring: {
+        severity: 3,
+        probability: 2,
+        duration: 4,
+        extent: 2,
+        reversibility: 3,
+        regulatory: 4,
+        stakeholder: 2,
+        rationale: 'Moderate impact',
+      },
       controlMeasure1: 'Install bunding',
       controlMeasure2: 'Regular inspections',
       controlMeasure3: 'Spill kits',
@@ -239,7 +268,12 @@ describe('AI Analyze API Routes', () => {
       .set('Authorization', 'Bearer test-token')
       .send({
         type: 'ENVIRONMENTAL_ASPECT',
-        context: { activity: 'Fuel storage', aspect: 'Fuel leak', impact: 'Soil contamination', category: 'Pollution' },
+        context: {
+          activity: 'Fuel storage',
+          aspect: 'Fuel leak',
+          impact: 'Soil contamination',
+          category: 'Pollution',
+        },
       });
 
     expect(response.status).toBe(200);
@@ -272,7 +306,11 @@ describe('AI Analyze API Routes', () => {
       .set('Authorization', 'Bearer test-token')
       .send({
         type: 'HR_JOB_DESCRIPTION',
-        context: { title: 'Senior Developer', department: 'Engineering', employmentType: 'Full-time' },
+        context: {
+          title: 'Senior Developer',
+          department: 'Engineering',
+          employmentType: 'Full-time',
+        },
       });
 
     expect(response.status).toBe(200);
@@ -304,7 +342,13 @@ describe('AI Analyze API Routes', () => {
       .set('Authorization', 'Bearer test-token')
       .send({
         type: 'PAYROLL_VALIDATION',
-        context: { runNumber: 'PAY-2024-01', totalEmployees: 10, totalGross: 50000, totalDeductions: 15000, totalNet: 35000 },
+        context: {
+          runNumber: 'PAY-2024-01',
+          totalEmployees: 10,
+          totalGross: 50000,
+          totalDeductions: 15000,
+          totalNet: 35000,
+        },
       });
 
     expect(response.status).toBe(200);
@@ -326,7 +370,12 @@ describe('AI Analyze API Routes', () => {
         roiEstimate: '150% in 2 years',
       },
       primaryObjective: 'Deliver MVP by Q2',
-      scopeStatement: { inScope: 'Core features', outOfScope: 'Mobile app', assumption: 'Team availability', constraint: 'Budget cap' },
+      scopeStatement: {
+        inScope: 'Core features',
+        outOfScope: 'Mobile app',
+        assumption: 'Team availability',
+        constraint: 'Budget cap',
+      },
       primaryDeliverable: 'Working application',
       sponsor: 'John Smith',
       timeline: { estimatedDuration: '6 months', firstPhase: 'Planning - 1 month' },
@@ -344,7 +393,12 @@ describe('AI Analyze API Routes', () => {
       .set('Authorization', 'Bearer test-token')
       .send({
         type: 'PROJECT_CHARTER',
-        context: { projectName: 'IMS v2', projectType: 'Software', description: 'Build new IMS', objectives: 'Modernize' },
+        context: {
+          projectName: 'IMS v2',
+          projectType: 'Software',
+          description: 'Build new IMS',
+          objectives: 'Modernize',
+        },
       });
 
     expect(response.status).toBe(200);
@@ -359,9 +413,22 @@ describe('AI Analyze API Routes', () => {
   // 11. POST /api/analyze handles Anthropic provider
   // -------------------------------------------------------
   it('POST /api/analyze handles Anthropic provider', async () => {
-    const anthropicSettings = { ...mockSettings, provider: 'ANTHROPIC', model: 'claude-3-sonnet-20240229' };
+    const anthropicSettings = {
+      ...mockSettings,
+      provider: 'ANTHROPIC',
+      model: 'claude-3-sonnet-20240229',
+    };
     const envResult = {
-      scoring: { severity: 4, probability: 3, duration: 3, extent: 3, reversibility: 2, regulatory: 5, stakeholder: 3, rationale: 'High regulatory significance' },
+      scoring: {
+        severity: 4,
+        probability: 3,
+        duration: 3,
+        extent: 3,
+        reversibility: 2,
+        regulatory: 5,
+        stakeholder: 3,
+        rationale: 'High regulatory significance',
+      },
       controlMeasure: 'Install monitoring equipment',
       regulation: 'Environmental Protection Act 1990',
       isoClause: '6.1.2',
@@ -376,7 +443,12 @@ describe('AI Analyze API Routes', () => {
       .set('Authorization', 'Bearer test-token')
       .send({
         type: 'ENVIRONMENTAL_ASPECT',
-        context: { activity: 'Chemical processing', aspect: 'Emissions', impact: 'Air pollution', category: 'Emissions' },
+        context: {
+          activity: 'Chemical processing',
+          aspect: 'Emissions',
+          impact: 'Air pollution',
+          category: 'Emissions',
+        },
       });
 
     expect(response.status).toBe(200);
@@ -392,7 +464,7 @@ describe('AI Analyze API Routes', () => {
           'x-api-key': 'sk-test-key-123',
           'anthropic-version': '2023-06-01',
         }),
-      }),
+      })
     );
   });
 
@@ -402,7 +474,11 @@ describe('AI Analyze API Routes', () => {
   it('POST /api/analyze handles Grok provider', async () => {
     const grokSettings = { ...mockSettings, provider: 'GROK', model: 'grok-beta' };
     const legalRefs = [
-      { regulation: 'Health and Safety at Work Act 1974', section: 'Section 2', relevance: 'General duty' },
+      {
+        regulation: 'Health and Safety at Work Act 1974',
+        section: 'Section 2',
+        relevance: 'General duty',
+      },
     ];
 
     mockPrisma.aISettings.findFirst.mockResolvedValueOnce(grokSettings);
@@ -427,9 +503,9 @@ describe('AI Analyze API Routes', () => {
       expect.objectContaining({
         method: 'POST',
         headers: expect.objectContaining({
-          'Authorization': 'Bearer sk-test-key-123',
+          Authorization: 'Bearer sk-test-key-123',
         }),
-      }),
+      })
     );
   });
 
@@ -464,7 +540,9 @@ describe('AI Analyze API Routes', () => {
     mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
     mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
     mockFetch.mockResolvedValueOnce(
-      mockOpenAIResponse('This is not valid JSON at all, just plain text without any brackets or braces'),
+      mockOpenAIResponse(
+        'This is not valid JSON at all, just plain text without any brackets or braces'
+      )
     );
 
     const response = await request(app)

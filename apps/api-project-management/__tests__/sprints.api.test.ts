@@ -84,7 +84,9 @@ describe('Sprints API Routes', () => {
       (mockPrisma.projectSprint.findMany as jest.Mock).mockResolvedValue([mockSprint]);
       (mockPrisma.projectSprint.count as jest.Mock).mockResolvedValue(1);
 
-      const res = await request(app).get('/api/sprints').query({ projectId: '44000000-0000-4000-a000-000000000001' });
+      const res = await request(app)
+        .get('/api/sprints')
+        .query({ projectId: '44000000-0000-4000-a000-000000000001' });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -97,7 +99,7 @@ describe('Sprints API Routes', () => {
           where: { projectId: '44000000-0000-4000-a000-000000000001', deletedAt: null },
           orderBy: { sprintNumber: 'asc' },
           include: { _count: { select: { userStories: true } } },
-        }),
+        })
       );
     });
 
@@ -113,7 +115,9 @@ describe('Sprints API Routes', () => {
       (mockPrisma.projectSprint.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
       (mockPrisma.projectSprint.count as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/sprints').query({ projectId: '44000000-0000-4000-a000-000000000001' });
+      const res = await request(app)
+        .get('/api/sprints')
+        .query({ projectId: '44000000-0000-4000-a000-000000000001' });
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -128,24 +132,30 @@ describe('Sprints API Routes', () => {
       (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValue(mockSprint);
       (mockPrisma.projectUserStory.findMany as jest.Mock).mockResolvedValue([mockUserStory]);
 
-      const res = await request(app).get('/api/sprints/45000000-0000-4000-a000-000000000001/stories');
+      const res = await request(app).get(
+        '/api/sprints/45000000-0000-4000-a000-000000000001/stories'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toHaveLength(1);
       expect(res.body.data[0].id).toBe('story-001');
-      expect(mockPrisma.projectSprint.findUnique).toHaveBeenCalledWith({ where: { id: '45000000-0000-4000-a000-000000000001' } });
+      expect(mockPrisma.projectSprint.findUnique).toHaveBeenCalledWith({
+        where: { id: '45000000-0000-4000-a000-000000000001' },
+      });
       expect(mockPrisma.projectUserStory.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { sprintId: '45000000-0000-4000-a000-000000000001', deletedAt: null },
-        }),
+        })
       );
     });
 
     it('should return 404 when sprint does not exist', async () => {
       (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/sprints/00000000-0000-4000-a000-ffffffffffff/stories');
+      const res = await request(app).get(
+        '/api/sprints/00000000-0000-4000-a000-ffffffffffff/stories'
+      );
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -156,7 +166,9 @@ describe('Sprints API Routes', () => {
     it('should return 500 on internal error', async () => {
       (mockPrisma.projectSprint.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/sprints/45000000-0000-4000-a000-000000000001/stories');
+      const res = await request(app).get(
+        '/api/sprints/45000000-0000-4000-a000-000000000001/stories'
+      );
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -289,7 +301,9 @@ describe('Sprints API Routes', () => {
     it('should return 404 when sprint does not exist', async () => {
       (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/sprints/00000000-0000-4000-a000-ffffffffffff').send({ sprintGoal: 'New goal' });
+      const res = await request(app)
+        .put('/api/sprints/00000000-0000-4000-a000-ffffffffffff')
+        .send({ sprintGoal: 'New goal' });
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -301,7 +315,9 @@ describe('Sprints API Routes', () => {
       (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValue(mockSprint);
       (mockPrisma.projectSprint.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).put('/api/sprints/45000000-0000-4000-a000-000000000001').send({ status: 'ACTIVE' });
+      const res = await request(app)
+        .put('/api/sprints/45000000-0000-4000-a000-000000000001')
+        .send({ status: 'ACTIVE' });
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -319,7 +335,10 @@ describe('Sprints API Routes', () => {
       const res = await request(app).delete('/api/sprints/45000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(204);
-      expect(mockPrisma.projectSprint.update).toHaveBeenCalledWith({ where: { id: '45000000-0000-4000-a000-000000000001' }, data: { deletedAt: expect.any(Date) } });
+      expect(mockPrisma.projectSprint.update).toHaveBeenCalledWith({
+        where: { id: '45000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
+      });
     });
 
     it('should return 404 when sprint does not exist', async () => {

@@ -36,26 +36,28 @@ export default function MetricsPage() {
   async function loadMetrics() {
     try {
       const response = await api.get('/metrics');
-      setMetrics(response.data.data || {
-        ltifr: 2.5,
-        trir: 4.2,
-        severityRate: 15.3,
-        ltifrTrend: -0.3,
-        trirTrend: -0.5,
-        totalIncidents: 23,
-        lostTimeIncidents: 3,
-        nearMisses: 45,
-        hoursWorked: 125000,
-        daysLost: 12,
-        monthlyData: [
-          { month: 'Jul', ltifr: 3.2, trir: 5.1, incidents: 5 },
-          { month: 'Aug', ltifr: 2.8, trir: 4.8, incidents: 4 },
-          { month: 'Sep', ltifr: 2.9, trir: 4.5, incidents: 3 },
-          { month: 'Oct', ltifr: 2.6, trir: 4.3, incidents: 4 },
-          { month: 'Nov', ltifr: 2.4, trir: 4.1, incidents: 3 },
-          { month: 'Dec', ltifr: 2.5, trir: 4.2, incidents: 4 },
-        ],
-      });
+      setMetrics(
+        response.data.data || {
+          ltifr: 2.5,
+          trir: 4.2,
+          severityRate: 15.3,
+          ltifrTrend: -0.3,
+          trirTrend: -0.5,
+          totalIncidents: 23,
+          lostTimeIncidents: 3,
+          nearMisses: 45,
+          hoursWorked: 125000,
+          daysLost: 12,
+          monthlyData: [
+            { month: 'Jul', ltifr: 3.2, trir: 5.1, incidents: 5 },
+            { month: 'Aug', ltifr: 2.8, trir: 4.8, incidents: 4 },
+            { month: 'Sep', ltifr: 2.9, trir: 4.5, incidents: 3 },
+            { month: 'Oct', ltifr: 2.6, trir: 4.3, incidents: 4 },
+            { month: 'Nov', ltifr: 2.4, trir: 4.1, incidents: 3 },
+            { month: 'Dec', ltifr: 2.5, trir: 4.2, incidents: 4 },
+          ],
+        }
+      );
     } catch (error) {
       console.error('Failed to load metrics:', error);
       // Use mock data on error
@@ -90,7 +92,7 @@ export default function MetricsPage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-3 gap-4">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="h-32 bg-gray-200 rounded" />
             ))}
           </div>
@@ -105,7 +107,9 @@ export default function MetricsPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Safety Metrics</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Key performance indicators for occupational health and safety</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Key performance indicators for occupational health and safety
+          </p>
         </div>
 
         {/* Key Metrics */}
@@ -120,12 +124,16 @@ export default function MetricsPage() {
                     {(metrics?.ltifrTrend || 0) < 0 ? (
                       <>
                         <TrendingDown className="h-4 w-4 text-green-500 mr-1" />
-                        <span className="text-sm text-green-600">{Math.abs(metrics?.ltifrTrend || 0).toFixed(1)}% improvement</span>
+                        <span className="text-sm text-green-600">
+                          {Math.abs(metrics?.ltifrTrend || 0).toFixed(1)}% improvement
+                        </span>
                       </>
                     ) : (
                       <>
                         <TrendingUp className="h-4 w-4 text-red-500 mr-1" />
-                        <span className="text-sm text-red-600">{(metrics?.ltifrTrend || 0).toFixed(1)}% increase</span>
+                        <span className="text-sm text-red-600">
+                          {(metrics?.ltifrTrend || 0).toFixed(1)}% increase
+                        </span>
                       </>
                     )}
                   </div>
@@ -134,7 +142,9 @@ export default function MetricsPage() {
                   <Activity className="h-8 w-8 text-red-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">Lost Time Injury Frequency Rate (per million hours)</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">
+                Lost Time Injury Frequency Rate (per million hours)
+              </p>
             </CardContent>
           </Card>
 
@@ -148,12 +158,16 @@ export default function MetricsPage() {
                     {(metrics?.trirTrend || 0) < 0 ? (
                       <>
                         <TrendingDown className="h-4 w-4 text-green-500 mr-1" />
-                        <span className="text-sm text-green-600">{Math.abs(metrics?.trirTrend || 0).toFixed(1)}% improvement</span>
+                        <span className="text-sm text-green-600">
+                          {Math.abs(metrics?.trirTrend || 0).toFixed(1)}% improvement
+                        </span>
                       </>
                     ) : (
                       <>
                         <TrendingUp className="h-4 w-4 text-red-500 mr-1" />
-                        <span className="text-sm text-red-600">{(metrics?.trirTrend || 0).toFixed(1)}% increase</span>
+                        <span className="text-sm text-red-600">
+                          {(metrics?.trirTrend || 0).toFixed(1)}% increase
+                        </span>
                       </>
                     )}
                   </div>
@@ -162,7 +176,9 @@ export default function MetricsPage() {
                   <TrendingUp className="h-8 w-8 text-orange-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">Total Recordable Incident Rate (per 200,000 hours)</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">
+                Total Recordable Incident Rate (per 200,000 hours)
+              </p>
             </CardContent>
           </Card>
 
@@ -177,7 +193,9 @@ export default function MetricsPage() {
                   <Clock className="h-8 w-8 text-yellow-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">Average days lost per recordable incident</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">
+                Average days lost per recordable incident
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -222,12 +240,7 @@ export default function MetricsPage() {
             <CardTitle>Safety Trend Analysis</CardTitle>
           </CardHeader>
           <CardContent>
-            {metrics?.monthlyData && (
-              <SafetyTrendChart
-                data={metrics.monthlyData}
-                height={350}
-              />
-            )}
+            {metrics?.monthlyData && <SafetyTrendChart data={metrics.monthlyData} height={350} />}
           </CardContent>
         </Card>
 
@@ -244,13 +257,15 @@ export default function MetricsPage() {
               <div>
                 <h4 className="font-medium text-gray-900 dark:text-gray-100">LTIFR</h4>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Lost Time Injury Frequency Rate = (Lost Time Injuries × 1,000,000) ÷ Total Hours Worked
+                  Lost Time Injury Frequency Rate = (Lost Time Injuries × 1,000,000) ÷ Total Hours
+                  Worked
                 </p>
               </div>
               <div>
                 <h4 className="font-medium text-gray-900 dark:text-gray-100">TRIR</h4>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Total Recordable Incident Rate = (Total Recordable Injuries × 200,000) ÷ Total Hours Worked
+                  Total Recordable Incident Rate = (Total Recordable Injuries × 200,000) ÷ Total
+                  Hours Worked
                 </p>
               </div>
               <div>

@@ -78,8 +78,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list exports', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list exports' } });
+    logger.error('Failed to list exports', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list exports' },
+    });
   }
 });
 
@@ -92,7 +97,14 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = exportCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const data = parsed.data;
@@ -111,8 +123,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Export requested', { id: exportRecord.id, name: exportRecord.name });
     res.status(201).json({ success: true, data: exportRecord });
   } catch (error: unknown) {
-    logger.error('Failed to create export', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create export' } });
+    logger.error('Failed to create export', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create export' },
+    });
   }
 });
 
@@ -129,21 +146,39 @@ router.get('/:id/download', async (req: Request, res: Response) => {
     });
 
     if (!exportRecord) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Export not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Export not found' } });
     }
 
     if (exportRecord.status !== 'COMPLETED') {
-      return res.status(400).json({ success: false, error: { code: 'NOT_READY', message: 'Export is not yet completed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'NOT_READY', message: 'Export is not yet completed' },
+      });
     }
 
     if (!exportRecord.fileUrl) {
-      return res.status(404).json({ success: false, error: { code: 'NO_FILE', message: 'Export file not available' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NO_FILE', message: 'Export file not available' } });
     }
 
-    res.json({ success: true, data: { downloadUrl: exportRecord.fileUrl, fileName: `${exportRecord.name}.${exportRecord.format.toLowerCase()}` } });
+    res.json({
+      success: true,
+      data: {
+        downloadUrl: exportRecord.fileUrl,
+        fileName: `${exportRecord.name}.${exportRecord.format.toLowerCase()}`,
+      },
+    });
   } catch (error: unknown) {
-    logger.error('Failed to download export', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to download export' } });
+    logger.error('Failed to download export', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to download export' },
+    });
   }
 });
 
@@ -158,13 +193,19 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!exportRecord) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Export not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Export not found' } });
     }
 
     res.json({ success: true, data: exportRecord });
   } catch (error: unknown) {
-    logger.error('Failed to get export', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get export' } });
+    logger.error('Failed to get export', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get export' } });
   }
 });
 
@@ -176,9 +217,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsExport.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsExport.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Export not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Export not found' } });
     }
 
     await prisma.analyticsExport.update({
@@ -188,8 +233,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { message: 'Export deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete export', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete export' } });
+    logger.error('Failed to delete export', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete export' },
+    });
   }
 });
 

@@ -88,13 +88,17 @@ export function Gauge({
               {Math.round(pct)}%
             </span>
             {sublabel && (
-              <span className={cn('text-gray-500 dark:text-gray-400', config.subSize)}>{sublabel}</span>
+              <span className={cn('text-gray-500 dark:text-gray-400', config.subSize)}>
+                {sublabel}
+              </span>
             )}
           </div>
         )}
       </div>
       {label && (
-        <span className="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300 text-center">{label}</span>
+        <span className="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
+          {label}
+        </span>
       )}
     </div>
   );

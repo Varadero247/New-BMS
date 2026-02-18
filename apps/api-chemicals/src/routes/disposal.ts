@@ -13,7 +13,11 @@ const createDisposalSchema = z.object({
   chemicalId: z.string().trim().min(1).max(200),
   quantityDisposed: z.number().min(0),
   unit: z.string().trim().min(1).max(200),
-  disposalDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime({ offset: true })),
+  disposalDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().trim().datetime({ offset: true })),
   disposalMethod: z.string().min(1, 'disposalMethod is required'),
   wasteContractorName: z.string().optional(),
   consignmentNoteRef: z.string().optional(),
@@ -33,19 +37,38 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const { chemicalId, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
     if (chemicalId) where.chemicalId = chemicalId as any;
-    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
     const [data, total] = await Promise.all([
       prisma.chemDisposal.findMany({
-        where, skip, take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100),
+        where,
+        skip,
+        take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100),
         orderBy: { disposalDate: 'desc' },
-        include: { chemical: { select: { id: true, productName: true, casNumber: true, wasteClassification: true } } },
+        include: {
+          chemical: {
+            select: { id: true, productName: true, casNumber: true, wasteClassification: true },
+          },
+        },
       }),
       prisma.chemDisposal.count({ where }),
     ]);
-    res.json({ success: true, data, pagination: { page: Math.max(1, parseInt(page, 10) || 1), limit: Math.max(1, parseInt(limit, 10) || 20), total, totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)) } });
+    res.json({
+      success: true,
+      data,
+      pagination: {
+        page: Math.max(1, parseInt(page, 10) || 1),
+        limit: Math.max(1, parseInt(limit, 10) || 20),
+        total,
+        totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)),
+      },
+    });
   } catch (error: unknown) {
     logger.error('Failed to fetch disposal records', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch disposal records' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch disposal records' },
+    });
   }
 });
 
@@ -53,18 +76,34 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createDisposalSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const d = parsed.data;
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
-    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, orgId, deletedAt: null } as any });
-    if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
+    const chemical = await prisma.chemRegister.findFirst({
+      where: { id: d.chemicalId, orgId, deletedAt: null } as any,
+    });
+    if (!chemical)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
     const data = await prisma.chemDisposal.create({
-      data: { ...d, disposedBy: (req as AuthRequest).user?.id, createdBy: (req as AuthRequest).user?.id },
+      data: {
+        ...d,
+        disposedBy: (req as AuthRequest).user?.id,
+        createdBy: (req as AuthRequest).user?.id,
+      },
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to create disposal record', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' },
+    });
   }
 });
 
@@ -72,15 +111,31 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateDisposalSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
-    const existing = await prisma.chemDisposal.findFirst({ where: { id: req.params.id, chemical: { orgId, deletedAt: null } } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Disposal record not found' } });
-    const data = await prisma.chemDisposal.update({ where: { id: req.params.id }, data: parsed.data });
+    const existing = await prisma.chemDisposal.findFirst({
+      where: { id: req.params.id, chemical: { orgId, deletedAt: null } },
+    });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Disposal record not found' },
+      });
+    const data = await prisma.chemDisposal.update({
+      where: { id: req.params.id },
+      data: parsed.data,
+    });
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to update disposal record', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' },
+    });
   }
 });
 

@@ -205,7 +205,9 @@ describe('OfflineCache', () => {
     expect(OfflineCache.isPriorityUrl('https://app.example.com/api/cmms/work-orders')).toBe(true);
     expect(OfflineCache.isPriorityUrl('https://app.example.com/api/hs/incidents')).toBe(true);
     expect(OfflineCache.isPriorityUrl('https://app.example.com/api/quality/documents')).toBe(true);
-    expect(OfflineCache.isPriorityUrl('https://app.example.com/api/food-safety/checklists')).toBe(true);
+    expect(OfflineCache.isPriorityUrl('https://app.example.com/api/food-safety/checklists')).toBe(
+      true
+    );
   });
 
   test('isPriorityUrl returns false for non-priority URLs', () => {
@@ -225,7 +227,10 @@ describe('OfflineCache', () => {
 
   test('multiple caches do not interfere with each other', async () => {
     const cache2 = new OfflineCache();
-    await cache.cacheResponse('https://app.example.com/api/shared', makeResponse({ from: 'cache1' }));
+    await cache.cacheResponse(
+      'https://app.example.com/api/shared',
+      makeResponse({ from: 'cache1' })
+    );
 
     // cache2 shares the same underlying mock cache, so it should see the same data
     const result = await cache2.getCachedResponse('https://app.example.com/api/shared');
@@ -249,17 +254,11 @@ describe('OfflineCache', () => {
   test('evicts oldest overall when all entries are priority', async () => {
     // Fill with 50 priority URLs
     for (let i = 0; i < 50; i++) {
-      await cache.cacheResponse(
-        `https://app.example.com/api/svc${i}/tasks`,
-        makeResponse({ i })
-      );
+      await cache.cacheResponse(`https://app.example.com/api/svc${i}/tasks`, makeResponse({ i }));
     }
 
     // Add one more priority URL — oldest priority should be evicted
-    await cache.cacheResponse(
-      'https://app.example.com/api/svc99/tasks',
-      makeResponse({ i: 99 })
-    );
+    await cache.cacheResponse('https://app.example.com/api/svc99/tasks', makeResponse({ i: 99 }));
 
     const urls = await cache.getTrackedUrls();
     expect(urls.length).toBe(50);

@@ -1,7 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+} from '@ims/ui';
 import { Plus, Search, BookOpen, Edit, Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -85,12 +96,14 @@ export default function AccountsPage() {
     }
   }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
-      setFormData(prev => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
+      setFormData((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   }
 
@@ -118,8 +131,14 @@ export default function AccountsPage() {
 
   async function handleCreate() {
     setFormError('');
-    if (!formData.code.trim()) { setFormError('Account code is required'); return; }
-    if (!formData.name.trim()) { setFormError('Account name is required'); return; }
+    if (!formData.code.trim()) {
+      setFormError('Account code is required');
+      return;
+    }
+    if (!formData.name.trim()) {
+      setFormError('Account name is required');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -135,8 +154,14 @@ export default function AccountsPage() {
 
   async function handleUpdate() {
     setFormError('');
-    if (!formData.code.trim()) { setFormError('Account code is required'); return; }
-    if (!formData.name.trim()) { setFormError('Account name is required'); return; }
+    if (!formData.code.trim()) {
+      setFormError('Account code is required');
+      return;
+    }
+    if (!formData.name.trim()) {
+      setFormError('Account name is required');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -160,8 +185,9 @@ export default function AccountsPage() {
     }
   }
 
-  const filteredAccounts = accounts.filter(a => {
-    const matchesSearch = !searchTerm ||
+  const filteredAccounts = accounts.filter((a) => {
+    const matchesSearch =
+      !searchTerm ||
       a.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
       a.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = !typeFilter || a.type === typeFilter;
@@ -184,8 +210,12 @@ export default function AccountsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Chart of Accounts</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your general ledger accounts</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Chart of Accounts
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Manage your general ledger accounts
+            </p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> Add Account
@@ -207,7 +237,8 @@ export default function AccountsPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
-                    aria-label="Search accounts..." placeholder="Search accounts..."
+                    aria-label="Search accounts..."
+                    placeholder="Search accounts..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -244,32 +275,66 @@ export default function AccountsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Code</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Normal Balance</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Balance</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Code
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Name
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Type
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Normal Balance
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Status
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Balance
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredAccounts.map((account) => (
                       <tr key={account.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">{account.code}</td>
-                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{account.name}</td>
+                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">
+                          {account.code}
+                        </td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                          {account.name}
+                        </td>
                         <td className="py-3 px-4">
-                          <Badge className={typeColors[account.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+                          <Badge
+                            className={
+                              typeColors[account.type] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
                             {account.type}
                           </Badge>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={balanceColors[account.normalBalance] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+                          <Badge
+                            className={
+                              balanceColors[account.normalBalance] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
                             {account.normalBalance}
                           </Badge>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={account.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}>
+                          <Badge
+                            className={
+                              account.isActive
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
+                            }
+                          >
                             {account.isActive ? 'Active' : 'Inactive'}
                           </Badge>
                         </td>
@@ -278,10 +343,16 @@ export default function AccountsPage() {
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openEditModal(account)} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600">
+                            <button
+                              onClick={() => openEditModal(account)}
+                              className="text-gray-400 dark:text-gray-500 hover:text-indigo-600"
+                            >
                               <Edit className="h-4 w-4" />
                             </button>
-                            <button onClick={() => handleDelete(account.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600">
+                            <button
+                              onClick={() => handleDelete(account.id)}
+                              className="text-gray-400 dark:text-gray-500 hover:text-red-600"
+                            >
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
@@ -302,25 +373,50 @@ export default function AccountsPage() {
       </div>
 
       {/* Create Modal */}
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Add Account" size="lg">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Add Account"
+        size="lg"
+      >
         <div className="space-y-4">
           {formError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
           )}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="code">Account Code *</Label>
-              <Input id="code" name="code" value={formData.code} onChange={handleChange} placeholder="e.g. 1000" />
+              <Input
+                id="code"
+                name="code"
+                value={formData.code}
+                onChange={handleChange}
+                placeholder="e.g. 1000"
+              />
             </div>
             <div>
               <Label htmlFor="name">Account Name *</Label>
-              <Input id="name" name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Cash" />
+              <Input
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="e.g. Cash"
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="type">Account Type</Label>
-              <select id="type" name="type" value={formData.type} onChange={handleChange} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select
+                id="type"
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
                 <option value="ASSET">Asset</option>
                 <option value="LIABILITY">Liability</option>
                 <option value="EQUITY">Equity</option>
@@ -330,7 +426,13 @@ export default function AccountsPage() {
             </div>
             <div>
               <Label htmlFor="normalBalance">Normal Balance</Label>
-              <select id="normalBalance" name="normalBalance" value={formData.normalBalance} onChange={handleChange} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select
+                id="normalBalance"
+                name="normalBalance"
+                value={formData.normalBalance}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
                 <option value="DEBIT">Debit</option>
                 <option value="CREDIT">Credit</option>
               </select>
@@ -338,39 +440,82 @@ export default function AccountsPage() {
           </div>
           <div>
             <Label htmlFor="subType">Sub Type</Label>
-            <Input id="subType" name="subType" value={formData.subType} onChange={handleChange} placeholder="e.g. Current Asset" />
+            <Input
+              id="subType"
+              name="subType"
+              value={formData.subType}
+              onChange={handleChange}
+              placeholder="e.g. Current Asset"
+            />
           </div>
           <div>
             <Label htmlFor="description">Description</Label>
-            <textarea id="description" name="description" value={formData.description} onChange={handleChange} placeholder="Account description..." rows={3} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Account description..."
+              rows={3}
+              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleCreate} disabled={submitting}>{submitting ? 'Creating...' : 'Create Account'}</Button>
+          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleCreate} disabled={submitting}>
+            {submitting ? 'Creating...' : 'Create Account'}
+          </Button>
         </ModalFooter>
       </Modal>
 
       {/* Edit Modal */}
-      <Modal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} title="Edit Account" size="lg">
+      <Modal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        title="Edit Account"
+        size="lg"
+      >
         <div className="space-y-4">
           {formError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
           )}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="edit-code">Account Code *</Label>
-              <Input id="edit-code" name="code" value={formData.code} onChange={handleChange} placeholder="e.g. 1000" />
+              <Input
+                id="edit-code"
+                name="code"
+                value={formData.code}
+                onChange={handleChange}
+                placeholder="e.g. 1000"
+              />
             </div>
             <div>
               <Label htmlFor="edit-name">Account Name *</Label>
-              <Input id="edit-name" name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Cash" />
+              <Input
+                id="edit-name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="e.g. Cash"
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="edit-type">Account Type</Label>
-              <select id="edit-type" name="type" value={formData.type} onChange={handleChange} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select
+                id="edit-type"
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
                 <option value="ASSET">Asset</option>
                 <option value="LIABILITY">Liability</option>
                 <option value="EQUITY">Equity</option>
@@ -380,7 +525,13 @@ export default function AccountsPage() {
             </div>
             <div>
               <Label htmlFor="edit-normalBalance">Normal Balance</Label>
-              <select id="edit-normalBalance" name="normalBalance" value={formData.normalBalance} onChange={handleChange} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select
+                id="edit-normalBalance"
+                name="normalBalance"
+                value={formData.normalBalance}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
                 <option value="DEBIT">Debit</option>
                 <option value="CREDIT">Credit</option>
               </select>
@@ -388,16 +539,33 @@ export default function AccountsPage() {
           </div>
           <div>
             <Label htmlFor="edit-description">Description</Label>
-            <textarea id="edit-description" name="description" value={formData.description} onChange={handleChange} rows={3} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <textarea
+              id="edit-description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows={3}
+              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
           </div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" id="edit-isActive" name="isActive" checked={formData.isActive as any} onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))} />
+            <input
+              type="checkbox"
+              id="edit-isActive"
+              name="isActive"
+              checked={formData.isActive as any}
+              onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
+            />
             <Label htmlFor="edit-isActive">Active</Label>
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setEditModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleUpdate} disabled={submitting}>{submitting ? 'Saving...' : 'Save Changes'}</Button>
+          <Button variant="outline" onClick={() => setEditModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleUpdate} disabled={submitting}>
+            {submitting ? 'Saving...' : 'Save Changes'}
+          </Button>
         </ModalFooter>
       </Modal>
     </div>

@@ -38,7 +38,9 @@ beforeEach(() => {
 
 describe('GET /api/products', () => {
   it('should return products with pagination', async () => {
-    (prisma as any).fsProduct.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', name: 'Product A' }]);
+    (prisma as any).fsProduct.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Product A' },
+    ]);
     (prisma as any).fsProduct.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/products');
@@ -81,11 +83,16 @@ describe('GET /api/products', () => {
 
 describe('POST /api/products', () => {
   it('should create a product', async () => {
-    const created = { id: '00000000-0000-0000-0000-000000000001', name: 'Product A', code: 'PROD-001' };
+    const created = {
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Product A',
+      code: 'PROD-001',
+    };
     (prisma as any).fsProduct.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/products').send({
-      name: 'Product A', code: 'PROD-001',
+      name: 'Product A',
+      code: 'PROD-001',
     });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -100,7 +107,8 @@ describe('POST /api/products', () => {
     (prisma as any).fsProduct.create.mockRejectedValue(new Error('Unique constraint'));
 
     const res = await request(app).post('/api/products').send({
-      name: 'Product A', code: 'PROD-001',
+      name: 'Product A',
+      code: 'PROD-001',
     });
     expect(res.status).toBe(500);
   });
@@ -108,7 +116,10 @@ describe('POST /api/products', () => {
 
 describe('GET /api/products/:id', () => {
   it('should return a product by id', async () => {
-    (prisma as any).fsProduct.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Product A' });
+    (prisma as any).fsProduct.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Product A',
+    });
 
     const res = await request(app).get('/api/products/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
@@ -125,10 +136,17 @@ describe('GET /api/products/:id', () => {
 
 describe('PUT /api/products/:id', () => {
   it('should update a product', async () => {
-    (prisma as any).fsProduct.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsProduct.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    (prisma as any).fsProduct.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsProduct.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Updated',
+    });
 
-    const res = await request(app).put('/api/products/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
+    const res = await request(app)
+      .put('/api/products/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -136,22 +154,32 @@ describe('PUT /api/products/:id', () => {
   it('should return 404 for non-existent product', async () => {
     (prisma as any).fsProduct.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/products/00000000-0000-0000-0000-000000000099').send({ name: 'Test' });
+    const res = await request(app)
+      .put('/api/products/00000000-0000-0000-0000-000000000099')
+      .send({ name: 'Test' });
     expect(res.status).toBe(404);
   });
 
   it('should reject invalid update', async () => {
-    (prisma as any).fsProduct.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsProduct.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
 
-    const res = await request(app).put('/api/products/00000000-0000-0000-0000-000000000001').send({ status: 'INVALID' });
+    const res = await request(app)
+      .put('/api/products/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
 
 describe('DELETE /api/products/:id', () => {
   it('should soft delete a product', async () => {
-    (prisma as any).fsProduct.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsProduct.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsProduct.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsProduct.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
 
     const res = await request(app).delete('/api/products/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);

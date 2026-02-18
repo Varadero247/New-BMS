@@ -13,11 +13,15 @@ export class EventPublisher {
     }
   }
 
-  async publish(eventType: string, data: Record<string, unknown>, context: {
-    source: string;
-    organisationId: string;
-    userId?: string;
-  }): Promise<string> {
+  async publish(
+    eventType: string,
+    data: Record<string, unknown>,
+    context: {
+      source: string;
+      organisationId: string;
+      userId?: string;
+    }
+  ): Promise<string> {
     const payload: EventPayload = {
       id: crypto.randomUUID(),
       type: eventType,
@@ -34,7 +38,7 @@ export class EventPublisher {
     }
 
     // Emit locally for in-process subscribers
-    this.localHandlers.get(eventType)?.forEach(handler => handler(payload));
+    this.localHandlers.get(eventType)?.forEach((handler) => handler(payload));
 
     return payload.id;
   }

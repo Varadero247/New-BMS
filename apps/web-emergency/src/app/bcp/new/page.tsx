@@ -29,7 +29,7 @@ const TABS = [
   { id: 'review', label: 'Review & Approval', icon: CheckSquare },
 ] as const;
 
-type TabId = typeof TABS[number]['id'];
+type TabId = (typeof TABS)[number]['id'];
 
 function uid() {
   return Math.random().toString(36).slice(2, 9);
@@ -115,16 +115,33 @@ export default function BCPNewPage() {
       { id: uid(), name: '', role: 'Operations Lead', phone: '', email: '', backup: '' },
       { id: uid(), name: '', role: 'Communications Lead', phone: '', email: '', backup: '' },
     ],
-    biaItems: [
-      { id: uid(), process: '', rto: '', rpo: '', impact: '', priority: 'HIGH' },
-    ],
-    recoveryStrategies: [
-      { id: uid(), scenario: '', strategy: '', resources: '', timeline: '' },
-    ],
+    biaItems: [{ id: uid(), process: '', rto: '', rpo: '', impact: '', priority: 'HIGH' }],
+    recoveryStrategies: [{ id: uid(), scenario: '', strategy: '', resources: '', timeline: '' }],
     commChannels: [
-      { id: uid(), audience: 'Staff', method: 'Email / SMS', responsible: '', timing: 'Immediately on activation', template: '' },
-      { id: uid(), audience: 'Customers', method: 'Email', responsible: '', timing: 'Within 2 hours', template: '' },
-      { id: uid(), audience: 'Media', method: 'Press Release', responsible: '', timing: 'As required', template: '' },
+      {
+        id: uid(),
+        audience: 'Staff',
+        method: 'Email / SMS',
+        responsible: '',
+        timing: 'Immediately on activation',
+        template: '',
+      },
+      {
+        id: uid(),
+        audience: 'Customers',
+        method: 'Email',
+        responsible: '',
+        timing: 'Within 2 hours',
+        template: '',
+      },
+      {
+        id: uid(),
+        audience: 'Media',
+        method: 'Press Release',
+        responsible: '',
+        timing: 'As required',
+        template: '',
+      },
     ],
     activationTriggers: '',
     activationProcedure: '',
@@ -140,7 +157,10 @@ export default function BCPNewPage() {
   });
 
   useEffect(() => {
-    api.get('/premises').then((r) => setPremises(r.data.data || [])).catch(() => {});
+    api
+      .get('/premises')
+      .then((r) => setPremises(r.data.data || []))
+      .catch(() => {});
     const d = new Date();
     d.setMonth(d.getMonth() + 12);
     setForm((f) => ({ ...f, nextReviewDate: d.toISOString().split('T')[0] }));
@@ -161,37 +181,69 @@ export default function BCPNewPage() {
   }
 
   function addCrisisTeamMember() {
-    setForm((f) => ({ ...f, crisisTeam: [...f.crisisTeam, { id: uid(), name: '', role: '', phone: '', email: '', backup: '' }] }));
+    setForm((f) => ({
+      ...f,
+      crisisTeam: [
+        ...f.crisisTeam,
+        { id: uid(), name: '', role: '', phone: '', email: '', backup: '' },
+      ],
+    }));
   }
   function removeCrisisTeamMember(id: string) {
     setForm((f) => ({ ...f, crisisTeam: f.crisisTeam.filter((m) => m.id !== id) }));
   }
   function updateCrisisTeamMember(id: string, field: keyof CrisisTeamMember, val: string) {
-    setForm((f) => ({ ...f, crisisTeam: f.crisisTeam.map((m) => m.id === id ? { ...m, [field]: val } : m) }));
+    setForm((f) => ({
+      ...f,
+      crisisTeam: f.crisisTeam.map((m) => (m.id === id ? { ...m, [field]: val } : m)),
+    }));
   }
 
   function addBIAItem() {
-    setForm((f) => ({ ...f, biaItems: [...f.biaItems, { id: uid(), process: '', rto: '', rpo: '', impact: '', priority: 'MEDIUM' }] }));
+    setForm((f) => ({
+      ...f,
+      biaItems: [
+        ...f.biaItems,
+        { id: uid(), process: '', rto: '', rpo: '', impact: '', priority: 'MEDIUM' },
+      ],
+    }));
   }
   function removeBIAItem(id: string) {
     setForm((f) => ({ ...f, biaItems: f.biaItems.filter((b) => b.id !== id) }));
   }
   function updateBIAItem(id: string, field: keyof BIAItem, val: string) {
-    setForm((f) => ({ ...f, biaItems: f.biaItems.map((b) => b.id === id ? { ...b, [field]: val } : b) }));
+    setForm((f) => ({
+      ...f,
+      biaItems: f.biaItems.map((b) => (b.id === id ? { ...b, [field]: val } : b)),
+    }));
   }
 
   function addRecoveryStrategy() {
-    setForm((f) => ({ ...f, recoveryStrategies: [...f.recoveryStrategies, { id: uid(), scenario: '', strategy: '', resources: '', timeline: '' }] }));
+    setForm((f) => ({
+      ...f,
+      recoveryStrategies: [
+        ...f.recoveryStrategies,
+        { id: uid(), scenario: '', strategy: '', resources: '', timeline: '' },
+      ],
+    }));
   }
   function removeRecoveryStrategy(id: string) {
     setForm((f) => ({ ...f, recoveryStrategies: f.recoveryStrategies.filter((s) => s.id !== id) }));
   }
   function updateRecoveryStrategy(id: string, field: keyof RecoveryStrategy, val: string) {
-    setForm((f) => ({ ...f, recoveryStrategies: f.recoveryStrategies.map((s) => s.id === id ? { ...s, [field]: val } : s) }));
+    setForm((f) => ({
+      ...f,
+      recoveryStrategies: f.recoveryStrategies.map((s) =>
+        s.id === id ? { ...s, [field]: val } : s
+      ),
+    }));
   }
 
   function updateCommChannel(id: string, field: keyof CommChannel, val: string) {
-    setForm((f) => ({ ...f, commChannels: f.commChannels.map((c) => c.id === id ? { ...c, [field]: val } : c) }));
+    setForm((f) => ({
+      ...f,
+      commChannels: f.commChannels.map((c) => (c.id === id ? { ...c, [field]: val } : c)),
+    }));
   }
 
   return (
@@ -200,11 +252,15 @@ export default function BCPNewPage() {
       <main className="flex-1 overflow-auto">
         <div className="border-b border-gray-200 dark:border-gray-700 px-8 py-4 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-900 z-10">
           <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">New Business Continuity Plan</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              New Business Continuity Plan
+            </h1>
             <p className="text-sm text-gray-500">ISO 22301 aligned BCP builder</p>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => router.push('/bcp')}>Cancel</Button>
+            <Button variant="outline" onClick={() => router.push('/bcp')}>
+              Cancel
+            </Button>
             <Button
               onClick={handleSave}
               disabled={saving || !form.title || !form.ownerName}
@@ -212,7 +268,10 @@ export default function BCPNewPage() {
               style={{ backgroundColor: '#F04B5A' }}
             >
               {saving ? (
-                <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</>
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Saving...
+                </>
               ) : (
                 'Save BCP'
               )}
@@ -256,7 +315,9 @@ export default function BCPNewPage() {
           <div className="flex-1 p-8">
             {activeTab === 'overview' && (
               <div className="space-y-6 max-w-2xl">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Plan Overview</h2>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                  Plan Overview
+                </h2>
                 <div>
                   <Label>Plan Title *</Label>
                   <Input
@@ -268,9 +329,16 @@ export default function BCPNewPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Premises</Label>
-                    <Select value={form.premisesId} onChange={(e) => setForm((f) => ({ ...f, premisesId: e.target.value }))}>
+                    <Select
+                      value={form.premisesId}
+                      onChange={(e) => setForm((f) => ({ ...f, premisesId: e.target.value }))}
+                    >
                       <option value="">All Premises</option>
-                      {premises.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                      {premises.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
                     </Select>
                   </div>
                   <div>
@@ -322,7 +390,9 @@ export default function BCPNewPage() {
             {activeTab === 'crisis-team' && (
               <div className="max-w-4xl">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Crisis Management Team</h2>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    Crisis Management Team
+                  </h2>
                   <Button size="sm" variant="outline" onClick={addCrisisTeamMember}>
                     <Plus className="h-3 w-3 mr-1" /> Add Member
                   </Button>
@@ -336,7 +406,9 @@ export default function BCPNewPage() {
                             <Label>Full Name</Label>
                             <Input
                               value={member.name}
-                              onChange={(e) => updateCrisisTeamMember(member.id, 'name', e.target.value)}
+                              onChange={(e) =>
+                                updateCrisisTeamMember(member.id, 'name', e.target.value)
+                              }
                               placeholder="Name"
                             />
                           </div>
@@ -344,7 +416,9 @@ export default function BCPNewPage() {
                             <Label>Crisis Role</Label>
                             <Input
                               value={member.role}
-                              onChange={(e) => updateCrisisTeamMember(member.id, 'role', e.target.value)}
+                              onChange={(e) =>
+                                updateCrisisTeamMember(member.id, 'role', e.target.value)
+                              }
                               placeholder="e.g. Crisis Director"
                             />
                           </div>
@@ -352,7 +426,9 @@ export default function BCPNewPage() {
                             <Label>Phone</Label>
                             <Input
                               value={member.phone}
-                              onChange={(e) => updateCrisisTeamMember(member.id, 'phone', e.target.value)}
+                              onChange={(e) =>
+                                updateCrisisTeamMember(member.id, 'phone', e.target.value)
+                              }
                               placeholder="Mobile number"
                             />
                           </div>
@@ -361,7 +437,9 @@ export default function BCPNewPage() {
                             <Input
                               type="email"
                               value={member.email}
-                              onChange={(e) => updateCrisisTeamMember(member.id, 'email', e.target.value)}
+                              onChange={(e) =>
+                                updateCrisisTeamMember(member.id, 'email', e.target.value)
+                              }
                               placeholder="email@example.com"
                             />
                           </div>
@@ -369,12 +447,19 @@ export default function BCPNewPage() {
                             <Label>Backup Person</Label>
                             <Input
                               value={member.backup}
-                              onChange={(e) => updateCrisisTeamMember(member.id, 'backup', e.target.value)}
+                              onChange={(e) =>
+                                updateCrisisTeamMember(member.id, 'backup', e.target.value)
+                              }
                               placeholder="Name and contact of backup"
                             />
                           </div>
                         </div>
-                        <Button size="sm" variant="outline" onClick={() => removeCrisisTeamMember(member.id)} className="mt-3 text-red-500">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => removeCrisisTeamMember(member.id)}
+                          className="mt-3 text-red-500"
+                        >
                           <Trash2 className="h-3 w-3 mr-1" /> Remove
                         </Button>
                       </CardContent>
@@ -387,7 +472,9 @@ export default function BCPNewPage() {
             {activeTab === 'bia' && (
               <div className="max-w-4xl">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Business Impact Analysis</h2>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    Business Impact Analysis
+                  </h2>
                   <Button size="sm" variant="outline" onClick={addBIAItem}>
                     <Plus className="h-3 w-3 mr-1" /> Add Process
                   </Button>
@@ -407,7 +494,10 @@ export default function BCPNewPage() {
                           </div>
                           <div>
                             <Label>Priority</Label>
-                            <Select value={item.priority} onChange={(e) => updateBIAItem(item.id, 'priority', e.target.value)}>
+                            <Select
+                              value={item.priority}
+                              onChange={(e) => updateBIAItem(item.id, 'priority', e.target.value)}
+                            >
                               <option value="CRITICAL">Critical</option>
                               <option value="HIGH">High</option>
                               <option value="MEDIUM">Medium</option>
@@ -440,7 +530,12 @@ export default function BCPNewPage() {
                             />
                           </div>
                         </div>
-                        <Button size="sm" variant="outline" onClick={() => removeBIAItem(item.id)} className="mt-3 text-red-500">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => removeBIAItem(item.id)}
+                          className="mt-3 text-red-500"
+                        >
                           <Trash2 className="h-3 w-3 mr-1" /> Remove
                         </Button>
                       </CardContent>
@@ -453,7 +548,9 @@ export default function BCPNewPage() {
             {activeTab === 'recovery' && (
               <div className="max-w-4xl">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Recovery Strategies</h2>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    Recovery Strategies
+                  </h2>
                   <Button size="sm" variant="outline" onClick={addRecoveryStrategy}>
                     <Plus className="h-3 w-3 mr-1" /> Add Strategy
                   </Button>
@@ -467,7 +564,9 @@ export default function BCPNewPage() {
                             <Label>Scenario / Disruption Type</Label>
                             <Input
                               value={strat.scenario}
-                              onChange={(e) => updateRecoveryStrategy(strat.id, 'scenario', e.target.value)}
+                              onChange={(e) =>
+                                updateRecoveryStrategy(strat.id, 'scenario', e.target.value)
+                              }
                               placeholder="e.g. Loss of primary office"
                             />
                           </div>
@@ -475,7 +574,9 @@ export default function BCPNewPage() {
                             <Label>Recovery Timeline</Label>
                             <Input
                               value={strat.timeline}
-                              onChange={(e) => updateRecoveryStrategy(strat.id, 'timeline', e.target.value)}
+                              onChange={(e) =>
+                                updateRecoveryStrategy(strat.id, 'timeline', e.target.value)
+                              }
                               placeholder="e.g. Within 4 hours"
                             />
                           </div>
@@ -483,7 +584,9 @@ export default function BCPNewPage() {
                             <Label>Recovery Strategy</Label>
                             <Textarea
                               value={strat.strategy}
-                              onChange={(e) => updateRecoveryStrategy(strat.id, 'strategy', e.target.value)}
+                              onChange={(e) =>
+                                updateRecoveryStrategy(strat.id, 'strategy', e.target.value)
+                              }
                               rows={3}
                               placeholder="Describe the recovery strategy..."
                             />
@@ -492,12 +595,19 @@ export default function BCPNewPage() {
                             <Label>Resources Required</Label>
                             <Input
                               value={strat.resources}
-                              onChange={(e) => updateRecoveryStrategy(strat.id, 'resources', e.target.value)}
+                              onChange={(e) =>
+                                updateRecoveryStrategy(strat.id, 'resources', e.target.value)
+                              }
                               placeholder="People, systems, equipment needed"
                             />
                           </div>
                         </div>
-                        <Button size="sm" variant="outline" onClick={() => removeRecoveryStrategy(strat.id)} className="mt-3 text-red-500">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => removeRecoveryStrategy(strat.id)}
+                          className="mt-3 text-red-500"
+                        >
                           <Trash2 className="h-3 w-3 mr-1" /> Remove
                         </Button>
                       </CardContent>
@@ -509,7 +619,9 @@ export default function BCPNewPage() {
 
             {activeTab === 'communication' && (
               <div className="max-w-4xl">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">Communication Plans</h2>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">
+                  Communication Plans
+                </h2>
                 <div className="space-y-4">
                   {form.commChannels.map((ch) => (
                     <Card key={ch.id}>
@@ -535,7 +647,9 @@ export default function BCPNewPage() {
                             <Label>Responsible Person</Label>
                             <Input
                               value={ch.responsible}
-                              onChange={(e) => updateCommChannel(ch.id, 'responsible', e.target.value)}
+                              onChange={(e) =>
+                                updateCommChannel(ch.id, 'responsible', e.target.value)
+                              }
                               placeholder="Who sends communications?"
                             />
                           </div>
@@ -566,7 +680,9 @@ export default function BCPNewPage() {
 
             {activeTab === 'activation' && (
               <div className="space-y-6 max-w-2xl">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Activation & Deactivation</h2>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                  Activation & Deactivation
+                </h2>
                 <div>
                   <Label>Activation Triggers</Label>
                   <Textarea
@@ -580,7 +696,9 @@ export default function BCPNewPage() {
                   <Label>Activation Procedure</Label>
                   <Textarea
                     value={form.activationProcedure}
-                    onChange={(e) => setForm((f) => ({ ...f, activationProcedure: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, activationProcedure: e.target.value }))
+                    }
                     rows={4}
                     placeholder="Step-by-step activation procedure..."
                   />
@@ -589,7 +707,9 @@ export default function BCPNewPage() {
                   <Label>Deactivation Criteria</Label>
                   <Textarea
                     value={form.deactivationCriteria}
-                    onChange={(e) => setForm((f) => ({ ...f, deactivationCriteria: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, deactivationCriteria: e.target.value }))
+                    }
                     rows={3}
                     placeholder="When can this BCP be stood down?"
                   />
@@ -598,7 +718,9 @@ export default function BCPNewPage() {
                   <Label>Deactivation Procedure</Label>
                   <Textarea
                     value={form.deactivationProcedure}
-                    onChange={(e) => setForm((f) => ({ ...f, deactivationProcedure: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, deactivationProcedure: e.target.value }))
+                    }
                     rows={4}
                     placeholder="Step-by-step deactivation / stand-down procedure..."
                   />
@@ -608,7 +730,9 @@ export default function BCPNewPage() {
 
             {activeTab === 'review' && (
               <div className="space-y-6 max-w-2xl">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Review & Approval</h2>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                  Review & Approval
+                </h2>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Review Frequency</Label>
@@ -682,7 +806,10 @@ export default function BCPNewPage() {
                   style={{ backgroundColor: '#F04B5A' }}
                 >
                   {saving ? (
-                    <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</>
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Saving...
+                    </>
                   ) : (
                     'Save Business Continuity Plan'
                   )}

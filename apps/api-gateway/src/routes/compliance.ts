@@ -42,7 +42,8 @@ const regulations: Regulation[] = [
     category: 'HEALTH_SAFETY',
     publishedDate: '2026-01-15',
     effectiveDate: '2026-04-01',
-    summary: 'New secondary legislation under the Building Safety Act introduces mandatory safety case reports for higher-risk buildings. Organisations managing such buildings must update their safety management systems.',
+    summary:
+      'New secondary legislation under the Building Safety Act introduces mandatory safety case reports for higher-risk buildings. Organisations managing such buildings must update their safety management systems.',
     relevantStandards: ['ISO_45001', 'ISO_9001'],
     relevantIndustries: ['CONSTRUCTION', 'PROPERTY_MANAGEMENT'],
     impactLevel: 'HIGH',
@@ -60,7 +61,8 @@ const regulations: Regulation[] = [
     category: 'ESG',
     publishedDate: '2026-01-20',
     effectiveDate: '2026-07-01',
-    summary: 'The Corporate Sustainability Reporting Directive expanded scope now includes listed SMEs with more than 10 employees. ESRS standards E1-E5, S1-S4, and G1 disclosures now mandatory for this cohort.',
+    summary:
+      'The Corporate Sustainability Reporting Directive expanded scope now includes listed SMEs with more than 10 employees. ESRS standards E1-E5, S1-S4, and G1 disclosures now mandatory for this cohort.',
     relevantStandards: ['ISO_14001', 'ISO_45001', 'ISO_50001'],
     relevantIndustries: ['ALL'],
     impactLevel: 'CRITICAL',
@@ -78,7 +80,8 @@ const regulations: Regulation[] = [
     category: 'INFORMATION_SECURITY',
     publishedDate: '2025-10-17',
     effectiveDate: '2025-10-17',
-    summary: 'EU Member States must transpose NIS2 into national law. Essential and important entities must implement cybersecurity risk management measures and incident reporting within 24 hours.',
+    summary:
+      'EU Member States must transpose NIS2 into national law. Essential and important entities must implement cybersecurity risk management measures and incident reporting within 24 hours.',
     relevantStandards: ['ISO_27001'],
     relevantIndustries: ['TECHNOLOGY', 'ENERGY', 'HEALTHCARE', 'FINANCIAL_SERVICES'],
     impactLevel: 'CRITICAL',
@@ -96,7 +99,8 @@ const regulations: Regulation[] = [
     category: 'ENERGY',
     publishedDate: '2026-01-10',
     effectiveDate: '2026-06-05',
-    summary: 'ESOS Phase 3 compliance deadline extended to 5 June 2026. Qualifying organisations must complete energy audits covering at least 90% of total energy consumption.',
+    summary:
+      'ESOS Phase 3 compliance deadline extended to 5 June 2026. Qualifying organisations must complete energy audits covering at least 90% of total energy consumption.',
     relevantStandards: ['ISO_50001', 'ISO_14001'],
     relevantIndustries: ['ALL'],
     impactLevel: 'MEDIUM',
@@ -114,7 +118,8 @@ const regulations: Regulation[] = [
     category: 'AI_GOVERNANCE',
     publishedDate: '2025-08-01',
     effectiveDate: '2026-08-01',
-    summary: 'Chapter III of the EU AI Act becomes enforceable. Providers and deployers of high-risk AI systems must implement quality management systems, maintain technical documentation, and conduct conformity assessments.',
+    summary:
+      'Chapter III of the EU AI Act becomes enforceable. Providers and deployers of high-risk AI systems must implement quality management systems, maintain technical documentation, and conduct conformity assessments.',
     relevantStandards: ['ISO_42001', 'ISO_27001'],
     relevantIndustries: ['TECHNOLOGY', 'HEALTHCARE', 'FINANCIAL_SERVICES', 'ALL'],
     impactLevel: 'HIGH',
@@ -132,7 +137,8 @@ const regulations: Regulation[] = [
     category: 'PRIVACY',
     publishedDate: '2026-02-01',
     effectiveDate: '2026-06-01',
-    summary: 'Amendments to the UAE Personal Data Protection Law introduce mandatory Data Protection Impact Assessments for processing special category data and cross-border data transfers.',
+    summary:
+      'Amendments to the UAE Personal Data Protection Law introduce mandatory Data Protection Impact Assessments for processing special category data and cross-border data transfers.',
     relevantStandards: ['ISO_27001', 'ISO_27701'],
     relevantIndustries: ['ALL'],
     impactLevel: 'HIGH',
@@ -150,7 +156,8 @@ const regulations: Regulation[] = [
     category: 'HEALTH_SAFETY',
     publishedDate: '2026-01-25',
     effectiveDate: '2026-04-01',
-    summary: 'Updated Workplace Exposure Limits (WELs) for 15 chemical substances. Organisations using these substances must update their COSHH assessments and monitoring programmes.',
+    summary:
+      'Updated Workplace Exposure Limits (WELs) for 15 chemical substances. Organisations using these substances must update their COSHH assessments and monitoring programmes.',
     relevantStandards: ['ISO_45001'],
     relevantIndustries: ['MANUFACTURING', 'CONSTRUCTION', 'CHEMICAL'],
     impactLevel: 'MEDIUM',
@@ -168,7 +175,8 @@ const regulations: Regulation[] = [
     category: 'FOOD_SAFETY',
     publishedDate: '2026-01-05',
     effectiveDate: '2026-03-01',
-    summary: 'BRCGS Issue 9.1 introduces enhanced requirements for integrated pest management, including mandatory digital trend monitoring and third-party pest control auditing.',
+    summary:
+      'BRCGS Issue 9.1 introduces enhanced requirements for integrated pest management, including mandatory digital trend monitoring and third-party pest control auditing.',
     relevantStandards: ['ISO_22000'],
     relevantIndustries: ['FOOD_BEVERAGE'],
     impactLevel: 'MEDIUM',
@@ -186,7 +194,8 @@ const regulations: Regulation[] = [
     category: 'INFORMATION_SECURITY',
     publishedDate: '2026-01-15',
     effectiveDate: '2026-04-28',
-    summary: 'Cyber Essentials v4.0 introduces updated technical controls for cloud services, MFA requirements, and device management. Organisations must recertify under the new scheme.',
+    summary:
+      'Cyber Essentials v4.0 introduces updated technical controls for cloud services, MFA requirements, and device management. Organisations must recertify under the new scheme.',
     relevantStandards: ['ISO_27001'],
     relevantIndustries: ['ALL'],
     impactLevel: 'MEDIUM',
@@ -204,7 +213,8 @@ const regulations: Regulation[] = [
     category: 'ANTI_BRIBERY',
     publishedDate: '2026-02-05',
     effectiveDate: '2026-03-01',
-    summary: 'Dubai launches new Anti-Corruption Strategy requiring all licensed entities to implement anti-bribery management systems. ISO 37001 certification now accepted as evidence of compliance.',
+    summary:
+      'Dubai launches new Anti-Corruption Strategy requiring all licensed entities to implement anti-bribery management systems. ISO 37001 certification now accepted as evidence of compliance.',
     relevantStandards: ['ISO_37001'],
     relevantIndustries: ['ALL'],
     impactLevel: 'HIGH',
@@ -220,12 +230,22 @@ const regulations: Regulation[] = [
 
 const importSchema = z.object({
   targetModule: z.enum([
-    'health-safety', 'environment', 'quality', 'infosec',
-    'food-safety', 'energy', 'esg', 'iso42001', 'iso37001',
+    'health-safety',
+    'environment',
+    'quality',
+    'infosec',
+    'food-safety',
+    'energy',
+    'esg',
+    'iso42001',
+    'iso37001',
   ]),
   notes: z.string().max(1000).optional(),
   assignedTo: z.string().trim().uuid().optional(),
-  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  reviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
 });
 
 // ── GET /regulations — List regulatory updates ─────────────────────
@@ -248,8 +268,8 @@ router.get('/regulations', async (req: AuthRequest, res: Response) => {
     let filtered = [...regulations];
 
     if (jurisdiction) {
-      filtered = filtered.filter((r) =>
-        r.jurisdiction === jurisdiction || r.jurisdiction === 'GLOBAL'
+      filtered = filtered.filter(
+        (r) => r.jurisdiction === jurisdiction || r.jurisdiction === 'GLOBAL'
       );
     }
     if (category) {
@@ -259,19 +279,18 @@ router.get('/regulations', async (req: AuthRequest, res: Response) => {
       filtered = filtered.filter((r) => r.impactLevel === impactLevel);
     }
     if (standard) {
-      filtered = filtered.filter((r) =>
-        r.relevantStandards.includes(standard as string)
-      );
+      filtered = filtered.filter((r) => r.relevantStandards.includes(standard as string));
     }
     if (status) {
       filtered = filtered.filter((r) => r.status === status);
     }
     if (search) {
       const s = (search as string).toLowerCase();
-      filtered = filtered.filter((r) =>
-        r.title.toLowerCase().includes(s) ||
-        r.summary.toLowerCase().includes(s) ||
-        r.reference.toLowerCase().includes(s)
+      filtered = filtered.filter(
+        (r) =>
+          r.title.toLowerCase().includes(s) ||
+          r.summary.toLowerCase().includes(s) ||
+          r.reference.toLowerCase().includes(s)
       );
     }
 
@@ -311,7 +330,9 @@ router.get('/regulations', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list regulations', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list regulations', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list regulations' },
@@ -333,7 +354,9 @@ router.get('/regulations/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: regulation });
   } catch (error: unknown) {
-    logger.error('Failed to get regulation', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get regulation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get regulation' },
@@ -357,7 +380,11 @@ router.post('/regulations/:id/import', async (req: AuthRequest, res: Response) =
     if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
       });
     }
 
@@ -396,7 +423,9 @@ router.post('/regulations/:id/import', async (req: AuthRequest, res: Response) =
 
     res.status(201).json({ success: true, data: importRecord });
   } catch (error: unknown) {
-    logger.error('Failed to import regulation', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to import regulation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to import regulation' },
@@ -425,7 +454,11 @@ router.put('/regulations/:id/status', async (req: AuthRequest, res: Response) =>
     if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
       });
     }
 
@@ -439,7 +472,9 @@ router.put('/regulations/:id/status', async (req: AuthRequest, res: Response) =>
 
     res.json({ success: true, data: regulation });
   } catch (error: unknown) {
-    logger.error('Failed to update regulation status', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to update regulation status', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to update regulation status' },
@@ -474,7 +509,8 @@ router.get('/summary', async (_req: AuthRequest, res: Response) => {
       byCategory: {
         HEALTH_SAFETY: regulations.filter((r) => r.category === 'HEALTH_SAFETY').length,
         ESG: regulations.filter((r) => r.category === 'ESG').length,
-        INFORMATION_SECURITY: regulations.filter((r) => r.category === 'INFORMATION_SECURITY').length,
+        INFORMATION_SECURITY: regulations.filter((r) => r.category === 'INFORMATION_SECURITY')
+          .length,
         ENERGY: regulations.filter((r) => r.category === 'ENERGY').length,
         AI_GOVERNANCE: regulations.filter((r) => r.category === 'AI_GOVERNANCE').length,
         PRIVACY: regulations.filter((r) => r.category === 'PRIVACY').length,
@@ -486,7 +522,9 @@ router.get('/summary', async (_req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: summary });
   } catch (error: unknown) {
-    logger.error('Failed to get regulation summary', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get regulation summary', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get regulation summary' },

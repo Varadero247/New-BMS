@@ -63,7 +63,10 @@ describe('GET /api/reports/valuation', () => {
   });
 
   it('filters by warehouseId', async () => {
-    (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({ _sum: { quantityOnHand: 100, inventoryValue: 1000 }, _count: { id: 10 } });
+    (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({
+      _sum: { quantityOnHand: 100, inventoryValue: 1000 },
+      _count: { id: 10 },
+    });
     (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValue([]);
     (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([]);
 
@@ -94,7 +97,9 @@ describe('GET /api/reports/movement', () => {
     (mockPrisma.inventoryTransaction.groupBy as jest.Mock).mockResolvedValue([]);
     (mockPrisma.$queryRaw as jest.Mock).mockResolvedValue([]);
 
-    const res = await request(app).get('/api/reports/movement?startDate=2026-01-01&endDate=2026-01-31');
+    const res = await request(app).get(
+      '/api/reports/movement?startDate=2026-01-01&endDate=2026-01-31'
+    );
     expect(res.status).toBe(200);
   });
 
@@ -127,7 +132,13 @@ describe('GET /api/reports/ageing', () => {
 
   it('handles items with null lastReceivedAt', async () => {
     (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([
-      { id: 'inv-1', inventoryValue: 500, lastReceivedAt: null, product: { sku: 'SKU-002', name: 'Widget B' }, warehouse: { code: 'WH-01', name: 'Main' } },
+      {
+        id: 'inv-1',
+        inventoryValue: 500,
+        lastReceivedAt: null,
+        product: { sku: 'SKU-002', name: 'Widget B' },
+        warehouse: { code: 'WH-01', name: 'Main' },
+      },
     ]);
 
     const res = await request(app).get('/api/reports/ageing');
@@ -157,7 +168,9 @@ describe('GET /api/reports/turnover', () => {
   it('accepts custom date range', async () => {
     (mockPrisma.inventoryTransaction.groupBy as jest.Mock).mockResolvedValue([]);
 
-    const res = await request(app).get('/api/reports/turnover?startDate=2025-01-01&endDate=2026-01-01');
+    const res = await request(app).get(
+      '/api/reports/turnover?startDate=2025-01-01&endDate=2026-01-01'
+    );
     expect(res.status).toBe(200);
   });
 

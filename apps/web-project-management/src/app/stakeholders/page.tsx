@@ -109,7 +109,10 @@ export default function StakeholdersPage() {
       KEEP_INFORMED: 'Keep Informed',
       MONITOR: 'Monitor',
     };
-    return { color: colors[category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700', label: labels[category] || category };
+    return {
+      color: colors[category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700',
+      label: labels[category] || category,
+    };
   };
 
   const engagementBadge = (engagement: string) => {
@@ -151,7 +154,9 @@ export default function StakeholdersPage() {
               <UserCheck className="h-6 w-6 text-blue-600" />
               Stakeholders
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Stakeholder register and engagement</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+              Stakeholder register and engagement
+            </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -166,7 +171,9 @@ export default function StakeholdersPage() {
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-4 mb-6">
           <div className="flex items-center gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Filter by Project
+              </label>
               <select
                 value={filterProjectId}
                 onChange={(e) => setFilterProjectId(e.target.value)}
@@ -174,7 +181,9 @@ export default function StakeholdersPage() {
               >
                 <option value="">All Projects</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
@@ -186,30 +195,63 @@ export default function StakeholdersPage() {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Org</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Role</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Power</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Interest</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Category</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Engagement</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Org
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Role
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Power
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Interest
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Category
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Engagement
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {stakeholders.map((sh) => {
-                  const category = sh.stakeholderCategory || getCategory(sh.powerLevel, sh.interestLevel);
+                  const category =
+                    sh.stakeholderCategory || getCategory(sh.powerLevel, sh.interestLevel);
                   const cat = categoryBadge(category);
                   return (
                     <tr key={sh.id} className="hover:bg-gray-50 dark:bg-gray-800">
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{sh.stakeholderName}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{sh.stakeholderOrg || '-'}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{sh.stakeholderRole || '-'}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{sh.stakeholderType}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{sh.powerLevel}/5</td>
-                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{sh.interestLevel}/5</td>
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                        {sh.stakeholderName}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                        {sh.stakeholderOrg || '-'}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                        {sh.stakeholderRole || '-'}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                        {sh.stakeholderType}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                        {sh.powerLevel}/5
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                        {sh.interestLevel}/5
+                      </td>
                       <td className="px-4 py-3">
                         <span className={`text-xs px-2 py-1 rounded-full ${cat.color}`}>
                           {cat.label}
@@ -217,13 +259,17 @@ export default function StakeholdersPage() {
                       </td>
                       <td className="px-4 py-3">
                         {sh.engagementLevel && (
-                          <span className={`text-xs px-2 py-1 rounded-full ${engagementBadge(sh.engagementLevel)}`}>
+                          <span
+                            className={`text-xs px-2 py-1 rounded-full ${engagementBadge(sh.engagementLevel)}`}
+                          >
                             {sh.engagementLevel}
                           </span>
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs px-2 py-1 rounded-full ${statusBadge(sh.status)}`}>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full ${statusBadge(sh.status)}`}
+                        >
                           {sh.status}
                         </span>
                       </td>
@@ -242,7 +288,10 @@ export default function StakeholdersPage() {
                 })}
                 {stakeholders.length === 0 && (
                   <tr>
-                    <td colSpan={10} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={10}
+                      className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
+                    >
                       No stakeholders found. Add your first stakeholder.
                     </td>
                   </tr>
@@ -253,10 +302,17 @@ export default function StakeholdersPage() {
         </div>
 
         {/* Create Modal */}
-        <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Add Stakeholder" size="lg">
+        <Modal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          title="Add Stakeholder"
+          size="lg"
+        >
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Project
+              </label>
               <select
                 required
                 value={form.projectId}
@@ -265,13 +321,17 @@ export default function StakeholdersPage() {
               >
                 <option value="">Select Project</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Name
+                </label>
                 <input
                   type="text"
                   required
@@ -281,7 +341,9 @@ export default function StakeholdersPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Organization</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Organization
+                </label>
                 <input
                   type="text"
                   value={form.stakeholderOrg}
@@ -292,7 +354,9 @@ export default function StakeholdersPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Role
+                </label>
                 <input
                   type="text"
                   value={form.stakeholderRole}
@@ -301,7 +365,9 @@ export default function StakeholdersPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Type
+                </label>
                 <select
                   value={form.stakeholderType}
                   onChange={(e) => setForm({ ...form, stakeholderType: e.target.value })}
@@ -318,7 +384,9 @@ export default function StakeholdersPage() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Power Level (1-5)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Power Level (1-5)
+                </label>
                 <input
                   type="number"
                   min={1}
@@ -330,19 +398,25 @@ export default function StakeholdersPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Interest Level (1-5)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Interest Level (1-5)
+                </label>
                 <input
                   type="number"
                   min={1}
                   max={5}
                   required
                   value={form.interestLevel}
-                  onChange={(e) => setForm({ ...form, interestLevel: parseInt(e.target.value) || 1 })}
+                  onChange={(e) =>
+                    setForm({ ...form, interestLevel: parseInt(e.target.value) || 1 })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comm. Frequency</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Comm. Frequency
+                </label>
                 <select
                   value={form.communicationFrequency}
                   onChange={(e) => setForm({ ...form, communicationFrequency: e.target.value })}
@@ -359,11 +433,16 @@ export default function StakeholdersPage() {
             </div>
             <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <p className="text-sm text-gray-600">
-                Category: <span className="font-bold">{categoryBadge(getCategory(form.powerLevel, form.interestLevel)).label}</span>
+                Category:{' '}
+                <span className="font-bold">
+                  {categoryBadge(getCategory(form.powerLevel, form.interestLevel)).label}
+                </span>
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Email
+              </label>
               <input
                 type="email"
                 value={form.email}
@@ -390,9 +469,16 @@ export default function StakeholdersPage() {
         </Modal>
 
         {/* AI Result Modal */}
-        <Modal isOpen={showAiModal} onClose={() => setShowAiModal(false)} title="AI Stakeholder Strategy" size="lg">
+        <Modal
+          isOpen={showAiModal}
+          onClose={() => setShowAiModal(false)}
+          title="AI Stakeholder Strategy"
+          size="lg"
+        >
           <div className="prose max-w-none">
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">{aiResult}</pre>
+            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+              {aiResult}
+            </pre>
           </div>
           <div className="flex justify-end pt-4">
             <button

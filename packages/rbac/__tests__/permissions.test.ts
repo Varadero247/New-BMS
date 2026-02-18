@@ -1,4 +1,9 @@
-import { resolvePermissions, hasPermission, mergePermissions, mapLegacyRole } from '../src/permissions';
+import {
+  resolvePermissions,
+  hasPermission,
+  mergePermissions,
+  mapLegacyRole,
+} from '../src/permissions';
 import { PermissionLevel } from '../src/types';
 import { PLATFORM_ROLES, getRoleById, getRolesByIds } from '../src/roles';
 
@@ -123,13 +128,13 @@ describe('RBAC Permissions', () => {
     });
 
     it('all roles have isSystem=true', () => {
-      PLATFORM_ROLES.forEach(role => {
+      PLATFORM_ROLES.forEach((role) => {
         expect(role.isSystem).toBe(true);
       });
     });
 
     it('all roles have unique IDs', () => {
-      const ids = PLATFORM_ROLES.map(r => r.id);
+      const ids = PLATFORM_ROLES.map((r) => r.id);
       expect(new Set(ids).size).toBe(ids.length);
     });
 

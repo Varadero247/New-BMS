@@ -27,10 +27,15 @@ import { portalPrisma } from '../src/prisma-portal';
 
 const app = express();
 app.use(express.json());
-app.use((req: any, _res: any, next: any) => { req.partner = { id: 'partner-1' }; next(); });
+app.use((req: any, _res: any, next: any) => {
+  req.partner = { id: 'partner-1' };
+  next();
+});
 app.use('/api/collateral', collateralRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockCollateral = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -98,7 +103,9 @@ describe('GET /api/collateral/:id/download', () => {
       downloadCount: 43,
     });
 
-    const res = await request(app).get('/api/collateral/00000000-0000-0000-0000-000000000001/download');
+    const res = await request(app).get(
+      '/api/collateral/00000000-0000-0000-0000-000000000001/download'
+    );
     expect(res.status).toBe(200);
     expect(res.body.data.fileUrl).toBe('https://storage.example.com/case-study.pdf');
     expect(portalPrisma.mktPartnerCollateral.update).toHaveBeenCalledWith(
@@ -112,7 +119,9 @@ describe('GET /api/collateral/:id/download', () => {
     (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'REFERRAL' });
     (portalPrisma.mktPartnerCollateral.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/collateral/00000000-0000-0000-0000-000000000099/download');
+    const res = await request(app).get(
+      '/api/collateral/00000000-0000-0000-0000-000000000099/download'
+    );
     expect(res.status).toBe(404);
   });
 
@@ -123,7 +132,9 @@ describe('GET /api/collateral/:id/download', () => {
       accessTier: 'GCC_SPECIALIST',
     });
 
-    const res = await request(app).get('/api/collateral/00000000-0000-0000-0000-000000000001/download');
+    const res = await request(app).get(
+      '/api/collateral/00000000-0000-0000-0000-000000000001/download'
+    );
     expect(res.status).toBe(403);
   });
 });

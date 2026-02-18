@@ -28,14 +28,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3000"
+              value: '3000'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -96,14 +96,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3001"
+              value: '3001'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -164,14 +164,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3002"
+              value: '3002'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -232,14 +232,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3003"
+              value: '3003'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -300,14 +300,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3004"
+              value: '3004'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -368,14 +368,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3005"
+              value: '3005'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -436,14 +436,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3006"
+              value: '3006'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -504,14 +504,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3007"
+              value: '3007'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -572,14 +572,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3008"
+              value: '3008'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -640,14 +640,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3009"
+              value: '3009'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -708,14 +708,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3010"
+              value: '3010'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -776,14 +776,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3011"
+              value: '3011'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -844,14 +844,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3012"
+              value: '3012'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -912,14 +912,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3013"
+              value: '3013'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -980,14 +980,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3014"
+              value: '3014'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -1048,14 +1048,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3015"
+              value: '3015'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -1116,14 +1116,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3016"
+              value: '3016'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -1184,14 +1184,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3017"
+              value: '3017'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -1252,14 +1252,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3018"
+              value: '3018'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -1320,14 +1320,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3019"
+              value: '3019'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -1388,14 +1388,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3020"
+              value: '3020'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -1456,14 +1456,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3021"
+              value: '3021'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -1524,14 +1524,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3022"
+              value: '3022'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -1592,14 +1592,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3023"
+              value: '3023'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -1660,14 +1660,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3024"
+              value: '3024'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -1728,14 +1728,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3025"
+              value: '3025'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -1796,14 +1796,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3026"
+              value: '3026'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -1864,14 +1864,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3027"
+              value: '3027'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -1932,14 +1932,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3030"
+              value: '3030'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2000,14 +2000,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3031"
+              value: '3031'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2068,14 +2068,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3032"
+              value: '3032'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2136,14 +2136,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3033"
+              value: '3033'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2204,14 +2204,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3034"
+              value: '3034'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2272,14 +2272,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3035"
+              value: '3035'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2340,14 +2340,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3036"
+              value: '3036'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2408,14 +2408,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3037"
+              value: '3037'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2476,14 +2476,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3038"
+              value: '3038'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2544,14 +2544,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3039"
+              value: '3039'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2612,14 +2612,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3040"
+              value: '3040'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2680,14 +2680,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3041"
+              value: '3041'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2748,14 +2748,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3042"
+              value: '3042'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2816,14 +2816,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3043"
+              value: '3043'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2884,14 +2884,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3044"
+              value: '3044'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /
@@ -2952,14 +2952,14 @@ spec:
                 name: ims-config
           env:
             - name: PORT
-              value: "3045"
+              value: '3045'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /

@@ -22,9 +22,7 @@ describe('createLogger', () => {
 
   it('default meta includes the service name', () => {
     expect(logger.defaultMeta).toBeDefined();
-    expect(logger.defaultMeta).toEqual(
-      expect.objectContaining({ service: 'test-service' })
-    );
+    expect(logger.defaultMeta).toEqual(expect.objectContaining({ service: 'test-service' }));
   });
 
   it('can log info level messages without throwing', () => {
@@ -50,12 +48,8 @@ describe('createLogger', () => {
     const loggerB = createLogger('service-b');
 
     expect(loggerA).not.toBe(loggerB);
-    expect(loggerA.defaultMeta).toEqual(
-      expect.objectContaining({ service: 'service-a' })
-    );
-    expect(loggerB.defaultMeta).toEqual(
-      expect.objectContaining({ service: 'service-b' })
-    );
+    expect(loggerA.defaultMeta).toEqual(expect.objectContaining({ service: 'service-a' }));
+    expect(loggerB.defaultMeta).toEqual(expect.objectContaining({ service: 'service-b' }));
   });
 
   it('respects LOG_LEVEL environment variable', () => {

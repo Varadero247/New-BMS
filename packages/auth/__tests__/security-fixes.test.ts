@@ -28,7 +28,8 @@ describe('Security Fix Verification', () => {
     jest.resetModules();
     process.env = { ...originalEnv };
     process.env.JWT_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
-    process.env.JWT_REFRESH_SECRET = 'test-refresh-secret-that-is-at-least-64-characters-for-testing';
+    process.env.JWT_REFRESH_SECRET =
+      'test-refresh-secret-that-is-at-least-64-characters-for-testing';
   });
 
   afterAll(() => {
@@ -88,21 +89,21 @@ describe('Security Fix Verification', () => {
 
     it('should reject token with wrong issuer', () => {
       const jwt = require('jsonwebtoken');
-      const token = jwt.sign(
-        { userId: 'user-123' },
-        process.env.JWT_SECRET,
-        { issuer: 'attacker-site', audience: 'ims-client', algorithm: 'HS256' }
-      );
+      const token = jwt.sign({ userId: 'user-123' }, process.env.JWT_SECRET, {
+        issuer: 'attacker-site',
+        audience: 'ims-client',
+        algorithm: 'HS256',
+      });
       expect(() => verifyToken(token)).toThrow();
     });
 
     it('should reject token with wrong audience', () => {
       const jwt = require('jsonwebtoken');
-      const token = jwt.sign(
-        { userId: 'user-123' },
-        process.env.JWT_SECRET,
-        { issuer: 'ims-api', audience: 'wrong-audience', algorithm: 'HS256' }
-      );
+      const token = jwt.sign({ userId: 'user-123' }, process.env.JWT_SECRET, {
+        issuer: 'ims-api',
+        audience: 'wrong-audience',
+        algorithm: 'HS256',
+      });
       expect(() => verifyToken(token)).toThrow();
     });
   });
@@ -228,7 +229,9 @@ describe('Security Fix Verification', () => {
       (process.env as any).NODE_ENV = 'production';
       jest.resetModules();
       const { generateToken: genToken } = require('../src/jwt');
-      expect(() => genToken({ userId: 'test' })).toThrow('JWT_SECRET environment variable is required');
+      expect(() => genToken({ userId: 'test' })).toThrow(
+        'JWT_SECRET environment variable is required'
+      );
     });
 
     it('should throw in development without JWT_SECRET', () => {
@@ -236,7 +239,9 @@ describe('Security Fix Verification', () => {
       (process.env as any).NODE_ENV = 'development';
       jest.resetModules();
       const { generateToken: genToken } = require('../src/jwt');
-      expect(() => genToken({ userId: 'test' })).toThrow('JWT_SECRET environment variable is required');
+      expect(() => genToken({ userId: 'test' })).toThrow(
+        'JWT_SECRET environment variable is required'
+      );
     });
   });
 });

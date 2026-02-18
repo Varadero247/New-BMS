@@ -82,17 +82,26 @@ app.use('/api/customer-reqs', customerReqsRouter);
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Endpoint not found' } });
+  res
+    .status(404)
+    .json({ success: false, error: { code: 'NOT_FOUND', message: 'Endpoint not found' } });
 });
 
 // Error handling
-app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  logger.error('Unhandled error', { error: err.message, stack: err.stack });
-  res.status(err.statusCode || 500).json({
-    success: false,
-    error: { code: err.code || 'INTERNAL_ERROR', message: 'Internal server error' },
-  });
-});
+app.use(
+  (
+    err: Error & { statusCode?: number; code?: string },
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    logger.error('Unhandled error', { error: err.message, stack: err.stack });
+    res.status(err.statusCode || 500).json({
+      success: false,
+      error: { code: err.code || 'INTERNAL_ERROR', message: 'Internal server error' },
+    });
+  }
+);
 
 const server = app.listen(PORT, () => {
   logger.info(`Automotive API running on port ${PORT}`);
@@ -104,7 +113,9 @@ const gracefulShutdown = async (signal: string) => {
     await prisma.$disconnect();
     process.exit(0);
   });
-  setTimeout(() => { process.exit(1); }, 10000);
+  setTimeout(() => {
+    process.exit(1);
+  }, 10000);
 };
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));

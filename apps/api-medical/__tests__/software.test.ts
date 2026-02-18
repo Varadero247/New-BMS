@@ -153,13 +153,11 @@ describe('Software Validation Routes (IEC 62304)', () => {
       (mockPrisma.softwareProject.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.softwareProject.create as jest.Mock).mockResolvedValue({ ...mockProject });
 
-      const res = await request(app)
-        .post('/api/software/projects')
-        .send({
-          title: 'Blood Glucose Monitor Firmware',
-          safetyClass: 'CLASS_B',
-          description: 'Embedded firmware for Class B glucose monitor',
-        });
+      const res = await request(app).post('/api/software/projects').send({
+        title: 'Blood Glucose Monitor Firmware',
+        safetyClass: 'CLASS_B',
+        description: 'Embedded firmware for Class B glucose monitor',
+      });
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -287,7 +285,9 @@ describe('Software Validation Routes (IEC 62304)', () => {
     it('should return 404 when project not found', async () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/software/projects/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).get(
+        '/api/software/projects/00000000-0000-0000-0000-000000000099'
+      );
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -314,14 +314,12 @@ describe('Software Validation Routes (IEC 62304)', () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(mockProject);
       (mockPrisma.soupItem.create as jest.Mock).mockResolvedValue(mockSoupItem);
 
-      const res = await request(app)
-        .post(`/api/software/projects/${mockProject.id}/soup`)
-        .send({
-          title: 'FreeRTOS',
-          version: '10.5.1',
-          vendor: 'Amazon Web Services',
-          intendedUse: 'Real-time task scheduling',
-        });
+      const res = await request(app).post(`/api/software/projects/${mockProject.id}/soup`).send({
+        title: 'FreeRTOS',
+        version: '10.5.1',
+        vendor: 'Amazon Web Services',
+        intendedUse: 'Real-time task scheduling',
+      });
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -521,7 +519,9 @@ describe('Software Validation Routes (IEC 62304)', () => {
     it('should return 404 when project not found', async () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/software/projects/00000000-0000-0000-0000-000000000099/anomalies');
+      const res = await request(app).get(
+        '/api/software/projects/00000000-0000-0000-0000-000000000099/anomalies'
+      );
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -532,8 +532,9 @@ describe('Software Validation Routes (IEC 62304)', () => {
       (mockPrisma.softwareAnomaly.findMany as jest.Mock).mockResolvedValue([mockAnomaly]);
       (mockPrisma.softwareAnomaly.count as jest.Mock).mockResolvedValue(1);
 
-      const res = await request(app)
-        .get(`/api/software/projects/${mockProject.id}/anomalies?severity=MAJOR`);
+      const res = await request(app).get(
+        `/api/software/projects/${mockProject.id}/anomalies?severity=MAJOR`
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -544,8 +545,9 @@ describe('Software Validation Routes (IEC 62304)', () => {
       (mockPrisma.softwareAnomaly.findMany as jest.Mock).mockResolvedValue([]);
       (mockPrisma.softwareAnomaly.count as jest.Mock).mockResolvedValue(0);
 
-      const res = await request(app)
-        .get(`/api/software/projects/${mockProject.id}/anomalies?status=CLOSED`);
+      const res = await request(app).get(
+        `/api/software/projects/${mockProject.id}/anomalies?status=CLOSED`
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(0);

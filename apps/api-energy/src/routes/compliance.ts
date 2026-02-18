@@ -19,7 +19,13 @@ const complianceCreateSchema = z.object({
   jurisdiction: z.string().max(200).optional().nullable(),
   requirement: z.string().trim().min(1).max(2000),
   evidenceRequired: z.string().max(2000).optional().nullable(),
-  dueDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  dueDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
 });
 
 const complianceUpdateSchema = z.object({
@@ -30,7 +36,13 @@ const complianceUpdateSchema = z.object({
   requirement: z.string().trim().min(1).max(2000).optional(),
   evidenceRequired: z.string().max(2000).optional().nullable(),
   status: z.enum(['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NOT_ASSESSED']).optional(),
-  dueDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  dueDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
   notes: z.string().max(2000).optional().nullable(),
 });
 
@@ -51,17 +63,20 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
   try {
     const obligations = await prisma.energyComplianceObligation.findMany({
       where: { deletedAt: null } as any,
-      take: 1000});
+      take: 1000,
+    });
 
     const total = obligations.length;
-    const compliant = obligations.filter(o => o.status === 'COMPLIANT').length;
-    const nonCompliant = obligations.filter(o => o.status === 'NON_COMPLIANT').length;
-    const partiallyCompliant = obligations.filter(o => o.status === 'PARTIALLY_COMPLIANT').length;
-    const notAssessed = obligations.filter(o => o.status === 'NOT_ASSESSED').length;
+    const compliant = obligations.filter((o) => o.status === 'COMPLIANT').length;
+    const nonCompliant = obligations.filter((o) => o.status === 'NON_COMPLIANT').length;
+    const partiallyCompliant = obligations.filter((o) => o.status === 'PARTIALLY_COMPLIANT').length;
+    const notAssessed = obligations.filter((o) => o.status === 'NOT_ASSESSED').length;
 
     const now = new Date();
-    const overdue = obligations.filter(o => o.dueDate && new Date(o.dueDate) < now && o.status !== 'COMPLIANT').length;
-    const upcomingDue = obligations.filter(o => {
+    const overdue = obligations.filter(
+      (o) => o.dueDate && new Date(o.dueDate) < now && o.status !== 'COMPLIANT'
+    ).length;
+    const upcomingDue = obligations.filter((o) => {
       if (!o.dueDate || o.status === 'COMPLIANT') return false;
       const due = new Date(o.dueDate);
       const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
@@ -99,8 +114,13 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get compliance dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance dashboard' } });
+    logger.error('Failed to get compliance dashboard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance dashboard' },
+    });
   }
 });
 
@@ -140,8 +160,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list compliance obligations', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list compliance obligations' } });
+    logger.error('Failed to list compliance obligations', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list compliance obligations' },
+    });
   }
 });
 
@@ -153,7 +178,11 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = complianceCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -176,8 +205,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Compliance obligation created', { obligationId: obligation.id });
     res.status(201).json({ success: true, data: obligation });
   } catch (error: unknown) {
-    logger.error('Failed to create compliance obligation', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create compliance obligation' } });
+    logger.error('Failed to create compliance obligation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create compliance obligation' },
+    });
   }
 });
 
@@ -196,13 +230,22 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!obligation) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance obligation not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Compliance obligation not found' },
+      });
     }
 
     res.json({ success: true, data: obligation });
   } catch (error: unknown) {
-    logger.error('Failed to get compliance obligation', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance obligation' } });
+    logger.error('Failed to get compliance obligation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance obligation' },
+    });
   }
 });
 
@@ -215,12 +258,21 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = complianceUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
-    const existing = await prisma.energyComplianceObligation.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyComplianceObligation.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance obligation not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Compliance obligation not found' },
+      });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -236,8 +288,14 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Compliance obligation updated', { obligationId: id });
     res.json({ success: true, data: obligation });
   } catch (error: unknown) {
-    logger.error('Failed to update compliance obligation', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update compliance obligation' } });
+    logger.error('Failed to update compliance obligation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update compliance obligation' },
+    });
   }
 });
 
@@ -249,9 +307,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyComplianceObligation.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyComplianceObligation.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance obligation not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Compliance obligation not found' },
+      });
     }
 
     await prisma.energyComplianceObligation.update({
@@ -262,8 +325,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Compliance obligation soft-deleted', { obligationId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete compliance obligation', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete compliance obligation' } });
+    logger.error('Failed to delete compliance obligation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete compliance obligation' },
+    });
   }
 });
 
@@ -274,19 +343,37 @@ router.delete('/:id', async (req: Request, res: Response) => {
 router.put('/:id/assess', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const _schema = z.object({ status: z.string().trim().min(1), notes: z.string().trim().optional() });
+    const _schema = z.object({
+      status: z.string().trim().min(1),
+      notes: z.string().trim().optional(),
+    });
     const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    if (!_parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+      });
     const { status, notes } = _parsed.data;
     const authReq = req as AuthRequest;
 
     if (!status || !['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT'].includes(status)) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Valid status required: COMPLIANT, NON_COMPLIANT, or PARTIALLY_COMPLIANT' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Valid status required: COMPLIANT, NON_COMPLIANT, or PARTIALLY_COMPLIANT',
+        },
+      });
     }
 
-    const existing = await prisma.energyComplianceObligation.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyComplianceObligation.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance obligation not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Compliance obligation not found' },
+      });
     }
 
     const obligation = await prisma.energyComplianceObligation.update({
@@ -302,8 +389,14 @@ router.put('/:id/assess', async (req: Request, res: Response) => {
     logger.info('Compliance obligation assessed', { obligationId: id, status });
     res.json({ success: true, data: obligation });
   } catch (error: unknown) {
-    logger.error('Failed to assess compliance obligation', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to assess compliance obligation' } });
+    logger.error('Failed to assess compliance obligation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to assess compliance obligation' },
+    });
   }
 });
 

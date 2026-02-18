@@ -42,12 +42,17 @@ export const WithAsyncHandlers: Story = {
 
 export const InToolbar: Story = {
   render: () => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderBottom: '1px solid #E5E7EB' }}>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        padding: '12px',
+        borderBottom: '1px solid #E5E7EB',
+      }}
+    >
       <h2 style={{ fontSize: '1.25rem', fontWeight: 600, flex: 1 }}>Work Orders</h2>
-      <ExportDropdown
-        onExportPDF={() => alert('PDF')}
-        onExportExcel={() => alert('Excel')}
-      />
+      <ExportDropdown onExportPDF={() => alert('PDF')} onExportExcel={() => alert('Excel')} />
     </div>
   ),
 };

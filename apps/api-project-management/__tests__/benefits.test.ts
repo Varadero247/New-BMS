@@ -268,9 +268,7 @@ describe('Project Management Benefits Realisation API Routes', () => {
       (mockPrisma.benefit.findMany as jest.Mock).mockResolvedValueOnce([mockBenefit, mockBenefit2]);
       (mockPrisma.benefit.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/benefits')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/benefits').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -283,9 +281,7 @@ describe('Project Management Benefits Realisation API Routes', () => {
       (mockPrisma.benefit.findMany as jest.Mock).mockResolvedValueOnce([mockBenefit2]);
       (mockPrisma.benefit.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/benefits?status=TRACKING')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/benefits?status=TRACKING').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.benefit.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -298,9 +294,7 @@ describe('Project Management Benefits Realisation API Routes', () => {
       (mockPrisma.benefit.findMany as jest.Mock).mockResolvedValueOnce([mockBenefit]);
       (mockPrisma.benefit.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/benefits?type=FINANCIAL')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/benefits?type=FINANCIAL').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.benefit.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -330,9 +324,7 @@ describe('Project Management Benefits Realisation API Routes', () => {
     it('should handle database errors gracefully', async () => {
       (mockPrisma.benefit.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/benefits')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/benefits').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -346,14 +338,32 @@ describe('Project Management Benefits Realisation API Routes', () => {
     it('should return dashboard statistics', async () => {
       (mockPrisma.benefit.count as jest.Mock)
         .mockResolvedValueOnce(10) // total
-        .mockResolvedValueOnce(3)  // realised
-        .mockResolvedValueOnce(4)  // tracking
+        .mockResolvedValueOnce(3) // realised
+        .mockResolvedValueOnce(4) // tracking
         .mockResolvedValueOnce(3); // identified
 
       (mockPrisma.benefit.findMany as jest.Mock).mockResolvedValueOnce([
-        { type: 'FINANCIAL', financialValue: 100000, status: 'REALISED', currentValue: 100000, targetValue: 100000 },
-        { type: 'FINANCIAL', financialValue: 200000, status: 'TRACKING', currentValue: 150000, targetValue: 200000 },
-        { type: 'STRATEGIC', financialValue: null, status: 'IDENTIFIED', currentValue: null, targetValue: null },
+        {
+          type: 'FINANCIAL',
+          financialValue: 100000,
+          status: 'REALISED',
+          currentValue: 100000,
+          targetValue: 100000,
+        },
+        {
+          type: 'FINANCIAL',
+          financialValue: 200000,
+          status: 'TRACKING',
+          currentValue: 150000,
+          targetValue: 200000,
+        },
+        {
+          type: 'STRATEGIC',
+          financialValue: null,
+          status: 'IDENTIFIED',
+          currentValue: null,
+          targetValue: null,
+        },
       ]);
 
       const response = await request(app)
@@ -407,7 +417,9 @@ describe('Project Management Benefits Realisation API Routes', () => {
   describe('GET /api/benefits/:id', () => {
     it('should return a benefit with measurements', async () => {
       (mockPrisma.benefit.findUnique as jest.Mock).mockResolvedValueOnce(mockBenefit);
-      (mockPrisma.benefitMeasurement.findMany as jest.Mock).mockResolvedValueOnce([mockMeasurement]);
+      (mockPrisma.benefitMeasurement.findMany as jest.Mock).mockResolvedValueOnce([
+        mockMeasurement,
+      ]);
 
       const response = await request(app)
         .get('/api/benefits/30000000-0000-4000-a000-000000000001')

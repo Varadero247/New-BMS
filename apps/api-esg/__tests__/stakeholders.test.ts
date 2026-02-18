@@ -144,9 +144,14 @@ describe('GET /api/stakeholders/:id', () => {
 describe('PUT /api/stakeholders/:id', () => {
   it('should update a stakeholder', async () => {
     (prisma.esgStakeholder.findFirst as jest.Mock).mockResolvedValue(mockStakeholder);
-    (prisma.esgStakeholder.update as jest.Mock).mockResolvedValue({ ...mockStakeholder, engagementLevel: 'MEDIUM' });
+    (prisma.esgStakeholder.update as jest.Mock).mockResolvedValue({
+      ...mockStakeholder,
+      engagementLevel: 'MEDIUM',
+    });
 
-    const res = await request(app).put('/api/stakeholders/00000000-0000-0000-0000-000000000001').send({ engagementLevel: 'MEDIUM' });
+    const res = await request(app)
+      .put('/api/stakeholders/00000000-0000-0000-0000-000000000001')
+      .send({ engagementLevel: 'MEDIUM' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -154,12 +159,16 @@ describe('PUT /api/stakeholders/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgStakeholder.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/stakeholders/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
+    const res = await request(app)
+      .put('/api/stakeholders/00000000-0000-0000-0000-000000000099')
+      .send({ name: 'Updated' });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid data', async () => {
-    const res = await request(app).put('/api/stakeholders/00000000-0000-0000-0000-000000000001').send({ type: 'INVALID' });
+    const res = await request(app)
+      .put('/api/stakeholders/00000000-0000-0000-0000-000000000001')
+      .send({ type: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
@@ -167,7 +176,10 @@ describe('PUT /api/stakeholders/:id', () => {
 describe('DELETE /api/stakeholders/:id', () => {
   it('should soft delete a stakeholder', async () => {
     (prisma.esgStakeholder.findFirst as jest.Mock).mockResolvedValue(mockStakeholder);
-    (prisma.esgStakeholder.update as jest.Mock).mockResolvedValue({ ...mockStakeholder, deletedAt: new Date() });
+    (prisma.esgStakeholder.update as jest.Mock).mockResolvedValue({
+      ...mockStakeholder,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/stakeholders/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);

@@ -13,7 +13,9 @@ test.describe('Environmental CRUD', () => {
   });
 
   test('should display Environmental dashboard', async ({ page }) => {
-    await expect(page.locator('text=/Environment|Aspect|Event/i').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=/Environment|Aspect|Event/i').first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should list aspects via API', async ({ page }) => {

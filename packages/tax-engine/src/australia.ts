@@ -4,7 +4,7 @@ import { TaxBracket, AUTaxResult } from './types';
 const AU_TAX_BRACKETS: TaxBracket[] = [
   { min: 0, max: 18200, rate: 0 },
   { min: 18201, max: 45000, rate: 0.16 },
-  { min: 45001, max: 135000, rate: 0.30 },
+  { min: 45001, max: 135000, rate: 0.3 },
   { min: 135001, max: 190000, rate: 0.37 },
   { min: 190001, max: null, rate: 0.45 },
 ];
@@ -14,19 +14,27 @@ const MEDICARE_LEVY_RATE = 0.02; // 2% Medicare levy
 
 function annualize(pay: number, period: string): number {
   switch (period) {
-    case 'monthly': return pay * 12;
-    case 'weekly': return pay * 52;
-    case 'fortnightly': return pay * 26;
-    default: return pay;
+    case 'monthly':
+      return pay * 12;
+    case 'weekly':
+      return pay * 52;
+    case 'fortnightly':
+      return pay * 26;
+    default:
+      return pay;
   }
 }
 
 function deannualize(amount: number, period: string): number {
   switch (period) {
-    case 'monthly': return amount / 12;
-    case 'weekly': return amount / 52;
-    case 'fortnightly': return amount / 26;
-    default: return amount;
+    case 'monthly':
+      return amount / 12;
+    case 'weekly':
+      return amount / 52;
+    case 'fortnightly':
+      return amount / 26;
+    default:
+      return amount;
   }
 }
 
@@ -35,10 +43,7 @@ function deannualize(amount: number, period: string): number {
  * @param grossPay - Gross pay amount
  * @param period - Pay period: 'annual' | 'monthly' | 'weekly' | 'fortnightly'
  */
-export function calculateAUPayroll(
-  grossPay: number,
-  period: string = 'annual',
-): AUTaxResult {
+export function calculateAUPayroll(grossPay: number, period: string = 'annual'): AUTaxResult {
   const annualGross = annualize(grossPay, period);
 
   // Calculate income tax using brackets

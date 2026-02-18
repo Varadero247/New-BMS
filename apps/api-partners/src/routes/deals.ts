@@ -5,7 +5,6 @@ import { prisma } from '../prisma';
 import { type AuthRequest } from '@ims/auth';
 import { validateIdParam } from '@ims/shared';
 
-
 const logger = createLogger('api-partners:deals');
 const router = Router();
 router.param('id', validateIdParam());
@@ -58,7 +57,7 @@ router.post('/', async (req: Request, res: Response) => {
       REFERRAL: 0.25,
       CO_SELL: 0.325,
       RESELLER: 0.375,
-      GCC_SPECIALIST: 0.30,
+      GCC_SPECIALIST: 0.3,
     };
     const commissionRate = commissionRates[partner?.tier || 'REFERRAL'] || 0.25;
 
@@ -98,7 +97,8 @@ router.get('/', async (req: Request, res: Response) => {
     const deals = await prisma.mktPartnerDeal.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Summary stats
     const submitted = deals.filter((d) => d.status === 'SUBMITTED').length;

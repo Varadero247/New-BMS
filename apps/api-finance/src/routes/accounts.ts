@@ -54,7 +54,11 @@ const journalLineSchema = z.object({
 });
 
 const journalEntryCreateSchema = z.object({
-  date: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  date: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   periodId: z.string().trim().uuid(),
   description: z.string().trim().min(1).max(1000),
   memo: z.string().max(2000).optional().nullable(),
@@ -64,7 +68,12 @@ const journalEntryCreateSchema = z.object({
 });
 
 const journalEntryUpdateSchema = z.object({
-  date: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  date: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional(),
   description: z.string().trim().min(1).max(1000).optional(),
   memo: z.string().max(2000).optional().nullable(),
   lines: z.array(journalLineSchema).min(2).optional(),
@@ -72,8 +81,16 @@ const journalEntryUpdateSchema = z.object({
 
 const periodCreateSchema = z.object({
   name: z.string().trim().min(1).max(100),
-  startDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-  endDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  startDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  endDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   fiscalYear: z.number().int().min(2000).max(2100),
   quarter: z.number().int().min(1).max(4).optional().nullable(),
 });
@@ -160,8 +177,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list accounts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list accounts' } });
+    logger.error('Failed to list accounts', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list accounts' },
+    });
   }
 });
 
@@ -174,13 +196,19 @@ router.get('/tree', async (_req: Request, res: Response) => {
       include: {
         _count: { select: { journalLines: true } },
       },
-      take: 1000});
+      take: 1000,
+    });
 
     const tree = buildAccountTree(accounts);
     res.json({ success: true, data: tree });
   } catch (error: unknown) {
-    logger.error('Failed to build account tree', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to build account tree' } });
+    logger.error('Failed to build account tree', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to build account tree' },
+    });
   }
 });
 
@@ -190,12 +218,17 @@ router.get('/trial-balance', async (req: Request, res: Response) => {
     const { periodId } = req.query;
 
     if (!periodId || typeof periodId !== 'string') {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'periodId query parameter is required' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'periodId query parameter is required' },
+      });
     }
 
     const period = await prisma.finPeriod.findUnique({ where: { id: periodId } });
     if (!period) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Period not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Period not found' } });
     }
 
     const lines = await prisma.finJournalLine.findMany({
@@ -208,9 +241,13 @@ router.get('/trial-balance', async (req: Request, res: Response) => {
       include: {
         account: { select: { id: true, code: true, name: true, type: true, normalBalance: true } },
       },
-      take: 1000});
+      take: 1000,
+    });
 
-    const balances = new Map<string, { account: Record<string, unknown>; totalDebit: number; totalCredit: number }>();
+    const balances = new Map<
+      string,
+      { account: Record<string, unknown>; totalDebit: number; totalCredit: number }
+    >();
 
     for (const line of lines) {
       const key = line.accountId;
@@ -248,8 +285,13 @@ router.get('/trial-balance', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to generate trial balance', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate trial balance' } });
+    logger.error('Failed to generate trial balance', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate trial balance' },
+    });
   }
 });
 
@@ -259,7 +301,13 @@ router.get('/profit-loss', async (req: Request, res: Response) => {
     const { dateFrom, dateTo } = req.query;
 
     if (!dateFrom || !dateTo) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'dateFrom and dateTo query parameters are required' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'dateFrom and dateTo query parameters are required',
+        },
+      });
     }
 
     const fromDate = new Date(String(dateFrom));
@@ -279,7 +327,8 @@ router.get('/profit-loss', async (req: Request, res: Response) => {
       include: {
         account: { select: { id: true, code: true, name: true, type: true, normalBalance: true } },
       },
-      take: 1000});
+      take: 1000,
+    });
 
     const revenue: Record<string, { account: Record<string, unknown>; amount: number }> = {};
     const expenses: Record<string, { account: Record<string, unknown>; amount: number }> = {};
@@ -298,8 +347,12 @@ router.get('/profit-loss', async (req: Request, res: Response) => {
       }
     }
 
-    const revenueItems = Object.values(revenue).sort((a, b) => (a as any).account.code.localeCompare((b as any).account.code));
-    const expenseItems = Object.values(expenses).sort((a, b) => (a as any).account.code.localeCompare((b as any).account.code));
+    const revenueItems = Object.values(revenue).sort((a, b) =>
+      (a as any).account.code.localeCompare((b as any).account.code)
+    );
+    const expenseItems = Object.values(expenses).sort((a, b) =>
+      (a as any).account.code.localeCompare((b as any).account.code)
+    );
 
     const totalRevenue = revenueItems.reduce((s, r) => s + r.amount, 0);
     const totalExpenses = expenseItems.reduce((s, r) => s + r.amount, 0);
@@ -316,8 +369,13 @@ router.get('/profit-loss', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to generate P&L report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate profit & loss report' } });
+    logger.error('Failed to generate P&L report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate profit & loss report' },
+    });
   }
 });
 
@@ -341,9 +399,13 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
       include: {
         account: { select: { id: true, code: true, name: true, type: true, normalBalance: true } },
       },
-      take: 1000});
+      take: 1000,
+    });
 
-    const groups: Record<string, Record<string, { account: Record<string, unknown>; balance: number }>> = {
+    const groups: Record<
+      string,
+      Record<string, { account: Record<string, unknown>; balance: number }>
+    > = {
       ASSET: {},
       LIABILITY: {},
       EQUITY: {},
@@ -366,8 +428,16 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
     // Include opening balances
     const accounts = await prisma.finAccount.findMany({
       where: { type: { in: ['ASSET', 'LIABILITY', 'EQUITY'] }, deletedAt: null },
-      select: { id: true, code: true, name: true, type: true, normalBalance: true, openingBalance: true },
-      take: 1000});
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        type: true,
+        normalBalance: true,
+        openingBalance: true,
+      },
+      take: 1000,
+    });
 
     for (const acc of accounts) {
       const group = groups[acc.type];
@@ -378,7 +448,9 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
     }
 
     const toList = (g: Record<string, { account: Record<string, unknown>; balance: number }>) =>
-      Object.values(g).filter((v) => Math.abs(v.balance) >= 0.01).sort((a, b) => (a as any).account.code.localeCompare((b as any).account.code));
+      Object.values(g)
+        .filter((v) => Math.abs(v.balance) >= 0.01)
+        .sort((a, b) => (a as any).account.code.localeCompare((b as any).account.code));
 
     const assets = toList(groups.ASSET);
     const liabilities = toList(groups.LIABILITY);
@@ -405,8 +477,13 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to generate balance sheet', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate balance sheet' } });
+    logger.error('Failed to generate balance sheet', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate balance sheet' },
+    });
   }
 });
 
@@ -416,7 +493,13 @@ router.get('/cash-flow', async (req: Request, res: Response) => {
     const { dateFrom, dateTo } = req.query;
 
     if (!dateFrom || !dateTo) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'dateFrom and dateTo query parameters are required' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'dateFrom and dateTo query parameters are required',
+        },
+      });
     }
 
     const fromDate = new Date(String(dateFrom));
@@ -434,7 +517,8 @@ router.get('/cash-flow', async (req: Request, res: Response) => {
       include: {
         account: { select: { id: true, code: true, name: true, type: true, normalBalance: true } },
       },
-      take: 1000});
+      take: 1000,
+    });
 
     // Categorize into operating, investing, financing
     const operating: { inflows: number; outflows: number } = { inflows: 0, outflows: 0 };
@@ -479,8 +563,13 @@ router.get('/cash-flow', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to generate cash flow', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate cash flow report' } });
+    logger.error('Failed to generate cash flow', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate cash flow report' },
+    });
   }
 });
 
@@ -494,7 +583,10 @@ router.get('/periods', async (req: Request, res: Response) => {
 
     const where: any = {};
 
-    if (fiscalYear) { const n = parseInt(String(fiscalYear), 10); if (!isNaN(n)) where.fiscalYear = n; }
+    if (fiscalYear) {
+      const n = parseInt(String(fiscalYear), 10);
+      if (!isNaN(n)) where.fiscalYear = n;
+    }
     if (status && typeof status === 'string') {
       where.status = status as any;
     }
@@ -518,8 +610,13 @@ router.get('/periods', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list periods', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list periods' } });
+    logger.error('Failed to list periods', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list periods' },
+    });
   }
 });
 
@@ -528,7 +625,14 @@ router.post('/periods', async (req: Request, res: Response) => {
   try {
     const parsed = periodCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const { name, startDate, endDate, fiscalYear, quarter } = parsed.data;
@@ -537,14 +641,18 @@ router.post('/periods', async (req: Request, res: Response) => {
     // Check for overlapping periods
     const overlap = await prisma.finPeriod.findFirst({
       where: {
-        OR: [
-          { startDate: { lte: new Date(endDate) }, endDate: { gte: new Date(startDate) } },
-        ],
+        OR: [{ startDate: { lte: new Date(endDate) }, endDate: { gte: new Date(startDate) } }],
       },
     });
 
     if (overlap) {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: `Period overlaps with existing period: ${overlap.name}` } });
+      return res.status(409).json({
+        success: false,
+        error: {
+          code: 'CONFLICT',
+          message: `Period overlaps with existing period: ${overlap.name}`,
+        },
+      });
     }
 
     const period = await prisma.finPeriod.create({
@@ -562,8 +670,13 @@ router.post('/periods', async (req: Request, res: Response) => {
     logger.info('Accounting period created', { periodId: period.id, name });
     res.status(201).json({ success: true, data: period });
   } catch (error: unknown) {
-    logger.error('Failed to create period', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create period' } });
+    logger.error('Failed to create period', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create period' },
+    });
   }
 });
 
@@ -574,10 +687,15 @@ router.put('/periods/:id/close', async (req: Request, res: Response) => {
 
     const period = await prisma.finPeriod.findUnique({ where: { id } });
     if (!period) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Period not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Period not found' } });
     }
     if (period.status === 'CLOSED') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Period is already closed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Period is already closed' },
+      });
     }
 
     // Reject if unposted entries exist
@@ -587,9 +705,12 @@ router.put('/periods/:id/close', async (req: Request, res: Response) => {
 
     if (unpostedCount > 0) {
       return res.status(409).json({
-          success: false,
-          error: { code: 'INTERNAL_ERROR', message: `Cannot close period: ${unpostedCount} unposted journal entries exist` },
-        });
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: `Cannot close period: ${unpostedCount} unposted journal entries exist`,
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -605,13 +726,27 @@ router.put('/periods/:id/close', async (req: Request, res: Response) => {
     logger.info('Accounting period closed', { periodId: id });
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Failed to close period', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close period' } });
+    logger.error('Failed to close period', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to close period' },
+    });
   }
 });
 
 // GET /:id — Single account (skip known sub-paths to avoid clashing with /entries, /tree, etc.)
-const RESERVED_PATHS = new Set(['entries', 'tree', 'trial-balance', 'profit-loss', 'balance-sheet', 'cash-flow', 'periods', 'gl-report']);
+const RESERVED_PATHS = new Set([
+  'entries',
+  'tree',
+  'trial-balance',
+  'profit-loss',
+  'balance-sheet',
+  'cash-flow',
+  'periods',
+  'gl-report',
+]);
 router.get('/:id', async (req: Request, res: Response, next) => {
   if (RESERVED_PATHS.has(req.params.id)) return next('route');
   try {
@@ -630,13 +765,21 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!account) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     res.json({ success: true, data: account });
   } catch (error: unknown) {
-    logger.error('Failed to get account', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get account' } });
+    logger.error('Failed to get account', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get account' },
+    });
   }
 });
 
@@ -645,23 +788,48 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = accountCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const { code, name, type, normalBalance, parentId, description, currency, taxRateId, openingBalance } = parsed.data;
+    const {
+      code,
+      name,
+      type,
+      normalBalance,
+      parentId,
+      description,
+      currency,
+      taxRateId,
+      openingBalance,
+    } = parsed.data;
     const authReq = req as AuthRequest;
 
     // Check duplicate code
     const existing = await prisma.finAccount.findFirst({ where: { code, deletedAt: null } as any });
     if (existing) {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: `Account with code '${code}' already exists` } });
+      return res.status(409).json({
+        success: false,
+        error: { code: 'CONFLICT', message: `Account with code '${code}' already exists` },
+      });
     }
 
     // Validate parent exists if provided
     if (parentId) {
-      const parent = await prisma.finAccount.findFirst({ where: { id: parentId, deletedAt: null } as any });
+      const parent = await prisma.finAccount.findFirst({
+        where: { id: parentId, deletedAt: null } as any,
+      });
       if (!parent) {
-        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Parent account not found' } });
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Parent account not found' },
+        });
       }
     }
 
@@ -687,11 +855,24 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Account created', { accountId: account.id, code });
     res.status(201).json({ success: true, data: account });
   } catch (error: unknown) {
-    logger.error('Failed to create account', { error: error instanceof Error ? error.message : 'Unknown error' });
-    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Account code must be unique' } });
+    logger.error('Failed to create account', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    if (
+      error != null &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as any).code === 'P2002'
+    ) {
+      return res.status(409).json({
+        success: false,
+        error: { code: 'CONFLICT', message: 'Account code must be unique' },
+      });
     }
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create account' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create account' },
+    });
   }
 });
 
@@ -702,22 +883,39 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = accountUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const existing = await prisma.finAccount.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     // Prevent circular parent references
     if (parsed.data.parentId) {
       if (parsed.data.parentId === id) {
-        return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Account cannot be its own parent' } });
+        return res.status(400).json({
+          success: false,
+          error: { code: 'INVALID_STATE', message: 'Account cannot be its own parent' },
+        });
       }
-      const parent = await prisma.finAccount.findFirst({ where: { id: parsed.data.parentId, deletedAt: null } as any });
+      const parent = await prisma.finAccount.findFirst({
+        where: { id: parsed.data.parentId, deletedAt: null } as any,
+      });
       if (!parent) {
-        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Parent account not found' } });
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Parent account not found' },
+        });
       }
     }
 
@@ -737,8 +935,14 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     logger.info('Account updated', { accountId: id });
     res.json({ success: true, data: account });
   } catch (error: unknown) {
-    logger.error('Failed to update account', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update account' } });
+    logger.error('Failed to update account', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update account' },
+    });
   }
 });
 
@@ -750,16 +954,21 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     const account = await prisma.finAccount.findFirst({ where: { id, deletedAt: null } as any });
     if (!account) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     // Reject if account has journal lines
     const lineCount = await prisma.finJournalLine.count({ where: { accountId: id } });
     if (lineCount > 0) {
       return res.status(409).json({
-          success: false,
-          error: { code: 'INTERNAL_ERROR', message: `Cannot delete account: ${lineCount} journal line(s) reference this account` },
-        });
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: `Cannot delete account: ${lineCount} journal line(s) reference this account`,
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -775,8 +984,14 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     logger.info('Account soft-deleted', { accountId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete account', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete account' } });
+    logger.error('Failed to delete account', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete account' },
+    });
   }
 });
 
@@ -831,8 +1046,13 @@ router.get('/entries', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list journal entries', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list journal entries' } });
+    logger.error('Failed to list journal entries', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list journal entries' },
+    });
   }
 });
 
@@ -846,7 +1066,9 @@ router.get('/entries/:id', async (req: Request, res: Response) => {
       include: {
         lines: {
           include: {
-            account: { select: { id: true, code: true, name: true, type: true, normalBalance: true } },
+            account: {
+              select: { id: true, code: true, name: true, type: true, normalBalance: true },
+            },
           },
           orderBy: { lineNumber: 'asc' } as any,
         },
@@ -855,13 +1077,21 @@ router.get('/entries/:id', async (req: Request, res: Response) => {
     });
 
     if (!entry) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
     }
 
     res.json({ success: true, data: entry });
   } catch (error: unknown) {
-    logger.error('Failed to get journal entry', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get journal entry' } });
+    logger.error('Failed to get journal entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get journal entry' },
+    });
   }
 });
 
@@ -870,7 +1100,14 @@ router.post('/entries', async (req: Request, res: Response) => {
   try {
     const parsed = journalEntryCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const { date, periodId, description, memo, source, sourceId, lines } = parsed.data;
@@ -880,15 +1117,21 @@ router.post('/entries', async (req: Request, res: Response) => {
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].debit > 0 && lines[i].credit > 0) {
         return res.status(400).json({
-            success: false,
-            error: { code: 'INTERNAL_ERROR', message: `Line ${i + 1}: a line cannot have both debit and credit amounts` },
-          });
+          success: false,
+          error: {
+            code: 'INTERNAL_ERROR',
+            message: `Line ${i + 1}: a line cannot have both debit and credit amounts`,
+          },
+        });
       }
       if (lines[i].debit === 0 && lines[i].credit === 0) {
         return res.status(400).json({
-            success: false,
-            error: { code: 'INTERNAL_ERROR', message: `Line ${i + 1}: a line must have either a debit or credit amount` },
-          });
+          success: false,
+          error: {
+            code: 'INTERNAL_ERROR',
+            message: `Line ${i + 1}: a line must have either a debit or credit amount`,
+          },
+        });
       }
     }
 
@@ -898,18 +1141,27 @@ router.post('/entries', async (req: Request, res: Response) => {
 
     if (Math.abs(totalDebits - totalCredits) > 0.01) {
       return res.status(400).json({
-          success: false,
-          error: { code: 'INTERNAL_ERROR', message: `Debits (${totalDebits.toFixed(2)}) must equal credits (${totalCredits.toFixed(2)})` },
-        });
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: `Debits (${totalDebits.toFixed(2)}) must equal credits (${totalCredits.toFixed(2)})`,
+        },
+      });
     }
 
     // Validate period exists and is OPEN
     const period = await prisma.finPeriod.findUnique({ where: { id: periodId } });
     if (!period) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Accounting period not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Accounting period not found' },
+      });
     }
     if (period.status !== 'OPEN') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: `Cannot post to a ${period.status} period` } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: `Cannot post to a ${period.status} period` },
+      });
     }
 
     // Validate all account IDs exist
@@ -917,14 +1169,18 @@ router.post('/entries', async (req: Request, res: Response) => {
     const accounts = await prisma.finAccount.findMany({
       where: { id: { in: accountIds }, deletedAt: null, isActive: true },
       select: { id: true },
-      take: 1000});
+      take: 1000,
+    });
     const foundIds = new Set(accounts.map((a) => a.id));
     const missing = accountIds.filter((id) => !foundIds.has(id));
     if (missing.length > 0) {
       return res.status(400).json({
-          success: false,
-          error: { code: 'INTERNAL_ERROR', message: `Invalid or inactive account(s): ${missing.join(', ')}` },
-        });
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: `Invalid or inactive account(s): ${missing.join(', ')}`,
+        },
+      });
     }
 
     const reference = generateReference('JE');
@@ -966,8 +1222,13 @@ router.post('/entries', async (req: Request, res: Response) => {
     logger.info('Journal entry created', { entryId: entry.id, reference });
     res.status(201).json({ success: true, data: entry });
   } catch (error: unknown) {
-    logger.error('Failed to create journal entry', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create journal entry' } });
+    logger.error('Failed to create journal entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create journal entry' },
+    });
   }
 });
 
@@ -977,15 +1238,27 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = journalEntryUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const existing = await prisma.finJournalEntry.findUnique({ where: { id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
     }
     if (existing.status !== 'DRAFT') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Only DRAFT entries can be updated' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Only DRAFT entries can be updated' },
+      });
     }
 
     const { date, description, memo, lines } = parsed.data;
@@ -996,15 +1269,21 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
       for (let i = 0; i < lines.length; i++) {
         if (lines[i].debit > 0 && lines[i].credit > 0) {
           return res.status(400).json({
-              success: false,
-              error: { code: 'INTERNAL_ERROR', message: `Line ${i + 1}: a line cannot have both debit and credit amounts` },
-            });
+            success: false,
+            error: {
+              code: 'INTERNAL_ERROR',
+              message: `Line ${i + 1}: a line cannot have both debit and credit amounts`,
+            },
+          });
         }
         if (lines[i].debit === 0 && lines[i].credit === 0) {
           return res.status(400).json({
-              success: false,
-              error: { code: 'INTERNAL_ERROR', message: `Line ${i + 1}: a line must have either a debit or credit amount` },
-            });
+            success: false,
+            error: {
+              code: 'INTERNAL_ERROR',
+              message: `Line ${i + 1}: a line must have either a debit or credit amount`,
+            },
+          });
         }
       }
 
@@ -1013,9 +1292,12 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
 
       if (Math.abs(totalDebits - totalCredits) > 0.01) {
         return res.status(400).json({
-            success: false,
-            error: { code: 'INTERNAL_ERROR', message: `Debits (${totalDebits.toFixed(2)}) must equal credits (${totalCredits.toFixed(2)})` },
-          });
+          success: false,
+          error: {
+            code: 'INTERNAL_ERROR',
+            message: `Debits (${totalDebits.toFixed(2)}) must equal credits (${totalCredits.toFixed(2)})`,
+          },
+        });
       }
 
       // Validate account IDs
@@ -1023,14 +1305,18 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
       const accounts = await prisma.finAccount.findMany({
         where: { id: { in: accountIds }, deletedAt: null, isActive: true },
         select: { id: true },
-        take: 1000});
+        take: 1000,
+      });
       const foundIds = new Set(accounts.map((a) => a.id));
       const missing = accountIds.filter((aid) => !foundIds.has(aid));
       if (missing.length > 0) {
         return res.status(400).json({
-            success: false,
-            error: { code: 'INTERNAL_ERROR', message: `Invalid or inactive account(s): ${missing.join(', ')}` },
-          });
+          success: false,
+          error: {
+            code: 'INTERNAL_ERROR',
+            message: `Invalid or inactive account(s): ${missing.join(', ')}`,
+          },
+        });
       }
 
       // Replace lines in a transaction
@@ -1095,8 +1381,14 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
     logger.info('Journal entry updated', { entryId: id });
     res.json({ success: true, data: entry });
   } catch (error: unknown) {
-    logger.error('Failed to update journal entry', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update journal entry' } });
+    logger.error('Failed to update journal entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update journal entry' },
+    });
   }
 });
 
@@ -1111,13 +1403,24 @@ router.post('/entries/:id/post', async (req: Request, res: Response) => {
     });
 
     if (!entry) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
     }
     if (entry.status !== 'DRAFT') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: `Entry is already ${entry.status}` } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: `Entry is already ${entry.status}` },
+      });
     }
     if (entry.period.status !== 'OPEN') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: `Cannot post to a ${entry.period.status} period` } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_STATE',
+          message: `Cannot post to a ${entry.period.status} period`,
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -1142,8 +1445,14 @@ router.post('/entries/:id/post', async (req: Request, res: Response) => {
     logger.info('Journal entry posted', { entryId: id, reference: entry.reference });
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Failed to post journal entry', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to post journal entry' } });
+    logger.error('Failed to post journal entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to post journal entry' },
+    });
   }
 });
 
@@ -1161,13 +1470,24 @@ router.post('/entries/:id/reverse', async (req: Request, res: Response) => {
     });
 
     if (!original) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
     }
     if (original.status !== 'POSTED') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Only POSTED entries can be reversed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Only POSTED entries can be reversed' },
+      });
     }
     if (original.period.status !== 'OPEN') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: `Cannot reverse: period is ${original.period.status}` } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_STATE',
+          message: `Cannot reverse: period is ${original.period.status}`,
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -1193,8 +1513,8 @@ router.post('/entries/:id/reverse', async (req: Request, res: Response) => {
           create: original.lines.map((line, idx) => ({
             lineNumber: idx + 1,
             accountId: line.accountId,
-            debit: line.credit,    // Swap: original credit becomes reversal debit
-            credit: line.debit,    // Swap: original debit becomes reversal credit
+            debit: line.credit, // Swap: original credit becomes reversal debit
+            credit: line.debit, // Swap: original debit becomes reversal credit
             description: `Reversal: ${line.description || ''}`.trim(),
           })),
         },
@@ -1219,8 +1539,14 @@ router.post('/entries/:id/reverse', async (req: Request, res: Response) => {
     logger.info('Journal entry reversed', { originalId: id, reversalId: reversal.id, reversalRef });
     res.status(201).json({ success: true, data: reversal });
   } catch (error: unknown) {
-    logger.error('Failed to reverse journal entry', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reverse journal entry' } });
+    logger.error('Failed to reverse journal entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to reverse journal entry' },
+    });
   }
 });
 

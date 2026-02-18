@@ -18,9 +18,9 @@ spec:
         app: api-health-safety
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4001"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4001'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-health-safety
@@ -34,16 +34,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4001"
+              value: '4001'
             - name: OTEL_SERVICE_NAME
-              value: "api-health-safety"
+              value: 'api-health-safety'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -90,9 +90,9 @@ spec:
         app: api-environment
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4002"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4002'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-environment
@@ -106,16 +106,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4002"
+              value: '4002'
             - name: OTEL_SERVICE_NAME
-              value: "api-environment"
+              value: 'api-environment'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -162,9 +162,9 @@ spec:
         app: api-quality
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4003"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4003'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-quality
@@ -178,16 +178,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4003"
+              value: '4003'
             - name: OTEL_SERVICE_NAME
-              value: "api-quality"
+              value: 'api-quality'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -234,9 +234,9 @@ spec:
         app: api-ai
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4004"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4004'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-ai
@@ -250,16 +250,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4004"
+              value: '4004'
             - name: OTEL_SERVICE_NAME
-              value: "api-ai"
+              value: 'api-ai'
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "100m"
+              memory: '256Mi'
+              cpu: '100m'
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: '512Mi'
+              cpu: '500m'
           livenessProbe:
             httpGet:
               path: /health
@@ -306,9 +306,9 @@ spec:
         app: api-inventory
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4005"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4005'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-inventory
@@ -322,16 +322,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4005"
+              value: '4005'
             - name: OTEL_SERVICE_NAME
-              value: "api-inventory"
+              value: 'api-inventory'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -378,9 +378,9 @@ spec:
         app: api-hr
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4006"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4006'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-hr
@@ -394,16 +394,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4006"
+              value: '4006'
             - name: OTEL_SERVICE_NAME
-              value: "api-hr"
+              value: 'api-hr'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -450,9 +450,9 @@ spec:
         app: api-payroll
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4007"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4007'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-payroll
@@ -466,16 +466,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4007"
+              value: '4007'
             - name: OTEL_SERVICE_NAME
-              value: "api-payroll"
+              value: 'api-payroll'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -522,9 +522,9 @@ spec:
         app: api-workflows
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4008"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4008'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-workflows
@@ -538,16 +538,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4008"
+              value: '4008'
             - name: OTEL_SERVICE_NAME
-              value: "api-workflows"
+              value: 'api-workflows'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -594,9 +594,9 @@ spec:
         app: api-project-management
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4009"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4009'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-project-management
@@ -610,16 +610,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4009"
+              value: '4009'
             - name: OTEL_SERVICE_NAME
-              value: "api-project-management"
+              value: 'api-project-management'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -666,9 +666,9 @@ spec:
         app: api-automotive
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4010"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4010'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-automotive
@@ -682,16 +682,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4010"
+              value: '4010'
             - name: OTEL_SERVICE_NAME
-              value: "api-automotive"
+              value: 'api-automotive'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -738,9 +738,9 @@ spec:
         app: api-medical
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4011"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4011'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-medical
@@ -754,16 +754,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4011"
+              value: '4011'
             - name: OTEL_SERVICE_NAME
-              value: "api-medical"
+              value: 'api-medical'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -810,9 +810,9 @@ spec:
         app: api-aerospace
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4012"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4012'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-aerospace
@@ -826,16 +826,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4012"
+              value: '4012'
             - name: OTEL_SERVICE_NAME
-              value: "api-aerospace"
+              value: 'api-aerospace'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -882,9 +882,9 @@ spec:
         app: api-finance
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4013"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4013'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-finance
@@ -898,16 +898,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4013"
+              value: '4013'
             - name: OTEL_SERVICE_NAME
-              value: "api-finance"
+              value: 'api-finance'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -954,9 +954,9 @@ spec:
         app: api-crm
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4014"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4014'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-crm
@@ -970,16 +970,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4014"
+              value: '4014'
             - name: OTEL_SERVICE_NAME
-              value: "api-crm"
+              value: 'api-crm'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -1026,9 +1026,9 @@ spec:
         app: api-infosec
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4015"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4015'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-infosec
@@ -1042,16 +1042,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4015"
+              value: '4015'
             - name: OTEL_SERVICE_NAME
-              value: "api-infosec"
+              value: 'api-infosec'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -1098,9 +1098,9 @@ spec:
         app: api-esg
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4016"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4016'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-esg
@@ -1114,16 +1114,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4016"
+              value: '4016'
             - name: OTEL_SERVICE_NAME
-              value: "api-esg"
+              value: 'api-esg'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -1170,9 +1170,9 @@ spec:
         app: api-cmms
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4017"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4017'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-cmms
@@ -1186,16 +1186,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4017"
+              value: '4017'
             - name: OTEL_SERVICE_NAME
-              value: "api-cmms"
+              value: 'api-cmms'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -1242,9 +1242,9 @@ spec:
         app: api-portal
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4018"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4018'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-portal
@@ -1258,16 +1258,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4018"
+              value: '4018'
             - name: OTEL_SERVICE_NAME
-              value: "api-portal"
+              value: 'api-portal'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -1314,9 +1314,9 @@ spec:
         app: api-food-safety
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4019"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4019'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-food-safety
@@ -1330,16 +1330,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4019"
+              value: '4019'
             - name: OTEL_SERVICE_NAME
-              value: "api-food-safety"
+              value: 'api-food-safety'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -1386,9 +1386,9 @@ spec:
         app: api-energy
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4020"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4020'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-energy
@@ -1402,16 +1402,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4020"
+              value: '4020'
             - name: OTEL_SERVICE_NAME
-              value: "api-energy"
+              value: 'api-energy'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -1458,9 +1458,9 @@ spec:
         app: api-analytics
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4021"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4021'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-analytics
@@ -1474,16 +1474,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4021"
+              value: '4021'
             - name: OTEL_SERVICE_NAME
-              value: "api-analytics"
+              value: 'api-analytics'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -1530,9 +1530,9 @@ spec:
         app: api-field-service
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4022"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4022'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-field-service
@@ -1546,16 +1546,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4022"
+              value: '4022'
             - name: OTEL_SERVICE_NAME
-              value: "api-field-service"
+              value: 'api-field-service'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -1602,9 +1602,9 @@ spec:
         app: api-iso42001
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4023"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4023'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-iso42001
@@ -1618,16 +1618,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4023"
+              value: '4023'
             - name: OTEL_SERVICE_NAME
-              value: "api-iso42001"
+              value: 'api-iso42001'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -1674,9 +1674,9 @@ spec:
         app: api-iso37001
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4024"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4024'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-iso37001
@@ -1690,16 +1690,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4024"
+              value: '4024'
             - name: OTEL_SERVICE_NAME
-              value: "api-iso37001"
+              value: 'api-iso37001'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -1746,9 +1746,9 @@ spec:
         app: api-marketing
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4025"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4025'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-marketing
@@ -1762,16 +1762,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4025"
+              value: '4025'
             - name: OTEL_SERVICE_NAME
-              value: "api-marketing"
+              value: 'api-marketing'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -1818,9 +1818,9 @@ spec:
         app: api-partners
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4026"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4026'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-partners
@@ -1834,16 +1834,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4026"
+              value: '4026'
             - name: OTEL_SERVICE_NAME
-              value: "api-partners"
+              value: 'api-partners'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -1890,9 +1890,9 @@ spec:
         app: api-risk
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4027"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4027'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-risk
@@ -1906,16 +1906,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4027"
+              value: '4027'
             - name: OTEL_SERVICE_NAME
-              value: "api-risk"
+              value: 'api-risk'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -1962,9 +1962,9 @@ spec:
         app: api-training
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4028"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4028'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-training
@@ -1978,16 +1978,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4028"
+              value: '4028'
             - name: OTEL_SERVICE_NAME
-              value: "api-training"
+              value: 'api-training'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -2034,9 +2034,9 @@ spec:
         app: api-suppliers
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4029"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4029'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-suppliers
@@ -2050,16 +2050,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4029"
+              value: '4029'
             - name: OTEL_SERVICE_NAME
-              value: "api-suppliers"
+              value: 'api-suppliers'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -2106,9 +2106,9 @@ spec:
         app: api-assets
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4030"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4030'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-assets
@@ -2122,16 +2122,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4030"
+              value: '4030'
             - name: OTEL_SERVICE_NAME
-              value: "api-assets"
+              value: 'api-assets'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -2178,9 +2178,9 @@ spec:
         app: api-documents
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4031"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4031'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-documents
@@ -2194,16 +2194,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4031"
+              value: '4031'
             - name: OTEL_SERVICE_NAME
-              value: "api-documents"
+              value: 'api-documents'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -2250,9 +2250,9 @@ spec:
         app: api-complaints
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4032"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4032'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-complaints
@@ -2266,16 +2266,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4032"
+              value: '4032'
             - name: OTEL_SERVICE_NAME
-              value: "api-complaints"
+              value: 'api-complaints'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -2322,9 +2322,9 @@ spec:
         app: api-contracts
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4033"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4033'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-contracts
@@ -2338,16 +2338,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4033"
+              value: '4033'
             - name: OTEL_SERVICE_NAME
-              value: "api-contracts"
+              value: 'api-contracts'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -2394,9 +2394,9 @@ spec:
         app: api-ptw
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4034"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4034'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-ptw
@@ -2410,16 +2410,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4034"
+              value: '4034'
             - name: OTEL_SERVICE_NAME
-              value: "api-ptw"
+              value: 'api-ptw'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -2466,9 +2466,9 @@ spec:
         app: api-reg-monitor
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4035"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4035'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-reg-monitor
@@ -2482,16 +2482,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4035"
+              value: '4035'
             - name: OTEL_SERVICE_NAME
-              value: "api-reg-monitor"
+              value: 'api-reg-monitor'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -2538,9 +2538,9 @@ spec:
         app: api-incidents
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4036"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4036'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-incidents
@@ -2554,16 +2554,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4036"
+              value: '4036'
             - name: OTEL_SERVICE_NAME
-              value: "api-incidents"
+              value: 'api-incidents'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -2610,9 +2610,9 @@ spec:
         app: api-audits
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4037"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4037'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-audits
@@ -2626,16 +2626,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4037"
+              value: '4037'
             - name: OTEL_SERVICE_NAME
-              value: "api-audits"
+              value: 'api-audits'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -2682,9 +2682,9 @@ spec:
         app: api-mgmt-review
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4038"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4038'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-mgmt-review
@@ -2698,16 +2698,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4038"
+              value: '4038'
             - name: OTEL_SERVICE_NAME
-              value: "api-mgmt-review"
+              value: 'api-mgmt-review'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -2754,9 +2754,9 @@ spec:
         app: api-setup-wizard
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4039"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4039'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-setup-wizard
@@ -2770,16 +2770,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4039"
+              value: '4039'
             - name: OTEL_SERVICE_NAME
-              value: "api-setup-wizard"
+              value: 'api-setup-wizard'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -2826,9 +2826,9 @@ spec:
         app: api-chemicals
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4040"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4040'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-chemicals
@@ -2842,16 +2842,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4040"
+              value: '4040'
             - name: OTEL_SERVICE_NAME
-              value: "api-chemicals"
+              value: 'api-chemicals'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health
@@ -2898,9 +2898,9 @@ spec:
         app: api-emergency
         tier: backend
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "4041"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4041'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: api-emergency
@@ -2914,16 +2914,16 @@ spec:
                 name: ims-secrets
           env:
             - name: PORT
-              value: "4041"
+              value: '4041'
             - name: OTEL_SERVICE_NAME
-              value: "api-emergency"
+              value: 'api-emergency'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: '128Mi'
+              cpu: '50m'
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: '256Mi'
+              cpu: '200m'
           livenessProbe:
             httpGet:
               path: /health

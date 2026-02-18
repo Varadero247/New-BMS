@@ -65,10 +65,7 @@ export function getRiskLevelFromMatrix(likelihood: number, severity: number): Ri
  * @param controlEffectiveness - Control effectiveness percentage (0-100)
  * @returns Residual risk score
  */
-export function calculateResidualRisk(
-  initialScore: number,
-  controlEffectiveness: number
-): number {
+export function calculateResidualRisk(initialScore: number, controlEffectiveness: number): number {
   const effectiveness = Math.max(0, Math.min(100, controlEffectiveness));
   return Math.round(initialScore * (1 - effectiveness / 100));
 }
@@ -79,10 +76,10 @@ export function calculateResidualRisk(
  */
 export function getRiskColorFromMatrix(likelihood: number, severity: number): string {
   const score = likelihood * severity;
-  if (score <= 4) return '#22c55e';   // green - LOW
-  if (score <= 9) return '#eab308';   // yellow - MEDIUM
-  if (score <= 16) return '#f97316';  // orange - HIGH
-  return '#ef4444';                    // red - CRITICAL
+  if (score <= 4) return '#22c55e'; // green - LOW
+  if (score <= 9) return '#eab308'; // yellow - MEDIUM
+  if (score <= 16) return '#f97316'; // orange - HIGH
+  return '#ef4444'; // red - CRITICAL
 }
 
 /**

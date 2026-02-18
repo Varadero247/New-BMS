@@ -56,7 +56,15 @@ const externalLinks = [
   { name: 'Settings', href: `${APP_BASE}:3004`, icon: Settings },
 ];
 
-function NavSection({ title, items, pathname }: { title?: string; items: typeof mainNavigation; pathname: string }) {
+function NavSection({
+  title,
+  items,
+  pathname,
+}: {
+  title?: string;
+  items: typeof mainNavigation;
+  pathname: string;
+}) {
   return (
     <div className={title ? 'mt-4 pt-4 border-t border-border' : ''}>
       {title && (
@@ -67,7 +75,8 @@ function NavSection({ title, items, pathname }: { title?: string; items: typeof 
       <ul className="space-y-1">
         {items.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href + '/'));
+          const isActive =
+            pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href + '/'));
           const isExactActive = pathname === item.href;
 
           return (
@@ -80,7 +89,9 @@ function NavSection({ title, items, pathname }: { title?: string; items: typeof 
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
               >
-                <Icon className={`h-5 w-5 ${isExactActive || isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                <Icon
+                  className={`h-5 w-5 ${isExactActive || isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`}
+                />
                 <span className="text-sm font-medium">{item.name}</span>
               </Link>
             </li>
@@ -108,13 +119,18 @@ export function Sidebar() {
         <NavSection title="Analytics" items={analyticsNavigation} pathname={pathname} />
 
         <div className="mt-4 pt-4 border-t border-border">
-          <p className="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Quick Links</p>
+          <p className="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
+            Quick Links
+          </p>
           <ul className="space-y-1">
             {externalLinks.map((item) => {
               const Icon = item.icon;
               return (
                 <li key={item.name}>
-                  <a href={item.href} className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                  <a
+                    href={item.href}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
                     <Icon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                     <span className="text-sm font-medium">{item.name}</span>
                   </a>

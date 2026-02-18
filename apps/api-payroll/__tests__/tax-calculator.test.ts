@@ -112,13 +112,13 @@ describe('Tax Calculator', () => {
     it('should have breakdown items for basic rate', () => {
       const result = calculateUKTax(30000);
       expect(result.breakdown.length).toBeGreaterThan(0);
-      expect(result.breakdown.some(b => b.description.includes('Basic'))).toBe(true);
-      expect(result.breakdown.some(b => b.description.includes('NI'))).toBe(true);
+      expect(result.breakdown.some((b) => b.description.includes('Basic'))).toBe(true);
+      expect(result.breakdown.some((b) => b.description.includes('NI'))).toBe(true);
     });
 
     it('should have breakdown items for higher rate', () => {
       const result = calculateUKTax(60000);
-      expect(result.breakdown.some(b => b.description.includes('Higher'))).toBe(true);
+      expect(result.breakdown.some((b) => b.description.includes('Higher'))).toBe(true);
     });
 
     // Scottish rates
@@ -164,7 +164,7 @@ describe('Tax Calculator', () => {
       const result = calculateUKTax(200000, true);
       // PA tapered to 0
       // Top rate band applies at 125140+
-      expect(result.breakdown.some(b => b.description.includes('Top'))).toBe(true);
+      expect(result.breakdown.some((b) => b.description.includes('Top'))).toBe(true);
     });
 
     it('should return correct structure', () => {
@@ -180,7 +180,9 @@ describe('Tax Calculator', () => {
 
     it('net pay should equal gross minus tax minus NI', () => {
       const result = calculateUKTax(75000);
-      expect(result.netPay).toBe(r(result.grossPay - result.incomeTax - result.socialContributions));
+      expect(result.netPay).toBe(
+        r(result.grossPay - result.incomeTax - result.socialContributions)
+      );
     });
   });
 
@@ -245,7 +247,7 @@ describe('Tax Calculator', () => {
     it('should calculate 37% bracket ($700,000)', () => {
       const result = calculateUSFederalTax(700000);
       // Should include 37% bracket amount
-      expect(result.breakdown.some(b => b.description.includes('37%'))).toBe(true);
+      expect(result.breakdown.some((b) => b.description.includes('37%'))).toBe(true);
     });
 
     it('should calculate at exact bracket boundary ($11,600)', () => {
@@ -264,30 +266,48 @@ describe('Tax Calculator', () => {
     it('should calculate Social Security tax ($75,000)', () => {
       const result = calculateUSFederalTax(75000);
       const ssTax = r(75000 * 0.062);
-      expect(result.breakdown.some(b => b.description.includes('Social Security') && b.amount === ssTax)).toBe(true);
+      expect(
+        result.breakdown.some(
+          (b) => b.description.includes('Social Security') && b.amount === ssTax
+        )
+      ).toBe(true);
     });
 
     it('should cap Social Security at wage base ($200,000)', () => {
       const result = calculateUSFederalTax(200000);
       const ssTax = r(168600 * 0.062); // Capped at 168600
-      expect(result.breakdown.some(b => b.description.includes('Social Security') && b.amount === ssTax)).toBe(true);
+      expect(
+        result.breakdown.some(
+          (b) => b.description.includes('Social Security') && b.amount === ssTax
+        )
+      ).toBe(true);
     });
 
     it('should calculate Medicare tax ($75,000)', () => {
       const result = calculateUSFederalTax(75000);
       const medicareTax = r(75000 * 0.0145);
-      expect(result.breakdown.some(b => b.description.includes('Medicare (1.45%)') && b.amount === medicareTax)).toBe(true);
+      expect(
+        result.breakdown.some(
+          (b) => b.description.includes('Medicare (1.45%)') && b.amount === medicareTax
+        )
+      ).toBe(true);
     });
 
     it('should NOT add additional Medicare below $200,000', () => {
       const result = calculateUSFederalTax(150000);
-      expect(result.breakdown.some(b => b.description.includes('Additional Medicare'))).toBe(false);
+      expect(result.breakdown.some((b) => b.description.includes('Additional Medicare'))).toBe(
+        false
+      );
     });
 
     it('should add additional Medicare above $200,000', () => {
       const result = calculateUSFederalTax(250000);
       const additionalMedicare = r((250000 - 200000) * 0.009);
-      expect(result.breakdown.some(b => b.description.includes('Additional Medicare') && b.amount === additionalMedicare)).toBe(true);
+      expect(
+        result.breakdown.some(
+          (b) => b.description.includes('Additional Medicare') && b.amount === additionalMedicare
+        )
+      ).toBe(true);
     });
 
     it('should calculate total social contributions correctly ($250,000)', () => {
@@ -300,7 +320,9 @@ describe('Tax Calculator', () => {
 
     it('net pay should equal gross minus tax minus FICA', () => {
       const result = calculateUSFederalTax(100000);
-      expect(result.netPay).toBe(r(result.grossPay - result.incomeTax - result.socialContributions));
+      expect(result.netPay).toBe(
+        r(result.grossPay - result.incomeTax - result.socialContributions)
+      );
     });
   });
 
@@ -356,8 +378,8 @@ describe('Tax Calculator', () => {
 
     it('should include superannuation in breakdown', () => {
       const result = calculateAUTax(80000);
-      expect(result.breakdown.some(b => b.description.includes('Superannuation'))).toBe(true);
-      const superItem = result.breakdown.find(b => b.description.includes('Superannuation'));
+      expect(result.breakdown.some((b) => b.description.includes('Superannuation'))).toBe(true);
+      const superItem = result.breakdown.find((b) => b.description.includes('Superannuation'));
       expect(superItem!.amount).toBe(r(80000 * 0.115));
     });
 
@@ -395,7 +417,9 @@ describe('Tax Calculator', () => {
 
     it('net pay should equal gross minus tax minus medicare levy', () => {
       const result = calculateAUTax(90000);
-      expect(result.netPay).toBe(r(result.grossPay - result.incomeTax - result.socialContributions));
+      expect(result.netPay).toBe(
+        r(result.grossPay - result.incomeTax - result.socialContributions)
+      );
     });
 
     it('should have breakdown items for each applicable band', () => {
@@ -442,38 +466,46 @@ describe('Tax Calculator', () => {
     it('should calculate 29% bracket ($200,000)', () => {
       const result = calculateCAFederalTax(200000);
       expect(result.incomeTax).toBeGreaterThan(0);
-      expect(result.breakdown.some(b => b.description.includes('29%'))).toBe(true);
+      expect(result.breakdown.some((b) => b.description.includes('29%'))).toBe(true);
     });
 
     it('should calculate 33% bracket ($300,000)', () => {
       const result = calculateCAFederalTax(300000);
-      expect(result.breakdown.some(b => b.description.includes('33%'))).toBe(true);
+      expect(result.breakdown.some((b) => b.description.includes('33%'))).toBe(true);
     });
 
     it('should calculate CPP correctly ($60,000)', () => {
       const result = calculateCAFederalTax(60000);
       // CPP: (min(60000, 68500) - 3500) * 0.0595 = 56500 * 0.0595 = 3361.75
       const expectedCPP = r((60000 - 3500) * 0.0595);
-      expect(result.breakdown.some(b => b.description.includes('CPP') && b.amount === expectedCPP)).toBe(true);
+      expect(
+        result.breakdown.some((b) => b.description.includes('CPP') && b.amount === expectedCPP)
+      ).toBe(true);
     });
 
     it('should cap CPP at YMPE ($100,000)', () => {
       const result = calculateCAFederalTax(100000);
       // CPP: (68500 - 3500) * 0.0595 = 65000 * 0.0595 = 3867.50
       const expectedCPP = r((68500 - 3500) * 0.0595);
-      expect(result.breakdown.some(b => b.description.includes('CPP') && b.amount === expectedCPP)).toBe(true);
+      expect(
+        result.breakdown.some((b) => b.description.includes('CPP') && b.amount === expectedCPP)
+      ).toBe(true);
     });
 
     it('should calculate EI correctly ($50,000)', () => {
       const result = calculateCAFederalTax(50000);
       const expectedEI = r(50000 * 0.0166);
-      expect(result.breakdown.some(b => b.description.includes('EI') && b.amount === expectedEI)).toBe(true);
+      expect(
+        result.breakdown.some((b) => b.description.includes('EI') && b.amount === expectedEI)
+      ).toBe(true);
     });
 
     it('should cap EI at MIE ($100,000)', () => {
       const result = calculateCAFederalTax(100000);
       const expectedEI = r(63200 * 0.0166);
-      expect(result.breakdown.some(b => b.description.includes('EI') && b.amount === expectedEI)).toBe(true);
+      expect(
+        result.breakdown.some((b) => b.description.includes('EI') && b.amount === expectedEI)
+      ).toBe(true);
     });
 
     it('should include CPP and EI in social contributions', () => {
@@ -485,7 +517,9 @@ describe('Tax Calculator', () => {
 
     it('net pay should equal gross minus tax minus contributions', () => {
       const result = calculateCAFederalTax(85000);
-      expect(result.netPay).toBe(r(result.grossPay - result.incomeTax - result.socialContributions));
+      expect(result.netPay).toBe(
+        r(result.grossPay - result.incomeTax - result.socialContributions)
+      );
     });
   });
 
@@ -573,56 +607,58 @@ describe('Tax Calculator', () => {
       const result = calculateDETax(300000);
       expect(result.incomeTax).toBeGreaterThan(0);
       // Should include solidarity surcharge
-      expect(result.breakdown.some(b => b.description.includes('Solidarity'))).toBe(true);
+      expect(result.breakdown.some((b) => b.description.includes('Solidarity'))).toBe(true);
     });
 
     it('should split social insurance equally (employee half)', () => {
       const result = calculateDETax(60000);
       // Pension employee: 60000 * 0.186 / 2 = 5580
-      const pensionItem = result.breakdown.find(b => b.description.includes('Pension'));
+      const pensionItem = result.breakdown.find((b) => b.description.includes('Pension'));
       expect(pensionItem).toBeDefined();
-      expect(pensionItem!.amount).toBe(r(60000 * 0.186 / 2));
+      expect(pensionItem!.amount).toBe(r((60000 * 0.186) / 2));
     });
 
     it('should calculate health insurance employee portion', () => {
       const result = calculateDETax(60000);
-      const healthItem = result.breakdown.find(b => b.description.includes('Health'));
+      const healthItem = result.breakdown.find((b) => b.description.includes('Health'));
       expect(healthItem).toBeDefined();
       // (0.146 + 0.017) / 2 = 0.0815
-      expect(healthItem!.amount).toBe(r(60000 * (0.146 + 0.017) / 2));
+      expect(healthItem!.amount).toBe(r((60000 * (0.146 + 0.017)) / 2));
     });
 
     it('should calculate unemployment insurance employee portion', () => {
       const result = calculateDETax(60000);
-      const unemploymentItem = result.breakdown.find(b => b.description.includes('Unemployment'));
+      const unemploymentItem = result.breakdown.find((b) => b.description.includes('Unemployment'));
       expect(unemploymentItem).toBeDefined();
-      expect(unemploymentItem!.amount).toBe(r(60000 * 0.026 / 2));
+      expect(unemploymentItem!.amount).toBe(r((60000 * 0.026) / 2));
     });
 
     it('should calculate nursing care insurance employee portion', () => {
       const result = calculateDETax(60000);
-      const nursingItem = result.breakdown.find(b => b.description.includes('Nursing'));
+      const nursingItem = result.breakdown.find((b) => b.description.includes('Nursing'));
       expect(nursingItem).toBeDefined();
-      expect(nursingItem!.amount).toBe(r(60000 * 0.034 / 2));
+      expect(nursingItem!.amount).toBe(r((60000 * 0.034) / 2));
     });
 
     it('should not include solidarity surcharge for low income', () => {
       const result = calculateDETax(30000);
       // Tax should be below 18130, no solidarity surcharge
-      expect(result.breakdown.some(b => b.description.includes('Solidarity'))).toBe(false);
+      expect(result.breakdown.some((b) => b.description.includes('Solidarity'))).toBe(false);
     });
 
     it('net pay should equal gross minus tax minus social', () => {
       const result = calculateDETax(70000);
-      expect(result.netPay).toBe(r(result.grossPay - result.incomeTax - result.socialContributions));
+      expect(result.netPay).toBe(
+        r(result.grossPay - result.incomeTax - result.socialContributions)
+      );
     });
 
     it('should calculate total social contributions correctly', () => {
       const result = calculateDETax(60000);
-      const pension = r(60000 * 0.186 / 2);
-      const health = r(60000 * (0.146 + 0.017) / 2);
-      const unemployment = r(60000 * 0.026 / 2);
-      const nursing = r(60000 * 0.034 / 2);
+      const pension = r((60000 * 0.186) / 2);
+      const health = r((60000 * (0.146 + 0.017)) / 2);
+      const unemployment = r((60000 * 0.026) / 2);
+      const nursing = r((60000 * 0.034) / 2);
       expect(result.socialContributions).toBe(r(pension + health + unemployment + nursing));
     });
   });
@@ -642,7 +678,7 @@ describe('Tax Calculator', () => {
       // Band 1: 73031 * 0.3693, Band 2: (100000-73031) * 0.4950
       // Use closeTo due to floating point accumulation
       const band1 = 73031 * 0.3693;
-      const band2 = (100000 - 73031) * 0.4950;
+      const band2 = (100000 - 73031) * 0.495;
       expect(result.incomeTax).toBeCloseTo(band1 + band2, 0);
     });
 
@@ -658,7 +694,7 @@ describe('Tax Calculator', () => {
 
     it('should include ZVW in breakdown (employer-paid)', () => {
       const result = calculateNLTax(60000);
-      const zvwItem = result.breakdown.find(b => b.description.includes('ZVW'));
+      const zvwItem = result.breakdown.find((b) => b.description.includes('ZVW'));
       expect(zvwItem).toBeDefined();
       expect(zvwItem!.amount).toBe(r(60000 * 0.0657));
     });
@@ -671,7 +707,9 @@ describe('Tax Calculator', () => {
 
     it('net pay should equal gross minus income tax', () => {
       const result = calculateNLTax(80000);
-      expect(result.netPay).toBe(r(result.grossPay - result.incomeTax - result.socialContributions));
+      expect(result.netPay).toBe(
+        r(result.grossPay - result.incomeTax - result.socialContributions)
+      );
     });
 
     it('should have correct structure', () => {
@@ -687,7 +725,7 @@ describe('Tax Calculator', () => {
     it('should calculate high income correctly (€200,000)', () => {
       const result = calculateNLTax(200000);
       const band1 = 73031 * 0.3693;
-      const band2 = (200000 - 73031) * 0.4950;
+      const band2 = (200000 - 73031) * 0.495;
       expect(result.incomeTax).toBeCloseTo(band1 + band2, 0);
     });
   });
@@ -736,9 +774,13 @@ describe('Tax Calculator', () => {
       const low = 50000;
       const high = 150000;
       expect(calculateUKTax(high).incomeTax).toBeGreaterThan(calculateUKTax(low).incomeTax);
-      expect(calculateUSFederalTax(high).incomeTax).toBeGreaterThan(calculateUSFederalTax(low).incomeTax);
+      expect(calculateUSFederalTax(high).incomeTax).toBeGreaterThan(
+        calculateUSFederalTax(low).incomeTax
+      );
       expect(calculateAUTax(high).incomeTax).toBeGreaterThan(calculateAUTax(low).incomeTax);
-      expect(calculateCAFederalTax(high).incomeTax).toBeGreaterThan(calculateCAFederalTax(low).incomeTax);
+      expect(calculateCAFederalTax(high).incomeTax).toBeGreaterThan(
+        calculateCAFederalTax(low).incomeTax
+      );
       expect(calculateDETax(high).incomeTax).toBeGreaterThan(calculateDETax(low).incomeTax);
       expect(calculateNLTax(high).incomeTax).toBeGreaterThan(calculateNLTax(low).incomeTax);
     });

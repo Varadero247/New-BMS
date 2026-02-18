@@ -83,7 +83,9 @@ describe('GET /api/customer-reqs', () => {
     (mockPrisma.customerReq.findMany as jest.Mock).mockResolvedValue([]);
     (mockPrisma.customerReq.count as jest.Mock).mockResolvedValue(0);
 
-    const res = await request(app).get('/api/customer-reqs?customer=Ford&category=QUALITY&complianceStatus=COMPLIANT');
+    const res = await request(app).get(
+      '/api/customer-reqs?customer=Ford&category=QUALITY&complianceStatus=COMPLIANT'
+    );
     expect(res.status).toBe(200);
   });
 
@@ -164,7 +166,10 @@ describe('GET /api/customer-reqs/:id', () => {
   });
 
   it('returns 404 when soft-deleted', async () => {
-    (mockPrisma.customerReq.findUnique as jest.Mock).mockResolvedValue({ ...mockReq, deletedAt: new Date() });
+    (mockPrisma.customerReq.findUnique as jest.Mock).mockResolvedValue({
+      ...mockReq,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).get(`/api/customer-reqs/${REQ_ID}`);
     expect(res.status).toBe(404);
@@ -205,9 +210,14 @@ describe('POST /api/customer-reqs', () => {
 describe('PUT /api/customer-reqs/:id', () => {
   it('updates customer requirement successfully', async () => {
     (mockPrisma.customerReq.findUnique as jest.Mock).mockResolvedValue(mockReq);
-    (mockPrisma.customerReq.update as jest.Mock).mockResolvedValue({ ...mockReq, complianceStatus: 'NON_COMPLIANT' });
+    (mockPrisma.customerReq.update as jest.Mock).mockResolvedValue({
+      ...mockReq,
+      complianceStatus: 'NON_COMPLIANT',
+    });
 
-    const res = await request(app).put(`/api/customer-reqs/${REQ_ID}`).send({ complianceStatus: 'NON_COMPLIANT' });
+    const res = await request(app)
+      .put(`/api/customer-reqs/${REQ_ID}`)
+      .send({ complianceStatus: 'NON_COMPLIANT' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -215,14 +225,18 @@ describe('PUT /api/customer-reqs/:id', () => {
   it('returns 404 when not found', async () => {
     (mockPrisma.customerReq.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put(`/api/customer-reqs/${REQ_ID}`).send({ complianceStatus: 'COMPLIANT' });
+    const res = await request(app)
+      .put(`/api/customer-reqs/${REQ_ID}`)
+      .send({ complianceStatus: 'COMPLIANT' });
     expect(res.status).toBe(404);
   });
 
   it('returns 400 on validation error', async () => {
     (mockPrisma.customerReq.findUnique as jest.Mock).mockResolvedValue(mockReq);
 
-    const res = await request(app).put(`/api/customer-reqs/${REQ_ID}`).send({ complianceStatus: 'INVALID_STATUS' });
+    const res = await request(app)
+      .put(`/api/customer-reqs/${REQ_ID}`)
+      .send({ complianceStatus: 'INVALID_STATUS' });
     expect(res.status).toBe(400);
   });
 });
@@ -230,7 +244,10 @@ describe('PUT /api/customer-reqs/:id', () => {
 describe('DELETE /api/customer-reqs/:id', () => {
   it('soft deletes customer requirement', async () => {
     (mockPrisma.customerReq.findUnique as jest.Mock).mockResolvedValue(mockReq);
-    (mockPrisma.customerReq.update as jest.Mock).mockResolvedValue({ ...mockReq, deletedAt: new Date() });
+    (mockPrisma.customerReq.update as jest.Mock).mockResolvedValue({
+      ...mockReq,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete(`/api/customer-reqs/${REQ_ID}`);
     expect(res.status).toBe(204);

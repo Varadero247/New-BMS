@@ -115,10 +115,7 @@ export function createExpiredSession(
 /**
  * Create a test risk
  */
-export function createTestRisk(
-  createdById: string,
-  overrides: Partial<TestRisk> = {}
-): TestRisk {
+export function createTestRisk(createdById: string, overrides: Partial<TestRisk> = {}): TestRisk {
   return {
     id: faker.string.uuid(),
     title: faker.lorem.sentence(),

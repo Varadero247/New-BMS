@@ -2,7 +2,16 @@
 
 import { useEffect, useState, type ElementType } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+} from '@ims/ui';
 import { FileText, Eye, UserCheck, Clock, Shield, Plus } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -100,10 +109,20 @@ export default function PrivacyPage() {
 
   // Forms
   const [ropaForm, setRopaForm] = useState({
-    activityName: '', purpose: '', legalBasis: 'CONSENT', dataCategories: '', dataSubjects: '', recipients: '', retentionPeriod: '',
+    activityName: '',
+    purpose: '',
+    legalBasis: 'CONSENT',
+    dataCategories: '',
+    dataSubjects: '',
+    recipients: '',
+    retentionPeriod: '',
   });
   const [dpiaForm, setDpiaForm] = useState({ title: '', description: '' });
-  const [dsarForm, setDsarForm] = useState({ requesterName: '', requesterEmail: '', requestType: 'ACCESS' });
+  const [dsarForm, setDsarForm] = useState({
+    requesterName: '',
+    requesterEmail: '',
+    requestType: 'ACCESS',
+  });
 
   useEffect(() => {
     loadData();
@@ -218,14 +237,20 @@ export default function PrivacyPage() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Privacy Hub</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 27701 privacy information management</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            ISO 27701 privacy information management
+          </p>
         </div>
 
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
-          {tabs.map(tab => {
+          {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
@@ -254,7 +279,21 @@ export default function PrivacyPage() {
             {activeTab === 'ropa' && (
               <>
                 <div className="flex justify-end mb-4">
-                  <Button onClick={() => { setRopaForm({ activityName: '', purpose: '', legalBasis: 'CONSENT', dataCategories: '', dataSubjects: '', recipients: '', retentionPeriod: '' }); setRopaModalOpen(true); }} className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700">
+                  <Button
+                    onClick={() => {
+                      setRopaForm({
+                        activityName: '',
+                        purpose: '',
+                        legalBasis: 'CONSENT',
+                        dataCategories: '',
+                        dataSubjects: '',
+                        recipients: '',
+                        retentionPeriod: '',
+                      });
+                      setRopaModalOpen(true);
+                    }}
+                    className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
+                  >
                     <Plus className="h-4 w-4" /> Add Activity
                   </Button>
                 </div>
@@ -265,21 +304,41 @@ export default function PrivacyPage() {
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b">
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Activity</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Purpose</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Legal Basis</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Data Categories</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Data Subjects</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Recipients</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Retention</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Activity
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Purpose
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Legal Basis
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Data Categories
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Data Subjects
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Recipients
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Retention
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
-                            {ropaRecords.map(r => (
+                            {ropaRecords.map((r) => (
                               <tr key={r.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                                <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{r.activityName}</td>
+                                <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                                  {r.activityName}
+                                </td>
                                 <td className="py-3 px-4 text-gray-600">{r.purpose}</td>
-                                <td className="py-3 px-4"><Badge className="bg-teal-100 text-teal-700">{r.legalBasis}</Badge></td>
+                                <td className="py-3 px-4">
+                                  <Badge className="bg-teal-100 text-teal-700">
+                                    {r.legalBasis}
+                                  </Badge>
+                                </td>
                                 <td className="py-3 px-4 text-gray-600">{r.dataCategories}</td>
                                 <td className="py-3 px-4 text-gray-600">{r.dataSubjects}</td>
                                 <td className="py-3 px-4 text-gray-600">{r.recipients}</td>
@@ -304,7 +363,13 @@ export default function PrivacyPage() {
             {activeTab === 'dpia' && (
               <>
                 <div className="flex justify-end mb-4">
-                  <Button onClick={() => { setDpiaForm({ title: '', description: '' }); setDpiaModalOpen(true); }} className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700">
+                  <Button
+                    onClick={() => {
+                      setDpiaForm({ title: '', description: '' });
+                      setDpiaModalOpen(true);
+                    }}
+                    className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
+                  >
                     <Plus className="h-4 w-4" /> Create DPIA
                   </Button>
                 </div>
@@ -315,27 +380,55 @@ export default function PrivacyPage() {
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b">
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Risk Level</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Approved By</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Ref
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Title
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Status
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Risk Level
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Approved By
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Actions
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
-                            {dpiaRecords.map(d => (
+                            {dpiaRecords.map((d) => (
                               <tr key={d.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                                <td className="py-3 px-4 font-mono text-xs text-gray-600">{d.referenceNumber}</td>
-                                <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{d.title}</td>
+                                <td className="py-3 px-4 font-mono text-xs text-gray-600">
+                                  {d.referenceNumber}
+                                </td>
+                                <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                                  {d.title}
+                                </td>
                                 <td className="py-3 px-4">
-                                  <Badge className={dpiaStatusColors[d.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{d.status.replace(/_/g, ' ')}</Badge>
+                                  <Badge
+                                    className={
+                                      dpiaStatusColors[d.status] ||
+                                      'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                                    }
+                                  >
+                                    {d.status.replace(/_/g, ' ')}
+                                  </Badge>
                                 </td>
                                 <td className="py-3 px-4 text-gray-600">{d.riskLevel}</td>
                                 <td className="py-3 px-4 text-gray-600">{d.approvedBy || '-'}</td>
                                 <td className="py-3 px-4">
                                   {d.status === 'IN_REVIEW' && (
-                                    <button onClick={() => handleApproveDpia(d.id)} className="text-teal-600 hover:text-teal-700 text-sm font-medium">Approve</button>
+                                    <button
+                                      onClick={() => handleApproveDpia(d.id)}
+                                      className="text-teal-600 hover:text-teal-700 text-sm font-medium"
+                                    >
+                                      Approve
+                                    </button>
                                   )}
                                 </td>
                               </tr>
@@ -358,7 +451,13 @@ export default function PrivacyPage() {
             {activeTab === 'dsar' && (
               <>
                 <div className="flex justify-end mb-4">
-                  <Button onClick={() => { setDsarForm({ requesterName: '', requesterEmail: '', requestType: 'ACCESS' }); setDsarModalOpen(true); }} className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700">
+                  <Button
+                    onClick={() => {
+                      setDsarForm({ requesterName: '', requesterEmail: '', requestType: 'ACCESS' });
+                      setDsarModalOpen(true);
+                    }}
+                    className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
+                  >
                     <Plus className="h-4 w-4" /> Log DSAR
                   </Button>
                 </div>
@@ -369,35 +468,72 @@ export default function PrivacyPage() {
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b">
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Requester</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Received</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Deadline</th>
-                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Ref
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Requester
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Type
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Status
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Received
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Deadline
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                                Actions
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
-                            {dsarRecords.map(d => {
+                            {dsarRecords.map((d) => {
                               const daysLeft = getDaysUntilDeadline(d.deadline);
                               return (
-                                <tr key={d.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                                  <td className="py-3 px-4 font-mono text-xs text-gray-600">{d.referenceNumber}</td>
-                                  <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{d.requesterName}</td>
+                                <tr
+                                  key={d.id}
+                                  className="border-b hover:bg-gray-50 dark:bg-gray-800"
+                                >
+                                  <td className="py-3 px-4 font-mono text-xs text-gray-600">
+                                    {d.referenceNumber}
+                                  </td>
+                                  <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                                    {d.requesterName}
+                                  </td>
                                   <td className="py-3 px-4 text-gray-600">{d.requestType}</td>
                                   <td className="py-3 px-4">
-                                    <Badge className={dsarStatusColors[d.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{d.status.replace(/_/g, ' ')}</Badge>
+                                    <Badge
+                                      className={
+                                        dsarStatusColors[d.status] ||
+                                        'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                                      }
+                                    >
+                                      {d.status.replace(/_/g, ' ')}
+                                    </Badge>
                                   </td>
-                                  <td className="py-3 px-4 text-gray-600">{new Date(d.receivedDate).toLocaleDateString()}</td>
+                                  <td className="py-3 px-4 text-gray-600">
+                                    {new Date(d.receivedDate).toLocaleDateString()}
+                                  </td>
                                   <td className="py-3 px-4">
-                                    <span className={`text-sm font-medium ${daysLeft <= 3 ? 'text-red-600' : daysLeft <= 14 ? 'text-orange-600' : 'text-gray-600'}`}>
+                                    <span
+                                      className={`text-sm font-medium ${daysLeft <= 3 ? 'text-red-600' : daysLeft <= 14 ? 'text-orange-600' : 'text-gray-600'}`}
+                                    >
                                       {daysLeft > 0 ? `${daysLeft} days` : 'Overdue'}
                                     </span>
                                   </td>
                                   <td className="py-3 px-4">
                                     {(d.status === 'RECEIVED' || d.status === 'IN_PROGRESS') && (
-                                      <button onClick={() => handleRespondDsar(d.id)} className="text-teal-600 hover:text-teal-700 text-sm font-medium">Respond</button>
+                                      <button
+                                        onClick={() => handleRespondDsar(d.id)}
+                                        className="text-teal-600 hover:text-teal-700 text-sm font-medium"
+                                      >
+                                        Respond
+                                      </button>
                                     )}
                                   </td>
                                 </tr>
@@ -426,17 +562,29 @@ export default function PrivacyPage() {
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b">
-                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Data Subject</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Purpose</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Consent Date</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Withdrawn</th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                              Data Subject
+                            </th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                              Purpose
+                            </th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                              Status
+                            </th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                              Consent Date
+                            </th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                              Withdrawn
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
-                          {consentRecords.map(c => (
+                          {consentRecords.map((c) => (
                             <tr key={c.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                              <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{c.dataSubject}</td>
+                              <td className="py-3 px-4 text-gray-900 dark:text-gray-100">
+                                {c.dataSubject}
+                              </td>
                               <td className="py-3 px-4 text-gray-600">{c.purpose}</td>
                               <td className="py-3 px-4">
                                 {c.consentGiven && !c.withdrawnDate ? (
@@ -445,8 +593,14 @@ export default function PrivacyPage() {
                                   <Badge className="bg-red-100 text-red-700">Withdrawn</Badge>
                                 )}
                               </td>
-                              <td className="py-3 px-4 text-gray-600">{new Date(c.consentDate).toLocaleDateString()}</td>
-                              <td className="py-3 px-4 text-gray-600">{c.withdrawnDate ? new Date(c.withdrawnDate).toLocaleDateString() : '-'}</td>
+                              <td className="py-3 px-4 text-gray-600">
+                                {new Date(c.consentDate).toLocaleDateString()}
+                              </td>
+                              <td className="py-3 px-4 text-gray-600">
+                                {c.withdrawnDate
+                                  ? new Date(c.withdrawnDate).toLocaleDateString()
+                                  : '-'}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -471,21 +625,35 @@ export default function PrivacyPage() {
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b">
-                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Data Category</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Retention Period</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Legal Basis</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Disposal Method</th>
-                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Review Date</th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                              Data Category
+                            </th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                              Retention Period
+                            </th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                              Legal Basis
+                            </th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                              Disposal Method
+                            </th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                              Review Date
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
-                          {retentionSchedules.map(r => (
+                          {retentionSchedules.map((r) => (
                             <tr key={r.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                              <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{r.dataCategory}</td>
+                              <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                                {r.dataCategory}
+                              </td>
                               <td className="py-3 px-4 text-gray-600">{r.retentionPeriod}</td>
                               <td className="py-3 px-4 text-gray-600">{r.legalBasis}</td>
                               <td className="py-3 px-4 text-gray-600">{r.disposalMethod}</td>
-                              <td className="py-3 px-4 text-gray-600">{new Date(r.reviewDate).toLocaleDateString()}</td>
+                              <td className="py-3 px-4 text-gray-600">
+                                {new Date(r.reviewDate).toLocaleDateString()}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -505,19 +673,44 @@ export default function PrivacyPage() {
       </div>
 
       {/* ROPA Modal */}
-      <Modal isOpen={ropaModalOpen} onClose={() => setRopaModalOpen(false)} title="Add Processing Activity" size="lg">
+      <Modal
+        isOpen={ropaModalOpen}
+        onClose={() => setRopaModalOpen(false)}
+        title="Add Processing Activity"
+        size="lg"
+      >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Activity Name</label>
-            <input type="text" value={ropaForm.activityName} onChange={(e) => setRopaForm({ ...ropaForm, activityName: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Activity Name
+            </label>
+            <input
+              type="text"
+              value={ropaForm.activityName}
+              onChange={(e) => setRopaForm({ ...ropaForm, activityName: e.target.value })}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purpose</label>
-            <input type="text" value={ropaForm.purpose} onChange={(e) => setRopaForm({ ...ropaForm, purpose: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Purpose
+            </label>
+            <input
+              type="text"
+              value={ropaForm.purpose}
+              onChange={(e) => setRopaForm({ ...ropaForm, purpose: e.target.value })}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Legal Basis</label>
-            <select value={ropaForm.legalBasis} onChange={(e) => setRopaForm({ ...ropaForm, legalBasis: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Legal Basis
+            </label>
+            <select
+              value={ropaForm.legalBasis}
+              onChange={(e) => setRopaForm({ ...ropaForm, legalBasis: e.target.value })}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+            >
               <option value="CONSENT">Consent</option>
               <option value="CONTRACT">Contract</option>
               <option value="LEGAL_OBLIGATION">Legal Obligation</option>
@@ -528,67 +721,154 @@ export default function PrivacyPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Data Categories</label>
-              <input type="text" value={ropaForm.dataCategories} onChange={(e) => setRopaForm({ ...ropaForm, dataCategories: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g., Personal, Financial" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Data Categories
+              </label>
+              <input
+                type="text"
+                value={ropaForm.dataCategories}
+                onChange={(e) => setRopaForm({ ...ropaForm, dataCategories: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                placeholder="e.g., Personal, Financial"
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Data Subjects</label>
-              <input type="text" value={ropaForm.dataSubjects} onChange={(e) => setRopaForm({ ...ropaForm, dataSubjects: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g., Employees, Customers" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Data Subjects
+              </label>
+              <input
+                type="text"
+                value={ropaForm.dataSubjects}
+                onChange={(e) => setRopaForm({ ...ropaForm, dataSubjects: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                placeholder="e.g., Employees, Customers"
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recipients</label>
-              <input type="text" value={ropaForm.recipients} onChange={(e) => setRopaForm({ ...ropaForm, recipients: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Recipients
+              </label>
+              <input
+                type="text"
+                value={ropaForm.recipients}
+                onChange={(e) => setRopaForm({ ...ropaForm, recipients: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Retention Period</label>
-              <input type="text" value={ropaForm.retentionPeriod} onChange={(e) => setRopaForm({ ...ropaForm, retentionPeriod: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g., 7 years" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Retention Period
+              </label>
+              <input
+                type="text"
+                value={ropaForm.retentionPeriod}
+                onChange={(e) => setRopaForm({ ...ropaForm, retentionPeriod: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                placeholder="e.g., 7 years"
+              />
             </div>
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setRopaModalOpen(false)}>Cancel</Button>
-          <Button onClick={handleCreateRopa} disabled={saving} className="bg-teal-600 hover:bg-teal-700">
+          <Button variant="outline" onClick={() => setRopaModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCreateRopa}
+            disabled={saving}
+            className="bg-teal-600 hover:bg-teal-700"
+          >
             {saving ? 'Saving...' : 'Add Activity'}
           </Button>
         </ModalFooter>
       </Modal>
 
       {/* DPIA Modal */}
-      <Modal isOpen={dpiaModalOpen} onClose={() => setDpiaModalOpen(false)} title="Create DPIA" size="lg">
+      <Modal
+        isOpen={dpiaModalOpen}
+        onClose={() => setDpiaModalOpen(false)}
+        title="Create DPIA"
+        size="lg"
+      >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
-            <input type="text" value={dpiaForm.title} onChange={(e) => setDpiaForm({ ...dpiaForm, title: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Title
+            </label>
+            <input
+              type="text"
+              value={dpiaForm.title}
+              onChange={(e) => setDpiaForm({ ...dpiaForm, title: e.target.value })}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-            <textarea value={dpiaForm.description} onChange={(e) => setDpiaForm({ ...dpiaForm, description: e.target.value })} rows={4} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Description
+            </label>
+            <textarea
+              value={dpiaForm.description}
+              onChange={(e) => setDpiaForm({ ...dpiaForm, description: e.target.value })}
+              rows={4}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setDpiaModalOpen(false)}>Cancel</Button>
-          <Button onClick={handleCreateDpia} disabled={saving} className="bg-teal-600 hover:bg-teal-700">
+          <Button variant="outline" onClick={() => setDpiaModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCreateDpia}
+            disabled={saving}
+            className="bg-teal-600 hover:bg-teal-700"
+          >
             {saving ? 'Saving...' : 'Create DPIA'}
           </Button>
         </ModalFooter>
       </Modal>
 
       {/* DSAR Modal */}
-      <Modal isOpen={dsarModalOpen} onClose={() => setDsarModalOpen(false)} title="Log DSAR" size="lg">
+      <Modal
+        isOpen={dsarModalOpen}
+        onClose={() => setDsarModalOpen(false)}
+        title="Log DSAR"
+        size="lg"
+      >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Requester Name</label>
-            <input type="text" value={dsarForm.requesterName} onChange={(e) => setDsarForm({ ...dsarForm, requesterName: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Requester Name
+            </label>
+            <input
+              type="text"
+              value={dsarForm.requesterName}
+              onChange={(e) => setDsarForm({ ...dsarForm, requesterName: e.target.value })}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Requester Email</label>
-            <input type="email" value={dsarForm.requesterEmail} onChange={(e) => setDsarForm({ ...dsarForm, requesterEmail: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Requester Email
+            </label>
+            <input
+              type="email"
+              value={dsarForm.requesterEmail}
+              onChange={(e) => setDsarForm({ ...dsarForm, requesterEmail: e.target.value })}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Request Type</label>
-            <select value={dsarForm.requestType} onChange={(e) => setDsarForm({ ...dsarForm, requestType: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Request Type
+            </label>
+            <select
+              value={dsarForm.requestType}
+              onChange={(e) => setDsarForm({ ...dsarForm, requestType: e.target.value })}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+            >
               <option value="ACCESS">Access (Art. 15)</option>
               <option value="RECTIFICATION">Rectification (Art. 16)</option>
               <option value="ERASURE">Erasure (Art. 17)</option>
@@ -599,8 +879,14 @@ export default function PrivacyPage() {
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setDsarModalOpen(false)}>Cancel</Button>
-          <Button onClick={handleCreateDsar} disabled={saving} className="bg-teal-600 hover:bg-teal-700">
+          <Button variant="outline" onClick={() => setDsarModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCreateDsar}
+            disabled={saving}
+            className="bg-teal-600 hover:bg-teal-700"
+          >
             {saving ? 'Saving...' : 'Log DSAR'}
           </Button>
         </ModalFooter>

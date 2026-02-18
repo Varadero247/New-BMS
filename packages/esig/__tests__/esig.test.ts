@@ -88,19 +88,22 @@ describe('Electronic Signature Package', () => {
 
   describe('verifySignature', () => {
     it('should verify a valid signature', async () => {
-      const result = await createSignature({
-        userId: 'user-001',
-        userEmail: 'test@ims.local',
-        userFullName: 'Test User',
-        password: testPassword,
-        meaning: 'APPROVED',
-        reason: 'Approved',
-        resourceType: 'Document',
-        resourceId: 'doc-001',
-        resourceRef: 'DOC-001',
-        ipAddress: '10.0.0.1',
-        userAgent: 'TestAgent',
-      }, passwordHash);
+      const result = await createSignature(
+        {
+          userId: 'user-001',
+          userEmail: 'test@ims.local',
+          userFullName: 'Test User',
+          password: testPassword,
+          meaning: 'APPROVED',
+          reason: 'Approved',
+          resourceType: 'Document',
+          resourceId: 'doc-001',
+          resourceRef: 'DOC-001',
+          ipAddress: '10.0.0.1',
+          userAgent: 'TestAgent',
+        },
+        passwordHash
+      );
 
       const verification = verifySignature(result.signature!);
 
@@ -110,19 +113,22 @@ describe('Electronic Signature Package', () => {
     });
 
     it('should detect tampered signature', async () => {
-      const result = await createSignature({
-        userId: 'user-001',
-        userEmail: 'test@ims.local',
-        userFullName: 'Test User',
-        password: testPassword,
-        meaning: 'APPROVED',
-        reason: 'Approved',
-        resourceType: 'Document',
-        resourceId: 'doc-001',
-        resourceRef: 'DOC-001',
-        ipAddress: '10.0.0.1',
-        userAgent: 'TestAgent',
-      }, passwordHash);
+      const result = await createSignature(
+        {
+          userId: 'user-001',
+          userEmail: 'test@ims.local',
+          userFullName: 'Test User',
+          password: testPassword,
+          meaning: 'APPROVED',
+          reason: 'Approved',
+          resourceType: 'Document',
+          resourceId: 'doc-001',
+          resourceRef: 'DOC-001',
+          ipAddress: '10.0.0.1',
+          userAgent: 'TestAgent',
+        },
+        passwordHash
+      );
 
       // Tamper with the signature data
       const tampered: ElectronicSignature = {
@@ -137,19 +143,22 @@ describe('Electronic Signature Package', () => {
     });
 
     it('should detect invalidated signature', async () => {
-      const result = await createSignature({
-        userId: 'user-001',
-        userEmail: 'test@ims.local',
-        userFullName: 'Test User',
-        password: testPassword,
-        meaning: 'REVIEWED',
-        reason: 'Reviewed',
-        resourceType: 'Document',
-        resourceId: 'doc-002',
-        resourceRef: 'DOC-002',
-        ipAddress: '10.0.0.1',
-        userAgent: 'TestAgent',
-      }, passwordHash);
+      const result = await createSignature(
+        {
+          userId: 'user-001',
+          userEmail: 'test@ims.local',
+          userFullName: 'Test User',
+          password: testPassword,
+          meaning: 'REVIEWED',
+          reason: 'Reviewed',
+          resourceType: 'Document',
+          resourceId: 'doc-002',
+          resourceRef: 'DOC-002',
+          ipAddress: '10.0.0.1',
+          userAgent: 'TestAgent',
+        },
+        passwordHash
+      );
 
       const invalidated: ElectronicSignature = {
         ...result.signature!,
@@ -324,28 +333,19 @@ describe('Checksum Utilities', () => {
     });
 
     it('should handle multiple changes', () => {
-      const changes = computeChanges(
-        { a: 1, b: 2, c: 3 },
-        { a: 1, b: 99, d: 4 }
-      );
+      const changes = computeChanges({ a: 1, b: 2, c: 3 }, { a: 1, b: 99, d: 4 });
 
       expect(changes).toHaveLength(3); // b changed, c removed, d added
     });
 
     it('should return empty array for identical objects', () => {
-      const changes = computeChanges(
-        { a: 1, b: 'hello' },
-        { a: 1, b: 'hello' }
-      );
+      const changes = computeChanges({ a: 1, b: 'hello' }, { a: 1, b: 'hello' });
 
       expect(changes).toHaveLength(0);
     });
 
     it('should handle nested objects', () => {
-      const changes = computeChanges(
-        { config: { timeout: 30 } },
-        { config: { timeout: 60 } }
-      );
+      const changes = computeChanges({ config: { timeout: 30 } }, { config: { timeout: 60 } });
 
       expect(changes).toHaveLength(1);
       expect(changes[0].field).toBe('config');

@@ -16,7 +16,8 @@ export const isoStandards: Record<string, ISOStandard> = {
   '9001': {
     number: 'ISO 9001:2015',
     name: 'Quality Management System',
-    subtitle: 'The world\'s most recognised quality standard — streamlined with AI-powered automation.',
+    subtitle:
+      "The world's most recognised quality standard — streamlined with AI-powered automation.",
     requirements: [
       'Document and control quality processes across your organisation',
       'Implement risk-based thinking and preventive action',
@@ -24,9 +25,18 @@ export const isoStandards: Record<string, ISOStandard> = {
       'Meet customer requirements and enhance satisfaction',
     ],
     features: [
-      { title: 'CAPA Management', desc: 'Automated corrective and preventive action workflows with root cause analysis and effectiveness tracking.' },
-      { title: 'Document Control', desc: 'Version-controlled document management with approval workflows, distribution lists, and automatic review reminders.' },
-      { title: 'Audit Management', desc: 'Plan, schedule, and execute internal audits with finding tracking, evidence collection, and management review integration.' },
+      {
+        title: 'CAPA Management',
+        desc: 'Automated corrective and preventive action workflows with root cause analysis and effectiveness tracking.',
+      },
+      {
+        title: 'Document Control',
+        desc: 'Version-controlled document management with approval workflows, distribution lists, and automatic review reminders.',
+      },
+      {
+        title: 'Audit Management',
+        desc: 'Plan, schedule, and execute internal audits with finding tracking, evidence collection, and management review integration.',
+      },
     ],
     keyFeatures: [
       'Non-conformance tracking',
@@ -49,9 +59,18 @@ export const isoStandards: Record<string, ISOStandard> = {
       'Implement operational controls and emergency preparedness',
     ],
     features: [
-      { title: 'Aspect & Impact Register', desc: 'Comprehensive environmental aspect identification with significance scoring and automatic reassessment scheduling.' },
-      { title: 'Emissions Tracking', desc: 'Scope 1, 2 and 3 greenhouse gas emissions calculation with built-in emission factor databases and trend analysis.' },
-      { title: 'Legal Compliance', desc: 'Regulatory obligation register with automated change monitoring and compliance evaluation workflows.' },
+      {
+        title: 'Aspect & Impact Register',
+        desc: 'Comprehensive environmental aspect identification with significance scoring and automatic reassessment scheduling.',
+      },
+      {
+        title: 'Emissions Tracking',
+        desc: 'Scope 1, 2 and 3 greenhouse gas emissions calculation with built-in emission factor databases and trend analysis.',
+      },
+      {
+        title: 'Legal Compliance',
+        desc: 'Regulatory obligation register with automated change monitoring and compliance evaluation workflows.',
+      },
     ],
     keyFeatures: [
       'Waste management tracking',
@@ -74,9 +93,18 @@ export const isoStandards: Record<string, ISOStandard> = {
       'Monitor, measure, and evaluate OH&S performance',
     ],
     features: [
-      { title: 'Risk Assessment', desc: 'Dynamic risk assessment tools with hazard identification, risk scoring matrices, and control hierarchy management.' },
-      { title: 'Incident Management', desc: 'Full incident lifecycle from reporting through investigation to corrective action with RIDDOR and OSHA integration.' },
-      { title: 'Safety Inspections', desc: 'Scheduled and ad-hoc inspection checklists with photo evidence, GPS tagging, and automated finding escalation.' },
+      {
+        title: 'Risk Assessment',
+        desc: 'Dynamic risk assessment tools with hazard identification, risk scoring matrices, and control hierarchy management.',
+      },
+      {
+        title: 'Incident Management',
+        desc: 'Full incident lifecycle from reporting through investigation to corrective action with RIDDOR and OSHA integration.',
+      },
+      {
+        title: 'Safety Inspections',
+        desc: 'Scheduled and ad-hoc inspection checklists with photo evidence, GPS tagging, and automated finding escalation.',
+      },
     ],
     keyFeatures: [
       'Permit-to-work management',
@@ -99,9 +127,18 @@ export const isoStandards: Record<string, ISOStandard> = {
       'Ensure competence and awareness of information security',
     ],
     features: [
-      { title: 'Risk Treatment', desc: 'Comprehensive risk assessment with asset inventory, threat modelling, vulnerability tracking, and treatment plan management.' },
-      { title: 'Control Mapping', desc: 'Annex A control implementation tracking with Statement of Applicability generation and gap analysis reporting.' },
-      { title: 'Incident Response', desc: 'Security incident classification, containment workflows, forensic evidence management, and breach notification tracking.' },
+      {
+        title: 'Risk Treatment',
+        desc: 'Comprehensive risk assessment with asset inventory, threat modelling, vulnerability tracking, and treatment plan management.',
+      },
+      {
+        title: 'Control Mapping',
+        desc: 'Annex A control implementation tracking with Statement of Applicability generation and gap analysis reporting.',
+      },
+      {
+        title: 'Incident Response',
+        desc: 'Security incident classification, containment workflows, forensic evidence management, and breach notification tracking.',
+      },
     ],
     keyFeatures: [
       'Asset inventory management',
@@ -124,9 +161,18 @@ export const isoStandards: Record<string, ISOStandard> = {
       'Document complaint handling and vigilance reporting',
     ],
     features: [
-      { title: 'Design Controls', desc: 'Full design history file management with design input/output traceability, verification/validation records, and design transfer.' },
-      { title: 'CAPA & Complaints', desc: 'Medical device complaint handling with trending analysis, MDR/IVDR vigilance reporting, and CAPA effectiveness reviews.' },
-      { title: 'Traceability', desc: 'Unique device identification (UDI) management with lot/serial tracking, distribution records, and field safety corrective actions.' },
+      {
+        title: 'Design Controls',
+        desc: 'Full design history file management with design input/output traceability, verification/validation records, and design transfer.',
+      },
+      {
+        title: 'CAPA & Complaints',
+        desc: 'Medical device complaint handling with trending analysis, MDR/IVDR vigilance reporting, and CAPA effectiveness reviews.',
+      },
+      {
+        title: 'Traceability',
+        desc: 'Unique device identification (UDI) management with lot/serial tracking, distribution records, and field safety corrective actions.',
+      },
     ],
     keyFeatures: [
       'Design history file (DHF)',
@@ -149,9 +195,18 @@ export const isoStandards: Record<string, ISOStandard> = {
       'Ensure counterfeit part prevention and detection',
     ],
     features: [
-      { title: 'FAIR Management', desc: 'First Article Inspection Report management with AS9102 compliance, multi-level reporting, and customer approval workflows.' },
-      { title: 'Special Processes', desc: 'Nadcap-aligned special process management with operator qualification tracking, process parameter monitoring, and revalidation scheduling.' },
-      { title: 'Configuration Control', desc: 'Product configuration management with engineering change orders, effectivity tracking, and as-built/as-designed reconciliation.' },
+      {
+        title: 'FAIR Management',
+        desc: 'First Article Inspection Report management with AS9102 compliance, multi-level reporting, and customer approval workflows.',
+      },
+      {
+        title: 'Special Processes',
+        desc: 'Nadcap-aligned special process management with operator qualification tracking, process parameter monitoring, and revalidation scheduling.',
+      },
+      {
+        title: 'Configuration Control',
+        desc: 'Product configuration management with engineering change orders, effectivity tracking, and as-built/as-designed reconciliation.',
+      },
     ],
     keyFeatures: [
       'OASIS database integration',
@@ -174,9 +229,18 @@ export const isoStandards: Record<string, ISOStandard> = {
       'Execute production part approval process (PPAP)',
     ],
     features: [
-      { title: 'Core Tools', desc: 'Integrated APQP, PPAP, FMEA, MSA, and SPC tools with cross-referencing, automatic phase-gate progression, and customer submission packages.' },
-      { title: 'FMEA Management', desc: 'Design and Process FMEA with AIAG-VDA harmonised format, action priority tracking, and effectiveness verification.' },
-      { title: 'SPC & Control Plans', desc: 'Real-time statistical process control with control plan linkage, out-of-control reaction plans, and capability analysis (Cpk/Ppk).' },
+      {
+        title: 'Core Tools',
+        desc: 'Integrated APQP, PPAP, FMEA, MSA, and SPC tools with cross-referencing, automatic phase-gate progression, and customer submission packages.',
+      },
+      {
+        title: 'FMEA Management',
+        desc: 'Design and Process FMEA with AIAG-VDA harmonised format, action priority tracking, and effectiveness verification.',
+      },
+      {
+        title: 'SPC & Control Plans',
+        desc: 'Real-time statistical process control with control plan linkage, out-of-control reaction plans, and capability analysis (Cpk/Ppk).',
+      },
     ],
     keyFeatures: [
       'Customer scorecard tracking',
@@ -199,9 +263,18 @@ export const isoStandards: Record<string, ISOStandard> = {
       'Ensure transparency and explainability of AI decisions',
     ],
     features: [
-      { title: 'AI Risk Registry', desc: 'Comprehensive AI risk identification covering bias, fairness, safety, privacy, and security with impact assessment and mitigation tracking.' },
-      { title: 'Model Governance', desc: 'AI model lifecycle management from development through deployment with version control, performance monitoring, and retirement processes.' },
-      { title: 'Ethics & Compliance', desc: 'AI ethics framework management with stakeholder impact assessments, human oversight controls, and regulatory compliance mapping.' },
+      {
+        title: 'AI Risk Registry',
+        desc: 'Comprehensive AI risk identification covering bias, fairness, safety, privacy, and security with impact assessment and mitigation tracking.',
+      },
+      {
+        title: 'Model Governance',
+        desc: 'AI model lifecycle management from development through deployment with version control, performance monitoring, and retirement processes.',
+      },
+      {
+        title: 'Ethics & Compliance',
+        desc: 'AI ethics framework management with stakeholder impact assessments, human oversight controls, and regulatory compliance mapping.',
+      },
     ],
     keyFeatures: [
       'AI system inventory',
@@ -224,9 +297,18 @@ export const isoStandards: Record<string, ISOStandard> = {
       'Create whistleblowing and investigation procedures',
     ],
     features: [
-      { title: 'Risk Assessment', desc: 'Bribery risk assessment covering geographic, sectoral, transactional, and business opportunity risks with heat map visualisation.' },
-      { title: 'Due Diligence', desc: 'Business associate due diligence workflows with PEP screening, sanctions checks, beneficial ownership verification, and ongoing monitoring.' },
-      { title: 'Gift & Hospitality', desc: 'Gift, hospitality, and donation register with approval workflows, value thresholds, and aggregate tracking per business associate.' },
+      {
+        title: 'Risk Assessment',
+        desc: 'Bribery risk assessment covering geographic, sectoral, transactional, and business opportunity risks with heat map visualisation.',
+      },
+      {
+        title: 'Due Diligence',
+        desc: 'Business associate due diligence workflows with PEP screening, sanctions checks, beneficial ownership verification, and ongoing monitoring.',
+      },
+      {
+        title: 'Gift & Hospitality',
+        desc: 'Gift, hospitality, and donation register with approval workflows, value thresholds, and aggregate tracking per business associate.',
+      },
     ],
     keyFeatures: [
       'Whistleblower portal',
@@ -249,9 +331,18 @@ export const isoStandards: Record<string, ISOStandard> = {
       'Implement emergency preparedness and recall procedures',
     ],
     features: [
-      { title: 'HACCP Plans', desc: 'Digital HACCP plan creation with hazard analysis, CCP determination, critical limit setting, monitoring procedures, and verification activities.' },
-      { title: 'Supplier Approval', desc: 'Food safety supplier approval with questionnaires, audit scheduling, specification management, and incoming goods inspection.' },
-      { title: 'Recall Management', desc: 'Product recall and withdrawal management with mock recall exercises, traceability verification, and regulatory notification workflows.' },
+      {
+        title: 'HACCP Plans',
+        desc: 'Digital HACCP plan creation with hazard analysis, CCP determination, critical limit setting, monitoring procedures, and verification activities.',
+      },
+      {
+        title: 'Supplier Approval',
+        desc: 'Food safety supplier approval with questionnaires, audit scheduling, specification management, and incoming goods inspection.',
+      },
+      {
+        title: 'Recall Management',
+        desc: 'Product recall and withdrawal management with mock recall exercises, traceability verification, and regulatory notification workflows.',
+      },
     ],
     keyFeatures: [
       'CCP monitoring dashboards',
@@ -274,9 +365,18 @@ export const isoStandards: Record<string, ISOStandard> = {
       'Implement operational and maintenance controls for energy',
     ],
     features: [
-      { title: 'Energy Monitoring', desc: 'Real-time energy consumption monitoring with sub-metering integration, automatic baseline adjustment, and anomaly detection alerts.' },
-      { title: 'EnPI Tracking', desc: 'Energy performance indicator dashboards with normalisation for production volume, weather, and occupancy with trend analysis and forecasting.' },
-      { title: 'Opportunity Register', desc: 'Energy saving opportunity identification with cost-benefit analysis, payback calculation, implementation tracking, and verified savings.' },
+      {
+        title: 'Energy Monitoring',
+        desc: 'Real-time energy consumption monitoring with sub-metering integration, automatic baseline adjustment, and anomaly detection alerts.',
+      },
+      {
+        title: 'EnPI Tracking',
+        desc: 'Energy performance indicator dashboards with normalisation for production volume, weather, and occupancy with trend analysis and forecasting.',
+      },
+      {
+        title: 'Opportunity Register',
+        desc: 'Energy saving opportunity identification with cost-benefit analysis, payback calculation, implementation tracking, and verified savings.',
+      },
     ],
     keyFeatures: [
       'Energy baseline management',
@@ -299,9 +399,18 @@ export const isoStandards: Record<string, ISOStandard> = {
       'Monitor, control, and report on project performance',
     ],
     features: [
-      { title: 'Project Planning', desc: 'Integrated project planning with WBS creation, resource levelling, dependency management, and critical path analysis.' },
-      { title: 'Risk Management', desc: 'Project risk register with probability-impact assessment, response planning, trigger monitoring, and risk burndown tracking.' },
-      { title: 'Stakeholder Management', desc: 'Stakeholder identification and analysis with engagement planning, communication management, and influence mapping.' },
+      {
+        title: 'Project Planning',
+        desc: 'Integrated project planning with WBS creation, resource levelling, dependency management, and critical path analysis.',
+      },
+      {
+        title: 'Risk Management',
+        desc: 'Project risk register with probability-impact assessment, response planning, trigger monitoring, and risk burndown tracking.',
+      },
+      {
+        title: 'Stakeholder Management',
+        desc: 'Stakeholder identification and analysis with engagement planning, communication management, and influence mapping.',
+      },
     ],
     keyFeatures: [
       'Gantt chart & timeline views',

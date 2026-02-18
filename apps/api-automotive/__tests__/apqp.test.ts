@@ -203,12 +203,13 @@ describe('Automotive APQP API Routes', () => {
   // ==========================================
   describe('GET /api/apqp', () => {
     it('should return a list of projects with default pagination', async () => {
-      (mockPrisma.apqpProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject, mockProject2]);
+      (mockPrisma.apqpProject.findMany as jest.Mock).mockResolvedValueOnce([
+        mockProject,
+        mockProject2,
+      ]);
       (mockPrisma.apqpProject.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/apqp')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/apqp').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -247,9 +248,7 @@ describe('Automotive APQP API Routes', () => {
       (mockPrisma.apqpProject.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.apqpProject.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/apqp?status=COMPLETED')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/apqp?status=COMPLETED').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.apqpProject.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -265,9 +264,7 @@ describe('Automotive APQP API Routes', () => {
       (mockPrisma.apqpProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
       (mockPrisma.apqpProject.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/apqp?customer=automotive')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/apqp?customer=automotive').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.apqpProject.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -283,9 +280,7 @@ describe('Automotive APQP API Routes', () => {
       (mockPrisma.apqpProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
       (mockPrisma.apqpProject.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/apqp?search=brake')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/apqp?search=brake').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.apqpProject.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -320,11 +315,11 @@ describe('Automotive APQP API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.apqpProject.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.apqpProject.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
-      const response = await request(app)
-        .get('/api/apqp')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/apqp').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -906,7 +901,9 @@ describe('Automotive APQP API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS', assignedTo: 'Alice', notes: 'Working on it' });
 
@@ -926,7 +923,9 @@ describe('Automotive APQP API Routes', () => {
       });
 
       await request(app)
-        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED' });
 
@@ -943,7 +942,9 @@ describe('Automotive APQP API Routes', () => {
       (mockPrisma.apqpProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/apqp/00000000-0000-4000-a000-ffffffffffff/deliverables/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/apqp/00000000-0000-4000-a000-ffffffffffff/deliverables/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -959,7 +960,9 @@ describe('Automotive APQP API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -972,7 +975,9 @@ describe('Automotive APQP API Routes', () => {
       (mockPrisma.apqpDeliverable.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000099')
+        .put(
+          '/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000099'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -992,7 +997,9 @@ describe('Automotive APQP API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -1006,7 +1013,9 @@ describe('Automotive APQP API Routes', () => {
       (mockPrisma.apqpDeliverable.findUnique as jest.Mock).mockResolvedValueOnce(mockDeliverable);
 
       const response = await request(app)
-        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID' });
 
@@ -1018,7 +1027,9 @@ describe('Automotive APQP API Routes', () => {
       (mockPrisma.apqpProject.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 

@@ -101,24 +101,204 @@ const mockProject2 = {
 };
 
 const mockElements = [
-  { id: 'elem-001', projectId: mockProject.id, elementNumber: 1, elementName: 'Design Records', status: 'COMPLETED', documentRef: null, notes: null, reviewedBy: null, completedDate: new Date('2026-01-25') },
-  { id: 'elem-002', projectId: mockProject.id, elementNumber: 2, elementName: 'Authorized Engineering Change Documents', status: 'COMPLETED', documentRef: null, notes: null, reviewedBy: null, completedDate: new Date('2026-01-26') },
-  { id: 'elem-003', projectId: mockProject.id, elementNumber: 3, elementName: 'Customer Engineering Approval', status: 'IN_PROGRESS', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-004', projectId: mockProject.id, elementNumber: 4, elementName: 'DFMEA', status: 'NOT_STARTED', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-005', projectId: mockProject.id, elementNumber: 5, elementName: 'Process Flow Diagram', status: 'NOT_APPLICABLE', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-006', projectId: mockProject.id, elementNumber: 6, elementName: 'PFMEA', status: 'NOT_STARTED', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-007', projectId: mockProject.id, elementNumber: 7, elementName: 'Control Plan', status: 'NOT_STARTED', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-008', projectId: mockProject.id, elementNumber: 8, elementName: 'Measurement System Analysis', status: 'NOT_STARTED', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-009', projectId: mockProject.id, elementNumber: 9, elementName: 'Dimensional Results', status: 'NOT_STARTED', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-010', projectId: mockProject.id, elementNumber: 10, elementName: 'Material/Performance Test Results', status: 'NOT_STARTED', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-011', projectId: mockProject.id, elementNumber: 11, elementName: 'Initial Process Studies', status: 'NOT_STARTED', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-012', projectId: mockProject.id, elementNumber: 12, elementName: 'Qualified Lab Documentation', status: 'NOT_STARTED', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-013', projectId: mockProject.id, elementNumber: 13, elementName: 'Appearance Approval Report', status: 'NOT_STARTED', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-014', projectId: mockProject.id, elementNumber: 14, elementName: 'Sample Production Parts', status: 'NOT_STARTED', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-015', projectId: mockProject.id, elementNumber: 15, elementName: 'Master Sample', status: 'NOT_STARTED', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-016', projectId: mockProject.id, elementNumber: 16, elementName: 'Checking Aids', status: 'NOT_STARTED', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-017', projectId: mockProject.id, elementNumber: 17, elementName: 'Customer-Specific Requirements', status: 'NOT_STARTED', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
-  { id: 'elem-018', projectId: mockProject.id, elementNumber: 18, elementName: 'Part Submission Warrant', status: 'NOT_STARTED', documentRef: null, notes: null, reviewedBy: null, completedDate: null },
+  {
+    id: 'elem-001',
+    projectId: mockProject.id,
+    elementNumber: 1,
+    elementName: 'Design Records',
+    status: 'COMPLETED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: new Date('2026-01-25'),
+  },
+  {
+    id: 'elem-002',
+    projectId: mockProject.id,
+    elementNumber: 2,
+    elementName: 'Authorized Engineering Change Documents',
+    status: 'COMPLETED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: new Date('2026-01-26'),
+  },
+  {
+    id: 'elem-003',
+    projectId: mockProject.id,
+    elementNumber: 3,
+    elementName: 'Customer Engineering Approval',
+    status: 'IN_PROGRESS',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-004',
+    projectId: mockProject.id,
+    elementNumber: 4,
+    elementName: 'DFMEA',
+    status: 'NOT_STARTED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-005',
+    projectId: mockProject.id,
+    elementNumber: 5,
+    elementName: 'Process Flow Diagram',
+    status: 'NOT_APPLICABLE',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-006',
+    projectId: mockProject.id,
+    elementNumber: 6,
+    elementName: 'PFMEA',
+    status: 'NOT_STARTED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-007',
+    projectId: mockProject.id,
+    elementNumber: 7,
+    elementName: 'Control Plan',
+    status: 'NOT_STARTED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-008',
+    projectId: mockProject.id,
+    elementNumber: 8,
+    elementName: 'Measurement System Analysis',
+    status: 'NOT_STARTED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-009',
+    projectId: mockProject.id,
+    elementNumber: 9,
+    elementName: 'Dimensional Results',
+    status: 'NOT_STARTED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-010',
+    projectId: mockProject.id,
+    elementNumber: 10,
+    elementName: 'Material/Performance Test Results',
+    status: 'NOT_STARTED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-011',
+    projectId: mockProject.id,
+    elementNumber: 11,
+    elementName: 'Initial Process Studies',
+    status: 'NOT_STARTED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-012',
+    projectId: mockProject.id,
+    elementNumber: 12,
+    elementName: 'Qualified Lab Documentation',
+    status: 'NOT_STARTED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-013',
+    projectId: mockProject.id,
+    elementNumber: 13,
+    elementName: 'Appearance Approval Report',
+    status: 'NOT_STARTED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-014',
+    projectId: mockProject.id,
+    elementNumber: 14,
+    elementName: 'Sample Production Parts',
+    status: 'NOT_STARTED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-015',
+    projectId: mockProject.id,
+    elementNumber: 15,
+    elementName: 'Master Sample',
+    status: 'NOT_STARTED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-016',
+    projectId: mockProject.id,
+    elementNumber: 16,
+    elementName: 'Checking Aids',
+    status: 'NOT_STARTED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-017',
+    projectId: mockProject.id,
+    elementNumber: 17,
+    elementName: 'Customer-Specific Requirements',
+    status: 'NOT_STARTED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
+  {
+    id: 'elem-018',
+    projectId: mockProject.id,
+    elementNumber: 18,
+    elementName: 'Part Submission Warrant',
+    status: 'NOT_STARTED',
+    documentRef: null,
+    notes: null,
+    reviewedBy: null,
+    completedDate: null,
+  },
 ];
 
 const mockSubmission = {
@@ -406,12 +586,13 @@ describe('Automotive PPAP API Routes', () => {
   // ==========================================
   describe('GET /api/ppap', () => {
     it('should return a list of projects with default pagination', async () => {
-      (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject, mockProject2]);
+      (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValueOnce([
+        mockProject,
+        mockProject2,
+      ]);
       (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/ppap')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/ppap').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -467,9 +648,7 @@ describe('Automotive PPAP API Routes', () => {
       (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject2]);
       (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/ppap?status=SUBMITTED')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/ppap?status=SUBMITTED').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.ppapProject.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -485,9 +664,7 @@ describe('Automotive PPAP API Routes', () => {
       (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
       (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/ppap?customer=automotive')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/ppap?customer=automotive').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.ppapProject.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -503,9 +680,7 @@ describe('Automotive PPAP API Routes', () => {
       (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
       (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/ppap?partNumber=BP-2026')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/ppap?partNumber=BP-2026').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.ppapProject.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -553,9 +728,7 @@ describe('Automotive PPAP API Routes', () => {
       (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/ppap')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/ppap').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.ppapProject.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -568,9 +741,7 @@ describe('Automotive PPAP API Routes', () => {
       (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValueOnce(0);
 
-      const response = await request(app)
-        .get('/api/ppap')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/ppap').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.data).toEqual([]);
@@ -579,11 +750,11 @@ describe('Automotive PPAP API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.ppapProject.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.ppapProject.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
-      const response = await request(app)
-        .get('/api/ppap')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/ppap').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -597,7 +768,9 @@ describe('Automotive PPAP API Routes', () => {
   // ==========================================
   describe('GET /api/ppap/:id', () => {
     it('should return a project with elements and submissions', async () => {
-      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProjectWithDetails);
+      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockProjectWithDetails
+      );
 
       const response = await request(app)
         .get(`/api/ppap/${mockProject.id}`)
@@ -1108,10 +1281,10 @@ describe('Automotive PPAP API Routes', () => {
 
       const data = response.body.data;
       expect(data.totalElements).toBe(18);
-      expect(data.completed).toBe(2);       // Elements 1 and 2 are COMPLETED
-      expect(data.notApplicable).toBe(1);   // Element 5 is NOT_APPLICABLE
-      expect(data.ready).toBe(3);           // 2 COMPLETED + 1 NOT_APPLICABLE
-      expect(data.percentage).toBe(17);     // Math.round(3/18 * 100) = 17
+      expect(data.completed).toBe(2); // Elements 1 and 2 are COMPLETED
+      expect(data.notApplicable).toBe(1); // Element 5 is NOT_APPLICABLE
+      expect(data.ready).toBe(3); // 2 COMPLETED + 1 NOT_APPLICABLE
+      expect(data.percentage).toBe(17); // Math.round(3/18 * 100) = 17
       expect(data.missingElements).toHaveLength(15); // 18 - 3 = 15 missing
     });
 
@@ -1139,7 +1312,7 @@ describe('Automotive PPAP API Routes', () => {
     });
 
     it('should return 100% when all elements are completed', async () => {
-      const allCompleted = mockElements.map(e => ({ ...e, status: 'COMPLETED' }));
+      const allCompleted = mockElements.map((e) => ({ ...e, status: 'COMPLETED' }));
       const projectAllDone = {
         ...mockProject,
         elements: allCompleted,
@@ -1159,7 +1332,7 @@ describe('Automotive PPAP API Routes', () => {
     });
 
     it('should treat NOT_APPLICABLE as ready', async () => {
-      const allNA = mockElements.map(e => ({ ...e, status: 'NOT_APPLICABLE' }));
+      const allNA = mockElements.map((e) => ({ ...e, status: 'NOT_APPLICABLE' }));
       const projectAllNA = {
         ...mockProject,
         elements: allNA,
@@ -1179,7 +1352,7 @@ describe('Automotive PPAP API Routes', () => {
     });
 
     it('should return 0% when no elements are completed', async () => {
-      const allNotStarted = mockElements.map(e => ({ ...e, status: 'NOT_STARTED' }));
+      const allNotStarted = mockElements.map((e) => ({ ...e, status: 'NOT_STARTED' }));
       const projectNoneStarted = {
         ...mockProject,
         elements: allNotStarted,

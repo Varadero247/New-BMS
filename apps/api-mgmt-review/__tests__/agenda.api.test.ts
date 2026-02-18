@@ -93,9 +93,7 @@ describe('POST /api/agenda/:id/generate', () => {
 
   it('should return 500 when update throws an error', async () => {
     (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
-    (prisma.mgmtReview.update as jest.Mock).mockRejectedValue(
-      new Error('Update failed')
-    );
+    (prisma.mgmtReview.update as jest.Mock).mockRejectedValue(new Error('Update failed'));
 
     const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
 

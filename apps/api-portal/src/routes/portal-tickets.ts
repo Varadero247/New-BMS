@@ -93,8 +93,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing tickets', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list tickets' } });
+    logger.error('Error listing tickets', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list tickets' },
+    });
   }
 });
 
@@ -107,7 +112,10 @@ router.post('/', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = ticketCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const data = parsed.data;
@@ -130,8 +138,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Ticket created', { id: ticket.id, number });
     return res.status(201).json({ success: true, data: ticket });
   } catch (error: unknown) {
-    logger.error('Error creating ticket', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create ticket' } });
+    logger.error('Error creating ticket', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create ticket' },
+    });
   }
 });
 
@@ -149,13 +162,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!ticket) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
     }
 
     return res.json({ success: true, data: ticket });
   } catch (error: unknown) {
-    logger.error('Error fetching ticket', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch ticket' } });
+    logger.error('Error fetching ticket', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch ticket' },
+    });
   }
 });
 
@@ -169,14 +189,19 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const parsed = ticketUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const existing = await prisma.portalTicket.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
     }
 
     const updated = await prisma.portalTicket.update({
@@ -187,8 +212,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Ticket updated', { id: updated.id });
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Error updating ticket', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update ticket' } });
+    logger.error('Error updating ticket', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update ticket' },
+    });
   }
 });
 
@@ -201,14 +231,19 @@ router.post('/:id/messages', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = messageCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const ticket = await prisma.portalTicket.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!ticket) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
     }
 
     const message = await prisma.portalTicketMessage.create({
@@ -233,8 +268,13 @@ router.post('/:id/messages', async (req: Request, res: Response) => {
     logger.info('Ticket message added', { ticketId: req.params.id, messageId: message.id });
     return res.status(201).json({ success: true, data: message });
   } catch (error: unknown) {
-    logger.error('Error adding message', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add message' } });
+    logger.error('Error adding message', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add message' },
+    });
   }
 });
 
@@ -248,18 +288,26 @@ router.get('/:id/messages', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!ticket) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
     }
 
     const messages = await prisma.portalTicketMessage.findMany({
       where: { ticketId: req.params.id, deletedAt: null } as any,
       orderBy: { createdAt: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     return res.json({ success: true, data: messages });
   } catch (error: unknown) {
-    logger.error('Error listing messages', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list messages' } });
+    logger.error('Error listing messages', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list messages' },
+    });
   }
 });
 
@@ -270,18 +318,25 @@ router.get('/:id/messages', async (req: Request, res: Response) => {
 router.put('/:id/resolve', async (req: Request, res: Response) => {
   try {
     const auth = req as AuthRequest;
-    const resolutionParsed = z.object({ resolution: z.string().max(5000).optional() }).safeParse(req.body);
+    const resolutionParsed = z
+      .object({ resolution: z.string().max(5000).optional() })
+      .safeParse(req.body);
     const resolution = resolutionParsed.success ? resolutionParsed.data.resolution : undefined;
 
     const ticket = await prisma.portalTicket.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!ticket) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
     }
 
     if (ticket.status === 'CLOSED') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Ticket is already closed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Ticket is already closed' },
+      });
     }
 
     const updated = await prisma.portalTicket.update({
@@ -296,8 +351,13 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
     logger.info('Ticket resolved', { id: updated.id });
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Error resolving ticket', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to resolve ticket' } });
+    logger.error('Error resolving ticket', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to resolve ticket' },
+    });
   }
 });
 

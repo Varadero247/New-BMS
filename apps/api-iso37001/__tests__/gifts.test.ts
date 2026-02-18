@@ -50,7 +50,7 @@ const mockGift = {
   description: 'Corporate gift basket',
   giftType: 'GIFT',
   direction: 'GIVEN',
-  value: 150.00,
+  value: 150.0,
   currency: 'USD',
   recipientOrGiver: 'Jane Doe',
   date: new Date('2026-01-15'),
@@ -77,7 +77,7 @@ const mockGift2 = {
   description: 'Lunch meeting hospitality',
   giftType: 'HOSPITALITY',
   direction: 'RECEIVED',
-  value: 75.00,
+  value: 75.0,
   recipientOrGiver: 'Bob Agent',
   referenceNumber: 'AB-GFT-2602-5678',
 };
@@ -195,10 +195,12 @@ describe('ISO 37001 Gifts API', () => {
     });
 
     it('should validate value is a positive number', async () => {
-      const res = await request(app).post('/api/gifts').send({
-        ...validPayload,
-        value: -50,
-      });
+      const res = await request(app)
+        .post('/api/gifts')
+        .send({
+          ...validPayload,
+          value: -50,
+        });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -405,7 +407,10 @@ describe('ISO 37001 Gifts API', () => {
   describe('DELETE /api/gifts/:id', () => {
     it('should soft delete a gift record', async () => {
       (mockPrisma.abGift.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
-      (mockPrisma.abGift.update as jest.Mock).mockResolvedValueOnce({ ...mockGift, deletedAt: new Date() });
+      (mockPrisma.abGift.update as jest.Mock).mockResolvedValueOnce({
+        ...mockGift,
+        deletedAt: new Date(),
+      });
 
       const res = await request(app).delete('/api/gifts/00000000-0000-0000-0000-000000000001');
 

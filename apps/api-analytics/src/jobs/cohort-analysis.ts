@@ -43,13 +43,15 @@ export async function runCohortAnalysis(monthNumber: number, month: string): Pro
       select: { month: true, revenueChurnPct: true, mrrGrowthPct: true },
       orderBy: { month: 'asc' },
     });
-    const snapshotMap = new Map(snapshots.map((s) => [
-      s.month,
-      {
-        churnPct: Math.max(0, Number(s.revenueChurnPct) || 0),
-        growthPct: Math.max(0, Number(s.mrrGrowthPct) || 0),
-      },
-    ]));
+    const snapshotMap = new Map(
+      snapshots.map((s) => [
+        s.month,
+        {
+          churnPct: Math.max(0, Number(s.revenueChurnPct) || 0),
+          growthPct: Math.max(0, Number(s.mrrGrowthPct) || 0),
+        },
+      ])
+    );
 
     // Env-configurable fallback rates when no snapshot data exists
     const FALLBACK_CHURN_PCT = parseFloat(process.env.COHORT_FALLBACK_CHURN_PCT || '2.5');
@@ -74,10 +76,10 @@ export async function runCohortAnalysis(monthNumber: number, month: string): Pro
         const monthlyChurnRate = snap ? snap.churnPct / 100 : FALLBACK_CHURN_PCT / 100;
         // Net expansion = total MRR growth minus churn (capped at 0 to avoid negative expansion)
         const monthlyExpansionRate = snap
-          ? Math.max(0, (snap.growthPct - snap.churnPct)) / 100
+          ? Math.max(0, snap.growthPct - snap.churnPct) / 100
           : FALLBACK_EXPANSION_PCT / 100;
 
-        retentionFactor *= (1 - monthlyChurnRate);
+        retentionFactor *= 1 - monthlyChurnRate;
         ndrFactor *= (1 - monthlyChurnRate) * (1 + monthlyExpansionRate);
       }
 

@@ -1,2 +1,4 @@
 import MapViewClient from './client';
-export default function MapViewPage() { return <MapViewClient />; }
+export default function MapViewPage() {
+  return <MapViewClient />;
+}

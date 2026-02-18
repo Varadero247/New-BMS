@@ -2,15 +2,31 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  Card, CardContent,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
 } from '@ims/ui';
 import {
-  Plus, Search, Loader2, Wrench,
-  ClipboardList, CheckCircle2, Clock,
-  AlertTriangle, ArrowLeft, Play,
-  Eye, Send, PauseCircle,
+  Plus,
+  Search,
+  Loader2,
+  Wrench,
+  ClipboardList,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+  ArrowLeft,
+  Play,
+  Eye,
+  Send,
+  PauseCircle,
   ChevronRight,
 } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -69,32 +85,50 @@ const STATUSES = [
 
 function getPriorityColor(priority: string): string {
   switch (priority) {
-    case 'AOG': return 'bg-red-100 text-red-700 border-red-300';
-    case 'URGENT': return 'bg-orange-100 text-orange-700 border-orange-300';
-    case 'ROUTINE': return 'bg-blue-100 text-blue-700 border-blue-300';
-    case 'DEFERRED': return 'bg-gray-100 dark:bg-gray-800 text-gray-600 border-gray-300';
-    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-600 border-gray-300';
+    case 'AOG':
+      return 'bg-red-100 text-red-700 border-red-300';
+    case 'URGENT':
+      return 'bg-orange-100 text-orange-700 border-orange-300';
+    case 'ROUTINE':
+      return 'bg-blue-100 text-blue-700 border-blue-300';
+    case 'DEFERRED':
+      return 'bg-gray-100 dark:bg-gray-800 text-gray-600 border-gray-300';
+    default:
+      return 'bg-gray-100 dark:bg-gray-800 text-gray-600 border-gray-300';
   }
 }
 
-function getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'secondary' | 'danger' | 'destructive' {
+function getStatusVariant(
+  status: string
+): 'success' | 'warning' | 'info' | 'secondary' | 'danger' | 'destructive' {
   switch (status) {
-    case 'OPEN': return 'secondary';
-    case 'IN_PROGRESS': return 'info';
-    case 'PENDING_INSPECTION': return 'warning';
-    case 'INSPECTED': return 'success';
-    case 'RELEASED': return 'success';
-    case 'DEFERRED': return 'secondary';
-    default: return 'info';
+    case 'OPEN':
+      return 'secondary';
+    case 'IN_PROGRESS':
+      return 'info';
+    case 'PENDING_INSPECTION':
+      return 'warning';
+    case 'INSPECTED':
+      return 'success';
+    case 'RELEASED':
+      return 'success';
+    case 'DEFERRED':
+      return 'secondary';
+    default:
+      return 'info';
   }
 }
 
 function getTaskStatusColor(status: string): string {
   switch (status) {
-    case 'PENDING': return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
-    case 'IN_PROGRESS': return 'bg-blue-100 text-blue-700 border-blue-300';
-    case 'COMPLETED': return 'bg-green-100 text-green-700 border-green-300';
-    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
+    case 'PENDING':
+      return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
+    case 'IN_PROGRESS':
+      return 'bg-blue-100 text-blue-700 border-blue-300';
+    case 'COMPLETED':
+      return 'bg-green-100 text-green-700 border-green-300';
+    default:
+      return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
   }
 }
 
@@ -180,54 +214,63 @@ export default function WorkOrdersClient() {
   // Submit handlers
   // ---------------------------------------------------------------------------
 
-  const handleCreate = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post('/workorders', {
-        ...form,
-        dueDate: form.dueDate || undefined,
-      });
-      setShowCreateModal(false);
-      setForm(emptyWOForm);
-      fetchItems();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create work order');
-      console.error('Failed to create work order:', err);
-    } finally {
-      setSubmitting(false);
-    }
-  }, [form, fetchItems]);
+  const handleCreate = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post('/workorders', {
+          ...form,
+          dueDate: form.dueDate || undefined,
+        });
+        setShowCreateModal(false);
+        setForm(emptyWOForm);
+        fetchItems();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create work order');
+        console.error('Failed to create work order:', err);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [form, fetchItems]
+  );
 
-  const handleAddTask = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedItem) return;
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post(`/workorders/${selectedItem.id}/tasks`, taskForm);
-      setShowAddTaskModal(false);
-      setTaskForm(emptyTaskForm);
-      await fetchDetail(selectedItem.id);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to add task');
-      console.error('Failed to add task:', err);
-    } finally {
-      setSubmitting(false);
-    }
-  }, [selectedItem, taskForm, fetchDetail]);
+  const handleAddTask = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!selectedItem) return;
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post(`/workorders/${selectedItem.id}/tasks`, taskForm);
+        setShowAddTaskModal(false);
+        setTaskForm(emptyTaskForm);
+        await fetchDetail(selectedItem.id);
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to add task');
+        console.error('Failed to add task:', err);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [selectedItem, taskForm, fetchDetail]
+  );
 
-  const handleCompleteTask = useCallback(async (taskId: string) => {
-    if (!selectedItem) return;
-    try {
-      await api.put(`/workorders/${selectedItem.id}/tasks/${taskId}/complete`);
-      await fetchDetail(selectedItem.id);
-    } catch (err: unknown) {
-      console.error('Failed to complete task:', err);
-      alert(err.response?.data?.message || 'Failed to complete task');
-    }
-  }, [selectedItem, fetchDetail]);
+  const handleCompleteTask = useCallback(
+    async (taskId: string) => {
+      if (!selectedItem) return;
+      try {
+        await api.put(`/workorders/${selectedItem.id}/tasks/${taskId}/complete`);
+        await fetchDetail(selectedItem.id);
+      } catch (err: unknown) {
+        console.error('Failed to complete task:', err);
+        alert(err.response?.data?.message || 'Failed to complete task');
+      }
+    },
+    [selectedItem, fetchDetail]
+  );
 
   const handleInspect = useCallback(async () => {
     if (!selectedItem) return;
@@ -272,33 +315,40 @@ export default function WorkOrdersClient() {
   // Filtered data
   // ---------------------------------------------------------------------------
 
-  const filteredItems = useMemo(() => items.filter(item => {
-    if (statusFilter !== 'all' && item.status !== statusFilter) return false;
-    if (priorityFilter !== 'all' && item.priority !== priorityFilter) return false;
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      if (
-        !item.title.toLowerCase().includes(query) &&
-        !item.refNumber.toLowerCase().includes(query) &&
-        !(item.aircraftType || '').toLowerCase().includes(query) &&
-        !(item.aircraftReg || '').toLowerCase().includes(query)
-      ) {
-        return false;
-      }
-    }
-    return true;
-  }), [items, statusFilter, priorityFilter, searchQuery]);
+  const filteredItems = useMemo(
+    () =>
+      items.filter((item) => {
+        if (statusFilter !== 'all' && item.status !== statusFilter) return false;
+        if (priorityFilter !== 'all' && item.priority !== priorityFilter) return false;
+        if (searchQuery) {
+          const query = searchQuery.toLowerCase();
+          if (
+            !item.title.toLowerCase().includes(query) &&
+            !item.refNumber.toLowerCase().includes(query) &&
+            !(item.aircraftType || '').toLowerCase().includes(query) &&
+            !(item.aircraftReg || '').toLowerCase().includes(query)
+          ) {
+            return false;
+          }
+        }
+        return true;
+      }),
+    [items, statusFilter, priorityFilter, searchQuery]
+  );
 
   // ---------------------------------------------------------------------------
   // Summary stats
   // ---------------------------------------------------------------------------
 
-  const summaryStats = useMemo(() => ({
-    total: items.length,
-    open: items.filter(i => i.status === 'OPEN').length,
-    inProgress: items.filter(i => i.status === 'IN_PROGRESS').length,
-    released: items.filter(i => i.status === 'RELEASED').length,
-  }), [items]);
+  const summaryStats = useMemo(
+    () => ({
+      total: items.length,
+      open: items.filter((i) => i.status === 'OPEN').length,
+      inProgress: items.filter((i) => i.status === 'IN_PROGRESS').length,
+      released: items.filter((i) => i.status === 'RELEASED').length,
+    }),
+    [items]
+  );
 
   // ---------------------------------------------------------------------------
   // Loading spinner
@@ -322,7 +372,10 @@ export default function WorkOrdersClient() {
           {/* Back button + header */}
           <div className="mb-6">
             <button
-              onClick={() => { setSelectedItem(null); fetchItems(); }}
+              onClick={() => {
+                setSelectedItem(null);
+                fetchItems();
+              }}
               className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 transition-colors mb-4"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -338,13 +391,19 @@ export default function WorkOrdersClient() {
               <>
                 <div className="flex items-start justify-between">
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{selectedItem.title}</h1>
-                    <p className="text-sm font-mono text-indigo-600 mt-1">{selectedItem.refNumber}</p>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                      {selectedItem.title}
+                    </h1>
+                    <p className="text-sm font-mono text-indigo-600 mt-1">
+                      {selectedItem.refNumber}
+                    </p>
                     <div className="flex items-center gap-3 mt-2">
                       <Badge variant={getStatusVariant(selectedItem.status)}>
                         {selectedItem.status?.replace(/_/g, ' ')}
                       </Badge>
-                      <span className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full border ${getPriorityColor(selectedItem.priority)}`}>
+                      <span
+                        className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full border ${getPriorityColor(selectedItem.priority)}`}
+                      >
                         {selectedItem.priority}
                       </span>
                     </div>
@@ -353,14 +412,19 @@ export default function WorkOrdersClient() {
                     {selectedItem.status !== 'RELEASED' && selectedItem.status !== 'DEFERRED' && (
                       <Button
                         variant="outline"
-                        onClick={() => { setTaskForm(emptyTaskForm); setError(''); setShowAddTaskModal(true); }}
+                        onClick={() => {
+                          setTaskForm(emptyTaskForm);
+                          setError('');
+                          setShowAddTaskModal(true);
+                        }}
                         className="flex items-center gap-2"
                       >
                         <Plus className="h-4 w-4" />
                         Add Task
                       </Button>
                     )}
-                    {(selectedItem.status === 'IN_PROGRESS' || selectedItem.status === 'PENDING_INSPECTION') && (
+                    {(selectedItem.status === 'IN_PROGRESS' ||
+                      selectedItem.status === 'PENDING_INSPECTION') && (
                       <Button
                         onClick={handleInspect}
                         className="bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-2"
@@ -398,26 +462,38 @@ export default function WorkOrdersClient() {
                     <p className="text-sm font-medium mt-1">{selectedItem.aircraftType || '--'}</p>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Aircraft Registration</p>
-                    <p className="text-sm font-mono font-medium mt-1">{selectedItem.aircraftReg || '--'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Aircraft Registration
+                    </p>
+                    <p className="text-sm font-mono font-medium mt-1">
+                      {selectedItem.aircraftReg || '--'}
+                    </p>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
                     <p className="text-xs text-gray-500 dark:text-gray-400">Due Date</p>
                     <p className="text-sm font-medium mt-1">
-                      {selectedItem.dueDate ? new Date(selectedItem.dueDate).toLocaleDateString() : '--'}
+                      {selectedItem.dueDate
+                        ? new Date(selectedItem.dueDate).toLocaleDateString()
+                        : '--'}
                     </p>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
                     <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
-                    <p className="text-sm font-medium mt-1">{new Date(selectedItem.createdAt).toLocaleDateString()}</p>
+                    <p className="text-sm font-medium mt-1">
+                      {new Date(selectedItem.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
 
                 {/* Description */}
                 {selectedItem.description && (
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6">
-                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Description</h3>
-                    <p className="text-sm text-gray-600 whitespace-pre-wrap">{selectedItem.description}</p>
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Description
+                    </h3>
+                    <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                      {selectedItem.description}
+                    </p>
                   </div>
                 )}
 
@@ -454,14 +530,22 @@ export default function WorkOrdersClient() {
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-1">
-                                <span className="text-xs font-mono text-gray-400 dark:text-gray-500">#{task.taskNumber}</span>
-                                <span className={`inline-flex text-xs px-2 py-0.5 rounded-full border ${getTaskStatusColor(task.status)}`}>
+                                <span className="text-xs font-mono text-gray-400 dark:text-gray-500">
+                                  #{task.taskNumber}
+                                </span>
+                                <span
+                                  className={`inline-flex text-xs px-2 py-0.5 rounded-full border ${getTaskStatusColor(task.status)}`}
+                                >
                                   {task.status}
                                 </span>
                               </div>
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{task.title}</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {task.title}
+                              </p>
                               {task.description && (
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{task.description}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  {task.description}
+                                </p>
                               )}
                               {task.completedAt && (
                                 <p className="text-xs text-green-600 mt-1">
@@ -498,7 +582,12 @@ export default function WorkOrdersClient() {
         </div>
 
         {/* Add Task Modal */}
-        <Modal isOpen={showAddTaskModal} onClose={() => setShowAddTaskModal(false)} title="Add Task" size="lg">
+        <Modal
+          isOpen={showAddTaskModal}
+          onClose={() => setShowAddTaskModal(false)}
+          title="Add Task"
+          size="lg"
+        >
           <form onSubmit={handleAddTask}>
             <div className="space-y-4">
               {error && (
@@ -528,11 +617,22 @@ export default function WorkOrdersClient() {
               </div>
             </div>
             <ModalFooter>
-              <Button type="button" variant="outline" onClick={() => setShowAddTaskModal(false)}>Cancel</Button>
-              <Button type="submit" disabled={submitting} className="bg-indigo-600 hover:bg-indigo-700">
+              <Button type="button" variant="outline" onClick={() => setShowAddTaskModal(false)}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={submitting}
+                className="bg-indigo-600 hover:bg-indigo-700"
+              >
                 {submitting ? (
-                  <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Adding...</span>
-                ) : 'Add Task'}
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Adding...
+                  </span>
+                ) : (
+                  'Add Task'
+                )}
               </Button>
             </ModalFooter>
           </form>
@@ -551,7 +651,9 @@ export default function WorkOrdersClient() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">MRO Work Orders</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Maintenance, Repair & Overhaul work order management</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Maintenance, Repair & Overhaul work order management
+          </p>
         </div>
 
         {/* Summary Metrics */}
@@ -610,8 +712,10 @@ export default function WorkOrdersClient() {
             className="w-44"
           >
             <option value="all">All Statuses</option>
-            {STATUSES.map(s => (
-              <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+            {STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {s.replace(/_/g, ' ')}
+              </option>
             ))}
           </Select>
           <Select
@@ -620,21 +724,28 @@ export default function WorkOrdersClient() {
             className="w-36"
           >
             <option value="all">All Priorities</option>
-            {PRIORITIES.map(p => (
-              <option key={p} value={p}>{p}</option>
+            {PRIORITIES.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
             ))}
           </Select>
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
-              aria-label="Search by title, ref number, aircraft..." placeholder="Search by title, ref number, aircraft..."
+              aria-label="Search by title, ref number, aircraft..."
+              placeholder="Search by title, ref number, aircraft..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
             />
           </div>
           <Button
-            onClick={() => { setForm(emptyWOForm); setError(''); setShowCreateModal(true); }}
+            onClick={() => {
+              setForm(emptyWOForm);
+              setError('');
+              setShowCreateModal(true);
+            }}
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700"
           >
             <Plus className="h-4 w-4" />
@@ -643,19 +754,33 @@ export default function WorkOrdersClient() {
         </div>
 
         {/* Content */}
-        {loading ? <LoadingSpinner /> : filteredItems.length > 0 ? (
+        {loading ? (
+          <LoadingSpinner />
+        ) : filteredItems.length > 0 ? (
           <Card>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Ref Number</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Title</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Aircraft Type</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Registration</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Priority</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Status</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                        Ref Number
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                        Title
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                        Aircraft Type
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                        Registration
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                        Priority
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                        Status
+                      </th>
                       <th className="text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3"></th>
                     </tr>
                   </thead>
@@ -667,19 +792,29 @@ export default function WorkOrdersClient() {
                         onClick={() => fetchDetail(item.id)}
                       >
                         <td className="px-4 py-3">
-                          <span className="text-sm font-mono text-indigo-600 font-medium">{item.refNumber}</span>
+                          <span className="text-sm font-mono text-indigo-600 font-medium">
+                            {item.refNumber}
+                          </span>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.title}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {item.title}
+                          </p>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm text-gray-700 dark:text-gray-300">{item.aircraftType || '--'}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            {item.aircraftType || '--'}
+                          </span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm font-mono text-gray-700 dark:text-gray-300">{item.aircraftReg || '--'}</span>
+                          <span className="text-sm font-mono text-gray-700 dark:text-gray-300">
+                            {item.aircraftReg || '--'}
+                          </span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full border ${getPriorityColor(item.priority)}`}>
+                          <span
+                            className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full border ${getPriorityColor(item.priority)}`}
+                          >
                             {item.priority}
                           </span>
                         </td>
@@ -701,12 +836,18 @@ export default function WorkOrdersClient() {
         ) : (
           <div className="text-center py-16">
             <Wrench className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Work Orders found</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              No Work Orders found
+            </h3>
             <p className="text-gray-500 dark:text-gray-400 mb-6">
               Create a work order to begin tracking MRO activities.
             </p>
             <Button
-              onClick={() => { setForm(emptyWOForm); setError(''); setShowCreateModal(true); }}
+              onClick={() => {
+                setForm(emptyWOForm);
+                setError('');
+                setShowCreateModal(true);
+              }}
               className="bg-indigo-600 hover:bg-indigo-700"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -726,7 +867,12 @@ export default function WorkOrdersClient() {
       {/* ==================================================================== */}
       {/* MODAL: Create Work Order                                             */}
       {/* ==================================================================== */}
-      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create MRO Work Order" size="lg">
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title="Create MRO Work Order"
+        size="lg"
+      >
         <form onSubmit={handleCreate}>
           <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
             {error && (
@@ -793,8 +939,10 @@ export default function WorkOrdersClient() {
                       value={form.priority}
                       onChange={(e) => setForm({ ...form, priority: e.target.value })}
                     >
-                      {PRIORITIES.map(p => (
-                        <option key={p} value={p}>{p}</option>
+                      {PRIORITIES.map((p) => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
                       ))}
                     </Select>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
@@ -816,11 +964,22 @@ export default function WorkOrdersClient() {
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>Cancel</Button>
-            <Button type="submit" disabled={submitting} className="bg-indigo-600 hover:bg-indigo-700">
+            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-indigo-600 hover:bg-indigo-700"
+            >
               {submitting ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating...</span>
-              ) : 'Create Work Order'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                'Create Work Order'
+              )}
             </Button>
           </ModalFooter>
         </form>

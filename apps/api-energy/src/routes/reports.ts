@@ -44,8 +44,11 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
     // Active targets
     const targets = await prisma.energyTarget.findMany({
       where: { deletedAt: null, year: now.getFullYear() } as any,
-      take: 1000});
-    const onTrackTargets = targets.filter(t => t.status === 'ON_TRACK' || t.status === 'ACHIEVED').length;
+      take: 1000,
+    });
+    const onTrackTargets = targets.filter(
+      (t) => t.status === 'ON_TRACK' || t.status === 'ACHIEVED'
+    ).length;
 
     // Active projects
     const activeProjects = await prisma.energyProject.count({
@@ -88,8 +91,13 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to generate dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate dashboard' } });
+    logger.error('Failed to generate dashboard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate dashboard' },
+    });
   }
 });
 
@@ -103,27 +111,33 @@ router.get('/esos', async (_req: Request, res: Response) => {
     const audits = await prisma.energyAudit.findMany({
       where: { deletedAt: null, type: { in: ['EXTERNAL', 'REGULATORY', 'ISO_50001'] } as any },
       orderBy: { scheduledDate: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     const seus = await prisma.energySeu.findMany({
       where: { deletedAt: null } as any,
       orderBy: { consumptionPercentage: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     const projects = await prisma.energyProject.findMany({
       where: { deletedAt: null } as any,
       orderBy: { estimatedSavings: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     const totalConsumption = seus.reduce((sum, s) => sum + Number(s.annualConsumption), 0);
-    const totalSavingsOpportunity = projects.reduce((sum, p) => sum + Number(p.estimatedSavings || 0), 0);
+    const totalSavingsOpportunity = projects.reduce(
+      (sum, p) => sum + Number(p.estimatedSavings || 0),
+      0
+    );
 
     res.json({
       success: true,
       data: {
         qualifyingAudits: audits.length,
         latestAudit: audits[0] || null,
-        significantEnergyUses: seus.map(s => ({
+        significantEnergyUses: seus.map((s) => ({
           name: s.name,
           facility: s.facility,
           annualConsumption: Number(s.annualConsumption),
@@ -132,7 +146,7 @@ router.get('/esos', async (_req: Request, res: Response) => {
           status: s.status,
         })),
         totalConsumption,
-        savingsOpportunities: projects.map(p => ({
+        savingsOpportunities: projects.map((p) => ({
           title: p.title,
           type: p.type,
           estimatedSavings: Number(p.estimatedSavings || 0),
@@ -144,8 +158,13 @@ router.get('/esos', async (_req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to generate ESOS report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate ESOS report' } });
+    logger.error('Failed to generate ESOS report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate ESOS report' },
+    });
   }
 });
 
@@ -170,7 +189,8 @@ router.get('/secr', async (req: Request, res: Response) => {
       include: {
         meter: { select: { type: true, unit: true } },
       },
-      take: 1000});
+      take: 1000,
+    });
 
     const byType: Record<string, { consumption: number; cost: number; count: number }> = {};
     for (const r of readings) {
@@ -196,8 +216,15 @@ router.get('/secr', async (req: Request, res: Response) => {
     // EnPI performance
     const enpis = await prisma.energyEnpi.findMany({
       where: { deletedAt: null } as any,
-      select: { name: true, unit: true, baselineValue: true, currentValue: true, targetValue: true },
-      take: 1000});
+      select: {
+        name: true,
+        unit: true,
+        baselineValue: true,
+        currentValue: true,
+        targetValue: true,
+      },
+      take: 1000,
+    });
 
     const totalConsumption = Object.values(byType).reduce((sum, t) => sum + t.consumption, 0);
     const totalCost = Number(bills._sum.cost || 0);
@@ -212,7 +239,7 @@ router.get('/secr', async (req: Request, res: Response) => {
           type,
           ...data,
         })),
-        intensityMetrics: enpis.map(e => ({
+        intensityMetrics: enpis.map((e) => ({
           name: e.name,
           unit: e.unit,
           baseline: Number(e.baselineValue || 0),
@@ -222,8 +249,13 @@ router.get('/secr', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to generate SECR report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate SECR report' } });
+    logger.error('Failed to generate SECR report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate SECR report' },
+    });
   }
 });
 
@@ -248,11 +280,16 @@ router.get('/consumption', async (req: Request, res: Response) => {
       include: {
         meter: { select: { type: true, facility: true, unit: true, name: true } },
       },
-      take: 1000});
+      take: 1000,
+    });
 
     // Filter by facility if provided
     const filtered = facility
-      ? readings.filter(r => r.meter.facility && r.meter.facility.toLowerCase().includes(String(facility).toLowerCase()))
+      ? readings.filter(
+          (r) =>
+            r.meter.facility &&
+            r.meter.facility.toLowerCase().includes(String(facility).toLowerCase())
+        )
       : readings;
 
     const groupKey = typeof groupBy === 'string' ? groupBy : 'type';
@@ -286,16 +323,26 @@ router.get('/consumption', async (req: Request, res: Response) => {
         totalConsumption,
         totalCost,
         readingCount: filtered.length,
-        breakdown: Object.entries(grouped).map(([key, data]) => ({
-          key,
-          ...data,
-          percentage: totalConsumption > 0 ? Math.round((data.consumption / totalConsumption) * 10000) / 100 : 0,
-        })).sort((a, b) => b.consumption - a.consumption),
+        breakdown: Object.entries(grouped)
+          .map(([key, data]) => ({
+            key,
+            ...data,
+            percentage:
+              totalConsumption > 0
+                ? Math.round((data.consumption / totalConsumption) * 10000) / 100
+                : 0,
+          }))
+          .sort((a, b) => b.consumption - a.consumption),
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to generate consumption report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate consumption report' } });
+    logger.error('Failed to generate consumption report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate consumption report' },
+    });
   }
 });
 

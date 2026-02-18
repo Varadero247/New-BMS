@@ -1,7 +1,8 @@
 # IMS System Testing Guide - Immediate Testing
+
 **Purpose**: Test current system to verify functionality and identify issues  
 **Time Required**: 2-4 hours  
-**Prerequisites**: System running locally  
+**Prerequisites**: System running locally
 
 ---
 
@@ -86,6 +87,7 @@ pnpm --filter @ims/database migrate deploy
 ```
 
 **Record Results**:
+
 ```
 Service Status Report:
 - API Gateway (4000): [ ] Running [ ] Not Running [ ] Error
@@ -126,6 +128,7 @@ curl http://localhost:3006
 **Common Issues & Fixes**:
 
 **Issue**: Port already in use
+
 ```bash
 # Find process using port
 lsof -i :4000
@@ -135,6 +138,7 @@ kill -9 <PID>
 ```
 
 **Issue**: Database connection error
+
 ```bash
 # Check DATABASE_URL in .env
 cat .env | grep DATABASE_URL
@@ -144,6 +148,7 @@ psql $DATABASE_URL -c "SELECT 1;"
 ```
 
 **Issue**: Module not found
+
 ```bash
 # Rebuild packages
 pnpm --filter @ims/database build
@@ -164,24 +169,21 @@ const { PrismaClient } = require('@prisma/client');
 
 async function testDatabase() {
   const prisma = new PrismaClient();
-  
+
   try {
     console.log('Testing database connection...');
-    
+
     // Test connection
     await prisma.$connect();
     console.log('✅ Database connected');
-    
+
     // Test query
     const userCount = await prisma.user.count();
     console.log(`✅ Found ${userCount} users in database`);
-    
+
     // Test all tables
-    const tables = [
-      'user', 'session', 'employee', 'department',
-      'incident', 'risk', 'action'
-    ];
-    
+    const tables = ['user', 'session', 'employee', 'department', 'incident', 'risk', 'action'];
+
     for (const table of tables) {
       try {
         const count = await prisma[table].count();
@@ -190,10 +192,9 @@ async function testDatabase() {
         console.log(`❌ Table '${table}': ERROR - ${error.message}`);
       }
     }
-    
+
     await prisma.$disconnect();
     console.log('\n✅ All database tests passed');
-    
   } catch (error) {
     console.error('❌ Database test failed:', error.message);
     process.exit(1);
@@ -204,6 +205,7 @@ testDatabase();
 ```
 
 Run test:
+
 ```bash
 node test-db-connection.js
 ```
@@ -294,6 +296,7 @@ echo "Authentication tests complete"
 ```
 
 Run test:
+
 ```bash
 chmod +x test-auth.sh
 ./test-auth.sh
@@ -319,6 +322,7 @@ pnpm dev:dashboard
 ```
 
 **Manual Testing Checklist**:
+
 - [ ] Login page loads correctly
 - [ ] Can enter email and password
 - [ ] "Login" button works
@@ -371,15 +375,15 @@ declare -a endpoints=(
 
 for endpoint in "${endpoints[@]}"; do
   IFS='|' read -r method path expected_status note <<< "$endpoint"
-  
+
   echo "Testing: $method $path"
-  
+
   if [ "$method" = "GET" ]; then
     STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
       -X GET "$API_URL$path" \
       -H "Authorization: Bearer $TOKEN")
   fi
-  
+
   if [ "$STATUS" = "$expected_status" ]; then
     if [ -n "$note" ]; then
       echo "  ✅ Status: $STATUS ($note)"
@@ -397,6 +401,7 @@ echo "API endpoint tests complete"
 ```
 
 Run test:
+
 ```bash
 chmod +x test-api-endpoints.sh
 ./test-api-endpoints.sh
@@ -495,6 +500,7 @@ echo "CRUD tests complete"
 ```
 
 Run test:
+
 ```bash
 chmod +x test-crud.sh
 ./test-crud.sh
@@ -547,122 +553,138 @@ Create: `test-ui-components.html`
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <title>IMS UI Component Test</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .test { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
-    .pass { background-color: #d4edda; }
-    .fail { background-color: #f8d7da; }
-    button { padding: 10px 20px; margin: 5px; cursor: pointer; }
-  </style>
-</head>
-<body>
-  <h1>IMS Frontend Component Test</h1>
-  
-  <div class="test" id="test1">
-    <h3>Test 1: API Connection</h3>
-    <button onclick="testAPI()">Test API</button>
-    <div id="api-result"></div>
-  </div>
+  <head>
+    <title>IMS UI Component Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      .test {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+      }
+      .pass {
+        background-color: #d4edda;
+      }
+      .fail {
+        background-color: #f8d7da;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 5px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>IMS Frontend Component Test</h1>
 
-  <div class="test" id="test2">
-    <h3>Test 2: Authentication</h3>
-    <button onclick="testAuth()">Test Login</button>
-    <div id="auth-result"></div>
-  </div>
+    <div class="test" id="test1">
+      <h3>Test 1: API Connection</h3>
+      <button onclick="testAPI()">Test API</button>
+      <div id="api-result"></div>
+    </div>
 
-  <div class="test" id="test3">
-    <h3>Test 3: Fetch Data</h3>
-    <button onclick="testFetch()">Fetch Employees</button>
-    <div id="fetch-result"></div>
-  </div>
+    <div class="test" id="test2">
+      <h3>Test 2: Authentication</h3>
+      <button onclick="testAuth()">Test Login</button>
+      <div id="auth-result"></div>
+    </div>
 
-  <script>
-    const API_URL = 'http://localhost:4000';
-    let authToken = null;
+    <div class="test" id="test3">
+      <h3>Test 3: Fetch Data</h3>
+      <button onclick="testFetch()">Fetch Employees</button>
+      <div id="fetch-result"></div>
+    </div>
 
-    async function testAPI() {
-      const result = document.getElementById('api-result');
-      result.textContent = 'Testing...';
-      
-      try {
-        const response = await fetch(`${API_URL}/health`);
-        const data = await response.json();
-        
-        if (response.ok) {
-          result.textContent = '✅ API is responding: ' + JSON.stringify(data);
-          document.getElementById('test1').className = 'test pass';
-        } else {
-          result.textContent = '❌ API error: ' + response.status;
+    <script>
+      const API_URL = 'http://localhost:4000';
+      let authToken = null;
+
+      async function testAPI() {
+        const result = document.getElementById('api-result');
+        result.textContent = 'Testing...';
+
+        try {
+          const response = await fetch(`${API_URL}/health`);
+          const data = await response.json();
+
+          if (response.ok) {
+            result.textContent = '✅ API is responding: ' + JSON.stringify(data);
+            document.getElementById('test1').className = 'test pass';
+          } else {
+            result.textContent = '❌ API error: ' + response.status;
+            document.getElementById('test1').className = 'test fail';
+          }
+        } catch (error) {
+          result.textContent = '❌ Connection failed: ' + error.message;
           document.getElementById('test1').className = 'test fail';
         }
-      } catch (error) {
-        result.textContent = '❌ Connection failed: ' + error.message;
-        document.getElementById('test1').className = 'test fail';
       }
-    }
 
-    async function testAuth() {
-      const result = document.getElementById('auth-result');
-      result.textContent = 'Testing...';
-      
-      try {
-        const response = await fetch(`${API_URL}/api/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: 'admin@ims.local',
-            password: 'admin123'
-          })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success && data.data.token) {
-          authToken = data.data.token;
-          result.textContent = '✅ Login successful! Token: ' + authToken.substring(0, 20) + '...';
-          document.getElementById('test2').className = 'test pass';
-        } else {
-          result.textContent = '❌ Login failed: ' + JSON.stringify(data);
+      async function testAuth() {
+        const result = document.getElementById('auth-result');
+        result.textContent = 'Testing...';
+
+        try {
+          const response = await fetch(`${API_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: 'admin@ims.local',
+              password: 'admin123',
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success && data.data.token) {
+            authToken = data.data.token;
+            result.textContent =
+              '✅ Login successful! Token: ' + authToken.substring(0, 20) + '...';
+            document.getElementById('test2').className = 'test pass';
+          } else {
+            result.textContent = '❌ Login failed: ' + JSON.stringify(data);
+            document.getElementById('test2').className = 'test fail';
+          }
+        } catch (error) {
+          result.textContent = '❌ Auth failed: ' + error.message;
           document.getElementById('test2').className = 'test fail';
         }
-      } catch (error) {
-        result.textContent = '❌ Auth failed: ' + error.message;
-        document.getElementById('test2').className = 'test fail';
       }
-    }
 
-    async function testFetch() {
-      const result = document.getElementById('fetch-result');
-      result.textContent = 'Testing...';
-      
-      if (!authToken) {
-        result.textContent = '❌ Please login first';
-        return;
-      }
-      
-      try {
-        const response = await fetch(`${API_URL}/api/hr/employees`, {
-          headers: { 'Authorization': `Bearer ${authToken}` }
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok && data.data) {
-          result.textContent = `✅ Fetched ${data.data.length} employees`;
-          document.getElementById('test3').className = 'test pass';
-        } else {
-          result.textContent = '❌ Fetch failed: ' + JSON.stringify(data);
+      async function testFetch() {
+        const result = document.getElementById('fetch-result');
+        result.textContent = 'Testing...';
+
+        if (!authToken) {
+          result.textContent = '❌ Please login first';
+          return;
+        }
+
+        try {
+          const response = await fetch(`${API_URL}/api/hr/employees`, {
+            headers: { Authorization: `Bearer ${authToken}` },
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.data) {
+            result.textContent = `✅ Fetched ${data.data.length} employees`;
+            document.getElementById('test3').className = 'test pass';
+          } else {
+            result.textContent = '❌ Fetch failed: ' + JSON.stringify(data);
+            document.getElementById('test3').className = 'test fail';
+          }
+        } catch (error) {
+          result.textContent = '❌ Fetch failed: ' + error.message;
           document.getElementById('test3').className = 'test fail';
         }
-      } catch (error) {
-        result.textContent = '❌ Fetch failed: ' + error.message;
-        document.getElementById('test3').className = 'test fail';
       }
-    }
-  </script>
-</body>
+    </script>
+  </body>
 </html>
 ```
 
@@ -682,24 +704,26 @@ Create: `TEST_RESULTS.md`
 **System**: IMS v1.0
 
 ## Environment
+
 - Node Version: [VERSION]
 - PostgreSQL Version: [VERSION]
 - OS: [OS]
 
 ## Test Results Summary
 
-| Test Suite | Status | Pass | Fail | Notes |
-|------------|--------|------|------|-------|
-| Service Startup | [ ] | 0/6 | 0 | |
-| Database | [ ] | 0/5 | 0 | |
-| Authentication | [ ] | 0/3 | 0 | |
-| API Endpoints | [ ] | 0/10 | 0 | |
-| CRUD Operations | [ ] | 0/4 | 0 | |
-| Frontend | [ ] | 0/8 | 0 | |
+| Test Suite      | Status | Pass | Fail | Notes |
+| --------------- | ------ | ---- | ---- | ----- |
+| Service Startup | [ ]    | 0/6  | 0    |       |
+| Database        | [ ]    | 0/5  | 0    |       |
+| Authentication  | [ ]    | 0/3  | 0    |       |
+| API Endpoints   | [ ]    | 0/10 | 0    |       |
+| CRUD Operations | [ ]    | 0/4  | 0    |       |
+| Frontend        | [ ]    | 0/8  | 0    |       |
 
 ## Detailed Results
 
 ### 1. Service Startup
+
 - API Gateway (4000): [PASS/FAIL]
 - Dashboard (3000): [PASS/FAIL]
 - HR API (4006): [PASS/FAIL]
@@ -708,6 +732,7 @@ Create: `TEST_RESULTS.md`
 - Payroll Web (3007): [PASS/FAIL]
 
 ### 2. Database Tests
+
 - Connection: [PASS/FAIL]
 - User table: [PASS/FAIL]
 - Employee table: [PASS/FAIL]
@@ -715,6 +740,7 @@ Create: `TEST_RESULTS.md`
 - Query performance: [PASS/FAIL]
 
 ### 3. Authentication Tests
+
 - Login with valid credentials: [PASS/FAIL]
 - Login with invalid credentials: [PASS/FAIL]
 - Protected endpoint access: [PASS/FAIL]
@@ -723,10 +749,10 @@ Create: `TEST_RESULTS.md`
 
 1. **Issue**: [Description]
    - **Severity**: Critical/High/Medium/Low
-   - **Steps to Reproduce**: 
-   - **Expected**: 
-   - **Actual**: 
-   - **Fix**: 
+   - **Steps to Reproduce**:
+   - **Expected**:
+   - **Actual**:
+   - **Fix**:
 
 ## Recommendations
 
@@ -749,6 +775,7 @@ Create: `TEST_RESULTS.md`
 **Symptoms**: `Error: Cannot find module`, `Port already in use`
 
 **Solution**:
+
 ```bash
 # Clean install
 rm -rf node_modules
@@ -767,6 +794,7 @@ pnpm dev:dashboard
 **Symptoms**: `Error: Can't reach database server`
 
 **Solution**:
+
 ```bash
 # Check PostgreSQL is running
 sudo systemctl status postgresql
@@ -786,6 +814,7 @@ psql $DATABASE_URL -c "SELECT 1;"
 **Symptoms**: 401 errors, "Invalid token"
 
 **Solution**:
+
 ```bash
 # Check JWT_SECRET exists
 echo $JWT_SECRET
@@ -802,6 +831,7 @@ pnpm --filter @ims/database seed
 **Symptoms**: White screen, console errors
 
 **Solution**:
+
 ```bash
 # Check browser console for errors
 # Check .env has NEXT_PUBLIC_API_URL
@@ -833,17 +863,20 @@ When you've completed all tests:
 Based on your test results:
 
 **If most tests PASS** (>80%):
+
 1. Review the security analysis document
 2. Start implementing Phase 1 fixes
 3. Focus on missing features
 
 **If many tests FAIL** (40-80%):
+
 1. Fix broken services first
 2. Verify database schema
 3. Check environment configuration
 4. Then proceed with Phase 1
 
 **If most tests FAIL** (<40%):
+
 1. Review system architecture document
 2. Ensure all prerequisites met
 3. Consider fresh installation

@@ -35,11 +35,17 @@ const createBaselineSchema = z.object({
   description: z.string().optional(),
   program: z.string().optional(),
   version: z.string().optional().default('1.0'),
-  baselineType: z.enum(['FUNCTIONAL', 'ALLOCATED', 'PRODUCT', 'DESIGN']).optional().default('FUNCTIONAL'),
+  baselineType: z
+    .enum(['FUNCTIONAL', 'ALLOCATED', 'PRODUCT', 'DESIGN'])
+    .optional()
+    .default('FUNCTIONAL'),
   program_phase: z.string().optional(),
   configuration_items: z.array(z.string()).optional().default([]),
   documents: z.array(z.string()).optional().default([]),
-  effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  effectiveDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   approvedBy: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -53,10 +59,18 @@ const updateBaselineSchema = z.object({
   program_phase: z.string().optional(),
   configuration_items: z.array(z.string()).optional(),
   documents: z.array(z.string()).optional(),
-  status: z.enum(['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'ACTIVE', 'SUPERSEDED', 'ARCHIVED']).optional(),
-  effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  status: z
+    .enum(['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'ACTIVE', 'SUPERSEDED', 'ARCHIVED'])
+    .optional(),
+  effectiveDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   approvedBy: z.string().optional(),
-  approvedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  approvedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   notes: z.string().optional(),
 });
 
@@ -102,7 +116,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List baselines error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list baselines' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list baselines' },
+    });
   }
 });
 
@@ -114,13 +131,18 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!baseline || baseline.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     res.json({ success: true, data: baseline });
   } catch (error) {
     logger.error('Get baseline error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get baseline' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get baseline' },
+    });
   }
 });
 
@@ -154,11 +176,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create baseline error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create baseline' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create baseline' },
+    });
   }
 });
 
@@ -167,7 +196,9 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroConfigBaseline.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     const data = updateBaselineSchema.parse(req.body);
@@ -186,11 +217,18 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update baseline error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update baseline' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update baseline' },
+    });
   }
 });
 
@@ -199,7 +237,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroConfigBaseline.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     await prisma.aeroConfigBaseline.update({
@@ -210,7 +250,10 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     res.status(204).send();
   } catch (error) {
     logger.error('Delete baseline error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete baseline' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete baseline' },
+    });
   }
 });
 
@@ -219,7 +262,9 @@ router.put('/:id/approve', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroConfigBaseline.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     const schema = z.object({
@@ -235,7 +280,9 @@ router.put('/:id/approve', async (req: AuthRequest, res: Response) => {
         status: 'APPROVED',
         approvedBy: data.approvedBy,
         approvedDate: new Date(),
-        notes: data.approvalNotes ? `${existing.notes ? existing.notes + '\n' : ''}Approval: ${data.approvalNotes}` : existing.notes,
+        notes: data.approvalNotes
+          ? `${existing.notes ? existing.notes + '\n' : ''}Approval: ${data.approvalNotes}`
+          : existing.notes,
       },
     });
 
@@ -244,11 +291,18 @@ router.put('/:id/approve', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Approve baseline error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve baseline' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve baseline' },
+    });
   }
 });
 

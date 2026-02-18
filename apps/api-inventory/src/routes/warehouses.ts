@@ -38,7 +38,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     ]);
 
     // Get inventory stats for each warehouse
-    const warehouseIds = warehouses.map(w => w.id);
+    const warehouseIds = warehouses.map((w) => w.id);
     const inventoryStats = await prisma.inventory.groupBy({
       by: ['warehouseId'],
       where: { warehouseId: { in: warehouseIds } },
@@ -46,9 +46,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
       _count: { productId: true },
     });
 
-    const statsMap = new Map(inventoryStats.map(s => [s.warehouseId, s]));
+    const statsMap = new Map(inventoryStats.map((s) => [s.warehouseId, s]));
 
-    const warehousesWithStats = warehouses.map(w => ({
+    const warehousesWithStats = warehouses.map((w) => ({
       ...w,
       stats: {
         totalProducts: statsMap.get(w.id)?._count.productId || 0,
@@ -64,7 +64,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List warehouses error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list warehouses' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list warehouses' },
+    });
   }
 });
 
@@ -76,7 +79,9 @@ router.get('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, re
     });
 
     if (!warehouse) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Warehouse not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Warehouse not found' } });
     }
 
     // Get inventory summary
@@ -87,14 +92,14 @@ router.get('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, re
     });
 
     // Get low stock items in this warehouse
-    const lowStockItems = await prisma.$queryRaw`
+    const lowStockItems = (await prisma.$queryRaw`
       SELECT COUNT(*) as count
       FROM inventory i
       JOIN products p ON i."productId" = p.id
       WHERE i."warehouseId" = ${req.params.id}
       AND i."quantityOnHand" <= p."reorderPoint"
       AND p.status = 'ACTIVE'
-    ` as { count: bigint }[];
+    `) as { count: bigint }[];
 
     res.json({
       success: true,
@@ -111,70 +116,80 @@ router.get('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, re
     });
   } catch (error) {
     logger.error('Get warehouse error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get warehouse' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get warehouse' },
+    });
   }
 });
 
 // GET /api/warehouses/:id/inventory - Get all inventory in a warehouse
-router.get('/:id/inventory', checkOwnership(prisma.warehouse), async (req: AuthRequest, res: Response) => {
-  try {
-    const { page = '1', limit = '50', search } = req.query;
+router.get(
+  '/:id/inventory',
+  checkOwnership(prisma.warehouse),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { page = '1', limit = '50', search } = req.query;
 
-    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-    const skip = (pageNum - 1) * limitNum;
+      const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
+      const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
+      const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { warehouseId: req.params.id, deletedAt: null };
+      const where: any = { warehouseId: req.params.id, deletedAt: null };
 
-    // If search, filter by product
-    if (search) {
-      where.product = {
-        OR: [
-          { sku: { contains: search as string, mode: 'insensitive' } },
-          { name: { contains: search as string, mode: 'insensitive' } },
-          { barcode: { contains: search as string, mode: 'insensitive' } },
-        ],
-      };
-    }
+      // If search, filter by product
+      if (search) {
+        where.product = {
+          OR: [
+            { sku: { contains: search as string, mode: 'insensitive' } },
+            { name: { contains: search as string, mode: 'insensitive' } },
+            { barcode: { contains: search as string, mode: 'insensitive' } },
+          ],
+        };
+      }
 
-    const [inventory, total] = await Promise.all([
-      prisma.inventory.findMany({
-        where,
-        skip,
-        take: limitNum,
-        include: {
-          product: {
-            select: {
-              id: true,
-              sku: true,
-              name: true,
-              barcode: true,
-              reorderPoint: true,
-              category: { select: { id: true, name: true } },
+      const [inventory, total] = await Promise.all([
+        prisma.inventory.findMany({
+          where,
+          skip,
+          take: limitNum,
+          include: {
+            product: {
+              select: {
+                id: true,
+                sku: true,
+                name: true,
+                barcode: true,
+                reorderPoint: true,
+                category: { select: { id: true, name: true } },
+              },
             },
           },
-        },
-        orderBy: { product: { name: 'asc' } },
-      }),
-      prisma.inventory.count({ where }),
-    ]);
+          orderBy: { product: { name: 'asc' } },
+        }),
+        prisma.inventory.count({ where }),
+      ]);
 
-    const inventoryWithAvailable = inventory.map(inv => ({
-      ...inv,
-      quantityAvailable: inv.quantityOnHand - inv.quantityReserved,
-      isLowStock: inv.quantityOnHand <= (inv.product?.reorderPoint || 0),
-    }));
+      const inventoryWithAvailable = inventory.map((inv) => ({
+        ...inv,
+        quantityAvailable: inv.quantityOnHand - inv.quantityReserved,
+        isLowStock: inv.quantityOnHand <= (inv.product?.reorderPoint || 0),
+      }));
 
-    res.json({
-      success: true,
-      data: inventoryWithAvailable,
-      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
-    });
-  } catch (error) {
-    logger.error('Get warehouse inventory error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get warehouse inventory' } });
+      res.json({
+        success: true,
+        data: inventoryWithAvailable,
+        meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
+      });
+    } catch (error) {
+      logger.error('Get warehouse inventory error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get warehouse inventory' },
+      });
+    }
   }
-});
+);
 
 // POST /api/warehouses - Create warehouse
 router.post('/', async (req: AuthRequest, res: Response) => {
@@ -198,7 +213,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     // Check for duplicate code
     const existingCode = await prisma.warehouse.findUnique({ where: { code: data.code } });
     if (existingCode) {
-      return res.status(400).json({ success: false, error: { code: 'DUPLICATE_CODE', message: 'Warehouse code already exists' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'DUPLICATE_CODE', message: 'Warehouse code already exists' },
+      });
     }
 
     // If setting as default, unset other defaults
@@ -222,10 +240,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: warehouse });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create warehouse error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create warehouse' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create warehouse' },
+    });
   }
 });
 
@@ -234,7 +262,9 @@ router.patch('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, 
   try {
     const existing = await prisma.warehouse.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Warehouse not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Warehouse not found' } });
     }
 
     const schema = z.object({
@@ -260,7 +290,10 @@ router.patch('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, 
     if (data.version !== undefined && data.version !== existing.version) {
       return res.status(409).json({
         success: false,
-        error: { code: 'CONFLICT', message: 'Warehouse has been modified. Please refresh and try again.' }
+        error: {
+          code: 'CONFLICT',
+          message: 'Warehouse has been modified. Please refresh and try again.',
+        },
       });
     }
 
@@ -268,7 +301,10 @@ router.patch('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, 
     if (data.code && data.code !== existing.code) {
       const existingCode = await prisma.warehouse.findUnique({ where: { code: data.code } });
       if (existingCode) {
-        return res.status(400).json({ success: false, error: { code: 'DUPLICATE_CODE', message: 'Warehouse code already exists' } });
+        return res.status(400).json({
+          success: false,
+          error: { code: 'DUPLICATE_CODE', message: 'Warehouse code already exists' },
+        });
       }
     }
 
@@ -294,10 +330,20 @@ router.patch('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, 
     res.json({ success: true, data: warehouse });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update warehouse error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update warehouse' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update warehouse' },
+    });
   }
 });
 
@@ -310,23 +356,35 @@ router.delete('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest,
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Warehouse not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Warehouse not found' } });
     }
 
     // Check if warehouse has inventory
     if (existing.inventoryItems.length > 0) {
       return res.status(400).json({
         success: false,
-        error: { code: 'HAS_INVENTORY', message: 'Cannot delete warehouse with existing inventory. Transfer or remove inventory first.' }
+        error: {
+          code: 'HAS_INVENTORY',
+          message:
+            'Cannot delete warehouse with existing inventory. Transfer or remove inventory first.',
+        },
       });
     }
 
-    await prisma.warehouse.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
+    await prisma.warehouse.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id },
+    });
 
     res.status(204).send();
   } catch (error) {
     logger.error('Delete warehouse error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete warehouse' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete warehouse' },
+    });
   }
 });
 

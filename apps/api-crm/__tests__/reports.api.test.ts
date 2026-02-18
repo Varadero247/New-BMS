@@ -42,7 +42,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/reports', reportsRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 // ===================================================================
 // GET /api/reports/sales-dashboard
@@ -52,8 +54,8 @@ describe('GET /api/reports/sales-dashboard', () => {
   it('should return overall sales metrics', async () => {
     (prisma as any).crmDeal.count
       .mockResolvedValueOnce(100) // totalDeals
-      .mockResolvedValueOnce(40)  // wonDeals
-      .mockResolvedValueOnce(30)  // lostDeals
+      .mockResolvedValueOnce(40) // wonDeals
+      .mockResolvedValueOnce(30) // lostDeals
       .mockResolvedValueOnce(30); // openDeals
     (prisma as any).crmDeal.aggregate
       .mockResolvedValueOnce({ _sum: { value: 5000000 } }) // totalValue
@@ -131,17 +133,13 @@ describe('GET /api/reports/pipeline-velocity', () => {
   it('should handle deals with no stageId', async () => {
     const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
 
-    (prisma as any).crmDeal.findMany.mockResolvedValue([
-      { createdAt: fiveDaysAgo, stageId: null },
-    ]);
+    (prisma as any).crmDeal.findMany.mockResolvedValue([{ createdAt: fiveDaysAgo, stageId: null }]);
 
     const res = await request(app).get('/api/reports/pipeline-velocity');
 
     expect(res.status).toBe(200);
     expect(res.body.data.velocityByStage).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ stageId: 'unassigned' }),
-      ])
+      expect.arrayContaining([expect.objectContaining({ stageId: 'unassigned' })])
     );
   });
 
@@ -198,9 +196,7 @@ describe('GET /api/reports/win-loss', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.data.bySource).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ source: 'UNKNOWN' }),
-      ])
+      expect.arrayContaining([expect.objectContaining({ source: 'UNKNOWN' })])
     );
   });
 
@@ -243,9 +239,7 @@ describe('GET /api/reports/forecast', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.data.forecast).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ month: 'unscheduled' }),
-      ])
+      expect.arrayContaining([expect.objectContaining({ month: 'unscheduled' })])
     );
   });
 
@@ -327,9 +321,30 @@ describe('GET /api/reports/customer-health', () => {
     const oldDate = new Date(Date.now() - 120 * 24 * 60 * 60 * 1000);
 
     (prisma as any).crmAccount.findMany.mockResolvedValue([
-      { id: 'a-1', name: 'Active Corp', lifetimeRevenue: 50000, openComplaintCount: 0, openNCRCount: 0, lastInvoiceDate: recentDate },
-      { id: 'a-2', name: 'Troubled Corp', lifetimeRevenue: 10000, openComplaintCount: 3, openNCRCount: 2, lastInvoiceDate: oldDate },
-      { id: 'a-3', name: 'Inactive Corp', lifetimeRevenue: 5000, openComplaintCount: 0, openNCRCount: 0, lastInvoiceDate: null },
+      {
+        id: 'a-1',
+        name: 'Active Corp',
+        lifetimeRevenue: 50000,
+        openComplaintCount: 0,
+        openNCRCount: 0,
+        lastInvoiceDate: recentDate,
+      },
+      {
+        id: 'a-2',
+        name: 'Troubled Corp',
+        lifetimeRevenue: 10000,
+        openComplaintCount: 3,
+        openNCRCount: 2,
+        lastInvoiceDate: oldDate,
+      },
+      {
+        id: 'a-3',
+        name: 'Inactive Corp',
+        lifetimeRevenue: 5000,
+        openComplaintCount: 0,
+        openNCRCount: 0,
+        lastInvoiceDate: null,
+      },
     ]);
 
     const res = await request(app).get('/api/reports/customer-health');
@@ -357,7 +372,14 @@ describe('GET /api/reports/customer-health', () => {
 
   it('should handle null lifetimeRevenue', async () => {
     (prisma as any).crmAccount.findMany.mockResolvedValue([
-      { id: 'a-1', name: 'New Corp', lifetimeRevenue: null, openComplaintCount: 0, openNCRCount: 0, lastInvoiceDate: new Date() },
+      {
+        id: 'a-1',
+        name: 'New Corp',
+        lifetimeRevenue: null,
+        openComplaintCount: 0,
+        openNCRCount: 0,
+        lastInvoiceDate: new Date(),
+      },
     ]);
 
     const res = await request(app).get('/api/reports/customer-health');

@@ -1,8 +1,31 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea } from '@ims/ui';
-import { Layers, Plus, Search, CheckCircle, Clock, ArrowRight, ChevronRight, XCircle, Pause } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
+} from '@ims/ui';
+import {
+  Layers,
+  Plus,
+  Search,
+  CheckCircle,
+  Clock,
+  ArrowRight,
+  ChevronRight,
+  XCircle,
+  Pause,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -44,7 +67,15 @@ interface DesignProject {
   stages?: DesignStage[];
 }
 
-const STAGES = ['PLANNING', 'INPUTS', 'OUTPUTS', 'REVIEW', 'VERIFICATION', 'VALIDATION', 'TRANSFER'];
+const STAGES = [
+  'PLANNING',
+  'INPUTS',
+  'OUTPUTS',
+  'REVIEW',
+  'VERIFICATION',
+  'VALIDATION',
+  'TRANSFER',
+];
 
 const STAGE_LABELS: Record<string, string> = {
   PLANNING: 'Planning',
@@ -92,8 +123,14 @@ export default function DesignDevelopmentPage() {
   // Create modal
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createForm, setCreateForm] = useState({
-    title: '', description: '', productName: '', projectManager: '',
-    priority: 'MEDIUM', plannedStartDate: '', plannedEndDate: '', requirements: '',
+    title: '',
+    description: '',
+    productName: '',
+    projectManager: '',
+    priority: 'MEDIUM',
+    plannedStartDate: '',
+    plannedEndDate: '',
+    requirements: '',
   });
 
   // Detail modal
@@ -123,8 +160,14 @@ export default function DesignDevelopmentPage() {
       await api.post('/design-development', createForm);
       setShowCreateModal(false);
       setCreateForm({
-        title: '', description: '', productName: '', projectManager: '',
-        priority: 'MEDIUM', plannedStartDate: '', plannedEndDate: '', requirements: '',
+        title: '',
+        description: '',
+        productName: '',
+        projectManager: '',
+        priority: 'MEDIUM',
+        plannedStartDate: '',
+        plannedEndDate: '',
+        requirements: '',
       });
       fetchProjects();
     } catch (err) {
@@ -183,11 +226,11 @@ export default function DesignDevelopmentPage() {
 
   // Stats
   const totalProjects = projects.length;
-  const activeProjects = projects.filter(p => p.status === 'ACTIVE').length;
-  const completedProjects = projects.filter(p => p.status === 'COMPLETED').length;
+  const activeProjects = projects.filter((p) => p.status === 'ACTIVE').length;
+  const completedProjects = projects.filter((p) => p.status === 'COMPLETED').length;
   const getStageProgress = (project: DesignProject) => {
     const idx = STAGES.indexOf(project.currentStage);
-    return Math.round(((idx) / STAGES.length) * 100);
+    return Math.round((idx / STAGES.length) * 100);
   };
 
   return (
@@ -195,8 +238,12 @@ export default function DesignDevelopmentPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Design & Development</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 Clause 8.3 -- Stage-gate product development workflow</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Design & Development
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            ISO 9001:2015 Clause 8.3 -- Stage-gate product development workflow
+          </p>
         </div>
         <Button onClick={() => setShowCreateModal(true)}>
           <Plus className="h-4 w-4 mr-2" /> New Design Project
@@ -208,7 +255,9 @@ export default function DesignDevelopmentPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg"><Layers className="h-5 w-5 text-blue-600" /></div>
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Layers className="h-5 w-5 text-blue-600" />
+              </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Total Projects</p>
                 <p className="text-2xl font-bold">{totalProjects}</p>
@@ -219,7 +268,9 @@ export default function DesignDevelopmentPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg"><Clock className="h-5 w-5 text-blue-600" /></div>
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Clock className="h-5 w-5 text-blue-600" />
+              </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                 <p className="text-2xl font-bold">{activeProjects}</p>
@@ -230,7 +281,9 @@ export default function DesignDevelopmentPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg"><CheckCircle className="h-5 w-5 text-green-600" /></div>
+              <div className="p-2 bg-green-100 rounded-lg">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+              </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Completed</p>
                 <p className="text-2xl font-bold">{completedProjects}</p>
@@ -241,7 +294,9 @@ export default function DesignDevelopmentPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg"><ArrowRight className="h-5 w-5 text-purple-600" /></div>
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <ArrowRight className="h-5 w-5 text-purple-600" />
+              </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Stages</p>
                 <p className="text-2xl font-bold">7</p>
@@ -261,13 +316,19 @@ export default function DesignDevelopmentPage() {
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <Input
-                aria-label="Search projects..." placeholder="Search projects..."
+                aria-label="Search projects..."
+                placeholder="Search projects..."
                 value={search}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
                 className="pl-10"
               />
             </div>
-            <Select value={statusFilter} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setStatusFilter(e.target.value)}>
+            <Select
+              value={statusFilter}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                setStatusFilter(e.target.value)
+              }
+            >
               <option value="">All Statuses</option>
               <option value="DRAFT">Draft</option>
               <option value="ACTIVE">Active</option>
@@ -275,9 +336,16 @@ export default function DesignDevelopmentPage() {
               <option value="COMPLETED">Completed</option>
               <option value="CANCELLED">Cancelled</option>
             </Select>
-            <Select value={stageFilter} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setStageFilter(e.target.value)}>
+            <Select
+              value={stageFilter}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setStageFilter(e.target.value)}
+            >
               <option value="">All Stages</option>
-              {STAGES.map(s => <option key={s} value={s}>{STAGE_LABELS[s]}</option>)}
+              {STAGES.map((s) => (
+                <option key={s} value={s}>
+                  {STAGE_LABELS[s]}
+                </option>
+              ))}
             </Select>
           </div>
         </CardHeader>
@@ -285,7 +353,9 @@ export default function DesignDevelopmentPage() {
           {loading ? (
             <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p>
           ) : projects.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400 text-center py-8">No design projects found.</p>
+            <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+              No design projects found.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -312,7 +382,12 @@ export default function DesignDevelopmentPage() {
                       <td className="py-3 pr-4 font-medium">{project.title}</td>
                       <td className="py-3 pr-4">{project.productName}</td>
                       <td className="py-3 pr-4">
-                        <Badge className={STATUS_COLORS[project.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'}>
+                        <Badge
+                          className={
+                            STATUS_COLORS[project.status] ||
+                            'bg-gray-100 dark:bg-gray-800 text-gray-800'
+                          }
+                        >
                           {project.status}
                         </Badge>
                       </td>
@@ -329,15 +404,23 @@ export default function DesignDevelopmentPage() {
                               style={{ width: `${getStageProgress(project)}%` }}
                             />
                           </div>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">{getStageProgress(project)}%</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {getStageProgress(project)}%
+                          </span>
                         </div>
                       </td>
                       <td className="py-3 pr-4">
-                        <Badge className={PRIORITY_COLORS[project.priority] || 'bg-gray-100 dark:bg-gray-800'}>
+                        <Badge
+                          className={
+                            PRIORITY_COLORS[project.priority] || 'bg-gray-100 dark:bg-gray-800'
+                          }
+                        >
                           {project.priority}
                         </Badge>
                       </td>
-                      <td className="py-3 text-gray-500 dark:text-gray-400">{new Date(project.createdAt).toLocaleDateString()}</td>
+                      <td className="py-3 text-gray-500 dark:text-gray-400">
+                        {new Date(project.createdAt).toLocaleDateString()}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -348,76 +431,216 @@ export default function DesignDevelopmentPage() {
       </Card>
 
       {/* CREATE MODAL */}
-      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="New Design Project" size="lg">
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title="New Design Project"
+        size="lg"
+      >
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div><Label>Project Title *</Label><Input value={createForm.title} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCreateForm({ ...createForm, title: e.target.value })} /></div>
-            <div><Label>Product Name *</Label><Input value={createForm.productName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCreateForm({ ...createForm, productName: e.target.value })} /></div>
-            <div><Label>Project Manager</Label><Input value={createForm.projectManager} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCreateForm({ ...createForm, projectManager: e.target.value })} /></div>
+            <div>
+              <Label>Project Title *</Label>
+              <Input
+                value={createForm.title}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setCreateForm({ ...createForm, title: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <Label>Product Name *</Label>
+              <Input
+                value={createForm.productName}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setCreateForm({ ...createForm, productName: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <Label>Project Manager</Label>
+              <Input
+                value={createForm.projectManager}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setCreateForm({ ...createForm, projectManager: e.target.value })
+                }
+              />
+            </div>
             <div>
               <Label>Priority</Label>
-              <Select value={createForm.priority} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCreateForm({ ...createForm, priority: e.target.value })}>
+              <Select
+                value={createForm.priority}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setCreateForm({ ...createForm, priority: e.target.value })
+                }
+              >
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
                 <option value="HIGH">High</option>
                 <option value="CRITICAL">Critical</option>
               </Select>
             </div>
-            <div><Label>Planned Start</Label><Input type="date" value={createForm.plannedStartDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCreateForm({ ...createForm, plannedStartDate: e.target.value })} /></div>
-            <div><Label>Planned End</Label><Input type="date" value={createForm.plannedEndDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCreateForm({ ...createForm, plannedEndDate: e.target.value })} /></div>
+            <div>
+              <Label>Planned Start</Label>
+              <Input
+                type="date"
+                value={createForm.plannedStartDate}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setCreateForm({ ...createForm, plannedStartDate: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <Label>Planned End</Label>
+              <Input
+                type="date"
+                value={createForm.plannedEndDate}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setCreateForm({ ...createForm, plannedEndDate: e.target.value })
+                }
+              />
+            </div>
           </div>
-          <div><Label>Description</Label><Textarea rows={2} value={createForm.description} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCreateForm({ ...createForm, description: e.target.value })} /></div>
-          <div><Label>Requirements</Label><Textarea rows={2} value={createForm.requirements} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCreateForm({ ...createForm, requirements: e.target.value })} /></div>
+          <div>
+            <Label>Description</Label>
+            <Textarea
+              rows={2}
+              value={createForm.description}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setCreateForm({ ...createForm, description: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <Label>Requirements</Label>
+            <Textarea
+              rows={2}
+              value={createForm.requirements}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setCreateForm({ ...createForm, requirements: e.target.value })
+              }
+            />
+          </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setShowCreateModal(false)}>Cancel</Button>
-          <Button onClick={handleCreate} disabled={!createForm.title || !createForm.productName}>Create Project</Button>
+          <Button variant="outline" onClick={() => setShowCreateModal(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleCreate} disabled={!createForm.title || !createForm.productName}>
+            Create Project
+          </Button>
         </ModalFooter>
       </Modal>
 
       {/* DETAIL MODAL with Stage Pipeline */}
-      <Modal isOpen={showDetailModal} onClose={() => setShowDetailModal(false)} title={selectedProject ? `${selectedProject.refNumber} -- ${selectedProject.title}` : 'Project Details'} size="lg">
+      <Modal
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        title={
+          selectedProject
+            ? `${selectedProject.refNumber} -- ${selectedProject.title}`
+            : 'Project Details'
+        }
+        size="lg"
+      >
         {selectedProject && (
           <div className="space-y-6">
             {/* Project Info */}
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div><span className="text-gray-500 dark:text-gray-400">Product:</span> <span className="font-medium">{selectedProject.productName}</span></div>
-              <div><span className="text-gray-500 dark:text-gray-400">Manager:</span> <span className="font-medium">{selectedProject.projectManager || '-'}</span></div>
-              <div><span className="text-gray-500 dark:text-gray-400">Status:</span> <Badge className={STATUS_COLORS[selectedProject.status] || 'bg-gray-100 dark:bg-gray-800'}>{selectedProject.status}</Badge></div>
-              <div><span className="text-gray-500 dark:text-gray-400">Priority:</span> <Badge className={PRIORITY_COLORS[selectedProject.priority] || 'bg-gray-100 dark:bg-gray-800'}>{selectedProject.priority}</Badge></div>
-              <div><span className="text-gray-500 dark:text-gray-400">Start:</span> <span className="font-medium">{selectedProject.plannedStartDate ? new Date(selectedProject.plannedStartDate).toLocaleDateString() : '-'}</span></div>
-              <div><span className="text-gray-500 dark:text-gray-400">End:</span> <span className="font-medium">{selectedProject.plannedEndDate ? new Date(selectedProject.plannedEndDate).toLocaleDateString() : '-'}</span></div>
+              <div>
+                <span className="text-gray-500 dark:text-gray-400">Product:</span>{' '}
+                <span className="font-medium">{selectedProject.productName}</span>
+              </div>
+              <div>
+                <span className="text-gray-500 dark:text-gray-400">Manager:</span>{' '}
+                <span className="font-medium">{selectedProject.projectManager || '-'}</span>
+              </div>
+              <div>
+                <span className="text-gray-500 dark:text-gray-400">Status:</span>{' '}
+                <Badge
+                  className={
+                    STATUS_COLORS[selectedProject.status] || 'bg-gray-100 dark:bg-gray-800'
+                  }
+                >
+                  {selectedProject.status}
+                </Badge>
+              </div>
+              <div>
+                <span className="text-gray-500 dark:text-gray-400">Priority:</span>{' '}
+                <Badge
+                  className={
+                    PRIORITY_COLORS[selectedProject.priority] || 'bg-gray-100 dark:bg-gray-800'
+                  }
+                >
+                  {selectedProject.priority}
+                </Badge>
+              </div>
+              <div>
+                <span className="text-gray-500 dark:text-gray-400">Start:</span>{' '}
+                <span className="font-medium">
+                  {selectedProject.plannedStartDate
+                    ? new Date(selectedProject.plannedStartDate).toLocaleDateString()
+                    : '-'}
+                </span>
+              </div>
+              <div>
+                <span className="text-gray-500 dark:text-gray-400">End:</span>{' '}
+                <span className="font-medium">
+                  {selectedProject.plannedEndDate
+                    ? new Date(selectedProject.plannedEndDate).toLocaleDateString()
+                    : '-'}
+                </span>
+              </div>
             </div>
 
             {selectedProject.description && (
               <div>
                 <span className="text-gray-500 dark:text-gray-400 text-sm">Description:</span>
-                <p className="mt-1 text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded">{selectedProject.description}</p>
+                <p className="mt-1 text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded">
+                  {selectedProject.description}
+                </p>
               </div>
             )}
 
             {/* Stage Pipeline */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Stage Gate Pipeline</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                Stage Gate Pipeline
+              </h3>
               <div className="flex items-center gap-1 overflow-x-auto pb-2">
                 {STAGES.map((stage, idx) => {
-                  const stageData = selectedProject.stages?.find(s => s.stage === stage);
+                  const stageData = selectedProject.stages?.find((s) => s.stage === stage);
                   const stageStatus = stageData?.status || 'NOT_STARTED';
                   const isCurrent = selectedProject.currentStage === stage;
 
                   return (
                     <div key={stage} className="flex items-center">
-                      <div className={`flex flex-col items-center px-3 py-2 rounded-lg min-w-[100px] ${isCurrent ? 'ring-2 ring-blue-500 bg-blue-50' : 'bg-gray-50 dark:bg-gray-800'}`}>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                          stageStatus === 'APPROVED' ? 'bg-green-500 text-white' :
-                          stageStatus === 'SUBMITTED' ? 'bg-yellow-500 text-white' :
-                          stageStatus === 'IN_PROGRESS' ? 'bg-blue-500 text-white' :
-                          'bg-gray-300 text-gray-600'
-                        }`}>
-                          {stageStatus === 'APPROVED' ? <CheckCircle className="h-4 w-4" /> : idx + 1}
+                      <div
+                        className={`flex flex-col items-center px-3 py-2 rounded-lg min-w-[100px] ${isCurrent ? 'ring-2 ring-blue-500 bg-blue-50' : 'bg-gray-50 dark:bg-gray-800'}`}
+                      >
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                            stageStatus === 'APPROVED'
+                              ? 'bg-green-500 text-white'
+                              : stageStatus === 'SUBMITTED'
+                                ? 'bg-yellow-500 text-white'
+                                : stageStatus === 'IN_PROGRESS'
+                                  ? 'bg-blue-500 text-white'
+                                  : 'bg-gray-300 text-gray-600'
+                          }`}
+                        >
+                          {stageStatus === 'APPROVED' ? (
+                            <CheckCircle className="h-4 w-4" />
+                          ) : (
+                            idx + 1
+                          )}
                         </div>
-                        <span className="text-xs font-medium mt-1 text-center">{STAGE_LABELS[stage]}</span>
-                        <Badge className={`mt-1 text-[10px] ${STAGE_STATUS_COLORS[stageStatus] || 'bg-gray-200'}`}>
+                        <span className="text-xs font-medium mt-1 text-center">
+                          {STAGE_LABELS[stage]}
+                        </span>
+                        <Badge
+                          className={`mt-1 text-[10px] ${STAGE_STATUS_COLORS[stageStatus] || 'bg-gray-200'}`}
+                        >
                           {stageStatus.replace(/_/g, ' ')}
                         </Badge>
 
@@ -427,7 +650,10 @@ export default function DesignDevelopmentPage() {
                             {stageData.status === 'IN_PROGRESS' && (
                               <button
                                 className="text-[10px] px-2 py-0.5 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                onClick={(e) => { e.stopPropagation(); handleSubmitStage(selectedProject.id, stage); }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSubmitStage(selectedProject.id, stage);
+                                }}
                               >
                                 Submit
                               </button>
@@ -435,7 +661,10 @@ export default function DesignDevelopmentPage() {
                             {stageData.status === 'SUBMITTED' && (
                               <button
                                 className="text-[10px] px-2 py-0.5 bg-green-600 text-white rounded hover:bg-green-700"
-                                onClick={(e) => { e.stopPropagation(); handleApproveStage(selectedProject.id, stage); }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleApproveStage(selectedProject.id, stage);
+                                }}
                               >
                                 Approve
                               </button>
@@ -455,21 +684,36 @@ export default function DesignDevelopmentPage() {
             {/* Stage Details */}
             {selectedProject.stages && selectedProject.stages.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Stage Details</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Stage Details
+                </h3>
                 <div className="space-y-2">
-                  {selectedProject.stages.filter(s => s.status !== 'NOT_STARTED').map(stage => (
-                    <div key={stage.id} className="border rounded-lg p-3 text-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">{STAGE_LABELS[stage.stage] || stage.stage}</span>
-                        <Badge className={STAGE_STATUS_COLORS[stage.status] || 'bg-gray-200'}>
-                          {stage.status.replace(/_/g, ' ')}
-                        </Badge>
+                  {selectedProject.stages
+                    .filter((s) => s.status !== 'NOT_STARTED')
+                    .map((stage) => (
+                      <div key={stage.id} className="border rounded-lg p-3 text-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">
+                            {STAGE_LABELS[stage.stage] || stage.stage}
+                          </span>
+                          <Badge className={STAGE_STATUS_COLORS[stage.status] || 'bg-gray-200'}>
+                            {stage.status.replace(/_/g, ' ')}
+                          </Badge>
+                        </div>
+                        {stage.deliverables && (
+                          <p className="text-gray-600 mt-1">Deliverables: {stage.deliverables}</p>
+                        )}
+                        {stage.notes && <p className="text-gray-600 mt-1">Notes: {stage.notes}</p>}
+                        {stage.approvedBy && (
+                          <p className="text-gray-500 dark:text-gray-400 mt-1 text-xs">
+                            Approved:{' '}
+                            {stage.approvedAt
+                              ? new Date(stage.approvedAt).toLocaleDateString()
+                              : ''}
+                          </p>
+                        )}
                       </div>
-                      {stage.deliverables && <p className="text-gray-600 mt-1">Deliverables: {stage.deliverables}</p>}
-                      {stage.notes && <p className="text-gray-600 mt-1">Notes: {stage.notes}</p>}
-                      {stage.approvedBy && <p className="text-gray-500 dark:text-gray-400 mt-1 text-xs">Approved: {stage.approvedAt ? new Date(stage.approvedAt).toLocaleDateString() : ''}</p>}
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             )}
@@ -477,7 +721,13 @@ export default function DesignDevelopmentPage() {
             {/* Actions */}
             <div className="flex gap-2 pt-2 border-t">
               {selectedProject.status !== 'COMPLETED' && selectedProject.status !== 'CANCELLED' && (
-                <Button size="sm" variant="destructive" onClick={() => handleDelete(selectedProject.id)}>Delete</Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => handleDelete(selectedProject.id)}
+                >
+                  Delete
+                </Button>
               )}
             </div>
           </div>

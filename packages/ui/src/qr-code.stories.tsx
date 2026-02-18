@@ -53,7 +53,15 @@ export const Scanner: Story = {
     return (
       <div>
         {scanned && (
-          <div style={{ marginBottom: '16px', padding: '12px', background: '#f0fdf4', borderRadius: '8px', fontSize: '14px' }}>
+          <div
+            style={{
+              marginBottom: '16px',
+              padding: '12px',
+              background: '#f0fdf4',
+              borderRadius: '8px',
+              fontSize: '14px',
+            }}
+          >
             Scanned: {scanned}
           </div>
         )}

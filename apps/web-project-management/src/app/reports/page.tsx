@@ -101,7 +101,9 @@ export default function ReportsPage() {
               <BarChart3 className="h-6 w-6 text-blue-600" />
               Project Reports
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Status reports and project performance</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+              Status reports and project performance
+            </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -116,7 +118,9 @@ export default function ReportsPage() {
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-4 mb-6">
           <div className="flex items-center gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Filter by Project
+              </label>
               <select
                 value={filterProjectId}
                 onChange={(e) => setFilterProjectId(e.target.value)}
@@ -124,7 +128,9 @@ export default function ReportsPage() {
               >
                 <option value="">All Projects</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
@@ -136,62 +142,103 @@ export default function ReportsPage() {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Period</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Overall</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Schedule</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Budget</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Scope</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Quality</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Risk</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Created By</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Period
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Overall
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Schedule
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Budget
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Scope
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Quality
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Risk
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Created By
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {reports.map((report) => (
                   <tr key={report.id} className="hover:bg-gray-50 dark:bg-gray-800">
-                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{report.reportPeriod}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{report.reportType}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                      {report.reportPeriod}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {report.reportType}
+                    </td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                       {report.createdAt ? new Date(report.createdAt).toLocaleDateString() : '-'}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${ragBadge(report.overallStatus)}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${ragBadge(report.overallStatus)}`}
+                      >
                         {report.overallStatus}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${ragBadge(report.scheduleStatus)}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${ragBadge(report.scheduleStatus)}`}
+                      >
                         {report.scheduleStatus}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${ragBadge(report.budgetStatus)}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${ragBadge(report.budgetStatus)}`}
+                      >
                         {report.budgetStatus}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${ragBadge(report.scopeStatus)}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${ragBadge(report.scopeStatus)}`}
+                      >
                         {report.scopeStatus}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${ragBadge(report.qualityStatus)}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${ragBadge(report.qualityStatus)}`}
+                      >
                         {report.qualityStatus}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${ragBadge(report.riskStatus)}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${ragBadge(report.riskStatus)}`}
+                      >
                         {report.riskStatus}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{report.createdBy || '-'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {report.createdBy || '-'}
+                    </td>
                   </tr>
                 ))}
                 {reports.length === 0 && (
                   <tr>
-                    <td colSpan={10} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={10}
+                      className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
+                    >
                       No reports found. Create your first status report.
                     </td>
                   </tr>
@@ -202,10 +249,17 @@ export default function ReportsPage() {
         </div>
 
         {/* Create Modal */}
-        <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Status Report" size="lg">
+        <Modal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          title="Create Status Report"
+          size="lg"
+        >
           <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Project
+              </label>
               <select
                 required
                 value={form.projectId}
@@ -214,13 +268,17 @@ export default function ReportsPage() {
               >
                 <option value="">Select Project</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Report Period</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Report Period
+                </label>
                 <input
                   type="text"
                   required
@@ -231,7 +289,9 @@ export default function ReportsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Report Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Report Type
+                </label>
                 <select
                   value={form.reportType}
                   onChange={(e) => setForm({ ...form, reportType: e.target.value })}
@@ -247,7 +307,9 @@ export default function ReportsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Executive Summary</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Executive Summary
+              </label>
               <textarea
                 rows={3}
                 value={form.executiveSummary}
@@ -257,7 +319,9 @@ export default function ReportsPage() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Overall Status</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Overall Status
+                </label>
                 <select
                   value={form.overallStatus}
                   onChange={(e) => setForm({ ...form, overallStatus: e.target.value })}
@@ -269,7 +333,9 @@ export default function ReportsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Schedule Status</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Schedule Status
+                </label>
                 <select
                   value={form.scheduleStatus}
                   onChange={(e) => setForm({ ...form, scheduleStatus: e.target.value })}
@@ -281,7 +347,9 @@ export default function ReportsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Budget Status</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Budget Status
+                </label>
                 <select
                   value={form.budgetStatus}
                   onChange={(e) => setForm({ ...form, budgetStatus: e.target.value })}
@@ -295,7 +363,9 @@ export default function ReportsPage() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Scope Status</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Scope Status
+                </label>
                 <select
                   value={form.scopeStatus}
                   onChange={(e) => setForm({ ...form, scopeStatus: e.target.value })}
@@ -307,7 +377,9 @@ export default function ReportsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quality Status</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Quality Status
+                </label>
                 <select
                   value={form.qualityStatus}
                   onChange={(e) => setForm({ ...form, qualityStatus: e.target.value })}
@@ -319,7 +391,9 @@ export default function ReportsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Risk Status</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Risk Status
+                </label>
                 <select
                   value={form.riskStatus}
                   onChange={(e) => setForm({ ...form, riskStatus: e.target.value })}
@@ -332,7 +406,9 @@ export default function ReportsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Accomplishments</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Accomplishments
+              </label>
               <textarea
                 rows={3}
                 value={form.accomplishments}
@@ -342,7 +418,9 @@ export default function ReportsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Next Period Plans</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Next Period Plans
+              </label>
               <textarea
                 rows={3}
                 value={form.nextPeriodPlans}

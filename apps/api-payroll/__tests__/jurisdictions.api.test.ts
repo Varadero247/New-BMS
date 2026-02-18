@@ -8,7 +8,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '20000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -222,9 +226,7 @@ describe('Payroll Jurisdictions API Routes', () => {
         .post('/api/jurisdictions')
         .set('Authorization', 'Bearer token')
         .send({ code: 'GB' });
-      await request(app)
-        .delete('/api/jurisdictions/GB')
-        .set('Authorization', 'Bearer token');
+      await request(app).delete('/api/jurisdictions/GB').set('Authorization', 'Bearer token');
 
       const response = await request(app)
         .get('/api/jurisdictions')
@@ -466,9 +468,7 @@ describe('Payroll Jurisdictions API Routes', () => {
         .set('Authorization', 'Bearer token')
         .send({ code: 'US' });
 
-      await request(app)
-        .delete('/api/jurisdictions/US')
-        .set('Authorization', 'Bearer token');
+      await request(app).delete('/api/jurisdictions/US').set('Authorization', 'Bearer token');
 
       expect(activeJurisdictions.has('US')).toBe(false);
     });

@@ -1,6 +1,11 @@
 import express from 'express';
 import request from 'supertest';
-import { resolvePermissions, hasPermission, mergePermissions, mapLegacyRole } from '../src/permissions';
+import {
+  resolvePermissions,
+  hasPermission,
+  mergePermissions,
+  mapLegacyRole,
+} from '../src/permissions';
 import { PermissionLevel, type ImsModule, type ResolvedPermissions } from '../src/types';
 import { PLATFORM_ROLES, getRoleById, getRolesByIds } from '../src/roles';
 import { requirePermission, requireOwnership, attachPermissions } from '../src/middleware';
@@ -16,9 +21,11 @@ function createApp(middlewares: any[], handler?: any) {
     if (req.headers['x-test-user-id']) {
       req.user = {
         id: req.headers['x-test-user-id'] as string,
-        email: req.headers['x-test-email'] as string || 'test@test.com',
-        role: req.headers['x-test-role'] as string || 'VIEWER',
-        roles: req.headers['x-test-roles'] ? (req.headers['x-test-roles'] as string).split(',') : undefined,
+        email: (req.headers['x-test-email'] as string) || 'test@test.com',
+        role: (req.headers['x-test-role'] as string) || 'VIEWER',
+        roles: req.headers['x-test-roles']
+          ? (req.headers['x-test-roles'] as string).split(',')
+          : undefined,
       };
     }
     next();
@@ -28,14 +35,18 @@ function createApp(middlewares: any[], handler?: any) {
     app.use(mw);
   }
 
-  app.get('/test', handler || ((req: any, res: any) => {
-    res.json({
-      success: true,
-      permissions: req.permissions,
-      ownershipCheck: req.ownershipCheck,
-      ownerFilter: req.ownerFilter,
-    });
-  }));
+  app.get(
+    '/test',
+    handler ||
+      ((req: any, res: any) => {
+        res.json({
+          success: true,
+          permissions: req.permissions,
+          ownershipCheck: req.ownershipCheck,
+          ownerFilter: req.ownerFilter,
+        });
+      })
+  );
 
   return app;
 }
@@ -451,12 +462,12 @@ describe('requireOwnership middleware', () => {
   });
 
   it('should bypass ownership check for user with FULL permission on any module', async () => {
-    const app = createApp([
-      attachPermissions(),
-      requireOwnership('createdBy'),
-    ], (req: any, res: any) => {
-      res.json({ success: true, ownershipCheck: req.ownershipCheck });
-    });
+    const app = createApp(
+      [attachPermissions(), requireOwnership('createdBy')],
+      (req: any, res: any) => {
+        res.json({ success: true, ownershipCheck: req.ownershipCheck });
+      }
+    );
 
     const res = await request(app)
       .get('/test')
@@ -469,12 +480,12 @@ describe('requireOwnership middleware', () => {
   });
 
   it('should bypass ownership check for user with APPROVE permission', async () => {
-    const app = createApp([
-      attachPermissions(),
-      requireOwnership('createdBy'),
-    ], (req: any, res: any) => {
-      res.json({ success: true, ownershipCheck: req.ownershipCheck });
-    });
+    const app = createApp(
+      [attachPermissions(), requireOwnership('createdBy')],
+      (req: any, res: any) => {
+        res.json({ success: true, ownershipCheck: req.ownershipCheck });
+      }
+    );
 
     const res = await request(app)
       .get('/test')
@@ -487,12 +498,12 @@ describe('requireOwnership middleware', () => {
   });
 
   it('should set ownership context for non-privileged user', async () => {
-    const app = createApp([
-      attachPermissions(),
-      requireOwnership('createdBy'),
-    ], (req: any, res: any) => {
-      res.json({ success: true, ownershipCheck: req.ownershipCheck });
-    });
+    const app = createApp(
+      [attachPermissions(), requireOwnership('createdBy')],
+      (req: any, res: any) => {
+        res.json({ success: true, ownershipCheck: req.ownershipCheck });
+      }
+    );
 
     const res = await request(app)
       .get('/test')
@@ -507,12 +518,12 @@ describe('requireOwnership middleware', () => {
   });
 
   it('should use custom owner field name', async () => {
-    const app = createApp([
-      attachPermissions(),
-      requireOwnership('assignedTo'),
-    ], (req: any, res: any) => {
-      res.json({ success: true, ownershipCheck: req.ownershipCheck });
-    });
+    const app = createApp(
+      [attachPermissions(), requireOwnership('assignedTo')],
+      (req: any, res: any) => {
+        res.json({ success: true, ownershipCheck: req.ownershipCheck });
+      }
+    );
 
     const res = await request(app)
       .get('/test')
@@ -527,10 +538,7 @@ describe('requireOwnership middleware', () => {
   });
 
   it('should default owner field to createdBy', async () => {
-    const app = createApp([
-      attachPermissions(),
-      requireOwnership(),
-    ], (req: any, res: any) => {
+    const app = createApp([attachPermissions(), requireOwnership()], (req: any, res: any) => {
       res.json({ success: true, ownershipCheck: req.ownershipCheck });
     });
 
@@ -549,10 +557,7 @@ describe('requireOwnership middleware', () => {
 // ============================================================
 describe('scopeByPermission', () => {
   it('should return empty filter for admin users', async () => {
-    const app = createApp([
-      attachPermissions(),
-      ownershipFilter(),
-    ]);
+    const app = createApp([attachPermissions(), ownershipFilter()]);
 
     const res = await request(app)
       .get('/test')
@@ -564,10 +569,7 @@ describe('scopeByPermission', () => {
   });
 
   it('should return user-scoped filter for basic users', async () => {
-    const app = createApp([
-      attachPermissions(),
-      ownershipFilter(),
-    ]);
+    const app = createApp([attachPermissions(), ownershipFilter()]);
 
     const res = await request(app)
       .get('/test')
@@ -587,10 +589,7 @@ describe('scopeByPermission', () => {
   });
 
   it('should return empty filter for APPROVE-level user', async () => {
-    const app = createApp([
-      attachPermissions(),
-      ownershipFilter(),
-    ]);
+    const app = createApp([attachPermissions(), ownershipFilter()]);
 
     const res = await request(app)
       .get('/test')

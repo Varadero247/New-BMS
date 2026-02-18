@@ -40,9 +40,14 @@ beforeEach(() => {
 describe('POST /api/customer/complaints', () => {
   it('should create a complaint', async () => {
     const complaint = {
-      id: '00000000-0000-0000-0000-000000000001', portalUserId: 'user-123', reportType: 'COMPLAINT',
-      referenceNumber: 'PTL-CMP-2602-1234', description: 'Defective product',
-      severity: 'MAJOR', status: 'OPEN', createdBy: 'user-123',
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      reportType: 'COMPLAINT',
+      referenceNumber: 'PTL-CMP-2602-1234',
+      description: 'Defective product',
+      severity: 'MAJOR',
+      status: 'OPEN',
+      createdBy: 'user-123',
     };
     (prisma as any).portalQualityReport.create.mockResolvedValue(complaint);
 
@@ -56,9 +61,7 @@ describe('POST /api/customer/complaints', () => {
   });
 
   it('should return 400 for invalid input', async () => {
-    const res = await request(app)
-      .post('/api/customer/complaints')
-      .send({ description: '' });
+    const res = await request(app).post('/api/customer/complaints').send({ description: '' });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
@@ -87,7 +90,12 @@ describe('POST /api/customer/complaints', () => {
 describe('GET /api/customer/complaints', () => {
   it('should list complaints with pagination', async () => {
     const items = [
-      { id: '00000000-0000-0000-0000-000000000001', reportType: 'COMPLAINT', description: 'Issue 1', status: 'OPEN' },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        reportType: 'COMPLAINT',
+        description: 'Issue 1',
+        status: 'OPEN',
+      },
       { id: 'c-2', reportType: 'COMPLAINT', description: 'Issue 2', status: 'RESOLVED' },
     ];
     (prisma as any).portalQualityReport.findMany.mockResolvedValue(items);
@@ -125,10 +133,17 @@ describe('GET /api/customer/complaints', () => {
 
 describe('GET /api/customer/complaints/:id', () => {
   it('should return a complaint', async () => {
-    const complaint = { id: '00000000-0000-0000-0000-000000000001', description: 'Problem', status: 'OPEN', portalUserId: 'user-123' };
+    const complaint = {
+      id: '00000000-0000-0000-0000-000000000001',
+      description: 'Problem',
+      status: 'OPEN',
+      portalUserId: 'user-123',
+    };
     (prisma as any).portalQualityReport.findFirst.mockResolvedValue(complaint);
 
-    const res = await request(app).get('/api/customer/complaints/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/customer/complaints/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
@@ -137,7 +152,9 @@ describe('GET /api/customer/complaints/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma as any).portalQualityReport.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/customer/complaints/00000000-0000-0000-0000-000000000099');
+    const res = await request(app).get(
+      '/api/customer/complaints/00000000-0000-0000-0000-000000000099'
+    );
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -146,7 +163,9 @@ describe('GET /api/customer/complaints/:id', () => {
   it('should handle server error on fetch', async () => {
     (prisma as any).portalQualityReport.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/customer/complaints/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/customer/complaints/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(500);
   });

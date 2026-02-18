@@ -59,7 +59,13 @@ router.get('/', async (req: Request, res: Response) => {
     if (customerId) where.customerId = String(customerId);
 
     const [data, total] = await Promise.all([
-      prisma.fsSvcSite.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' }, include: { customer: true } }),
+      prisma.fsSvcSite.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: { customer: true },
+      }),
       prisma.fsSvcSite.count({ where }),
     ]);
 
@@ -69,8 +75,12 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list sites', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list sites' } });
+    logger.error('Failed to list sites', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list sites' } });
   }
 });
 
@@ -81,7 +91,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = siteCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -98,8 +111,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to create site', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create site' } });
+    logger.error('Failed to create site', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create site' },
+    });
   }
 });
 
@@ -114,12 +132,18 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!data) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Site not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Site not found' } });
     }
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to get site', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get site' } });
+    logger.error('Failed to get site', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get site' } });
   }
 });
 
@@ -128,14 +152,21 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcSite.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSvcSite.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Site not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Site not found' } });
     }
 
     const parsed = siteUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+      });
     }
 
     const data = await prisma.fsSvcSite.update({
@@ -151,8 +182,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to update site', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update site' } });
+    logger.error('Failed to update site', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update site' },
+    });
   }
 });
 
@@ -161,16 +197,28 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcSite.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSvcSite.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Site not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Site not found' } });
     }
 
-    await prisma.fsSvcSite.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.fsSvcSite.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Site deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete site', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete site' } });
+    logger.error('Failed to delete site', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete site' },
+    });
   }
 });
 

@@ -31,7 +31,16 @@ async function generateAssetRef(): Promise<string> {
 
 const assetCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  type: z.enum(['HARDWARE', 'SOFTWARE', 'DATA', 'PERSONNEL', 'SERVICE', 'FACILITY', 'NETWORK', 'OTHER']),
+  type: z.enum([
+    'HARDWARE',
+    'SOFTWARE',
+    'DATA',
+    'PERSONNEL',
+    'SERVICE',
+    'FACILITY',
+    'NETWORK',
+    'OTHER',
+  ]),
   classification: z.enum(['PUBLIC', 'INTERNAL', 'CONFIDENTIAL', 'RESTRICTED']),
   description: z.string().max(2000).optional(),
   owner: z.string().max(200).optional(),
@@ -43,7 +52,9 @@ const assetCreateSchema = z.object({
 
 const assetUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  type: z.enum(['HARDWARE', 'SOFTWARE', 'DATA', 'PERSONNEL', 'SERVICE', 'FACILITY', 'NETWORK', 'OTHER']).optional(),
+  type: z
+    .enum(['HARDWARE', 'SOFTWARE', 'DATA', 'PERSONNEL', 'SERVICE', 'FACILITY', 'NETWORK', 'OTHER'])
+    .optional(),
   classification: z.enum(['PUBLIC', 'INTERNAL', 'CONFIDENTIAL', 'RESTRICTED']).optional(),
   description: z.string().max(2000).optional(),
   owner: z.string().max(200).optional(),
@@ -61,7 +72,11 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = assetCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -87,8 +102,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Information asset created', { assetId: asset.id, refNumber });
     res.status(201).json({ success: true, data: asset });
   } catch (error: unknown) {
-    logger.error('Failed to create information asset', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create information asset' } });
+    logger.error('Failed to create information asset', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create information asset' },
+    });
   }
 });
 
@@ -134,8 +154,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list information assets', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list information assets' } });
+    logger.error('Failed to list information assets', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list information assets' },
+    });
   }
 });
 
@@ -151,13 +176,22 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!asset) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Information asset not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Information asset not found' },
+      });
     }
 
     res.json({ success: true, data: asset });
   } catch (error: unknown) {
-    logger.error('Failed to get information asset', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get information asset' } });
+    logger.error('Failed to get information asset', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get information asset' },
+    });
   }
 });
 
@@ -169,12 +203,19 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = assetUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const existing = await prisma.isAsset.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Information asset not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Information asset not found' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -190,8 +231,14 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Information asset updated', { assetId: id });
     res.json({ success: true, data: asset });
   } catch (error: unknown) {
-    logger.error('Failed to update information asset', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update information asset' } });
+    logger.error('Failed to update information asset', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update information asset' },
+    });
   }
 });
 
@@ -204,7 +251,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.isAsset.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Information asset not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Information asset not found' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -219,8 +269,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Information asset soft-deleted', { assetId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete information asset', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete information asset' } });
+    logger.error('Failed to delete information asset', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete information asset' },
+    });
   }
 });
 

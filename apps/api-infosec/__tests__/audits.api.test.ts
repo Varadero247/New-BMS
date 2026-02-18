@@ -32,7 +32,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -134,13 +138,11 @@ describe('InfoSec Audits API', () => {
     it('should create audit', async () => {
       (mockPrisma.isAudit.create as jest.Mock).mockResolvedValueOnce(mockAudit);
 
-      const res = await request(app)
-        .post('/api/audits')
-        .send({
-          title: 'Annual ISMS Internal Audit',
-          auditDate: '2026-03-15',
-          leadAuditor: 'Jane Smith',
-        });
+      const res = await request(app).post('/api/audits').send({
+        title: 'Annual ISMS Internal Audit',
+        auditDate: '2026-03-15',
+        leadAuditor: 'Jane Smith',
+      });
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -304,7 +306,9 @@ describe('InfoSec Audits API', () => {
     it('should return clause checklist', async () => {
       (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
 
-      const res = await request(app).get('/api/audits/a2000000-0000-4000-a000-000000000001/checklist');
+      const res = await request(app).get(
+        '/api/audits/a2000000-0000-4000-a000-000000000001/checklist'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -316,7 +320,9 @@ describe('InfoSec Audits API', () => {
     it('should return 404 when audit not found', async () => {
       (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000099/checklist');
+      const res = await request(app).get(
+        '/api/audits/00000000-0000-0000-0000-000000000099/checklist'
+      );
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -325,7 +331,9 @@ describe('InfoSec Audits API', () => {
     it('should include auditId in response', async () => {
       (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(mockAudit);
 
-      const res = await request(app).get('/api/audits/a2000000-0000-4000-a000-000000000001/checklist');
+      const res = await request(app).get(
+        '/api/audits/a2000000-0000-4000-a000-000000000001/checklist'
+      );
 
       expect(res.body.data.auditId).toBe('a2000000-0000-4000-a000-000000000001');
     });
@@ -473,7 +481,9 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.isVulnerabilityScan.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isVulnerabilityScan.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const res = await request(app).get('/api/audits/vulnerability-scans');
 
@@ -532,7 +542,9 @@ describe('InfoSec Audits API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.isPenetrationTest.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isPenetrationTest.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const res = await request(app).get('/api/audits/penetration-tests');
 
@@ -578,24 +590,24 @@ describe('InfoSec Audits API', () => {
     it('should accept optional fields', async () => {
       (mockPrisma.isPenetrationTest.create as jest.Mock).mockResolvedValueOnce(mockPenTest);
 
-      const res = await request(app)
-        .post('/api/audits/penetration-tests')
-        .send({
-          testName: 'Pen Test',
-          testDate: '2026-02-01',
-          tester: 'External Co.',
-          methodology: 'OWASP',
-          scope: 'Web apps',
-          findingsCount: 5,
-          criticalFindings: 1,
-          highFindings: 2,
-        });
+      const res = await request(app).post('/api/audits/penetration-tests').send({
+        testName: 'Pen Test',
+        testDate: '2026-02-01',
+        tester: 'External Co.',
+        methodology: 'OWASP',
+        scope: 'Web apps',
+        findingsCount: 5,
+        criticalFindings: 1,
+        highFindings: 2,
+      });
 
       expect(res.status).toBe(201);
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.isPenetrationTest.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.isPenetrationTest.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const res = await request(app)
         .post('/api/audits/penetration-tests')

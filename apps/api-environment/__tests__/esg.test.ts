@@ -25,7 +25,12 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN', tenantId: 'tenant-1' };
+    req.user = {
+      id: '20000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+      tenantId: 'tenant-1',
+    };
     next();
   }),
 }));
@@ -64,12 +69,102 @@ describe('ESG / Sustainability API Routes', () => {
   describe('GET /api/esg/summary', () => {
     it('should return ESG summary with GHG, energy, water, waste', async () => {
       const mockMetrics = [
-        { id: '1', category: 'GHG_SCOPE_1', subcategory: 'Direct', period: '2026-01', value: 120, unit: 'tCO2e', source: 'Meter', verified: false, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: '2', category: 'GHG_SCOPE_2', subcategory: 'Electricity', period: '2026-01', value: 80, unit: 'tCO2e', source: 'Grid', verified: false, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: '3', category: 'GHG_SCOPE_3', subcategory: 'Supply Chain', period: '2026-02', value: 200, unit: 'tCO2e', source: 'Calc', verified: false, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: '4', category: 'ENERGY', subcategory: 'Electricity', period: '2026-01', value: 500, unit: 'MWh', source: 'Meter', verified: true, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: '5', category: 'WATER', subcategory: 'Mains', period: '2026-01', value: 300, unit: 'm3', source: 'Meter', verified: false, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: '6', category: 'WASTE', subcategory: 'General', period: '2026-01', value: 50, unit: 'tonnes', source: 'Manifest', verified: false, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
+        {
+          id: '1',
+          category: 'GHG_SCOPE_1',
+          subcategory: 'Direct',
+          period: '2026-01',
+          value: 120,
+          unit: 'tCO2e',
+          source: 'Meter',
+          verified: false,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '2',
+          category: 'GHG_SCOPE_2',
+          subcategory: 'Electricity',
+          period: '2026-01',
+          value: 80,
+          unit: 'tCO2e',
+          source: 'Grid',
+          verified: false,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '3',
+          category: 'GHG_SCOPE_3',
+          subcategory: 'Supply Chain',
+          period: '2026-02',
+          value: 200,
+          unit: 'tCO2e',
+          source: 'Calc',
+          verified: false,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '4',
+          category: 'ENERGY',
+          subcategory: 'Electricity',
+          period: '2026-01',
+          value: 500,
+          unit: 'MWh',
+          source: 'Meter',
+          verified: true,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '5',
+          category: 'WATER',
+          subcategory: 'Mains',
+          period: '2026-01',
+          value: 300,
+          unit: 'm3',
+          source: 'Meter',
+          verified: false,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '6',
+          category: 'WASTE',
+          subcategory: 'General',
+          period: '2026-01',
+          value: 50,
+          unit: 'tonnes',
+          source: 'Manifest',
+          verified: false,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ];
 
       (mockPrisma.esgMetric.findMany as jest.Mock).mockResolvedValueOnce(mockMetrics);
@@ -130,10 +225,70 @@ describe('ESG / Sustainability API Routes', () => {
   describe('GET /api/esg/trends', () => {
     it('should return monthly trend data', async () => {
       const mockMetrics = [
-        { id: '1', category: 'GHG_SCOPE_1', period: '2026-01', value: 100, unit: 'tCO2e', subcategory: 'Direct', source: null, verified: false, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: '2', category: 'GHG_SCOPE_1', period: '2026-02', value: 95, unit: 'tCO2e', subcategory: 'Direct', source: null, verified: false, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: '3', category: 'ENERGY', period: '2026-01', value: 450, unit: 'MWh', subcategory: 'Electricity', source: null, verified: false, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: '4', category: 'ENERGY', period: '2026-02', value: 420, unit: 'MWh', subcategory: 'Electricity', source: null, verified: false, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
+        {
+          id: '1',
+          category: 'GHG_SCOPE_1',
+          period: '2026-01',
+          value: 100,
+          unit: 'tCO2e',
+          subcategory: 'Direct',
+          source: null,
+          verified: false,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '2',
+          category: 'GHG_SCOPE_1',
+          period: '2026-02',
+          value: 95,
+          unit: 'tCO2e',
+          subcategory: 'Direct',
+          source: null,
+          verified: false,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '3',
+          category: 'ENERGY',
+          period: '2026-01',
+          value: 450,
+          unit: 'MWh',
+          subcategory: 'Electricity',
+          source: null,
+          verified: false,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '4',
+          category: 'ENERGY',
+          period: '2026-02',
+          value: 420,
+          unit: 'MWh',
+          subcategory: 'Electricity',
+          source: null,
+          verified: false,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ];
 
       (mockPrisma.esgMetric.findMany as jest.Mock).mockResolvedValueOnce(mockMetrics);
@@ -282,9 +437,7 @@ describe('ESG / Sustainability API Routes', () => {
       (mockPrisma.esgTarget.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.esgTarget.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/esg/targets?search=reduce')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/esg/targets?search=reduce').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.esgTarget.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -565,18 +718,104 @@ describe('ESG / Sustainability API Routes', () => {
   describe('GET /api/esg/report', () => {
     it('should generate GRI/TCFD-aligned report', async () => {
       const currentMetrics = [
-        { id: '1', category: 'GHG_SCOPE_1', period: '2026-01', value: 100, unit: 'tCO2e', subcategory: 'Direct', source: null, verified: false, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: '2', category: 'GHG_SCOPE_2', period: '2026-01', value: 80, unit: 'tCO2e', subcategory: 'Electricity', source: null, verified: false, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: '3', category: 'ENERGY', period: '2026-01', value: 500, unit: 'MWh', subcategory: 'Electricity', source: null, verified: false, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
+        {
+          id: '1',
+          category: 'GHG_SCOPE_1',
+          period: '2026-01',
+          value: 100,
+          unit: 'tCO2e',
+          subcategory: 'Direct',
+          source: null,
+          verified: false,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '2',
+          category: 'GHG_SCOPE_2',
+          period: '2026-01',
+          value: 80,
+          unit: 'tCO2e',
+          subcategory: 'Electricity',
+          source: null,
+          verified: false,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '3',
+          category: 'ENERGY',
+          period: '2026-01',
+          value: 500,
+          unit: 'MWh',
+          subcategory: 'Electricity',
+          source: null,
+          verified: false,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ];
 
       const prevMetrics = [
-        { id: 'p1', category: 'GHG_SCOPE_1', period: '2025-01', value: 120, unit: 'tCO2e', subcategory: 'Direct', source: null, verified: false, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: 'p2', category: 'ENERGY', period: '2025-01', value: 550, unit: 'MWh', subcategory: 'Electricity', source: null, verified: false, notes: null, createdBy: null, tenantId: 'default', verifiedBy: null, createdAt: new Date(), updatedAt: new Date() },
+        {
+          id: 'p1',
+          category: 'GHG_SCOPE_1',
+          period: '2025-01',
+          value: 120,
+          unit: 'tCO2e',
+          subcategory: 'Direct',
+          source: null,
+          verified: false,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: 'p2',
+          category: 'ENERGY',
+          period: '2025-01',
+          value: 550,
+          unit: 'MWh',
+          subcategory: 'Electricity',
+          source: null,
+          verified: false,
+          notes: null,
+          createdBy: null,
+          tenantId: 'default',
+          verifiedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ];
 
       const targets = [
-        { id: '00000000-0000-0000-0000-000000000001', refNumber: 'ESG-TGT-2602-0001', category: 'GHG_SCOPE_1', subcategory: 'Direct', description: 'Reduce Scope 1', baselineValue: 1000, targetValue: 700, currentValue: 850, status: 'ON_TRACK', unit: 'tCO2e' },
+        {
+          id: '00000000-0000-0000-0000-000000000001',
+          refNumber: 'ESG-TGT-2602-0001',
+          category: 'GHG_SCOPE_1',
+          subcategory: 'Direct',
+          description: 'Reduce Scope 1',
+          baselineValue: 1000,
+          targetValue: 700,
+          currentValue: 850,
+          status: 'ON_TRACK',
+          unit: 'tCO2e',
+        },
       ];
 
       (mockPrisma.esgMetric.findMany as jest.Mock)
@@ -843,9 +1082,7 @@ describe('ESG / Sustainability API Routes', () => {
       (mockPrisma.esgMetric.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.esgMetric.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/esg/metrics?verified=true')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/esg/metrics?verified=true').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.esgMetric.findMany).toHaveBeenCalledWith(
         expect.objectContaining({

@@ -15,7 +15,11 @@ router.use(authenticate);
 const readingCreateSchema = z.object({
   meterId: z.string().trim().uuid(),
   value: z.number().min(0),
-  readingDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  readingDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   source: z.enum(['MANUAL', 'AUTOMATIC', 'ESTIMATED', 'INVOICE']).optional().default('MANUAL'),
   cost: z.number().min(0).optional().nullable(),
   notes: z.string().max(1000).optional().nullable(),
@@ -23,7 +27,12 @@ const readingCreateSchema = z.object({
 
 const readingUpdateSchema = z.object({
   value: z.number().min(0).optional(),
-  readingDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  readingDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional(),
   source: z.enum(['MANUAL', 'AUTOMATIC', 'ESTIMATED', 'INVOICE']).optional(),
   cost: z.number().min(0).optional().nullable(),
   notes: z.string().max(1000).optional().nullable(),
@@ -78,8 +87,13 @@ router.get('/summary', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get reading summary', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get reading summary' } });
+    logger.error('Failed to get reading summary', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get reading summary' },
+    });
   }
 });
 
@@ -128,8 +142,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list readings', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list readings' } });
+    logger.error('Failed to list readings', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list readings' },
+    });
   }
 });
 
@@ -141,16 +160,24 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = readingCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const authReq = req as AuthRequest;
     const data = parsed.data;
 
     // Validate meter exists
-    const meter = await prisma.energyMeter.findFirst({ where: { id: data.meterId, deletedAt: null } as any });
+    const meter = await prisma.energyMeter.findFirst({
+      where: { id: data.meterId, deletedAt: null } as any,
+    });
     if (!meter) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
     }
 
     const reading = await prisma.energyReading.create({
@@ -171,8 +198,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Reading created', { readingId: reading.id, meterId: data.meterId });
     res.status(201).json({ success: true, data: reading });
   } catch (error: unknown) {
-    logger.error('Failed to create reading', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create reading' } });
+    logger.error('Failed to create reading', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create reading' },
+    });
   }
 });
 
@@ -194,13 +226,21 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!reading) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Reading not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Reading not found' } });
     }
 
     res.json({ success: true, data: reading });
   } catch (error: unknown) {
-    logger.error('Failed to get reading', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get reading' } });
+    logger.error('Failed to get reading', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get reading' },
+    });
   }
 });
 
@@ -213,12 +253,20 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = readingUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
-    const existing = await prisma.energyReading.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyReading.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Reading not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Reading not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -240,8 +288,14 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Reading updated', { readingId: id });
     res.json({ success: true, data: reading });
   } catch (error: unknown) {
-    logger.error('Failed to update reading', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update reading' } });
+    logger.error('Failed to update reading', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update reading' },
+    });
   }
 });
 
@@ -253,9 +307,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyReading.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyReading.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Reading not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Reading not found' } });
     }
 
     await prisma.energyReading.update({
@@ -266,8 +324,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Reading soft-deleted', { readingId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete reading', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete reading' } });
+    logger.error('Failed to delete reading', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete reading' },
+    });
   }
 });
 

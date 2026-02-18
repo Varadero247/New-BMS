@@ -107,7 +107,9 @@ export default function ProspectResearchPage() {
       <main className="ml-64 p-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-white">Prospect Research</h1>
-          <p className="text-gray-400 dark:text-gray-500 mt-1">Research companies and generate personalized outreach emails</p>
+          <p className="text-gray-400 dark:text-gray-500 mt-1">
+            Research companies and generate personalized outreach emails
+          </p>
         </div>
 
         {error && (
@@ -124,7 +126,9 @@ export default function ProspectResearchPage() {
           </h2>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Company Name *</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Company Name *
+              </label>
               <input
                 type="text"
                 value={companyName}
@@ -155,7 +159,9 @@ export default function ProspectResearchPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Industry Sector</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Industry Sector
+              </label>
               <select
                 value={industry}
                 onChange={(e) => setIndustry(e.target.value)}
@@ -177,7 +183,9 @@ export default function ProspectResearchPage() {
               </select>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Source Context</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Source Context
+              </label>
               <textarea
                 value={sourceContext}
                 onChange={(e) => setSourceContext(e.target.value)}
@@ -219,12 +227,24 @@ export default function ProspectResearchPage() {
               </h3>
               <div className="space-y-3">
                 <InfoRow label="Company" value={result.companyName} />
-                <InfoRow label="Registration No." value={result.companiesHouseData?.registrationNumber} />
+                <InfoRow
+                  label="Registration No."
+                  value={result.companiesHouseData?.registrationNumber}
+                />
                 <InfoRow label="Status" value={result.companiesHouseData?.companyStatus} />
-                <InfoRow label="Incorporated" value={result.companiesHouseData?.incorporationDate} />
+                <InfoRow
+                  label="Incorporated"
+                  value={result.companiesHouseData?.incorporationDate}
+                />
                 <InfoRow label="Address" value={result.companiesHouseData?.registeredAddress} />
-                <InfoRow label="SIC Codes" value={result.companiesHouseData?.sicCodes?.join(', ')} />
-                <InfoRow label="Directors" value={result.companiesHouseData?.directors?.join(', ')} />
+                <InfoRow
+                  label="SIC Codes"
+                  value={result.companiesHouseData?.sicCodes?.join(', ')}
+                />
+                <InfoRow
+                  label="Directors"
+                  value={result.companiesHouseData?.directors?.join(', ')}
+                />
                 <InfoRow label="Revenue" value={result.companiesHouseData?.annualRevenue} />
                 <InfoRow label="Employees" value={result.companiesHouseData?.employeeCount} />
               </div>
@@ -258,7 +278,11 @@ export default function ProspectResearchPage() {
                   onClick={handleCopyEmail}
                   className="px-4 py-2 bg-[#1B3A6B] hover:bg-[#244d8a] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                 >
-                  {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                  {copied ? (
+                    <Check className="w-4 h-4 text-green-400" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
                   {copied ? 'Copied!' : 'Copy Email'}
                 </button>
                 <button
@@ -278,31 +302,53 @@ export default function ProspectResearchPage() {
           {historyLoading ? (
             <div className="text-gray-400 dark:text-gray-500 text-center py-8">Loading...</div>
           ) : history.length === 0 ? (
-            <div className="text-gray-500 dark:text-gray-400 text-center py-8">No research history yet. Start by researching a company above.</div>
+            <div className="text-gray-500 dark:text-gray-400 text-center py-8">
+              No research history yet. Start by researching a company above.
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#1B3A6B]/30">
-                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Company</th>
-                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Industry</th>
-                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Website</th>
-                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Date</th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                      Company
+                    </th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                      Industry
+                    </th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                      Website
+                    </th>
+                    <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                      Date
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {history.map((item) => (
-                    <tr key={item.id} className="border-b border-[#1B3A6B]/10 hover:bg-[#1B3A6B]/10">
+                    <tr
+                      key={item.id}
+                      className="border-b border-[#1B3A6B]/10 hover:bg-[#1B3A6B]/10"
+                    >
                       <td className="py-3 px-4 text-white">{item.companyName}</td>
                       <td className="py-3 px-4 text-gray-300">{item.industry || '-'}</td>
                       <td className="py-3 px-4">
                         {item.website ? (
-                          <a href={item.website} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
+                          <a
+                            href={item.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:text-blue-300"
+                          >
                             {new URL(item.website).hostname}
                           </a>
-                        ) : '-'}
+                        ) : (
+                          '-'
+                        )}
                       </td>
-                      <td className="py-3 px-4 text-gray-400 dark:text-gray-500">{new Date(item.createdAt).toLocaleDateString()}</td>
+                      <td className="py-3 px-4 text-gray-400 dark:text-gray-500">
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

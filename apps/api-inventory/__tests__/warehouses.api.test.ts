@@ -121,9 +121,7 @@ describe('Inventory Warehouses API Routes', () => {
       (mockPrisma.warehouse.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/warehouses?isActive=true')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/warehouses?isActive=true').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.warehouse.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -139,9 +137,7 @@ describe('Inventory Warehouses API Routes', () => {
       (mockPrisma.warehouse.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/warehouses')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/warehouses').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.warehouse.findMany).toHaveBeenCalledWith(
         expect.objectContaining({

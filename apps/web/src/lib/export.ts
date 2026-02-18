@@ -23,10 +23,10 @@ export interface ExportOptions {
 
 // Standard colors
 const standardColors = {
-  ISO_45001: { r: 239, g: 68, b: 68 },   // Red
-  ISO_14001: { r: 34, g: 197, b: 94 },   // Green
-  ISO_9001: { r: 59, g: 130, b: 246 },   // Blue
-  ALL: { r: 139, g: 92, b: 246 },        // Purple
+  ISO_45001: { r: 239, g: 68, b: 68 }, // Red
+  ISO_14001: { r: 34, g: 197, b: 94 }, // Green
+  ISO_9001: { r: 59, g: 130, b: 246 }, // Blue
+  ALL: { r: 139, g: 92, b: 246 }, // Purple
 };
 
 // PDF Export
@@ -71,10 +71,8 @@ export function exportToPDF(options: ExportOptions): void {
   }
 
   // Prepare table data
-  const headers = columns.map(col => col.header);
-  const tableData = data.map(row =>
-    columns.map(col => formatCellValue(row[col.key]))
-  );
+  const headers = columns.map((col) => col.header);
+  const tableData = data.map((row) => columns.map((col) => formatCellValue(row[col.key])));
 
   // Add table
   autoTable(doc, {
@@ -93,12 +91,15 @@ export function exportToPDF(options: ExportOptions): void {
     alternateRowStyles: {
       fillColor: [245, 245, 245],
     },
-    columnStyles: columns.reduce((acc, col, index) => {
-      if (col.width) {
-        acc[index] = { cellWidth: col.width };
-      }
-      return acc;
-    }, {} as Record<number, { cellWidth: number }>),
+    columnStyles: columns.reduce(
+      (acc, col, index) => {
+        if (col.width) {
+          acc[index] = { cellWidth: col.width };
+        }
+        return acc;
+      },
+      {} as Record<number, { cellWidth: number }>
+    ),
     didDrawPage: (data) => {
       // Footer
       const pageCount = doc.getNumberOfPages();
@@ -128,20 +129,21 @@ export function exportToExcel(options: ExportOptions): void {
   const wsData = [
     [title],
     [standard !== 'ALL' ? standard.replace('_', ' ') : 'All Standards'],
-    [dateRange
-      ? `${format(dateRange.from, 'dd MMM yyyy')} - ${format(dateRange.to, 'dd MMM yyyy')}`
-      : `Generated: ${format(new Date(), 'dd MMM yyyy HH:mm')}`
+    [
+      dateRange
+        ? `${format(dateRange.from, 'dd MMM yyyy')} - ${format(dateRange.to, 'dd MMM yyyy')}`
+        : `Generated: ${format(new Date(), 'dd MMM yyyy HH:mm')}`,
     ],
     [], // Empty row
-    columns.map(col => col.header), // Headers
-    ...data.map(row => columns.map(col => formatCellValue(row[col.key]))),
+    columns.map((col) => col.header), // Headers
+    ...data.map((row) => columns.map((col) => formatCellValue(row[col.key]))),
   ];
 
   // Create worksheet
   const ws = XLSX.utils.aoa_to_sheet(wsData);
 
   // Set column widths
-  ws['!cols'] = columns.map(col => ({ wch: col.width || 15 }));
+  ws['!cols'] = columns.map((col) => ({ wch: col.width || 15 }));
 
   // Merge title cell
   ws['!merges'] = [
@@ -157,7 +159,9 @@ export function exportToExcel(options: ExportOptions): void {
   const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
 
   // Save
-  const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const blob = new Blob([excelBuffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
   saveAs(blob, `${filename}.xlsx`);
 }
 
@@ -252,7 +256,10 @@ export interface ActionExportData {
   [key: string]: string | undefined;
 }
 
-export function exportActions(actions: ActionExportData[], title: string = 'CAPA Actions Report'): void {
+export function exportActions(
+  actions: ActionExportData[],
+  title: string = 'CAPA Actions Report'
+): void {
   const columns: ExportColumn[] = [
     { header: 'Reference', key: 'referenceNumber', width: 15 },
     { header: 'Title', key: 'title', width: 30 },
@@ -269,7 +276,10 @@ export function exportActions(actions: ActionExportData[], title: string = 'CAPA
   exportToPDF({ title, filename, columns, data: actions });
 }
 
-export function exportActionsExcel(actions: ActionExportData[], title: string = 'CAPA Actions Report'): void {
+export function exportActionsExcel(
+  actions: ActionExportData[],
+  title: string = 'CAPA Actions Report'
+): void {
   const columns: ExportColumn[] = [
     { header: 'Reference', key: 'referenceNumber', width: 18 },
     { header: 'Title', key: 'title', width: 45 },

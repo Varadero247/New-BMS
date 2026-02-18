@@ -20,7 +20,15 @@ interface Plugin {
   installed?: boolean;
 }
 
-const CATEGORIES = ['All', 'Integration', 'Reporting', 'Automation', 'Compliance', 'Analytics', 'Communication'] as const;
+const CATEGORIES = [
+  'All',
+  'Integration',
+  'Reporting',
+  'Automation',
+  'Compliance',
+  'Analytics',
+  'Communication',
+] as const;
 
 const CATEGORY_COLORS: Record<string, string> = {
   Integration: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300',
@@ -75,7 +83,9 @@ export default function MarketplacePage() {
     try {
       await api.post(`/marketplace/plugins/${pluginId}/install`);
       setPlugins((prev) =>
-        prev.map((p) => (p.id === pluginId ? { ...p, installed: true, downloadCount: p.downloadCount + 1 } : p))
+        prev.map((p) =>
+          p.id === pluginId ? { ...p, installed: true, downloadCount: p.downloadCount + 1 } : p
+        )
       );
     } catch {
       setError('Installation failed. Please try again.');
@@ -123,8 +133,13 @@ export default function MarketplacePage() {
 
         {/* Search bar */}
         <div className="relative mb-6">
-          <label htmlFor="marketplace-search" className="sr-only">Search plugins</label>
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+          <label htmlFor="marketplace-search" className="sr-only">
+            Search plugins
+          </label>
+          <Search
+            className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500"
+            aria-hidden="true"
+          />
           <input
             id="marketplace-search"
             type="text"
@@ -195,7 +210,8 @@ export default function MarketplacePage() {
                   </div>
                   <span
                     className={`text-xs px-2 py-0.5 rounded font-medium ${
-                      CATEGORY_COLORS[plugin.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                      CATEGORY_COLORS[plugin.category] ||
+                      'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                     }`}
                   >
                     {plugin.category}
@@ -223,8 +239,8 @@ export default function MarketplacePage() {
                       plugin.status === 'PUBLISHED'
                         ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300'
                         : plugin.status === 'BETA'
-                        ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                          ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                     }`}
                   >
                     {plugin.status}

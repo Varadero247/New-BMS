@@ -59,7 +59,9 @@ Rules:
     capaType ? `CAPA Type: ${capaType}` : '',
     source ? `Source: ${source}` : '',
     priority ? `Priority: ${priority}` : '',
-  ].filter(Boolean).join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {

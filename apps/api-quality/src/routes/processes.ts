@@ -61,7 +61,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List processes error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list processes' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list processes' },
+    });
   }
 });
 
@@ -73,13 +76,18 @@ router.get('/:id', checkOwnership(prisma.qualProcess), async (req: AuthRequest, 
     });
 
     if (!process) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Process not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Process not found' } });
     }
 
     res.json({ success: true, data: process });
   } catch (error) {
     logger.error('Get process error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get process' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get process' },
+    });
   }
 });
 
@@ -119,9 +127,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       relatedRiskRef: z.string().optional(),
       relatedLegalRef: z.string().optional(),
       // Review
-      reviewFrequency: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE']).default('ANNUALLY'),
+      reviewFrequency: z
+        .enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'])
+        .default('ANNUALLY'),
       lastReviewed: z.string().optional(),
-      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      nextReviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       reviewNotes: z.string().optional(),
     });
 
@@ -169,10 +182,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: qualProcess });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create process error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create process' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create process' },
+    });
   }
 });
 
@@ -181,7 +204,9 @@ router.put('/:id', checkOwnership(prisma.qualProcess), async (req: AuthRequest, 
   try {
     const existing = await prisma.qualProcess.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Process not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Process not found' } });
     }
 
     const schema = z.object({
@@ -209,7 +234,10 @@ router.put('/:id', checkOwnership(prisma.qualProcess), async (req: AuthRequest, 
       kpi3Description: z.string().nullable().optional(),
       kpi3Target: z.string().nullable().optional(),
       monitoringMethod: z.string().nullable().optional(),
-      measurementFrequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY']).nullable().optional(),
+      measurementFrequency: z
+        .enum(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY'])
+        .nullable()
+        .optional(),
       // Linkage
       precedingProcesses: z.string().nullable().optional(),
       followingProcesses: z.string().nullable().optional(),
@@ -217,9 +245,15 @@ router.put('/:id', checkOwnership(prisma.qualProcess), async (req: AuthRequest, 
       relatedRiskRef: z.string().nullable().optional(),
       relatedLegalRef: z.string().nullable().optional(),
       // Review
-      reviewFrequency: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE']).optional(),
+      reviewFrequency: z
+        .enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'])
+        .optional(),
       lastReviewed: z.string().nullable().optional(),
-      nextReviewDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      nextReviewDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       reviewNotes: z.string().nullable().optional(),
       // AI fields
       aiAnalysis: z.string().nullable().optional(),
@@ -236,36 +270,68 @@ router.put('/:id', checkOwnership(prisma.qualProcess), async (req: AuthRequest, 
       where: { id: req.params.id },
       data: {
         ...data,
-        lastReviewed: data.lastReviewed === null ? null : data.lastReviewed ? new Date(data.lastReviewed) : undefined,
-        nextReviewDate: data.nextReviewDate === null ? null : data.nextReviewDate ? new Date(data.nextReviewDate) : undefined,
+        lastReviewed:
+          data.lastReviewed === null
+            ? null
+            : data.lastReviewed
+              ? new Date(data.lastReviewed)
+              : undefined,
+        nextReviewDate:
+          data.nextReviewDate === null
+            ? null
+            : data.nextReviewDate
+              ? new Date(data.nextReviewDate)
+              : undefined,
       },
     });
 
     res.json({ success: true, data: qualProcess });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update process error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update process' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update process' },
+    });
   }
 });
 
 // DELETE /:id - Delete process
-router.delete('/:id', checkOwnership(prisma.qualProcess), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.qualProcess.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Process not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.qualProcess),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.qualProcess.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Process not found' } });
+      }
+
+      await prisma.qualProcess.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete process error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete process' },
+      });
     }
-
-    await prisma.qualProcess.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete process error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete process' } });
   }
-});
+);
 
 export default router;

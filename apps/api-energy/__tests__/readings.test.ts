@@ -20,7 +20,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -42,7 +46,9 @@ beforeEach(() => {
 
 describe('GET /api/readings', () => {
   it('should return paginated readings', async () => {
-    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([{ id: 'ea000000-0000-4000-a000-000000000001', value: 100 }]);
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([
+      { id: 'ea000000-0000-4000-a000-000000000001', value: 100 },
+    ]);
     (prisma.energyReading.count as jest.Mock).mockResolvedValue(1);
 
     const res = await request(app).get('/api/readings');
@@ -96,7 +102,9 @@ describe('POST /api/readings', () => {
   };
 
   it('should create a reading', async () => {
-    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({ id: 'e1000000-0000-4000-a000-000000000001' });
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+    });
     (prisma.energyReading.create as jest.Mock).mockResolvedValue({ id: 'new-id', ...validBody });
 
     const res = await request(app).post('/api/readings').send(validBody);
@@ -108,10 +116,12 @@ describe('POST /api/readings', () => {
   it('should reject if meter not found', async () => {
     (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).post('/api/readings').send({
-      ...validBody,
-      meterId: '00000000-0000-0000-0000-000000000099',
-    });
+    const res = await request(app)
+      .post('/api/readings')
+      .send({
+        ...validBody,
+        meterId: '00000000-0000-0000-0000-000000000099',
+      });
 
     expect(res.status).toBe(404);
   });
@@ -125,7 +135,10 @@ describe('POST /api/readings', () => {
 
 describe('GET /api/readings/:id', () => {
   it('should return a reading', async () => {
-    (prisma.energyReading.findFirst as jest.Mock).mockResolvedValue({ id: 'ea000000-0000-4000-a000-000000000001', value: 100 });
+    (prisma.energyReading.findFirst as jest.Mock).mockResolvedValue({
+      id: 'ea000000-0000-4000-a000-000000000001',
+      value: 100,
+    });
 
     const res = await request(app).get('/api/readings/ea000000-0000-4000-a000-000000000001');
 
@@ -144,10 +157,17 @@ describe('GET /api/readings/:id', () => {
 
 describe('PUT /api/readings/:id', () => {
   it('should update a reading', async () => {
-    (prisma.energyReading.findFirst as jest.Mock).mockResolvedValue({ id: 'ea000000-0000-4000-a000-000000000001' });
-    (prisma.energyReading.update as jest.Mock).mockResolvedValue({ id: 'ea000000-0000-4000-a000-000000000001', value: 200 });
+    (prisma.energyReading.findFirst as jest.Mock).mockResolvedValue({
+      id: 'ea000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyReading.update as jest.Mock).mockResolvedValue({
+      id: 'ea000000-0000-4000-a000-000000000001',
+      value: 200,
+    });
 
-    const res = await request(app).put('/api/readings/ea000000-0000-4000-a000-000000000001').send({ value: 200 });
+    const res = await request(app)
+      .put('/api/readings/ea000000-0000-4000-a000-000000000001')
+      .send({ value: 200 });
 
     expect(res.status).toBe(200);
     expect(res.body.data.value).toBe(200);
@@ -156,7 +176,9 @@ describe('PUT /api/readings/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyReading.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/readings/00000000-0000-0000-0000-000000000099').send({ value: 200 });
+    const res = await request(app)
+      .put('/api/readings/00000000-0000-0000-0000-000000000099')
+      .send({ value: 200 });
 
     expect(res.status).toBe(404);
   });
@@ -164,8 +186,13 @@ describe('PUT /api/readings/:id', () => {
 
 describe('DELETE /api/readings/:id', () => {
   it('should soft delete a reading', async () => {
-    (prisma.energyReading.findFirst as jest.Mock).mockResolvedValue({ id: 'ea000000-0000-4000-a000-000000000001' });
-    (prisma.energyReading.update as jest.Mock).mockResolvedValue({ id: 'ea000000-0000-4000-a000-000000000001', deletedAt: new Date() });
+    (prisma.energyReading.findFirst as jest.Mock).mockResolvedValue({
+      id: 'ea000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyReading.update as jest.Mock).mockResolvedValue({
+      id: 'ea000000-0000-4000-a000-000000000001',
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/readings/ea000000-0000-4000-a000-000000000001');
 

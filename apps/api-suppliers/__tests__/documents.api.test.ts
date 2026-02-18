@@ -3,21 +3,40 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    suppDocument: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    suppDocument: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
   },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/documents';
 import { prisma } from '../src/prisma';
-const app = express(); app.use(express.json()); app.use('/api/documents', router);
-beforeEach(() => { jest.clearAllMocks(); });
+const app = express();
+app.use(express.json());
+app.use('/api/documents', router);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('GET /api/documents', () => {
   it('should return documents list', async () => {
-    (prisma as any).suppDocument.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'Certificate' }]);
+    (prisma as any).suppDocument.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Certificate' },
+    ]);
     (prisma as any).suppDocument.count.mockResolvedValue(1);
     const res = await request(app).get('/api/documents');
     expect(res.status).toBe(200);
@@ -45,7 +64,10 @@ describe('GET /api/documents', () => {
 
 describe('GET /api/documents/:id', () => {
   it('should return a document by id', async () => {
-    (prisma as any).suppDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Certificate' });
+    (prisma as any).suppDocument.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Certificate',
+    });
     const res = await request(app).get('/api/documents/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -64,7 +86,11 @@ describe('GET /api/documents/:id', () => {
 describe('POST /api/documents', () => {
   it('should create a document', async () => {
     (prisma as any).suppDocument.count.mockResolvedValue(0);
-    (prisma as any).suppDocument.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New Doc', supplierId: 'sup-1' });
+    (prisma as any).suppDocument.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'New Doc',
+      supplierId: 'sup-1',
+    });
     const res = await request(app).post('/api/documents').send({
       supplierId: 'sup-1',
       title: 'New Doc',
@@ -94,16 +120,26 @@ describe('POST /api/documents', () => {
 
 describe('PUT /api/documents/:id', () => {
   it('should update a document', async () => {
-    (prisma as any).suppDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Old Title' });
-    (prisma as any).suppDocument.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated Title' });
-    const res = await request(app).put('/api/documents/00000000-0000-0000-0000-000000000001').send({ title: 'Updated Title' });
+    (prisma as any).suppDocument.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Old Title',
+    });
+    (prisma as any).suppDocument.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Updated Title',
+    });
+    const res = await request(app)
+      .put('/api/documents/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated Title' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 404 if document not found on update', async () => {
     (prisma as any).suppDocument.findFirst.mockResolvedValue(null);
-    const res = await request(app).put('/api/documents/00000000-0000-0000-0000-000000000099').send({ title: 'Title' });
+    const res = await request(app)
+      .put('/api/documents/00000000-0000-0000-0000-000000000099')
+      .send({ title: 'Title' });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -112,8 +148,12 @@ describe('PUT /api/documents/:id', () => {
 
 describe('DELETE /api/documents/:id', () => {
   it('should soft delete a document', async () => {
-    (prisma as any).suppDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).suppDocument.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).suppDocument.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).suppDocument.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
     const res = await request(app).delete('/api/documents/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);

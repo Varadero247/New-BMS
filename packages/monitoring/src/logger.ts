@@ -73,7 +73,10 @@ export type Logger = ReturnType<typeof createLogger>;
  *   const log = createRequestLogger(logger, req);
  *   log.info('Processing request');  // correlation ID is included automatically
  */
-export const createRequestLogger = (parentLogger: Logger, req: { correlationId?: string; headers?: Record<string, any> }) => {
+export const createRequestLogger = (
+  parentLogger: Logger,
+  req: { correlationId?: string; headers?: Record<string, any> }
+) => {
   const correlationId = req?.correlationId || req?.headers?.['x-correlation-id'] || 'unknown';
   return parentLogger.child({ correlationId });
 };

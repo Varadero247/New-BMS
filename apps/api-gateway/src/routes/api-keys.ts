@@ -15,7 +15,7 @@ interface ApiKeyRecord {
   id: string;
   name: string;
   keyPrefix: string; // first 12 chars of the full key
-  keyHash: string;   // bcrypt hash of the full key
+  keyHash: string; // bcrypt hash of the full key
   scopes: string[];
   orgId: string;
   createdById: string;
@@ -92,7 +92,12 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
 
     apiKeyStore.set(record.id, record);
 
-    logger.info('API key created', { id: record.id, name, prefix: keyPrefix, createdBy: req.user!.id });
+    logger.info('API key created', {
+      id: record.id,
+      name,
+      prefix: keyPrefix,
+      createdBy: req.user!.id,
+    });
 
     // Return the full key ONCE — it cannot be retrieved again
     res.status(201).json({
@@ -108,7 +113,9 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to create API key', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to create API key', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create API key' },
@@ -140,7 +147,9 @@ router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
       meta: { total: keys.length },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list API keys', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list API keys', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list API keys' },
@@ -175,10 +184,17 @@ router.delete('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) =>
 
     res.json({
       success: true,
-      data: { id: record.id, name: record.name, status: record.status, revokedAt: record.revokedAt },
+      data: {
+        id: record.id,
+        name: record.name,
+        status: record.status,
+        revokedAt: record.revokedAt,
+      },
     });
   } catch (error: unknown) {
-    logger.error('Failed to revoke API key', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to revoke API key', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to revoke API key' },

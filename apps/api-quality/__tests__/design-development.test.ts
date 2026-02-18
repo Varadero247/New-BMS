@@ -265,7 +265,10 @@ describe('Quality Design & Development API Routes', () => {
   // ==========================================
   describe('GET /api/design-development', () => {
     it('should return a list of projects with default pagination', async () => {
-      (mockPrisma.designDevelopment.findMany as jest.Mock).mockResolvedValueOnce([mockProject, mockProject2]);
+      (mockPrisma.designDevelopment.findMany as jest.Mock).mockResolvedValueOnce([
+        mockProject,
+        mockProject2,
+      ]);
       (mockPrisma.designDevelopment.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app)
@@ -330,7 +333,9 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.designDevelopment.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.designDevelopment.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/design-development')
@@ -385,7 +390,9 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/design-development/20000000-0000-4000-a000-000000000001')
@@ -459,7 +466,9 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/design-development/20000000-0000-4000-a000-000000000001')
@@ -498,7 +507,9 @@ describe('Quality Design & Development API Routes', () => {
 
     it('should return 400 for invalid stage name', async () => {
       const response = await request(app)
-        .post('/api/design-development/20000000-0000-4000-a000-000000000001/stages/INVALID_STAGE/submit')
+        .post(
+          '/api/design-development/20000000-0000-4000-a000-000000000001/stages/INVALID_STAGE/submit'
+        )
         .set('Authorization', 'Bearer token')
         .send({});
 
@@ -548,7 +559,9 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/design-development/20000000-0000-4000-a000-000000000001/stages/PLANNING/submit')
@@ -575,7 +588,9 @@ describe('Quality Design & Development API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/design-development/20000000-0000-4000-a000-000000000001/stages/PLANNING/approve')
+        .post(
+          '/api/design-development/20000000-0000-4000-a000-000000000001/stages/PLANNING/approve'
+        )
         .set('Authorization', 'Bearer token')
         .send({ approvalNotes: 'Looks good' });
 
@@ -586,7 +601,9 @@ describe('Quality Design & Development API Routes', () => {
 
     it('should return 400 for invalid stage name', async () => {
       const response = await request(app)
-        .post('/api/design-development/20000000-0000-4000-a000-000000000001/stages/00000000-0000-0000-0000-000000000099/approve')
+        .post(
+          '/api/design-development/20000000-0000-4000-a000-000000000001/stages/00000000-0000-0000-0000-000000000099/approve'
+        )
         .set('Authorization', 'Bearer token')
         .send({});
 
@@ -599,7 +616,9 @@ describe('Quality Design & Development API Routes', () => {
       (mockPrisma.designStage.findFirst as jest.Mock).mockResolvedValueOnce(mockStage); // IN_PROGRESS
 
       const response = await request(app)
-        .post('/api/design-development/20000000-0000-4000-a000-000000000001/stages/PLANNING/approve')
+        .post(
+          '/api/design-development/20000000-0000-4000-a000-000000000001/stages/PLANNING/approve'
+        )
         .set('Authorization', 'Bearer token')
         .send({});
 
@@ -611,7 +630,9 @@ describe('Quality Design & Development API Routes', () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/design-development/00000000-0000-4000-a000-ffffffffffff/stages/PLANNING/approve')
+        .post(
+          '/api/design-development/00000000-0000-4000-a000-ffffffffffff/stages/PLANNING/approve'
+        )
         .set('Authorization', 'Bearer token')
         .send({});
 
@@ -620,10 +641,14 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
-        .post('/api/design-development/20000000-0000-4000-a000-000000000001/stages/PLANNING/approve')
+        .post(
+          '/api/design-development/20000000-0000-4000-a000-000000000001/stages/PLANNING/approve'
+        )
         .set('Authorization', 'Bearer token')
         .send({});
 
@@ -687,7 +712,9 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/design-development/20000000-0000-4000-a000-000000000001')

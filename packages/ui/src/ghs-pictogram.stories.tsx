@@ -9,9 +9,15 @@ const meta: Meta<typeof GhsPictogram> = {
     pictogram: {
       control: 'select',
       options: [
-        'GHS01_EXPLOSIVE', 'GHS02_FLAMMABLE', 'GHS03_OXIDISING',
-        'GHS04_GAS_UNDER_PRESSURE', 'GHS05_CORROSIVE', 'GHS06_TOXIC',
-        'GHS07_IRRITANT_HARMFUL', 'GHS08_HEALTH_HAZARD', 'GHS09_ENVIRONMENTAL',
+        'GHS01_EXPLOSIVE',
+        'GHS02_FLAMMABLE',
+        'GHS03_OXIDISING',
+        'GHS04_GAS_UNDER_PRESSURE',
+        'GHS05_CORROSIVE',
+        'GHS06_TOXIC',
+        'GHS07_IRRITANT_HARMFUL',
+        'GHS08_HEALTH_HAZARD',
+        'GHS09_ENVIRONMENTAL',
       ],
     },
     size: {
@@ -51,16 +57,24 @@ export const Large: Story = {
 export const AllPictograms: Story = {
   render: () => {
     const all: GhsPictogramType[] = [
-      'GHS01_EXPLOSIVE', 'GHS02_FLAMMABLE', 'GHS03_OXIDISING',
-      'GHS04_GAS_UNDER_PRESSURE', 'GHS05_CORROSIVE', 'GHS06_TOXIC',
-      'GHS07_IRRITANT_HARMFUL', 'GHS08_HEALTH_HAZARD', 'GHS09_ENVIRONMENTAL',
+      'GHS01_EXPLOSIVE',
+      'GHS02_FLAMMABLE',
+      'GHS03_OXIDISING',
+      'GHS04_GAS_UNDER_PRESSURE',
+      'GHS05_CORROSIVE',
+      'GHS06_TOXIC',
+      'GHS07_IRRITANT_HARMFUL',
+      'GHS08_HEALTH_HAZARD',
+      'GHS09_ENVIRONMENTAL',
     ];
     return (
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
         {all.map((p) => (
           <div key={p} style={{ textAlign: 'center' }}>
             <GhsPictogram pictogram={p} size="md" />
-            <p style={{ fontSize: '11px', marginTop: '4px', color: '#666', maxWidth: '80px' }}>{p.replace('GHS0', '').replace('_', ' ')}</p>
+            <p style={{ fontSize: '11px', marginTop: '4px', color: '#666', maxWidth: '80px' }}>
+              {p.replace('GHS0', '').replace('_', ' ')}
+            </p>
           </div>
         ))}
       </div>
@@ -71,8 +85,19 @@ export const AllPictograms: Story = {
 export const PictogramGroup: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <GhsPictogramGroup pictograms={['GHS02_FLAMMABLE', 'GHS06_TOXIC', 'GHS05_CORROSIVE']} size="md" />
-      <GhsPictogramGroup pictograms={['GHS01_EXPLOSIVE', 'GHS03_OXIDISING', 'GHS04_GAS_UNDER_PRESSURE', 'GHS09_ENVIRONMENTAL']} size="sm" />
+      <GhsPictogramGroup
+        pictograms={['GHS02_FLAMMABLE', 'GHS06_TOXIC', 'GHS05_CORROSIVE']}
+        size="md"
+      />
+      <GhsPictogramGroup
+        pictograms={[
+          'GHS01_EXPLOSIVE',
+          'GHS03_OXIDISING',
+          'GHS04_GAS_UNDER_PRESSURE',
+          'GHS09_ENVIRONMENTAL',
+        ]}
+        size="sm"
+      />
     </div>
   ),
 };

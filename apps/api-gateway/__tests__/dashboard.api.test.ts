@@ -69,7 +69,12 @@ describe('Dashboard API Routes', () => {
         { standard: 'ISO_14001', _count: { id: 3 } },
       ] as any);
       mockPrisma.risk.findMany.mockResolvedValue([
-        { id: '10000000-0000-4000-a000-000000000001', title: 'Risk 1', riskScore: 25, riskLevel: 'CRITICAL' },
+        {
+          id: '10000000-0000-4000-a000-000000000001',
+          title: 'Risk 1',
+          riskScore: 25,
+          riskLevel: 'CRITICAL',
+        },
       ] as any);
 
       mockPrisma.incident.count.mockResolvedValue(5);
@@ -79,7 +84,11 @@ describe('Dashboard API Routes', () => {
 
       mockPrisma.action.count.mockResolvedValue(20);
       mockPrisma.action.findMany.mockResolvedValue([
-        { id: '13000000-0000-4000-a000-000000000001', title: 'Overdue Action', dueDate: new Date() },
+        {
+          id: '13000000-0000-4000-a000-000000000001',
+          title: 'Overdue Action',
+          dueDate: new Date(),
+        },
       ] as any);
 
       mockPrisma.aIAnalysis.findMany.mockResolvedValue([
@@ -305,9 +314,7 @@ describe('Dashboard API Routes', () => {
       mockPrisma.monthlyTrend.findMany.mockResolvedValueOnce([]);
       const currentYear = new Date().getFullYear();
 
-      await request(app)
-        .get('/api/dashboard/trends')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/dashboard/trends').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.monthlyTrend.findMany).toHaveBeenCalledWith(
         expect.objectContaining({

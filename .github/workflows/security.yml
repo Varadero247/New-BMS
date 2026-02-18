@@ -78,7 +78,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:javascript-typescript"
+          category: '/language:javascript-typescript'
 
   secret-scan:
     name: Secret Scan
@@ -222,7 +222,7 @@ jobs:
             p/typescript
             p/nodejs
             p/security-audit
-          generateSarif: "1"
+          generateSarif: '1'
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3

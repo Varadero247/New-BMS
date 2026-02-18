@@ -13,7 +13,12 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN', orgId: 'org-001' };
+    req.user = {
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'test@test.com',
+      role: 'ADMIN',
+      orgId: 'org-001',
+    };
     next();
   }),
 }));

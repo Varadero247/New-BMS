@@ -48,7 +48,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/analytics', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockPremises = prisma.femPremises as any;
 const mockFra = prisma.femFireRiskAssessment as any;
@@ -58,21 +60,23 @@ const mockPeep = prisma.femPeep as any;
 const mockEquipment = prisma.femEmergencyEquipment as any;
 const mockBcp = prisma.femBusinessContinuityPlan as any;
 
-function setupAnalyticsMocks(overrides: Partial<{
-  activePremises: number;
-  fraOverdue: number;
-  activeIncidents: number;
-  incidentsLast30: number;
-  wardenExpiring: number;
-  peepDue: number;
-  equipmentDue: number;
-  bcpCount: number;
-  bcpNotTested: number;
-  recentIncidents: any[];
-  riskBreakdown: any[];
-  incidentBreakdown: any[];
-  premisesNoDrill: number;
-}> = {}) {
+function setupAnalyticsMocks(
+  overrides: Partial<{
+    activePremises: number;
+    fraOverdue: number;
+    activeIncidents: number;
+    incidentsLast30: number;
+    wardenExpiring: number;
+    peepDue: number;
+    equipmentDue: number;
+    bcpCount: number;
+    bcpNotTested: number;
+    recentIncidents: any[];
+    riskBreakdown: any[];
+    incidentBreakdown: any[];
+    premisesNoDrill: number;
+  }> = {}
+) {
   const defaults = {
     activePremises: 5,
     fraOverdue: 2,
@@ -83,9 +87,22 @@ function setupAnalyticsMocks(overrides: Partial<{
     equipmentDue: 6,
     bcpCount: 3,
     bcpNotTested: 1,
-    recentIncidents: [{ id: 'inc-1', incidentNumber: 'INC-2026-0001', emergencyType: 'FIRE', premises: { name: 'HQ' } }],
-    riskBreakdown: [{ overallRiskLevel: 'LOW', _count: 3 }, { overallRiskLevel: 'MEDIUM', _count: 2 }],
-    incidentBreakdown: [{ emergencyType: 'FIRE', _count: 2 }, { emergencyType: 'FLOOD', _count: 1 }],
+    recentIncidents: [
+      {
+        id: 'inc-1',
+        incidentNumber: 'INC-2026-0001',
+        emergencyType: 'FIRE',
+        premises: { name: 'HQ' },
+      },
+    ],
+    riskBreakdown: [
+      { overallRiskLevel: 'LOW', _count: 3 },
+      { overallRiskLevel: 'MEDIUM', _count: 2 },
+    ],
+    incidentBreakdown: [
+      { emergencyType: 'FIRE', _count: 2 },
+      { emergencyType: 'FLOOD', _count: 1 },
+    ],
     premisesNoDrill: 2,
   };
   const merged = { ...defaults, ...overrides };
@@ -103,9 +120,7 @@ function setupAnalyticsMocks(overrides: Partial<{
   mockWarden.count.mockResolvedValue(merged.wardenExpiring);
   mockPeep.count.mockResolvedValue(merged.peepDue);
   mockEquipment.count.mockResolvedValue(merged.equipmentDue);
-  mockBcp.count
-    .mockResolvedValueOnce(merged.bcpCount)
-    .mockResolvedValueOnce(merged.bcpNotTested);
+  mockBcp.count.mockResolvedValueOnce(merged.bcpCount).mockResolvedValueOnce(merged.bcpNotTested);
 }
 
 describe('GET /api/analytics/dashboard', () => {
@@ -201,8 +216,18 @@ describe('GET /api/analytics/dashboard', () => {
 
   it('includes recent incidents list', async () => {
     const recent = [
-      { id: 'inc-1', incidentNumber: 'INC-2026-0001', emergencyType: 'FIRE', premises: { name: 'HQ' } },
-      { id: 'inc-2', incidentNumber: 'INC-2026-0002', emergencyType: 'FLOOD', premises: { name: 'Branch' } },
+      {
+        id: 'inc-1',
+        incidentNumber: 'INC-2026-0001',
+        emergencyType: 'FIRE',
+        premises: { name: 'HQ' },
+      },
+      {
+        id: 'inc-2',
+        incidentNumber: 'INC-2026-0002',
+        emergencyType: 'FLOOD',
+        premises: { name: 'Branch' },
+      },
     ];
     setupAnalyticsMocks({ recentIncidents: recent });
 
@@ -222,22 +247,38 @@ describe('GET /api/analytics/dashboard', () => {
   });
 
   it('includes criticalAlerts array with active incidents alert', async () => {
-    setupAnalyticsMocks({ activeIncidents: 2, fraOverdue: 0, wardenExpiring: 0, equipmentDue: 0, premisesNoDrill: 0 });
+    setupAnalyticsMocks({
+      activeIncidents: 2,
+      fraOverdue: 0,
+      wardenExpiring: 0,
+      equipmentDue: 0,
+      premisesNoDrill: 0,
+    });
 
     const res = await request(app).get('/api/analytics/dashboard');
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body.data.criticalAlerts)).toBe(true);
-    expect(res.body.data.criticalAlerts.some((a: string) => a.includes('active emergency'))).toBe(true);
+    expect(res.body.data.criticalAlerts.some((a: string) => a.includes('active emergency'))).toBe(
+      true
+    );
   });
 
   it('includes criticalAlerts for overdue FRAs', async () => {
-    setupAnalyticsMocks({ activeIncidents: 0, fraOverdue: 3, wardenExpiring: 0, equipmentDue: 0, premisesNoDrill: 0 });
+    setupAnalyticsMocks({
+      activeIncidents: 0,
+      fraOverdue: 3,
+      wardenExpiring: 0,
+      equipmentDue: 0,
+      premisesNoDrill: 0,
+    });
 
     const res = await request(app).get('/api/analytics/dashboard');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.criticalAlerts.some((a: string) => a.includes('fire risk assessment'))).toBe(true);
+    expect(
+      res.body.data.criticalAlerts.some((a: string) => a.includes('fire risk assessment'))
+    ).toBe(true);
   });
 
   it('returns empty criticalAlerts when all metrics are zero', async () => {

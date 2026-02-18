@@ -84,9 +84,7 @@ describe('POST /api/assistant', () => {
 
   it('returns FAQ answer for CAPA question', async () => {
     const app = createApp();
-    const res = await request(app)
-      .post('/api/assistant')
-      .send({ question: 'What is CAPA?' });
+    const res = await request(app).post('/api/assistant').send({ question: 'What is CAPA?' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.answer).toContain('Corrective and Preventive Action');
@@ -158,9 +156,7 @@ describe('POST /api/assistant', () => {
     const app = createApp();
     prisma.aISettings.findFirst.mockResolvedValue(null);
 
-    const res = await request(app)
-      .post('/api/assistant')
-      .send({ question: 'xyzzy' });
+    const res = await request(app).post('/api/assistant').send({ question: 'xyzzy' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.answer).toContain('not sure');
@@ -168,9 +164,7 @@ describe('POST /api/assistant', () => {
 
   it('validates empty question', async () => {
     const app = createApp();
-    const res = await request(app)
-      .post('/api/assistant')
-      .send({ question: '' });
+    const res = await request(app).post('/api/assistant').send({ question: '' });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
@@ -178,9 +172,7 @@ describe('POST /api/assistant', () => {
 
   it('validates missing question field', async () => {
     const app = createApp();
-    const res = await request(app)
-      .post('/api/assistant')
-      .send({});
+    const res = await request(app).post('/api/assistant').send({});
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);

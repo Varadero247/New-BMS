@@ -16,8 +16,16 @@ const createDpaSchema = z.object({
   processorName: z.string().min(1, 'processorName is required'),
   purpose: z.string().min(1, 'purpose is required'),
   dataTypes: z.array(z.string()).optional(),
-  signedDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  expiryDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  signedDate: z
+    .string()
+    .nullable()
+    .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  expiryDate: z
+    .string()
+    .nullable()
+    .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   documentUrl: z.string().nullable().optional(),
 });
 
@@ -37,7 +45,10 @@ router.get('/categories', async (_req: Request, res: Response) => {
     res.json({ success: true, data: { categories } });
   } catch (err) {
     logger.error('Failed to list GDPR categories', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list categories' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list categories' },
+    });
   }
 });
 
@@ -53,7 +64,9 @@ router.get('/dpas', async (_req: Request, res: Response) => {
     res.json({ success: true, data: { dpas } });
   } catch (err) {
     logger.error('Failed to list DPAs', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list DPAs' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list DPAs' } });
   }
 });
 
@@ -72,12 +85,16 @@ router.get('/report', async (_req: Request, res: Response) => {
       total: dataRequests.length,
       received: dataRequests.filter((r: Record<string, unknown>) => r.status === 'RECEIVED').length,
       verified: dataRequests.filter((r: Record<string, unknown>) => r.status === 'VERIFIED').length,
-      processing: dataRequests.filter((r: Record<string, unknown>) => r.status === 'PROCESSING').length,
-      completed: dataRequests.filter((r: Record<string, unknown>) => r.status === 'COMPLETED').length,
+      processing: dataRequests.filter((r: Record<string, unknown>) => r.status === 'PROCESSING')
+        .length,
+      completed: dataRequests.filter((r: Record<string, unknown>) => r.status === 'COMPLETED')
+        .length,
       rejected: dataRequests.filter((r: Record<string, unknown>) => r.status === 'REJECTED').length,
     };
 
-    const atRiskCategories = categories.filter((c: Record<string, unknown>) => c.complianceStatus === 'AT_RISK');
+    const atRiskCategories = categories.filter(
+      (c: Record<string, unknown>) => c.complianceStatus === 'AT_RISK'
+    );
     const activeDpas = dpas.filter((d: Record<string, unknown>) => d.isActive);
 
     res.json({
@@ -98,7 +115,10 @@ router.get('/report', async (_req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Failed to generate GDPR report', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate report' },
+    });
   }
 });
 
@@ -109,10 +129,19 @@ router.post('/categories', async (req: Request, res: Response) => {
   try {
     const parsed = createCategorySchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
-    const { category: categoryName, legalBasis, retentionDays, systems, complianceStatus } = parsed.data;
+    const {
+      category: categoryName,
+      legalBasis,
+      retentionDays,
+      systems,
+      complianceStatus,
+    } = parsed.data;
 
     const created = await prisma.gdprDataCategory.create({
       data: {
@@ -128,7 +157,10 @@ router.post('/categories', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: { category: created } });
   } catch (err) {
     logger.error('Failed to create GDPR category', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create category' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create category' },
+    });
   }
 });
 
@@ -139,7 +171,10 @@ router.post('/dpas', async (req: Request, res: Response) => {
   try {
     const parsed = createDpaSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { processorName, purpose, dataTypes, signedDate, expiryDate, documentUrl } = parsed.data;
@@ -160,7 +195,9 @@ router.post('/dpas', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: { dpa } });
   } catch (err) {
     logger.error('Failed to create DPA', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create DPA' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create DPA' } });
   }
 });
 

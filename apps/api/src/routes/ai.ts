@@ -53,7 +53,7 @@ async function callAIProvider(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: model || 'gpt-4o',
@@ -107,7 +107,7 @@ async function callAIProvider(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: model || 'grok-beta',
@@ -158,41 +158,47 @@ router.get('/settings', authenticate, requireRole(['ADMIN', 'MANAGER']), async (
 });
 
 // PUT /api/ai/settings - Update AI settings
-router.put('/settings', authenticate, requireRole(['ADMIN']), validate(settingsSchema), async (req, res, next) => {
-  try {
-    let settings = await prisma.aISettings.findFirst();
+router.put(
+  '/settings',
+  authenticate,
+  requireRole(['ADMIN']),
+  validate(settingsSchema),
+  async (req, res, next) => {
+    try {
+      let settings = await prisma.aISettings.findFirst();
 
-    if (!settings) {
-      settings = await prisma.aISettings.create({
-        data: {
-          ...req.body,
-          defaultPrompt: req.body.defaultPrompt || DEFAULT_PROMPT,
-        },
-      });
-    } else {
-      // Only update API key if provided and not masked
-      const updateData: Record<string, unknown> = { ...req.body };
-      if (!req.body.apiKey || req.body.apiKey.startsWith('••••')) {
-        delete updateData.apiKey;
+      if (!settings) {
+        settings = await prisma.aISettings.create({
+          data: {
+            ...req.body,
+            defaultPrompt: req.body.defaultPrompt || DEFAULT_PROMPT,
+          },
+        });
+      } else {
+        // Only update API key if provided and not masked
+        const updateData: Record<string, unknown> = { ...req.body };
+        if (!req.body.apiKey || req.body.apiKey.startsWith('••••')) {
+          delete updateData.apiKey;
+        }
+
+        settings = await prisma.aISettings.update({
+          where: { id: settings.id },
+          data: updateData,
+        });
       }
 
-      settings = await prisma.aISettings.update({
-        where: { id: settings.id },
-        data: updateData,
-      });
+      // Mask API key in response
+      const maskedSettings = {
+        ...settings,
+        apiKey: settings.apiKey ? '••••••••' + settings.apiKey.slice(-4) : null,
+      };
+
+      res.json({ success: true, data: maskedSettings });
+    } catch (error) {
+      next(error);
     }
-
-    // Mask API key in response
-    const maskedSettings = {
-      ...settings,
-      apiKey: settings.apiKey ? '••••••••' + settings.apiKey.slice(-4) : null,
-    };
-
-    res.json({ success: true, data: maskedSettings });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 // POST /api/ai/analyse - Run AI analysis
 router.post('/analyse', authenticate, validate(analyseSchema), async (req, res, next) => {
@@ -204,7 +210,10 @@ router.post('/analyse', authenticate, validate(analyseSchema), async (req, res, 
     if (!settings?.apiKey) {
       return res.status(400).json({
         success: false,
-        error: { code: 'NO_API_KEY', message: 'AI API key not configured. Please configure in Settings.' },
+        error: {
+          code: 'NO_API_KEY',
+          message: 'AI API key not configured. Please configure in Settings.',
+        },
       });
     }
 
@@ -331,13 +340,7 @@ router.post('/analyse', authenticate, validate(analyseSchema), async (req, res, 
 // GET /api/ai/analyses - List AI analyses
 router.get('/analyses', authenticate, async (req, res, next) => {
   try {
-    const {
-      sourceType,
-      sourceId,
-      status,
-      page = '1',
-      limit = '20',
-    } = req.query;
+    const { sourceType, sourceId, status, page = '1', limit = '20' } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
@@ -429,7 +432,7 @@ router.post('/analyses/:id/accept', authenticate, async (req, res, next) => {
     }
 
     // Create actions from suggestions
-    const suggestedActions = analysis.suggestedActions as any[] || [];
+    const suggestedActions = (analysis.suggestedActions as any[]) || [];
     const actionsToCreate = acceptAll
       ? suggestedActions
       : suggestedActions.filter((_, i) => selectedActions?.includes(i));

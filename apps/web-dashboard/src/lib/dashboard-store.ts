@@ -23,7 +23,9 @@ function readConfig(): DashboardConfig {
     }
   } catch {
     // corrupted or unavailable — clear bad data
-    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
   }
   return DEFAULT_CONFIG;
 }
@@ -55,8 +57,7 @@ export const useDashboardStore = create<DashboardStore>()((set) => ({
   hydrated: false,
   customizeOpen: false,
 
-  hydrate: () =>
-    set({ config: readConfig(), hydrated: true }),
+  hydrate: () => set({ config: readConfig(), hydrated: true }),
 
   toggleWidget: (id) =>
     set((state) => {
@@ -96,9 +97,7 @@ export const useDashboardStore = create<DashboardStore>()((set) => ({
       const isHidden = hidden.includes(moduleName);
       const newConfig = {
         ...state.config,
-        hiddenModules: isHidden
-          ? hidden.filter((m) => m !== moduleName)
-          : [...hidden, moduleName],
+        hiddenModules: isHidden ? hidden.filter((m) => m !== moduleName) : [...hidden, moduleName],
       };
       saveConfig(newConfig);
       return { config: newConfig };

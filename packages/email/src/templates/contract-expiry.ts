@@ -19,12 +19,13 @@ const footer = `
 <a href="{{unsubscribeUrl}}" style="color: #999;">Unsubscribe</a></p>
 </div></body></html>`;
 
-export function contractExpiryEmail(vars: ContractExpiryVars): { subject: string; html: string; text: string } {
-  const urgency = vars.daysRemaining <= 7
-    ? 'URGENT: '
-    : vars.daysRemaining <= 14
-    ? 'ACTION REQUIRED: '
-    : '';
+export function contractExpiryEmail(vars: ContractExpiryVars): {
+  subject: string;
+  html: string;
+  text: string;
+} {
+  const urgency =
+    vars.daysRemaining <= 7 ? 'URGENT: ' : vars.daysRemaining <= 14 ? 'ACTION REQUIRED: ' : '';
 
   const subject = `${urgency}Contract "${vars.contractName}" expires in ${vars.daysRemaining} days`;
 

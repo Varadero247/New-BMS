@@ -141,7 +141,10 @@ describe('runRecalibration', () => {
 
   it('skips recalibration with insufficient history', async () => {
     (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({
-      id: 'snap-1', monthNumber: 1, mrr: 500, aiRecommendations: [],
+      id: 'snap-1',
+      monthNumber: 1,
+      mrr: 500,
+      aiRecommendations: [],
     });
     (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
       { monthNumber: 1, mrrGrowthPct: 0, revenueChurnPct: 0, newCustomers: 0 },
@@ -152,7 +155,10 @@ describe('runRecalibration', () => {
 
   it('runs recalibration with sufficient history', async () => {
     (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({
-      id: 'snap-3', monthNumber: 3, mrr: 1500, aiRecommendations: [],
+      id: 'snap-3',
+      monthNumber: 3,
+      mrr: 1500,
+      aiRecommendations: [],
     });
     (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
       { monthNumber: 1, mrrGrowthPct: 10, revenueChurnPct: 2, newCustomers: 3 },

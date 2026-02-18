@@ -30,7 +30,11 @@ const checklistUpdateSchema = z.object({
 
 const checklistResultCreateSchema = z.object({
   jobId: z.string().trim().uuid(),
-  completedAt: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  completedAt: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   results: z.array(z.any()),
   overallResult: z.enum(['PASS', 'FAIL', 'PARTIAL']),
   notes: z.string().max(2000).optional().nullable(),
@@ -70,8 +74,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list checklists', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list checklists' } });
+    logger.error('Failed to list checklists', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list checklists' },
+    });
   }
 });
 
@@ -82,7 +91,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = checklistCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -96,8 +108,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to create checklist', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create checklist' } });
+    logger.error('Failed to create checklist', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create checklist' },
+    });
   }
 });
 
@@ -111,12 +128,19 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!data) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Checklist not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Checklist not found' } });
     }
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to get checklist', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get checklist' } });
+    logger.error('Failed to get checklist', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get checklist' },
+    });
   }
 });
 
@@ -125,14 +149,21 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcChecklist.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSvcChecklist.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Checklist not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Checklist not found' } });
     }
 
     const parsed = checklistUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+      });
     }
 
     const data = await prisma.fsSvcChecklist.update({
@@ -142,8 +173,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to update checklist', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update checklist' } });
+    logger.error('Failed to update checklist', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update checklist' },
+    });
   }
 });
 
@@ -152,16 +188,28 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcChecklist.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSvcChecklist.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Checklist not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Checklist not found' } });
     }
 
-    await prisma.fsSvcChecklist.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.fsSvcChecklist.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Checklist deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete checklist', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete checklist' } });
+    logger.error('Failed to delete checklist', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete checklist' },
+    });
   }
 });
 
@@ -170,14 +218,21 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/:id/results', async (req: Request, res: Response) => {
   try {
-    const checklist = await prisma.fsSvcChecklist.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const checklist = await prisma.fsSvcChecklist.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!checklist) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Checklist not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Checklist not found' } });
     }
 
     const parsed = checklistResultCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -197,8 +252,13 @@ router.post('/:id/results', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to submit checklist results', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit checklist results' } });
+    logger.error('Failed to submit checklist results', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to submit checklist results' },
+    });
   }
 });
 
@@ -207,20 +267,30 @@ router.post('/:id/results', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.get('/:id/results', async (req: Request, res: Response) => {
   try {
-    const checklist = await prisma.fsSvcChecklist.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const checklist = await prisma.fsSvcChecklist.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!checklist) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Checklist not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Checklist not found' } });
     }
 
     const data = await prisma.fsSvcChecklistResult.findMany({
       where: { checklistId: req.params.id, deletedAt: null } as any,
       orderBy: { completedAt: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to get checklist results', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get checklist results' } });
+    logger.error('Failed to get checklist results', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get checklist results' },
+    });
   }
 });
 

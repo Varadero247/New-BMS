@@ -65,8 +65,14 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
       dataSources: z.array(z.string()).optional(),
       reviewFrequency: z.string().optional(),
       status: z.enum(PMS_PLAN_STATUSES).optional(),
-      lastReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      lastReviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      nextReviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const data = schema.parse(req.body);
@@ -91,11 +97,18 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create PMS plan error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create PMS plan' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create PMS plan' },
+    });
   }
 });
 
@@ -104,9 +117,7 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
 // ============================================
 router.get('/plans', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
-    const {
-      page = '1', limit = '20', status, deviceName,
-    } = req.query;
+    const { page = '1', limit = '20', status, deviceName } = req.query;
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
@@ -136,80 +147,115 @@ router.get('/plans', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List PMS plans error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list PMS plans' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list PMS plans' },
+    });
   }
 });
 
 // ============================================
 // 3. GET /plans/:id - Get plan with reports
 // ============================================
-router.get('/plans/:id', checkOwnership(prisma.pmsPlan), async (req: AuthRequest, res: Response) => {
-  try {
-    const plan = await prisma.pmsPlan.findUnique({
-      where: { id: req.params.id },
-      include: {
-        reports: { orderBy: { createdAt: 'desc' } },
-      },
-    });
+router.get(
+  '/plans/:id',
+  checkOwnership(prisma.pmsPlan),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const plan = await prisma.pmsPlan.findUnique({
+        where: { id: req.params.id },
+        include: {
+          reports: { orderBy: { createdAt: 'desc' } },
+        },
+      });
 
-    if (!plan || plan.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'PMS plan not found' } });
+      if (!plan || plan.deletedAt) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'PMS plan not found' } });
+      }
+
+      res.json({ success: true, data: plan });
+    } catch (error) {
+      logger.error('Get PMS plan error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get PMS plan' },
+      });
     }
-
-    res.json({ success: true, data: plan });
-  } catch (error) {
-    logger.error('Get PMS plan error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get PMS plan' } });
   }
-});
+);
 
 // ============================================
 // 4. PUT /plans/:id - Update plan
 // ============================================
-router.put('/plans/:id', checkOwnership(prisma.pmsPlan), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.pmsPlan.findUnique({ where: { id: req.params.id } });
-    if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'PMS plan not found' } });
-    }
+router.put(
+  '/plans/:id',
+  checkOwnership(prisma.pmsPlan),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.pmsPlan.findUnique({ where: { id: req.params.id } });
+      if (!existing || existing.deletedAt) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'PMS plan not found' } });
+      }
 
-    const schema = z.object({
-      deviceName: z.string().trim().min(1).max(200).optional(),
-      deviceClass: z.string().optional(),
-      dataSources: z.array(z.string()).optional(),
-      reviewFrequency: z.string().optional(),
-      status: z.enum(PMS_PLAN_STATUSES).optional(),
-      lastReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-    });
+      const schema = z.object({
+        deviceName: z.string().trim().min(1).max(200).optional(),
+        deviceClass: z.string().optional(),
+        dataSources: z.array(z.string()).optional(),
+        reviewFrequency: z.string().optional(),
+        status: z.enum(PMS_PLAN_STATUSES).optional(),
+        lastReviewDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        nextReviewDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+      });
 
-    const data = schema.parse(req.body);
+      const data = schema.parse(req.body);
 
-    const plan = await prisma.pmsPlan.update({
-      where: { id: req.params.id },
-      data: {
-        ...(data.deviceName !== undefined && { deviceName: data.deviceName }),
-        ...(data.deviceClass !== undefined && { deviceClass: data.deviceClass }),
-        ...(data.dataSources !== undefined && { dataSources: data.dataSources }),
-        ...(data.reviewFrequency !== undefined && { reviewFrequency: data.reviewFrequency }),
-        ...(data.status !== undefined && { status: data.status }),
-        ...(data.lastReviewDate !== undefined && { lastReviewDate: new Date(data.lastReviewDate) }),
-        ...(data.nextReviewDate !== undefined && { nextReviewDate: new Date(data.nextReviewDate) }),
-      },
-    });
+      const plan = await prisma.pmsPlan.update({
+        where: { id: req.params.id },
+        data: {
+          ...(data.deviceName !== undefined && { deviceName: data.deviceName }),
+          ...(data.deviceClass !== undefined && { deviceClass: data.deviceClass }),
+          ...(data.dataSources !== undefined && { dataSources: data.dataSources }),
+          ...(data.reviewFrequency !== undefined && { reviewFrequency: data.reviewFrequency }),
+          ...(data.status !== undefined && { status: data.status }),
+          ...(data.lastReviewDate !== undefined && {
+            lastReviewDate: new Date(data.lastReviewDate),
+          }),
+          ...(data.nextReviewDate !== undefined && {
+            nextReviewDate: new Date(data.nextReviewDate),
+          }),
+        },
+      });
 
-    res.json({ success: true, data: plan });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.json({ success: true, data: plan });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update PMS plan error', { error: (error as Error).message });
+      res.status(500).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update PMS plan' },
       });
     }
-    logger.error('Update PMS plan error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update PMS plan' } });
   }
-});
+);
 
 // ============================================
 // 5. POST /reports/psur - Create PSUR report
@@ -234,7 +280,9 @@ router.post('/reports/psur', async (req: AuthRequest, res: Response) => {
     // Verify plan exists
     const plan = await prisma.pmsPlan.findUnique({ where: { id: data.planId } });
     if (!plan || plan.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'PMS plan not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'PMS plan not found' } });
     }
 
     const refNumber = await generateReportRefNumber('PSUR');
@@ -263,11 +311,18 @@ router.post('/reports/psur', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create PSUR report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create PSUR report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create PSUR report' },
+    });
   }
 });
 
@@ -294,7 +349,9 @@ router.post('/reports/pmcf', async (req: AuthRequest, res: Response) => {
     // Verify plan exists
     const plan = await prisma.pmsPlan.findUnique({ where: { id: data.planId } });
     if (!plan || plan.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'PMS plan not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'PMS plan not found' } });
     }
 
     const refNumber = await generateReportRefNumber('PMCF');
@@ -323,11 +380,18 @@ router.post('/reports/pmcf', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create PMCF report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create PMCF report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create PMCF report' },
+    });
   }
 });
 
@@ -371,7 +435,10 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('PMS dashboard error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate PMS dashboard' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate PMS dashboard' },
+    });
   }
 });
 

@@ -17,7 +17,9 @@ export interface TaskCardSignoff {
   synced: boolean;
 }
 
-export function createTaskCardSignoff(data: Omit<TaskCardSignoff, 'id' | 'timestamp' | 'synced'>): TaskCardSignoff {
+export function createTaskCardSignoff(
+  data: Omit<TaskCardSignoff, 'id' | 'timestamp' | 'synced'>
+): TaskCardSignoff {
   return {
     ...data,
     id: `signoff_${Date.now()}`,

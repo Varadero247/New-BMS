@@ -73,9 +73,7 @@ describe('Health & Safety Risks API Routes', () => {
       (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce(mockRisks);
       (mockPrisma.risk.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/risks')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/risks').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -106,9 +104,7 @@ describe('Health & Safety Risks API Routes', () => {
       (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.risk.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/risks?status=MITIGATED')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/risks?status=MITIGATED').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.risk.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -123,9 +119,7 @@ describe('Health & Safety Risks API Routes', () => {
       (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.risk.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/risks?riskLevel=HIGH')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/risks?riskLevel=HIGH').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.risk.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -140,9 +134,7 @@ describe('Health & Safety Risks API Routes', () => {
       (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.risk.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/risks?category=PHYSICAL')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/risks?category=PHYSICAL').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.risk.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -157,9 +149,7 @@ describe('Health & Safety Risks API Routes', () => {
       (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce(mockRisks);
       (mockPrisma.risk.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/risks')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/risks').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.risk.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -171,9 +161,7 @@ describe('Health & Safety Risks API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.risk.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/risks')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/risks').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -399,7 +387,9 @@ describe('Health & Safety Risks API Routes', () => {
 
   describe('DELETE /api/risks/:id', () => {
     it('should delete risk successfully', async () => {
-      (mockPrisma.risk.findUnique as jest.Mock).mockResolvedValueOnce({ id: '10000000-0000-4000-a000-000000000001' });
+      (mockPrisma.risk.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '10000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.risk.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)

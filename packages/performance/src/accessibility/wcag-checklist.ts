@@ -61,7 +61,8 @@ export const WCAG_22_AA_CHECKLIST: WcagCriterion[] = [
     id: '1.2.5',
     level: 'AA',
     name: 'Audio Description (Prerecorded)',
-    description: 'Audio description is provided for all prerecorded video content in synchronized media.',
+    description:
+      'Audio description is provided for all prerecorded video content in synchronized media.',
     automated: false,
   },
 
@@ -136,7 +137,8 @@ export const WCAG_22_AA_CHECKLIST: WcagCriterion[] = [
     id: '1.4.4',
     level: 'AA',
     name: 'Resize Text',
-    description: 'Text can be resized without assistive technology up to 200 percent without loss of content or functionality.',
+    description:
+      'Text can be resized without assistive technology up to 200 percent without loss of content or functionality.',
     automated: false,
   },
   {
@@ -230,7 +232,8 @@ export const WCAG_22_AA_CHECKLIST: WcagCriterion[] = [
     id: '2.3.1',
     level: 'A',
     name: 'Three Flashes or Below Threshold',
-    description: 'Web pages do not contain anything that flashes more than three times in any one second period.',
+    description:
+      'Web pages do not contain anything that flashes more than three times in any one second period.',
     automated: false,
   },
 
@@ -239,7 +242,8 @@ export const WCAG_22_AA_CHECKLIST: WcagCriterion[] = [
     id: '2.4.1',
     level: 'A',
     name: 'Bypass Blocks',
-    description: 'A mechanism is available to bypass blocks of content that are repeated on multiple web pages.',
+    description:
+      'A mechanism is available to bypass blocks of content that are repeated on multiple web pages.',
     automated: true,
   },
   {
@@ -283,7 +287,8 @@ export const WCAG_22_AA_CHECKLIST: WcagCriterion[] = [
     id: '2.4.7',
     level: 'AA',
     name: 'Focus Visible',
-    description: 'Any keyboard operable user interface has a mode of operation where the keyboard focus indicator is visible.',
+    description:
+      'Any keyboard operable user interface has a mode of operation where the keyboard focus indicator is visible.',
     automated: false,
   },
   {
@@ -368,7 +373,8 @@ export const WCAG_22_AA_CHECKLIST: WcagCriterion[] = [
     id: '3.2.1',
     level: 'A',
     name: 'On Focus',
-    description: 'When any user interface component receives focus, it does not initiate a change of context.',
+    description:
+      'When any user interface component receives focus, it does not initiate a change of context.',
     automated: false,
   },
   {

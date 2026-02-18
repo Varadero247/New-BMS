@@ -2,12 +2,34 @@ import { PermissionLevel, ImsModule, ResolvedPermissions } from './types';
 import { getRolesByIds, PLATFORM_ROLES } from './roles';
 
 const ALL_MODULES: ImsModule[] = [
-  'health-safety', 'environment', 'quality', 'hr', 'payroll',
-  'inventory', 'workflows', 'project-management', 'automotive',
-  'medical', 'aerospace', 'finance', 'crm', 'infosec',
-  'esg', 'cmms', 'portal', 'food-safety', 'energy',
-  'analytics', 'field-service', 'iso42001', 'iso37001',
-  'ai', 'settings', 'templates', 'reports', 'dashboard',
+  'health-safety',
+  'environment',
+  'quality',
+  'hr',
+  'payroll',
+  'inventory',
+  'workflows',
+  'project-management',
+  'automotive',
+  'medical',
+  'aerospace',
+  'finance',
+  'crm',
+  'infosec',
+  'esg',
+  'cmms',
+  'portal',
+  'food-safety',
+  'energy',
+  'analytics',
+  'field-service',
+  'iso42001',
+  'iso37001',
+  'ai',
+  'settings',
+  'templates',
+  'reports',
+  'dashboard',
 ];
 
 export function resolvePermissions(roleIds: string[]): ResolvedPermissions {
@@ -61,10 +83,15 @@ export function mergePermissions(
 
 export function mapLegacyRole(role: string): string[] {
   switch (role) {
-    case 'ADMIN': return ['org-admin'];
-    case 'MANAGER': return ['compliance-director'];
-    case 'USER': return ['employee'];
-    case 'VIEWER': return ['viewer'];
-    default: return ['viewer'];
+    case 'ADMIN':
+      return ['org-admin'];
+    case 'MANAGER':
+      return ['compliance-director'];
+    case 'USER':
+      return ['employee'];
+    case 'VIEWER':
+      return ['viewer'];
+    default:
+      return ['viewer'];
   }
 }

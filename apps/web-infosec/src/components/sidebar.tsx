@@ -65,7 +65,15 @@ const quickLinks = [
   { name: 'Settings', href: `${APP_BASE}:3004`, icon: Settings },
 ];
 
-function NavSection({ title, items, pathname }: { title?: string; items: typeof ismsNavigation; pathname: string }) {
+function NavSection({
+  title,
+  items,
+  pathname,
+}: {
+  title?: string;
+  items: typeof ismsNavigation;
+  pathname: string;
+}) {
   return (
     <div className={title ? 'mt-4 pt-4 border-t border-border' : ''}>
       {title && (
@@ -76,7 +84,8 @@ function NavSection({ title, items, pathname }: { title?: string; items: typeof 
       <ul className="space-y-1">
         {items.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href + '/'));
+          const isActive =
+            pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href + '/'));
           const isExactActive = pathname === item.href;
 
           return (
@@ -89,7 +98,9 @@ function NavSection({ title, items, pathname }: { title?: string; items: typeof 
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
               >
-                <Icon className={`h-5 w-5 ${isExactActive || isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                <Icon
+                  className={`h-5 w-5 ${isExactActive || isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`}
+                />
                 <span className="text-sm font-medium">{item.name}</span>
               </Link>
             </li>
@@ -107,7 +118,9 @@ export function Sidebar() {
     <aside className="w-64 bg-card border-r border-border flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-border bg-teal-50 dark:bg-teal-900/10">
-        <h1 className="text-xl font-bold font-display text-teal-900 dark:text-teal-100">Information Security</h1>
+        <h1 className="text-xl font-bold font-display text-teal-900 dark:text-teal-100">
+          Information Security
+        </h1>
         <p className="text-xs text-teal-600 dark:text-teal-400 mt-1">ISO 27001 / 27701 ISMS</p>
       </div>
 
@@ -129,7 +142,8 @@ export function Sidebar() {
             {quickLinks.map((item) => {
               const Icon = item.icon;
               const isExternal = item.href.startsWith('http');
-              const isActive = !isExternal && (pathname === item.href || pathname.startsWith(item.href + '/'));
+              const isActive =
+                !isExternal && (pathname === item.href || pathname.startsWith(item.href + '/'));
 
               if (isExternal) {
                 return (
@@ -155,7 +169,9 @@ export function Sidebar() {
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                   >
-                    <Icon className={`h-5 w-5 ${isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                    <Icon
+                      className={`h-5 w-5 ${isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`}
+                    />
                     <span className="text-sm font-medium">{item.name}</span>
                   </Link>
                 </li>

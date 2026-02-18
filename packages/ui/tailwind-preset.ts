@@ -1,5 +1,14 @@
 import type { Config } from 'tailwindcss';
-import { nexara, moduleColors, sectorColors, colors, fontFamily, fontSize, borderRadius, boxShadow } from './src/tokens';
+import {
+  nexara,
+  moduleColors,
+  sectorColors,
+  colors,
+  fontFamily,
+  fontSize,
+  borderRadius,
+  boxShadow,
+} from './src/tokens';
 
 const preset: Partial<Config> = {
   darkMode: ['class', '[data-theme="dark"]'],

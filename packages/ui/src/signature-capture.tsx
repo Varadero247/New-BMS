@@ -56,77 +56,71 @@ export function SignatureCapture({
 
   // ── Drawing helpers ───────────────────────────────────────────────────────
 
-  const getCanvasPoint = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>): Point => {
-      const canvas = canvasRef.current;
-      if (!canvas) return { x: 0, y: 0, time: Date.now() };
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      return {
-        x: (e.clientX - rect.left) * scaleX,
-        y: (e.clientY - rect.top) * scaleY,
-        time: Date.now(),
-      };
-    },
-    []
-  );
+  const getCanvasPoint = useCallback((e: React.PointerEvent<HTMLCanvasElement>): Point => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0, time: Date.now() };
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY,
+      time: Date.now(),
+    };
+  }, []);
 
-  const redrawCanvas = useCallback(
-    (allStrokes: Stroke[]) => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+  const redrawCanvas = useCallback((allStrokes: Stroke[]) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-      // Clear
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Clear
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // White background
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // White background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Signature line
-      ctx.strokeStyle = '#E5E7EB';
-      ctx.lineWidth = 1;
+    // Signature line
+    ctx.strokeStyle = '#E5E7EB';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(20, canvas.height - 30);
+    ctx.lineTo(canvas.width - 20, canvas.height - 30);
+    ctx.stroke();
+
+    // "Sign here" placeholder
+    if (allStrokes.length === 0) {
+      ctx.fillStyle = '#9CA3AF';
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sign here', canvas.width / 2, canvas.height / 2);
+    }
+
+    // Draw strokes
+    ctx.strokeStyle = '#1F2937';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    for (const stroke of allStrokes) {
+      if (stroke.length < 2) continue;
       ctx.beginPath();
-      ctx.moveTo(20, canvas.height - 30);
-      ctx.lineTo(canvas.width - 20, canvas.height - 30);
-      ctx.stroke();
-
-      // "Sign here" placeholder
-      if (allStrokes.length === 0) {
-        ctx.fillStyle = '#9CA3AF';
-        ctx.font = '14px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Sign here', canvas.width / 2, canvas.height / 2);
-      }
-
-      // Draw strokes
-      ctx.strokeStyle = '#1F2937';
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-
-      for (const stroke of allStrokes) {
-        if (stroke.length < 2) continue;
+      ctx.moveTo(stroke[0].x, stroke[0].y);
+      for (let i = 1; i < stroke.length; i++) {
+        // Variable width based on speed
+        const dx = stroke[i].x - stroke[i - 1].x;
+        const dy = stroke[i].y - stroke[i - 1].y;
+        const dt = Math.max(stroke[i].time - stroke[i - 1].time, 1);
+        const speed = Math.sqrt(dx * dx + dy * dy) / dt;
+        ctx.lineWidth = Math.max(1.5, Math.min(4, 3 - speed * 0.5));
+        ctx.lineTo(stroke[i].x, stroke[i].y);
+        ctx.stroke();
         ctx.beginPath();
-        ctx.moveTo(stroke[0].x, stroke[0].y);
-        for (let i = 1; i < stroke.length; i++) {
-          // Variable width based on speed
-          const dx = stroke[i].x - stroke[i - 1].x;
-          const dy = stroke[i].y - stroke[i - 1].y;
-          const dt = Math.max(stroke[i].time - stroke[i - 1].time, 1);
-          const speed = Math.sqrt(dx * dx + dy * dy) / dt;
-          ctx.lineWidth = Math.max(1.5, Math.min(4, 3 - speed * 0.5));
-          ctx.lineTo(stroke[i].x, stroke[i].y);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(stroke[i].x, stroke[i].y);
-        }
+        ctx.moveTo(stroke[i].x, stroke[i].y);
       }
-    },
-    []
-  );
+    }
+  }, []);
 
   // Initial draw
   useEffect(() => {
@@ -183,21 +177,18 @@ export function SignatureCapture({
     [existingSignature, getCanvasPoint]
   );
 
-  const handlePointerUp = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>) => {
-      if (!isDrawingRef.current) return;
-      e.preventDefault();
-      isDrawingRef.current = false;
-      setCurrentStroke((prev) => {
-        if (prev && prev.length > 1) {
-          setStrokes((s) => [...s, prev]);
-          setHasDrawn(true);
-        }
-        return null;
-      });
-    },
-    []
-  );
+  const handlePointerUp = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!isDrawingRef.current) return;
+    e.preventDefault();
+    isDrawingRef.current = false;
+    setCurrentStroke((prev) => {
+      if (prev && prev.length > 1) {
+        setStrokes((s) => [...s, prev]);
+        setHasDrawn(true);
+      }
+      return null;
+    });
+  }, []);
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -232,13 +223,9 @@ export function SignatureCapture({
   if (existingSignature) {
     return (
       <div className={cn('space-y-2', className)}>
-        {signerName && (
-          <p className="text-sm font-medium text-foreground">{signerName}</p>
-        )}
+        {signerName && <p className="text-sm font-medium text-foreground">{signerName}</p>}
         {purpose && (
-          <p className="text-xs text-muted-foreground">
-            {purposeLabels[purpose] || purpose}
-          </p>
+          <p className="text-xs text-muted-foreground">{purposeLabels[purpose] || purpose}</p>
         )}
         <div
           className="rounded-xl border border-border overflow-hidden bg-white inline-block"
@@ -259,13 +246,9 @@ export function SignatureCapture({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          {signerName && (
-            <p className="text-sm font-medium text-foreground">{signerName}</p>
-          )}
+          {signerName && <p className="text-sm font-medium text-foreground">{signerName}</p>}
           {purpose && (
-            <p className="text-xs text-muted-foreground">
-              {purposeLabels[purpose] || purpose}
-            </p>
+            <p className="text-xs text-muted-foreground">{purposeLabels[purpose] || purpose}</p>
           )}
         </div>
         <div className="flex items-center gap-1.5">
@@ -283,8 +266,18 @@ export function SignatureCapture({
             )}
             aria-label="Undo last stroke"
           >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a5 5 0 015 5v2M3 10l4-4m-4 4l4 4" />
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 10h10a5 5 0 015 5v2M3 10l4-4m-4 4l4 4"
+              />
             </svg>
           </button>
           {/* Clear */}
@@ -301,8 +294,18 @@ export function SignatureCapture({
             )}
             aria-label="Clear signature"
           >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
             </svg>
           </button>
         </div>
@@ -313,10 +316,7 @@ export function SignatureCapture({
         ref={canvasRef}
         width={width}
         height={height}
-        className={cn(
-          'rounded-xl border border-border cursor-crosshair touch-none',
-          'max-w-full'
-        )}
+        className={cn('rounded-xl border border-border cursor-crosshair touch-none', 'max-w-full')}
         style={{ width, height }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -340,7 +340,13 @@ export function SignatureCapture({
         )}
       >
         {/* Check icon */}
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
         </svg>
         Confirm Signature

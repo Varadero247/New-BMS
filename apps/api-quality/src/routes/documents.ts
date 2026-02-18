@@ -62,7 +62,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List documents error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list documents' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list documents' },
+    });
   }
 });
 
@@ -74,13 +77,18 @@ router.get('/:id', checkOwnership(prisma.qualDocument), async (req: AuthRequest,
     });
 
     if (!document) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
     }
 
     res.json({ success: true, data: document });
   } catch (error) {
     logger.error('Get document error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get document' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get document' },
+    });
   }
 });
 
@@ -89,7 +97,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      documentType: z.enum(['POLICY', 'PROCEDURE', 'WORK_INSTRUCTION', 'FORM', 'RECORD', 'SPECIFICATION', 'DRAWING', 'EXTERNAL', 'PLAN', 'REPORT']),
+      documentType: z.enum([
+        'POLICY',
+        'PROCEDURE',
+        'WORK_INSTRUCTION',
+        'FORM',
+        'RECORD',
+        'SPECIFICATION',
+        'DRAWING',
+        'EXTERNAL',
+        'PLAN',
+        'REPORT',
+      ]),
       isoClause: z.string().optional(),
       linkedProcess: z.string().optional(),
       version: z.string().default('1.0'),
@@ -102,11 +121,22 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       ownerCustodian: z.string().trim().min(1).max(200),
       reviewer: z.string().optional(),
       approvedBy: z.string().optional(),
-      issueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      issueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      effectiveDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      nextReviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       distributionList: z.string().optional(),
-      accessLevel: z.enum(['UNRESTRICTED', 'CONTROLLED', 'CONFIDENTIAL', 'RESTRICTED']).default('UNRESTRICTED'),
+      accessLevel: z
+        .enum(['UNRESTRICTED', 'CONTROLLED', 'CONFIDENTIAL', 'RESTRICTED'])
+        .default('UNRESTRICTED'),
       locationUrl: z.string().trim().url('Invalid URL').optional(),
       controlledCopies: z.number().default(0),
       supersedesDocument: z.string().optional(),
@@ -132,10 +162,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: document });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create document error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create document' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create document' },
+    });
   }
 });
 
@@ -144,16 +184,33 @@ router.put('/:id', checkOwnership(prisma.qualDocument), async (req: AuthRequest,
   try {
     const existing = await prisma.qualDocument.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
     }
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200).optional(),
-      documentType: z.enum(['POLICY', 'PROCEDURE', 'WORK_INSTRUCTION', 'FORM', 'RECORD', 'SPECIFICATION', 'DRAWING', 'EXTERNAL', 'PLAN', 'REPORT']).optional(),
+      documentType: z
+        .enum([
+          'POLICY',
+          'PROCEDURE',
+          'WORK_INSTRUCTION',
+          'FORM',
+          'RECORD',
+          'SPECIFICATION',
+          'DRAWING',
+          'EXTERNAL',
+          'PLAN',
+          'REPORT',
+        ])
+        .optional(),
       isoClause: z.string().nullable().optional(),
       linkedProcess: z.string().nullable().optional(),
       version: z.string().optional(),
-      status: z.enum(['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'ISSUED', 'OBSOLETE', 'SUPERSEDED', 'EXTERNAL']).optional(),
+      status: z
+        .enum(['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'ISSUED', 'OBSOLETE', 'SUPERSEDED', 'EXTERNAL'])
+        .optional(),
       language: z.string().optional(),
       purpose: z.string().nullable().optional(),
       scope: z.string().nullable().optional(),
@@ -163,9 +220,21 @@ router.put('/:id', checkOwnership(prisma.qualDocument), async (req: AuthRequest,
       ownerCustodian: z.string().optional(),
       reviewer: z.string().nullable().optional(),
       approvedBy: z.string().nullable().optional(),
-      issueDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      effectiveDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      nextReviewDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      issueDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      effectiveDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      nextReviewDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       distributionList: z.string().nullable().optional(),
       accessLevel: z.enum(['UNRESTRICTED', 'CONTROLLED', 'CONFIDENTIAL', 'RESTRICTED']).optional(),
       locationUrl: z.string().nullable().optional(),
@@ -185,9 +254,21 @@ router.put('/:id', checkOwnership(prisma.qualDocument), async (req: AuthRequest,
 
     const updateData = {
       ...data,
-      issueDate: data.issueDate ? new Date(data.issueDate) : data.issueDate === null ? null : undefined,
-      effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : data.effectiveDate === null ? null : undefined,
-      nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : data.nextReviewDate === null ? null : undefined,
+      issueDate: data.issueDate
+        ? new Date(data.issueDate)
+        : data.issueDate === null
+          ? null
+          : undefined,
+      effectiveDate: data.effectiveDate
+        ? new Date(data.effectiveDate)
+        : data.effectiveDate === null
+          ? null
+          : undefined,
+      nextReviewDate: data.nextReviewDate
+        ? new Date(data.nextReviewDate)
+        : data.nextReviewDate === null
+          ? null
+          : undefined,
     };
 
     const document = await prisma.qualDocument.update({
@@ -198,28 +279,50 @@ router.put('/:id', checkOwnership(prisma.qualDocument), async (req: AuthRequest,
     res.json({ success: true, data: document });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update document error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update document' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update document' },
+    });
   }
 });
 
 // DELETE /:id - Delete document
-router.delete('/:id', checkOwnership(prisma.qualDocument), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.qualDocument.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.qualDocument),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.qualDocument.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
+      }
+
+      await prisma.qualDocument.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete document error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete document' },
+      });
     }
-
-    await prisma.qualDocument.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete document error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete document' } });
   }
-});
+);
 
 export default router;

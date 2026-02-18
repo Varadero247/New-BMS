@@ -17,7 +17,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -78,7 +82,11 @@ describe('Environment Training API', () => {
   // =========================================================================
   describe('GET /api/training/overdue', () => {
     it('should return overdue training records', async () => {
-      const overdueRecord = { ...mockTraining, dueDate: new Date('2025-12-01'), status: 'ASSIGNED' };
+      const overdueRecord = {
+        ...mockTraining,
+        dueDate: new Date('2025-12-01'),
+        status: 'ASSIGNED',
+      };
       (mockPrisma.envTraining.findMany as jest.Mock).mockResolvedValueOnce([overdueRecord]);
       (mockPrisma.envTraining.count as jest.Mock).mockResolvedValueOnce(1);
 
@@ -136,9 +144,9 @@ describe('Environment Training API', () => {
   describe('GET /api/training/stats', () => {
     it('should return training statistics', async () => {
       (mockPrisma.envTraining.count as jest.Mock)
-        .mockResolvedValueOnce(100)  // total
-        .mockResolvedValueOnce(70)   // completed
-        .mockResolvedValueOnce(15);  // overdue
+        .mockResolvedValueOnce(100) // total
+        .mockResolvedValueOnce(70) // completed
+        .mockResolvedValueOnce(15); // overdue
       (mockPrisma.envTraining.groupBy as jest.Mock).mockResolvedValueOnce([
         { trainingType: 'ENVIRONMENTAL_AWARENESS', _count: { id: 50 } },
         { trainingType: 'WASTE_MANAGEMENT', _count: { id: 30 } },
@@ -255,7 +263,9 @@ describe('Environment Training API', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             OR: expect.arrayContaining([
-              expect.objectContaining({ employeeName: expect.objectContaining({ contains: 'John' }) }),
+              expect.objectContaining({
+                employeeName: expect.objectContaining({ contains: 'John' }),
+              }),
             ]),
           }),
         })
@@ -373,10 +383,12 @@ describe('Environment Training API', () => {
     });
 
     it('should return 400 for invalid trainingType', async () => {
-      const res = await request(app).post('/api/training').send({
-        ...validPayload,
-        trainingType: 'INVALID_TYPE',
-      });
+      const res = await request(app)
+        .post('/api/training')
+        .send({
+          ...validPayload,
+          trainingType: 'INVALID_TYPE',
+        });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -406,9 +418,7 @@ describe('Environment Training API', () => {
         completedDate: new Date(),
       });
 
-      const res = await request(app)
-        .put(`/api/training/${UUID1}/complete`)
-        .send({ score: 90 });
+      const res = await request(app).put(`/api/training/${UUID1}/complete`).send({ score: 90 });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -432,9 +442,7 @@ describe('Environment Training API', () => {
         passed: false,
       });
 
-      const res = await request(app)
-        .put(`/api/training/${UUID1}/complete`)
-        .send({ score: 50 });
+      const res = await request(app).put(`/api/training/${UUID1}/complete`).send({ score: 50 });
 
       expect(res.status).toBe(200);
       expect(mockPrisma.envTraining.update).toHaveBeenCalledWith(
@@ -458,9 +466,7 @@ describe('Environment Training API', () => {
         passed: true,
       });
 
-      const res = await request(app)
-        .put(`/api/training/${UUID1}/complete`)
-        .send({ score: 30 });
+      const res = await request(app).put(`/api/training/${UUID1}/complete`).send({ score: 30 });
 
       expect(res.status).toBe(200);
       expect(mockPrisma.envTraining.update).toHaveBeenCalledWith(
@@ -474,9 +480,7 @@ describe('Environment Training API', () => {
     });
 
     it('should return 400 when score is missing', async () => {
-      const res = await request(app)
-        .put(`/api/training/${UUID1}/complete`)
-        .send({});
+      const res = await request(app).put(`/api/training/${UUID1}/complete`).send({});
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -486,9 +490,7 @@ describe('Environment Training API', () => {
     it('should return 404 when training record not found', async () => {
       (mockPrisma.envTraining.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app)
-        .put(`/api/training/${UUID2}/complete`)
-        .send({ score: 90 });
+      const res = await request(app).put(`/api/training/${UUID2}/complete`).send({ score: 90 });
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -498,9 +500,7 @@ describe('Environment Training API', () => {
     it('should return 500 on database error', async () => {
       (mockPrisma.envTraining.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const res = await request(app)
-        .put(`/api/training/${UUID1}/complete`)
-        .send({ score: 90 });
+      const res = await request(app).put(`/api/training/${UUID1}/complete`).send({ score: 90 });
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -553,9 +553,7 @@ describe('Environment Training API', () => {
         department: 'Safety',
       });
 
-      const res = await request(app)
-        .put(`/api/training/${UUID1}`)
-        .send({ department: 'Safety' });
+      const res = await request(app).put(`/api/training/${UUID1}`).send({ department: 'Safety' });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -565,9 +563,7 @@ describe('Environment Training API', () => {
     it('should return 404 when not found for update', async () => {
       (mockPrisma.envTraining.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app)
-        .put(`/api/training/${UUID2}`)
-        .send({ department: 'Safety' });
+      const res = await request(app).put(`/api/training/${UUID2}`).send({ department: 'Safety' });
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -588,9 +584,7 @@ describe('Environment Training API', () => {
       (mockPrisma.envTraining.findFirst as jest.Mock).mockResolvedValueOnce(mockTraining);
       (mockPrisma.envTraining.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const res = await request(app)
-        .put(`/api/training/${UUID1}`)
-        .send({ notes: 'Test' });
+      const res = await request(app).put(`/api/training/${UUID1}`).send({ notes: 'Test' });
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);

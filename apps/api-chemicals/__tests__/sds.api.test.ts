@@ -3,13 +3,27 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    chemSds: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), updateMany: jest.fn(), count: jest.fn() },
+    chemSds: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      updateMany: jest.fn(),
+      count: jest.fn(),
+    },
     chemRegister: { findFirst: jest.fn() },
   },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/sds';
 import { prisma } from '../src/prisma';
@@ -18,7 +32,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/sds', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockSds = {
   id: '00000000-0000-0000-0000-000000000010',
@@ -28,7 +44,13 @@ const mockSds = {
   nextReviewDate: '2027-01-15T00:00:00.000Z',
   status: 'CURRENT',
   createdBy: 'user-1',
-  chemical: { id: '00000000-0000-0000-0000-000000000001', productName: 'Acetone', casNumber: '67-64-1', signalWord: 'DANGER', pictograms: ['GHS02_FLAMMABLE'] },
+  chemical: {
+    id: '00000000-0000-0000-0000-000000000001',
+    productName: 'Acetone',
+    casNumber: '67-64-1',
+    signalWord: 'DANGER',
+    pictograms: ['GHS02_FLAMMABLE'],
+  },
 };
 
 const mockChemical = {
@@ -159,7 +181,10 @@ describe('POST /api/sds', () => {
     expect(res.body.data.version).toBe('1.0');
     // Should supersede existing current SDS
     expect((prisma as any).chemSds.updateMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { chemicalId: '00000000-0000-0000-0000-000000000001', status: 'CURRENT' }, data: { status: 'SUPERSEDED' } })
+      expect.objectContaining({
+        where: { chemicalId: '00000000-0000-0000-0000-000000000001', status: 'CURRENT' },
+        data: { status: 'SUPERSEDED' },
+      })
     );
   });
 

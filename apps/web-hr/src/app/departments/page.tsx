@@ -1,7 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label, Textarea } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Textarea,
+} from '@ims/ui';
 import { Plus, Building2, Users, ChevronRight } from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
@@ -37,7 +49,9 @@ export default function DepartmentsPage() {
   const [formData, setFormData] = useState(initialFormState);
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [employees, setEmployees] = useState<Array<{ id: string; firstName: string; lastName: string }>>([]);
+  const [employees, setEmployees] = useState<
+    Array<{ id: string; firstName: string; lastName: string }>
+  >([]);
 
   useEffect(() => {
     loadDepartments();
@@ -70,13 +84,15 @@ export default function DepartmentsPage() {
     loadEmployees();
   }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({ ...prev, [name]: checked }));
+      setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   }
 
@@ -129,7 +145,7 @@ export default function DepartmentsPage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-3 gap-4">
-            {[1, 2, 3, 4, 5, 6].map(i => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="h-32 bg-gray-200 rounded" />
             ))}
           </div>
@@ -173,7 +189,7 @@ export default function DepartmentsPage() {
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {departments.filter(d => d.isActive).length}
+                    {departments.filter((d) => d.isActive).length}
                   </p>
                 </div>
                 <Building2 className="h-8 w-8 text-green-500" />
@@ -214,13 +230,21 @@ export default function DepartmentsPage() {
                             <p className="text-sm text-gray-500 dark:text-gray-400">{dept.code}</p>
                           </div>
                         </div>
-                        <Badge className={dept.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+                        <Badge
+                          className={
+                            dept.isActive
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                          }
+                        >
                           {dept.isActive ? 'Active' : 'Inactive'}
                         </Badge>
                       </div>
 
                       {dept.description && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">{dept.description}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">
+                          {dept.description}
+                        </p>
                       )}
 
                       {dept.parent && (
@@ -254,7 +278,12 @@ export default function DepartmentsPage() {
       </div>
 
       {/* Create Department Modal */}
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Add Department" size="lg">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Add Department"
+        size="lg"
+      >
         <div className="max-h-[70vh] overflow-y-auto pr-2">
           {formError && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
@@ -309,8 +338,10 @@ export default function DepartmentsPage() {
                   className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="">Select department head</option>
-                  {employees.map(emp => (
-                    <option key={emp.id} value={emp.id}>{emp.firstName} {emp.lastName}</option>
+                  {employees.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.firstName} {emp.lastName}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -324,8 +355,10 @@ export default function DepartmentsPage() {
                   className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="">None (Top-level)</option>
-                  {departments.map(dept => (
-                    <option key={dept.id} value={dept.id}>{dept.name}</option>
+                  {departments.map((dept) => (
+                    <option key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -383,11 +416,7 @@ export default function DepartmentsPage() {
         </div>
 
         <ModalFooter>
-          <Button
-            variant="outline"
-            onClick={() => setCreateModalOpen(false)}
-            disabled={submitting}
-          >
+          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>
             Cancel
           </Button>
           <Button onClick={handleCreate} disabled={submitting}>

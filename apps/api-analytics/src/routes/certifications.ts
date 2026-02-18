@@ -8,7 +8,10 @@ import { validateIdParam } from '@ims/shared';
 const createDeadlineSchema = z.object({
   name: z.string().min(1, 'name is required'),
   category: z.string().min(1, 'category is required'),
-  dueDate: z.string().min(1, 'dueDate is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  dueDate: z
+    .string()
+    .min(1, 'dueDate is required')
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   renewalFrequency: z.string().nullable().optional(),
   ownerEmail: z.string().nullable().optional(),
   status: z.string().optional(),
@@ -58,7 +61,10 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Failed to list compliance deadlines', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list deadlines' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list deadlines' },
+    });
   }
 });
 
@@ -68,11 +74,46 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/seed', async (_req: Request, res: Response) => {
   try {
     const seeds = [
-      { name: 'CREST Pen Test', category: 'SECURITY', dueDate: new Date('2026-06-15'), renewalFrequency: 'ANNUAL', ownerEmail: 'infosec@ims.local', status: 'UPCOMING' },
-      { name: 'SOC 2 Type II Audit', category: 'COMPLIANCE', dueDate: new Date('2026-09-01'), renewalFrequency: 'ANNUAL', ownerEmail: 'compliance@ims.local', status: 'UPCOMING' },
-      { name: 'ISO 27001 Surveillance Audit', category: 'COMPLIANCE', dueDate: new Date('2026-07-01'), renewalFrequency: 'ANNUAL', ownerEmail: 'quality@ims.local', status: 'UPCOMING' },
-      { name: 'DMCC Licence Renewal', category: 'LICENCE', dueDate: new Date('2026-06-01'), renewalFrequency: 'ANNUAL', ownerEmail: 'operations@ims.local', status: 'UPCOMING' },
-      { name: 'QFZP Regulatory Reviews', category: 'REGULATORY', dueDate: new Date('2026-04-01'), renewalFrequency: 'QUARTERLY', ownerEmail: 'compliance@ims.local', status: 'UPCOMING' },
+      {
+        name: 'CREST Pen Test',
+        category: 'SECURITY',
+        dueDate: new Date('2026-06-15'),
+        renewalFrequency: 'ANNUAL',
+        ownerEmail: 'infosec@ims.local',
+        status: 'UPCOMING',
+      },
+      {
+        name: 'SOC 2 Type II Audit',
+        category: 'COMPLIANCE',
+        dueDate: new Date('2026-09-01'),
+        renewalFrequency: 'ANNUAL',
+        ownerEmail: 'compliance@ims.local',
+        status: 'UPCOMING',
+      },
+      {
+        name: 'ISO 27001 Surveillance Audit',
+        category: 'COMPLIANCE',
+        dueDate: new Date('2026-07-01'),
+        renewalFrequency: 'ANNUAL',
+        ownerEmail: 'quality@ims.local',
+        status: 'UPCOMING',
+      },
+      {
+        name: 'DMCC Licence Renewal',
+        category: 'LICENCE',
+        dueDate: new Date('2026-06-01'),
+        renewalFrequency: 'ANNUAL',
+        ownerEmail: 'operations@ims.local',
+        status: 'UPCOMING',
+      },
+      {
+        name: 'QFZP Regulatory Reviews',
+        category: 'REGULATORY',
+        dueDate: new Date('2026-04-01'),
+        renewalFrequency: 'QUARTERLY',
+        ownerEmail: 'compliance@ims.local',
+        status: 'UPCOMING',
+      },
     ];
 
     const result = await prisma.complianceDeadline.createMany({
@@ -84,7 +125,10 @@ router.get('/seed', async (_req: Request, res: Response) => {
     res.json({ success: true, data: { created: result.count, total: seeds.length } });
   } catch (err) {
     logger.error('Failed to seed compliance deadlines', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to seed deadlines' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to seed deadlines' },
+    });
   }
 });
 
@@ -95,12 +139,17 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const deadline = await prisma.complianceDeadline.findUnique({ where: { id: req.params.id } });
     if (!deadline) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deadline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Deadline not found' } });
     }
     res.json({ success: true, data: { deadline } });
   } catch (err) {
     logger.error('Failed to get compliance deadline', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get deadline' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get deadline' },
+    });
   }
 });
 
@@ -111,7 +160,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createDeadlineSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { name, category, dueDate, renewalFrequency, ownerEmail, status, notes } = parsed.data;
@@ -132,7 +184,10 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: { deadline } });
   } catch (err) {
     logger.error('Failed to create compliance deadline', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create deadline' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create deadline' },
+    });
   }
 });
 
@@ -143,15 +198,29 @@ router.patch('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.complianceDeadline.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deadline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Deadline not found' } });
     }
 
     const parsed = updateDeadlineSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
-    const { name, category, dueDate, renewalFrequency, ownerEmail, status, notes, lastCompletedAt } = parsed.data;
+    const {
+      name,
+      category,
+      dueDate,
+      renewalFrequency,
+      ownerEmail,
+      status,
+      notes,
+      lastCompletedAt,
+    } = parsed.data;
     const data: Record<string, unknown> = {};
     if (name !== undefined) data.name = name;
     if (category !== undefined) data.category = category;
@@ -160,7 +229,8 @@ router.patch('/:id', async (req: Request, res: Response) => {
     if (ownerEmail !== undefined) data.ownerEmail = ownerEmail;
     if (status !== undefined) data.status = status;
     if (notes !== undefined) data.notes = notes;
-    if (lastCompletedAt !== undefined) data.lastCompletedAt = lastCompletedAt ? new Date(lastCompletedAt) : null;
+    if (lastCompletedAt !== undefined)
+      data.lastCompletedAt = lastCompletedAt ? new Date(lastCompletedAt) : null;
 
     const deadline = await prisma.complianceDeadline.update({
       where: { id: req.params.id },
@@ -171,7 +241,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { deadline } });
   } catch (err) {
     logger.error('Failed to update compliance deadline', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update deadline' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update deadline' },
+    });
   }
 });
 

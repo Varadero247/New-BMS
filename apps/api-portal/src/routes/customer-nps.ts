@@ -48,7 +48,10 @@ router.post('/', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = npsCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const data = parsed.data;
@@ -70,8 +73,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('NPS score submitted', { id: nps.id, score: data.score });
     return res.status(201).json({ success: true, data: nps });
   } catch (error: unknown) {
-    logger.error('Error submitting NPS', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit NPS score' } });
+    logger.error('Error submitting NPS', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to submit NPS score' },
+    });
   }
 });
 
@@ -93,7 +101,12 @@ router.get('/', async (req: Request, res: Response) => {
     };
 
     const [items, total] = await Promise.all([
-      prisma.portalQualityReport.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.portalQualityReport.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
       prisma.portalQualityReport.count({ where }),
     ]);
 
@@ -103,8 +116,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing NPS submissions', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list NPS submissions' } });
+    logger.error('Error listing NPS submissions', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list NPS submissions' },
+    });
   }
 });
 

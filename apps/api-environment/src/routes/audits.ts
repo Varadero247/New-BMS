@@ -57,11 +57,22 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     res.json({
       success: true,
-      data: { audits, pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) } },
+      data: {
+        audits,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          totalPages: Math.ceil(total / limitNum),
+        },
+      },
     });
   } catch (error) {
     logger.error('List audits error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list audits' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list audits' },
+    });
   }
 });
 
@@ -71,12 +82,16 @@ router.get('/schedule', scopeToUser, async (req: AuthRequest, res: Response) => 
     const schedules = await prisma.envAuditSchedule.findMany({
       where: { active: true },
       orderBy: { nextDueDate: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: schedules });
   } catch (error) {
     logger.error('List audit schedules error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list audit schedules' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list audit schedules' },
+    });
   }
 });
 
@@ -87,7 +102,12 @@ router.post('/schedule', async (req: AuthRequest, res: Response) => {
       title: z.string().trim().min(1).max(200),
       type: z.enum(['SYSTEM', 'COMPLIANCE', 'SITE', 'SUPPLIER', 'MANAGEMENT_REVIEW']),
       frequency: z.string().trim().min(1).max(200),
-      nextDueDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      nextDueDate: z
+        .string()
+        .trim()
+        .min(1)
+        .max(200)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       iso14001Clauses: z.array(z.string()).min(1),
       description: z.string().optional(),
       assignedAuditor: z.string().optional(),
@@ -112,10 +132,20 @@ router.post('/schedule', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: schedule });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create audit schedule error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit schedule' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit schedule' },
+    });
   }
 });
 
@@ -126,11 +156,16 @@ router.get('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res
       where: { id: req.params.id },
       include: { findings: true },
     });
-    if (!audit) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+    if (!audit)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     res.json({ success: true, data: audit });
   } catch (error) {
     logger.error('Get audit error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit' } });
   }
 });
 
@@ -141,7 +176,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       title: z.string().trim().min(1).max(200),
       type: z.enum(['SYSTEM', 'COMPLIANCE', 'SITE', 'SUPPLIER', 'MANAGEMENT_REVIEW']),
       scope: z.string().trim().min(1).max(2000),
-      auditDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      auditDate: z
+        .string()
+        .trim()
+        .min(1)
+        .max(200)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       leadAuditor: z.string().trim().min(1).max(200),
       iso14001Clauses: z.array(z.string()).min(1),
       department: z.string().optional(),
@@ -150,9 +190,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       criteria: z.string().optional(),
       methodology: z.string().optional(),
       status: z.string().optional(),
-      openingMeetingDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      closingMeetingDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      reportDueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      openingMeetingDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      closingMeetingDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      reportDueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       summary: z.string().optional(),
       conclusions: z.string().optional(),
       recommendations: z.string().optional(),
@@ -198,10 +247,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: audit });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create audit error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit' },
+    });
   }
 });
 
@@ -209,33 +268,50 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envAudit.findUnique({ where: { id: req.params.id } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
 
-    const schema = z.object({
-      title: z.string().trim().min(1).max(200).optional(),
-      type: z.enum(['SYSTEM', 'COMPLIANCE', 'SITE', 'SUPPLIER', 'MANAGEMENT_REVIEW']).optional(),
-      scope: z.string().trim().min(1).max(2000).optional(),
-      auditDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      leadAuditor: z.string().optional(),
-      iso14001Clauses: z.array(z.string()).optional(),
-      department: z.string().optional(),
-      auditTeam: z.array(z.string()).optional(),
-      objective: z.string().optional(),
-      criteria: z.string().optional(),
-      methodology: z.string().optional(),
-      status: z.string().optional(),
-      openingMeetingDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      closingMeetingDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      reportDueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      summary: z.string().optional(),
-      conclusions: z.string().optional(),
-      recommendations: z.string().optional(),
-      aiAuditPlan: z.string().optional(),
-      aiClauseAnalysis: z.string().optional(),
-      aiRiskAssessment: z.string().optional(),
-      aiRecommendations: z.string().optional(),
-      aiGenerated: z.boolean().optional(),
-    }).strict();
+    const schema = z
+      .object({
+        title: z.string().trim().min(1).max(200).optional(),
+        type: z.enum(['SYSTEM', 'COMPLIANCE', 'SITE', 'SUPPLIER', 'MANAGEMENT_REVIEW']).optional(),
+        scope: z.string().trim().min(1).max(2000).optional(),
+        auditDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        leadAuditor: z.string().optional(),
+        iso14001Clauses: z.array(z.string()).optional(),
+        department: z.string().optional(),
+        auditTeam: z.array(z.string()).optional(),
+        objective: z.string().optional(),
+        criteria: z.string().optional(),
+        methodology: z.string().optional(),
+        status: z.string().optional(),
+        openingMeetingDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        closingMeetingDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        reportDueDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        summary: z.string().optional(),
+        conclusions: z.string().optional(),
+        recommendations: z.string().optional(),
+        aiAuditPlan: z.string().optional(),
+        aiClauseAnalysis: z.string().optional(),
+        aiRiskAssessment: z.string().optional(),
+        aiRecommendations: z.string().optional(),
+        aiGenerated: z.boolean().optional(),
+      })
+      .strict();
 
     const data = schema.parse(req.body);
 
@@ -255,10 +331,20 @@ router.put('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res
     res.json({ success: true, data: audit });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update audit error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update audit' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update audit' },
+    });
   }
 });
 
@@ -266,7 +352,10 @@ router.put('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res
 router.delete('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envAudit.findUnique({ where: { id: req.params.id } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
 
     await prisma.envAudit.update({
       where: { id: req.params.id },
@@ -276,7 +365,10 @@ router.delete('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, 
     res.status(204).send();
   } catch (error) {
     logger.error('Delete audit error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete audit' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete audit' },
+    });
   }
 });
 
@@ -284,7 +376,10 @@ router.delete('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, 
 router.post('/:id/findings', async (req: AuthRequest, res: Response) => {
   try {
     const audit = await prisma.envAudit.findUnique({ where: { id: req.params.id } });
-    if (!audit) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+    if (!audit)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
 
     const schema = z.object({
       clause: z.string().trim().min(1).max(200),
@@ -294,7 +389,10 @@ router.post('/:id/findings', async (req: AuthRequest, res: Response) => {
       requirement: z.string().optional(),
       correctiveAction: z.string().optional(),
       assignedTo: z.string().optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       status: z.string().optional(),
     });
 
@@ -318,10 +416,20 @@ router.post('/:id/findings', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: finding });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create audit finding error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit finding' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit finding' },
+    });
   }
 });
 
@@ -331,20 +439,31 @@ router.put('/:id/findings/:fid', async (req: AuthRequest, res: Response) => {
     const existing = await prisma.envAuditFinding.findFirst({
       where: { id: req.params.fid, auditId: req.params.id },
     });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit finding not found' } });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit finding not found' } });
 
-    const schema = z.object({
-      clause: z.string().optional(),
-      type: z.enum(['CONFORMITY', 'MINOR_NC', 'MAJOR_NC', 'OBSERVATION', 'OFI']).optional(),
-      description: z.string().optional(),
-      evidence: z.string().optional(),
-      requirement: z.string().optional(),
-      correctiveAction: z.string().optional(),
-      assignedTo: z.string().optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      status: z.string().optional(),
-      closedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-    }).strict();
+    const schema = z
+      .object({
+        clause: z.string().optional(),
+        type: z.enum(['CONFORMITY', 'MINOR_NC', 'MAJOR_NC', 'OBSERVATION', 'OFI']).optional(),
+        description: z.string().optional(),
+        evidence: z.string().optional(),
+        requirement: z.string().optional(),
+        correctiveAction: z.string().optional(),
+        assignedTo: z.string().optional(),
+        dueDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        status: z.string().optional(),
+        closedDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+      })
+      .strict();
 
     const data = schema.parse(req.body);
 
@@ -365,10 +484,20 @@ router.put('/:id/findings/:fid', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: finding });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update audit finding error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update audit finding' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update audit finding' },
+    });
   }
 });
 
@@ -379,13 +508,24 @@ router.get('/:id/checklist', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       include: { findings: true },
     });
-    if (!audit) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+    if (!audit)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
 
     const checklist = audit.iso14001Clauses.map((clause: string) => {
-      const clauseFindings = audit.findings.filter((f: Record<string, unknown>) => f.clause === clause);
-      const hasNonConformity = clauseFindings.some((f: Record<string, unknown>) => f.type === 'MINOR_NC' || f.type === 'MAJOR_NC');
-      const hasConformity = clauseFindings.some((f: Record<string, unknown>) => f.type === 'CONFORMITY');
-      const openFindings = clauseFindings.filter((f: Record<string, unknown>) => f.status === 'OPEN').length;
+      const clauseFindings = audit.findings.filter(
+        (f: Record<string, unknown>) => f.clause === clause
+      );
+      const hasNonConformity = clauseFindings.some(
+        (f: Record<string, unknown>) => f.type === 'MINOR_NC' || f.type === 'MAJOR_NC'
+      );
+      const hasConformity = clauseFindings.some(
+        (f: Record<string, unknown>) => f.type === 'CONFORMITY'
+      );
+      const openFindings = clauseFindings.filter(
+        (f: Record<string, unknown>) => f.status === 'OPEN'
+      ).length;
 
       let status: string;
       if (clauseFindings.length === 0) {
@@ -410,7 +550,10 @@ router.get('/:id/checklist', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: { auditId: audit.id, checklist } });
   } catch (error) {
     logger.error('Get audit checklist error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit checklist' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit checklist' },
+    });
   }
 });
 
@@ -421,7 +564,10 @@ router.post('/:id/complete', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       include: { findings: true },
     });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
 
     const schema = z.object({
       summary: z.string().trim().min(1).max(2000),
@@ -446,10 +592,20 @@ router.post('/:id/complete', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: audit });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Complete audit error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete audit' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete audit' },
+    });
   }
 });
 

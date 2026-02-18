@@ -1,11 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  ClipboardCheck,
-  AlertTriangle,
-  HardHat,
-  Leaf,
-  Award,
-} from 'lucide-react';
+import { ClipboardCheck, AlertTriangle, HardHat, Leaf, Award } from 'lucide-react';
 import { api } from '../lib/api';
 
 interface Action {
@@ -212,9 +206,7 @@ export default function ActionsScreen() {
               key={f}
               onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
-                filter === f
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-600'
+                filter === f ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-600'
               }`}
             >
               {f === 'ALL' ? 'All' : f.charAt(0) + f.slice(1).toLowerCase()}
@@ -243,15 +235,21 @@ export default function ActionsScreen() {
                         {action.referenceNumber} • {action.type}
                       </p>
                       <div className="flex items-center gap-3 mt-2">
-                        <span className={`text-xs font-medium ${getPriorityColor(action.priority)}`}>
+                        <span
+                          className={`text-xs font-medium ${getPriorityColor(action.priority)}`}
+                        >
                           {action.priority}
                         </span>
-                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getStatusColor(action.status)}`}>
+                        <span
+                          className={`px-2 py-0.5 rounded text-xs font-medium ${getStatusColor(action.status)}`}
+                        >
                           {action.status.replace('_', ' ')}
                         </span>
                       </div>
                       <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-                        <span>{action.owner.firstName} {action.owner.lastName}</span>
+                        <span>
+                          {action.owner.firstName} {action.owner.lastName}
+                        </span>
                         <span className={overdue ? 'text-red-500 font-medium' : ''}>
                           Due: {new Date(action.dueDate).toLocaleDateString()}
                         </span>

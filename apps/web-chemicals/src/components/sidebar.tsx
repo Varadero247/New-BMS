@@ -35,9 +35,7 @@ interface NavGroup {
 const navGroups: NavGroup[] = [
   {
     title: 'Overview',
-    items: [
-      { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    ],
+    items: [{ name: 'Dashboard', href: '/', icon: LayoutDashboard }],
   },
   {
     title: 'Chemical Register (Cl. 6-7)',
@@ -70,9 +68,7 @@ const navGroups: NavGroup[] = [
     title: 'Incidents',
     clause: '8',
     collapsible: true,
-    items: [
-      { name: 'Chemical Incidents', href: '/incidents', icon: AlertTriangle },
-    ],
+    items: [{ name: 'Chemical Incidents', href: '/incidents', icon: AlertTriangle }],
   },
 ];
 
@@ -115,7 +111,8 @@ function CollapsibleSection({ group, pathname }: { group: NavGroup; pathname: st
         <ul className="space-y-0.5">
           {group.items.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+            const isActive =
+              pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
             return (
               <li key={item.name}>
                 <Link
@@ -147,7 +144,9 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-card border-r border-border flex flex-col h-full min-h-screen">
       <div className="p-4 border-b border-border bg-red-50 dark:bg-red-900/10">
-        <h1 className="text-lg font-bold font-display text-red-900 dark:text-red-100">Chemical Management</h1>
+        <h1 className="text-lg font-bold font-display text-red-900 dark:text-red-100">
+          Chemical Management
+        </h1>
         <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">ISO 11014 / COSHH / GHS</p>
       </div>
       <nav className="flex-1 p-3 overflow-y-auto" aria-label="Chemical management navigation">

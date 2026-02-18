@@ -29,7 +29,8 @@ export const Default: Story = {
 export const Info: Story = {
   args: {
     variant: 'info',
-    children: 'This is an informational message. You can use this to provide helpful context or tips.',
+    children:
+      'This is an informational message. You can use this to provide helpful context or tips.',
   },
 };
 
@@ -99,7 +100,8 @@ export const DismissibleWithTitle: Story = {
     variant: 'success',
     title: 'Setup Complete',
     dismissible: true,
-    children: 'Your account has been created successfully. You can now log in with your credentials.',
+    children:
+      'Your account has been created successfully. You can now log in with your credentials.',
   },
 };
 
@@ -108,7 +110,8 @@ export const DismissibleWarning: Story = {
     variant: 'warning',
     title: 'Browser Compatibility',
     dismissible: true,
-    children: 'You are using an older browser. Some features may not work correctly. Please consider updating.',
+    children:
+      'You are using an older browser. Some features may not work correctly. Please consider updating.',
   },
 };
 
@@ -117,7 +120,8 @@ export const DismissibleError: Story = {
     variant: 'error',
     title: 'Connection Lost',
     dismissible: true,
-    children: 'Unable to connect to the server. Please check your internet connection and try again.',
+    children:
+      'Unable to connect to the server. Please check your internet connection and try again.',
   },
 };
 

@@ -70,7 +70,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List transactions error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list transactions' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list transactions' },
+    });
   }
 });
 
@@ -83,7 +86,9 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
     if (warehouseId) where.warehouseId = warehouseId as any;
 
     // Default to last 30 days if no date range specified
-    const start = startDate ? new Date(startDate as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const start = startDate
+      ? new Date(startDate as string)
+      : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const end = endDate ? new Date(endDate as string) : new Date();
 
     where.transactionDate = { gte: start, lte: end };
@@ -128,21 +133,36 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
     }
 
     // Calculate totals
-    const totals = transactionsByType.reduce((acc, t) => {
-      return {
-        totalTransactions: acc.totalTransactions + (t._count.id || 0),
-        totalIn: acc.totalIn + (['RECEIPT', 'ADJUSTMENT_IN', 'TRANSFER_IN', 'RETURN', 'INITIAL'].includes(t.transactionType as string) ? Math.abs(t._sum.quantityChange || 0) : 0),
-        totalOut: acc.totalOut + (['ISSUE', 'ADJUSTMENT_OUT', 'TRANSFER_OUT', 'DAMAGE', 'EXPIRED'].includes(t.transactionType as string) ? Math.abs(t._sum.quantityChange || 0) : 0),
-        totalValue: acc.totalValue + Math.abs(Number(t._sum.totalCost) || 0),
-      };
-    }, { totalTransactions: 0, totalIn: 0, totalOut: 0, totalValue: 0 });
+    const totals = transactionsByType.reduce(
+      (acc, t) => {
+        return {
+          totalTransactions: acc.totalTransactions + (t._count.id || 0),
+          totalIn:
+            acc.totalIn +
+            (['RECEIPT', 'ADJUSTMENT_IN', 'TRANSFER_IN', 'RETURN', 'INITIAL'].includes(
+              t.transactionType as string
+            )
+              ? Math.abs(t._sum.quantityChange || 0)
+              : 0),
+          totalOut:
+            acc.totalOut +
+            (['ISSUE', 'ADJUSTMENT_OUT', 'TRANSFER_OUT', 'DAMAGE', 'EXPIRED'].includes(
+              t.transactionType as string
+            )
+              ? Math.abs(t._sum.quantityChange || 0)
+              : 0),
+          totalValue: acc.totalValue + Math.abs(Number(t._sum.totalCost) || 0),
+        };
+      },
+      { totalTransactions: 0, totalIn: 0, totalOut: 0, totalValue: 0 }
+    );
 
     res.json({
       success: true,
       data: {
         period: { start, end },
         totals,
-        byType: transactionsByType.map(t => ({
+        byType: transactionsByType.map((t) => ({
           type: t.transactionType,
           count: (t as any)._count.id,
           quantityChange: t._sum.quantityChange,
@@ -153,7 +173,10 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Transaction summary error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get transaction summary' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get transaction summary' },
+    });
   }
 });
 
@@ -185,7 +208,9 @@ router.get('/product/:productId', async (req: AuthRequest, res: Response) => {
     ]);
 
     if (!product) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
     }
 
     res.json({
@@ -198,31 +223,43 @@ router.get('/product/:productId', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Product transaction history error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get product transaction history' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get product transaction history' },
+    });
   }
 });
 
 // GET /api/inventory/transactions/:id - Get single transaction
-router.get('/:id', checkOwnership(prisma.inventoryTransaction), async (req: AuthRequest, res: Response) => {
-  try {
-    const transaction = await prisma.inventoryTransaction.findUnique({
-      where: { id: req.params.id },
-      include: {
-        product: { select: { id: true, sku: true, name: true, barcode: true } },
-        warehouse: { select: { id: true, code: true, name: true } },
-        fromWarehouse: { select: { id: true, code: true, name: true } },
-      },
-    });
+router.get(
+  '/:id',
+  checkOwnership(prisma.inventoryTransaction),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const transaction = await prisma.inventoryTransaction.findUnique({
+        where: { id: req.params.id },
+        include: {
+          product: { select: { id: true, sku: true, name: true, barcode: true } },
+          warehouse: { select: { id: true, code: true, name: true } },
+          fromWarehouse: { select: { id: true, code: true, name: true } },
+        },
+      });
 
-    if (!transaction) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Transaction not found' } });
+      if (!transaction) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Transaction not found' } });
+      }
+
+      res.json({ success: true, data: transaction });
+    } catch (error) {
+      logger.error('Get transaction error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get transaction' },
+      });
     }
-
-    res.json({ success: true, data: transaction });
-  } catch (error) {
-    logger.error('Get transaction error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get transaction' } });
   }
-});
+);
 
 export default router;

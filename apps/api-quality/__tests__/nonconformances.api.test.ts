@@ -391,7 +391,9 @@ describe('Quality Nonconformances API Routes', () => {
 
   describe('DELETE /api/nonconformances/:id', () => {
     it('should delete NC successfully', async () => {
-      mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce({ id: '1c000000-0000-4000-a000-000000000001' });
+      mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce({
+        id: '1c000000-0000-4000-a000-000000000001',
+      });
       mockPrisma.qualNonConformance.delete.mockResolvedValueOnce({});
 
       const response = await request(app)

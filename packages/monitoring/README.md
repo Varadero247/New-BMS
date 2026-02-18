@@ -42,10 +42,10 @@ logger.error('Request failed', { error: err.message, correlationId: req.correlat
 
 ## Exports
 
-| Export | Description |
-|--------|-------------|
-| `createLogger(name)` | Creates a Winston logger with JSON format |
-| `metricsMiddleware` | Express middleware — tracks request count, duration, status |
-| `metricsHandler` | Express handler — serves Prometheus metrics at `/metrics` |
-| `correlationIdMiddleware` | Propagates `x-correlation-id` header across requests |
-| `createHealthCheck(opts)` | Returns Express handler with service health status |
+| Export                    | Description                                                 |
+| ------------------------- | ----------------------------------------------------------- |
+| `createLogger(name)`      | Creates a Winston logger with JSON format                   |
+| `metricsMiddleware`       | Express middleware — tracks request count, duration, status |
+| `metricsHandler`          | Express handler — serves Prometheus metrics at `/metrics`   |
+| `correlationIdMiddleware` | Propagates `x-correlation-id` header across requests        |
+| `createHealthCheck(opts)` | Returns Express handler with service health status          |

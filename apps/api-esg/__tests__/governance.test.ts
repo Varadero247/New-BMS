@@ -149,9 +149,14 @@ describe('GET /api/governance/:id', () => {
 describe('PUT /api/governance/:id', () => {
   it('should update a governance metric', async () => {
     (prisma.esgGovernanceMetric.findFirst as jest.Mock).mockResolvedValue(mockGovernance);
-    (prisma.esgGovernanceMetric.update as jest.Mock).mockResolvedValue({ ...mockGovernance, value: '80%' });
+    (prisma.esgGovernanceMetric.update as jest.Mock).mockResolvedValue({
+      ...mockGovernance,
+      value: '80%',
+    });
 
-    const res = await request(app).put('/api/governance/00000000-0000-0000-0000-000000000001').send({ value: '80%' });
+    const res = await request(app)
+      .put('/api/governance/00000000-0000-0000-0000-000000000001')
+      .send({ value: '80%' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -159,12 +164,16 @@ describe('PUT /api/governance/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgGovernanceMetric.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/governance/00000000-0000-0000-0000-000000000099').send({ value: '80%' });
+    const res = await request(app)
+      .put('/api/governance/00000000-0000-0000-0000-000000000099')
+      .send({ value: '80%' });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid data', async () => {
-    const res = await request(app).put('/api/governance/00000000-0000-0000-0000-000000000001').send({ category: 'INVALID' });
+    const res = await request(app)
+      .put('/api/governance/00000000-0000-0000-0000-000000000001')
+      .send({ category: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
@@ -172,7 +181,10 @@ describe('PUT /api/governance/:id', () => {
 describe('DELETE /api/governance/:id', () => {
   it('should soft delete a governance metric', async () => {
     (prisma.esgGovernanceMetric.findFirst as jest.Mock).mockResolvedValue(mockGovernance);
-    (prisma.esgGovernanceMetric.update as jest.Mock).mockResolvedValue({ ...mockGovernance, deletedAt: new Date() });
+    (prisma.esgGovernanceMetric.update as jest.Mock).mockResolvedValue({
+      ...mockGovernance,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/governance/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);

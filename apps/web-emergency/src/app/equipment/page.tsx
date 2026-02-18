@@ -18,15 +18,7 @@ import {
   TableHead,
   TableCell,
 } from '@ims/ui';
-import {
-  Wrench,
-  Plus,
-  Search,
-  CheckCircle,
-  AlertTriangle,
-  Clock,
-  Loader2,
-} from 'lucide-react';
+import { Wrench, Plus, Search, CheckCircle, AlertTriangle, Clock, Loader2 } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
@@ -122,7 +114,9 @@ function StatusBadge({ status }: { status: string }) {
   };
   const Icon = icons[status] || Clock;
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${styles[status] || styles.SERVICEABLE}`}>
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${styles[status] || styles.SERVICEABLE}`}
+    >
       <Icon className="h-3 w-3" />
       {status.replace(/_/g, ' ')}
     </span>
@@ -159,7 +153,10 @@ export default function EquipmentPage() {
 
   useEffect(() => {
     load();
-    api.get('/premises').then((r) => setPremises(r.data.data || [])).catch(() => {});
+    api
+      .get('/premises')
+      .then((r) => setPremises(r.data.data || []))
+      .catch(() => {});
   }, [load]);
 
   function openCreate() {
@@ -223,7 +220,7 @@ export default function EquipmentPage() {
   const overdue = equipment.filter((e) => e.status === 'OVERDUE_SERVICE').length;
   const dueService = equipment.filter((e) => e.status === 'DUE_SERVICE').length;
   const outOfService = equipment.filter(
-    (e) => e.status === 'OUT_OF_SERVICE' || e.status === 'CONDEMNED',
+    (e) => e.status === 'OUT_OF_SERVICE' || e.status === 'CONDEMNED'
   ).length;
 
   return (
@@ -280,7 +277,9 @@ export default function EquipmentPage() {
             </Card>
             <Card>
               <CardContent className="pt-6 text-center">
-                <p className="text-3xl font-bold" style={{ color: '#F04B5A' }}>{overdue + outOfService}</p>
+                <p className="text-3xl font-bold" style={{ color: '#F04B5A' }}>
+                  {overdue + outOfService}
+                </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Action Required</p>
               </CardContent>
             </Card>
@@ -298,22 +297,20 @@ export default function EquipmentPage() {
                 className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
               />
             </div>
-            <Select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
+            <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
               <option value="ALL">All Statuses</option>
               {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                <option key={s} value={s}>
+                  {s.replace(/_/g, ' ')}
+                </option>
               ))}
             </Select>
-            <Select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-            >
+            <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
               <option value="ALL">All Types</option>
               {EQUIPMENT_TYPES.map((t) => (
-                <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
+                <option key={t} value={t}>
+                  {t.replace(/_/g, ' ')}
+                </option>
               ))}
             </Select>
           </div>
@@ -350,7 +347,9 @@ export default function EquipmentPage() {
                           <TableCell>
                             <p className="font-medium text-sm">{eq.name}</p>
                             {eq.model && (
-                              <p className="text-xs text-gray-500">{eq.manufacturer} {eq.model}</p>
+                              <p className="text-xs text-gray-500">
+                                {eq.manufacturer} {eq.model}
+                              </p>
                             )}
                           </TableCell>
                           <TableCell>
@@ -359,9 +358,11 @@ export default function EquipmentPage() {
                           <TableCell className="text-sm">{eq.premisesName}</TableCell>
                           <TableCell className="text-sm">{eq.location}</TableCell>
                           <TableCell className="text-sm">
-                            {eq.lastServiceDate
-                              ? new Date(eq.lastServiceDate).toLocaleDateString()
-                              : <span className="text-gray-400">Never</span>}
+                            {eq.lastServiceDate ? (
+                              new Date(eq.lastServiceDate).toLocaleDateString()
+                            ) : (
+                              <span className="text-gray-400">Never</span>
+                            )}
                           </TableCell>
                           <TableCell className="text-sm">
                             {eq.nextServiceDate ? (
@@ -374,7 +375,9 @@ export default function EquipmentPage() {
                               >
                                 {new Date(eq.nextServiceDate).toLocaleDateString()}
                               </span>
-                            ) : '-'}
+                            ) : (
+                              '-'
+                            )}
                           </TableCell>
                           <TableCell>
                             <StatusBadge status={eq.status} />
@@ -438,7 +441,9 @@ export default function EquipmentPage() {
                   onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
                 >
                   {EQUIPMENT_TYPES.map((t) => (
-                    <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
+                    <option key={t} value={t}>
+                      {t.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -450,7 +455,9 @@ export default function EquipmentPage() {
                 >
                   <option value="">Select premises...</option>
                   {premises.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -493,7 +500,9 @@ export default function EquipmentPage() {
                   onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
                 >
                   {STATUS_OPTIONS.map((s) => (
-                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                    <option key={s} value={s}>
+                      {s.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -532,7 +541,9 @@ export default function EquipmentPage() {
             </div>
           </div>
           <ModalFooter>
-            <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
             <Button
               onClick={handleSubmit}
               disabled={saving || !form.name || !form.premisesId}
@@ -540,8 +551,15 @@ export default function EquipmentPage() {
               style={{ backgroundColor: '#F04B5A' }}
             >
               {saving ? (
-                <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</>
-              ) : editId ? 'Update Equipment' : 'Add Equipment'}
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : editId ? (
+                'Update Equipment'
+              ) : (
+                'Add Equipment'
+              )}
             </Button>
           </ModalFooter>
         </Modal>

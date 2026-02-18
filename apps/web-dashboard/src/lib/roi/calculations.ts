@@ -1,7 +1,7 @@
 import type { RoiInputs, RoiResults } from '@/components/roi/types';
 
 // Constants — referenced in sales materials, do not change without approval
-const NEXARA_ADMIN_REDUCTION = 0.50;
+const NEXARA_ADMIN_REDUCTION = 0.5;
 const AUDIT_PREP_DAYS_WITH_NEXARA = 2;
 const SUPPLIER_ONBOARDING_VALUE_PER = 480;
 const AUDIT_FAILURE_AVOIDED_VALUE = 8000;
@@ -30,7 +30,8 @@ export function calculateRoi(inputs: RoiInputs): RoiResults {
   const adminValueSaved = (adminHoursSaved / 8) * dailyRate;
 
   // 2. Audit preparation saving
-  const rawAuditDaysSaved = (inputs.auditPrepDays - AUDIT_PREP_DAYS_WITH_NEXARA) * inputs.numberOfAudits;
+  const rawAuditDaysSaved =
+    (inputs.auditPrepDays - AUDIT_PREP_DAYS_WITH_NEXARA) * inputs.numberOfAudits;
   const auditDaysSaved = Math.max(0, rawAuditDaysSaved);
   const auditPrepValueSaved = auditDaysSaved * dailyRate;
 
@@ -44,7 +45,8 @@ export function calculateRoi(inputs: RoiInputs): RoiResults {
   const contractValue = inputs.enterpriseContractPursuit ? ENTERPRISE_CONTRACT_OPTION_VALUE : 0;
 
   // Total
-  const totalValue = adminValueSaved + auditPrepValueSaved + supplierValue + auditRiskValue + contractValue;
+  const totalValue =
+    adminValueSaved + auditPrepValueSaved + supplierValue + auditRiskValue + contractValue;
 
   // Plan cost
   const recommendedPlan = getPlan(inputs.employees);

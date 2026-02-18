@@ -1,16 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import {
-  X,
-  ChevronDown,
-  AlertTriangle,
-  Shield,
-  Filter,
-  Eye,
-  EyeOff,
-  Info,
-} from 'lucide-react';
+import { X, ChevronDown, AlertTriangle, Shield, Filter, Eye, EyeOff, Info } from 'lucide-react';
 
 interface Risk {
   id: string;
@@ -224,7 +215,14 @@ const mockRisks: Risk[] = [
   },
 ];
 
-const categories = ['Fire', 'Chemical', 'Manual Handling', 'Electrical', 'Working at Height', 'Machinery'];
+const categories = [
+  'Fire',
+  'Chemical',
+  'Manual Handling',
+  'Electrical',
+  'Working at Height',
+  'Machinery',
+];
 
 const likelihoodLevels = ['Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain'];
 const severityLevels = ['Insignificant', 'Minor', 'Moderate', 'Major', 'Catastrophic'];
@@ -266,16 +264,21 @@ const getRiskLevelBgColor = (level: string): string => {
 
 const getCellDotColor = (likelihood: number, severity: number, isResidual: boolean): string => {
   const score = likelihood * severity;
-  if (score <= 3) return isResidual ? 'border-green-500 bg-green-400' : 'border-green-600 bg-green-300';
-  if (score <= 6) return isResidual ? 'border-yellow-500 bg-yellow-400' : 'border-yellow-600 bg-yellow-300';
-  if (score <= 12) return isResidual ? 'border-orange-500 bg-orange-400' : 'border-orange-600 bg-orange-300';
+  if (score <= 3)
+    return isResidual ? 'border-green-500 bg-green-400' : 'border-green-600 bg-green-300';
+  if (score <= 6)
+    return isResidual ? 'border-yellow-500 bg-yellow-400' : 'border-yellow-600 bg-yellow-300';
+  if (score <= 12)
+    return isResidual ? 'border-orange-500 bg-orange-400' : 'border-orange-600 bg-orange-300';
   if (score <= 20) return isResidual ? 'border-red-500 bg-red-400' : 'border-red-700 bg-red-500';
   return isResidual ? 'border-red-600 bg-red-700' : 'border-red-900 bg-red-800';
 };
 
 export default function RiskMatrixClient() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedCell, setSelectedCell] = useState<{ likelihood: number; severity: number } | null>(null);
+  const [selectedCell, setSelectedCell] = useState<{ likelihood: number; severity: number } | null>(
+    null
+  );
   const [selectedRisk, setSelectedRisk] = useState<Risk | null>(null);
   const [showInherent, setShowInherent] = useState(true);
   const [showResidual, setShowResidual] = useState(true);
@@ -319,7 +322,9 @@ export default function RiskMatrixClient() {
             <AlertTriangle className="w-10 h-10 text-orange-600" />
             Risk Matrix
           </h1>
-          <p className="text-slate-600">5x5 risk assessment matrix with inherent and residual risk positioning</p>
+          <p className="text-slate-600">
+            5x5 risk assessment matrix with inherent and residual risk positioning
+          </p>
         </div>
 
         {/* Summary Stats */}
@@ -351,7 +356,9 @@ export default function RiskMatrixClient() {
           {/* Very High + Extreme */}
           <div className="bg-red-50 rounded-lg shadow p-4 border-l-4 border-red-600">
             <p className="text-sm font-medium text-red-700 mb-1">Critical</p>
-            <p className="text-3xl font-bold text-red-900">{riskLevelCounts['Very High'] + riskLevelCounts.Extreme}</p>
+            <p className="text-3xl font-bold text-red-900">
+              {riskLevelCounts['Very High'] + riskLevelCounts.Extreme}
+            </p>
           </div>
         </div>
 
@@ -365,9 +372,7 @@ export default function RiskMatrixClient() {
                   <button
                     onClick={() => setShowInherent(!showInherent)}
                     className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
-                      showInherent
-                        ? 'bg-slate-800 text-white'
-                        : 'bg-slate-200 text-slate-600'
+                      showInherent ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-600'
                     }`}
                   >
                     Inherent
@@ -375,9 +380,7 @@ export default function RiskMatrixClient() {
                   <button
                     onClick={() => setShowResidual(!showResidual)}
                     className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
-                      showResidual
-                        ? 'bg-orange-600 text-white'
-                        : 'bg-slate-200 text-slate-600'
+                      showResidual ? 'bg-orange-600 text-white' : 'bg-slate-200 text-slate-600'
                     }`}
                   >
                     Residual
@@ -388,7 +391,9 @@ export default function RiskMatrixClient() {
 
             {/* Category Filter */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-slate-700 mb-2">Filter by Category</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Filter by Category
+              </label>
               <select
                 value={selectedCategory || ''}
                 onChange={(e) => {
@@ -435,7 +440,9 @@ export default function RiskMatrixClient() {
                     <tr key={severity}>
                       <td className="w-24 border border-slate-300 bg-slate-100 p-1 font-semibold text-xs">
                         <div className="flex flex-col items-center justify-center h-24">
-                          <div className="text-center text-slate-700">{severityLevels[severity - 1]}</div>
+                          <div className="text-center text-slate-700">
+                            {severityLevels[severity - 1]}
+                          </div>
                           <div className="text-xs text-slate-500">({severity})</div>
                         </div>
                       </td>
@@ -460,9 +467,10 @@ export default function RiskMatrixClient() {
                           <td
                             key={`${likelihood}-${severity}`}
                             onClick={() => setSelectedCell({ likelihood, severity })}
-                            className={`h-24 w-24 border border-slate-300 p-2 cursor-pointer hover:shadow-inset transition-all ${
-                              getRiskColor(likelihood, severity)
-                            } ${isSelected ? 'ring-2 ring-orange-600 ring-inset' : ''}`}
+                            className={`h-24 w-24 border border-slate-300 p-2 cursor-pointer hover:shadow-inset transition-all ${getRiskColor(
+                              likelihood,
+                              severity
+                            )} ${isSelected ? 'ring-2 ring-orange-600 ring-inset' : ''}`}
                           >
                             <div className="flex flex-col items-center justify-center h-full relative">
                               {cellRiskCount > 0 && (
@@ -537,8 +545,12 @@ export default function RiskMatrixClient() {
                     <p className="text-sm text-slate-900">{selectedRisk.owner}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-slate-700 uppercase">Residual Rating</p>
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mt-1 ${getRiskLevelBgColor(selectedRisk.residualRating)}`}>
+                    <p className="text-xs font-semibold text-slate-700 uppercase">
+                      Residual Rating
+                    </p>
+                    <span
+                      className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mt-1 ${getRiskLevelBgColor(selectedRisk.residualRating)}`}
+                    >
                       {selectedRisk.residualRating}
                     </span>
                   </div>
@@ -546,20 +558,26 @@ export default function RiskMatrixClient() {
 
                 {/* Risk Position */}
                 <div className="mb-4 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                  <p className="text-xs font-semibold text-orange-900 mb-2 uppercase">Risk Position</p>
+                  <p className="text-xs font-semibold text-orange-900 mb-2 uppercase">
+                    Risk Position
+                  </p>
                   <div className="text-xs text-orange-800">
                     <p>
-                      Inherent: {likelihoodLevels[selectedRisk.inherentLikelihood - 1]} × {severityLevels[selectedRisk.inherentSeverity - 1]}
+                      Inherent: {likelihoodLevels[selectedRisk.inherentLikelihood - 1]} ×{' '}
+                      {severityLevels[selectedRisk.inherentSeverity - 1]}
                     </p>
                     <p>
-                      Residual: {likelihoodLevels[selectedRisk.residualLikelihood - 1]} × {severityLevels[selectedRisk.residualSeverity - 1]}
+                      Residual: {likelihoodLevels[selectedRisk.residualLikelihood - 1]} ×{' '}
+                      {severityLevels[selectedRisk.residualSeverity - 1]}
                     </p>
                   </div>
                 </div>
 
                 {/* Controls */}
                 <div>
-                  <p className="text-xs font-semibold text-slate-700 uppercase mb-2">Controls in Place</p>
+                  <p className="text-xs font-semibold text-slate-700 uppercase mb-2">
+                    Controls in Place
+                  </p>
                   <ul className="space-y-1">
                     {selectedRisk.controls.map((control, idx) => (
                       <li key={idx} className="text-xs text-slate-700 flex items-start gap-2">
@@ -574,7 +592,8 @@ export default function RiskMatrixClient() {
               <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6 sticky top-8">
                 <div className="flex items-start justify-between mb-4">
                   <h3 className="text-lg font-bold text-slate-900">
-                    {likelihoodLevels[selectedCell.likelihood - 1]} × {severityLevels[selectedCell.severity - 1]}
+                    {likelihoodLevels[selectedCell.likelihood - 1]} ×{' '}
+                    {severityLevels[selectedCell.severity - 1]}
                   </h3>
                   <button
                     onClick={() => setSelectedCell(null)}
@@ -584,7 +603,9 @@ export default function RiskMatrixClient() {
                   </button>
                 </div>
 
-                <div className={`p-3 rounded-lg mb-4 ${getRiskColor(selectedCell.likelihood, selectedCell.severity)}`}>
+                <div
+                  className={`p-3 rounded-lg mb-4 ${getRiskColor(selectedCell.likelihood, selectedCell.severity)}`}
+                >
                   <p className="text-sm font-bold">
                     {getRiskLevel(selectedCell.likelihood, selectedCell.severity)} Risk
                   </p>

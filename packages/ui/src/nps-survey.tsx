@@ -65,7 +65,13 @@ export function NpsSurvey({ onSubmit, onDismiss, className }: NpsSurveyProps) {
           className="p-1 text-muted-foreground hover:text-foreground transition-colors rounded"
           aria-label="Dismiss survey"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -105,10 +111,12 @@ export function NpsSurvey({ onSubmit, onDismiss, className }: NpsSurveyProps) {
         {step === 'comment' && (
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <span className={cn(
-                'inline-flex items-center justify-center h-8 w-8 rounded-md text-xs font-bold text-white',
-                selectedScore !== null ? scoreColors[selectedScore] : ''
-              )}>
+              <span
+                className={cn(
+                  'inline-flex items-center justify-center h-8 w-8 rounded-md text-xs font-bold text-white',
+                  selectedScore !== null ? scoreColors[selectedScore] : ''
+                )}
+              >
                 {selectedScore}
               </span>
               <p className="text-sm text-foreground font-medium">
@@ -145,12 +153,20 @@ export function NpsSurvey({ onSubmit, onDismiss, className }: NpsSurveyProps) {
         {step === 'thanks' && (
           <div className="text-center py-4">
             <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/30 mb-3">
-              <svg className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg
+                className="h-6 w-6 text-green-600 dark:text-green-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <p className="text-sm font-semibold text-foreground">Thank you for your feedback!</p>
-            <p className="text-xs text-muted-foreground mt-1">Your response helps us improve Nexara.</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Your response helps us improve Nexara.
+            </p>
           </div>
         )}
       </div>

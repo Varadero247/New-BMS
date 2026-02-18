@@ -1,8 +1,37 @@
 'use client';
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea, AIDisclosure } from '@ims/ui';
-import { Plus, Lightbulb, Search, TrendingUp, Clock, CheckCircle, ArrowRight, Brain, Loader2, RefreshCw, AlertTriangle, BarChart3, Target, DollarSign } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
+  AIDisclosure,
+} from '@ims/ui';
+import {
+  Plus,
+  Lightbulb,
+  Search,
+  TrendingUp,
+  Clock,
+  CheckCircle,
+  ArrowRight,
+  Brain,
+  Loader2,
+  RefreshCw,
+  AlertTriangle,
+  BarChart3,
+  Target,
+  DollarSign,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -117,15 +146,24 @@ const statusColors: Record<string, string> = {
   BENEFITS_REALISED: 'bg-emerald-100 text-emerald-800',
 };
 
-const statusBadgeVariant = (status: string): 'secondary' | 'info' | 'default' | 'warning' | 'success' => {
+const statusBadgeVariant = (
+  status: string
+): 'secondary' | 'info' | 'default' | 'warning' | 'success' => {
   switch (status) {
-    case 'IDEA_SUBMITTED': return 'secondary';
-    case 'UNDER_EVALUATION': return 'info';
-    case 'APPROVED': return 'default';
-    case 'IN_PROGRESS': return 'warning';
-    case 'IMPLEMENTED': return 'success';
-    case 'BENEFITS_REALISED': return 'success';
-    default: return 'secondary';
+    case 'IDEA_SUBMITTED':
+      return 'secondary';
+    case 'UNDER_EVALUATION':
+      return 'info';
+    case 'APPROVED':
+      return 'default';
+    case 'IN_PROGRESS':
+      return 'warning';
+    case 'IMPLEMENTED':
+      return 'success';
+    case 'BENEFITS_REALISED':
+      return 'success';
+    default:
+      return 'secondary';
   }
 };
 
@@ -151,10 +189,14 @@ const pdcaColors: Record<string, string> = {
 
 function impactColor(level: string): string {
   switch (level) {
-    case 'HIGH': return 'text-red-600';
-    case 'MEDIUM': return 'text-amber-600';
-    case 'LOW': return 'text-green-600';
-    default: return 'text-gray-400';
+    case 'HIGH':
+      return 'text-red-600';
+    case 'MEDIUM':
+      return 'text-amber-600';
+    case 'LOW':
+      return 'text-green-600';
+    default:
+      return 'text-gray-400';
   }
 }
 
@@ -217,7 +259,8 @@ function calculatePriorityScore(form: typeof emptyForm): number {
   const savingBonus = form.estimatedSaving ? Math.min(Number(form.estimatedSaving) / 1000, 10) : 0;
   const costPenalty = form.estimatedCost ? Math.min(Number(form.estimatedCost) / 2000, 5) : 0;
 
-  const rawScore = (qImpact * 10) + (cImpact * 8) + (pImpact * 6) + (eImpact * 4) + savingBonus - costPenalty;
+  const rawScore =
+    qImpact * 10 + cImpact * 8 + pImpact * 6 + eImpact * 4 + savingBonus - costPenalty;
   return Math.max(0, Math.min(100, Math.round(rawScore)));
 }
 
@@ -249,7 +292,11 @@ export default function ImprovementsClient() {
   const [showDetail, setShowDetail] = useState(false);
 
   // AI Analysis
-  const [aiAnalysis, setAiAnalysis] = useState<AiAnalysis>({ loading: false, result: null, error: null });
+  const [aiAnalysis, setAiAnalysis] = useState<AiAnalysis>({
+    loading: false,
+    result: null,
+    error: null,
+  });
 
   // -------------------------------------------------------------------------
   // Data Loading
@@ -332,10 +379,18 @@ export default function ImprovementsClient() {
         customerImpact: improvement.customerImpact,
         status: improvement.status,
       });
-      setAiAnalysis({ loading: false, result: response.data.data?.analysis || 'No analysis available.', error: null });
+      setAiAnalysis({
+        loading: false,
+        result: response.data.data?.analysis || 'No analysis available.',
+        error: null,
+      });
     } catch (err) {
       console.error('AI analysis failed:', err);
-      setAiAnalysis({ loading: false, result: null, error: 'AI analysis failed. Please try again.' });
+      setAiAnalysis({
+        loading: false,
+        result: null,
+        error: 'AI analysis failed. Please try again.',
+      });
     }
   }
 
@@ -344,24 +399,28 @@ export default function ImprovementsClient() {
   // -------------------------------------------------------------------------
 
   const filtered = improvements
-    .filter(i => categoryFilter === 'all' || i.category === categoryFilter)
-    .filter(i => statusFilter === 'all' || i.status === statusFilter)
-    .filter(i => pdcaFilter === 'all' || i.pdcaStage === pdcaFilter)
-    .filter(i => sourceFilter === 'all' || i.source === sourceFilter)
-    .filter(i =>
-      !searchQuery ||
-      i.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      i.referenceNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      i.submittedBy?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      i.department?.toLowerCase().includes(searchQuery.toLowerCase())
+    .filter((i) => categoryFilter === 'all' || i.category === categoryFilter)
+    .filter((i) => statusFilter === 'all' || i.status === statusFilter)
+    .filter((i) => pdcaFilter === 'all' || i.pdcaStage === pdcaFilter)
+    .filter((i) => sourceFilter === 'all' || i.source === sourceFilter)
+    .filter(
+      (i) =>
+        !searchQuery ||
+        i.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        i.referenceNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        i.submittedBy?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        i.department?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-  const counts = useMemo(() => ({
-    total: improvements.length,
-    underEvaluation: improvements.filter(i => i.status === 'UNDER_EVALUATION').length,
-    inProgress: improvements.filter(i => i.status === 'IN_PROGRESS').length,
-    benefitsRealised: improvements.filter(i => i.status === 'BENEFITS_REALISED').length,
-  }), [improvements]);
+  const counts = useMemo(
+    () => ({
+      total: improvements.length,
+      underEvaluation: improvements.filter((i) => i.status === 'UNDER_EVALUATION').length,
+      inProgress: improvements.filter((i) => i.status === 'IN_PROGRESS').length,
+      benefitsRealised: improvements.filter((i) => i.status === 'BENEFITS_REALISED').length,
+    }),
+    [improvements]
+  );
 
   // -------------------------------------------------------------------------
   // Helpers
@@ -370,7 +429,11 @@ export default function ImprovementsClient() {
   function formatDate(dateStr: string | undefined | null): string {
     if (!dateStr) return '-';
     try {
-      return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      return new Date(dateStr).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
     } catch {
       return '-';
     }
@@ -378,7 +441,11 @@ export default function ImprovementsClient() {
 
   function formatCurrency(val: number | null | undefined): string {
     if (val == null) return '-';
-    return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 }).format(val);
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      maximumFractionDigits: 0,
+    }).format(val);
   }
 
   // Priority score computed live
@@ -417,8 +484,8 @@ export default function ImprovementsClient() {
                   isCurrent
                     ? 'bg-blue-600 text-white font-medium'
                     : isComplete
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
                 }`}
               >
                 {status.replace(/_/g, ' ')}
@@ -440,11 +507,19 @@ export default function ImprovementsClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Continual Improvement</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Track improvement ideas from submission to benefits realisation</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Continual Improvement
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Track improvement ideas from submission to benefits realisation
+            </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={loadImprovements} className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={loadImprovements}
+              className="flex items-center gap-2"
+            >
               <RefreshCw className="h-4 w-4" />
               Refresh
             </Button>
@@ -510,7 +585,9 @@ export default function ImprovementsClient() {
               <AlertTriangle className="h-5 w-5" />
               <span>{error}</span>
             </div>
-            <Button variant="outline" size="sm" onClick={loadImprovements}>Retry</Button>
+            <Button variant="outline" size="sm" onClick={loadImprovements}>
+              Retry
+            </Button>
           </div>
         )}
 
@@ -519,12 +596,15 @@ export default function ImprovementsClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Search</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Search
+                </Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
-                    aria-label="Search by title, reference, submitter..." placeholder="Search by title, reference, submitter..."
+                    aria-label="Search by title, reference, submitter..."
+                    placeholder="Search by title, reference, submitter..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -532,38 +612,54 @@ export default function ImprovementsClient() {
                 </div>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Category</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Category
+                </Label>
                 <Select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
                   <option value="all">All Categories</option>
-                  {CATEGORIES.map(c => (
-                    <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Status</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Status
+                </Label>
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">All Statuses</option>
-                  {STATUSES.map(s => (
-                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                  {STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
               <div className="min-w-[120px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">PDCA Stage</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  PDCA Stage
+                </Label>
                 <Select value={pdcaFilter} onChange={(e) => setPdcaFilter(e.target.value)}>
                   <option value="all">All</option>
-                  {PDCA_STAGES.map(s => (
-                    <option key={s} value={s}>{s}</option>
+                  {PDCA_STAGES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
                   ))}
                 </Select>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Source</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Source
+                </Label>
                 <Select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)}>
                   <option value="all">All Sources</option>
-                  {SOURCES.map(s => (
-                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                  {SOURCES.map((s) => (
+                    <option key={s} value={s}>
+                      {s.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -584,7 +680,7 @@ export default function ImprovementsClient() {
           <CardContent>
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3, 4, 5].map(i => (
+                {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="h-28 bg-gray-200 rounded" />
                 ))}
               </div>
@@ -600,15 +696,29 @@ export default function ImprovementsClient() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
                           {imp.referenceNumber && (
-                            <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{imp.referenceNumber}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                              {imp.referenceNumber}
+                            </span>
                           )}
-                          <Badge className={categoryColors[imp.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+                          <Badge
+                            className={
+                              categoryColors[imp.category] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
                             {imp.category?.replace(/_/g, ' ')}
                           </Badge>
-                          <Badge className={statusColors[imp.status] || 'bg-gray-100 dark:bg-gray-800'}>
+                          <Badge
+                            className={statusColors[imp.status] || 'bg-gray-100 dark:bg-gray-800'}
+                          >
                             {imp.status?.replace(/_/g, ' ')}
                           </Badge>
-                          <Badge className={pdcaColors[imp.pdcaStage] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+                          <Badge
+                            className={
+                              pdcaColors[imp.pdcaStage] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
                             {imp.pdcaStage}
                           </Badge>
                           {imp.priorityScore != null && (
@@ -617,8 +727,12 @@ export default function ImprovementsClient() {
                             </Badge>
                           )}
                         </div>
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{imp.title}</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{imp.description}</p>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                          {imp.title}
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                          {imp.description}
+                        </p>
                         <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 dark:text-gray-500 flex-wrap">
                           {imp.submittedBy && <span>By: {imp.submittedBy}</span>}
                           {imp.department && <span>Dept: {imp.department}</span>}
@@ -632,10 +746,14 @@ export default function ImprovementsClient() {
                       </div>
                       <div className="text-sm text-gray-400 dark:text-gray-500 text-right ml-4 shrink-0">
                         {imp.estimatedSaving != null && imp.estimatedSaving > 0 && (
-                          <div className="text-green-600 font-medium">{formatCurrency(imp.estimatedSaving)}</div>
+                          <div className="text-green-600 font-medium">
+                            {formatCurrency(imp.estimatedSaving)}
+                          </div>
                         )}
                         {imp.estimatedCost != null && imp.estimatedCost > 0 && (
-                          <div className="text-xs text-gray-400 dark:text-gray-500">Cost: {formatCurrency(imp.estimatedCost)}</div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500">
+                            Cost: {formatCurrency(imp.estimatedCost)}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -645,18 +763,28 @@ export default function ImprovementsClient() {
             ) : (
               <div className="text-center py-16">
                 <Lightbulb className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No improvement ideas found</h3>
+                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">
+                  No improvement ideas found
+                </h3>
                 <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
-                  {searchQuery || categoryFilter !== 'all' || statusFilter !== 'all' || pdcaFilter !== 'all' || sourceFilter !== 'all'
+                  {searchQuery ||
+                  categoryFilter !== 'all' ||
+                  statusFilter !== 'all' ||
+                  pdcaFilter !== 'all' ||
+                  sourceFilter !== 'all'
                     ? 'Try adjusting your filters or search query.'
                     : 'Get started by submitting your first improvement idea.'}
                 </p>
-                {!searchQuery && categoryFilter === 'all' && statusFilter === 'all' && pdcaFilter === 'all' && sourceFilter === 'all' && (
-                  <Button onClick={openCreateModal} className="flex items-center gap-2 mx-auto">
-                    <Plus className="h-4 w-4" />
-                    Submit First Idea
-                  </Button>
-                )}
+                {!searchQuery &&
+                  categoryFilter === 'all' &&
+                  statusFilter === 'all' &&
+                  pdcaFilter === 'all' &&
+                  sourceFilter === 'all' && (
+                    <Button onClick={openCreateModal} className="flex items-center gap-2 mx-auto">
+                      <Plus className="h-4 w-4" />
+                      Submit First Idea
+                    </Button>
+                  )}
               </div>
             )}
           </CardContent>
@@ -666,7 +794,12 @@ export default function ImprovementsClient() {
       {/* ================================================================= */}
       {/* CREATE MODAL                                                      */}
       {/* ================================================================= */}
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Submit Improvement Idea" size="full">
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title="Submit Improvement Idea"
+        size="full"
+      >
         <form onSubmit={handleSubmit}>
           {/* Section Navigation */}
           <div className="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
@@ -694,14 +827,16 @@ export default function ImprovementsClient() {
             {/* Section A: Improvement Idea */}
             {activeSection === 'idea' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Improvement Idea</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                  Improvement Idea
+                </h3>
 
                 <div>
                   <Label htmlFor="imp-title">Title *</Label>
                   <Input
                     id="imp-title"
                     value={form.title}
-                    onChange={e => setForm({ ...form, title: e.target.value })}
+                    onChange={(e) => setForm({ ...form, title: e.target.value })}
                     required
                     placeholder="Brief title for the improvement idea"
                   />
@@ -710,17 +845,29 @@ export default function ImprovementsClient() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="imp-category">Category *</Label>
-                    <Select id="imp-category" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
-                      {CATEGORIES.map(c => (
-                        <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>
+                    <Select
+                      id="imp-category"
+                      value={form.category}
+                      onChange={(e) => setForm({ ...form, category: e.target.value })}
+                    >
+                      {CATEGORIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c.replace(/_/g, ' ')}
+                        </option>
                       ))}
                     </Select>
                   </div>
                   <div>
                     <Label htmlFor="imp-source">Source</Label>
-                    <Select id="imp-source" value={form.source} onChange={e => setForm({ ...form, source: e.target.value })}>
-                      {SOURCES.map(s => (
-                        <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                    <Select
+                      id="imp-source"
+                      value={form.source}
+                      onChange={(e) => setForm({ ...form, source: e.target.value })}
+                    >
+                      {SOURCES.map((s) => (
+                        <option key={s} value={s}>
+                          {s.replace(/_/g, ' ')}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -729,17 +876,32 @@ export default function ImprovementsClient() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="imp-submittedBy">Submitted By</Label>
-                    <Input id="imp-submittedBy" value={form.submittedBy} onChange={e => setForm({ ...form, submittedBy: e.target.value })} placeholder="Your name" />
+                    <Input
+                      id="imp-submittedBy"
+                      value={form.submittedBy}
+                      onChange={(e) => setForm({ ...form, submittedBy: e.target.value })}
+                      placeholder="Your name"
+                    />
                   </div>
                   <div>
                     <Label htmlFor="imp-department">Department</Label>
-                    <Input id="imp-department" value={form.department} onChange={e => setForm({ ...form, department: e.target.value })} placeholder="e.g. Production, Quality" />
+                    <Input
+                      id="imp-department"
+                      value={form.department}
+                      onChange={(e) => setForm({ ...form, department: e.target.value })}
+                      placeholder="e.g. Production, Quality"
+                    />
                   </div>
                 </div>
 
                 <div>
                   <Label htmlFor="imp-dateSubmitted">Date Submitted</Label>
-                  <Input id="imp-dateSubmitted" type="date" value={form.dateSubmitted} onChange={e => setForm({ ...form, dateSubmitted: e.target.value })} />
+                  <Input
+                    id="imp-dateSubmitted"
+                    type="date"
+                    value={form.dateSubmitted}
+                    onChange={(e) => setForm({ ...form, dateSubmitted: e.target.value })}
+                  />
                 </div>
 
                 <div>
@@ -747,7 +909,7 @@ export default function ImprovementsClient() {
                   <Textarea
                     id="imp-description"
                     value={form.description}
-                    onChange={e => setForm({ ...form, description: e.target.value })}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
                     rows={3}
                     required
                     placeholder="Describe the improvement opportunity"
@@ -759,7 +921,7 @@ export default function ImprovementsClient() {
                   <Textarea
                     id="imp-currentState"
                     value={form.currentState}
-                    onChange={e => setForm({ ...form, currentState: e.target.value })}
+                    onChange={(e) => setForm({ ...form, currentState: e.target.value })}
                     rows={3}
                     placeholder="Describe the current situation or problem"
                   />
@@ -770,7 +932,7 @@ export default function ImprovementsClient() {
                   <Textarea
                     id="imp-proposedSolution"
                     value={form.proposedSolution}
-                    onChange={e => setForm({ ...form, proposedSolution: e.target.value })}
+                    onChange={(e) => setForm({ ...form, proposedSolution: e.target.value })}
                     rows={3}
                     placeholder="What improvement do you propose?"
                   />
@@ -781,7 +943,7 @@ export default function ImprovementsClient() {
                   <Textarea
                     id="imp-expectedBenefits"
                     value={form.expectedBenefits}
-                    onChange={e => setForm({ ...form, expectedBenefits: e.target.value })}
+                    onChange={(e) => setForm({ ...form, expectedBenefits: e.target.value })}
                     rows={2}
                     placeholder="What benefits are expected from this improvement?"
                   />
@@ -792,7 +954,9 @@ export default function ImprovementsClient() {
             {/* Section B: Impact Assessment */}
             {activeSection === 'impact' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Impact Assessment</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                  Impact Assessment
+                </h3>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -803,7 +967,7 @@ export default function ImprovementsClient() {
                       min="0"
                       step="100"
                       value={form.estimatedCost}
-                      onChange={e => setForm({ ...form, estimatedCost: e.target.value })}
+                      onChange={(e) => setForm({ ...form, estimatedCost: e.target.value })}
                       placeholder="0.00"
                     />
                   </div>
@@ -815,7 +979,7 @@ export default function ImprovementsClient() {
                       min="0"
                       step="100"
                       value={form.estimatedSaving}
-                      onChange={e => setForm({ ...form, estimatedSaving: e.target.value })}
+                      onChange={(e) => setForm({ ...form, estimatedSaving: e.target.value })}
                       placeholder="0.00"
                     />
                   </div>
@@ -826,7 +990,7 @@ export default function ImprovementsClient() {
                   <Input
                     id="imp-estimatedTime"
                     value={form.estimatedTime}
-                    onChange={e => setForm({ ...form, estimatedTime: e.target.value })}
+                    onChange={(e) => setForm({ ...form, estimatedTime: e.target.value })}
                     placeholder="e.g. 2 weeks, 3 months"
                   />
                 </div>
@@ -834,33 +998,57 @@ export default function ImprovementsClient() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="imp-qualityImpact">Quality Impact</Label>
-                    <Select id="imp-qualityImpact" value={form.qualityImpact} onChange={e => setForm({ ...form, qualityImpact: e.target.value })}>
-                      {IMPACT_LEVELS.map(l => (
-                        <option key={l} value={l}>{l}</option>
+                    <Select
+                      id="imp-qualityImpact"
+                      value={form.qualityImpact}
+                      onChange={(e) => setForm({ ...form, qualityImpact: e.target.value })}
+                    >
+                      {IMPACT_LEVELS.map((l) => (
+                        <option key={l} value={l}>
+                          {l}
+                        </option>
                       ))}
                     </Select>
                   </div>
                   <div>
                     <Label htmlFor="imp-customerImpact">Customer Impact</Label>
-                    <Select id="imp-customerImpact" value={form.customerImpact} onChange={e => setForm({ ...form, customerImpact: e.target.value })}>
-                      {IMPACT_LEVELS.map(l => (
-                        <option key={l} value={l}>{l}</option>
+                    <Select
+                      id="imp-customerImpact"
+                      value={form.customerImpact}
+                      onChange={(e) => setForm({ ...form, customerImpact: e.target.value })}
+                    >
+                      {IMPACT_LEVELS.map((l) => (
+                        <option key={l} value={l}>
+                          {l}
+                        </option>
                       ))}
                     </Select>
                   </div>
                   <div>
                     <Label htmlFor="imp-processImpact">Process Impact</Label>
-                    <Select id="imp-processImpact" value={form.processImpact} onChange={e => setForm({ ...form, processImpact: e.target.value })}>
-                      {IMPACT_LEVELS.map(l => (
-                        <option key={l} value={l}>{l}</option>
+                    <Select
+                      id="imp-processImpact"
+                      value={form.processImpact}
+                      onChange={(e) => setForm({ ...form, processImpact: e.target.value })}
+                    >
+                      {IMPACT_LEVELS.map((l) => (
+                        <option key={l} value={l}>
+                          {l}
+                        </option>
                       ))}
                     </Select>
                   </div>
                   <div>
                     <Label htmlFor="imp-environmentalImpact">Environmental Impact</Label>
-                    <Select id="imp-environmentalImpact" value={form.environmentalImpact} onChange={e => setForm({ ...form, environmentalImpact: e.target.value })}>
-                      {IMPACT_LEVELS.map(l => (
-                        <option key={l} value={l}>{l}</option>
+                    <Select
+                      id="imp-environmentalImpact"
+                      value={form.environmentalImpact}
+                      onChange={(e) => setForm({ ...form, environmentalImpact: e.target.value })}
+                    >
+                      {IMPACT_LEVELS.map((l) => (
+                        <option key={l} value={l}>
+                          {l}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -870,8 +1058,12 @@ export default function ImprovementsClient() {
                 <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Priority Score (auto-calculated)</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Based on impact assessments, cost, and savings</p>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Priority Score (auto-calculated)
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Based on impact assessments, cost, and savings
+                      </p>
                     </div>
                     <Badge className={`text-lg px-4 py-1 ${priorityColor(liveScore)}`}>
                       {liveScore}
@@ -880,8 +1072,11 @@ export default function ImprovementsClient() {
                   <div className="mt-3 w-full bg-gray-200 rounded-full h-2">
                     <div
                       className={`h-2 rounded-full transition-all ${
-                        liveScore >= 80 ? 'bg-red-500' :
-                        liveScore >= 50 ? 'bg-amber-500' : 'bg-green-500'
+                        liveScore >= 80
+                          ? 'bg-red-500'
+                          : liveScore >= 50
+                            ? 'bg-amber-500'
+                            : 'bg-green-500'
                       }`}
                       style={{ width: `${liveScore}%` }}
                     />
@@ -893,13 +1088,21 @@ export default function ImprovementsClient() {
             {/* Section C: Evaluation */}
             {activeSection === 'evaluation' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Evaluation & Approval</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                  Evaluation & Approval
+                </h3>
 
                 <div>
                   <Label htmlFor="imp-status">Status</Label>
-                  <Select id="imp-status" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
-                    {STATUSES.map(s => (
-                      <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                  <Select
+                    id="imp-status"
+                    value={form.status}
+                    onChange={(e) => setForm({ ...form, status: e.target.value })}
+                  >
+                    {STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {s.replace(/_/g, ' ')}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -909,7 +1112,7 @@ export default function ImprovementsClient() {
                   <Textarea
                     id="imp-evaluationNotes"
                     value={form.evaluationNotes}
-                    onChange={e => setForm({ ...form, evaluationNotes: e.target.value })}
+                    onChange={(e) => setForm({ ...form, evaluationNotes: e.target.value })}
                     rows={4}
                     placeholder="Notes from evaluation review"
                   />
@@ -918,23 +1121,39 @@ export default function ImprovementsClient() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="imp-approvedBy">Approved By</Label>
-                    <Input id="imp-approvedBy" value={form.approvedBy} onChange={e => setForm({ ...form, approvedBy: e.target.value })} placeholder="Approver name" />
+                    <Input
+                      id="imp-approvedBy"
+                      value={form.approvedBy}
+                      onChange={(e) => setForm({ ...form, approvedBy: e.target.value })}
+                      placeholder="Approver name"
+                    />
                   </div>
                   <div>
                     <Label htmlFor="imp-approvalDate">Approval Date</Label>
-                    <Input id="imp-approvalDate" type="date" value={form.approvalDate} onChange={e => setForm({ ...form, approvalDate: e.target.value })} />
+                    <Input
+                      id="imp-approvalDate"
+                      type="date"
+                      value={form.approvalDate}
+                      onChange={(e) => setForm({ ...form, approvalDate: e.target.value })}
+                    />
                   </div>
                 </div>
 
                 <div>
                   <Label htmlFor="imp-pdcaStage">PDCA Stage</Label>
-                  <Select id="imp-pdcaStage" value={form.pdcaStage} onChange={e => setForm({ ...form, pdcaStage: e.target.value })}>
-                    {PDCA_STAGES.map(s => (
-                      <option key={s} value={s}>{s}</option>
+                  <Select
+                    id="imp-pdcaStage"
+                    value={form.pdcaStage}
+                    onChange={(e) => setForm({ ...form, pdcaStage: e.target.value })}
+                  >
+                    {PDCA_STAGES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
                     ))}
                   </Select>
                   <div className="flex gap-2 mt-2">
-                    {PDCA_STAGES.map(stage => (
+                    {PDCA_STAGES.map((stage) => (
                       <button
                         key={stage}
                         type="button"
@@ -956,14 +1175,16 @@ export default function ImprovementsClient() {
             {/* Section D: Implementation */}
             {activeSection === 'implementation' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Implementation</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                  Implementation
+                </h3>
 
                 <div>
                   <Label htmlFor="imp-linkedActions">Linked Actions</Label>
                   <Textarea
                     id="imp-linkedActions"
                     value={form.linkedActions}
-                    onChange={e => setForm({ ...form, linkedActions: e.target.value })}
+                    onChange={(e) => setForm({ ...form, linkedActions: e.target.value })}
                     rows={2}
                     placeholder="Reference numbers of linked actions or CAPAs"
                   />
@@ -972,7 +1193,9 @@ export default function ImprovementsClient() {
                 <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                   <div>
                     <p className="font-medium text-gray-900 dark:text-gray-100">Pilot Required</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Does this improvement require a pilot before full implementation?</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Does this improvement require a pilot before full implementation?
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -995,7 +1218,7 @@ export default function ImprovementsClient() {
                     <Textarea
                       id="imp-pilotResults"
                       value={form.pilotResults}
-                      onChange={e => setForm({ ...form, pilotResults: e.target.value })}
+                      onChange={(e) => setForm({ ...form, pilotResults: e.target.value })}
                       rows={3}
                       placeholder="Results and findings from the pilot"
                     />
@@ -1005,27 +1228,52 @@ export default function ImprovementsClient() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="imp-implementationDate">Implementation Date</Label>
-                    <Input id="imp-implementationDate" type="date" value={form.implementationDate} onChange={e => setForm({ ...form, implementationDate: e.target.value })} />
+                    <Input
+                      id="imp-implementationDate"
+                      type="date"
+                      value={form.implementationDate}
+                      onChange={(e) => setForm({ ...form, implementationDate: e.target.value })}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="imp-implementedBy">Implemented By</Label>
-                    <Input id="imp-implementedBy" value={form.implementedBy} onChange={e => setForm({ ...form, implementedBy: e.target.value })} placeholder="Who implemented this?" />
+                    <Input
+                      id="imp-implementedBy"
+                      value={form.implementedBy}
+                      onChange={(e) => setForm({ ...form, implementedBy: e.target.value })}
+                      placeholder="Who implemented this?"
+                    />
                   </div>
                 </div>
 
                 <div>
                   <Label htmlFor="imp-kpiToMeasure">KPI to Measure</Label>
-                  <Input id="imp-kpiToMeasure" value={form.kpiToMeasure} onChange={e => setForm({ ...form, kpiToMeasure: e.target.value })} placeholder="Key metric to track effectiveness" />
+                  <Input
+                    id="imp-kpiToMeasure"
+                    value={form.kpiToMeasure}
+                    onChange={(e) => setForm({ ...form, kpiToMeasure: e.target.value })}
+                    placeholder="Key metric to track effectiveness"
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="imp-baselineMetric">Baseline Metric</Label>
-                    <Input id="imp-baselineMetric" value={form.baselineMetric} onChange={e => setForm({ ...form, baselineMetric: e.target.value })} placeholder="Current baseline value" />
+                    <Input
+                      id="imp-baselineMetric"
+                      value={form.baselineMetric}
+                      onChange={(e) => setForm({ ...form, baselineMetric: e.target.value })}
+                      placeholder="Current baseline value"
+                    />
                   </div>
                   <div>
                     <Label htmlFor="imp-targetMetric">Target Metric</Label>
-                    <Input id="imp-targetMetric" value={form.targetMetric} onChange={e => setForm({ ...form, targetMetric: e.target.value })} placeholder="Target value to achieve" />
+                    <Input
+                      id="imp-targetMetric"
+                      value={form.targetMetric}
+                      onChange={(e) => setForm({ ...form, targetMetric: e.target.value })}
+                      placeholder="Target value to achieve"
+                    />
                   </div>
                 </div>
               </div>
@@ -1034,7 +1282,9 @@ export default function ImprovementsClient() {
             {/* Section E: Benefits Realisation */}
             {activeSection === 'benefits' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Benefits Realisation</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                  Benefits Realisation
+                </h3>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -1045,7 +1295,7 @@ export default function ImprovementsClient() {
                       min="0"
                       step="100"
                       value={form.actualCost}
-                      onChange={e => setForm({ ...form, actualCost: e.target.value })}
+                      onChange={(e) => setForm({ ...form, actualCost: e.target.value })}
                       placeholder="0.00"
                     />
                   </div>
@@ -1057,7 +1307,7 @@ export default function ImprovementsClient() {
                       min="0"
                       step="100"
                       value={form.actualSaving}
-                      onChange={e => setForm({ ...form, actualSaving: e.target.value })}
+                      onChange={(e) => setForm({ ...form, actualSaving: e.target.value })}
                       placeholder="0.00"
                     />
                   </div>
@@ -1068,7 +1318,7 @@ export default function ImprovementsClient() {
                   <Textarea
                     id="imp-qualityImprovement"
                     value={form.qualityImprovement}
-                    onChange={e => setForm({ ...form, qualityImprovement: e.target.value })}
+                    onChange={(e) => setForm({ ...form, qualityImprovement: e.target.value })}
                     rows={3}
                     placeholder="Describe measurable quality improvements"
                   />
@@ -1079,7 +1329,7 @@ export default function ImprovementsClient() {
                   <Textarea
                     id="imp-lessonsLearned"
                     value={form.lessonsLearned}
-                    onChange={e => setForm({ ...form, lessonsLearned: e.target.value })}
+                    onChange={(e) => setForm({ ...form, lessonsLearned: e.target.value })}
                     rows={3}
                     placeholder="Key takeaways and lessons from this improvement"
                   />
@@ -1088,7 +1338,9 @@ export default function ImprovementsClient() {
                 <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                   <div>
                     <p className="font-medium text-gray-900 dark:text-gray-100">Share Across IMS</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Share this improvement and lessons learned with other IMS modules</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Share this improvement and lessons learned with other IMS modules
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -1111,7 +1363,7 @@ export default function ImprovementsClient() {
           <ModalFooter>
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
-                {sections.findIndex(s => s.id === activeSection) + 1} / {sections.length}
+                {sections.findIndex((s) => s.id === activeSection) + 1} / {sections.length}
               </div>
               <div className="flex items-center gap-2">
                 {activeSection !== 'idea' && (
@@ -1119,19 +1371,21 @@ export default function ImprovementsClient() {
                     type="button"
                     variant="outline"
                     onClick={() => {
-                      const idx = sections.findIndex(s => s.id === activeSection);
+                      const idx = sections.findIndex((s) => s.id === activeSection);
                       if (idx > 0) setActiveSection(sections[idx - 1].id);
                     }}
                   >
                     Previous
                   </Button>
                 )}
-                <Button type="button" variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
+                <Button type="button" variant="outline" onClick={() => setShowModal(false)}>
+                  Cancel
+                </Button>
                 {activeSection !== 'benefits' ? (
                   <Button
                     type="button"
                     onClick={() => {
-                      const idx = sections.findIndex(s => s.id === activeSection);
+                      const idx = sections.findIndex((s) => s.id === activeSection);
                       if (idx < sections.length - 1) setActiveSection(sections[idx + 1].id);
                     }}
                   >
@@ -1151,12 +1405,19 @@ export default function ImprovementsClient() {
       {/* ================================================================= */}
       {/* DETAIL MODAL                                                      */}
       {/* ================================================================= */}
-      <Modal isOpen={showDetail} onClose={() => setShowDetail(false)} title={selectedImprovement?.title || 'Improvement Detail'} size="full">
+      <Modal
+        isOpen={showDetail}
+        onClose={() => setShowDetail(false)}
+        title={selectedImprovement?.title || 'Improvement Detail'}
+        size="full"
+      >
         {selectedImprovement && (
           <div className="max-h-[70vh] overflow-y-auto pr-2 space-y-6">
             {/* Status Pipeline */}
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Progress</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                Progress
+              </h3>
               <StatusPipeline currentStatus={selectedImprovement.status} />
             </div>
 
@@ -1173,7 +1434,11 @@ export default function ImprovementsClient() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Category</p>
-                  <Badge className={categoryColors[selectedImprovement.category] || 'bg-gray-100 dark:bg-gray-800'}>
+                  <Badge
+                    className={
+                      categoryColors[selectedImprovement.category] || 'bg-gray-100 dark:bg-gray-800'
+                    }
+                  >
                     {selectedImprovement.category?.replace(/_/g, ' ')}
                   </Badge>
                 </div>
@@ -1197,25 +1462,33 @@ export default function ImprovementsClient() {
               {selectedImprovement.description && (
                 <div className="mt-3">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Description</p>
-                  <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.description}</p>
+                  <p className="text-sm mt-1 whitespace-pre-wrap">
+                    {selectedImprovement.description}
+                  </p>
                 </div>
               )}
               {selectedImprovement.currentState && (
                 <div className="mt-3">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Current State</p>
-                  <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.currentState}</p>
+                  <p className="text-sm mt-1 whitespace-pre-wrap">
+                    {selectedImprovement.currentState}
+                  </p>
                 </div>
               )}
               {selectedImprovement.proposedSolution && (
                 <div className="mt-3">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Proposed Solution</p>
-                  <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.proposedSolution}</p>
+                  <p className="text-sm mt-1 whitespace-pre-wrap">
+                    {selectedImprovement.proposedSolution}
+                  </p>
                 </div>
               )}
               {selectedImprovement.expectedBenefits && (
                 <div className="mt-3">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Expected Benefits</p>
-                  <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.expectedBenefits}</p>
+                  <p className="text-sm mt-1 whitespace-pre-wrap">
+                    {selectedImprovement.expectedBenefits}
+                  </p>
                 </div>
               )}
             </div>
@@ -1229,11 +1502,15 @@ export default function ImprovementsClient() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Estimated Cost</p>
-                  <p className="text-sm font-medium">{formatCurrency(selectedImprovement.estimatedCost)}</p>
+                  <p className="text-sm font-medium">
+                    {formatCurrency(selectedImprovement.estimatedCost)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Estimated Saving</p>
-                  <p className="text-sm font-medium text-green-600">{formatCurrency(selectedImprovement.estimatedSaving)}</p>
+                  <p className="text-sm font-medium text-green-600">
+                    {formatCurrency(selectedImprovement.estimatedSaving)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Estimated Time</p>
@@ -1253,25 +1530,33 @@ export default function ImprovementsClient() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Quality Impact</p>
-                  <p className={`text-sm font-medium ${impactColor(selectedImprovement.qualityImpact)}`}>
+                  <p
+                    className={`text-sm font-medium ${impactColor(selectedImprovement.qualityImpact)}`}
+                  >
                     {selectedImprovement.qualityImpact || 'NONE'}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Customer Impact</p>
-                  <p className={`text-sm font-medium ${impactColor(selectedImprovement.customerImpact)}`}>
+                  <p
+                    className={`text-sm font-medium ${impactColor(selectedImprovement.customerImpact)}`}
+                  >
                     {selectedImprovement.customerImpact || 'NONE'}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Process Impact</p>
-                  <p className={`text-sm font-medium ${impactColor(selectedImprovement.processImpact)}`}>
+                  <p
+                    className={`text-sm font-medium ${impactColor(selectedImprovement.processImpact)}`}
+                  >
                     {selectedImprovement.processImpact || 'NONE'}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Environmental Impact</p>
-                  <p className={`text-sm font-medium ${impactColor(selectedImprovement.environmentalImpact)}`}>
+                  <p
+                    className={`text-sm font-medium ${impactColor(selectedImprovement.environmentalImpact)}`}
+                  >
                     {selectedImprovement.environmentalImpact || 'NONE'}
                   </p>
                 </div>
@@ -1287,13 +1572,22 @@ export default function ImprovementsClient() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Status</p>
-                  <Badge className={statusColors[selectedImprovement.status] || 'bg-gray-100 dark:bg-gray-800'}>
+                  <Badge
+                    className={
+                      statusColors[selectedImprovement.status] || 'bg-gray-100 dark:bg-gray-800'
+                    }
+                  >
                     {selectedImprovement.status?.replace(/_/g, ' ')}
                   </Badge>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">PDCA Stage</p>
-                  <Badge className={pdcaColors[selectedImprovement.pdcaStage] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+                  <Badge
+                    className={
+                      pdcaColors[selectedImprovement.pdcaStage] ||
+                      'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                    }
+                  >
                     {selectedImprovement.pdcaStage}
                   </Badge>
                 </div>
@@ -1309,7 +1603,9 @@ export default function ImprovementsClient() {
               {selectedImprovement.evaluationNotes && (
                 <div className="mt-3">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Evaluation Notes</p>
-                  <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.evaluationNotes}</p>
+                  <p className="text-sm mt-1 whitespace-pre-wrap">
+                    {selectedImprovement.evaluationNotes}
+                  </p>
                 </div>
               )}
             </div>
@@ -1355,7 +1651,9 @@ export default function ImprovementsClient() {
               {selectedImprovement.pilotResults && (
                 <div className="mt-3">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Pilot Results</p>
-                  <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.pilotResults}</p>
+                  <p className="text-sm mt-1 whitespace-pre-wrap">
+                    {selectedImprovement.pilotResults}
+                  </p>
                 </div>
               )}
             </div>
@@ -1369,46 +1667,89 @@ export default function ImprovementsClient() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Actual Cost</p>
-                  <p className="text-sm font-medium">{formatCurrency(selectedImprovement.actualCost)}</p>
-                  {selectedImprovement.actualCost != null && selectedImprovement.estimatedCost != null && selectedImprovement.estimatedCost > 0 && (
-                    <p className={`text-xs mt-1 ${
-                      selectedImprovement.actualCost <= selectedImprovement.estimatedCost ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {selectedImprovement.actualCost <= selectedImprovement.estimatedCost ? 'Under budget' : 'Over budget'} ({Math.round(((selectedImprovement.actualCost - selectedImprovement.estimatedCost) / selectedImprovement.estimatedCost) * 100)}%)
-                    </p>
-                  )}
+                  <p className="text-sm font-medium">
+                    {formatCurrency(selectedImprovement.actualCost)}
+                  </p>
+                  {selectedImprovement.actualCost != null &&
+                    selectedImprovement.estimatedCost != null &&
+                    selectedImprovement.estimatedCost > 0 && (
+                      <p
+                        className={`text-xs mt-1 ${
+                          selectedImprovement.actualCost <= selectedImprovement.estimatedCost
+                            ? 'text-green-600'
+                            : 'text-red-600'
+                        }`}
+                      >
+                        {selectedImprovement.actualCost <= selectedImprovement.estimatedCost
+                          ? 'Under budget'
+                          : 'Over budget'}{' '}
+                        (
+                        {Math.round(
+                          ((selectedImprovement.actualCost - selectedImprovement.estimatedCost) /
+                            selectedImprovement.estimatedCost) *
+                            100
+                        )}
+                        %)
+                      </p>
+                    )}
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Actual Saving</p>
-                  <p className="text-sm font-medium text-green-600">{formatCurrency(selectedImprovement.actualSaving)}</p>
-                  {selectedImprovement.actualSaving != null && selectedImprovement.estimatedSaving != null && selectedImprovement.estimatedSaving > 0 && (
-                    <p className={`text-xs mt-1 ${
-                      selectedImprovement.actualSaving >= selectedImprovement.estimatedSaving ? 'text-green-600' : 'text-amber-600'
-                    }`}>
-                      {Math.round((selectedImprovement.actualSaving / selectedImprovement.estimatedSaving) * 100)}% of target
-                    </p>
-                  )}
+                  <p className="text-sm font-medium text-green-600">
+                    {formatCurrency(selectedImprovement.actualSaving)}
+                  </p>
+                  {selectedImprovement.actualSaving != null &&
+                    selectedImprovement.estimatedSaving != null &&
+                    selectedImprovement.estimatedSaving > 0 && (
+                      <p
+                        className={`text-xs mt-1 ${
+                          selectedImprovement.actualSaving >= selectedImprovement.estimatedSaving
+                            ? 'text-green-600'
+                            : 'text-amber-600'
+                        }`}
+                      >
+                        {Math.round(
+                          (selectedImprovement.actualSaving / selectedImprovement.estimatedSaving) *
+                            100
+                        )}
+                        % of target
+                      </p>
+                    )}
                 </div>
               </div>
               {selectedImprovement.qualityImprovement && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Quality Improvement Achieved</p>
-                  <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.qualityImprovement}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Quality Improvement Achieved
+                  </p>
+                  <p className="text-sm mt-1 whitespace-pre-wrap">
+                    {selectedImprovement.qualityImprovement}
+                  </p>
                 </div>
               )}
               {selectedImprovement.lessonsLearned && (
                 <div className="mt-3">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Lessons Learned</p>
-                  <p className="text-sm mt-1 whitespace-pre-wrap">{selectedImprovement.lessonsLearned}</p>
+                  <p className="text-sm mt-1 whitespace-pre-wrap">
+                    {selectedImprovement.lessonsLearned}
+                  </p>
                 </div>
               )}
               <div className="mt-3">
-                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg inline-flex ${
-                  selectedImprovement.shareAcrossIms ? 'bg-green-50 text-green-700' : 'bg-gray-50 dark:bg-gray-800 text-gray-400'
-                }`}>
-                  <div className={`h-2 w-2 rounded-full ${selectedImprovement.shareAcrossIms ? 'bg-green-500' : 'bg-gray-300'}`} />
+                <div
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg inline-flex ${
+                    selectedImprovement.shareAcrossIms
+                      ? 'bg-green-50 text-green-700'
+                      : 'bg-gray-50 dark:bg-gray-800 text-gray-400'
+                  }`}
+                >
+                  <div
+                    className={`h-2 w-2 rounded-full ${selectedImprovement.shareAcrossIms ? 'bg-green-500' : 'bg-gray-300'}`}
+                  />
                   <span className="text-sm">
-                    {selectedImprovement.shareAcrossIms ? 'Shared across IMS' : 'Not shared across IMS'}
+                    {selectedImprovement.shareAcrossIms
+                      ? 'Shared across IMS'
+                      : 'Not shared across IMS'}
                   </span>
                 </div>
               </div>
@@ -1444,13 +1785,21 @@ export default function ImprovementsClient() {
               {aiAnalysis.loading && (
                 <div className="flex items-center gap-3 text-sm text-blue-600">
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>AI is evaluating feasibility, ROI, and generating implementation recommendations...</span>
+                  <span>
+                    AI is evaluating feasibility, ROI, and generating implementation
+                    recommendations...
+                  </span>
                 </div>
               )}
               {aiAnalysis.result && (
                 <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap bg-white dark:bg-gray-900 rounded-lg p-4 mt-2">
                   {aiAnalysis.result}
-                  <AIDisclosure variant="inline" provider="claude" analysisType="Improvement Analysis" confidence={0.85} />
+                  <AIDisclosure
+                    variant="inline"
+                    provider="claude"
+                    analysisType="Improvement Analysis"
+                    confidence={0.85}
+                  />
                 </div>
               )}
               {aiAnalysis.error && (
@@ -1459,13 +1808,18 @@ export default function ImprovementsClient() {
                 </div>
               )}
               {!aiAnalysis.loading && !aiAnalysis.result && !aiAnalysis.error && (
-                <p className="text-sm text-blue-600">Click &quot;Run Evaluation&quot; to get AI-powered feasibility analysis, ROI assessment, and implementation recommendations.</p>
+                <p className="text-sm text-blue-600">
+                  Click &quot;Run Evaluation&quot; to get AI-powered feasibility analysis, ROI
+                  assessment, and implementation recommendations.
+                </p>
               )}
             </div>
           </div>
         )}
         <ModalFooter>
-          <Button variant="outline" onClick={() => setShowDetail(false)}>Close</Button>
+          <Button variant="outline" onClick={() => setShowDetail(false)}>
+            Close
+          </Button>
         </ModalFooter>
       </Modal>
     </div>

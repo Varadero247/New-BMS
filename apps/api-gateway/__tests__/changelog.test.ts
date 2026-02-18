@@ -163,7 +163,12 @@ describe('Changelog Routes', () => {
     it('rejects invalid category', async () => {
       const res = await request(app)
         .post('/api/changelog')
-        .send({ title: 'Title', description: 'Details', category: 'invalid_cat', modules: ['quality'] });
+        .send({
+          title: 'Title',
+          description: 'Details',
+          category: 'invalid_cat',
+          modules: ['quality'],
+        });
       expect(res.status).toBe(400);
     });
 

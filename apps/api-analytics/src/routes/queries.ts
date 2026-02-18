@@ -82,8 +82,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list queries', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list queries' } });
+    logger.error('Failed to list queries', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list queries' },
+    });
   }
 });
 
@@ -96,7 +101,14 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = queryCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const data = parsed.data;
@@ -115,8 +127,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Query created', { id: query.id, name: query.name });
     res.status(201).json({ success: true, data: query });
   } catch (error: unknown) {
-    logger.error('Failed to create query', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create query' } });
+    logger.error('Failed to create query', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create query' },
+    });
   }
 });
 
@@ -130,7 +147,9 @@ router.post('/:id/execute', async (req: Request, res: Response) => {
 
     const query = await prisma.analyticsQuery.findFirst({ where: { id, deletedAt: null } as any });
     if (!query) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Query not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Query not found' } });
     }
 
     // Security guard: only SELECT / WITH (CTE) queries are permitted
@@ -155,10 +174,10 @@ router.post('/:id/execute', async (req: Request, res: Response) => {
     const cappedSql = `SELECT * FROM (${trimmedSql}) _q LIMIT 1000`;
 
     const startTime = Date.now();
-    const rows = await (prisma as any).$transaction(async (tx: any) => {
+    const rows = (await (prisma as any).$transaction(async (tx: any) => {
       await tx.$executeRawUnsafe(`SET LOCAL statement_timeout = '10s'`);
       return tx.$queryRawUnsafe(cappedSql);
-    }) as Record<string, unknown>[];
+    })) as Record<string, unknown>[];
     const executionMs = Date.now() - startTime;
 
     const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
@@ -176,8 +195,13 @@ router.post('/:id/execute', async (req: Request, res: Response) => {
     logger.info('Query executed', { id, executionMs, rowCount: results.rowCount });
     res.json({ success: true, data: { query: query.sql, results, executionMs } });
   } catch (error: unknown) {
-    logger.error('Failed to execute query', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to execute query' } });
+    logger.error('Failed to execute query', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to execute query' },
+    });
   }
 });
 
@@ -192,13 +216,19 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!query) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Query not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Query not found' } });
     }
 
     res.json({ success: true, data: query });
   } catch (error: unknown) {
-    logger.error('Failed to get query', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get query' } });
+    logger.error('Failed to get query', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get query' } });
   }
 });
 
@@ -210,14 +240,25 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsQuery.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsQuery.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Query not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Query not found' } });
     }
 
     const parsed = queryUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const updated = await prisma.analyticsQuery.update({
@@ -227,8 +268,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Failed to update query', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update query' } });
+    logger.error('Failed to update query', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update query' },
+    });
   }
 });
 
@@ -240,9 +286,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsQuery.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsQuery.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Query not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Query not found' } });
     }
 
     await prisma.analyticsQuery.update({
@@ -252,8 +302,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { message: 'Query deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete query', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete query' } });
+    logger.error('Failed to delete query', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete query' },
+    });
   }
 });
 

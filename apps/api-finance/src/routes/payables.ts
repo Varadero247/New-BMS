@@ -126,7 +126,9 @@ router.get('/suppliers', async (req: Request, res: Response) => {
   try {
     const authReq = req as AuthRequest;
     const { search, isActive, page = '1', limit = '20' } = req.query;
-    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * Math.max(1, parseInt(limit as string, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page as string, 10) || 1) - 1) *
+      Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
     const where: any = { deletedAt: null };
@@ -175,7 +177,10 @@ router.get('/suppliers', async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Failed to list suppliers', { error });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list suppliers' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list suppliers' },
+    });
   }
 });
 
@@ -196,13 +201,18 @@ router.get('/suppliers/:id', async (req: Request, res: Response) => {
     });
 
     if (!supplier) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     res.json({ success: true, data: supplier });
   } catch (error) {
     logger.error('Failed to get supplier', { error, id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get supplier' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get supplier' },
+    });
   }
 });
 
@@ -212,12 +222,22 @@ router.post('/suppliers', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = supplierCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const existing = await prisma.finSupplier.findUnique({ where: { code: parsed.data.code } });
     if (existing) {
-      return res.status(409).json({ success: false, error: { code: 'DUPLICATE', message: 'Supplier code already exists' } });
+      return res.status(409).json({
+        success: false,
+        error: { code: 'DUPLICATE', message: 'Supplier code already exists' },
+      });
     }
 
     const supplier = await prisma.finSupplier.create({
@@ -231,7 +251,10 @@ router.post('/suppliers', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: supplier });
   } catch (error) {
     logger.error('Failed to create supplier', { error });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create supplier' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create supplier' },
+    });
   }
 });
 
@@ -240,18 +263,32 @@ router.put('/suppliers/:id', async (req: Request, res: Response) => {
   try {
     const parsed = supplierUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.finSupplier.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.finSupplier.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     if (parsed.data.code && parsed.data.code !== existing.code) {
       const dup = await prisma.finSupplier.findUnique({ where: { code: parsed.data.code } });
       if (dup) {
-        return res.status(409).json({ success: false, error: { code: 'DUPLICATE', message: 'Supplier code already exists' } });
+        return res.status(409).json({
+          success: false,
+          error: { code: 'DUPLICATE', message: 'Supplier code already exists' },
+        });
       }
     }
 
@@ -264,16 +301,23 @@ router.put('/suppliers/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: supplier });
   } catch (error) {
     logger.error('Failed to update supplier', { error, id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update supplier' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update supplier' },
+    });
   }
 });
 
 // DELETE /suppliers/:id — Soft delete
 router.delete('/suppliers/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.finSupplier.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.finSupplier.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     // Check for unpaid bills
@@ -288,7 +332,10 @@ router.delete('/suppliers/:id', async (req: Request, res: Response) => {
     if (unpaidBills > 0) {
       return res.status(409).json({
         success: false,
-        error: { code: 'HAS_UNPAID_BILLS', message: `Cannot delete supplier with ${unpaidBills} unpaid bill(s)` },
+        error: {
+          code: 'HAS_UNPAID_BILLS',
+          message: `Cannot delete supplier with ${unpaidBills} unpaid bill(s)`,
+        },
       });
     }
 
@@ -301,7 +348,10 @@ router.delete('/suppliers/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { id: supplier.id, deleted: true } });
   } catch (error) {
     logger.error('Failed to delete supplier', { error, id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete supplier' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete supplier' },
+    });
   }
 });
 
@@ -313,7 +363,9 @@ router.delete('/suppliers/:id', async (req: Request, res: Response) => {
 router.get('/purchase-orders', async (req: Request, res: Response) => {
   try {
     const { status, supplierId, dateFrom, dateTo, search, page = '1', limit = '20' } = req.query;
-    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * Math.max(1, parseInt(limit as string, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page as string, 10) || 1) - 1) *
+      Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
     const where: any = { deletedAt: null };
@@ -363,7 +415,10 @@ router.get('/purchase-orders', async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Failed to list purchase orders', { error });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list purchase orders' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list purchase orders' },
+    });
   }
 });
 
@@ -379,13 +434,19 @@ router.get('/purchase-orders/:id', async (req: Request, res: Response) => {
     });
 
     if (!po) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Purchase order not found' },
+      });
     }
 
     res.json({ success: true, data: po });
   } catch (error) {
     logger.error('Failed to get purchase order', { error, id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get purchase order' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get purchase order' },
+    });
   }
 });
 
@@ -395,12 +456,23 @@ router.post('/purchase-orders', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = poCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const supplier = await prisma.finSupplier.findFirst({ where: { id: parsed.data.supplierId, deletedAt: null } as any });
+    const supplier = await prisma.finSupplier.findFirst({
+      where: { id: parsed.data.supplierId, deletedAt: null } as any,
+    });
     if (!supplier) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     // Calculate line totals
@@ -427,7 +499,9 @@ router.post('/purchase-orders', async (req: Request, res: Response) => {
         reference: generateReference('PO'),
         supplierId: parsed.data.supplierId,
         orderDate: new Date(parsed.data.orderDate as string),
-        expectedDate: parsed.data.expectedDate ? new Date(parsed.data.expectedDate as string) : null,
+        expectedDate: parsed.data.expectedDate
+          ? new Date(parsed.data.expectedDate as string)
+          : null,
         notes: parsed.data.notes || null,
         currency: parsed.data.currency || supplier.currency,
         subtotal: new Prisma.Decimal(subtotal.toFixed(2)),
@@ -446,7 +520,10 @@ router.post('/purchase-orders', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: po });
   } catch (error) {
     logger.error('Failed to create purchase order', { error });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create purchase order' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create purchase order' },
+    });
   }
 });
 
@@ -455,15 +532,30 @@ router.put('/purchase-orders/:id', async (req: Request, res: Response) => {
   try {
     const parsed = poUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.finPurchaseOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.finPurchaseOrder.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Purchase order not found' },
+      });
     }
     if (existing.status !== 'DRAFT') {
-      return res.status(400).json({ success: false, error: { code: 'NOT_EDITABLE', message: 'Only draft purchase orders can be updated' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'NOT_EDITABLE', message: 'Only draft purchase orders can be updated' },
+      });
     }
 
     const { lines, ...poData } = parsed.data;
@@ -471,7 +563,10 @@ router.put('/purchase-orders/:id', async (req: Request, res: Response) => {
 
     if (poData.supplierId) updateData.supplierId = poData.supplierId;
     if (poData.orderDate) updateData.orderDate = new Date(poData.orderDate as string);
-    if (poData.expectedDate !== undefined) updateData.expectedDate = poData.expectedDate ? new Date(poData.expectedDate as string) : null;
+    if (poData.expectedDate !== undefined)
+      updateData.expectedDate = poData.expectedDate
+        ? new Date(poData.expectedDate as string)
+        : null;
     if (poData.notes !== undefined) updateData.notes = poData.notes;
     if (poData.currency) updateData.currency = poData.currency;
 
@@ -517,7 +612,10 @@ router.put('/purchase-orders/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: po });
   } catch (error) {
     logger.error('Failed to update purchase order', { error, id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update purchase order' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update purchase order' },
+    });
   }
 });
 
@@ -525,12 +623,23 @@ router.put('/purchase-orders/:id', async (req: Request, res: Response) => {
 router.post('/purchase-orders/:id/approve', async (req: Request, res: Response) => {
   try {
     const authReq = req as AuthRequest;
-    const existing = await prisma.finPurchaseOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.finPurchaseOrder.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Purchase order not found' },
+      });
     }
     if (existing.status !== 'DRAFT' && existing.status !== 'PENDING_APPROVAL') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATUS', message: 'Purchase order cannot be approved in its current status' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_STATUS',
+          message: 'Purchase order cannot be approved in its current status',
+        },
+      });
     }
 
     const po = await prisma.finPurchaseOrder.update({
@@ -549,19 +658,33 @@ router.post('/purchase-orders/:id/approve', async (req: Request, res: Response) 
     res.json({ success: true, data: po });
   } catch (error) {
     logger.error('Failed to approve purchase order', { error, id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve purchase order' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve purchase order' },
+    });
   }
 });
 
 // POST /purchase-orders/:id/receive — Mark PO received
 router.post('/purchase-orders/:id/receive', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.finPurchaseOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.finPurchaseOrder.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Purchase order not found' },
+      });
     }
     if (existing.status !== 'APPROVED' && existing.status !== 'PARTIALLY_RECEIVED') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATUS', message: 'Only approved or partially received purchase orders can be marked as received' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_STATUS',
+          message: 'Only approved or partially received purchase orders can be marked as received',
+        },
+      });
     }
 
     const po = await prisma.finPurchaseOrder.update({
@@ -579,19 +702,33 @@ router.post('/purchase-orders/:id/receive', async (req: Request, res: Response) 
     res.json({ success: true, data: po });
   } catch (error) {
     logger.error('Failed to mark purchase order received', { error, id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to mark purchase order received' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to mark purchase order received' },
+    });
   }
 });
 
 // POST /purchase-orders/:id/cancel — Cancel PO
 router.post('/purchase-orders/:id/cancel', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.finPurchaseOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.finPurchaseOrder.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Purchase order not found' },
+      });
     }
     if (existing.status === 'CANCELLED' || existing.status === 'CLOSED') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATUS', message: 'Purchase order is already cancelled or closed' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_STATUS',
+          message: 'Purchase order is already cancelled or closed',
+        },
+      });
     }
 
     const po = await prisma.finPurchaseOrder.update({
@@ -606,7 +743,10 @@ router.post('/purchase-orders/:id/cancel', async (req: Request, res: Response) =
     res.json({ success: true, data: po });
   } catch (error) {
     logger.error('Failed to cancel purchase order', { error, id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to cancel purchase order' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to cancel purchase order' },
+    });
   }
 });
 
@@ -618,7 +758,9 @@ router.post('/purchase-orders/:id/cancel', async (req: Request, res: Response) =
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { status, supplierId, dateFrom, dateTo, search, page = '1', limit = '20' } = req.query;
-    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * Math.max(1, parseInt(limit as string, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page as string, 10) || 1) - 1) *
+      Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
     const where: any = { deletedAt: null };
@@ -667,12 +809,20 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Failed to list bills', { error });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list bills' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list bills' } });
   }
 });
 
 // GET /:id — Single bill with lines, supplier, payments
-const PAYABLES_RESERVED = new Set(['suppliers', 'purchase-orders', 'payments', 'aging', 'payment-run']);
+const PAYABLES_RESERVED = new Set([
+  'suppliers',
+  'purchase-orders',
+  'payments',
+  'aging',
+  'payment-run',
+]);
 router.get('/:id', async (req: Request, res: Response, next) => {
   if (PAYABLES_RESERVED.has(req.params.id)) return next('route');
   try {
@@ -686,13 +836,17 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!bill) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
     }
 
     res.json({ success: true, data: bill });
   } catch (error) {
     logger.error('Failed to get bill', { error, id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get bill' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get bill' } });
   }
 });
 
@@ -702,18 +856,34 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = billCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const supplier = await prisma.finSupplier.findFirst({ where: { id: parsed.data.supplierId, deletedAt: null } as any });
+    const supplier = await prisma.finSupplier.findFirst({
+      where: { id: parsed.data.supplierId, deletedAt: null } as any,
+    });
     if (!supplier) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     if (parsed.data.purchaseOrderId) {
-      const po = await prisma.finPurchaseOrder.findFirst({ where: { id: parsed.data.purchaseOrderId, deletedAt: null } as any });
+      const po = await prisma.finPurchaseOrder.findFirst({
+        where: { id: parsed.data.purchaseOrderId, deletedAt: null } as any,
+      });
       if (!po) {
-        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Purchase order not found' },
+        });
       }
     }
 
@@ -762,7 +932,10 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: bill });
   } catch (error) {
     logger.error('Failed to create bill', { error });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create bill' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create bill' },
+    });
   }
 });
 
@@ -772,22 +945,37 @@ router.put('/:id', async (req: Request, res: Response, next) => {
   try {
     const parsed = billUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.finBill.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.finBill.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
     }
     if (existing.status !== 'DRAFT') {
-      return res.status(400).json({ success: false, error: { code: 'NOT_EDITABLE', message: 'Only draft bills can be updated' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'NOT_EDITABLE', message: 'Only draft bills can be updated' },
+      });
     }
 
     const { lines, ...billData } = parsed.data;
     const updateData: Record<string, unknown> = {};
 
     if (billData.supplierId) updateData.supplierId = billData.supplierId;
-    if (billData.purchaseOrderId !== undefined) updateData.purchaseOrderId = billData.purchaseOrderId || null;
+    if (billData.purchaseOrderId !== undefined)
+      updateData.purchaseOrderId = billData.purchaseOrderId || null;
     if (billData.billDate) updateData.billDate = new Date(billData.billDate as string);
     if (billData.dueDate) updateData.dueDate = new Date(billData.dueDate as string);
     if (billData.supplierRef !== undefined) updateData.supplierRef = billData.supplierRef;
@@ -836,7 +1024,10 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     res.json({ success: true, data: bill });
   } catch (error) {
     logger.error('Failed to update bill', { error, id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update bill' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update bill' },
+    });
   }
 });
 
@@ -850,22 +1041,43 @@ router.post('/payments', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = paymentMadeCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const supplier = await prisma.finSupplier.findFirst({ where: { id: parsed.data.supplierId, deletedAt: null } as any });
+    const supplier = await prisma.finSupplier.findFirst({
+      where: { id: parsed.data.supplierId, deletedAt: null } as any,
+    });
     if (!supplier) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     let bill = null;
     if (parsed.data.billId) {
-      bill = await prisma.finBill.findFirst({ where: { id: parsed.data.billId, deletedAt: null } as any });
+      bill = await prisma.finBill.findFirst({
+        where: { id: parsed.data.billId, deletedAt: null } as any,
+      });
       if (!bill) {
-        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
       }
       if (bill.status === 'PAID' || bill.status === 'VOID' || bill.status === 'CANCELLED') {
-        return res.status(400).json({ success: false, error: { code: 'INVALID_STATUS', message: 'Cannot apply payment to a paid, void, or cancelled bill' } });
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'INVALID_STATUS',
+            message: 'Cannot apply payment to a paid, void, or cancelled bill',
+          },
+        });
       }
     }
 
@@ -883,7 +1095,16 @@ router.post('/payments', async (req: Request, res: Response) => {
       },
       include: {
         supplier: { select: { id: true, code: true, name: true } },
-        bill: { select: { id: true, reference: true, total: true, amountPaid: true, amountDue: true, status: true } },
+        bill: {
+          select: {
+            id: true,
+            reference: true,
+            total: true,
+            amountPaid: true,
+            amountDue: true,
+            status: true,
+          },
+        },
       },
     });
 
@@ -909,11 +1130,18 @@ router.post('/payments', async (req: Request, res: Response) => {
       });
     }
 
-    logger.info('Payment made recorded', { id: payment.id, reference: payment.reference, billId: parsed.data.billId });
+    logger.info('Payment made recorded', {
+      id: payment.id,
+      reference: payment.reference,
+      billId: parsed.data.billId,
+    });
     res.status(201).json({ success: true, data: payment });
   } catch (error) {
     logger.error('Failed to record payment', { error });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to record payment' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to record payment' },
+    });
   }
 });
 
@@ -921,7 +1149,9 @@ router.post('/payments', async (req: Request, res: Response) => {
 router.get('/payments', async (req: Request, res: Response) => {
   try {
     const { supplierId, dateFrom, dateTo, page = '1', limit = '20' } = req.query;
-    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * Math.max(1, parseInt(limit as string, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page as string, 10) || 1) - 1) *
+      Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
     const where: any = { deletedAt: null };
@@ -961,7 +1191,10 @@ router.get('/payments', async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Failed to list payments', { error });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list payments' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list payments' },
+    });
   }
 });
 
@@ -983,14 +1216,21 @@ router.get('/aging', async (_req: Request, res: Response) => {
         supplier: { select: { id: true, code: true, name: true } },
       },
       orderBy: { dueDate: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     const aging: {
       current: typeof bills;
       days31to60: typeof bills;
       days61to90: typeof bills;
       over90: typeof bills;
-      summary: { current: number; days31to60: number; days61to90: number; over90: number; total: number };
+      summary: {
+        current: number;
+        days31to60: number;
+        days61to90: number;
+        over90: number;
+        total: number;
+      };
     } = {
       current: [],
       days31to60: [],
@@ -1000,7 +1240,10 @@ router.get('/aging', async (_req: Request, res: Response) => {
     };
 
     for (const bill of bills) {
-      const daysOverdue = Math.max(0, Math.floor((now.getTime() - new Date(bill.dueDate).getTime()) / (1000 * 60 * 60 * 24)));
+      const daysOverdue = Math.max(
+        0,
+        Math.floor((now.getTime() - new Date(bill.dueDate).getTime()) / (1000 * 60 * 60 * 24))
+      );
       const due = Number(bill.amountDue);
 
       if (daysOverdue <= 30) {
@@ -1029,16 +1272,29 @@ router.get('/aging', async (_req: Request, res: Response) => {
     res.json({ success: true, data: aging });
   } catch (error) {
     logger.error('Failed to generate AP aging report', { error });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate AP aging report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate AP aging report' },
+    });
   }
 });
 
 // POST /payment-run — Payment run stub
 router.post('/payment-run', async (req: Request, res: Response) => {
   try {
-    const _schema = z.object({ asOfDate: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional() });
+    const _schema = z.object({
+      asOfDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+    });
     const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    if (!_parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+      });
     const { asOfDate } = _parsed.data;
     const cutoffDate = asOfDate ? new Date(asOfDate) : new Date();
 
@@ -1050,13 +1306,19 @@ router.post('/payment-run', async (req: Request, res: Response) => {
         amountDue: { gt: 0 },
       },
       include: {
-        supplier: { select: { id: true, code: true, name: true, currency: true, paymentTerms: true } },
+        supplier: {
+          select: { id: true, code: true, name: true, currency: true, paymentTerms: true },
+        },
       },
       orderBy: [{ supplier: { name: 'asc' } }, { dueDate: 'asc' }],
-      take: 1000});
+      take: 1000,
+    });
 
     // Group by supplier
-    const bySupplier: Record<string, { supplier: Record<string, unknown>; bills: typeof dueBills; totalDue: number }> = {};
+    const bySupplier: Record<
+      string,
+      { supplier: Record<string, unknown>; bills: typeof dueBills; totalDue: number }
+    > = {};
     for (const bill of dueBills) {
       const sid = bill.supplierId;
       if (!bySupplier[sid]) {
@@ -1092,7 +1354,10 @@ router.post('/payment-run', async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Failed to generate payment run', { error });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate payment run' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate payment run' },
+    });
   }
 });
 

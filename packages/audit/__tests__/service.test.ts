@@ -151,12 +151,7 @@ describe('AuditService', () => {
     it('should log a delete operation', async () => {
       mockPrisma.auditLog.create.mockResolvedValue({ id: 'log-123' });
 
-      await auditService.logDelete(
-        'User',
-        'user-123',
-        { name: 'John' },
-        { userId: 'admin-1' }
-      );
+      await auditService.logDelete('User', 'user-123', { name: 'John' }, { userId: 'admin-1' });
 
       const createCall = mockPrisma.auditLog.create.mock.calls[0][0];
       expect(createCall.data.action).toBe('DELETE');

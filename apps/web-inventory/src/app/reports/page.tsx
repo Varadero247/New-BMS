@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@ims/ui';
-import { BarChart3, TrendingUp, TrendingDown, Package, Warehouse, DollarSign, Download, Calendar } from 'lucide-react';
+import {
+  BarChart3,
+  TrendingUp,
+  TrendingDown,
+  Package,
+  Warehouse,
+  DollarSign,
+  Download,
+  Calendar,
+} from 'lucide-react';
 import { inventoryApi } from '@/lib/api';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import {
@@ -117,7 +126,7 @@ export default function ReportsPage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-32 bg-gray-200 rounded" />
             ))}
           </div>
@@ -131,32 +140,54 @@ export default function ReportsPage() {
   }
 
   const transactionTypeData = {
-    labels: reportData?.transactionSummary?.byType?.map(t => t.type.replace('_', ' ')) || [],
-    datasets: [{
-      data: reportData?.transactionSummary?.byType?.map(t => t.count) || [],
-      backgroundColor: [
-        '#10B981', '#DC2626', '#1E3A8A', '#F59E0B',
-        '#8B5CF6', '#EC4899', '#059669', '#F97316',
-        '#6366F1', '#10B981', '#0EA5E9'
-      ],
-    }],
+    labels: reportData?.transactionSummary?.byType?.map((t) => t.type.replace('_', ' ')) || [],
+    datasets: [
+      {
+        data: reportData?.transactionSummary?.byType?.map((t) => t.count) || [],
+        backgroundColor: [
+          '#10B981',
+          '#DC2626',
+          '#1E3A8A',
+          '#F59E0B',
+          '#8B5CF6',
+          '#EC4899',
+          '#059669',
+          '#F97316',
+          '#6366F1',
+          '#10B981',
+          '#0EA5E9',
+        ],
+      },
+    ],
   };
 
   const dailyTrendData = {
-    labels: reportData?.transactionSummary?.dailyTrend?.slice().reverse().map(d =>
-      new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    ) || [],
+    labels:
+      reportData?.transactionSummary?.dailyTrend
+        ?.slice()
+        .reverse()
+        .map((d) =>
+          new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        ) || [],
     datasets: [
       {
         label: 'Stock In',
-        data: reportData?.transactionSummary?.dailyTrend?.slice().reverse().map(d => Number(d.total_in)) || [],
+        data:
+          reportData?.transactionSummary?.dailyTrend
+            ?.slice()
+            .reverse()
+            .map((d) => Number(d.total_in)) || [],
         borderColor: '#10B981',
         backgroundColor: 'rgba(16, 185, 129, 0.1)',
         fill: true,
       },
       {
         label: 'Stock Out',
-        data: reportData?.transactionSummary?.dailyTrend?.slice().reverse().map(d => Number(d.total_out)) || [],
+        data:
+          reportData?.transactionSummary?.dailyTrend
+            ?.slice()
+            .reverse()
+            .map((d) => Number(d.total_out)) || [],
         borderColor: '#DC2626',
         backgroundColor: 'rgba(220, 38, 38, 0.1)',
         fill: true,
@@ -165,12 +196,14 @@ export default function ReportsPage() {
   };
 
   const warehouseData = {
-    labels: reportData?.warehouseBreakdown?.map(w => w.name) || [],
-    datasets: [{
-      label: 'Inventory Value ($)',
-      data: reportData?.warehouseBreakdown?.map(w => w.stats?.totalValue || 0) || [],
-      backgroundColor: '#0EA5E9',
-    }],
+    labels: reportData?.warehouseBreakdown?.map((w) => w.name) || [],
+    datasets: [
+      {
+        label: 'Inventory Value ($)',
+        data: reportData?.warehouseBreakdown?.map((w) => w.stats?.totalValue || 0) || [],
+        backgroundColor: '#0EA5E9',
+      },
+    ],
   };
 
   return (
@@ -179,8 +212,12 @@ export default function ReportsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Inventory Reports</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Analytics, turnover, aging, and valuation reports</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Inventory Reports
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Analytics, turnover, aging, and valuation reports
+            </p>
           </div>
           <div className="flex gap-3">
             <select
@@ -221,7 +258,9 @@ export default function ReportsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Stock</p>
-                  <p className="text-2xl font-bold">{(reportData?.summary?.totalQuantity || 0).toLocaleString()}</p>
+                  <p className="text-2xl font-bold">
+                    {(reportData?.summary?.totalQuantity || 0).toLocaleString()}
+                  </p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-full">
                   <Warehouse className="h-6 w-6 text-green-600" />
@@ -235,7 +274,9 @@ export default function ReportsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Inventory Value</p>
-                  <p className="text-2xl font-bold">${(reportData?.summary?.totalValue || 0).toLocaleString()}</p>
+                  <p className="text-2xl font-bold">
+                    ${(reportData?.summary?.totalValue || 0).toLocaleString()}
+                  </p>
                 </div>
                 <div className="p-3 bg-purple-100 rounded-full">
                   <DollarSign className="h-6 w-6 text-purple-600" />
@@ -248,8 +289,12 @@ export default function ReportsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Transactions ({dateRange}d)</p>
-                  <p className="text-2xl font-bold">{reportData?.transactionSummary?.totals?.totalTransactions || 0}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Transactions ({dateRange}d)
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {reportData?.transactionSummary?.totals?.totalTransactions || 0}
+                  </p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-full">
                   <BarChart3 className="h-6 w-6 text-blue-600" />
@@ -296,12 +341,24 @@ export default function ReportsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Net Change</p>
-                  <p className={`text-2xl font-bold ${
-                    (reportData?.transactionSummary?.totals?.totalIn || 0) - (reportData?.transactionSummary?.totals?.totalOut || 0) >= 0
-                      ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {((reportData?.transactionSummary?.totals?.totalIn || 0) - (reportData?.transactionSummary?.totals?.totalOut || 0)) >= 0 ? '+' : ''}
-                    {((reportData?.transactionSummary?.totals?.totalIn || 0) - (reportData?.transactionSummary?.totals?.totalOut || 0)).toLocaleString()}
+                  <p
+                    className={`text-2xl font-bold ${
+                      (reportData?.transactionSummary?.totals?.totalIn || 0) -
+                        (reportData?.transactionSummary?.totals?.totalOut || 0) >=
+                      0
+                        ? 'text-green-600'
+                        : 'text-red-600'
+                    }`}
+                  >
+                    {(reportData?.transactionSummary?.totals?.totalIn || 0) -
+                      (reportData?.transactionSummary?.totals?.totalOut || 0) >=
+                    0
+                      ? '+'
+                      : ''}
+                    {(
+                      (reportData?.transactionSummary?.totals?.totalIn || 0) -
+                      (reportData?.transactionSummary?.totals?.totalOut || 0)
+                    ).toLocaleString()}
                   </p>
                 </div>
                 <BarChart3 className="h-8 w-8 text-blue-500" />
@@ -411,14 +468,19 @@ export default function ReportsPage() {
               {reportData?.lowStockProducts && reportData.lowStockProducts.length > 0 ? (
                 <div className="space-y-3">
                   {reportData.lowStockProducts.map((product) => (
-                    <div key={product.id} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                    <div
+                      key={product.id}
+                      className="flex items-center justify-between p-3 bg-orange-50 rounded-lg"
+                    >
                       <div>
                         <p className="font-medium text-sm">{product.name}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{product.sku}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-orange-600">{product.totalStock}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">/ {product.reorderPoint} min</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          / {product.reorderPoint} min
+                        </p>
                       </div>
                     </div>
                   ))}

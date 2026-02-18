@@ -1,7 +1,21 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Input,
+  Badge,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '@ims/ui';
 import { Layers, Search, Warehouse, AlertTriangle, Package, Filter } from 'lucide-react';
 import { inventoryApi } from '@/lib/api';
 
@@ -79,7 +93,7 @@ export default function StockLevelsPage() {
     }
   }
 
-  const filteredInventory = inventory.filter(item => {
+  const filteredInventory = inventory.filter((item) => {
     if (!search) return true;
     const searchLower = search.toLowerCase();
     return (
@@ -117,7 +131,8 @@ export default function StockLevelsPage() {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  aria-label="Search by SKU, name, or bin location..." placeholder="Search by SKU, name, or bin location..."
+                  aria-label="Search by SKU, name, or bin location..."
+                  placeholder="Search by SKU, name, or bin location..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-10"
@@ -151,13 +166,14 @@ export default function StockLevelsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Layers className="h-5 w-5 text-sky-500" />
-              Stock Levels {selectedWarehouse && `- ${warehouses.find(w => w.id === selectedWarehouse)?.name}`}
+              Stock Levels{' '}
+              {selectedWarehouse && `- ${warehouses.find((w) => w.id === selectedWarehouse)?.name}`}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3, 4, 5].map(i => (
+                {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="h-12 bg-gray-200 rounded" />
                 ))}
               </div>
@@ -187,7 +203,9 @@ export default function StockLevelsPage() {
                           <TableCell>
                             <div>
                               <p className="font-medium">{item.product.name}</p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">{item.product.sku}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                                {item.product.sku}
+                              </p>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -207,7 +225,9 @@ export default function StockLevelsPage() {
                             {item.quantityOnHand.toLocaleString()}
                           </TableCell>
                           <TableCell className="text-right text-orange-600">
-                            {item.quantityReserved > 0 ? item.quantityReserved.toLocaleString() : '-'}
+                            {item.quantityReserved > 0
+                              ? item.quantityReserved.toLocaleString()
+                              : '-'}
                           </TableCell>
                           <TableCell className="text-right font-semibold text-green-600">
                             {item.quantityAvailable.toLocaleString()}
@@ -219,9 +239,7 @@ export default function StockLevelsPage() {
                             ${item.inventoryValue.toLocaleString()}
                           </TableCell>
                           <TableCell>
-                            <Badge variant={status.variant}>
-                              {status.label}
-                            </Badge>
+                            <Badge variant={status.variant}>{status.label}</Badge>
                           </TableCell>
                         </TableRow>
                       );
@@ -294,7 +312,10 @@ export default function StockLevelsPage() {
             <CardContent className="pt-6">
               <p className="text-sm text-gray-500 dark:text-gray-400">Low Stock Items</p>
               <p className="text-2xl font-bold text-orange-600">
-                {inventory.filter(item => item.quantityOnHand <= item.product.reorderPoint).length}
+                {
+                  inventory.filter((item) => item.quantityOnHand <= item.product.reorderPoint)
+                    .length
+                }
               </p>
             </CardContent>
           </Card>

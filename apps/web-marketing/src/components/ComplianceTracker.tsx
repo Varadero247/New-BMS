@@ -23,9 +23,27 @@ const complianceRows: ComplianceRow[] = [
 const heatmapColors: string[][] = [
   ['bg-warning-500/25', 'bg-critical/35', 'bg-critical/50', 'bg-critical/50', 'bg-critical/50'],
   ['bg-warning-500/25', 'bg-warning-500/35', 'bg-critical/35', 'bg-critical/50', 'bg-critical/50'],
-  ['bg-success-500/15', 'bg-warning-500/25', 'bg-warning-500/35', 'bg-critical/35', 'bg-critical/35'],
-  ['bg-success-500/15', 'bg-success-500/15', 'bg-warning-500/25', 'bg-warning-500/35', 'bg-critical/35'],
-  ['bg-success-500/15', 'bg-success-500/15', 'bg-success-500/15', 'bg-warning-500/25', 'bg-warning-500/25'],
+  [
+    'bg-success-500/15',
+    'bg-warning-500/25',
+    'bg-warning-500/35',
+    'bg-critical/35',
+    'bg-critical/35',
+  ],
+  [
+    'bg-success-500/15',
+    'bg-success-500/15',
+    'bg-warning-500/25',
+    'bg-warning-500/35',
+    'bg-critical/35',
+  ],
+  [
+    'bg-success-500/15',
+    'bg-success-500/15',
+    'bg-success-500/15',
+    'bg-warning-500/25',
+    'bg-warning-500/25',
+  ],
 ];
 
 const bullets = [
@@ -47,8 +65,8 @@ export default function ComplianceTracker() {
             Track every standard in real time
           </h2>
           <p className="text-gray-400 dark:text-gray-500 mt-4 max-w-md font-body leading-relaxed">
-            Nexara continuously monitors your compliance posture across every active standard.
-            No spreadsheets. No guesswork. Just a live, auditable view your whole team can trust.
+            Nexara continuously monitors your compliance posture across every active standard. No
+            spreadsheets. No guesswork. Just a live, auditable view your whole team can trust.
           </p>
 
           {/* Feature bullets */}

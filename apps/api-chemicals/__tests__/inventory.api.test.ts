@@ -3,14 +3,27 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    chemInventory: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    chemInventory: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
     chemRegister: { findFirst: jest.fn() },
     chemIncompatAlert: { create: jest.fn(), createMany: jest.fn() },
   },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/inventory';
 import { prisma } from '../src/prisma';
@@ -19,7 +32,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/inventory', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockChemical = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -43,7 +58,15 @@ const mockInventory = {
   maxStockLevel: 20,
   expiryDate: null,
   isActive: true,
-  chemical: { id: '00000000-0000-0000-0000-000000000001', productName: 'Acetone', casNumber: '67-64-1', storageClass: 'CLASS_3_FLAMMABLE_LIQUID', incompatibleWith: [], pictograms: [], signalWord: 'DANGER' },
+  chemical: {
+    id: '00000000-0000-0000-0000-000000000001',
+    productName: 'Acetone',
+    casNumber: '67-64-1',
+    storageClass: 'CLASS_3_FLAMMABLE_LIQUID',
+    incompatibleWith: [],
+    pictograms: [],
+    signalWord: 'DANGER',
+  },
 };
 
 const validInventoryBody = {
@@ -98,7 +121,10 @@ describe('GET /api/inventory', () => {
 
 describe('GET /api/inventory/:id', () => {
   it('should return a single inventory record', async () => {
-    (prisma as any).chemInventory.findFirst.mockResolvedValue({ ...mockInventory, usageRecords: [] });
+    (prisma as any).chemInventory.findFirst.mockResolvedValue({
+      ...mockInventory,
+      usageRecords: [],
+    });
 
     const res = await request(app).get('/api/inventory/00000000-0000-0000-0000-000000000030');
     expect(res.status).toBe(200);
@@ -210,7 +236,11 @@ describe('POST /api/inventory', () => {
 
   it('should check incompatibility and create alerts when storing incompatible chemicals', async () => {
     const chemWithIncompat = { ...mockChemical, incompatibleWith: ['7681-49-4'] };
-    const conflictingItem = { id: 'inv-2', location: 'Lab A - Cabinet 3', chemical: { productName: 'Sodium Fluoride', casNumber: '7681-49-4' } };
+    const conflictingItem = {
+      id: 'inv-2',
+      location: 'Lab A - Cabinet 3',
+      chemical: { productName: 'Sodium Fluoride', casNumber: '7681-49-4' },
+    };
     (prisma as any).chemRegister.findFirst.mockResolvedValue(chemWithIncompat);
     (prisma as any).chemInventory.findMany.mockResolvedValue([conflictingItem]);
     (prisma as any).chemIncompatAlert.createMany.mockResolvedValue({ count: 1 });
@@ -267,10 +297,12 @@ describe('POST /api/inventory', () => {
   it('should return 404 when chemical does not exist', async () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/inventory').send({
-      ...validInventoryBody,
-      chemicalId: '00000000-0000-0000-0000-000000000099',
-    });
+    const res = await request(app)
+      .post('/api/inventory')
+      .send({
+        ...validInventoryBody,
+        chemicalId: '00000000-0000-0000-0000-000000000099',
+      });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -291,7 +323,10 @@ describe('POST /api/inventory', () => {
 describe('PUT /api/inventory/:id', () => {
   it('should update an existing inventory record', async () => {
     (prisma as any).chemInventory.findFirst.mockResolvedValue(mockInventory);
-    (prisma as any).chemInventory.update.mockResolvedValue({ ...mockInventory, quantityOnhand: 10 });
+    (prisma as any).chemInventory.update.mockResolvedValue({
+      ...mockInventory,
+      quantityOnhand: 10,
+    });
 
     const res = await request(app).put('/api/inventory/00000000-0000-0000-0000-000000000030').send({
       quantityOnhand: 10,
@@ -328,11 +363,18 @@ describe('PUT /api/inventory/:id', () => {
 describe('POST /api/inventory/:id/inspect', () => {
   it('should record an inspection', async () => {
     (prisma as any).chemInventory.findFirst.mockResolvedValue(mockInventory);
-    (prisma as any).chemInventory.update.mockResolvedValue({ ...mockInventory, lastInspectedAt: new Date().toISOString(), inspectedBy: 'user-1', meetsStorageReqs: true });
-
-    const res = await request(app).post('/api/inventory/00000000-0000-0000-0000-000000000030/inspect').send({
+    (prisma as any).chemInventory.update.mockResolvedValue({
+      ...mockInventory,
+      lastInspectedAt: new Date().toISOString(),
+      inspectedBy: 'user-1',
       meetsStorageReqs: true,
     });
+
+    const res = await request(app)
+      .post('/api/inventory/00000000-0000-0000-0000-000000000030/inspect')
+      .send({
+        meetsStorageReqs: true,
+      });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect((prisma as any).chemInventory.update).toHaveBeenCalledWith(
@@ -348,12 +390,18 @@ describe('POST /api/inventory/:id/inspect', () => {
 
   it('should record inspection with storage issues', async () => {
     (prisma as any).chemInventory.findFirst.mockResolvedValue(mockInventory);
-    (prisma as any).chemInventory.update.mockResolvedValue({ ...mockInventory, meetsStorageReqs: false, storageIssues: 'Ventilation not working' });
-
-    const res = await request(app).post('/api/inventory/00000000-0000-0000-0000-000000000030/inspect').send({
+    (prisma as any).chemInventory.update.mockResolvedValue({
+      ...mockInventory,
       meetsStorageReqs: false,
       storageIssues: 'Ventilation not working',
     });
+
+    const res = await request(app)
+      .post('/api/inventory/00000000-0000-0000-0000-000000000030/inspect')
+      .send({
+        meetsStorageReqs: false,
+        storageIssues: 'Ventilation not working',
+      });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect((prisma as any).chemInventory.update).toHaveBeenCalledWith(
@@ -369,9 +417,11 @@ describe('POST /api/inventory/:id/inspect', () => {
   it('should return 404 when inventory record not found', async () => {
     (prisma as any).chemInventory.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/inventory/00000000-0000-0000-0000-000000000099/inspect').send({
-      meetsStorageReqs: true,
-    });
+    const res = await request(app)
+      .post('/api/inventory/00000000-0000-0000-0000-000000000099/inspect')
+      .send({
+        meetsStorageReqs: true,
+      });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -381,9 +431,11 @@ describe('POST /api/inventory/:id/inspect', () => {
     (prisma as any).chemInventory.findFirst.mockResolvedValue(mockInventory);
     (prisma as any).chemInventory.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).post('/api/inventory/00000000-0000-0000-0000-000000000030/inspect').send({
-      meetsStorageReqs: true,
-    });
+    const res = await request(app)
+      .post('/api/inventory/00000000-0000-0000-0000-000000000030/inspect')
+      .send({
+        meetsStorageReqs: true,
+      });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

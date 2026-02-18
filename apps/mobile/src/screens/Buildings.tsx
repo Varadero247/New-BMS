@@ -2,10 +2,38 @@ import { Search, Building, MapPin, Layers } from 'lucide-react';
 import { useState } from 'react';
 
 const buildings = [
-  { id: '1', name: 'Main Office', address: '123 Main St', floors: 5, devices: 124, status: 'online' },
-  { id: '2', name: 'Data Center', address: '456 Tech Ave', floors: 3, devices: 312, status: 'online' },
-  { id: '3', name: 'Warehouse', address: '789 Industrial', floors: 2, devices: 67, status: 'warning' },
-  { id: '4', name: 'Research Lab', address: '321 Innovation Dr', floors: 4, devices: 189, status: 'online' },
+  {
+    id: '1',
+    name: 'Main Office',
+    address: '123 Main St',
+    floors: 5,
+    devices: 124,
+    status: 'online',
+  },
+  {
+    id: '2',
+    name: 'Data Center',
+    address: '456 Tech Ave',
+    floors: 3,
+    devices: 312,
+    status: 'online',
+  },
+  {
+    id: '3',
+    name: 'Warehouse',
+    address: '789 Industrial',
+    floors: 2,
+    devices: 67,
+    status: 'warning',
+  },
+  {
+    id: '4',
+    name: 'Research Lab',
+    address: '321 Innovation Dr',
+    floors: 4,
+    devices: 189,
+    status: 'online',
+  },
 ];
 
 export default function BuildingsScreen() {

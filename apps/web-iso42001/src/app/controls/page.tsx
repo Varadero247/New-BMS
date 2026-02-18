@@ -42,63 +42,266 @@ interface Control {
 /* ------------------------------------------------------------------ */
 
 const annexAControls = [
-  { code: 'A.2', domain: 'AI_GOVERNANCE', label: 'Policies for AI', controls: [
-    { code: 'A.2.2', title: 'AI Policy', description: 'Establish and maintain an AI policy aligned with the organisation\'s objectives' },
-    { code: 'A.2.3', title: 'Roles and Responsibilities', description: 'Define and communicate AI-related roles, responsibilities and authorities' },
-    { code: 'A.2.4', title: 'Internal Audit', description: 'Plan and conduct internal audits of the AI management system' },
-  ]},
-  { code: 'A.3', domain: 'AI_GOVERNANCE', label: 'Internal Organisation', controls: [
-    { code: 'A.3.2', title: 'AI System Life Cycle', description: 'Establish processes for each stage of the AI system life cycle' },
-    { code: 'A.3.3', title: 'Third-party and Customer Relationships', description: 'Manage third-party and customer interactions involving AI systems' },
-    { code: 'A.3.4', title: 'AI System Inventory', description: 'Maintain an inventory of AI systems including their risk classifications' },
-    { code: 'A.3.5', title: 'Management Review of AI', description: 'Conduct management reviews of AI management system performance' },
-  ]},
-  { code: 'A.4', domain: 'AI_RESOURCES', label: 'Resources for AI Systems', controls: [
-    { code: 'A.4.2', title: 'Data Resources', description: 'Identify and manage data resources needed for AI systems' },
-    { code: 'A.4.3', title: 'Tooling', description: 'Determine and provide tools for AI system development and operation' },
-    { code: 'A.4.4', title: 'System and Computing Resources', description: 'Provide computing infrastructure for AI systems' },
-    { code: 'A.4.5', title: 'Human Resources', description: 'Ensure competence of personnel involved in AI systems' },
-    { code: 'A.4.6', title: 'Awareness and Training', description: 'Ensure AI-specific awareness and training programmes' },
-  ]},
-  { code: 'A.5', domain: 'AI_RISK', label: 'Assessing AI Impacts', controls: [
-    { code: 'A.5.2', title: 'AI Impact Assessment Process', description: 'Establish a process for conducting AI impact assessments' },
-    { code: 'A.5.3', title: 'Documentation of AI Impact Assessment', description: 'Document and maintain records of AI impact assessments' },
-    { code: 'A.5.4', title: 'AI Risk Assessment', description: 'Assess risks associated with AI systems systematically' },
-    { code: 'A.5.5', title: 'AI Risk Treatment', description: 'Determine and implement AI risk treatment options' },
-  ]},
-  { code: 'A.6', domain: 'AI_DEVELOPMENT', label: 'AI System Life Cycle', controls: [
-    { code: 'A.6.2.2', title: 'AI System Design and Development', description: 'Implement controls for AI system design and development activities' },
-    { code: 'A.6.2.3', title: 'AI System Data', description: 'Manage data used in AI system development ensuring quality and governance' },
-    { code: 'A.6.2.4', title: 'AI System Testing', description: 'Test and validate AI systems before deployment' },
-    { code: 'A.6.2.5', title: 'AI System Operation', description: 'Implement operational controls for deployed AI systems' },
-    { code: 'A.6.2.6', title: 'AI System Retirement', description: 'Plan and manage the retirement and decommissioning of AI systems' },
-    { code: 'A.6.2.7', title: 'AI System Documentation', description: 'Maintain comprehensive documentation for AI systems' },
-    { code: 'A.6.2.8', title: 'AI Model Performance', description: 'Monitor and evaluate AI model performance continuously' },
-  ]},
-  { code: 'A.7', domain: 'AI_DATA', label: 'Data for AI Systems', controls: [
-    { code: 'A.7.2', title: 'Data Provenance', description: 'Track and maintain records of data origin, lineage and transformations' },
-    { code: 'A.7.3', title: 'Data Quality for AI', description: 'Ensure data quality standards for training, testing and inference data' },
-    { code: 'A.7.4', title: 'Data Preparation', description: 'Control data preprocessing, transformation and augmentation processes' },
-    { code: 'A.7.5', title: 'Data Privacy and Protection', description: 'Implement privacy controls for data used in AI systems' },
-  ]},
-  { code: 'A.8', domain: 'AI_RESPONSIBLE', label: 'Responsible AI', controls: [
-    { code: 'A.8.2', title: 'Transparency', description: 'Provide appropriate transparency about AI system capabilities and limitations' },
-    { code: 'A.8.3', title: 'Explainability', description: 'Enable explanation of AI decisions to relevant stakeholders' },
-    { code: 'A.8.4', title: 'Bias and Fairness', description: 'Detect, measure and mitigate bias in AI systems' },
-    { code: 'A.8.5', title: 'Human Oversight', description: 'Implement human oversight mechanisms for AI decisions' },
-    { code: 'A.8.6', title: 'Accountability', description: 'Establish accountability mechanisms for AI system outcomes' },
-  ]},
-  { code: 'A.9', domain: 'AI_THIRD_PARTY', label: 'Third-party & Customer', controls: [
-    { code: 'A.9.2', title: 'AI Use Guidance', description: 'Provide guidance to third parties using the organisation\'s AI systems' },
-    { code: 'A.9.3', title: 'Monitoring of Third-Party Use', description: 'Monitor how third parties use the organisation\'s AI systems' },
-    { code: 'A.9.4', title: 'Supply Chain AI Governance', description: 'Govern AI components and services in the supply chain' },
-  ]},
-  { code: 'A.10', domain: 'AI_IMPROVEMENT', label: 'AI System Events', controls: [
-    { code: 'A.10.2', title: 'AI Event and Incident Response', description: 'Establish procedures to respond to AI events and incidents' },
-    { code: 'A.10.3', title: 'Learning from AI Events', description: 'Analyze AI events to improve systems and prevent recurrence' },
-    { code: 'A.10.4', title: 'AI Incident Communication', description: 'Communicate AI incidents to relevant stakeholders promptly' },
-    { code: 'A.10.5', title: 'Continual Improvement', description: 'Implement processes for continual improvement of AI management system' },
-  ]},
+  {
+    code: 'A.2',
+    domain: 'AI_GOVERNANCE',
+    label: 'Policies for AI',
+    controls: [
+      {
+        code: 'A.2.2',
+        title: 'AI Policy',
+        description:
+          "Establish and maintain an AI policy aligned with the organisation's objectives",
+      },
+      {
+        code: 'A.2.3',
+        title: 'Roles and Responsibilities',
+        description: 'Define and communicate AI-related roles, responsibilities and authorities',
+      },
+      {
+        code: 'A.2.4',
+        title: 'Internal Audit',
+        description: 'Plan and conduct internal audits of the AI management system',
+      },
+    ],
+  },
+  {
+    code: 'A.3',
+    domain: 'AI_GOVERNANCE',
+    label: 'Internal Organisation',
+    controls: [
+      {
+        code: 'A.3.2',
+        title: 'AI System Life Cycle',
+        description: 'Establish processes for each stage of the AI system life cycle',
+      },
+      {
+        code: 'A.3.3',
+        title: 'Third-party and Customer Relationships',
+        description: 'Manage third-party and customer interactions involving AI systems',
+      },
+      {
+        code: 'A.3.4',
+        title: 'AI System Inventory',
+        description: 'Maintain an inventory of AI systems including their risk classifications',
+      },
+      {
+        code: 'A.3.5',
+        title: 'Management Review of AI',
+        description: 'Conduct management reviews of AI management system performance',
+      },
+    ],
+  },
+  {
+    code: 'A.4',
+    domain: 'AI_RESOURCES',
+    label: 'Resources for AI Systems',
+    controls: [
+      {
+        code: 'A.4.2',
+        title: 'Data Resources',
+        description: 'Identify and manage data resources needed for AI systems',
+      },
+      {
+        code: 'A.4.3',
+        title: 'Tooling',
+        description: 'Determine and provide tools for AI system development and operation',
+      },
+      {
+        code: 'A.4.4',
+        title: 'System and Computing Resources',
+        description: 'Provide computing infrastructure for AI systems',
+      },
+      {
+        code: 'A.4.5',
+        title: 'Human Resources',
+        description: 'Ensure competence of personnel involved in AI systems',
+      },
+      {
+        code: 'A.4.6',
+        title: 'Awareness and Training',
+        description: 'Ensure AI-specific awareness and training programmes',
+      },
+    ],
+  },
+  {
+    code: 'A.5',
+    domain: 'AI_RISK',
+    label: 'Assessing AI Impacts',
+    controls: [
+      {
+        code: 'A.5.2',
+        title: 'AI Impact Assessment Process',
+        description: 'Establish a process for conducting AI impact assessments',
+      },
+      {
+        code: 'A.5.3',
+        title: 'Documentation of AI Impact Assessment',
+        description: 'Document and maintain records of AI impact assessments',
+      },
+      {
+        code: 'A.5.4',
+        title: 'AI Risk Assessment',
+        description: 'Assess risks associated with AI systems systematically',
+      },
+      {
+        code: 'A.5.5',
+        title: 'AI Risk Treatment',
+        description: 'Determine and implement AI risk treatment options',
+      },
+    ],
+  },
+  {
+    code: 'A.6',
+    domain: 'AI_DEVELOPMENT',
+    label: 'AI System Life Cycle',
+    controls: [
+      {
+        code: 'A.6.2.2',
+        title: 'AI System Design and Development',
+        description: 'Implement controls for AI system design and development activities',
+      },
+      {
+        code: 'A.6.2.3',
+        title: 'AI System Data',
+        description: 'Manage data used in AI system development ensuring quality and governance',
+      },
+      {
+        code: 'A.6.2.4',
+        title: 'AI System Testing',
+        description: 'Test and validate AI systems before deployment',
+      },
+      {
+        code: 'A.6.2.5',
+        title: 'AI System Operation',
+        description: 'Implement operational controls for deployed AI systems',
+      },
+      {
+        code: 'A.6.2.6',
+        title: 'AI System Retirement',
+        description: 'Plan and manage the retirement and decommissioning of AI systems',
+      },
+      {
+        code: 'A.6.2.7',
+        title: 'AI System Documentation',
+        description: 'Maintain comprehensive documentation for AI systems',
+      },
+      {
+        code: 'A.6.2.8',
+        title: 'AI Model Performance',
+        description: 'Monitor and evaluate AI model performance continuously',
+      },
+    ],
+  },
+  {
+    code: 'A.7',
+    domain: 'AI_DATA',
+    label: 'Data for AI Systems',
+    controls: [
+      {
+        code: 'A.7.2',
+        title: 'Data Provenance',
+        description: 'Track and maintain records of data origin, lineage and transformations',
+      },
+      {
+        code: 'A.7.3',
+        title: 'Data Quality for AI',
+        description: 'Ensure data quality standards for training, testing and inference data',
+      },
+      {
+        code: 'A.7.4',
+        title: 'Data Preparation',
+        description: 'Control data preprocessing, transformation and augmentation processes',
+      },
+      {
+        code: 'A.7.5',
+        title: 'Data Privacy and Protection',
+        description: 'Implement privacy controls for data used in AI systems',
+      },
+    ],
+  },
+  {
+    code: 'A.8',
+    domain: 'AI_RESPONSIBLE',
+    label: 'Responsible AI',
+    controls: [
+      {
+        code: 'A.8.2',
+        title: 'Transparency',
+        description:
+          'Provide appropriate transparency about AI system capabilities and limitations',
+      },
+      {
+        code: 'A.8.3',
+        title: 'Explainability',
+        description: 'Enable explanation of AI decisions to relevant stakeholders',
+      },
+      {
+        code: 'A.8.4',
+        title: 'Bias and Fairness',
+        description: 'Detect, measure and mitigate bias in AI systems',
+      },
+      {
+        code: 'A.8.5',
+        title: 'Human Oversight',
+        description: 'Implement human oversight mechanisms for AI decisions',
+      },
+      {
+        code: 'A.8.6',
+        title: 'Accountability',
+        description: 'Establish accountability mechanisms for AI system outcomes',
+      },
+    ],
+  },
+  {
+    code: 'A.9',
+    domain: 'AI_THIRD_PARTY',
+    label: 'Third-party & Customer',
+    controls: [
+      {
+        code: 'A.9.2',
+        title: 'AI Use Guidance',
+        description: "Provide guidance to third parties using the organisation's AI systems",
+      },
+      {
+        code: 'A.9.3',
+        title: 'Monitoring of Third-Party Use',
+        description: "Monitor how third parties use the organisation's AI systems",
+      },
+      {
+        code: 'A.9.4',
+        title: 'Supply Chain AI Governance',
+        description: 'Govern AI components and services in the supply chain',
+      },
+    ],
+  },
+  {
+    code: 'A.10',
+    domain: 'AI_IMPROVEMENT',
+    label: 'AI System Events',
+    controls: [
+      {
+        code: 'A.10.2',
+        title: 'AI Event and Incident Response',
+        description: 'Establish procedures to respond to AI events and incidents',
+      },
+      {
+        code: 'A.10.3',
+        title: 'Learning from AI Events',
+        description: 'Analyze AI events to improve systems and prevent recurrence',
+      },
+      {
+        code: 'A.10.4',
+        title: 'AI Incident Communication',
+        description: 'Communicate AI incidents to relevant stakeholders promptly',
+      },
+      {
+        code: 'A.10.5',
+        title: 'Continual Improvement',
+        description: 'Implement processes for continual improvement of AI management system',
+      },
+    ],
+  },
 ];
 
 const domainLabels: Record<string, string> = {
@@ -112,24 +315,98 @@ const domainLabels: Record<string, string> = {
   AI_IMPROVEMENT: 'Improvement',
 };
 
-const domainColors: Record<string, { bg: string; text: string; border: string; darkBg: string; darkText: string }> = {
-  AI_GOVERNANCE: { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200', darkBg: 'dark:bg-indigo-900/20', darkText: 'dark:text-indigo-400' },
-  AI_RESOURCES: { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-200', darkBg: 'dark:bg-violet-900/20', darkText: 'dark:text-violet-400' },
-  AI_RISK: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', darkBg: 'dark:bg-red-900/20', darkText: 'dark:text-red-400' },
-  AI_DEVELOPMENT: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', darkBg: 'dark:bg-blue-900/20', darkText: 'dark:text-blue-400' },
-  AI_DATA: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', darkBg: 'dark:bg-emerald-900/20', darkText: 'dark:text-emerald-400' },
-  AI_RESPONSIBLE: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', darkBg: 'dark:bg-purple-900/20', darkText: 'dark:text-purple-400' },
-  AI_THIRD_PARTY: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', darkBg: 'dark:bg-amber-900/20', darkText: 'dark:text-amber-400' },
-  AI_IMPROVEMENT: { bg: 'bg-cyan-50', text: 'text-cyan-700', border: 'border-cyan-200', darkBg: 'dark:bg-cyan-900/20', darkText: 'dark:text-cyan-400' },
+const domainColors: Record<
+  string,
+  { bg: string; text: string; border: string; darkBg: string; darkText: string }
+> = {
+  AI_GOVERNANCE: {
+    bg: 'bg-indigo-50',
+    text: 'text-indigo-700',
+    border: 'border-indigo-200',
+    darkBg: 'dark:bg-indigo-900/20',
+    darkText: 'dark:text-indigo-400',
+  },
+  AI_RESOURCES: {
+    bg: 'bg-violet-50',
+    text: 'text-violet-700',
+    border: 'border-violet-200',
+    darkBg: 'dark:bg-violet-900/20',
+    darkText: 'dark:text-violet-400',
+  },
+  AI_RISK: {
+    bg: 'bg-red-50',
+    text: 'text-red-700',
+    border: 'border-red-200',
+    darkBg: 'dark:bg-red-900/20',
+    darkText: 'dark:text-red-400',
+  },
+  AI_DEVELOPMENT: {
+    bg: 'bg-blue-50',
+    text: 'text-blue-700',
+    border: 'border-blue-200',
+    darkBg: 'dark:bg-blue-900/20',
+    darkText: 'dark:text-blue-400',
+  },
+  AI_DATA: {
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-700',
+    border: 'border-emerald-200',
+    darkBg: 'dark:bg-emerald-900/20',
+    darkText: 'dark:text-emerald-400',
+  },
+  AI_RESPONSIBLE: {
+    bg: 'bg-purple-50',
+    text: 'text-purple-700',
+    border: 'border-purple-200',
+    darkBg: 'dark:bg-purple-900/20',
+    darkText: 'dark:text-purple-400',
+  },
+  AI_THIRD_PARTY: {
+    bg: 'bg-amber-50',
+    text: 'text-amber-700',
+    border: 'border-amber-200',
+    darkBg: 'dark:bg-amber-900/20',
+    darkText: 'dark:text-amber-400',
+  },
+  AI_IMPROVEMENT: {
+    bg: 'bg-cyan-50',
+    text: 'text-cyan-700',
+    border: 'border-cyan-200',
+    darkBg: 'dark:bg-cyan-900/20',
+    darkText: 'dark:text-cyan-400',
+  },
 };
 
 const statusOptions = ['NOT_STARTED', 'IN_PROGRESS', 'IMPLEMENTED', 'NOT_APPLICABLE'];
 
-const statusConfig: Record<string, { color: string; darkColor: string; icon: typeof CheckCircle2; label: string }> = {
-  NOT_STARTED: { color: 'bg-gray-100 dark:bg-gray-800 text-gray-700', darkColor: 'dark:bg-gray-800 dark:text-gray-400', icon: MinusCircle, label: 'Not Started' },
-  IN_PROGRESS: { color: 'bg-yellow-100 text-yellow-700', darkColor: 'dark:bg-yellow-900/30 dark:text-yellow-400', icon: Clock, label: 'In Progress' },
-  IMPLEMENTED: { color: 'bg-green-100 text-green-700', darkColor: 'dark:bg-green-900/30 dark:text-green-400', icon: CheckCircle2, label: 'Implemented' },
-  NOT_APPLICABLE: { color: 'bg-blue-100 text-blue-700', darkColor: 'dark:bg-blue-900/30 dark:text-blue-400', icon: Ban, label: 'N/A' },
+const statusConfig: Record<
+  string,
+  { color: string; darkColor: string; icon: typeof CheckCircle2; label: string }
+> = {
+  NOT_STARTED: {
+    color: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
+    darkColor: 'dark:bg-gray-800 dark:text-gray-400',
+    icon: MinusCircle,
+    label: 'Not Started',
+  },
+  IN_PROGRESS: {
+    color: 'bg-yellow-100 text-yellow-700',
+    darkColor: 'dark:bg-yellow-900/30 dark:text-yellow-400',
+    icon: Clock,
+    label: 'In Progress',
+  },
+  IMPLEMENTED: {
+    color: 'bg-green-100 text-green-700',
+    darkColor: 'dark:bg-green-900/30 dark:text-green-400',
+    icon: CheckCircle2,
+    label: 'Implemented',
+  },
+  NOT_APPLICABLE: {
+    color: 'bg-blue-100 text-blue-700',
+    darkColor: 'dark:bg-blue-900/30 dark:text-blue-400',
+    icon: Ban,
+    label: 'N/A',
+  },
 };
 
 /* ------------------------------------------------------------------ */
@@ -143,10 +420,32 @@ function ComplianceRing({ score, size = 120 }: { score: number; size?: number })
   const color = score >= 80 ? '#10B981' : score >= 50 ? '#F59E0B' : '#DC2626';
 
   return (
-    <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
+    <div
+      className="relative inline-flex items-center justify-center"
+      style={{ width: size, height: size }}
+    >
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="currentColor" strokeWidth="8" className="text-gray-200 dark:text-gray-300" />
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={color} strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} className="transition-all duration-1000" />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="8"
+          className="text-gray-200 dark:text-gray-300"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth="8"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          className="transition-all duration-1000"
+        />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-2xl font-bold text-foreground">{score}%</span>
@@ -165,8 +464,25 @@ export default function ControlsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingControl, setEditingControl] = useState<{ code: string; title: string; domain: string; description: string } | null>(null);
-  const [controlStatuses, setControlStatuses] = useState<Record<string, { status: string; notes: string; evidence: string; owner: string; targetDate: string; reviewDate: string }>>({});
+  const [editingControl, setEditingControl] = useState<{
+    code: string;
+    title: string;
+    domain: string;
+    description: string;
+  } | null>(null);
+  const [controlStatuses, setControlStatuses] = useState<
+    Record<
+      string,
+      {
+        status: string;
+        notes: string;
+        evidence: string;
+        owner: string;
+        targetDate: string;
+        reviewDate: string;
+      }
+    >
+  >({});
   const [activeClause, setActiveClause] = useState<string>('ALL');
   const [filterStatus, setFilterStatus] = useState('');
   const [saving, setSaving] = useState(false);
@@ -190,7 +506,17 @@ export default function ControlsPage() {
       const res = await api.get('/controls');
       const data = res.data.data || [];
       setControls(data);
-      const statuses: Record<string, { status: string; notes: string; evidence: string; owner: string; targetDate: string; reviewDate: string }> = {};
+      const statuses: Record<
+        string,
+        {
+          status: string;
+          notes: string;
+          evidence: string;
+          owner: string;
+          targetDate: string;
+          reviewDate: string;
+        }
+      > = {};
       data.forEach((c: Control) => {
         statuses[c.code] = {
           status: c.status,
@@ -209,7 +535,12 @@ export default function ControlsPage() {
     }
   }
 
-  function openEditModal(control: { code: string; title: string; domain: string; description: string }) {
+  function openEditModal(control: {
+    code: string;
+    title: string;
+    domain: string;
+    description: string;
+  }) {
     setEditingControl(control);
     const existing = controlStatuses[control.code];
     setForm({
@@ -259,12 +590,19 @@ export default function ControlsPage() {
     domain.controls.map((c) => ({ ...c, domain: domain.domain }))
   );
   const totalControls = allControls.length;
-  const implementedCount = allControls.filter((c) => controlStatuses[c.code]?.status === 'IMPLEMENTED').length;
-  const inProgressCount = allControls.filter((c) => controlStatuses[c.code]?.status === 'IN_PROGRESS').length;
-  const naCount = allControls.filter((c) => controlStatuses[c.code]?.status === 'NOT_APPLICABLE').length;
+  const implementedCount = allControls.filter(
+    (c) => controlStatuses[c.code]?.status === 'IMPLEMENTED'
+  ).length;
+  const inProgressCount = allControls.filter(
+    (c) => controlStatuses[c.code]?.status === 'IN_PROGRESS'
+  ).length;
+  const naCount = allControls.filter(
+    (c) => controlStatuses[c.code]?.status === 'NOT_APPLICABLE'
+  ).length;
   const notStartedCount = totalControls - implementedCount - inProgressCount - naCount;
   const applicableTotal = totalControls - naCount;
-  const progressPercent = applicableTotal > 0 ? Math.round((implementedCount / applicableTotal) * 100) : 0;
+  const progressPercent =
+    applicableTotal > 0 ? Math.round((implementedCount / applicableTotal) * 100) : 0;
 
   const filteredDomains = annexAControls
     .filter((d) => activeClause === 'ALL' || d.code === activeClause)
@@ -279,7 +617,8 @@ export default function ControlsPage() {
     }))
     .filter((d) => d.controls.length > 0);
 
-  const inputClass = 'w-full px-3 py-2 text-sm rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors';
+  const inputClass =
+    'w-full px-3 py-2 text-sm rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors';
 
   if (loading) {
     return (
@@ -303,7 +642,8 @@ export default function ControlsPage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Annex A Controls</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            ISO 42001:2023 Annex A -- {totalControls} controls across {annexAControls.length} clause groups
+            ISO 42001:2023 Annex A -- {totalControls} controls across {annexAControls.length} clause
+            groups
           </p>
         </div>
 
@@ -318,7 +658,9 @@ export default function ControlsPage() {
           <div className="flex flex-col md:flex-row items-center gap-6">
             <ComplianceRing score={progressPercent} />
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-foreground mb-1">Implementation Progress</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-1">
+                Implementation Progress
+              </h3>
               <p className="text-sm text-muted-foreground mb-4">
                 {implementedCount} of {applicableTotal} applicable controls implemented
               </p>
@@ -326,9 +668,24 @@ export default function ControlsPage() {
               {/* Progress bar */}
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-3">
                 <div className="flex h-full rounded-full overflow-hidden">
-                  <div className="bg-green-500 transition-all duration-500" style={{ width: `${applicableTotal > 0 ? (implementedCount / totalControls) * 100 : 0}%` }} />
-                  <div className="bg-yellow-500 transition-all duration-500" style={{ width: `${applicableTotal > 0 ? (inProgressCount / totalControls) * 100 : 0}%` }} />
-                  <div className="bg-blue-400 transition-all duration-500" style={{ width: `${applicableTotal > 0 ? (naCount / totalControls) * 100 : 0}%` }} />
+                  <div
+                    className="bg-green-500 transition-all duration-500"
+                    style={{
+                      width: `${applicableTotal > 0 ? (implementedCount / totalControls) * 100 : 0}%`,
+                    }}
+                  />
+                  <div
+                    className="bg-yellow-500 transition-all duration-500"
+                    style={{
+                      width: `${applicableTotal > 0 ? (inProgressCount / totalControls) * 100 : 0}%`,
+                    }}
+                  />
+                  <div
+                    className="bg-blue-400 transition-all duration-500"
+                    style={{
+                      width: `${applicableTotal > 0 ? (naCount / totalControls) * 100 : 0}%`,
+                    }}
+                  />
                 </div>
               </div>
 
@@ -364,7 +721,9 @@ export default function ControlsPage() {
               All ({totalControls})
             </button>
             {annexAControls.map((clause) => {
-              const clauseImplemented = clause.controls.filter(c => controlStatuses[c.code]?.status === 'IMPLEMENTED').length;
+              const clauseImplemented = clause.controls.filter(
+                (c) => controlStatuses[c.code]?.status === 'IMPLEMENTED'
+              ).length;
               return (
                 <button
                   key={clause.code}
@@ -391,11 +750,16 @@ export default function ControlsPage() {
             >
               <option value="">All Statuses</option>
               {statusOptions.map((s) => (
-                <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                <option key={s} value={s}>
+                  {s.replace(/_/g, ' ')}
+                </option>
               ))}
             </select>
             {filterStatus && (
-              <button onClick={() => setFilterStatus('')} className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">
+              <button
+                onClick={() => setFilterStatus('')}
+                className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+              >
                 Clear
               </button>
             )}
@@ -411,18 +775,28 @@ export default function ControlsPage() {
             <div className="divide-y divide-border">
               {filteredDomains.map((domain) => {
                 const dc = domainColors[domain.domain] || domainColors.AI_GOVERNANCE;
-                const clauseImplemented = domain.controls.filter(c => controlStatuses[c.code]?.status === 'IMPLEMENTED').length;
+                const clauseImplemented = domain.controls.filter(
+                  (c) => controlStatuses[c.code]?.status === 'IMPLEMENTED'
+                ).length;
 
                 return (
                   <div key={domain.code}>
                     {/* Clause header */}
-                    <div className={`px-5 py-3 flex items-center justify-between ${dc.bg} ${dc.darkBg}`}>
+                    <div
+                      className={`px-5 py-3 flex items-center justify-between ${dc.bg} ${dc.darkBg}`}
+                    >
                       <div className="flex items-center gap-3">
-                        <span className={`text-sm font-bold ${dc.text} ${dc.darkText}`}>{domain.code}</span>
-                        <span className={`text-sm font-medium ${dc.text} ${dc.darkText}`}>{domain.label}</span>
+                        <span className={`text-sm font-bold ${dc.text} ${dc.darkText}`}>
+                          {domain.code}
+                        </span>
+                        <span className={`text-sm font-medium ${dc.text} ${dc.darkText}`}>
+                          {domain.label}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${dc.border} ${dc.bg} ${dc.text} ${dc.darkBg} ${dc.darkText}`}>
+                        <span
+                          className={`text-xs font-medium px-2 py-0.5 rounded-full border ${dc.border} ${dc.bg} ${dc.text} ${dc.darkBg} ${dc.darkText}`}
+                        >
                           {clauseImplemented}/{domain.controls.length} implemented
                         </span>
                       </div>
@@ -441,24 +815,35 @@ export default function ControlsPage() {
                           className="flex items-center gap-4 px-5 py-3 hover:bg-muted/50 transition-colors border-b border-border last:border-b-0"
                         >
                           {/* Status icon */}
-                          <StatusIcon className={`w-5 h-5 shrink-0 ${
-                            status === 'IMPLEMENTED' ? 'text-green-500' :
-                            status === 'IN_PROGRESS' ? 'text-yellow-500' :
-                            status === 'NOT_APPLICABLE' ? 'text-blue-400' :
-                            'text-gray-400'
-                          }`} />
+                          <StatusIcon
+                            className={`w-5 h-5 shrink-0 ${
+                              status === 'IMPLEMENTED'
+                                ? 'text-green-500'
+                                : status === 'IN_PROGRESS'
+                                  ? 'text-yellow-500'
+                                  : status === 'NOT_APPLICABLE'
+                                    ? 'text-blue-400'
+                                    : 'text-gray-400'
+                            }`}
+                          />
 
                           {/* Code */}
-                          <span className="text-xs font-mono text-muted-foreground w-16 shrink-0">{control.code}</span>
+                          <span className="text-xs font-mono text-muted-foreground w-16 shrink-0">
+                            {control.code}
+                          </span>
 
                           {/* Title & description */}
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-foreground">{control.title}</p>
-                            <p className="text-xs text-muted-foreground truncate">{control.description}</p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {control.description}
+                            </p>
                           </div>
 
                           {/* Status chip */}
-                          <span className={`inline-flex px-2 py-0.5 text-[10px] font-medium rounded-full whitespace-nowrap ${sc.color} ${sc.darkColor}`}>
+                          <span
+                            className={`inline-flex px-2 py-0.5 text-[10px] font-medium rounded-full whitespace-nowrap ${sc.color} ${sc.darkColor}`}
+                          >
                             {sc.label}
                           </span>
 
@@ -467,7 +852,9 @@ export default function ControlsPage() {
                             {cs?.owner ? (
                               <>
                                 <User className="w-3 h-3 text-muted-foreground" />
-                                <span className="text-xs text-muted-foreground truncate">{cs.owner}</span>
+                                <span className="text-xs text-muted-foreground truncate">
+                                  {cs.owner}
+                                </span>
                               </>
                             ) : (
                               <span className="text-xs text-muted-foreground/50">No owner</span>
@@ -479,7 +866,12 @@ export default function ControlsPage() {
                             {cs?.reviewDate ? (
                               <>
                                 <Calendar className="w-3 h-3 text-muted-foreground" />
-                                <span className="text-xs text-muted-foreground">{new Date(cs.reviewDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(cs.reviewDate).toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                  })}
+                                </span>
                               </>
                             ) : (
                               <span className="text-xs text-muted-foreground/50">No date</span>
@@ -489,7 +881,10 @@ export default function ControlsPage() {
                           {/* Evidence indicator */}
                           <div className="hidden md:block w-6 shrink-0">
                             {cs?.evidence ? (
-                              <ExternalLink className="w-3.5 h-3.5 text-indigo-500" title="Evidence linked" />
+                              <ExternalLink
+                                className="w-3.5 h-3.5 text-indigo-500"
+                                title="Evidence linked"
+                              />
                             ) : null}
                           </div>
 
@@ -559,21 +954,41 @@ export default function ControlsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1">Owner</label>
-                <input type="text" value={form.owner} onChange={(e) => setForm({ ...form, owner: e.target.value })} className={inputClass} placeholder="e.g. Jane Smith" />
+                <input
+                  type="text"
+                  value={form.owner}
+                  onChange={(e) => setForm({ ...form, owner: e.target.value })}
+                  className={inputClass}
+                  placeholder="e.g. Jane Smith"
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Target Date</label>
-                <input type="date" value={form.targetDate} onChange={(e) => setForm({ ...form, targetDate: e.target.value })} className={inputClass} />
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Target Date
+                </label>
+                <input
+                  type="date"
+                  value={form.targetDate}
+                  onChange={(e) => setForm({ ...form, targetDate: e.target.value })}
+                  className={inputClass}
+                />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-1">Review Date</label>
-              <input type="date" value={form.reviewDate} onChange={(e) => setForm({ ...form, reviewDate: e.target.value })} className={inputClass} />
+              <input
+                type="date"
+                value={form.reviewDate}
+                onChange={(e) => setForm({ ...form, reviewDate: e.target.value })}
+                className={inputClass}
+              />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Implementation Notes</label>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Implementation Notes
+              </label>
               <textarea
                 value={form.implementationNotes}
                 onChange={(e) => setForm({ ...form, implementationNotes: e.target.value })}
@@ -584,7 +999,9 @@ export default function ControlsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Evidence Links</label>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Evidence Links
+              </label>
               <textarea
                 value={form.evidence}
                 onChange={(e) => setForm({ ...form, evidence: e.target.value })}
@@ -595,10 +1012,18 @@ export default function ControlsPage() {
             </div>
 
             <div className="flex justify-end gap-3 pt-2 border-t border-border">
-              <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm font-medium border border-border text-foreground rounded-lg hover:bg-muted transition-colors">
+              <button
+                type="button"
+                onClick={() => setModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
+              >
                 Cancel
               </button>
-              <button type="submit" disabled={saving} className="px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white rounded-lg transition-colors">
+              <button
+                type="submit"
+                disabled={saving}
+                className="px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white rounded-lg transition-colors"
+              >
                 {saving ? 'Saving...' : 'Update Control'}
               </button>
             </div>

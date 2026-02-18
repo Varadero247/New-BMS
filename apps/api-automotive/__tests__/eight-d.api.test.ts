@@ -85,7 +85,9 @@ describe('GET /api/eight-d', () => {
     (mockPrisma.eightDReport.findMany as jest.Mock).mockResolvedValue([]);
     (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(0);
 
-    const res = await request(app).get('/api/eight-d?status=D1_TEAM_FORMATION&customer=Ford&severity=HIGH');
+    const res = await request(app).get(
+      '/api/eight-d?status=D1_TEAM_FORMATION&customer=Ford&severity=HIGH'
+    );
     expect(res.status).toBe(200);
   });
 
@@ -143,7 +145,10 @@ describe('GET /api/eight-d/:id', () => {
   });
 
   it('returns 404 when soft-deleted', async () => {
-    (mockPrisma.eightDReport.findUnique as jest.Mock).mockResolvedValue({ ...mockReport, deletedAt: new Date() });
+    (mockPrisma.eightDReport.findUnique as jest.Mock).mockResolvedValue({
+      ...mockReport,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).get(`/api/eight-d/${REPORT_ID}`);
     expect(res.status).toBe(404);
@@ -184,9 +189,14 @@ describe('POST /api/eight-d', () => {
 describe('PUT /api/eight-d/:id', () => {
   it('updates 8D report successfully', async () => {
     (mockPrisma.eightDReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
-    (mockPrisma.eightDReport.update as jest.Mock).mockResolvedValue({ ...mockReport, status: 'D2_PROBLEM_DESCRIPTION' });
+    (mockPrisma.eightDReport.update as jest.Mock).mockResolvedValue({
+      ...mockReport,
+      status: 'D2_PROBLEM_DESCRIPTION',
+    });
 
-    const res = await request(app).put(`/api/eight-d/${REPORT_ID}`).send({ status: 'D2_PROBLEM_DESCRIPTION' });
+    const res = await request(app)
+      .put(`/api/eight-d/${REPORT_ID}`)
+      .send({ status: 'D2_PROBLEM_DESCRIPTION' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -194,14 +204,18 @@ describe('PUT /api/eight-d/:id', () => {
   it('returns 404 when not found', async () => {
     (mockPrisma.eightDReport.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put(`/api/eight-d/${REPORT_ID}`).send({ status: 'D2_PROBLEM_DESCRIPTION' });
+    const res = await request(app)
+      .put(`/api/eight-d/${REPORT_ID}`)
+      .send({ status: 'D2_PROBLEM_DESCRIPTION' });
     expect(res.status).toBe(404);
   });
 
   it('returns 400 on validation error', async () => {
     (mockPrisma.eightDReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
 
-    const res = await request(app).put(`/api/eight-d/${REPORT_ID}`).send({ status: 'INVALID_STATUS' });
+    const res = await request(app)
+      .put(`/api/eight-d/${REPORT_ID}`)
+      .send({ status: 'INVALID_STATUS' });
     expect(res.status).toBe(400);
   });
 
@@ -209,7 +223,9 @@ describe('PUT /api/eight-d/:id', () => {
     (mockPrisma.eightDReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
     (mockPrisma.eightDReport.update as jest.Mock).mockRejectedValue(new Error('fail'));
 
-    const res = await request(app).put(`/api/eight-d/${REPORT_ID}`).send({ status: 'D2_PROBLEM_DESCRIPTION' });
+    const res = await request(app)
+      .put(`/api/eight-d/${REPORT_ID}`)
+      .send({ status: 'D2_PROBLEM_DESCRIPTION' });
     expect(res.status).toBe(500);
   });
 });
@@ -217,7 +233,10 @@ describe('PUT /api/eight-d/:id', () => {
 describe('DELETE /api/eight-d/:id', () => {
   it('soft deletes 8D report', async () => {
     (mockPrisma.eightDReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
-    (mockPrisma.eightDReport.update as jest.Mock).mockResolvedValue({ ...mockReport, deletedAt: new Date() });
+    (mockPrisma.eightDReport.update as jest.Mock).mockResolvedValue({
+      ...mockReport,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete(`/api/eight-d/${REPORT_ID}`);
     expect(res.status).toBe(204);

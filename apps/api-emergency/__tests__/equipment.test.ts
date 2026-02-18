@@ -32,7 +32,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/equipment', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockEquipment = prisma.femEmergencyEquipment as any;
 
@@ -133,7 +135,9 @@ describe('POST /api/equipment/premises/:id', () => {
   it('adds new equipment to a premises and returns 201', async () => {
     mockEquipment.create.mockResolvedValue(fakeEquipment);
 
-    const res = await request(app).post(`/api/equipment/premises/${PREMISES_ID}`).send(validCreateBody);
+    const res = await request(app)
+      .post(`/api/equipment/premises/${PREMISES_ID}`)
+      .send(validCreateBody);
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -180,16 +184,18 @@ describe('POST /api/equipment/premises/:id', () => {
     };
     mockEquipment.create.mockResolvedValue(fullEquipment);
 
-    const res = await request(app).post(`/api/equipment/premises/${PREMISES_ID}`).send({
-      ...validCreateBody,
-      serialNumber: 'EXT-002',
-      manufacturer: 'SafeFire Ltd',
-      extinguisherClass: 'CO2',
-      capacityKg: 5,
-      installDate: '2024-01-15',
-      lastServiceDate: '2025-01-15',
-      serviceProvider: 'FireService Co',
-    });
+    const res = await request(app)
+      .post(`/api/equipment/premises/${PREMISES_ID}`)
+      .send({
+        ...validCreateBody,
+        serialNumber: 'EXT-002',
+        manufacturer: 'SafeFire Ltd',
+        extinguisherClass: 'CO2',
+        capacityKg: 5,
+        installDate: '2024-01-15',
+        lastServiceDate: '2025-01-15',
+        serviceProvider: 'FireService Co',
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.data.manufacturer).toBe('SafeFire Ltd');
@@ -227,7 +233,9 @@ describe('PUT /api/equipment/:id', () => {
     mockEquipment.findFirst.mockResolvedValue(fakeEquipment);
     mockEquipment.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put(`/api/equipment/${EQUIPMENT_ID}`).send({ location: 'Kitchen' });
+    const res = await request(app)
+      .put(`/api/equipment/${EQUIPMENT_ID}`)
+      .send({ location: 'Kitchen' });
 
     expect(res.status).toBe(500);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -291,9 +299,11 @@ describe('POST /api/equipment/:id/inspect', () => {
   it('returns 404 when equipment does not exist for inspection', async () => {
     mockEquipment.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/equipment/00000000-0000-0000-0000-000000000999/inspect').send({
-      inspectionResult: 'PASS',
-    });
+    const res = await request(app)
+      .post('/api/equipment/00000000-0000-0000-0000-000000000999/inspect')
+      .send({
+        inspectionResult: 'PASS',
+      });
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');

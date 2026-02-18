@@ -63,7 +63,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List changes error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list changes' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list changes' },
+    });
   }
 });
 
@@ -75,13 +78,17 @@ router.get('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, r
     });
 
     if (!change) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Change not found' } });
     }
 
     res.json({ success: true, data: change });
   } catch (error) {
     logger.error('Get change error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get change' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get change' } });
   }
 });
 
@@ -91,9 +98,15 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
       changeType: z.enum([
-        'DOCUMENT_UPDATE', 'PROCESS_CHANGE', 'PRODUCT_CHANGE', 'SYSTEM_CHANGE',
-        'REGULATORY_RESPONSE', 'CUSTOMER_REQUIREMENT', 'CORRECTIVE_ACTION',
-        'IMPROVEMENT', 'EMERGENCY_CHANGE',
+        'DOCUMENT_UPDATE',
+        'PROCESS_CHANGE',
+        'PRODUCT_CHANGE',
+        'SYSTEM_CHANGE',
+        'REGULATORY_RESPONSE',
+        'CUSTOMER_REQUIREMENT',
+        'CORRECTIVE_ACTION',
+        'IMPROVEMENT',
+        'EMERGENCY_CHANGE',
       ]),
       priority: z.enum(['ROUTINE', 'URGENT', 'EMERGENCY']).optional(),
       isoClause: z.string().optional(),
@@ -124,27 +137,47 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       validationRequired: z.boolean().optional(),
       validationDescription: z.string().optional(),
       // Approval
-      status: z.enum([
-        'REQUESTED', 'IMPACT_ASSESSED', 'APPROVED', 'REJECTED',
-        'IMPLEMENTATION', 'VERIFICATION', 'CLOSED', 'CANCELLED',
-      ]).optional(),
+      status: z
+        .enum([
+          'REQUESTED',
+          'IMPACT_ASSESSED',
+          'APPROVED',
+          'REJECTED',
+          'IMPLEMENTATION',
+          'VERIFICATION',
+          'CLOSED',
+          'CANCELLED',
+        ])
+        .optional(),
       reviewedBy: z.string().optional(),
       approvalAuthority: z.string().optional(),
       approvedBy: z.string().optional(),
-      approvalDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      approvalDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       approvalNotes: z.string().optional(),
       rejectionReason: z.string().optional(),
       // Implementation
       implementationPlan: z.string().optional(),
-      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      actualDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      targetDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      actualDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       implementedBy: z.string().optional(),
       docVersionUpdated: z.string().optional(),
       communicationSent: z.boolean().optional(),
       trainingCompleted: z.boolean().optional(),
       // Verification
       verificationMethod: z.string().optional(),
-      verificationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      verificationDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       verifiedBy: z.string().optional(),
       effective: z.enum(['YES', 'NO', 'PENDING']).optional(),
       lessonsLearned: z.string().optional(),
@@ -220,10 +253,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: change });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create change error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create change' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create change' },
+    });
   }
 });
 
@@ -232,16 +275,26 @@ router.put('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, r
   try {
     const existing = await prisma.qualChange.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Change not found' } });
     }
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200).optional(),
-      changeType: z.enum([
-        'DOCUMENT_UPDATE', 'PROCESS_CHANGE', 'PRODUCT_CHANGE', 'SYSTEM_CHANGE',
-        'REGULATORY_RESPONSE', 'CUSTOMER_REQUIREMENT', 'CORRECTIVE_ACTION',
-        'IMPROVEMENT', 'EMERGENCY_CHANGE',
-      ]).optional(),
+      changeType: z
+        .enum([
+          'DOCUMENT_UPDATE',
+          'PROCESS_CHANGE',
+          'PRODUCT_CHANGE',
+          'SYSTEM_CHANGE',
+          'REGULATORY_RESPONSE',
+          'CUSTOMER_REQUIREMENT',
+          'CORRECTIVE_ACTION',
+          'IMPROVEMENT',
+          'EMERGENCY_CHANGE',
+        ])
+        .optional(),
       priority: z.enum(['ROUTINE', 'URGENT', 'EMERGENCY']).optional(),
       isoClause: z.string().optional(),
       requestedBy: z.string().optional(),
@@ -267,25 +320,45 @@ router.put('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, r
       trainingDescription: z.string().optional(),
       validationRequired: z.boolean().optional(),
       validationDescription: z.string().optional(),
-      status: z.enum([
-        'REQUESTED', 'IMPACT_ASSESSED', 'APPROVED', 'REJECTED',
-        'IMPLEMENTATION', 'VERIFICATION', 'CLOSED', 'CANCELLED',
-      ]).optional(),
+      status: z
+        .enum([
+          'REQUESTED',
+          'IMPACT_ASSESSED',
+          'APPROVED',
+          'REJECTED',
+          'IMPLEMENTATION',
+          'VERIFICATION',
+          'CLOSED',
+          'CANCELLED',
+        ])
+        .optional(),
       reviewedBy: z.string().optional(),
       approvalAuthority: z.string().optional(),
       approvedBy: z.string().optional(),
-      approvalDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      approvalDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       approvalNotes: z.string().optional(),
       rejectionReason: z.string().optional(),
       implementationPlan: z.string().optional(),
-      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      actualDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      targetDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      actualDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       implementedBy: z.string().optional(),
       docVersionUpdated: z.string().optional(),
       communicationSent: z.boolean().optional(),
       trainingCompleted: z.boolean().optional(),
       verificationMethod: z.string().optional(),
-      verificationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      verificationDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       verifiedBy: z.string().optional(),
       effective: z.enum(['YES', 'NO', 'PENDING']).optional(),
       lessonsLearned: z.string().optional(),
@@ -312,28 +385,50 @@ router.put('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, r
     res.json({ success: true, data: change });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update change error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update change' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update change' },
+    });
   }
 });
 
 // DELETE /:id — Delete change
-router.delete('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.qualChange.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.qualChange),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.qualChange.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Change not found' } });
+      }
+
+      await prisma.qualChange.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete change error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete change' },
+      });
     }
-
-    await prisma.qualChange.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete change error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete change' } });
   }
-});
+);
 
 export default router;

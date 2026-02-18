@@ -28,7 +28,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/executive-summary', executiveRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('Executive Summary Routes', () => {
   describe('GET /api/executive-summary', () => {

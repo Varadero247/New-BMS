@@ -5,6 +5,7 @@
 ## Base URL
 
 All API requests go through the API Gateway:
+
 ```
 http://localhost:4000
 ```
@@ -12,6 +13,7 @@ http://localhost:4000
 ## Authentication
 
 ### Login
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
@@ -23,6 +25,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -41,6 +44,7 @@ Content-Type: application/json
 ### Using the Token
 
 All authenticated requests must include the Bearer token:
+
 ```http
 Authorization: Bearer <accessToken>
 ```
@@ -54,35 +58,44 @@ On 401 response, the frontend clears `localStorage` and redirects to `/login`.
 ### SAML SSO
 
 #### Initiate SAML Login
+
 ```http
 GET /api/auth/saml/login
 ```
+
 Generates an AuthnRequest XML document and redirects to the configured IdP SSO URL.
 
 #### SAML Callback
+
 ```http
 POST /api/auth/saml/callback
 Content-Type: application/x-www-form-urlencoded
 
 SAMLResponse=<base64-encoded-response>
 ```
+
 Parses the SAML Response XML, validates the assertion signature, extracts user attributes (email, name, groups), and returns a JWT access token. Creates the user if they do not already exist.
 
 #### IdP Metadata
+
 ```http
 GET /api/auth/saml/idp-metadata
 ```
+
 Returns the IdP metadata XML for configuring the SAML trust relationship.
 
 ### SCIM Provisioning
 
 #### List Users (with filter)
+
 ```http
 GET /api/scim/Users?filter=userName eq "user@example.com"&startIndex=1&count=100
 ```
+
 Supports SCIM filter query syntax for `userName`, `emails.value`, `active`, and `externalId`.
 
 #### Get / Create / Update / Delete User
+
 ```http
 GET /api/scim/Users/:id
 POST /api/scim/Users
@@ -91,16 +104,19 @@ DELETE /api/scim/Users/:id
 ```
 
 #### List Groups
+
 ```http
 GET /api/scim/Groups
 ```
 
 #### Get Group
+
 ```http
 GET /api/scim/Groups/:id
 ```
 
 #### Update Group (PATCH)
+
 ```http
 PATCH /api/scim/Groups/:id
 Content-Type: application/scim+json
@@ -118,6 +134,7 @@ Content-Type: application/scim+json
 ## CORS Configuration
 
 ### Requirements
+
 - Gateway handles CORS for all services
 - Allowed origins: `http://localhost:3000` through `http://localhost:3025`
 - Credentials: enabled
@@ -125,6 +142,7 @@ Content-Type: application/scim+json
 - Allowed headers: `Content-Type, Authorization, X-CSRF-Token, X-Correlation-ID`
 
 ### Important Notes
+
 - Do NOT set `CORS_ORIGIN` in `.env` — let the code use the hardcoded origins array
 - Do NOT use `withCredentials: true` on axios — use Bearer token auth instead
 - Gateway strips CORS headers from downstream services via `onProxyRes`
@@ -135,6 +153,7 @@ Content-Type: application/scim+json
 ## Response Shapes
 
 ### Success (single item)
+
 ```json
 {
   "success": true,
@@ -143,6 +162,7 @@ Content-Type: application/scim+json
 ```
 
 ### Success (list)
+
 ```json
 {
   "success": true,
@@ -157,6 +177,7 @@ Content-Type: application/scim+json
 ```
 
 ### Error
+
 ```json
 {
   "success": false,
@@ -165,6 +186,7 @@ Content-Type: application/scim+json
 ```
 
 ### Frontend Access Pattern
+
 ```typescript
 // Axios wraps response in .data, then API response has .data
 const response = await api.get('/risks');
@@ -180,6 +202,7 @@ All H&S endpoints are proxied: `GET /api/health-safety/*` → `api-health-safety
 ### Risk Register
 
 #### List Risks
+
 ```http
 GET /api/health-safety/risks
 ```
@@ -194,11 +217,13 @@ Query parameters:
 | `riskLevel` | string | Filter by risk level |
 
 #### Get Single Risk
+
 ```http
 GET /api/health-safety/risks/:id
 ```
 
 #### Create Risk
+
 ```http
 POST /api/health-safety/risks
 Content-Type: application/json
@@ -220,13 +245,16 @@ Authorization: Bearer <token>
 Risk score is auto-calculated: `likelihood × severity`.
 
 #### Update Risk
+
 ```http
 PATCH /api/health-safety/risks/:id
 Authorization: Bearer <token>
 ```
+
 Same body as POST (all fields optional).
 
 #### Delete Risk
+
 ```http
 DELETE /api/health-safety/risks/:id
 Authorization: Bearer <token>
@@ -237,6 +265,7 @@ Authorization: Bearer <token>
 ### Incident Register
 
 #### List Incidents
+
 ```http
 GET /api/health-safety/incidents
 ```
@@ -252,11 +281,13 @@ Query parameters:
 | `status` | string | Filter by status |
 
 #### Get Single Incident
+
 ```http
 GET /api/health-safety/incidents/:id
 ```
 
 #### Create Incident
+
 ```http
 POST /api/health-safety/incidents
 Content-Type: application/json
@@ -287,18 +318,21 @@ Authorization: Bearer <token>
 ```
 
 **Auto-generated fields:**
+
 - Reference number: `INC-YYMM-XXXX` (e.g., `INC-2602-0001`)
 - RIDDOR: Auto-set to `true` for `CRITICAL` or `MAJOR` severity
 - Investigation required: Auto-set to `true` for `CRITICAL` or `MAJOR`
 - Investigation due date: Auto-calculated — CRITICAL=24hrs, MAJOR=3days, MODERATE=7days
 
 #### Update Incident
+
 ```http
 PATCH /api/health-safety/incidents/:id
 Authorization: Bearer <token>
 ```
 
 #### Delete Incident
+
 ```http
 DELETE /api/health-safety/incidents/:id
 Authorization: Bearer <token>
@@ -309,6 +343,7 @@ Authorization: Bearer <token>
 ### Legal Register
 
 #### List Legal Requirements
+
 ```http
 GET /api/health-safety/legal
 ```
@@ -323,11 +358,13 @@ Query parameters:
 | `category` | string | Filter by category |
 
 #### Get Single Requirement
+
 ```http
 GET /api/health-safety/legal/:id
 ```
 
 #### Create Legal Requirement
+
 ```http
 POST /api/health-safety/legal
 Content-Type: application/json
@@ -351,15 +388,18 @@ Authorization: Bearer <token>
 ```
 
 **Auto-generated fields:**
+
 - Reference number: `LR-001`, `LR-002`, etc.
 
 #### Update Requirement
+
 ```http
 PATCH /api/health-safety/legal/:id
 Authorization: Bearer <token>
 ```
 
 #### Delete Requirement
+
 ```http
 DELETE /api/health-safety/legal/:id
 Authorization: Bearer <token>
@@ -370,6 +410,7 @@ Authorization: Bearer <token>
 ### OHS Objectives
 
 #### List Objectives
+
 ```http
 GET /api/health-safety/objectives
 ```
@@ -386,6 +427,7 @@ Query parameters:
 Response includes nested `milestones` array.
 
 #### Get Single Objective
+
 ```http
 GET /api/health-safety/objectives/:id
 ```
@@ -393,6 +435,7 @@ GET /api/health-safety/objectives/:id
 Includes milestones.
 
 #### Create Objective
+
 ```http
 POST /api/health-safety/objectives
 Content-Type: application/json
@@ -423,16 +466,19 @@ Authorization: Bearer <token>
 ```
 
 **Auto-generated fields:**
+
 - Reference number: `OBJ-001`, `OBJ-002`, etc.
 - Progress percent: Auto-calculated from milestones completion
 
 #### Update Objective
+
 ```http
 PATCH /api/health-safety/objectives/:id
 Authorization: Bearer <token>
 ```
 
 #### Delete Objective
+
 ```http
 DELETE /api/health-safety/objectives/:id
 Authorization: Bearer <token>
@@ -441,6 +487,7 @@ Authorization: Bearer <token>
 Cascade deletes associated milestones.
 
 #### Add Milestone
+
 ```http
 POST /api/health-safety/objectives/:id/milestones
 Authorization: Bearer <token>
@@ -452,6 +499,7 @@ Authorization: Bearer <token>
 ```
 
 #### Update Milestone
+
 ```http
 PATCH /api/health-safety/objectives/:id/milestones/:mid
 Authorization: Bearer <token>
@@ -466,6 +514,7 @@ Authorization: Bearer <token>
 ### CAPA Management
 
 #### List CAPAs
+
 ```http
 GET /api/health-safety/capa
 ```
@@ -484,6 +533,7 @@ Query parameters:
 Response includes nested `actions` array.
 
 #### Get Single CAPA
+
 ```http
 GET /api/health-safety/capa/:id
 ```
@@ -491,6 +541,7 @@ GET /api/health-safety/capa/:id
 Includes actions.
 
 #### Create CAPA
+
 ```http
 POST /api/health-safety/capa
 Content-Type: application/json
@@ -514,10 +565,12 @@ Authorization: Bearer <token>
 ```
 
 **Auto-generated fields:**
+
 - Reference number: `CAPA-001`, `CAPA-002`, etc.
 - Target completion date: Auto-set from priority — CRITICAL=7days, HIGH=14days, MEDIUM=30days, LOW=60days
 
 #### Update CAPA
+
 ```http
 PATCH /api/health-safety/capa/:id
 Authorization: Bearer <token>
@@ -526,6 +579,7 @@ Authorization: Bearer <token>
 For closure, include: `status: "CLOSED"`, `closureNotes`, `effectivenessRating`.
 
 #### Delete CAPA
+
 ```http
 DELETE /api/health-safety/capa/:id
 Authorization: Bearer <token>
@@ -534,6 +588,7 @@ Authorization: Bearer <token>
 Cascade deletes associated actions.
 
 #### Add CAPA Action
+
 ```http
 POST /api/health-safety/capa/:id/actions
 Authorization: Bearer <token>
@@ -548,6 +603,7 @@ Authorization: Bearer <token>
 ```
 
 #### Update CAPA Action
+
 ```http
 PATCH /api/health-safety/capa/:id/actions/:aid
 Authorization: Bearer <token>
@@ -566,6 +622,7 @@ All Environment endpoints are proxied: `GET /api/environment/*` → `api-environ
 ### Aspects & Impacts (Clause 6.1.2)
 
 #### List Aspects
+
 ```http
 GET /api/environment/aspects
 ```
@@ -580,11 +637,13 @@ Query parameters:
 | `significant` | string | Filter: `true \| false` |
 
 #### Get Single Aspect
+
 ```http
 GET /api/environment/aspects/:id
 ```
 
 #### Create Aspect
+
 ```http
 POST /api/environment/aspects
 Content-Type: application/json
@@ -622,17 +681,20 @@ Authorization: Bearer <token>
 ```
 
 **Auto-generated fields:**
+
 - Reference number: `ENV-ASP-YYYY-NNN` (e.g., `ENV-ASP-2026-001`)
 - Significance score: `severity*1.5 + probability*1.5 + duration + extent + reversibility + regulatory + stakeholder`
 - `isSignificant`: `true` when score >= 15
 
 #### Update Aspect
+
 ```http
 PUT /api/environment/aspects/:id
 Authorization: Bearer <token>
 ```
 
 #### Delete Aspect
+
 ```http
 DELETE /api/environment/aspects/:id
 Authorization: Bearer <token>
@@ -643,6 +705,7 @@ Authorization: Bearer <token>
 ### Environmental Events
 
 #### List Events
+
 ```http
 GET /api/environment/events
 ```
@@ -658,6 +721,7 @@ Query parameters:
 | `severity` | string | Filter: `MINOR \| MODERATE \| MAJOR \| CRITICAL \| CATASTROPHIC` |
 
 #### Create Event
+
 ```http
 POST /api/environment/events
 Content-Type: application/json
@@ -680,6 +744,7 @@ Authorization: Bearer <token>
 ```
 
 **Auto-generated fields:**
+
 - Reference number: `ENV-EVT-YYYY-NNN`
 - `closureDate` auto-set when status changes to `CLOSED`
 
@@ -688,6 +753,7 @@ Authorization: Bearer <token>
 ### Legal Register (Clause 6.1.3)
 
 #### List Legal Requirements
+
 ```http
 GET /api/environment/legal
 ```
@@ -702,6 +768,7 @@ Query parameters:
 | `status` | string | `ACTIVE \| REVIEW_DUE \| SUPERSEDED \| ARCHIVED` |
 
 #### Create Legal Requirement
+
 ```http
 POST /api/environment/legal
 Content-Type: application/json
@@ -723,6 +790,7 @@ Authorization: Bearer <token>
 ```
 
 **Auto-generated fields:**
+
 - Reference number: `ENV-LEG-YYYY-NNN`
 
 ---
@@ -730,6 +798,7 @@ Authorization: Bearer <token>
 ### Objectives & Targets (Clause 6.2)
 
 #### List Objectives
+
 ```http
 GET /api/environment/objectives
 ```
@@ -744,6 +813,7 @@ Query parameters:
 | `category` | string | `ENERGY_REDUCTION \| WATER_REDUCTION \| WASTE_REDUCTION \| EMISSIONS_REDUCTION \| BIODIVERSITY \| POLLUTION_PREVENTION \| etc.` |
 
 #### Create Objective
+
 ```http
 POST /api/environment/objectives
 Content-Type: application/json
@@ -765,9 +835,11 @@ Authorization: Bearer <token>
 ```
 
 **Auto-generated fields:**
+
 - Reference number: `ENV-OBJ-YYYY-NNN`
 
 #### Update Milestone
+
 ```http
 PATCH /api/environment/objectives/:id/milestones/:milestoneId
 Authorization: Bearer <token>
@@ -784,6 +856,7 @@ Auto-sets `completedDate` when `completed` is `true`.
 ### Environmental Actions
 
 #### List Actions
+
 ```http
 GET /api/environment/actions
 ```
@@ -798,6 +871,7 @@ Query parameters:
 | `source` | string | Filter by source |
 
 #### Create Action
+
 ```http
 POST /api/environment/actions
 Content-Type: application/json
@@ -815,6 +889,7 @@ Authorization: Bearer <token>
 ```
 
 **Auto-generated fields:**
+
 - Reference number: `ENV-ACT-YYYY-NNN`
 - `completionDate` auto-set when status changes to `COMPLETED`
 
@@ -823,6 +898,7 @@ Authorization: Bearer <token>
 ### CAPA Management (Clause 10.2)
 
 #### List CAPAs
+
 ```http
 GET /api/environment/capa
 ```
@@ -838,6 +914,7 @@ Query parameters:
 | `severity` | string | `MINOR \| MODERATE \| MAJOR \| CRITICAL` |
 
 #### Create CAPA
+
 ```http
 POST /api/environment/capa
 Content-Type: application/json
@@ -863,9 +940,11 @@ Authorization: Bearer <token>
 ```
 
 **Auto-generated fields:**
+
 - Reference number: `ENV-CAPA-YYYY-NNN`
 
 #### Add CAPA Action
+
 ```http
 POST /api/environment/capa/:id/actions
 Authorization: Bearer <token>
@@ -879,6 +958,7 @@ Authorization: Bearer <token>
 ```
 
 #### Update CAPA Action
+
 ```http
 PUT /api/environment/capa/:id/actions/:actionId
 Authorization: Bearer <token>
@@ -899,6 +979,7 @@ All Quality endpoints are proxied: `GET /api/quality/*` → `api-quality:4003/ap
 ### COTO Log (Context of the Organisation)
 
 #### Interested Parties
+
 ```http
 GET /api/quality/parties
 POST /api/quality/parties
@@ -908,6 +989,7 @@ DELETE /api/quality/parties/:id
 ```
 
 #### Issues
+
 ```http
 GET /api/quality/issues
 POST /api/quality/issues
@@ -917,6 +999,7 @@ DELETE /api/quality/issues/:id
 ```
 
 #### Risks
+
 ```http
 GET /api/quality/risks
 POST /api/quality/risks
@@ -928,10 +1011,12 @@ DELETE /api/quality/risks/:id
 Query parameters: `search`, `status` (OPEN|BEING_TREATED|MONITORED|CLOSED|ACCEPTED), `riskLevel`, `process`
 
 **Auto-generated fields:**
+
 - Reference number: `QMS-RSK-YYYY-NNN`
 - Risk scoring: Probability Rating × Consequence Rating → risk level
 
 #### Opportunities
+
 ```http
 GET /api/quality/opportunities
 POST /api/quality/opportunities
@@ -943,6 +1028,7 @@ DELETE /api/quality/opportunities/:id
 ### Core QMS
 
 #### Processes
+
 ```http
 GET /api/quality/processes
 POST /api/quality/processes
@@ -954,6 +1040,7 @@ DELETE /api/quality/processes/:id
 Turtle diagram fields: inputs, outputs, resources, competence, activities, controls, KPIs.
 
 #### Non-Conformances
+
 ```http
 GET /api/quality/nonconformances
 POST /api/quality/nonconformances
@@ -965,6 +1052,7 @@ DELETE /api/quality/nonconformances/:id
 Query parameters: `search`, `status` (OPEN|CONTAINED|RCA_IN_PROGRESS|CORRECTIVE_ACTION|PREVENTIVE_ACTION|VERIFICATION|CLOSED), `ncType`, `severity`, `source`
 
 #### Actions
+
 ```http
 GET /api/quality/actions
 POST /api/quality/actions
@@ -974,6 +1062,7 @@ DELETE /api/quality/actions/:id
 ```
 
 #### Documents
+
 ```http
 GET /api/quality/documents
 POST /api/quality/documents
@@ -983,6 +1072,7 @@ DELETE /api/quality/documents/:id
 ```
 
 #### CAPA
+
 ```http
 GET /api/quality/capa
 POST /api/quality/capa
@@ -999,6 +1089,7 @@ Supports 5-Why, Fishbone (6M), and 8D (d0-d8) root cause analysis methods.
 ### Module Routes
 
 #### Legal Register
+
 ```http
 GET /api/quality/legal
 POST /api/quality/legal
@@ -1008,6 +1099,7 @@ DELETE /api/quality/legal/:id
 ```
 
 #### FMEA
+
 ```http
 GET /api/quality/fmea
 POST /api/quality/fmea
@@ -1022,6 +1114,7 @@ DELETE /api/quality/fmea/:id/rows/:rowId
 RPN calculation: Severity × Occurrence × Detection. Color-coded: green <80, amber 80-200, red >200.
 
 #### Continual Improvement
+
 ```http
 GET /api/quality/improvements
 POST /api/quality/improvements
@@ -1033,6 +1126,7 @@ DELETE /api/quality/improvements/:id
 PDCA stage tracking (Plan/Do/Check/Act).
 
 #### Supplier Quality
+
 ```http
 GET /api/quality/suppliers
 POST /api/quality/suppliers
@@ -1044,6 +1138,7 @@ DELETE /api/quality/suppliers/:id
 IMS Score calculation: Quality 50% + H&S 30% + Environmental 20%.
 
 #### Change Management
+
 ```http
 GET /api/quality/changes
 POST /api/quality/changes
@@ -1055,6 +1150,7 @@ DELETE /api/quality/changes/:id
 Impact assessment grid: quality, customer, process, H&S, environmental, regulatory, financial.
 
 #### Objectives
+
 ```http
 GET /api/quality/objectives
 POST /api/quality/objectives
@@ -1075,6 +1171,7 @@ KPI tracking with baseline/current/target values and nested milestones.
 All Automotive endpoints are proxied: `/api/automotive/*` → `api-automotive:4010/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/automotive/apqp
 GET|PUT|DELETE  /api/automotive/apqp/:id
@@ -1108,6 +1205,7 @@ GET|PUT|DELETE  /api/automotive/csr/:id
 All Medical endpoints are proxied: `/api/medical/*` → `api-medical:4011/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/medical/dhf
 GET|PUT|DELETE  /api/medical/dhf/:id
@@ -1141,6 +1239,7 @@ GET|PUT|DELETE  /api/medical/software-validation/:id
 All Aerospace endpoints are proxied: `/api/aerospace/*` → `api-aerospace:4012/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/aerospace/fai
 GET|PUT|DELETE  /api/aerospace/fai/:id
@@ -1165,6 +1264,7 @@ GET|PUT|DELETE  /api/aerospace/oasis/:id
 All PM endpoints are proxied: `GET /api/v1/project-management/*` → `api-project-management:4009/api/*`
 
 ### Projects
+
 ```http
 GET /api/v1/project-management/projects
 POST /api/v1/project-management/projects
@@ -1177,6 +1277,7 @@ GET /api/v1/project-management/projects/stats
 Query parameters: `search`, `status` (PLANNING|ACTIVE|ON_HOLD|COMPLETED|CANCELLED), `priority`, `methodology` (WATERFALL|AGILE|HYBRID)
 
 ### Tasks
+
 ```http
 GET /api/v1/project-management/tasks
 POST /api/v1/project-management/tasks
@@ -1188,6 +1289,7 @@ DELETE /api/v1/project-management/tasks/:id
 Query parameters: `search`, `status`, `priority`, `projectId`, `assigneeId`
 
 ### Milestones
+
 ```http
 GET /api/v1/project-management/milestones
 POST /api/v1/project-management/milestones
@@ -1197,6 +1299,7 @@ DELETE /api/v1/project-management/milestones/:id
 ```
 
 ### Risks
+
 ```http
 GET /api/v1/project-management/risks
 POST /api/v1/project-management/risks
@@ -1208,6 +1311,7 @@ DELETE /api/v1/project-management/risks/:id
 Risk score: Probability × Impact (auto-calculated).
 
 ### Issues
+
 ```http
 GET /api/v1/project-management/issues
 POST /api/v1/project-management/issues
@@ -1217,6 +1321,7 @@ DELETE /api/v1/project-management/issues/:id
 ```
 
 ### Changes
+
 ```http
 GET /api/v1/project-management/changes
 POST /api/v1/project-management/changes
@@ -1226,6 +1331,7 @@ DELETE /api/v1/project-management/changes/:id
 ```
 
 ### Resources
+
 ```http
 GET /api/v1/project-management/resources
 POST /api/v1/project-management/resources
@@ -1235,6 +1341,7 @@ DELETE /api/v1/project-management/resources/:id
 ```
 
 ### Stakeholders
+
 ```http
 GET /api/v1/project-management/stakeholders
 POST /api/v1/project-management/stakeholders
@@ -1246,6 +1353,7 @@ DELETE /api/v1/project-management/stakeholders/:id
 Power/Interest matrix: auto-categorized (MANAGE_CLOSELY|KEEP_SATISFIED|KEEP_INFORMED|MONITOR).
 
 ### Documents
+
 ```http
 GET /api/v1/project-management/documents
 POST /api/v1/project-management/documents
@@ -1255,6 +1363,7 @@ DELETE /api/v1/project-management/documents/:id
 ```
 
 ### Sprints
+
 ```http
 GET /api/v1/project-management/sprints
 POST /api/v1/project-management/sprints
@@ -1264,6 +1373,7 @@ DELETE /api/v1/project-management/sprints/:id
 ```
 
 ### Timesheets
+
 ```http
 GET /api/v1/project-management/timesheets
 POST /api/v1/project-management/timesheets
@@ -1275,6 +1385,7 @@ DELETE /api/v1/project-management/timesheets/:id
 Cost auto-calculated: `hours × costRate`.
 
 ### Reports
+
 ```http
 GET /api/v1/project-management/reports
 POST /api/v1/project-management/reports
@@ -1290,6 +1401,7 @@ DELETE /api/v1/project-management/reports/:id
 All Finance endpoints are proxied: `/api/finance/*` → `api-finance:4013/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/finance/accounts
 GET|PUT|DELETE  /api/finance/accounts/:id
@@ -1320,6 +1432,7 @@ GET|PUT|DELETE  /api/finance/tax/:id
 All CRM endpoints are proxied: `/api/crm/*` → `api-crm:4014/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/crm/contacts
 GET|PUT|DELETE  /api/crm/contacts/:id
@@ -1353,6 +1466,7 @@ GET|PUT|DELETE  /api/crm/tasks/:id
 All InfoSec endpoints are proxied: `/api/infosec/*` → `api-infosec:4015/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/infosec/controls
 GET|PUT|DELETE  /api/infosec/controls/:id
@@ -1383,6 +1497,7 @@ GET|PUT|DELETE  /api/infosec/vulnerabilities/:id
 All ESG endpoints are proxied: `/api/esg/*` → `api-esg:4016/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/esg/environmental-metrics
 GET|PUT|DELETE  /api/esg/environmental-metrics/:id
@@ -1434,6 +1549,7 @@ GET|PUT|DELETE  /api/esg/training/:id
 All CMMS endpoints are proxied: `/api/cmms/*` → `api-cmms:4017/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/cmms/work-orders
 GET|PUT|DELETE  /api/cmms/work-orders/:id
@@ -1479,6 +1595,7 @@ GET|PUT|DELETE  /api/cmms/labor/:id
 All Portal endpoints are proxied: `/api/portal/*` → `api-portal:4018/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/portal/portal-users
 GET|PUT|DELETE  /api/portal/portal-users/:id
@@ -1538,6 +1655,7 @@ GET|PUT|DELETE  /api/portal/self-service/:id
 All Food Safety endpoints are proxied: `/api/food-safety/*` → `api-food-safety:4019/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/food-safety/haccp-plans
 GET|PUT|DELETE  /api/food-safety/haccp-plans/:id
@@ -1589,6 +1707,7 @@ GET|PUT|DELETE  /api/food-safety/documents/:id
 All Energy endpoints are proxied: `/api/energy/*` → `api-energy:4020/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/energy/baselines
 GET|PUT|DELETE  /api/energy/baselines/:id
@@ -1634,6 +1753,7 @@ GET|PUT|DELETE  /api/energy/reviews/:id
 All Analytics endpoints are proxied: `/api/analytics/*` → `api-analytics:4021/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/analytics/dashboards
 GET|PUT|DELETE  /api/analytics/dashboards/:id
@@ -1664,9 +1784,11 @@ GET|PUT|DELETE  /api/analytics/benchmarks/:id
 ```
 
 ### Natural Language Query (NLQ)
+
 ```http
 GET /api/analytics/nlq/history    # List previous NLQ queries for current user
 ```
+
 The NLQ engine supports 30+ query patterns (e.g., "show overdue CAPAs", "count incidents by severity", "list risks above appetite"). When no built-in pattern matches, the engine falls back to an AI provider for query interpretation.
 
 ---
@@ -1676,6 +1798,7 @@ The NLQ engine supports 30+ query patterns (e.g., "show overdue CAPAs", "count i
 All Field Service endpoints are proxied: `/api/field-service/*` → `api-field-service:4022/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/field-service/work-orders
 GET|PUT|DELETE  /api/field-service/work-orders/:id
@@ -1724,6 +1847,7 @@ GET|PUT|DELETE  /api/field-service/sla/:id
 All ISO 42001 endpoints are proxied: `/api/iso42001/*` → `api-iso42001:4023/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/iso42001/ai-systems
 GET|PUT|DELETE  /api/iso42001/ai-systems/:id
@@ -1754,6 +1878,7 @@ GET|PUT|DELETE  /api/iso42001/training/:id
 All ISO 37001 endpoints are proxied: `/api/iso37001/*` → `api-iso37001:4024/api/*`
 
 ### Routes
+
 ```http
 GET|POST       /api/iso37001/risk-assessments
 GET|PUT|DELETE  /api/iso37001/risk-assessments/:id
@@ -1781,6 +1906,7 @@ GET|PUT|DELETE  /api/iso37001/whistleblowing/:id
 Enterprise Risk Management service on port 4027. Gateway prefix: `/api/risk/*`
 
 ### Risks (Register)
+
 ```http
 GET    /api/risk/risks                    # List risks (filter: ?category=, ?search=, ?status=, ?level=)
 POST   /api/risk/risks                    # Create risk (auto-calculates scores, checks appetite)
@@ -1801,6 +1927,7 @@ POST   /api/risk/risks/from-audit/:id          # Create risk from audit finding
 ```
 
 ### Controls
+
 ```http
 GET    /api/risk/risks/:riskId/controls          # List controls for a risk
 POST   /api/risk/risks/:riskId/controls          # Add control (auto-updates overall effectiveness)
@@ -1810,6 +1937,7 @@ POST   /api/risk/risks/:riskId/controls/:id/test # Record control test result
 ```
 
 ### Key Risk Indicators (KRIs)
+
 ```http
 GET    /api/risk/risks/:riskId/kri               # List KRIs for a risk
 POST   /api/risk/risks/:riskId/kri               # Create KRI with thresholds
@@ -1821,6 +1949,7 @@ GET    /api/risk/risks/kri/due                   # KRIs due for reading (next 7 
 ```
 
 ### Treatment Actions
+
 ```http
 GET    /api/risk/risks/:riskId/actions           # List actions for a risk
 POST   /api/risk/risks/:riskId/actions           # Create treatment action
@@ -1831,6 +1960,7 @@ GET    /api/risk/risks/actions/due-soon          # Actions due within 14 days
 ```
 
 ### Bow-Tie Analysis
+
 ```http
 GET    /api/risk/risks/:riskId/bowtie            # Get bow-tie for a risk
 POST   /api/risk/risks/:riskId/bowtie            # Create/update bow-tie (HIGH+ risks only)
@@ -1838,6 +1968,7 @@ GET    /api/risk/risks/bowtie/all                # Library of all bow-ties
 ```
 
 ### Risk Appetite & Framework
+
 ```http
 GET    /api/risk/risks/appetite                  # List appetite statements (all categories)
 POST   /api/risk/risks/appetite                  # Upsert appetite for category
@@ -1846,31 +1977,35 @@ PUT    /api/risk/risks/framework                 # Create/update framework confi
 ```
 
 ### Analytics
+
 ```http
 GET    /api/risk/risks/analytics/dashboard       # Full analytics (heatmap, KPIs, by-category, by-level, top risks, module breakdown)
 GET    /api/risk/risks/analytics/by-module       # Risk count per source module
 ```
 
 ### Dashboard
+
 ```http
 GET    /api/risk/dashboard/stats                 # 12 KPI metrics (totalRisks, criticalRisks, exceedsAppetite, overdueReviews, overdueActions, kriBreaches, kriWarnings, newThisMonth, openCapas, pendingReviews, avgRiskScore, totalCapas)
 ```
 
 ### Risk Scoring (5×5 Matrix)
-| Score Range | Level | Colour |
-|-------------|-------|--------|
-| 1-3 | LOW | Green |
-| 4-6 | MEDIUM | Yellow |
-| 8-12 | HIGH | Amber |
-| 15-19 | VERY_HIGH | Orange |
-| 20-25 | CRITICAL | Red |
+
+| Score Range | Level     | Colour |
+| ----------- | --------- | ------ |
+| 1-3         | LOW       | Green  |
+| 4-6         | MEDIUM    | Yellow |
+| 8-12        | HIGH      | Amber  |
+| 15-19       | VERY_HIGH | Orange |
+| 20-25       | CRITICAL  | Red    |
 
 ### Appetite Status
-| Status | Meaning |
-|--------|---------|
-| WITHIN | Residual score ≤ acceptable residual score |
-| AT_LIMIT | Residual score > acceptable but ≤ maximum tolerable |
-| EXCEEDS | Residual score > maximum tolerable — mandatory escalation |
+
+| Status   | Meaning                                                   |
+| -------- | --------------------------------------------------------- |
+| WITHIN   | Residual score ≤ acceptable residual score                |
+| AT_LIMIT | Residual score > acceptable but ≤ maximum tolerable       |
+| EXCEEDS  | Residual score > maximum tolerable — mandatory escalation |
 
 ---
 
@@ -1879,6 +2014,7 @@ GET    /api/risk/dashboard/stats                 # 12 KPI metrics (totalRisks, c
 AI analysis is provided by the central AI Analysis service (port 4004). Supports Claude, OpenAI, and Grok providers.
 
 ### Risk Controls Generation
+
 ```http
 POST /api/risks/generate-controls
 Content-Type: application/json
@@ -1893,6 +2029,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "controls": {
@@ -1906,6 +2043,7 @@ Content-Type: application/json
 ```
 
 ### Incident Root Cause Analysis
+
 ```http
 POST /api/incidents/analyse
 Content-Type: application/json
@@ -1920,6 +2058,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "immediateCause": "...",
@@ -1931,6 +2070,7 @@ Content-Type: application/json
 ```
 
 ### Legal Compliance Assessment
+
 ```http
 POST /api/legal/analyse
 Content-Type: application/json
@@ -1944,6 +2084,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "keyObligations": "...",
@@ -1955,6 +2096,7 @@ Content-Type: application/json
 ```
 
 ### Objective SMART Assist
+
 ```http
 POST /api/objectives/assist
 Content-Type: application/json
@@ -1968,19 +2110,19 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "objectiveStatement": "...",
   "ohsPolicyLink": "...",
   "kpiDescription": "...",
   "resourcesRequired": "...",
-  "suggestedMilestones": [
-    { "title": "...", "dueDate": "YYYY-MM-DD" }
-  ]
+  "suggestedMilestones": [{ "title": "...", "dueDate": "YYYY-MM-DD" }]
 }
 ```
 
 ### CAPA Root Cause Analysis
+
 ```http
 POST /api/capa/analyse
 Content-Type: application/json
@@ -1994,6 +2136,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "rootCauseAnalysis": "...",
@@ -2006,6 +2149,7 @@ Content-Type: application/json
 ```
 
 ### AI Quick Analysis (Central Service)
+
 ```http
 POST /api/ai/analyze
 Content-Type: application/json
@@ -2019,50 +2163,54 @@ Authorization: Bearer <token>
 
 **Available Analysis Types (23):**
 
-| Type | Category | Description |
-|------|----------|-------------|
-| `LEGAL_REFERENCES` | H&S | Legal compliance lookup |
-| `ENVIRONMENTAL_ASPECT` | Environment | Aspect analysis |
-| `HR_JOB_DESCRIPTION` | HR | Generate job descriptions |
-| `HR_PERFORMANCE_INSIGHTS` | HR | Performance review insights |
-| `HR_LEAVE_ANALYSIS` | HR | Leave pattern analysis |
-| `HR_EMPLOYEE_ONBOARDING` | HR | Onboarding checklist generation |
-| `HR_CERTIFICATION_MONITOR` | HR | Certification tracking |
-| `PAYROLL_VALIDATION` | Payroll | Validate payroll run calculations |
-| `SALARY_BENCHMARK` | Payroll | Salary benchmarking suggestions |
-| `EXPENSE_VALIDATION` | Payroll | Expense policy compliance |
-| `LOAN_CALCULATOR` | Payroll | Loan repayment schedule |
-| `PAYSLIP_ANOMALY` | Payroll | Payslip anomaly detection |
-| `PROJECT_CHARTER` | PM | Generate project charter |
-| `WBS_GENERATION` | PM | Work breakdown structure |
-| `CRITICAL_PATH` | PM | Critical path analysis |
-| `THREE_POINT_ESTIMATION` | PM | PERT estimation |
-| `RESOURCE_LEVELING` | PM | Resource optimization |
-| `PROJECT_RISK_ANALYSIS` | PM | Risk analysis |
-| `EVM_ANALYSIS` | PM | Earned value management |
-| `STAKEHOLDER_STRATEGY` | PM | Stakeholder engagement strategy |
-| `PROJECT_HEALTH_CHECK` | PM | Overall health assessment |
-| `SPRINT_PLANNING` | PM | Sprint planning assistance |
-| `LESSONS_LEARNED` | PM | Lessons learned analysis |
+| Type                       | Category    | Description                       |
+| -------------------------- | ----------- | --------------------------------- |
+| `LEGAL_REFERENCES`         | H&S         | Legal compliance lookup           |
+| `ENVIRONMENTAL_ASPECT`     | Environment | Aspect analysis                   |
+| `HR_JOB_DESCRIPTION`       | HR          | Generate job descriptions         |
+| `HR_PERFORMANCE_INSIGHTS`  | HR          | Performance review insights       |
+| `HR_LEAVE_ANALYSIS`        | HR          | Leave pattern analysis            |
+| `HR_EMPLOYEE_ONBOARDING`   | HR          | Onboarding checklist generation   |
+| `HR_CERTIFICATION_MONITOR` | HR          | Certification tracking            |
+| `PAYROLL_VALIDATION`       | Payroll     | Validate payroll run calculations |
+| `SALARY_BENCHMARK`         | Payroll     | Salary benchmarking suggestions   |
+| `EXPENSE_VALIDATION`       | Payroll     | Expense policy compliance         |
+| `LOAN_CALCULATOR`          | Payroll     | Loan repayment schedule           |
+| `PAYSLIP_ANOMALY`          | Payroll     | Payslip anomaly detection         |
+| `PROJECT_CHARTER`          | PM          | Generate project charter          |
+| `WBS_GENERATION`           | PM          | Work breakdown structure          |
+| `CRITICAL_PATH`            | PM          | Critical path analysis            |
+| `THREE_POINT_ESTIMATION`   | PM          | PERT estimation                   |
+| `RESOURCE_LEVELING`        | PM          | Resource optimization             |
+| `PROJECT_RISK_ANALYSIS`    | PM          | Risk analysis                     |
+| `EVM_ANALYSIS`             | PM          | Earned value management           |
+| `STAKEHOLDER_STRATEGY`     | PM          | Stakeholder engagement strategy   |
+| `PROJECT_HEALTH_CHECK`     | PM          | Overall health assessment         |
+| `SPRINT_PLANNING`          | PM          | Sprint planning assistance        |
+| `LESSONS_LEARNED`          | PM          | Lessons learned analysis          |
 
 ---
 
 ## Gateway Endpoints
 
 ### Dashboard
+
 ```http
 GET /api/dashboard/stats          # Aggregated dashboard statistics
 GET /api/dashboard/compliance     # Compliance scores across modules
 ```
 
 ### OpenAPI Documentation
+
 ```http
 GET /api/docs                     # Scalar UI interactive API explorer
 GET /api/docs/openapi.json        # OpenAPI 3.0 JSON specification
 ```
+
 The Scalar UI provides an interactive explorer for all gateway and proxied API routes.
 
 ### Cookie Consent
+
 ```http
 POST /api/cookie-consent          # Save cookie consent preferences
 Content-Type: application/json
@@ -2075,11 +2223,13 @@ Content-Type: application/json
 ```
 
 ### CSRF Token
+
 ```http
 GET /api/csrf-token               # Get CSRF token (double-submit cookie)
 ```
 
 ### Users
+
 ```http
 GET /api/users                    # List users (admin only)
 GET /api/users/:id                # Get user
@@ -2089,12 +2239,14 @@ DELETE /api/users/:id             # Delete user
 ```
 
 ### Sessions
+
 ```http
 GET /api/sessions                 # List active sessions
 DELETE /api/sessions/:id          # Revoke session
 ```
 
 ### Notifications (WebSocket)
+
 ```http
 GET /api/notifications            # List notifications for current user
 POST /api/notifications           # Create notification
@@ -2106,6 +2258,7 @@ DELETE /api/notifications/:id     # Delete notification
 WebSocket endpoint: `ws://localhost:4000/ws` (authenticated via token query param)
 
 ### Roles & Access Log
+
 ```http
 GET /api/roles                    # List all roles
 POST /api/roles                   # Create role
@@ -2118,6 +2271,7 @@ GET /api/access-log               # View access audit log
 ```
 
 ### Organisations (MSP Mode)
+
 ```http
 GET /api/organisations/msp-tenants      # List MSP tenants
 POST /api/organisations/msp-tenants     # Create tenant
@@ -2128,6 +2282,7 @@ GET /api/organisations/msp-dashboard    # MSP dashboard stats
 ```
 
 ### Compliance (Regulatory Feed)
+
 ```http
 GET /api/compliance/regulations         # List regulations (with filters)
 POST /api/compliance/regulations        # Create regulation
@@ -2143,11 +2298,13 @@ Query parameters: `search`, `jurisdiction`, `standard`, `status`
 ## Health Checks
 
 Every service exposes a health check endpoint:
+
 ```http
 GET /health
 ```
 
 Response:
+
 ```json
 {
   "status": "healthy",
@@ -2157,33 +2314,33 @@ Response:
 }
 ```
 
-| Service | URL |
-|---------|-----|
-| Gateway | `http://localhost:4000/health` |
-| Health & Safety | `http://localhost:4001/health` |
-| Environment | `http://localhost:4002/health` |
-| Quality | `http://localhost:4003/health` |
-| AI Analysis | `http://localhost:4004/health` |
-| Inventory | `http://localhost:4005/health` |
-| HR | `http://localhost:4006/health` |
-| Payroll | `http://localhost:4007/health` |
-| Workflows | `http://localhost:4008/health` |
+| Service            | URL                            |
+| ------------------ | ------------------------------ |
+| Gateway            | `http://localhost:4000/health` |
+| Health & Safety    | `http://localhost:4001/health` |
+| Environment        | `http://localhost:4002/health` |
+| Quality            | `http://localhost:4003/health` |
+| AI Analysis        | `http://localhost:4004/health` |
+| Inventory          | `http://localhost:4005/health` |
+| HR                 | `http://localhost:4006/health` |
+| Payroll            | `http://localhost:4007/health` |
+| Workflows          | `http://localhost:4008/health` |
 | Project Management | `http://localhost:4009/health` |
-| Automotive | `http://localhost:4010/health` |
-| Medical | `http://localhost:4011/health` |
-| Aerospace | `http://localhost:4012/health` |
-| Finance | `http://localhost:4013/health` |
-| CRM | `http://localhost:4014/health` |
-| InfoSec | `http://localhost:4015/health` |
-| ESG | `http://localhost:4016/health` |
-| CMMS | `http://localhost:4017/health` |
-| Portal | `http://localhost:4018/health` |
-| Food Safety | `http://localhost:4019/health` |
-| Energy | `http://localhost:4020/health` |
-| Analytics | `http://localhost:4021/health` |
-| Field Service | `http://localhost:4022/health` |
-| ISO 42001 | `http://localhost:4023/health` |
-| ISO 37001 | `http://localhost:4024/health` |
+| Automotive         | `http://localhost:4010/health` |
+| Medical            | `http://localhost:4011/health` |
+| Aerospace          | `http://localhost:4012/health` |
+| Finance            | `http://localhost:4013/health` |
+| CRM                | `http://localhost:4014/health` |
+| InfoSec            | `http://localhost:4015/health` |
+| ESG                | `http://localhost:4016/health` |
+| CMMS               | `http://localhost:4017/health` |
+| Portal             | `http://localhost:4018/health` |
+| Food Safety        | `http://localhost:4019/health` |
+| Energy             | `http://localhost:4020/health` |
+| Analytics          | `http://localhost:4021/health` |
+| Field Service      | `http://localhost:4022/health` |
+| ISO 42001          | `http://localhost:4023/health` |
+| ISO 37001          | `http://localhost:4024/health` |
 
 ---
 
@@ -2241,6 +2398,7 @@ curl -s -I http://localhost:4000/api/health-safety/incidents \
 ## New AI Endpoints (via gateway → api-ai-analysis:4004)
 
 ### Document Analysis
+
 ```http
 POST /api/ai/documents/analyze
 Content-Type: application/json
@@ -2250,9 +2408,11 @@ Content-Type: application/json
   "analysisType": "SUMMARIZE | EXTRACT_KEY_TERMS | CLASSIFY | FULL_ANALYSIS"
 }
 ```
+
 Returns summary, key terms, classification, ISO standard relevance, and recommendations.
 
 ### Compliance Gap Analysis
+
 ```http
 POST /api/ai/compliance/gap-analysis
 Content-Type: application/json
@@ -2265,9 +2425,11 @@ Content-Type: application/json
   "organisationContext": "Manufacturing company, 200 employees"
 }
 ```
+
 Returns per-standard scores, gaps with severity/recommendations, cross-standard synergies, and prioritized actions.
 
 ### Predictive Risk Scoring
+
 ```http
 POST /api/ai/compliance/predictive-risk
 Content-Type: application/json
@@ -2280,9 +2442,11 @@ Content-Type: application/json
   "timeframeMonths": 6
 }
 ```
+
 Returns predicted risks with probability/trend, seasonal patterns, and recommendations.
 
 ### Semantic Search
+
 ```http
 POST /api/ai/compliance/search
 Content-Type: application/json
@@ -2293,9 +2457,11 @@ Content-Type: application/json
   "limit": 10
 }
 ```
+
 Returns interpreted search terms, relevant modules with endpoints, suggested filters, and related ISO clauses.
 
 ### AI Assistant (Welcome Discovery Wizard Q&A)
+
 ```http
 POST /api/ai/assistant
 Content-Type: application/json
@@ -2305,7 +2471,9 @@ Content-Type: application/json
   "context": "User is on wizard step 4 of 7"
 }
 ```
+
 Returns `{ answer, suggestedModules, relatedFeatures }`. Uses a 3-tier response strategy:
+
 1. **FAQ lookup** — matches against hardcoded knowledge base (ISO standards, CAPA, modules, getting started)
 2. **AI provider** — calls configured OpenAI/Anthropic/Grok provider with IMS system prompt and module knowledge
 3. **Module KB fallback** — keyword-matches question against 33 module descriptions and returns relevant modules
@@ -2313,11 +2481,13 @@ Returns `{ answer, suggestedModules, relatedFeatures }`. Uses a 3-tier response 
 ## Marketplace Plugin API (gateway local routes)
 
 ### List Plugins
+
 ```http
 GET /api/marketplace/plugins?category=INTEGRATION&search=slack&page=1&limit=20
 ```
 
 ### Register Plugin (admin only)
+
 ```http
 POST /api/marketplace/plugins
 Content-Type: application/json
@@ -2334,12 +2504,14 @@ Content-Type: application/json
 ```
 
 ### Install / Uninstall
+
 ```http
 POST /api/marketplace/plugins/:id/install
 DELETE /api/marketplace/plugins/:id/install
 ```
 
 ### Publish Version
+
 ```http
 POST /api/marketplace/plugins/:id/versions
 Content-Type: application/json
@@ -2352,6 +2524,7 @@ Content-Type: application/json
 ```
 
 ### Register Webhook
+
 ```http
 POST /api/marketplace/plugins/:id/webhooks
 Content-Type: application/json
@@ -2361,6 +2534,7 @@ Content-Type: application/json
   "targetUrl": "https://hooks.slack.com/..."
 }
 ```
+
 Returns subscription with HMAC secret for payload verification.
 
 ---
@@ -2369,17 +2543,17 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/inventory`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `inventory.ts` | CRUD for inventory items |
-| `products.ts` | Product catalogue management |
-| `categories.ts` | Product categories |
-| `warehouses.ts` | Warehouse/location management |
+| Route File        | Endpoints                         |
+| ----------------- | --------------------------------- |
+| `inventory.ts`    | CRUD for inventory items          |
+| `products.ts`     | Product catalogue management      |
+| `categories.ts`   | Product categories                |
+| `warehouses.ts`   | Warehouse/location management     |
 | `stock-levels.ts` | Real-time stock levels and alerts |
 | `transactions.ts` | Stock movements (in/out/transfer) |
-| `adjustments.ts` | Stock count adjustments |
-| `suppliers.ts` | Inventory supplier links |
-| `reports.ts` | Inventory reports and analytics |
+| `adjustments.ts`  | Stock count adjustments           |
+| `suppliers.ts`    | Inventory supplier links          |
+| `reports.ts`      | Inventory reports and analytics   |
 
 ---
 
@@ -2387,19 +2561,19 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/hr`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `employees.ts` | Employee CRUD, profiles, status management |
-| `departments.ts` | Department structure and hierarchy |
-| `leave.ts` | Leave requests, approvals, balances |
-| `attendance.ts` | Clock in/out, timesheets |
-| `recruitment.ts` | Job postings, applications, pipeline |
-| `training.ts` | Training records and assignments |
-| `certifications.ts` | Professional certifications tracking |
-| `performance.ts` | Performance reviews and ratings |
-| `goals.ts` | Goal setting and tracking |
-| `documents.ts` | Employee document management |
-| `org-chart.ts` | Organisation chart data |
+| Route File          | Endpoints                                  |
+| ------------------- | ------------------------------------------ |
+| `employees.ts`      | Employee CRUD, profiles, status management |
+| `departments.ts`    | Department structure and hierarchy         |
+| `leave.ts`          | Leave requests, approvals, balances        |
+| `attendance.ts`     | Clock in/out, timesheets                   |
+| `recruitment.ts`    | Job postings, applications, pipeline       |
+| `training.ts`       | Training records and assignments           |
+| `certifications.ts` | Professional certifications tracking       |
+| `performance.ts`    | Performance reviews and ratings            |
+| `goals.ts`          | Goal setting and tracking                  |
+| `documents.ts`      | Employee document management               |
+| `org-chart.ts`      | Organisation chart data                    |
 
 ---
 
@@ -2407,16 +2581,16 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/payroll`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `payroll.ts` | Pay run CRUD, processing, approval |
-| `salary.ts` | Salary structures and grades |
-| `benefits.ts` | Employee benefits management |
-| `tax.ts` | Tax configuration and calculations |
-| `tax-calculator.ts` | Multi-jurisdiction tax calculator |
-| `jurisdictions.ts` | Tax jurisdiction definitions (UK, US, EU, AU) |
-| `expenses.ts` | Expense claims and reimbursements |
-| `loans.ts` | Employee loan management |
+| Route File          | Endpoints                                     |
+| ------------------- | --------------------------------------------- |
+| `payroll.ts`        | Pay run CRUD, processing, approval            |
+| `salary.ts`         | Salary structures and grades                  |
+| `benefits.ts`       | Employee benefits management                  |
+| `tax.ts`            | Tax configuration and calculations            |
+| `tax-calculator.ts` | Multi-jurisdiction tax calculator             |
+| `jurisdictions.ts`  | Tax jurisdiction definitions (UK, US, EU, AU) |
+| `expenses.ts`       | Expense claims and reimbursements             |
+| `loans.ts`          | Employee loan management                      |
 
 ---
 
@@ -2424,15 +2598,15 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/workflows`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `definitions.ts` | Workflow definition CRUD (visual builder) |
-| `instances.ts` | Running workflow instances |
-| `tasks.ts` | Task assignment and completion |
-| `approvals.ts` | Approval chain management |
-| `automation.ts` | Automated trigger configuration |
-| `templates.ts` | Pre-built workflow templates (6 ISO templates) |
-| `webhooks.ts` | External webhook integrations |
+| Route File       | Endpoints                                      |
+| ---------------- | ---------------------------------------------- |
+| `definitions.ts` | Workflow definition CRUD (visual builder)      |
+| `instances.ts`   | Running workflow instances                     |
+| `tasks.ts`       | Task assignment and completion                 |
+| `approvals.ts`   | Approval chain management                      |
+| `automation.ts`  | Automated trigger configuration                |
+| `templates.ts`   | Pre-built workflow templates (6 ISO templates) |
+| `webhooks.ts`    | External webhook integrations                  |
 
 ---
 
@@ -2440,15 +2614,15 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/training`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `courses.ts` | Training course CRUD |
-| `records.ts` | Individual training records |
-| `matrix.ts` | Training needs matrix (role × competency) |
-| `competencies.ts` | Competency framework definitions |
-| `tna.ts` | Training needs analysis |
-| `inductions.ts` | New starter induction tracking |
-| `dashboard.ts` | Training KPIs and compliance metrics |
+| Route File        | Endpoints                                 |
+| ----------------- | ----------------------------------------- |
+| `courses.ts`      | Training course CRUD                      |
+| `records.ts`      | Individual training records               |
+| `matrix.ts`       | Training needs matrix (role × competency) |
+| `competencies.ts` | Competency framework definitions          |
+| `tna.ts`          | Training needs analysis                   |
+| `inductions.ts`   | New starter induction tracking            |
+| `dashboard.ts`    | Training KPIs and compliance metrics      |
 
 ---
 
@@ -2456,16 +2630,16 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/suppliers`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `suppliers.ts` | Supplier CRUD, status management |
-| `categories.ts` | Supplier categories and segmentation |
-| `approval.ts` | Supplier approval workflow |
-| `scorecards.ts` | Supplier performance scorecards |
-| `documents.ts` | Supplier document management |
-| `spend.ts` | Spend analytics and tracking |
-| `portal.ts` | Supplier self-service portal endpoints |
-| `dashboard.ts` | Supplier KPIs and risk indicators |
+| Route File      | Endpoints                              |
+| --------------- | -------------------------------------- |
+| `suppliers.ts`  | Supplier CRUD, status management       |
+| `categories.ts` | Supplier categories and segmentation   |
+| `approval.ts`   | Supplier approval workflow             |
+| `scorecards.ts` | Supplier performance scorecards        |
+| `documents.ts`  | Supplier document management           |
+| `spend.ts`      | Spend analytics and tracking           |
+| `portal.ts`     | Supplier self-service portal endpoints |
+| `dashboard.ts`  | Supplier KPIs and risk indicators      |
 
 ---
 
@@ -2473,15 +2647,15 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/assets`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `assets.ts` | Asset register CRUD, lifecycle management |
-| `locations.ts` | Asset location tracking |
-| `inspections.ts` | Asset inspection scheduling and records |
-| `calibrations.ts` | Calibration scheduling and certificates |
-| `depreciation.ts` | Depreciation calculations and reporting |
-| `work-orders.ts` | Maintenance work order management |
-| `dashboard.ts` | Asset KPIs, upcoming maintenance |
+| Route File        | Endpoints                                 |
+| ----------------- | ----------------------------------------- |
+| `assets.ts`       | Asset register CRUD, lifecycle management |
+| `locations.ts`    | Asset location tracking                   |
+| `inspections.ts`  | Asset inspection scheduling and records   |
+| `calibrations.ts` | Calibration scheduling and certificates   |
+| `depreciation.ts` | Depreciation calculations and reporting   |
+| `work-orders.ts`  | Maintenance work order management         |
+| `dashboard.ts`    | Asset KPIs, upcoming maintenance          |
 
 ---
 
@@ -2489,14 +2663,14 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/documents`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `documents.ts` | Document CRUD, upload, metadata |
-| `versions.ts` | Version control (check-in/check-out) |
-| `approvals.ts` | Document approval workflows |
-| `read-receipts.ts` | Mandatory read tracking |
-| `search.ts` | Full-text document search |
-| `dashboard.ts` | Document compliance metrics |
+| Route File         | Endpoints                            |
+| ------------------ | ------------------------------------ |
+| `documents.ts`     | Document CRUD, upload, metadata      |
+| `versions.ts`      | Version control (check-in/check-out) |
+| `approvals.ts`     | Document approval workflows          |
+| `read-receipts.ts` | Mandatory read tracking              |
+| `search.ts`        | Full-text document search            |
+| `dashboard.ts`     | Document compliance metrics          |
 
 ---
 
@@ -2504,15 +2678,15 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/complaints`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `complaints.ts` | Complaint CRUD, status tracking |
-| `actions.ts` | Corrective/preventive actions |
-| `communications.ts` | Customer communication log |
-| `sla.ts` | SLA monitoring and escalation |
-| `regulatory.ts` | Regulatory reporting requirements |
-| `public.ts` | Public complaint submission (unauthenticated) |
-| `dashboard.ts` | Complaint KPIs and trends |
+| Route File          | Endpoints                                     |
+| ------------------- | --------------------------------------------- |
+| `complaints.ts`     | Complaint CRUD, status tracking               |
+| `actions.ts`        | Corrective/preventive actions                 |
+| `communications.ts` | Customer communication log                    |
+| `sla.ts`            | SLA monitoring and escalation                 |
+| `regulatory.ts`     | Regulatory reporting requirements             |
+| `public.ts`         | Public complaint submission (unauthenticated) |
+| `dashboard.ts`      | Complaint KPIs and trends                     |
 
 ---
 
@@ -2520,15 +2694,15 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/contracts`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `contracts.ts` | Contract CRUD, status lifecycle |
-| `clauses.ts` | Contract clause library |
-| `approvals.ts` | Contract approval chain |
-| `renewals.ts` | Renewal tracking and alerts |
-| `extraction.ts` | AI-powered clause extraction |
-| `notices.ts` | Notice period management |
-| `dashboard.ts` | Contract value and expiry metrics |
+| Route File      | Endpoints                         |
+| --------------- | --------------------------------- |
+| `contracts.ts`  | Contract CRUD, status lifecycle   |
+| `clauses.ts`    | Contract clause library           |
+| `approvals.ts`  | Contract approval chain           |
+| `renewals.ts`   | Renewal tracking and alerts       |
+| `extraction.ts` | AI-powered clause extraction      |
+| `notices.ts`    | Notice period management          |
+| `dashboard.ts`  | Contract value and expiry metrics |
 
 ---
 
@@ -2536,13 +2710,13 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/ptw`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `permits.ts` | PTW CRUD, issue/close workflow |
-| `method-statements.ts` | Method statement management |
-| `toolbox-talks.ts` | Toolbox talk records |
-| `conflicts.ts` | Permit conflict detection (overlapping work) |
-| `dashboard.ts` | Active permits, upcoming expiry |
+| Route File             | Endpoints                                    |
+| ---------------------- | -------------------------------------------- |
+| `permits.ts`           | PTW CRUD, issue/close workflow               |
+| `method-statements.ts` | Method statement management                  |
+| `toolbox-talks.ts`     | Toolbox talk records                         |
+| `conflicts.ts`         | Permit conflict detection (overlapping work) |
+| `dashboard.ts`         | Active permits, upcoming expiry              |
 
 ---
 
@@ -2550,12 +2724,12 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/reg-monitor`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `legal-register.ts` | Legal register CRUD |
-| `obligations.ts` | Compliance obligation tracking |
-| `changes.ts` | Regulatory change monitoring feed |
-| `dashboard.ts` | Compliance status overview |
+| Route File          | Endpoints                         |
+| ------------------- | --------------------------------- |
+| `legal-register.ts` | Legal register CRUD               |
+| `obligations.ts`    | Compliance obligation tracking    |
+| `changes.ts`        | Regulatory change monitoring feed |
+| `dashboard.ts`      | Compliance status overview        |
 
 ---
 
@@ -2563,13 +2737,13 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/incidents`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `incidents.ts` | Incident CRUD, severity classification |
-| `investigation.ts` | Root cause investigation management |
-| `riddor.ts` | RIDDOR reportable incident handling |
-| `timeline.ts` | Incident timeline and event log |
-| `dashboard.ts` | Incident KPIs, trends, heatmap |
+| Route File         | Endpoints                              |
+| ------------------ | -------------------------------------- |
+| `incidents.ts`     | Incident CRUD, severity classification |
+| `investigation.ts` | Root cause investigation management    |
+| `riddor.ts`        | RIDDOR reportable incident handling    |
+| `timeline.ts`      | Incident timeline and event log        |
+| `dashboard.ts`     | Incident KPIs, trends, heatmap         |
 
 ---
 
@@ -2577,14 +2751,14 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/audits`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `audits.ts` | Audit CRUD, scheduling, assignment |
-| `programmes.ts` | Annual audit programme management |
-| `checklists.ts` | Audit checklist templates |
-| `findings.ts` | Audit finding CRUD, severity, actions |
-| `pre-audit.ts` | Pre-audit self-assessment |
-| `dashboard.ts` | Audit programme KPIs |
+| Route File      | Endpoints                             |
+| --------------- | ------------------------------------- |
+| `audits.ts`     | Audit CRUD, scheduling, assignment    |
+| `programmes.ts` | Annual audit programme management     |
+| `checklists.ts` | Audit checklist templates             |
+| `findings.ts`   | Audit finding CRUD, severity, actions |
+| `pre-audit.ts`  | Pre-audit self-assessment             |
+| `dashboard.ts`  | Audit programme KPIs                  |
 
 ---
 
@@ -2592,11 +2766,11 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/mgmt-review`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `reviews.ts` | Management review CRUD, minutes, actions |
-| `agenda.ts` | Review agenda item management (Zod validation on POST /:id/generate) |
-| `dashboard.ts` | Review schedule and action tracking |
+| Route File     | Endpoints                                                            |
+| -------------- | -------------------------------------------------------------------- |
+| `reviews.ts`   | Management review CRUD, minutes, actions                             |
+| `agenda.ts`    | Review agenda item management (Zod validation on POST /:id/generate) |
+| `dashboard.ts` | Review schedule and action tracking                                  |
 
 ---
 
@@ -2604,13 +2778,13 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/setup-wizard`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `wizard.ts` | `GET /status` — Check setup progress |
-| | `POST /init` — Initialize new organisation |
-| | `POST /step` — Complete a setup step |
-| | `POST /complete` — Finish setup |
-| | `POST /skip` — Skip optional step |
+| Route File  | Endpoints                                  |
+| ----------- | ------------------------------------------ |
+| `wizard.ts` | `GET /status` — Check setup progress       |
+|             | `POST /init` — Initialize new organisation |
+|             | `POST /step` — Complete a setup step       |
+|             | `POST /complete` — Finish setup            |
+|             | `POST /skip` — Skip optional step          |
 
 ---
 
@@ -2618,22 +2792,22 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/marketing`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `roi.ts` | ROI calculator for ISO implementation |
-| `leads.ts` | Lead capture and qualification |
-| `chat.ts` | AI chatbot sessions and messages |
-| `onboarding.ts` | Customer onboarding email sequences |
-| `health-score.ts` | Customer health scoring (auth required) |
-| `expansion.ts` | Expansion opportunity detection (auth required) |
-| `prospect-research.ts` | Company research and enrichment (auth required) |
-| `linkedin-tracker.ts` | LinkedIn outreach tracking (auth required) |
-| `renewal.ts` | Renewal sequence management (auth required) |
-| `winback.ts` | Win-back campaign automation |
-| `growth.ts` | Growth metrics and forecasting (auth required) |
-| `digest.ts` | Weekly digest email generation (auth required) |
-| `partner-onboarding.ts` | Partner onboarding sequence |
-| `stripe-webhooks.ts` | Stripe payment webhook handlers (signature verification enforced) |
+| Route File              | Endpoints                                                         |
+| ----------------------- | ----------------------------------------------------------------- |
+| `roi.ts`                | ROI calculator for ISO implementation                             |
+| `leads.ts`              | Lead capture and qualification                                    |
+| `chat.ts`               | AI chatbot sessions and messages                                  |
+| `onboarding.ts`         | Customer onboarding email sequences                               |
+| `health-score.ts`       | Customer health scoring (auth required)                           |
+| `expansion.ts`          | Expansion opportunity detection (auth required)                   |
+| `prospect-research.ts`  | Company research and enrichment (auth required)                   |
+| `linkedin-tracker.ts`   | LinkedIn outreach tracking (auth required)                        |
+| `renewal.ts`            | Renewal sequence management (auth required)                       |
+| `winback.ts`            | Win-back campaign automation                                      |
+| `growth.ts`             | Growth metrics and forecasting (auth required)                    |
+| `digest.ts`             | Weekly digest email generation (auth required)                    |
+| `partner-onboarding.ts` | Partner onboarding sequence                                       |
+| `stripe-webhooks.ts`    | Stripe payment webhook handlers (signature verification enforced) |
 
 > **Note:** The `growth`, `health-score`, `expansion`, `prospect-research`, `linkedin-tracker`, `renewal`, and `digest` routes now require Bearer token authentication. The `stripe-webhooks` route enforces Stripe webhook signature verification (HMAC-SHA256 via `STRIPE_WEBHOOK_SECRET`); requests without a valid signature are rejected with 400.
 
@@ -2645,16 +2819,16 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/partners`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `auth.ts` | Partner authentication (register, login, refresh) |
-| `profile.ts` | Partner profile management |
-| `deals.ts` | Deal registration and tracking |
-| `payouts.ts` | Commission payout management (Zod validation on POST /request) |
-| `referrals.ts` | Referral link generation and tracking |
-| `commission.ts` | Commission tier configuration |
-| `support.ts` | Partner support ticket management |
-| `collateral.ts` | Marketing collateral downloads |
+| Route File      | Endpoints                                                      |
+| --------------- | -------------------------------------------------------------- |
+| `auth.ts`       | Partner authentication (register, login, refresh)              |
+| `profile.ts`    | Partner profile management                                     |
+| `deals.ts`      | Deal registration and tracking                                 |
+| `payouts.ts`    | Commission payout management (Zod validation on POST /request) |
+| `referrals.ts`  | Referral link generation and tracking                          |
+| `commission.ts` | Commission tier configuration                                  |
+| `support.ts`    | Partner support ticket management                              |
+| `collateral.ts` | Marketing collateral downloads                                 |
 
 ---
 
@@ -2662,16 +2836,16 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/chemicals`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `chemicals.ts` | Chemical register CRUD (GHS classification, hazards) |
-| `sds.ts` | Safety Data Sheet management (ISO 11014) |
-| `coshh.ts` | COSHH assessment CRUD (risk rating, controls) |
-| `inventory.ts` | Chemical inventory and stock tracking |
-| `monitoring.ts` | Exposure monitoring records (WEL/OEL) |
-| `incidents.ts` | Chemical incident reporting |
-| `disposal.ts` | Waste disposal records and manifests |
-| `analytics.ts` | Chemical risk analytics and dashboards |
+| Route File      | Endpoints                                            |
+| --------------- | ---------------------------------------------------- |
+| `chemicals.ts`  | Chemical register CRUD (GHS classification, hazards) |
+| `sds.ts`        | Safety Data Sheet management (ISO 11014)             |
+| `coshh.ts`      | COSHH assessment CRUD (risk rating, controls)        |
+| `inventory.ts`  | Chemical inventory and stock tracking                |
+| `monitoring.ts` | Exposure monitoring records (WEL/OEL)                |
+| `incidents.ts`  | Chemical incident reporting                          |
+| `disposal.ts`   | Waste disposal records and manifests                 |
+| `analytics.ts`  | Chemical risk analytics and dashboards               |
 
 ---
 
@@ -2679,14 +2853,14 @@ Returns subscription with HMAC secret for payload verification.
 
 **Base path:** `/api/emergency`
 
-| Route File | Endpoints |
-|------------|-----------|
-| `premises.ts` | Premises register, assembly points, evacuation routes |
-| `fireRiskAssessment.ts` | Fire risk assessment CRUD (FSO 2005 compliant) |
-| `incidents.ts` | Emergency incident declaration, decision log, timeline |
-| `bcp.ts` | Business continuity plan CRUD and exercises |
-| `wardens.ts` | Fire warden assignment and management |
-| `peep.ts` | Personal Emergency Evacuation Plans |
-| `equipment.ts` | Emergency equipment register (extinguishers, alarms, etc.) |
-| `drills.ts` | Evacuation drill scheduling and records |
-| `analytics.ts` | Emergency preparedness metrics |
+| Route File              | Endpoints                                                  |
+| ----------------------- | ---------------------------------------------------------- |
+| `premises.ts`           | Premises register, assembly points, evacuation routes      |
+| `fireRiskAssessment.ts` | Fire risk assessment CRUD (FSO 2005 compliant)             |
+| `incidents.ts`          | Emergency incident declaration, decision log, timeline     |
+| `bcp.ts`                | Business continuity plan CRUD and exercises                |
+| `wardens.ts`            | Fire warden assignment and management                      |
+| `peep.ts`               | Personal Emergency Evacuation Plans                        |
+| `equipment.ts`          | Emergency equipment register (extinguishers, alarms, etc.) |
+| `drills.ts`             | Evacuation drill scheduling and records                    |
+| `analytics.ts`          | Emergency preparedness metrics                             |

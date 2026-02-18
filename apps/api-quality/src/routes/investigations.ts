@@ -32,14 +32,22 @@ const createSchema = z.object({
   relatedType: z.string().max(100).optional().nullable(),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
   assignedTo: z.string().max(200).optional().nullable(),
-  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  dueDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   methodology: z.string().max(200).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial().extend({
   status: z.enum(['OPEN', 'IN_PROGRESS', 'PENDING_REVIEW', 'CLOSED', 'CANCELLED']).optional(),
-  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  completedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   immediateCause: z.string().max(5000).optional().nullable(),
   rootCause: z.string().max(5000).optional().nullable(),
   contributingFactors: z.string().max(5000).optional().nullable(),
@@ -56,19 +64,34 @@ router.get('/stats', async (_req: Request, res: Response) => {
       prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'OPEN' } as any }),
       prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } as any }),
       prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'CLOSED' } as any }),
-      prisma.qualInvestigation.groupBy({ by: ['severity'], where: { deletedAt: null } as any, _count: { id: true } }),
+      prisma.qualInvestigation.groupBy({
+        by: ['severity'],
+        where: { deletedAt: null } as any,
+        _count: { id: true },
+      }),
     ]);
 
     res.json({
       success: true,
       data: {
-        total, open, inProgress, closed,
-        bySeverity: bySeverity.map((s: Record<string, unknown>) => ({ severity: s.severity, count: (s as any)._count.id })),
+        total,
+        open,
+        inProgress,
+        closed,
+        bySeverity: bySeverity.map((s: Record<string, unknown>) => ({
+          severity: s.severity,
+          count: (s as any)._count.id,
+        })),
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get investigation stats', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get investigation stats' } });
+    logger.error('Failed to get investigation stats', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get investigation stats' },
+    });
   }
 });
 
@@ -92,14 +115,28 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      prisma.qualInvestigation.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.qualInvestigation.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
       prisma.qualInvestigation.count({ where }),
     ]);
 
-    res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error: unknown) {
-    logger.error('Failed to list investigations', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list investigations' } });
+    logger.error('Failed to list investigations', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list investigations' },
+    });
   }
 });
 
@@ -108,7 +145,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -127,20 +171,35 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to create investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create investigation' } });
+    logger.error('Failed to create investigation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create investigation' },
+    });
   }
 });
 
 // GET /:id — Get investigation by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await prisma.qualInvestigation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Investigation not found' } });
+    const item = await prisma.qualInvestigation.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!item)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Investigation not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to get investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get investigation' } });
+    logger.error('Failed to get investigation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get investigation' },
+    });
   }
 });
 
@@ -149,35 +208,66 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.qualInvestigation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Investigation not found' } });
+    const existing = await prisma.qualInvestigation.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Investigation not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.dueDate) data.dueDate = new Date(parsed.data.dueDate);
-    if ((parsed.data as any).completedDate) data.completedDate = new Date((parsed.data as any).completedDate);
+    if ((parsed.data as any).completedDate)
+      data.completedDate = new Date((parsed.data as any).completedDate);
 
     const item = await prisma.qualInvestigation.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to update investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update investigation' } });
+    logger.error('Failed to update investigation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update investigation' },
+    });
   }
 });
 
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.qualInvestigation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Investigation not found' } });
+    const existing = await prisma.qualInvestigation.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Investigation not found' } });
 
-    await prisma.qualInvestigation.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualInvestigation.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete investigation' } });
+    logger.error('Failed to delete investigation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete investigation' },
+    });
   }
 });
 

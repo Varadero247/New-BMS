@@ -49,9 +49,7 @@ export const LockedByOther: Story = {
     recordType: 'risk',
     recordId: 'risk-001',
     currentUserId: 'user-1',
-    viewers: [
-      { userId: 'user-2', userName: 'Jane Doe', lockedAt: now, expiresAt: expires },
-    ],
+    viewers: [{ userId: 'user-2', userName: 'Jane Doe', lockedAt: now, expiresAt: expires }],
     isLocked: true,
     lockedBy: { userId: 'user-2', userName: 'Jane Doe', lockedAt: now, expiresAt: expires },
     onAcquireLock: async (force) => ({ acquired: !!force }),
@@ -64,9 +62,7 @@ export const LockedBySelf: Story = {
     recordType: 'risk',
     recordId: 'risk-001',
     currentUserId: 'user-1',
-    viewers: [
-      { userId: 'user-2', userName: 'Jane Doe', lockedAt: now, expiresAt: expires },
-    ],
+    viewers: [{ userId: 'user-2', userName: 'Jane Doe', lockedAt: now, expiresAt: expires }],
     isLocked: true,
     lockedBy: { userId: 'user-1', userName: 'John Smith', lockedAt: now, expiresAt: expires },
     onAcquireLock: async () => ({ acquired: true }),

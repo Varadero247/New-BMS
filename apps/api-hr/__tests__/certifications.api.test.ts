@@ -20,7 +20,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((_req: any, _res: any, next: any) => {
-    _req.user = { id: '00000000-0000-4000-a000-000000000099', orgId: '00000000-0000-4000-a000-000000000100', role: 'ADMIN' };
+    _req.user = {
+      id: '00000000-0000-4000-a000-000000000099',
+      orgId: '00000000-0000-4000-a000-000000000100',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -61,7 +65,13 @@ const mockCert = {
   doesNotExpire: false,
   renewalRequired: true,
   status: 'ACTIVE',
-  employee: { id: EMP_ID, employeeNumber: 'EMP-001', firstName: 'John', lastName: 'Doe', jobTitle: 'Engineer' },
+  employee: {
+    id: EMP_ID,
+    employeeNumber: 'EMP-001',
+    firstName: 'John',
+    lastName: 'Doe',
+    jobTitle: 'Engineer',
+  },
 };
 
 beforeEach(() => {
@@ -82,7 +92,9 @@ describe('GET /api/certifications', () => {
   });
 
   it('returns 500 on DB error', async () => {
-    (mockPrisma.employeeCertification.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+    (mockPrisma.employeeCertification.findMany as jest.Mock).mockRejectedValue(
+      new Error('DB error')
+    );
 
     const res = await request(app).get('/api/certifications');
     expect(res.status).toBe(500);
@@ -175,7 +187,9 @@ describe('POST /api/certifications', () => {
   });
 
   it('returns 400 on validation error (missing name)', async () => {
-    const res = await request(app).post('/api/certifications').send({ employeeId: EMP_ID, issuingOrganization: 'BSI', issueDate: '2025-01-01' });
+    const res = await request(app)
+      .post('/api/certifications')
+      .send({ employeeId: EMP_ID, issuingOrganization: 'BSI', issueDate: '2025-01-01' });
     expect(res.status).toBe(400);
   });
 
@@ -191,9 +205,14 @@ describe('POST /api/certifications', () => {
 describe('PUT /api/certifications/:id', () => {
   it('updates certification successfully', async () => {
     (mockPrisma.employeeCertification.findUnique as jest.Mock).mockResolvedValue(mockCert);
-    (mockPrisma.employeeCertification.update as jest.Mock).mockResolvedValue({ ...mockCert, status: 'PENDING_RENEWAL' });
+    (mockPrisma.employeeCertification.update as jest.Mock).mockResolvedValue({
+      ...mockCert,
+      status: 'PENDING_RENEWAL',
+    });
 
-    const res = await request(app).put(`/api/certifications/${CERT_ID}`).send({ status: 'PENDING_RENEWAL' });
+    const res = await request(app)
+      .put(`/api/certifications/${CERT_ID}`)
+      .send({ status: 'PENDING_RENEWAL' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });

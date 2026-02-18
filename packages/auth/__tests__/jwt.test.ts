@@ -16,7 +16,8 @@ describe('JWT Utilities', () => {
     jest.resetModules();
     process.env = { ...originalEnv };
     process.env.JWT_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
-    process.env.JWT_REFRESH_SECRET = 'test-refresh-secret-that-is-at-least-64-characters-for-testing';
+    process.env.JWT_REFRESH_SECRET =
+      'test-refresh-secret-that-is-at-least-64-characters-for-testing';
   });
 
   afterAll(() => {
@@ -150,21 +151,19 @@ describe('JWT Utilities', () => {
     it('should validate issuer claim', () => {
       // Create a token with wrong issuer (manually)
       const jwt = require('jsonwebtoken');
-      const wrongIssuerToken = jwt.sign(
-        { userId: 'user-123' },
-        process.env.JWT_SECRET,
-        { issuer: 'wrong-issuer', audience: 'ims-client' }
-      );
+      const wrongIssuerToken = jwt.sign({ userId: 'user-123' }, process.env.JWT_SECRET, {
+        issuer: 'wrong-issuer',
+        audience: 'ims-client',
+      });
       expect(() => verifyToken(wrongIssuerToken)).toThrow();
     });
 
     it('should validate audience claim', () => {
       const jwt = require('jsonwebtoken');
-      const wrongAudienceToken = jwt.sign(
-        { userId: 'user-123' },
-        process.env.JWT_SECRET,
-        { issuer: 'ims-api', audience: 'wrong-audience' }
-      );
+      const wrongAudienceToken = jwt.sign({ userId: 'user-123' }, process.env.JWT_SECRET, {
+        issuer: 'ims-api',
+        audience: 'wrong-audience',
+      });
       expect(() => verifyToken(wrongAudienceToken)).toThrow();
     });
   });
@@ -263,7 +262,9 @@ describe('JWT Utilities', () => {
       jest.resetModules();
 
       const { generateToken: genToken } = require('../src/jwt');
-      expect(() => genToken({ userId: 'test' })).toThrow('JWT_SECRET environment variable is required');
+      expect(() => genToken({ userId: 'test' })).toThrow(
+        'JWT_SECRET environment variable is required'
+      );
     });
 
     it('should throw in development without JWT_SECRET', () => {
@@ -272,7 +273,9 @@ describe('JWT Utilities', () => {
       jest.resetModules();
 
       const { generateToken: genToken } = require('../src/jwt');
-      expect(() => genToken({ userId: 'test' })).toThrow('JWT_SECRET environment variable is required');
+      expect(() => genToken({ userId: 'test' })).toThrow(
+        'JWT_SECRET environment variable is required'
+      );
     });
   });
 });

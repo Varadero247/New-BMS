@@ -24,10 +24,26 @@
  */
 
 import {
-  Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
-  HeadingLevel, AlignmentType, BorderStyle, WidthType, Footer,
-  Header, PageNumber, NumberFormat, ShadingType, TabStopPosition,
-  TabStopType, convertInchesToTwip, PageBreak,
+  Document,
+  Packer,
+  Paragraph,
+  TextRun,
+  Table,
+  TableRow,
+  TableCell,
+  HeadingLevel,
+  AlignmentType,
+  BorderStyle,
+  WidthType,
+  Footer,
+  Header,
+  PageNumber,
+  NumberFormat,
+  ShadingType,
+  TabStopPosition,
+  TabStopType,
+  convertInchesToTwip,
+  PageBreak,
 } from 'docx';
 import fs from 'fs';
 import path from 'path';
@@ -46,7 +62,12 @@ function makeHeader(title, docNumber, version, isoRef) {
       new Paragraph({
         children: [
           new TextRun({ text: 'NEXARA IMS', bold: true, size: 16, color: BLUE, font: 'Calibri' }),
-          new TextRun({ text: `    ${docNumber}  |  v${version}  |  ${isoRef}`, size: 14, color: MED_GREY, font: 'Calibri' }),
+          new TextRun({
+            text: `    ${docNumber}  |  v${version}  |  ${isoRef}`,
+            size: 14,
+            color: MED_GREY,
+            font: 'Calibri',
+          }),
         ],
         border: { bottom: { style: BorderStyle.SINGLE, size: 1, color: BLUE } },
         spacing: { after: 100 },
@@ -60,9 +81,19 @@ function makeFooter() {
     children: [
       new Paragraph({
         children: [
-          new TextRun({ text: 'Confidential — [Company Name]', size: 14, color: MED_GREY, font: 'Calibri' }),
+          new TextRun({
+            text: 'Confidential — [Company Name]',
+            size: 14,
+            color: MED_GREY,
+            font: 'Calibri',
+          }),
           new TextRun({ text: '    ', size: 14 }),
-          new TextRun({ text: '© 2026 [Company Name] — Nexara IMS', size: 14, color: MED_GREY, font: 'Calibri' }),
+          new TextRun({
+            text: '© 2026 [Company Name] — Nexara IMS',
+            size: 14,
+            color: MED_GREY,
+            font: 'Calibri',
+          }),
           new TextRun({ text: '    Page ', size: 14, color: MED_GREY, font: 'Calibri' }),
         ],
         border: { top: { style: BorderStyle.SINGLE, size: 1, color: BLUE } },
@@ -77,11 +108,20 @@ function makeCoverPage(title, docNumber, version, owner, approvedBy, isoRef) {
   return [
     new Paragraph({ spacing: { before: 2000 } }),
     new Paragraph({
-      children: [new TextRun({ text: 'NEXARA', bold: true, size: 60, color: BLUE, font: 'Calibri' })],
+      children: [
+        new TextRun({ text: 'NEXARA', bold: true, size: 60, color: BLUE, font: 'Calibri' }),
+      ],
       alignment: AlignmentType.CENTER,
     }),
     new Paragraph({
-      children: [new TextRun({ text: 'Integrated Management System', size: 28, color: MED_GREY, font: 'Calibri' })],
+      children: [
+        new TextRun({
+          text: 'Integrated Management System',
+          size: 28,
+          color: MED_GREY,
+          font: 'Calibri',
+        }),
+      ],
       alignment: AlignmentType.CENTER,
       spacing: { after: 600 },
     }),
@@ -91,7 +131,9 @@ function makeCoverPage(title, docNumber, version, owner, approvedBy, isoRef) {
       spacing: { after: 600 },
     }),
     new Paragraph({
-      children: [new TextRun({ text: title, bold: true, size: 44, color: DARK_GREY, font: 'Calibri' })],
+      children: [
+        new TextRun({ text: title, bold: true, size: 44, color: DARK_GREY, font: 'Calibri' }),
+      ],
       alignment: AlignmentType.CENTER,
       spacing: { after: 200 },
     }),
@@ -101,18 +143,29 @@ function makeCoverPage(title, docNumber, version, owner, approvedBy, isoRef) {
       spacing: { after: 800 },
     }),
     // Metadata table
-    makeSimpleTable([
-      ['Document Number:', docNumber],
-      ['Version:', version],
-      ['Date:', '[DD/MM/YYYY]'],
-      ['Owner:', owner],
-      ['Approved By:', approvedBy],
-      ['Classification:', 'Confidential'],
-    ], true),
+    makeSimpleTable(
+      [
+        ['Document Number:', docNumber],
+        ['Version:', version],
+        ['Date:', '[DD/MM/YYYY]'],
+        ['Owner:', owner],
+        ['Approved By:', approvedBy],
+        ['Classification:', 'Confidential'],
+      ],
+      true
+    ),
     new Paragraph({ spacing: { after: 600 } }),
     // Revision history
     new Paragraph({
-      children: [new TextRun({ text: 'Revision History', bold: true, size: 24, color: BLUE, font: 'Calibri' })],
+      children: [
+        new TextRun({
+          text: 'Revision History',
+          bold: true,
+          size: 24,
+          color: BLUE,
+          font: 'Calibri',
+        }),
+      ],
       spacing: { before: 400, after: 200 },
     }),
     makeDataTable(
@@ -132,27 +185,42 @@ function makeCoverPage(title, docNumber, version, owner, approvedBy, isoRef) {
 function makeSimpleTable(rows, isMetadata = false) {
   return new Table({
     width: { size: 60, type: WidthType.PERCENTAGE },
-    rows: rows.map(([label, value]) => new TableRow({
-      children: [
-        new TableCell({
-          children: [new Paragraph({
-            children: [new TextRun({ text: label, bold: true, size: 20, color: WHITE, font: 'Calibri' })],
-            spacing: { before: 40, after: 40 },
-          })],
-          width: { size: 35, type: WidthType.PERCENTAGE },
-          shading: { type: ShadingType.CLEAR, fill: BLUE },
-          margins: { top: 40, bottom: 40, left: 100, right: 100 },
-        }),
-        new TableCell({
-          children: [new Paragraph({
-            children: [new TextRun({ text: value, size: 20, font: 'Calibri' })],
-            spacing: { before: 40, after: 40 },
-          })],
-          width: { size: 65, type: WidthType.PERCENTAGE },
-          margins: { top: 40, bottom: 40, left: 100, right: 100 },
-        }),
-      ],
-    })),
+    rows: rows.map(
+      ([label, value]) =>
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: label,
+                      bold: true,
+                      size: 20,
+                      color: WHITE,
+                      font: 'Calibri',
+                    }),
+                  ],
+                  spacing: { before: 40, after: 40 },
+                }),
+              ],
+              width: { size: 35, type: WidthType.PERCENTAGE },
+              shading: { type: ShadingType.CLEAR, fill: BLUE },
+              margins: { top: 40, bottom: 40, left: 100, right: 100 },
+            }),
+            new TableCell({
+              children: [
+                new Paragraph({
+                  children: [new TextRun({ text: value, size: 20, font: 'Calibri' })],
+                  spacing: { before: 40, after: 40 },
+                }),
+              ],
+              width: { size: 65, type: WidthType.PERCENTAGE },
+              margins: { top: 40, bottom: 40, left: 100, right: 100 },
+            }),
+          ],
+        })
+    ),
   });
 }
 
@@ -162,26 +230,41 @@ function makeDataTable(headers, rows) {
     rows: [
       new TableRow({
         tableHeader: true,
-        children: headers.map(h => new TableCell({
-          children: [new Paragraph({
-            children: [new TextRun({ text: h, bold: true, size: 18, color: WHITE, font: 'Calibri' })],
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 30, after: 30 },
-          })],
-          shading: { type: ShadingType.CLEAR, fill: BLUE },
-          margins: { top: 30, bottom: 30, left: 60, right: 60 },
-        })),
+        children: headers.map(
+          (h) =>
+            new TableCell({
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: h, bold: true, size: 18, color: WHITE, font: 'Calibri' }),
+                  ],
+                  alignment: AlignmentType.CENTER,
+                  spacing: { before: 30, after: 30 },
+                }),
+              ],
+              shading: { type: ShadingType.CLEAR, fill: BLUE },
+              margins: { top: 30, bottom: 30, left: 60, right: 60 },
+            })
+        ),
       }),
-      ...rows.map((row, i) => new TableRow({
-        children: row.map(cell => new TableCell({
-          children: [new Paragraph({
-            children: [new TextRun({ text: String(cell), size: 18, font: 'Calibri' })],
-            spacing: { before: 20, after: 20 },
-          })],
-          shading: i % 2 === 1 ? { type: ShadingType.CLEAR, fill: LIGHT_GREY } : undefined,
-          margins: { top: 20, bottom: 20, left: 60, right: 60 },
-        })),
-      })),
+      ...rows.map(
+        (row, i) =>
+          new TableRow({
+            children: row.map(
+              (cell) =>
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      children: [new TextRun({ text: String(cell), size: 18, font: 'Calibri' })],
+                      spacing: { before: 20, after: 20 },
+                    }),
+                  ],
+                  shading: i % 2 === 1 ? { type: ShadingType.CLEAR, fill: LIGHT_GREY } : undefined,
+                  margins: { top: 20, bottom: 20, left: 60, right: 60 },
+                })
+            ),
+          })
+      ),
     ],
   });
 }
@@ -191,10 +274,20 @@ function parseSections(sections) {
   for (const section of sections) {
     if (section.table) {
       if (section.tableTitle) {
-        children.push(new Paragraph({
-          children: [new TextRun({ text: section.tableTitle, bold: true, size: 22, color: BLUE, font: 'Calibri' })],
-          spacing: { before: 200, after: 100 },
-        }));
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: section.tableTitle,
+                bold: true,
+                size: 22,
+                color: BLUE,
+                font: 'Calibri',
+              }),
+            ],
+            spacing: { before: 200, after: 100 },
+          })
+        );
       }
       children.push(makeDataTable(section.table.headers, section.table.rows));
       children.push(new Paragraph({ spacing: { after: 200 } }));
@@ -206,49 +299,66 @@ function parseSections(sections) {
     }
     if (section.heading) {
       const level = section.level || 1;
-      const headingLevel = level === 1 ? HeadingLevel.HEADING_1 :
-                           level === 2 ? HeadingLevel.HEADING_2 :
-                           HeadingLevel.HEADING_3;
-      children.push(new Paragraph({
-        children: [new TextRun({
-          text: section.heading,
-          bold: true,
-          size: level === 1 ? 28 : level === 2 ? 24 : 22,
-          color: BLUE,
-          font: 'Calibri',
-        })],
-        heading: headingLevel,
-        spacing: { before: level === 1 ? 400 : 200, after: 100 },
-        ...(level === 1 ? { border: { bottom: { style: BorderStyle.SINGLE, size: 1, color: LIGHT_BLUE } } } : {}),
-      }));
+      const headingLevel =
+        level === 1
+          ? HeadingLevel.HEADING_1
+          : level === 2
+            ? HeadingLevel.HEADING_2
+            : HeadingLevel.HEADING_3;
+      children.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: section.heading,
+              bold: true,
+              size: level === 1 ? 28 : level === 2 ? 24 : 22,
+              color: BLUE,
+              font: 'Calibri',
+            }),
+          ],
+          heading: headingLevel,
+          spacing: { before: level === 1 ? 400 : 200, after: 100 },
+          ...(level === 1
+            ? { border: { bottom: { style: BorderStyle.SINGLE, size: 1, color: LIGHT_BLUE } } }
+            : {}),
+        })
+      );
     }
     if (section.content) {
       const paragraphs = section.content.split('\n\n');
       for (const para of paragraphs) {
         if (para.trim()) {
-          children.push(new Paragraph({
-            children: [new TextRun({ text: para.trim(), size: 21, font: 'Calibri', color: DARK_GREY })],
-            spacing: { after: 120, line: 300 },
-          }));
+          children.push(
+            new Paragraph({
+              children: [
+                new TextRun({ text: para.trim(), size: 21, font: 'Calibri', color: DARK_GREY }),
+              ],
+              spacing: { after: 120, line: 300 },
+            })
+          );
         }
       }
     }
     if (section.bullets) {
       for (const bullet of section.bullets) {
-        children.push(new Paragraph({
-          children: [new TextRun({ text: bullet, size: 21, font: 'Calibri', color: DARK_GREY })],
-          bullet: { level: 0 },
-          spacing: { after: 60, line: 280 },
-        }));
+        children.push(
+          new Paragraph({
+            children: [new TextRun({ text: bullet, size: 21, font: 'Calibri', color: DARK_GREY })],
+            bullet: { level: 0 },
+            spacing: { after: 60, line: 280 },
+          })
+        );
       }
     }
     if (section.numberedList) {
       for (const item of section.numberedList) {
-        children.push(new Paragraph({
-          children: [new TextRun({ text: item, size: 21, font: 'Calibri', color: DARK_GREY })],
-          bullet: { level: 0 },
-          spacing: { after: 60, line: 280 },
-        }));
+        children.push(
+          new Paragraph({
+            children: [new TextRun({ text: item, size: 21, font: 'Calibri', color: DARK_GREY })],
+            bullet: { level: 0 },
+            spacing: { after: 60, line: 280 },
+          })
+        );
       }
     }
   }
@@ -264,9 +374,14 @@ async function main() {
 
   const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
   const {
-    outputPath, docNumber, title, version = '1.0',
-    owner = '[Document Owner]', approvedBy = '[Approver]',
-    isoRef = '', sections = [],
+    outputPath,
+    docNumber,
+    title,
+    version = '1.0',
+    owner = '[Document Owner]',
+    approvedBy = '[Approver]',
+    isoRef = '',
+    sections = [],
   } = config;
 
   const coverPage = makeCoverPage(title, docNumber, version, owner, approvedBy, isoRef);
@@ -280,16 +395,18 @@ async function main() {
         },
       },
     },
-    sections: [{
-      properties: {
-        page: {
-          margin: { top: 1000, bottom: 1000, left: 1200, right: 1200 },
+    sections: [
+      {
+        properties: {
+          page: {
+            margin: { top: 1000, bottom: 1000, left: 1200, right: 1200 },
+          },
         },
+        headers: { default: makeHeader(title, docNumber, version, isoRef) },
+        footers: { default: makeFooter() },
+        children: [...coverPage, ...bodyContent],
       },
-      headers: { default: makeHeader(title, docNumber, version, isoRef) },
-      footers: { default: makeFooter() },
-      children: [...coverPage, ...bodyContent],
-    }],
+    ],
   });
 
   const buffer = await Packer.toBuffer(doc);
@@ -299,4 +416,7 @@ async function main() {
   console.log(`Created: ${outPath} (${(buffer.length / 1024).toFixed(1)} KB)`);
 }
 
-main().catch(err => { console.error(err); process.exit(1); });
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

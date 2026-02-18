@@ -219,10 +219,12 @@ describe('POST /api/risk-assessments', () => {
   });
 
   it('should return 400 for invalid systemId (not UUID)', async () => {
-    const res = await request(app).post('/api/risk-assessments').send({
-      ...validPayload,
-      systemId: 'not-a-uuid',
-    });
+    const res = await request(app)
+      .post('/api/risk-assessments')
+      .send({
+        ...validPayload,
+        systemId: 'not-a-uuid',
+      });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
@@ -238,10 +240,12 @@ describe('POST /api/risk-assessments', () => {
   });
 
   it('should return 400 for invalid category', async () => {
-    const res = await request(app).post('/api/risk-assessments').send({
-      ...validPayload,
-      category: 'INVALID_CATEGORY',
-    });
+    const res = await request(app)
+      .post('/api/risk-assessments')
+      .send({
+        ...validPayload,
+        category: 'INVALID_CATEGORY',
+      });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);

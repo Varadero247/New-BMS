@@ -16,7 +16,15 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
-const ADJUSTMENT_TYPES = ['ADJUSTMENT_IN', 'ADJUSTMENT_OUT', 'DAMAGE', 'EXPIRED', 'WRITE_OFF', 'FOUND', 'RECOUNT'] as const;
+const ADJUSTMENT_TYPES = [
+  'ADJUSTMENT_IN',
+  'ADJUSTMENT_OUT',
+  'DAMAGE',
+  'EXPIRED',
+  'WRITE_OFF',
+  'FOUND',
+  'RECOUNT',
+] as const;
 
 const createSchema = z.object({
   productId: z.string().trim().min(1).max(200),
@@ -29,7 +37,11 @@ const createSchema = z.object({
   lotNumber: z.string().max(100).optional().nullable(),
   serialNumber: z.string().max(100).optional().nullable(),
   unitCost: z.number().nonnegative().optional().nullable(),
-  adjustmentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  adjustmentDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
 });
 
 // GET / — List stock adjustments
@@ -71,10 +83,17 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       prisma.inventoryTransaction.count({ where }),
     ]);
 
-    res.json({ success: true, data: items, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({
+      success: true,
+      data: items,
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error) {
     logger.error('List adjustments error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list adjustments' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list adjustments' },
+    });
   }
 });
 
@@ -83,13 +102,34 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const { productId, warehouseId, adjustmentType, quantity, reason, notes, binLocation, lotNumber, serialNumber, unitCost, adjustmentDate } = parsed.data;
+    const {
+      productId,
+      warehouseId,
+      adjustmentType,
+      quantity,
+      reason,
+      notes,
+      binLocation,
+      lotNumber,
+      serialNumber,
+      unitCost,
+      adjustmentDate,
+    } = parsed.data;
 
     // Determine quantity change direction
-    const isNegative = ['ADJUSTMENT_OUT', 'DAMAGE', 'EXPIRED', 'WRITE_OFF'].includes(adjustmentType);
+    const isNegative = ['ADJUSTMENT_OUT', 'DAMAGE', 'EXPIRED', 'WRITE_OFF'].includes(
+      adjustmentType
+    );
     const quantityChange = isNegative ? -quantity : quantity;
 
     // Get current inventory level
@@ -98,7 +138,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const quantityAfter = quantityBefore + quantityChange;
 
     if (quantityAfter < 0) {
-      return res.status(400).json({ success: false, error: { code: 'INSUFFICIENT_STOCK', message: `Insufficient stock. Current: ${quantityBefore}, Requested: ${quantity}` } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INSUFFICIENT_STOCK',
+          message: `Insufficient stock. Current: ${quantityBefore}, Requested: ${quantity}`,
+        },
+      });
     }
 
     // Create transaction and update inventory atomically
@@ -124,17 +170,22 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         },
       }),
       ...(inventory
-        ? [prisma.inventory.update({
-            where: { id: inventory.id },
-            data: { quantityOnHand: quantityAfter },
-          })]
+        ? [
+            prisma.inventory.update({
+              where: { id: inventory.id },
+              data: { quantityOnHand: quantityAfter },
+            }),
+          ]
         : []),
     ]);
 
     res.status(201).json({ success: true, data: transaction });
   } catch (error) {
     logger.error('Create adjustment error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create adjustment' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create adjustment' },
+    });
   }
 });
 
@@ -148,11 +199,17 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
         warehouse: { select: { id: true, code: true, name: true } },
       },
     });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Adjustment not found' } });
+    if (!item)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Adjustment not found' } });
     res.json({ success: true, data: item });
   } catch (error) {
     logger.error('Get adjustment error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get adjustment' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get adjustment' },
+    });
   }
 });
 

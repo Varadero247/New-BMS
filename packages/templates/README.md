@@ -18,14 +18,14 @@ Templates cover all 34 `TemplateModule` values including: health-safety, environ
 
 ### API Endpoints (via api-gateway)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/templates` | List all templates (filterable by module) |
-| GET | `/api/templates/:id` | Get template details |
-| POST | `/api/templates` | Create custom template |
-| PUT | `/api/templates/:id` | Update template |
-| POST | `/api/templates/:id/export` | Export template as DOCX |
-| GET | `/api/templates/modules` | List available modules |
+| Method | Path                        | Description                               |
+| ------ | --------------------------- | ----------------------------------------- |
+| GET    | `/api/templates`            | List all templates (filterable by module) |
+| GET    | `/api/templates/:id`        | Get template details                      |
+| POST   | `/api/templates`            | Create custom template                    |
+| PUT    | `/api/templates/:id`        | Update template                           |
+| POST   | `/api/templates/:id/export` | Export template as DOCX                   |
+| GET    | `/api/templates/modules`    | List available modules                    |
 
 ### Seeding
 

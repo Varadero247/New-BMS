@@ -1,4 +1,9 @@
-import { calculateRiskScore, getRiskLevel, calculateWelPercentage, getWelStatus } from '../src/services/riskCalculator';
+import {
+  calculateRiskScore,
+  getRiskLevel,
+  calculateWelPercentage,
+  getWelStatus,
+} from '../src/services/riskCalculator';
 
 describe('riskCalculator', () => {
   describe('calculateRiskScore', () => {

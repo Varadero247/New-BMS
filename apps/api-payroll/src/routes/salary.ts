@@ -31,7 +31,10 @@ router.get('/component-types', scopeToUser, async (req: Request, res: Response) 
     res.json({ success: true, data: componentTypes });
   } catch (error) {
     logger.error('Error fetching component types', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch component types' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch component types' },
+    });
   }
 });
 
@@ -43,8 +46,30 @@ router.post('/component-types', async (req: Request, res: Response) => {
       name: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       category: z.enum(['EARNING', 'DEDUCTION', 'EMPLOYER_CONTRIBUTION', 'REIMBURSEMENT']),
-      type: z.enum(['BASIC_SALARY', 'ALLOWANCE', 'BONUS', 'COMMISSION', 'OVERTIME', 'STATUTORY_DEDUCTION', 'VOLUNTARY_DEDUCTION', 'LOAN_REPAYMENT', 'BENEFIT_CONTRIBUTION', 'TAX', 'OTHER']),
-      calculationType: z.enum(['FIXED', 'PERCENTAGE_OF_BASIC', 'PERCENTAGE_OF_GROSS', 'HOURLY', 'DAILY', 'FORMULA', 'SLAB']).default('FIXED'),
+      type: z.enum([
+        'BASIC_SALARY',
+        'ALLOWANCE',
+        'BONUS',
+        'COMMISSION',
+        'OVERTIME',
+        'STATUTORY_DEDUCTION',
+        'VOLUNTARY_DEDUCTION',
+        'LOAN_REPAYMENT',
+        'BENEFIT_CONTRIBUTION',
+        'TAX',
+        'OTHER',
+      ]),
+      calculationType: z
+        .enum([
+          'FIXED',
+          'PERCENTAGE_OF_BASIC',
+          'PERCENTAGE_OF_GROSS',
+          'HOURLY',
+          'DAILY',
+          'FORMULA',
+          'SLAB',
+        ])
+        .default('FIXED'),
       defaultAmount: z.number().nonnegative().optional(),
       defaultPercentage: z.number().nonnegative().optional(),
       isTaxable: z.boolean().default(true),
@@ -60,10 +85,15 @@ router.post('/component-types', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: componentType });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating component type', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create component type' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create component type' },
+    });
   }
 });
 
@@ -84,7 +114,10 @@ router.get('/employees/:employeeId', async (req: Request, res: Response) => {
     res.json({ success: true, data: salaries });
   } catch (error) {
     logger.error('Error fetching salary', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch salary' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch salary' },
+    });
   }
 });
 
@@ -94,16 +127,42 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
     const schema = z.object({
       baseSalary: z.number().positive(),
       currency: z.string().length(3).default('USD'),
-      payFrequency: z.enum(['WEEKLY', 'BI_WEEKLY', 'SEMI_MONTHLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY']).default('MONTHLY'),
+      payFrequency: z
+        .enum(['WEEKLY', 'BI_WEEKLY', 'SEMI_MONTHLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY'])
+        .default('MONTHLY'),
       effectiveFrom: z.string(),
       changeReason: z.string().optional(),
-      changeType: z.enum(['PROMOTION', 'ANNUAL_INCREMENT', 'ADJUSTMENT', 'DEMOTION', 'TRANSFER', 'CORRECTION', 'INITIAL']).optional(),
-      components: z.array(z.object({
-        componentTypeId: z.string().trim().uuid(),
-        amount: z.number().nonnegative(),
-        percentage: z.number().nonnegative().optional(),
-        calculationType: z.enum(['FIXED', 'PERCENTAGE_OF_BASIC', 'PERCENTAGE_OF_GROSS', 'HOURLY', 'DAILY', 'FORMULA', 'SLAB']).default('FIXED'),
-      })).default([]),
+      changeType: z
+        .enum([
+          'PROMOTION',
+          'ANNUAL_INCREMENT',
+          'ADJUSTMENT',
+          'DEMOTION',
+          'TRANSFER',
+          'CORRECTION',
+          'INITIAL',
+        ])
+        .optional(),
+      components: z
+        .array(
+          z.object({
+            componentTypeId: z.string().trim().uuid(),
+            amount: z.number().nonnegative(),
+            percentage: z.number().nonnegative().optional(),
+            calculationType: z
+              .enum([
+                'FIXED',
+                'PERCENTAGE_OF_BASIC',
+                'PERCENTAGE_OF_GROSS',
+                'HOURLY',
+                'DAILY',
+                'FORMULA',
+                'SLAB',
+              ])
+              .default('FIXED'),
+          })
+        )
+        .default([]),
     });
 
     const data = schema.parse(req.body);
@@ -133,7 +192,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
         changeReason: data.changeReason,
         changeType: data.changeType,
         components: {
-          create: data.components.map(c => ({
+          create: data.components.map((c) => ({
             componentTypeId: c.componentTypeId,
             amount: c.amount,
             percentage: c.percentage,
@@ -149,60 +208,85 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: salary });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error setting salary', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to set salary' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to set salary' } });
   }
 });
 
 // PUT /api/salary/:id/components - Update salary components
-router.put('/:id/components', checkOwnership(prisma.employeeSalary), async (req: Request, res: Response) => {
-  try {
-    const schema = z.object({
-      components: z.array(z.object({
-        id: z.string().trim().uuid().optional(),
-        componentTypeId: z.string().trim().uuid(),
-        amount: z.number().nonnegative(),
-        percentage: z.number().nonnegative().optional(),
-        calculationType: z.enum(['FIXED', 'PERCENTAGE_OF_BASIC', 'PERCENTAGE_OF_GROSS', 'HOURLY', 'DAILY', 'FORMULA', 'SLAB']).default('FIXED'),
-        isActive: z.boolean().default(true),
-      })),
-    });
+router.put(
+  '/:id/components',
+  checkOwnership(prisma.employeeSalary),
+  async (req: Request, res: Response) => {
+    try {
+      const schema = z.object({
+        components: z.array(
+          z.object({
+            id: z.string().trim().uuid().optional(),
+            componentTypeId: z.string().trim().uuid(),
+            amount: z.number().nonnegative(),
+            percentage: z.number().nonnegative().optional(),
+            calculationType: z
+              .enum([
+                'FIXED',
+                'PERCENTAGE_OF_BASIC',
+                'PERCENTAGE_OF_GROSS',
+                'HOURLY',
+                'DAILY',
+                'FORMULA',
+                'SLAB',
+              ])
+              .default('FIXED'),
+            isActive: z.boolean().default(true),
+          })
+        ),
+      });
 
-    const data = schema.parse(req.body);
+      const data = schema.parse(req.body);
 
-    // Delete existing components and create new ones
-    await prisma.salaryComponent.deleteMany({
-      where: { employeeSalaryId: req.params.id },
-    });
+      // Delete existing components and create new ones
+      await prisma.salaryComponent.deleteMany({
+        where: { employeeSalaryId: req.params.id },
+      });
 
-    const salary = await prisma.employeeSalary.update({
-      where: { id: req.params.id },
-      data: {
-        components: {
-          create: data.components.map(c => ({
-            componentTypeId: c.componentTypeId,
-            amount: c.amount,
-            percentage: c.percentage,
-            calculationType: c.calculationType,
-            isActive: c.isActive,
-          })),
+      const salary = await prisma.employeeSalary.update({
+        where: { id: req.params.id },
+        data: {
+          components: {
+            create: data.components.map((c) => ({
+              componentTypeId: c.componentTypeId,
+              amount: c.amount,
+              percentage: c.percentage,
+              calculationType: c.calculationType,
+              isActive: c.isActive,
+            })),
+          },
         },
-      },
-      include: {
-        components: { include: { componentType: true } },
-      },
-    });
+        include: {
+          components: { include: { componentType: true } },
+        },
+      });
 
-    res.json({ success: true, data: salary });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      res.json({ success: true, data: salary });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res
+          .status(400)
+          .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      }
+      logger.error('Error updating components', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update components' },
+      });
     }
-    logger.error('Error updating components', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update components' } });
   }
-});
+);
 
 export default router;

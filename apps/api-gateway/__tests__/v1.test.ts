@@ -141,9 +141,7 @@ describe('V1 Router', () => {
 
   describe('User routes mounted at /api/v1/users', () => {
     it('responds to GET /api/v1/users (requires auth)', async () => {
-      const res = await request(app)
-        .get('/api/v1/users')
-        .set('Authorization', 'Bearer mock-token');
+      const res = await request(app).get('/api/v1/users').set('Authorization', 'Bearer mock-token');
       expect(res.status).not.toBe(404);
     });
   });

@@ -81,9 +81,7 @@ export default function AlertsScreen() {
             key={f}
             onClick={() => setFilter(f)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${
-              filter === f
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-600'
+              filter === f ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-600'
             }`}
           >
             {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -100,7 +98,9 @@ export default function AlertsScreen() {
           return (
             <div key={alert.id} className="bg-white rounded-xl p-4 shadow-sm">
               <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 ${config.bg} rounded-lg flex items-center justify-center`}>
+                <div
+                  className={`w-10 h-10 ${config.bg} rounded-lg flex items-center justify-center`}
+                >
                   <Icon className={`w-5 h-5 ${config.color}`} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -116,8 +116,8 @@ export default function AlertsScreen() {
                         alert.status === 'active'
                           ? 'bg-red-100 text-red-700'
                           : alert.status === 'acknowledged'
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : 'bg-green-100 text-green-700'
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : 'bg-green-100 text-green-700'
                       }`}
                     >
                       {alert.status}

@@ -15,11 +15,17 @@ router.use(authenticate);
 const downtimeCreateSchema = z.object({
   assetId: z.string().trim().uuid(),
   workOrderId: z.string().trim().uuid().optional().nullable(),
-  startTime: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  startTime: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   endTime: z.string().optional().nullable(),
   duration: z.number().nonnegative().optional().nullable(),
   reason: z.string().trim().min(1).max(500),
-  impact: z.enum(['PRODUCTION_STOP', 'REDUCED_OUTPUT', 'QUALITY_IMPACT', 'SAFETY_RISK', 'NONE']).optional(),
+  impact: z
+    .enum(['PRODUCTION_STOP', 'REDUCED_OUTPUT', 'QUALITY_IMPACT', 'SAFETY_RISK', 'NONE'])
+    .optional(),
   estimatedLoss: z.number().optional().nullable(),
 });
 
@@ -28,7 +34,9 @@ const downtimeUpdateSchema = z.object({
   endTime: z.string().optional().nullable(),
   duration: z.number().nonnegative().optional().nullable(),
   reason: z.string().trim().min(1).max(500).optional(),
-  impact: z.enum(['PRODUCTION_STOP', 'REDUCED_OUTPUT', 'QUALITY_IMPACT', 'SAFETY_RISK', 'NONE']).optional(),
+  impact: z
+    .enum(['PRODUCTION_STOP', 'REDUCED_OUTPUT', 'QUALITY_IMPACT', 'SAFETY_RISK', 'NONE'])
+    .optional(),
   estimatedLoss: z.number().optional().nullable(),
 });
 
@@ -53,7 +61,8 @@ router.get('/pareto', async (req: Request, res: Response) => {
     const downtimes = await prisma.cmmsDowntime.findMany({
       where: { deletedAt: null } as any,
       select: { reason: true, duration: true, impact: true },
-      take: 1000});
+      take: 1000,
+    });
 
     const reasonMap: Record<string, { count: number; totalDuration: number }> = {};
     for (const d of downtimes) {
@@ -70,8 +79,13 @@ router.get('/pareto', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: pareto });
   } catch (error: unknown) {
-    logger.error('Failed to generate Pareto analysis', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate Pareto analysis' } });
+    logger.error('Failed to generate Pareto analysis', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate Pareto analysis' },
+    });
   }
 });
 
@@ -87,9 +101,7 @@ router.get('/', async (req: Request, res: Response) => {
     if (assetId) where.assetId = String(assetId);
     if (impact) where.impact = String(impact);
     if (search) {
-      where.OR = [
-        { reason: { contains: String(search), mode: 'insensitive' } },
-      ];
+      where.OR = [{ reason: { contains: String(search), mode: 'insensitive' } }];
     }
 
     const [downtimes, total] = await Promise.all([
@@ -112,8 +124,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list downtime records', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list downtime records' } });
+    logger.error('Failed to list downtime records', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list downtime records' },
+    });
   }
 });
 
@@ -122,7 +139,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = downtimeCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -152,8 +172,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: downtime });
   } catch (error: unknown) {
-    logger.error('Failed to create downtime record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create downtime record' } });
+    logger.error('Failed to create downtime record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create downtime record' },
+    });
   }
 });
 
@@ -170,13 +195,21 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!downtime) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Downtime record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Downtime record not found' },
+      });
     }
 
     res.json({ success: true, data: downtime });
   } catch (error: unknown) {
-    logger.error('Failed to get downtime record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get downtime record' } });
+    logger.error('Failed to get downtime record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get downtime record' },
+    });
   }
 });
 
@@ -185,44 +218,77 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = downtimeUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
-    const existing = await prisma.cmmsDowntime.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsDowntime.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Downtime record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Downtime record not found' },
+      });
     }
 
     const data = parsed.data;
     const updateData: Record<string, unknown> = {};
     if (data.startTime !== undefined) updateData.startTime = new Date(data.startTime);
-    if (data.endTime !== undefined) updateData.endTime = data.endTime ? new Date(data.endTime) : null;
-    if (data.duration !== undefined) updateData.duration = data.duration != null ? new Prisma.Decimal(data.duration) : null;
+    if (data.endTime !== undefined)
+      updateData.endTime = data.endTime ? new Date(data.endTime) : null;
+    if (data.duration !== undefined)
+      updateData.duration = data.duration != null ? new Prisma.Decimal(data.duration) : null;
     if (data.reason !== undefined) updateData.reason = data.reason;
     if (data.impact !== undefined) updateData.impact = data.impact;
-    if (data.estimatedLoss !== undefined) updateData.estimatedLoss = data.estimatedLoss != null ? new Prisma.Decimal(data.estimatedLoss) : null;
+    if (data.estimatedLoss !== undefined)
+      updateData.estimatedLoss =
+        data.estimatedLoss != null ? new Prisma.Decimal(data.estimatedLoss) : null;
 
-    const downtime = await prisma.cmmsDowntime.update({ where: { id: req.params.id }, data: updateData });
+    const downtime = await prisma.cmmsDowntime.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
     res.json({ success: true, data: downtime });
   } catch (error: unknown) {
-    logger.error('Failed to update downtime record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update downtime record' } });
+    logger.error('Failed to update downtime record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update downtime record' },
+    });
   }
 });
 
 // DELETE /:id — Soft delete downtime record
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsDowntime.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsDowntime.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Downtime record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Downtime record not found' },
+      });
     }
 
-    await prisma.cmmsDowntime.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.cmmsDowntime.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Downtime record deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete downtime record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete downtime record' } });
+    logger.error('Failed to delete downtime record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete downtime record' },
+    });
   }
 });
 

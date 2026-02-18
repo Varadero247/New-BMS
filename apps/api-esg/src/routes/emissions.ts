@@ -24,8 +24,16 @@ const emissionCreateSchema = z.object({
   quantity: z.number().positive(),
   unit: z.string().trim().min(1).max(50),
   co2Equivalent: z.number().min(0),
-  periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodStart: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodEnd: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   methodology: z.string().max(500).optional().nullable(),
   verifiedBy: z.string().max(200).optional().nullable(),
 });
@@ -58,7 +66,11 @@ router.get('/summary', async (req: Request, res: Response) => {
       where.periodEnd = { lte: new Date(`${y}-12-31`) };
     }
 
-    const emissions = await prisma.esgEmission.findMany({ where, take: 10000, orderBy: { createdAt: 'desc' } });
+    const emissions = await prisma.esgEmission.findMany({
+      where,
+      take: 10000,
+      orderBy: { createdAt: 'desc' },
+    });
 
     const summary: Record<string, number> = { SCOPE_1: 0, SCOPE_2: 0, SCOPE_3: 0 };
     for (const e of emissions) {
@@ -76,8 +88,13 @@ router.get('/summary', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Error fetching emissions summary', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch emissions summary' } });
+    logger.error('Error fetching emissions summary', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch emissions summary' },
+    });
   }
 });
 
@@ -94,8 +111,11 @@ router.get('/trend', async (req: Request, res: Response) => {
       periodEnd: { lte: new Date(`${y}-12-31`) },
     };
 
-    const emissions = await prisma.esgEmission.findMany({ where, orderBy: { periodStart: 'asc' },
-      take: 1000});
+    const emissions = await prisma.esgEmission.findMany({
+      where,
+      orderBy: { periodStart: 'asc' },
+      take: 1000,
+    });
 
     const monthlyData: Record<string, number> = {};
     for (let m = 1; m <= 12; m++) {
@@ -107,15 +127,22 @@ router.get('/trend', async (req: Request, res: Response) => {
       monthlyData[month] += Number(e.co2Equivalent);
     }
 
-    const trend = Object.keys(monthlyData).sort().map((month) => ({
-      month: `${y}-${month}`,
-      co2Equivalent: monthlyData[month],
-    }));
+    const trend = Object.keys(monthlyData)
+      .sort()
+      .map((month) => ({
+        month: `${y}-${month}`,
+        co2Equivalent: monthlyData[month],
+      }));
 
     res.json({ success: true, data: trend });
   } catch (error: unknown) {
-    logger.error('Error fetching emissions trend', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch emissions trend' } });
+    logger.error('Error fetching emissions trend', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch emissions trend' },
+    });
   }
 });
 
@@ -123,7 +150,9 @@ router.get('/trend', async (req: Request, res: Response) => {
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { scope, category, periodStart, periodEnd, page = '1', limit = '20' } = req.query;
-    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * Math.max(1, parseInt(limit as string, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page as string, 10) || 1) - 1) *
+      Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
     const where: Record<string, any> = { deletedAt: null };
@@ -140,11 +169,21 @@ router.get('/', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data,
-      pagination: { page: Math.max(1, parseInt(page as string, 10) || 1), limit: take, total, totalPages: Math.ceil(total / take) },
+      pagination: {
+        page: Math.max(1, parseInt(page as string, 10) || 1),
+        limit: take,
+        total,
+        totalPages: Math.ceil(total / take),
+      },
     });
   } catch (error: unknown) {
-    logger.error('Error listing emissions', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list emissions' } });
+    logger.error('Error listing emissions', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list emissions' },
+    });
   }
 });
 
@@ -154,7 +193,14 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = emissionCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.issues,
+        },
+      });
     }
 
     const data = parsed.data;
@@ -176,8 +222,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: emission });
   } catch (error: unknown) {
-    logger.error('Error creating emission', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create emission' } });
+    logger.error('Error creating emission', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create emission' },
+    });
   }
 });
 
@@ -185,14 +236,23 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
-    const emission = await prisma.esgEmission.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const emission = await prisma.esgEmission.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!emission) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Emission not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Emission not found' } });
     }
     res.json({ success: true, data: emission });
   } catch (error: unknown) {
-    logger.error('Error fetching emission', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch emission' } });
+    logger.error('Error fetching emission', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch emission' },
+    });
   }
 });
 
@@ -201,41 +261,74 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = emissionUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.issues,
+        },
+      });
     }
 
-    const existing = await prisma.esgEmission.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.esgEmission.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Emission not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Emission not found' } });
     }
 
     const updateData: Record<string, any> = { ...parsed.data };
-    if (updateData.quantity !== undefined) updateData.quantity = new Prisma.Decimal(updateData.quantity);
-    if (updateData.co2Equivalent !== undefined) updateData.co2Equivalent = new Prisma.Decimal(updateData.co2Equivalent);
+    if (updateData.quantity !== undefined)
+      updateData.quantity = new Prisma.Decimal(updateData.quantity);
+    if (updateData.co2Equivalent !== undefined)
+      updateData.co2Equivalent = new Prisma.Decimal(updateData.co2Equivalent);
     if (updateData.periodStart) updateData.periodStart = new Date(updateData.periodStart);
     if (updateData.periodEnd) updateData.periodEnd = new Date(updateData.periodEnd);
 
-    const emission = await prisma.esgEmission.update({ where: { id: req.params.id }, data: updateData });
+    const emission = await prisma.esgEmission.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
     res.json({ success: true, data: emission });
   } catch (error: unknown) {
-    logger.error('Error updating emission', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update emission' } });
+    logger.error('Error updating emission', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update emission' },
+    });
   }
 });
 
 // DELETE /api/emissions/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgEmission.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.esgEmission.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Emission not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Emission not found' } });
     }
 
-    await prisma.esgEmission.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.esgEmission.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Emission deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting emission', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete emission' } });
+    logger.error('Error deleting emission', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete emission' },
+    });
   }
 });
 

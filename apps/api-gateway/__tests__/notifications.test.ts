@@ -424,9 +424,7 @@ describe('Notifications Routes', () => {
         module: 'system',
       });
 
-      await request(app)
-        .put('/api/notifications/read-all')
-        .set('Authorization', 'Bearer token');
+      await request(app).put('/api/notifications/read-all').set('Authorization', 'Bearer token');
 
       const response = await request(app)
         .get('/api/notifications/unread')

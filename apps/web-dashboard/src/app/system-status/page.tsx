@@ -3,8 +3,18 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
 import {
-  CheckCircle, XCircle, AlertTriangle, RefreshCw, Clock, Server, Globe, Database,
-  Activity, Cpu, HardDrive, Wifi,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  RefreshCw,
+  Clock,
+  Server,
+  Globe,
+  Database,
+  Activity,
+  Cpu,
+  HardDrive,
+  Wifi,
 } from 'lucide-react';
 import { Sidebar } from '@/components/sidebar';
 
@@ -57,36 +67,54 @@ const SERVICES: Omit<ServiceStatus, 'status' | 'latency' | 'lastChecked'>[] = [
   { name: 'Documents API', url: `${API_BASE}:4031`, port: 4031, category: 'Resources' },
   { name: 'Complaints API', url: `${API_BASE}:4032`, port: 4032, category: 'Risk & Governance' },
   { name: 'Contracts API', url: `${API_BASE}:4033`, port: 4033, category: 'Resources' },
-  { name: 'Permit to Work API', url: `${API_BASE}:4034`, port: 4034, category: 'Risk & Governance' },
-  { name: 'Regulatory Monitor API', url: `${API_BASE}:4035`, port: 4035, category: 'Risk & Governance' },
+  {
+    name: 'Permit to Work API',
+    url: `${API_BASE}:4034`,
+    port: 4034,
+    category: 'Risk & Governance',
+  },
+  {
+    name: 'Regulatory Monitor API',
+    url: `${API_BASE}:4035`,
+    port: 4035,
+    category: 'Risk & Governance',
+  },
   { name: 'Incidents API', url: `${API_BASE}:4036`, port: 4036, category: 'Risk & Governance' },
   { name: 'Audits API', url: `${API_BASE}:4037`, port: 4037, category: 'Risk & Governance' },
-  { name: 'Management Review API', url: `${API_BASE}:4038`, port: 4038, category: 'Risk & Governance' },
+  {
+    name: 'Management Review API',
+    url: `${API_BASE}:4038`,
+    port: 4038,
+    category: 'Risk & Governance',
+  },
 ];
 
 const statColorMap: Record<string, { bg: string; icon: string }> = {
-  green:  { bg: 'bg-green-100',  icon: 'text-green-600' },
+  green: { bg: 'bg-green-100', icon: 'text-green-600' },
   yellow: { bg: 'bg-yellow-100', icon: 'text-yellow-600' },
-  red:    { bg: 'bg-red-100',    icon: 'text-red-600' },
-  blue:   { bg: 'bg-blue-100',   icon: 'text-blue-600' },
+  red: { bg: 'bg-red-100', icon: 'text-red-600' },
+  blue: { bg: 'bg-blue-100', icon: 'text-blue-600' },
 };
 
 function StatusBadge({ status }: { status: ServiceStatus['status'] }) {
-  if (status === 'healthy') return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-      <CheckCircle className="h-3 w-3" /> Healthy
-    </span>
-  );
-  if (status === 'degraded') return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
-      <AlertTriangle className="h-3 w-3" /> Degraded
-    </span>
-  );
-  if (status === 'down') return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
-      <XCircle className="h-3 w-3" /> Down
-    </span>
-  );
+  if (status === 'healthy')
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+        <CheckCircle className="h-3 w-3" /> Healthy
+      </span>
+    );
+  if (status === 'degraded')
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+        <AlertTriangle className="h-3 w-3" /> Degraded
+      </span>
+    );
+  if (status === 'down')
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+        <XCircle className="h-3 w-3" /> Down
+      </span>
+    );
   return (
     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
       <RefreshCw className="h-3 w-3 animate-spin" /> Checking
@@ -96,12 +124,14 @@ function StatusBadge({ status }: { status: ServiceStatus['status'] }) {
 
 export default function SystemStatusPage() {
   const [services, setServices] = useState<ServiceStatus[]>(
-    SERVICES.map(s => ({ ...s, status: 'checking', latency: null, lastChecked: null }))
+    SERVICES.map((s) => ({ ...s, status: 'checking', latency: null, lastChecked: null }))
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
-  async function checkService(svc: Omit<ServiceStatus, 'status' | 'latency' | 'lastChecked'>): Promise<ServiceStatus> {
+  async function checkService(
+    svc: Omit<ServiceStatus, 'status' | 'latency' | 'lastChecked'>
+  ): Promise<ServiceStatus> {
     try {
       const res = await fetch(`/api/health-check?url=${encodeURIComponent(`${svc.url}/health`)}`);
       const data = await res.json();
@@ -122,7 +152,7 @@ export default function SystemStatusPage() {
 
   async function checkAll() {
     setIsRefreshing(true);
-    setServices(prev => prev.map(s => ({ ...s, status: 'checking' })));
+    setServices((prev) => prev.map((s) => ({ ...s, status: 'checking' })));
     const results = await Promise.all(SERVICES.map(checkService));
     setServices(results);
     setLastRefresh(new Date());
@@ -135,13 +165,14 @@ export default function SystemStatusPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const healthy = services.filter(s => s.status === 'healthy').length;
-  const degraded = services.filter(s => s.status === 'degraded').length;
-  const down = services.filter(s => s.status === 'down').length;
-  const checking = services.filter(s => s.status === 'checking').length;
-  const overallHealth = checking > 0 ? 'checking' : down > 0 ? 'degraded' : degraded > 0 ? 'degraded' : 'healthy';
+  const healthy = services.filter((s) => s.status === 'healthy').length;
+  const degraded = services.filter((s) => s.status === 'degraded').length;
+  const down = services.filter((s) => s.status === 'down').length;
+  const checking = services.filter((s) => s.status === 'checking').length;
+  const overallHealth =
+    checking > 0 ? 'checking' : down > 0 ? 'degraded' : degraded > 0 ? 'degraded' : 'healthy';
 
-  const categories = [...new Set(SERVICES.map(s => s.category))];
+  const categories = [...new Set(SERVICES.map((s) => s.category))];
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-800">
@@ -167,11 +198,15 @@ export default function SystemStatusPage() {
           </div>
 
           {/* Overall status banner */}
-          <div className={`rounded-xl border p-5 mb-8 flex items-center gap-4 ${
-            overallHealth === 'healthy' ? 'bg-green-50 border-green-200' :
-            overallHealth === 'checking' ? 'bg-gray-50 dark:bg-gray-800 border-gray-200' :
-            'bg-yellow-50 border-yellow-200'
-          }`}>
+          <div
+            className={`rounded-xl border p-5 mb-8 flex items-center gap-4 ${
+              overallHealth === 'healthy'
+                ? 'bg-green-50 border-green-200'
+                : overallHealth === 'checking'
+                  ? 'bg-gray-50 dark:bg-gray-800 border-gray-200'
+                  : 'bg-yellow-50 border-yellow-200'
+            }`}
+          >
             {overallHealth === 'healthy' ? (
               <CheckCircle className="h-8 w-8 text-green-500" />
             ) : overallHealth === 'checking' ? (
@@ -181,9 +216,11 @@ export default function SystemStatusPage() {
             )}
             <div>
               <p className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
-                {overallHealth === 'healthy' ? 'All Systems Operational' :
-                 overallHealth === 'checking' ? 'Checking service health...' :
-                 `${down} service${down !== 1 ? 's' : ''} down${degraded > 0 ? `, ${degraded} degraded` : ''}`}
+                {overallHealth === 'healthy'
+                  ? 'All Systems Operational'
+                  : overallHealth === 'checking'
+                    ? 'Checking service health...'
+                    : `${down} service${down !== 1 ? 's' : ''} down${degraded > 0 ? `, ${degraded} degraded` : ''}`}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {healthy} healthy · {degraded} degraded · {down} down · {checking} checking
@@ -198,7 +235,7 @@ export default function SystemStatusPage() {
               { label: 'Degraded', count: degraded, icon: AlertTriangle, color: 'yellow' },
               { label: 'Down', count: down, icon: XCircle, color: 'red' },
               { label: 'Total Services', count: services.length, icon: Server, color: 'blue' },
-            ].map(stat => {
+            ].map((stat) => {
               const Icon = stat.icon;
               const colors = statColorMap[stat.color];
               return (
@@ -207,7 +244,9 @@ export default function SystemStatusPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.count}</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                          {stat.count}
+                        </p>
                       </div>
                       <div className={`p-2 rounded-full ${colors.bg}`}>
                         <Icon className={`h-5 w-5 ${colors.icon}`} />
@@ -220,8 +259,8 @@ export default function SystemStatusPage() {
           </div>
 
           {/* Services by category */}
-          {categories.map(category => {
-            const categoryServices = services.filter(s => s.category === category);
+          {categories.map((category) => {
+            const categoryServices = services.filter((s) => s.category === category);
             return (
               <Card key={category} className="mb-6">
                 <CardHeader>
@@ -229,7 +268,8 @@ export default function SystemStatusPage() {
                     <Server className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                     {category}
                     <span className="ml-auto text-xs font-normal text-gray-400 dark:text-gray-500">
-                      {categoryServices.filter(s => s.status === 'healthy').length}/{categoryServices.length} healthy
+                      {categoryServices.filter((s) => s.status === 'healthy').length}/
+                      {categoryServices.length} healthy
                     </span>
                   </CardTitle>
                 </CardHeader>
@@ -238,18 +278,35 @@ export default function SystemStatusPage() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-gray-100 dark:border-gray-700">
-                          <th className="text-left py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">Service</th>
-                          <th className="text-left py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">Port</th>
-                          <th className="text-left py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">Status</th>
-                          <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">Latency</th>
-                          <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">Last Checked</th>
+                          <th className="text-left py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">
+                            Service
+                          </th>
+                          <th className="text-left py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">
+                            Port
+                          </th>
+                          <th className="text-left py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">
+                            Status
+                          </th>
+                          <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">
+                            Latency
+                          </th>
+                          <th className="text-right py-2 px-3 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase">
+                            Last Checked
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
-                        {categoryServices.map(svc => (
-                          <tr key={svc.port} className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-800">
-                            <td className="py-2.5 px-3 font-medium text-gray-900 dark:text-gray-100">{svc.name}</td>
-                            <td className="py-2.5 px-3 text-gray-500 dark:text-gray-400 font-mono text-xs">{svc.port}</td>
+                        {categoryServices.map((svc) => (
+                          <tr
+                            key={svc.port}
+                            className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-800"
+                          >
+                            <td className="py-2.5 px-3 font-medium text-gray-900 dark:text-gray-100">
+                              {svc.name}
+                            </td>
+                            <td className="py-2.5 px-3 text-gray-500 dark:text-gray-400 font-mono text-xs">
+                              {svc.port}
+                            </td>
                             <td className="py-2.5 px-3">
                               <StatusBadge status={svc.status} />
                             </td>

@@ -44,7 +44,10 @@ export function calculateHealthScore(metrics: {
   return Math.min(100, score);
 }
 
-export function determineTrend(currentScore: number, previousScore: number | null): 'IMPROVING' | 'DECLINING' | 'STABLE' {
+export function determineTrend(
+  currentScore: number,
+  previousScore: number | null
+): 'IMPROVING' | 'DECLINING' | 'STABLE' {
   if (previousScore === null) return 'STABLE';
   const diff = currentScore - previousScore;
   if (diff >= 10) return 'IMPROVING';
@@ -84,10 +87,12 @@ router.get('/org/:orgId', authenticate, async (req: Request, res: Response) => {
       where: { orgId: req.params.orgId },
       orderBy: { createdAt: 'desc' },
       distinct: ['userId'],
-      take: 1000});
+      take: 1000,
+    });
 
     const total = scores.length;
-    const avgScore = total > 0 ? Math.round(scores.reduce((sum, s) => sum + s.score, 0) / total) : 0;
+    const avgScore =
+      total > 0 ? Math.round(scores.reduce((sum, s) => sum + s.score, 0) / total) : 0;
     const healthy = scores.filter((s) => s.score >= 70).length;
     const atRisk = scores.filter((s) => s.score >= 40 && s.score < 70).length;
     const critical = scores.filter((s) => s.score < 40).length;
@@ -116,7 +121,13 @@ router.post('/recalculate', authenticate, async (req: Request, res: Response) =>
   try {
     const parsed = recalculateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.errors[0]?.message || 'Invalid input',
+        },
+      });
     }
 
     const { userId, orgId } = parsed.data;
@@ -157,7 +168,9 @@ router.post('/recalculate', authenticate, async (req: Request, res: Response) =>
         });
         updatedCount++;
       }
-    } catch { /* DB unavailable — acknowledge without persisting */ }
+    } catch {
+      /* DB unavailable — acknowledge without persisting */
+    }
 
     res.json({
       success: true,

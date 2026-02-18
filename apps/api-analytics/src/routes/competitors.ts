@@ -50,7 +50,10 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Failed to list competitors', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list competitors' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list competitors' },
+    });
   }
 });
 
@@ -64,13 +67,18 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!competitor) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Competitor not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Competitor not found' } });
     }
 
     res.json({ success: true, data: competitor });
   } catch (err) {
     logger.error('Failed to get competitor', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get competitor' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get competitor' },
+    });
   }
 });
 
@@ -81,7 +89,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createCompetitorSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { name, website, category } = parsed.data;
@@ -100,7 +111,10 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: competitor });
   } catch (err) {
     logger.error('Failed to create competitor', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create competitor' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create competitor' },
+    });
   }
 });
 
@@ -114,12 +128,17 @@ router.patch('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Competitor not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Competitor not found' } });
     }
 
     const parsed = updateCompetitorSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { name, website, category } = parsed.data;
@@ -136,7 +155,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: competitor });
   } catch (err) {
     logger.error('Failed to update competitor', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update competitor' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update competitor' },
+    });
   }
 });
 
@@ -150,12 +172,17 @@ router.post('/:id/intel', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Competitor not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Competitor not found' } });
     }
 
     const parsed = createIntelSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { type, detail } = parsed.data;
@@ -173,7 +200,9 @@ router.post('/:id/intel', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: competitor });
   } catch (err) {
     logger.error('Failed to add intel', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add intel' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add intel' } });
   }
 });
 

@@ -38,7 +38,7 @@ export const AutomationConfig = {
       REFERRAL: 0.25,
       CO_SELL: 0.325,
       RESELLER: 0.375,
-      GCC_SPECIALIST: 0.30,
+      GCC_SPECIALIST: 0.3,
     } as Record<string, number>,
   },
   trial: {

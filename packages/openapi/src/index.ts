@@ -36,17 +36,48 @@ interface EndpointDef {
 
 function crudEndpoints(prefix: string, resource: string, singular: string): EndpointDef[] {
   return [
-    { method: 'get', path: `${prefix}/${resource}`, summary: `List ${resource}`, operationId: `list${singular}s`, paginated: true },
-    { method: 'post', path: `${prefix}/${resource}`, summary: `Create ${singular}`, operationId: `create${singular}`, requestBody: true },
-    { method: 'get', path: `${prefix}/${resource}/{id}`, summary: `Get ${singular} by ID`, operationId: `get${singular}` },
-    { method: 'put', path: `${prefix}/${resource}/{id}`, summary: `Update ${singular}`, operationId: `update${singular}`, requestBody: true },
-    { method: 'delete', path: `${prefix}/${resource}/{id}`, summary: `Delete ${singular}`, operationId: `delete${singular}` },
+    {
+      method: 'get',
+      path: `${prefix}/${resource}`,
+      summary: `List ${resource}`,
+      operationId: `list${singular}s`,
+      paginated: true,
+    },
+    {
+      method: 'post',
+      path: `${prefix}/${resource}`,
+      summary: `Create ${singular}`,
+      operationId: `create${singular}`,
+      requestBody: true,
+    },
+    {
+      method: 'get',
+      path: `${prefix}/${resource}/{id}`,
+      summary: `Get ${singular} by ID`,
+      operationId: `get${singular}`,
+    },
+    {
+      method: 'put',
+      path: `${prefix}/${resource}/{id}`,
+      summary: `Update ${singular}`,
+      operationId: `update${singular}`,
+      requestBody: true,
+    },
+    {
+      method: 'delete',
+      path: `${prefix}/${resource}/{id}`,
+      summary: `Delete ${singular}`,
+      operationId: `delete${singular}`,
+    },
   ];
 }
 
 const SERVICES: ServiceDef[] = [
   {
-    tag: 'Health & Safety', prefix: '/api/health-safety', description: 'ISO 45001 Health & Safety management', port: 4001,
+    tag: 'Health & Safety',
+    prefix: '/api/health-safety',
+    description: 'ISO 45001 Health & Safety management',
+    port: 4001,
     endpoints: [
       ...crudEndpoints('/api/health-safety', 'risks', 'Risk'),
       ...crudEndpoints('/api/health-safety', 'incidents', 'Incident'),
@@ -55,7 +86,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Environment', prefix: '/api/environment', description: 'ISO 14001 Environmental management', port: 4002,
+    tag: 'Environment',
+    prefix: '/api/environment',
+    description: 'ISO 14001 Environmental management',
+    port: 4002,
     endpoints: [
       ...crudEndpoints('/api/environment', 'aspects', 'Aspect'),
       ...crudEndpoints('/api/environment', 'events', 'Event'),
@@ -66,7 +100,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Quality', prefix: '/api/quality', description: 'ISO 9001 Quality management', port: 4003,
+    tag: 'Quality',
+    prefix: '/api/quality',
+    description: 'ISO 9001 Quality management',
+    port: 4003,
     endpoints: [
       ...crudEndpoints('/api/quality', 'ncrs', 'Ncr'),
       ...crudEndpoints('/api/quality', 'capas', 'Capa'),
@@ -75,14 +112,31 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'AI Analysis', prefix: '/api/ai', description: 'AI-powered analysis and recommendations', port: 4004,
+    tag: 'AI Analysis',
+    prefix: '/api/ai',
+    description: 'AI-powered analysis and recommendations',
+    port: 4004,
     endpoints: [
-      { method: 'post', path: '/api/ai/analyze', summary: 'Run AI analysis', operationId: 'aiAnalyze', requestBody: true },
-      { method: 'get', path: '/api/ai/recommendations', summary: 'Get AI recommendations', operationId: 'aiRecommendations' },
+      {
+        method: 'post',
+        path: '/api/ai/analyze',
+        summary: 'Run AI analysis',
+        operationId: 'aiAnalyze',
+        requestBody: true,
+      },
+      {
+        method: 'get',
+        path: '/api/ai/recommendations',
+        summary: 'Get AI recommendations',
+        operationId: 'aiRecommendations',
+      },
     ],
   },
   {
-    tag: 'Inventory', prefix: '/api/inventory', description: 'Inventory and stock management', port: 4005,
+    tag: 'Inventory',
+    prefix: '/api/inventory',
+    description: 'Inventory and stock management',
+    port: 4005,
     endpoints: [
       ...crudEndpoints('/api/inventory', 'items', 'Item'),
       ...crudEndpoints('/api/inventory', 'warehouses', 'Warehouse'),
@@ -90,7 +144,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'HR', prefix: '/api/hr', description: 'Human Resources management', port: 4006,
+    tag: 'HR',
+    prefix: '/api/hr',
+    description: 'Human Resources management',
+    port: 4006,
     endpoints: [
       ...crudEndpoints('/api/hr', 'employees', 'Employee'),
       ...crudEndpoints('/api/hr', 'departments', 'Department'),
@@ -99,23 +156,43 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Payroll', prefix: '/api/payroll', description: 'Payroll processing and management', port: 4007,
+    tag: 'Payroll',
+    prefix: '/api/payroll',
+    description: 'Payroll processing and management',
+    port: 4007,
     endpoints: [
       ...crudEndpoints('/api/payroll', 'pay-runs', 'PayRun'),
       ...crudEndpoints('/api/payroll', 'payslips', 'Payslip'),
-      { method: 'get', path: '/api/payroll/jurisdictions', summary: 'List jurisdictions', operationId: 'listJurisdictions' },
-      { method: 'post', path: '/api/payroll/tax-calculator', summary: 'Calculate tax', operationId: 'calculateTax', requestBody: true },
+      {
+        method: 'get',
+        path: '/api/payroll/jurisdictions',
+        summary: 'List jurisdictions',
+        operationId: 'listJurisdictions',
+      },
+      {
+        method: 'post',
+        path: '/api/payroll/tax-calculator',
+        summary: 'Calculate tax',
+        operationId: 'calculateTax',
+        requestBody: true,
+      },
     ],
   },
   {
-    tag: 'Workflows', prefix: '/api/workflows', description: 'Workflow automation engine', port: 4008,
+    tag: 'Workflows',
+    prefix: '/api/workflows',
+    description: 'Workflow automation engine',
+    port: 4008,
     endpoints: [
       ...crudEndpoints('/api/workflows', 'workflows', 'Workflow'),
       ...crudEndpoints('/api/workflows', 'instances', 'WorkflowInstance'),
     ],
   },
   {
-    tag: 'Project Management', prefix: '/api/project-management', description: 'Project and task management', port: 4009,
+    tag: 'Project Management',
+    prefix: '/api/project-management',
+    description: 'Project and task management',
+    port: 4009,
     endpoints: [
       ...crudEndpoints('/api/project-management', 'projects', 'Project'),
       ...crudEndpoints('/api/project-management', 'tasks', 'Task'),
@@ -123,7 +200,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Automotive', prefix: '/api/automotive', description: 'IATF 16949 Automotive quality', port: 4010,
+    tag: 'Automotive',
+    prefix: '/api/automotive',
+    description: 'IATF 16949 Automotive quality',
+    port: 4010,
     endpoints: [
       ...crudEndpoints('/api/automotive', 'ppaps', 'Ppap'),
       ...crudEndpoints('/api/automotive', 'fmeas', 'Fmea'),
@@ -131,7 +211,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Medical Devices', prefix: '/api/medical', description: 'ISO 13485 Medical devices quality', port: 4011,
+    tag: 'Medical Devices',
+    prefix: '/api/medical',
+    description: 'ISO 13485 Medical devices quality',
+    port: 4011,
     endpoints: [
       ...crudEndpoints('/api/medical', 'devices', 'Device'),
       ...crudEndpoints('/api/medical', 'complaints', 'Complaint'),
@@ -139,14 +222,20 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Aerospace', prefix: '/api/aerospace', description: 'AS9100 Aerospace quality', port: 4012,
+    tag: 'Aerospace',
+    prefix: '/api/aerospace',
+    description: 'AS9100 Aerospace quality',
+    port: 4012,
     endpoints: [
       ...crudEndpoints('/api/aerospace', 'parts', 'Part'),
       ...crudEndpoints('/api/aerospace', 'first-articles', 'FirstArticle'),
     ],
   },
   {
-    tag: 'Finance', prefix: '/api/finance', description: 'Financial management and reporting', port: 4013,
+    tag: 'Finance',
+    prefix: '/api/finance',
+    description: 'Financial management and reporting',
+    port: 4013,
     endpoints: [
       ...crudEndpoints('/api/finance', 'accounts', 'Account'),
       ...crudEndpoints('/api/finance', 'transactions', 'Transaction'),
@@ -155,7 +244,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'CRM', prefix: '/api/crm', description: 'Customer Relationship Management', port: 4014,
+    tag: 'CRM',
+    prefix: '/api/crm',
+    description: 'Customer Relationship Management',
+    port: 4014,
     endpoints: [
       ...crudEndpoints('/api/crm', 'contacts', 'Contact'),
       ...crudEndpoints('/api/crm', 'companies', 'Company'),
@@ -164,7 +256,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'InfoSec', prefix: '/api/infosec', description: 'ISO 27001 Information Security', port: 4015,
+    tag: 'InfoSec',
+    prefix: '/api/infosec',
+    description: 'ISO 27001 Information Security',
+    port: 4015,
     endpoints: [
       ...crudEndpoints('/api/infosec', 'assets', 'Asset'),
       ...crudEndpoints('/api/infosec', 'risks', 'Risk'),
@@ -173,7 +268,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'ESG', prefix: '/api/esg', description: 'Environmental, Social & Governance reporting', port: 4016,
+    tag: 'ESG',
+    prefix: '/api/esg',
+    description: 'Environmental, Social & Governance reporting',
+    port: 4016,
     endpoints: [
       ...crudEndpoints('/api/esg', 'metrics', 'Metric'),
       ...crudEndpoints('/api/esg', 'goals', 'Goal'),
@@ -181,7 +279,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'CMMS', prefix: '/api/cmms', description: 'Computerised Maintenance Management', port: 4017,
+    tag: 'CMMS',
+    prefix: '/api/cmms',
+    description: 'Computerised Maintenance Management',
+    port: 4017,
     endpoints: [
       ...crudEndpoints('/api/cmms', 'assets', 'MaintenanceAsset'),
       ...crudEndpoints('/api/cmms', 'work-orders', 'WorkOrder'),
@@ -189,14 +290,20 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Portal', prefix: '/api/portal', description: 'Customer & Supplier portal', port: 4018,
+    tag: 'Portal',
+    prefix: '/api/portal',
+    description: 'Customer & Supplier portal',
+    port: 4018,
     endpoints: [
       ...crudEndpoints('/api/portal', 'documents', 'PortalDocument'),
       ...crudEndpoints('/api/portal', 'tickets', 'Ticket'),
     ],
   },
   {
-    tag: 'Food Safety', prefix: '/api/food-safety', description: 'ISO 22000 Food Safety management', port: 4019,
+    tag: 'Food Safety',
+    prefix: '/api/food-safety',
+    description: 'ISO 22000 Food Safety management',
+    port: 4019,
     endpoints: [
       ...crudEndpoints('/api/food-safety', 'hazards', 'FoodHazard'),
       ...crudEndpoints('/api/food-safety', 'ccps', 'Ccp'),
@@ -204,7 +311,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Energy', prefix: '/api/energy', description: 'ISO 50001 Energy management', port: 4020,
+    tag: 'Energy',
+    prefix: '/api/energy',
+    description: 'ISO 50001 Energy management',
+    port: 4020,
     endpoints: [
       ...crudEndpoints('/api/energy', 'meters', 'Meter'),
       ...crudEndpoints('/api/energy', 'baselines', 'Baseline'),
@@ -212,15 +322,37 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Analytics', prefix: '/api/analytics', description: 'Cross-module analytics and dashboards', port: 4021,
+    tag: 'Analytics',
+    prefix: '/api/analytics',
+    description: 'Cross-module analytics and dashboards',
+    port: 4021,
     endpoints: [
-      { method: 'get', path: '/api/analytics/kpis', summary: 'Get KPI dashboard', operationId: 'getKpis' },
-      { method: 'get', path: '/api/analytics/trends', summary: 'Get trend data', operationId: 'getTrends' },
-      { method: 'post', path: '/api/analytics/queries', summary: 'Run analytics query', operationId: 'runQuery', requestBody: true },
+      {
+        method: 'get',
+        path: '/api/analytics/kpis',
+        summary: 'Get KPI dashboard',
+        operationId: 'getKpis',
+      },
+      {
+        method: 'get',
+        path: '/api/analytics/trends',
+        summary: 'Get trend data',
+        operationId: 'getTrends',
+      },
+      {
+        method: 'post',
+        path: '/api/analytics/queries',
+        summary: 'Run analytics query',
+        operationId: 'runQuery',
+        requestBody: true,
+      },
     ],
   },
   {
-    tag: 'Field Service', prefix: '/api/field-service', description: 'Field service management', port: 4022,
+    tag: 'Field Service',
+    prefix: '/api/field-service',
+    description: 'Field service management',
+    port: 4022,
     endpoints: [
       ...crudEndpoints('/api/field-service', 'jobs', 'Job'),
       ...crudEndpoints('/api/field-service', 'technicians', 'Technician'),
@@ -228,7 +360,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'ISO 42001', prefix: '/api/iso42001', description: 'ISO 42001 AI Management System', port: 4023,
+    tag: 'ISO 42001',
+    prefix: '/api/iso42001',
+    description: 'ISO 42001 AI Management System',
+    port: 4023,
     endpoints: [
       ...crudEndpoints('/api/iso42001', 'systems', 'AiSystem'),
       ...crudEndpoints('/api/iso42001', 'controls', 'AiControl'),
@@ -236,7 +371,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'ISO 37001', prefix: '/api/iso37001', description: 'ISO 37001 Anti-Bribery Management', port: 4024,
+    tag: 'ISO 37001',
+    prefix: '/api/iso37001',
+    description: 'ISO 37001 Anti-Bribery Management',
+    port: 4024,
     endpoints: [
       ...crudEndpoints('/api/iso37001', 'risks', 'BriberyRisk'),
       ...crudEndpoints('/api/iso37001', 'due-diligence', 'DueDiligence'),
@@ -244,7 +382,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Training', prefix: '/api/training', description: 'Training and competency management', port: 4028,
+    tag: 'Training',
+    prefix: '/api/training',
+    description: 'Training and competency management',
+    port: 4028,
     endpoints: [
       ...crudEndpoints('/api/training', 'courses', 'Course'),
       ...crudEndpoints('/api/training', 'records', 'TrainingRecord'),
@@ -253,7 +394,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Suppliers', prefix: '/api/suppliers', description: 'Supplier management and evaluation', port: 4029,
+    tag: 'Suppliers',
+    prefix: '/api/suppliers',
+    description: 'Supplier management and evaluation',
+    port: 4029,
     endpoints: [
       ...crudEndpoints('/api/suppliers', 'suppliers', 'Supplier'),
       ...crudEndpoints('/api/suppliers', 'evaluations', 'Evaluation'),
@@ -261,7 +405,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Assets', prefix: '/api/assets', description: 'Asset lifecycle management', port: 4030,
+    tag: 'Assets',
+    prefix: '/api/assets',
+    description: 'Asset lifecycle management',
+    port: 4030,
     endpoints: [
       ...crudEndpoints('/api/assets', 'assets', 'Asset'),
       ...crudEndpoints('/api/assets', 'calibrations', 'Calibration'),
@@ -269,7 +416,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Documents', prefix: '/api/documents', description: 'Document control and management', port: 4031,
+    tag: 'Documents',
+    prefix: '/api/documents',
+    description: 'Document control and management',
+    port: 4031,
     endpoints: [
       ...crudEndpoints('/api/documents', 'documents', 'ControlledDocument'),
       ...crudEndpoints('/api/documents', 'reviews', 'DocumentReview'),
@@ -277,14 +427,20 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Complaints', prefix: '/api/complaints', description: 'Customer complaints handling', port: 4032,
+    tag: 'Complaints',
+    prefix: '/api/complaints',
+    description: 'Customer complaints handling',
+    port: 4032,
     endpoints: [
       ...crudEndpoints('/api/complaints', 'complaints', 'Complaint'),
       ...crudEndpoints('/api/complaints', 'investigations', 'Investigation'),
     ],
   },
   {
-    tag: 'Contracts', prefix: '/api/contracts', description: 'Contract lifecycle management', port: 4033,
+    tag: 'Contracts',
+    prefix: '/api/contracts',
+    description: 'Contract lifecycle management',
+    port: 4033,
     endpoints: [
       ...crudEndpoints('/api/contracts', 'contracts', 'Contract'),
       ...crudEndpoints('/api/contracts', 'obligations', 'ContractObligation'),
@@ -292,7 +448,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'PTW', prefix: '/api/ptw', description: 'Permit to Work management', port: 4034,
+    tag: 'PTW',
+    prefix: '/api/ptw',
+    description: 'Permit to Work management',
+    port: 4034,
     endpoints: [
       ...crudEndpoints('/api/ptw', 'permits', 'Permit'),
       ...crudEndpoints('/api/ptw', 'templates', 'PermitTemplate'),
@@ -300,7 +459,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Regulatory Monitor', prefix: '/api/reg-monitor', description: 'Regulatory change monitoring', port: 4035,
+    tag: 'Regulatory Monitor',
+    prefix: '/api/reg-monitor',
+    description: 'Regulatory change monitoring',
+    port: 4035,
     endpoints: [
       ...crudEndpoints('/api/reg-monitor', 'changes', 'RegulatoryChange'),
       ...crudEndpoints('/api/reg-monitor', 'obligations', 'Obligation'),
@@ -308,7 +470,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Incidents', prefix: '/api/incidents', description: 'Incident management and investigation', port: 4036,
+    tag: 'Incidents',
+    prefix: '/api/incidents',
+    description: 'Incident management and investigation',
+    port: 4036,
     endpoints: [
       ...crudEndpoints('/api/incidents', 'incidents', 'ManagedIncident'),
       ...crudEndpoints('/api/incidents', 'investigations', 'IncidentInvestigation'),
@@ -316,7 +481,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Audits', prefix: '/api/audits', description: 'Internal and external audit management', port: 4037,
+    tag: 'Audits',
+    prefix: '/api/audits',
+    description: 'Internal and external audit management',
+    port: 4037,
     endpoints: [
       ...crudEndpoints('/api/audits', 'audits', 'ManagedAudit'),
       ...crudEndpoints('/api/audits', 'findings', 'AuditFinding'),
@@ -324,7 +492,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Management Review', prefix: '/api/mgmt-review', description: 'Management review meetings', port: 4038,
+    tag: 'Management Review',
+    prefix: '/api/mgmt-review',
+    description: 'Management review meetings',
+    port: 4038,
     endpoints: [
       ...crudEndpoints('/api/mgmt-review', 'reviews', 'MgmtReview'),
       ...crudEndpoints('/api/mgmt-review', 'actions', 'ReviewAction'),
@@ -332,7 +503,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Chemicals', prefix: '/api/chemicals', description: 'Chemical management and COSHH', port: 4040,
+    tag: 'Chemicals',
+    prefix: '/api/chemicals',
+    description: 'Chemical management and COSHH',
+    port: 4040,
     endpoints: [
       ...crudEndpoints('/api/chemicals', 'chemicals', 'Chemical'),
       ...crudEndpoints('/api/chemicals', 'sds', 'Sds'),
@@ -341,7 +515,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Emergency', prefix: '/api/emergency', description: 'Fire, emergency and disaster management', port: 4041,
+    tag: 'Emergency',
+    prefix: '/api/emergency',
+    description: 'Fire, emergency and disaster management',
+    port: 4041,
     endpoints: [
       ...crudEndpoints('/api/emergency', 'premises', 'Premises'),
       ...crudEndpoints('/api/emergency', 'fra', 'FireRiskAssessment'),
@@ -351,7 +528,10 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Risk', prefix: '/api/risk', description: 'Enterprise risk management (ISO 31000)', port: 4027,
+    tag: 'Risk',
+    prefix: '/api/risk',
+    description: 'Enterprise risk management (ISO 31000)',
+    port: 4027,
     endpoints: [
       ...crudEndpoints('/api/risk', 'risks', 'EnterpriseRisk'),
       ...crudEndpoints('/api/risk', 'controls', 'RiskControl'),
@@ -360,25 +540,75 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Setup Wizard', prefix: '/api/setup-wizard', description: 'Initial setup and onboarding wizard', port: 4039,
+    tag: 'Setup Wizard',
+    prefix: '/api/setup-wizard',
+    description: 'Initial setup and onboarding wizard',
+    port: 4039,
     endpoints: [
-      { method: 'get', path: '/api/setup-wizard/status', summary: 'Get wizard status', operationId: 'getWizardStatus' },
-      { method: 'post', path: '/api/setup-wizard/init', summary: 'Initialize wizard', operationId: 'initWizard', requestBody: true },
-      { method: 'post', path: '/api/setup-wizard/step', summary: 'Submit wizard step', operationId: 'submitWizardStep', requestBody: true },
-      { method: 'post', path: '/api/setup-wizard/complete', summary: 'Complete wizard', operationId: 'completeWizard', requestBody: true },
-      { method: 'post', path: '/api/setup-wizard/skip', summary: 'Skip wizard', operationId: 'skipWizard', requestBody: true },
+      {
+        method: 'get',
+        path: '/api/setup-wizard/status',
+        summary: 'Get wizard status',
+        operationId: 'getWizardStatus',
+      },
+      {
+        method: 'post',
+        path: '/api/setup-wizard/init',
+        summary: 'Initialize wizard',
+        operationId: 'initWizard',
+        requestBody: true,
+      },
+      {
+        method: 'post',
+        path: '/api/setup-wizard/step',
+        summary: 'Submit wizard step',
+        operationId: 'submitWizardStep',
+        requestBody: true,
+      },
+      {
+        method: 'post',
+        path: '/api/setup-wizard/complete',
+        summary: 'Complete wizard',
+        operationId: 'completeWizard',
+        requestBody: true,
+      },
+      {
+        method: 'post',
+        path: '/api/setup-wizard/skip',
+        summary: 'Skip wizard',
+        operationId: 'skipWizard',
+        requestBody: true,
+      },
     ],
   },
   {
-    tag: 'Marketing', prefix: '/api/marketing', description: 'Marketing automation and lead management', port: 4025,
+    tag: 'Marketing',
+    prefix: '/api/marketing',
+    description: 'Marketing automation and lead management',
+    port: 4025,
     endpoints: [
       ...crudEndpoints('/api/marketing', 'leads', 'Lead'),
-      { method: 'post', path: '/api/marketing/roi-calculator', summary: 'Calculate ROI', operationId: 'calculateRoi', requestBody: true },
-      { method: 'post', path: '/api/marketing/chatbot', summary: 'Chat with bot', operationId: 'chatbot', requestBody: true },
+      {
+        method: 'post',
+        path: '/api/marketing/roi-calculator',
+        summary: 'Calculate ROI',
+        operationId: 'calculateRoi',
+        requestBody: true,
+      },
+      {
+        method: 'post',
+        path: '/api/marketing/chatbot',
+        summary: 'Chat with bot',
+        operationId: 'chatbot',
+        requestBody: true,
+      },
     ],
   },
   {
-    tag: 'Partners', prefix: '/api/partners', description: 'Partner portal and channel management', port: 4026,
+    tag: 'Partners',
+    prefix: '/api/partners',
+    description: 'Partner portal and channel management',
+    port: 4026,
     endpoints: [
       ...crudEndpoints('/api/partners', 'deals', 'PartnerDeal'),
       ...crudEndpoints('/api/partners', 'payouts', 'PartnerPayout'),
@@ -386,15 +616,53 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
-    tag: 'Gateway', prefix: '/api', description: 'API Gateway — auth, users, dashboard, admin', port: 4000,
+    tag: 'Gateway',
+    prefix: '/api',
+    description: 'API Gateway — auth, users, dashboard, admin',
+    port: 4000,
     endpoints: [
-      { method: 'post', path: '/api/auth/login', summary: 'User login', operationId: 'login', requestBody: true },
-      { method: 'post', path: '/api/auth/register', summary: 'Register user', operationId: 'register', requestBody: true },
-      { method: 'post', path: '/api/auth/refresh', summary: 'Refresh token', operationId: 'refreshToken', requestBody: true },
-      { method: 'get', path: '/api/users', summary: 'List users', operationId: 'listUsers', paginated: true },
+      {
+        method: 'post',
+        path: '/api/auth/login',
+        summary: 'User login',
+        operationId: 'login',
+        requestBody: true,
+      },
+      {
+        method: 'post',
+        path: '/api/auth/register',
+        summary: 'Register user',
+        operationId: 'register',
+        requestBody: true,
+      },
+      {
+        method: 'post',
+        path: '/api/auth/refresh',
+        summary: 'Refresh token',
+        operationId: 'refreshToken',
+        requestBody: true,
+      },
+      {
+        method: 'get',
+        path: '/api/users',
+        summary: 'List users',
+        operationId: 'listUsers',
+        paginated: true,
+      },
       { method: 'get', path: '/api/users/{id}', summary: 'Get user by ID', operationId: 'getUser' },
-      { method: 'get', path: '/api/dashboard/stats', summary: 'Get dashboard statistics', operationId: 'getDashboardStats' },
-      { method: 'get', path: '/api/notifications', summary: 'Get notifications', operationId: 'getNotifications', paginated: true },
+      {
+        method: 'get',
+        path: '/api/dashboard/stats',
+        summary: 'Get dashboard statistics',
+        operationId: 'getDashboardStats',
+      },
+      {
+        method: 'get',
+        path: '/api/notifications',
+        summary: 'Get notifications',
+        operationId: 'getNotifications',
+        paginated: true,
+      },
       { method: 'get', path: '/api/roles', summary: 'List roles', operationId: 'listRoles' },
     ],
   },
@@ -494,11 +762,15 @@ function buildPaths(): Record<string, unknown> {
         responses: {
           '200': {
             description: 'Successful response',
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/SuccessResponse' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/SuccessResponse' } },
+            },
           },
           '400': {
             description: 'Validation error',
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } },
+            },
           },
           '401': { description: 'Unauthorized' },
           '404': { description: 'Not found' },
@@ -552,7 +824,8 @@ export function generateOpenApiSpec(): OpenApiSpec {
     info: {
       title: 'IMS — Integrated Management System API',
       version: '1.0.0',
-      description: 'Complete API reference for the IMS platform covering 42 API services across ISO 9001, 14001, 45001, 27001, 42001, 37001, 22000, 50001, IATF 16949, AS9100, ISO 13485 and more.',
+      description:
+        'Complete API reference for the IMS platform covering 42 API services across ISO 9001, 14001, 45001, 27001, 42001, 37001, 22000, 50001, IATF 16949, AS9100, ISO 13485 and more.',
       contact: {
         name: 'IMS Platform Team',
         email: 'api@ims.local',
@@ -561,12 +834,10 @@ export function generateOpenApiSpec(): OpenApiSpec {
         name: 'Proprietary',
       },
     },
-    servers: [
-      { url: 'http://localhost:4000', description: 'Local development (via API Gateway)' },
-    ],
+    servers: [{ url: 'http://localhost:4000', description: 'Local development (via API Gateway)' }],
     components: buildCommonSchemas(),
     paths: buildPaths(),
-    tags: SERVICES.map(s => ({ name: s.tag, description: s.description })),
+    tags: SERVICES.map((s) => ({ name: s.tag, description: s.description })),
   };
 
   return cachedSpec;

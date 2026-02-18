@@ -176,10 +176,10 @@ export const options = {
       executor: 'ramping-vus',
       startVUs: 1,
       stages: [
-        { duration: '20s', target: 5 },   // Ramp up to 5 VUs
-        { duration: '2m', target: 20 },    // Ramp to 20 concurrent users
-        { duration: '1m', target: 20 },    // Hold at 20
-        { duration: '20s', target: 0 },    // Ramp down
+        { duration: '20s', target: 5 }, // Ramp up to 5 VUs
+        { duration: '2m', target: 20 }, // Ramp to 20 concurrent users
+        { duration: '1m', target: 20 }, // Hold at 20
+        { duration: '20s', target: 0 }, // Ramp down
       ],
     },
   },

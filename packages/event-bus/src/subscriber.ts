@@ -44,9 +44,16 @@ export class EventSubscriber {
 
         try {
           const results = await this.redis.xreadgroup(
-            'GROUP', group, 'consumer-1',
-            'COUNT', '10', 'BLOCK', '1000',
-            'STREAMS', stream, '>'
+            'GROUP',
+            group,
+            'consumer-1',
+            'COUNT',
+            '10',
+            'BLOCK',
+            '1000',
+            'STREAMS',
+            stream,
+            '>'
           );
 
           if (results) {

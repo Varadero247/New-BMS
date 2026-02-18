@@ -79,9 +79,7 @@ describe('Quality Actions API Routes', () => {
       mockPrisma.qualAction.findMany.mockResolvedValueOnce(mockActions);
       mockPrisma.qualAction.count.mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/actions')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/actions').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -129,9 +127,7 @@ describe('Quality Actions API Routes', () => {
       mockPrisma.qualAction.findMany.mockResolvedValueOnce([]);
       mockPrisma.qualAction.count.mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/actions?status=OPEN')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/actions?status=OPEN').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualAction.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -146,9 +142,7 @@ describe('Quality Actions API Routes', () => {
       mockPrisma.qualAction.findMany.mockResolvedValueOnce([]);
       mockPrisma.qualAction.count.mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/actions?priority=HIGH')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/actions?priority=HIGH').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualAction.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -163,9 +157,7 @@ describe('Quality Actions API Routes', () => {
       mockPrisma.qualAction.findMany.mockResolvedValueOnce([]);
       mockPrisma.qualAction.count.mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/actions?source=CAPA')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/actions?source=CAPA').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualAction.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -180,9 +172,7 @@ describe('Quality Actions API Routes', () => {
       mockPrisma.qualAction.findMany.mockResolvedValueOnce([]);
       mockPrisma.qualAction.count.mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/actions?search=corrective')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/actions?search=corrective').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualAction.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -197,9 +187,7 @@ describe('Quality Actions API Routes', () => {
       mockPrisma.qualAction.findMany.mockResolvedValueOnce(mockActions);
       mockPrisma.qualAction.count.mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/actions')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/actions').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualAction.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -211,9 +199,7 @@ describe('Quality Actions API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.qualAction.findMany.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/actions')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/actions').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -502,7 +488,9 @@ describe('Quality Actions API Routes', () => {
 
   describe('DELETE /api/actions/:id', () => {
     it('should delete action successfully', async () => {
-      mockPrisma.qualAction.findUnique.mockResolvedValueOnce({ id: '19000000-0000-4000-a000-000000000001' });
+      mockPrisma.qualAction.findUnique.mockResolvedValueOnce({
+        id: '19000000-0000-4000-a000-000000000001',
+      });
       mockPrisma.qualAction.delete.mockResolvedValueOnce({});
 
       const response = await request(app)

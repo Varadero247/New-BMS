@@ -151,7 +151,15 @@ export const WithExpansion: Story = {
           </div>
           <div>
             <p style={{ fontSize: '12px', color: '#999', marginBottom: '4px' }}>Status</p>
-            <Badge variant={item.status === 'active' ? 'success' : item.status === 'inactive' ? 'danger' : 'warning'}>
+            <Badge
+              variant={
+                item.status === 'active'
+                  ? 'success'
+                  : item.status === 'inactive'
+                    ? 'danger'
+                    : 'warning'
+              }
+            >
               {item.status}
             </Badge>
           </div>
@@ -172,7 +180,13 @@ export const WithCustomRendering: Story = {
           header: 'Status',
           render: (item) => (
             <Badge
-              variant={item.status === 'active' ? 'success' : item.status === 'inactive' ? 'danger' : 'warning'}
+              variant={
+                item.status === 'active'
+                  ? 'success'
+                  : item.status === 'inactive'
+                    ? 'danger'
+                    : 'warning'
+              }
             >
               {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
             </Badge>
@@ -263,7 +277,13 @@ export const Complex: Story = {
             sortable: true,
             render: (item) => (
               <Badge
-                variant={item.status === 'active' ? 'success' : item.status === 'inactive' ? 'danger' : 'warning'}
+                variant={
+                  item.status === 'active'
+                    ? 'success'
+                    : item.status === 'inactive'
+                      ? 'danger'
+                      : 'warning'
+                }
               >
                 {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
               </Badge>
@@ -291,7 +311,9 @@ export const Complex: Story = {
         sortKey={sortKey}
         sortDirection={sortDirection}
         onSort={handleSort}
-        actions={selected.size > 0 && <span style={{ fontSize: '12px' }}>{selected.size} selected</span>}
+        actions={
+          selected.size > 0 && <span style={{ fontSize: '12px' }}>{selected.size} selected</span>
+        }
       />
     );
   },

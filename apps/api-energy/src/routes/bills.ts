@@ -30,8 +30,16 @@ const billCreateSchema = z.object({
   provider: z.string().trim().min(1).max(200),
   accountNumber: z.string().max(100).optional().nullable(),
   invoiceNumber: z.string().max(100).optional().nullable(),
-  periodStart: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-  periodEnd: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  periodStart: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  periodEnd: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   consumption: z.number().min(0),
   unit: z.string().trim().min(1).max(50),
   cost: z.number().min(0),
@@ -43,8 +51,18 @@ const billUpdateSchema = z.object({
   provider: z.string().trim().min(1).max(200).optional(),
   accountNumber: z.string().max(100).optional().nullable(),
   invoiceNumber: z.string().max(100).optional().nullable(),
-  periodStart: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
-  periodEnd: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  periodStart: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional(),
+  periodEnd: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional(),
   consumption: z.number().min(0).optional(),
   unit: z.string().trim().min(1).max(50).optional(),
   cost: z.number().min(0).optional(),
@@ -91,9 +109,13 @@ router.get('/summary', async (req: Request, res: Response) => {
     const bills = await prisma.energyBill.findMany({
       where,
       select: { provider: true, cost: true, consumption: true },
-      take: 1000});
+      take: 1000,
+    });
 
-    const byProvider: Record<string, { totalCost: number; totalConsumption: number; count: number }> = {};
+    const byProvider: Record<
+      string,
+      { totalCost: number; totalConsumption: number; count: number }
+    > = {};
     for (const b of bills) {
       if (!byProvider[b.provider]) {
         byProvider[b.provider] = { totalCost: 0, totalConsumption: 0, count: 0 };
@@ -117,8 +139,13 @@ router.get('/summary', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get bill summary', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get bill summary' } });
+    logger.error('Failed to get bill summary', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get bill summary' },
+    });
   }
 });
 
@@ -167,8 +194,12 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list bills', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list bills' } });
+    logger.error('Failed to list bills', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list bills' } });
   }
 });
 
@@ -180,7 +211,11 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = billCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -188,9 +223,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Validate meter if provided
     if (data.meterId) {
-      const meter = await prisma.energyMeter.findFirst({ where: { id: data.meterId, deletedAt: null } as any });
+      const meter = await prisma.energyMeter.findFirst({
+        where: { id: data.meterId, deletedAt: null } as any,
+      });
       if (!meter) {
-        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
       }
     }
 
@@ -217,8 +256,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Bill created', { billId: bill.id });
     res.status(201).json({ success: true, data: bill });
   } catch (error: unknown) {
-    logger.error('Failed to create bill', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create bill' } });
+    logger.error('Failed to create bill', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create bill' },
+    });
   }
 });
 
@@ -240,13 +284,20 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!bill) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
     }
 
     res.json({ success: true, data: bill });
   } catch (error: unknown) {
-    logger.error('Failed to get bill', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get bill' } });
+    logger.error('Failed to get bill', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get bill' } });
   }
 });
 
@@ -259,12 +310,18 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = billUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -289,8 +346,14 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Bill updated', { billId: id });
     res.json({ success: true, data: bill });
   } catch (error: unknown) {
-    logger.error('Failed to update bill', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update bill' } });
+    logger.error('Failed to update bill', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update bill' },
+    });
   }
 });
 
@@ -304,7 +367,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
     }
 
     await prisma.energyBill.update({
@@ -315,8 +380,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Bill soft-deleted', { billId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete bill', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete bill' } });
+    logger.error('Failed to delete bill', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete bill' },
+    });
   }
 });
 
@@ -330,11 +401,16 @@ router.put('/:id/verify', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
     }
 
     if (existing.status !== 'PENDING') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Only PENDING bills can be verified' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Only PENDING bills can be verified' },
+      });
     }
 
     const bill = await prisma.energyBill.update({
@@ -345,8 +421,14 @@ router.put('/:id/verify', async (req: Request, res: Response) => {
     logger.info('Bill verified', { billId: id });
     res.json({ success: true, data: bill });
   } catch (error: unknown) {
-    logger.error('Failed to verify bill', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to verify bill' } });
+    logger.error('Failed to verify bill', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to verify bill' },
+    });
   }
 });
 

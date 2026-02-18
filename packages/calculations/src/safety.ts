@@ -74,7 +74,14 @@ export function calculateNearMissRate(nearMisses: number, hoursWorked: number): 
  * @returns All calculated safety metrics
  */
 export function calculateSafetyMetrics(input: SafetyMetricsInput): SafetyMetricsOutput {
-  const { hoursWorked, lostTimeInjuries, totalRecordableInjuries, daysLost, nearMisses, firstAidCases } = input;
+  const {
+    hoursWorked,
+    lostTimeInjuries,
+    totalRecordableInjuries,
+    daysLost,
+    nearMisses,
+    firstAidCases,
+  } = input;
 
   const result: SafetyMetricsOutput = {
     ltifr: calculateLTIFR(lostTimeInjuries, hoursWorked),

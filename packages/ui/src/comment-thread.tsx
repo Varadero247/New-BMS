@@ -73,7 +73,13 @@ function canEdit(comment: Comment, currentUserId: string): boolean {
   return Date.now() - new Date(comment.createdAt).getTime() < fifteenMinutes;
 }
 
-const REACTION_EMOJIS = ['\uD83D\uDC4D', '\uD83D\uDC4E', '\u2764\uFE0F', '\uD83C\uDF89', '\u26A0\uFE0F'];
+const REACTION_EMOJIS = [
+  '\uD83D\uDC4D',
+  '\uD83D\uDC4E',
+  '\u2764\uFE0F',
+  '\uD83C\uDF89',
+  '\u26A0\uFE0F',
+];
 
 // ============================================
 // Avatar component
@@ -199,12 +205,14 @@ function CommentItem({
             </div>
           </div>
         ) : (
-          <p className={cn(
-            'mt-0.5 text-sm whitespace-pre-wrap',
-            isDeleted
-              ? 'italic text-zinc-400 dark:text-zinc-500'
-              : 'text-zinc-700 dark:text-zinc-300'
-          )}>
+          <p
+            className={cn(
+              'mt-0.5 text-sm whitespace-pre-wrap',
+              isDeleted
+                ? 'italic text-zinc-400 dark:text-zinc-500'
+                : 'text-zinc-700 dark:text-zinc-300'
+            )}
+          >
             {comment.body}
           </p>
         )}
@@ -217,9 +225,7 @@ function CommentItem({
                 key={emoji}
                 type="button"
                 onClick={() =>
-                  userReacted
-                    ? onRemoveReaction(comment.id, emoji)
-                    : onReaction(comment.id, emoji)
+                  userReacted ? onRemoveReaction(comment.id, emoji) : onReaction(comment.id, emoji)
                 }
                 className={cn(
                   'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors',
@@ -348,35 +354,38 @@ export function CommentThread({
   const limit = 10;
 
   // Fetch comments
-  const fetchComments = useCallback(async (p: number) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      const res = await fetch(
-        `${apiBaseUrl}/api/comments?recordType=${encodeURIComponent(recordType)}&recordId=${encodeURIComponent(recordId)}&page=${p}&limit=${limit}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
+  const fetchComments = useCallback(
+    async (p: number) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        const res = await fetch(
+          `${apiBaseUrl}/api/comments?recordType=${encodeURIComponent(recordType)}&recordId=${encodeURIComponent(recordId)}&page=${p}&limit=${limit}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          }
+        );
+        const json = await res.json();
+        if (json.success) {
+          if (p === 1) {
+            setComments(json.data.comments);
+          } else {
+            setComments((prev) => [...prev, ...json.data.comments]);
+          }
+          setTotal(json.data.total);
         }
-      );
-      const json = await res.json();
-      if (json.success) {
-        if (p === 1) {
-          setComments(json.data.comments);
-        } else {
-          setComments((prev) => [...prev, ...json.data.comments]);
-        }
-        setTotal(json.data.total);
+      } catch {
+        setError('Failed to load comments');
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      setError('Failed to load comments');
-    } finally {
-      setLoading(false);
-    }
-  }, [apiBaseUrl, recordType, recordId]);
+    },
+    [apiBaseUrl, recordType, recordId]
+  );
 
   useEffect(() => {
     fetchComments(1);
@@ -395,7 +404,12 @@ export function CommentThread({
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ recordType, recordId, parentId: parentId || null, body: body.trim() }),
+        body: JSON.stringify({
+          recordType,
+          recordId,
+          parentId: parentId || null,
+          body: body.trim(),
+        }),
       });
       const json = await res.json();
       if (json.success) {
@@ -471,13 +485,16 @@ export function CommentThread({
   const handleRemoveReaction = async (commentId: string, emoji: string) => {
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      await fetch(`${apiBaseUrl}/api/comments/${commentId}/reactions/${encodeURIComponent(emoji)}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
+      await fetch(
+        `${apiBaseUrl}/api/comments/${commentId}/reactions/${encodeURIComponent(emoji)}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        }
+      );
       fetchComments(page);
     } catch {
       setError('Failed to remove reaction');
@@ -505,7 +522,12 @@ export function CommentThread({
   const hasMore = comments.length < total;
 
   return (
-    <div className={cn('rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900', className)}>
+    <div
+      className={cn(
+        'rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900',
+        className
+      )}
+    >
       {/* Header */}
       <div className="border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
         <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
@@ -528,9 +550,7 @@ export function CommentThread({
               rows={2}
             />
             <div className="mt-2 flex items-center justify-between">
-              <span className="text-xs text-zinc-400 dark:text-zinc-500">
-                Cmd+Enter to submit
-              </span>
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">Cmd+Enter to submit</span>
               <button
                 type="button"
                 onClick={() => handleCreate(null)}
@@ -550,9 +570,7 @@ export function CommentThread({
       </div>
 
       {/* Error */}
-      {error && (
-        <div className="px-4 py-2 text-sm text-red-600 dark:text-red-400">{error}</div>
-      )}
+      {error && <div className="px-4 py-2 text-sm text-red-600 dark:text-red-400">{error}</div>}
 
       {/* Comment list */}
       <div className="divide-y divide-zinc-100 dark:divide-zinc-800">

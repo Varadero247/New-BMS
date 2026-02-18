@@ -18,8 +18,15 @@ router.param('id', validateIdParam());
 // ============================================
 
 const ESG_CATEGORIES = [
-  'GHG_SCOPE_1', 'GHG_SCOPE_2', 'GHG_SCOPE_3',
-  'ENERGY', 'WATER', 'WASTE', 'BIODIVERSITY', 'SOCIAL', 'GOVERNANCE',
+  'GHG_SCOPE_1',
+  'GHG_SCOPE_2',
+  'GHG_SCOPE_3',
+  'ENERGY',
+  'WATER',
+  'WASTE',
+  'BIODIVERSITY',
+  'SOCIAL',
+  'GOVERNANCE',
 ] as const;
 
 // ============================================
@@ -50,7 +57,8 @@ router.get('/summary', scopeToUser, async (req: AuthRequest, res: Response) => {
         period: { startsWith: String(targetYear) },
       },
       orderBy: { period: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Aggregate by category
     const summary: Record<string, { total: number; unit: string; count: number }> = {};
@@ -76,11 +84,14 @@ router.get('/summary', scopeToUser, async (req: AuthRequest, res: Response) => {
     // Get targets for progress context
     const targets = await prisma.esgTarget.findMany({
       where: { deletedAt: null } as any,
-      take: 1000});
+      take: 1000,
+    });
 
     const activeTargets = targets.length;
-    const achievedTargets = targets.filter(t => t.status === 'ACHIEVED').length;
-    const atRiskTargets = targets.filter(t => t.status === 'AT_RISK' || t.status === 'OFF_TRACK').length;
+    const achievedTargets = targets.filter((t) => t.status === 'ACHIEVED').length;
+    const atRiskTargets = targets.filter(
+      (t) => t.status === 'AT_RISK' || t.status === 'OFF_TRACK'
+    ).length;
 
     res.json({
       success: true,
@@ -110,7 +121,10 @@ router.get('/summary', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('ESG summary error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to load ESG summary' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to load ESG summary' },
+    });
   }
 });
 
@@ -136,7 +150,8 @@ router.get('/trends', scopeToUser, async (req: AuthRequest, res: Response) => {
     const metrics = await prisma.esgMetric.findMany({
       where,
       orderBy: { period: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Group by period and category
     const trendMap: Record<string, Record<string, number>> = {};
@@ -160,7 +175,10 @@ router.get('/trends', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('ESG trends error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to load ESG trends' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to load ESG trends' },
+    });
   }
 });
 
@@ -197,12 +215,16 @@ router.get('/targets', scopeToUser, async (req: AuthRequest, res: Response) => {
     ]);
 
     // Calculate progress for each target
-    const targetsWithProgress = targets.map(t => {
+    const targetsWithProgress = targets.map((t) => {
       const current = t.currentValue ?? t.baselineValue;
       const range = Math.abs(t.targetValue - t.baselineValue);
-      const progress = range > 0
-        ? Math.min(100, Math.max(0, Math.round(Math.abs(current - t.baselineValue) / range * 100)))
-        : 0;
+      const progress =
+        range > 0
+          ? Math.min(
+              100,
+              Math.max(0, Math.round((Math.abs(current - t.baselineValue) / range) * 100))
+            )
+          : 0;
       return { ...t, progressPercent: progress };
     });
 
@@ -213,7 +235,10 @@ router.get('/targets', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('ESG targets list error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list ESG targets' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list ESG targets' },
+    });
   }
 });
 
@@ -263,11 +288,18 @@ router.post('/targets', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create ESG target error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create ESG target' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create ESG target' },
+    });
   }
 });
 
@@ -275,46 +307,59 @@ router.post('/targets', async (req: AuthRequest, res: Response) => {
 // PUT /targets/:id — Update target
 // ============================================
 
-router.put('/targets/:id', checkOwnership(prisma.esgTarget as any), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.esgTarget.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'ESG target not found' } });
-    }
+router.put(
+  '/targets/:id',
+  checkOwnership(prisma.esgTarget as any),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.esgTarget.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'ESG target not found' } });
+      }
 
-    const schema = z.object({
-      category: z.enum(ESG_CATEGORIES).optional(),
-      subcategory: z.string().trim().min(1).max(200).optional(),
-      description: z.string().trim().min(1).max(2000).optional(),
-      baselineValue: z.number().optional(),
-      baselineYear: z.number().int().min(2000).max(2100).optional(),
-      targetValue: z.number().nonnegative().optional(),
-      targetYear: z.number().int().min(2000).max(2100).optional(),
-      unit: z.string().trim().min(1).max(200).optional(),
-      status: z.enum(['ON_TRACK', 'AT_RISK', 'OFF_TRACK', 'ACHIEVED', 'CANCELLED']).optional(),
-      currentValue: z.number().nonnegative().optional(),
-      notes: z.string().optional(),
-    });
+      const schema = z.object({
+        category: z.enum(ESG_CATEGORIES).optional(),
+        subcategory: z.string().trim().min(1).max(200).optional(),
+        description: z.string().trim().min(1).max(2000).optional(),
+        baselineValue: z.number().optional(),
+        baselineYear: z.number().int().min(2000).max(2100).optional(),
+        targetValue: z.number().nonnegative().optional(),
+        targetYear: z.number().int().min(2000).max(2100).optional(),
+        unit: z.string().trim().min(1).max(200).optional(),
+        status: z.enum(['ON_TRACK', 'AT_RISK', 'OFF_TRACK', 'ACHIEVED', 'CANCELLED']).optional(),
+        currentValue: z.number().nonnegative().optional(),
+        notes: z.string().optional(),
+      });
 
-    const data = schema.parse(req.body);
+      const data = schema.parse(req.body);
 
-    const target = await prisma.esgTarget.update({
-      where: { id: req.params.id },
-      data: data as any,
-    });
+      const target = await prisma.esgTarget.update({
+        where: { id: req.params.id },
+        data: data as any,
+      });
 
-    res.json({ success: true, data: target });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.json({ success: true, data: target });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update ESG target error', { error: (error as Error).message });
+      res.status(500).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update ESG target' },
       });
     }
-    logger.error('Update ESG target error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update ESG target' } });
   }
-});
+);
 
 // ============================================
 // GET /report — Auto-generate ESG report data (GRI/TCFD aligned)
@@ -329,17 +374,20 @@ router.get('/report', scopeToUser, async (req: AuthRequest, res: Response) => {
     const metrics = await prisma.esgMetric.findMany({
       where: { period: { startsWith: String(targetYear) } },
       orderBy: { period: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Get previous year for YoY comparison
     const prevMetrics = await prisma.esgMetric.findMany({
       where: { period: { startsWith: String(targetYear - 1) } },
-      take: 1000});
+      take: 1000,
+    });
 
     // Get targets
     const targets = await prisma.esgTarget.findMany({
       where: { deletedAt: null } as any,
-      take: 1000});
+      take: 1000,
+    });
 
     // Aggregate current year by category
     const currentTotals: Record<string, number> = {};
@@ -356,14 +404,18 @@ router.get('/report', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     // Calculate year-over-year changes
-    const yoyChanges: Record<string, { current: number; previous: number; changePercent: number | null }> = {};
+    const yoyChanges: Record<
+      string,
+      { current: number; previous: number; changePercent: number | null }
+    > = {};
     for (const cat of ESG_CATEGORIES) {
       const current = currentTotals[cat] ?? 0;
       const previous = prevTotals[cat] ?? 0;
       yoyChanges[cat] = {
         current,
         previous,
-        changePercent: previous > 0 ? Math.round(((current - previous) / previous) * 10000) / 100 : null,
+        changePercent:
+          previous > 0 ? Math.round(((current - previous) / previous) * 10000) / 100 : null,
       };
     }
 
@@ -400,13 +452,16 @@ router.get('/report', scopeToUser, async (req: AuthRequest, res: Response) => {
     // TCFD alignment
     const tcfd = {
       governance: 'ESG targets set and monitored through integrated management system',
-      strategy: `${targets.length} active targets across ${new Set(targets.map(t => t.category)).size} ESG categories`,
-      riskManagement: `${targets.filter(t => t.status === 'AT_RISK' || t.status === 'OFF_TRACK').length} targets require attention`,
+      strategy: `${targets.length} active targets across ${new Set(targets.map((t) => t.category)).size} ESG categories`,
+      riskManagement: `${targets.filter((t) => t.status === 'AT_RISK' || t.status === 'OFF_TRACK').length} targets require attention`,
       metricsAndTargets: {
-        totalGhg: (currentTotals['GHG_SCOPE_1'] ?? 0) + (currentTotals['GHG_SCOPE_2'] ?? 0) + (currentTotals['GHG_SCOPE_3'] ?? 0),
+        totalGhg:
+          (currentTotals['GHG_SCOPE_1'] ?? 0) +
+          (currentTotals['GHG_SCOPE_2'] ?? 0) +
+          (currentTotals['GHG_SCOPE_3'] ?? 0),
         unit: 'tCO2e',
         targetCount: targets.length,
-        achievedCount: targets.filter(t => t.status === 'ACHIEVED').length,
+        achievedCount: targets.filter((t) => t.status === 'ACHIEVED').length,
       },
     };
 
@@ -423,7 +478,7 @@ router.get('/report', scopeToUser, async (req: AuthRequest, res: Response) => {
         yearOverYear: yoyChanges,
         gri: griDisclosures,
         tcfd,
-        targets: targets.map(t => ({
+        targets: targets.map((t) => ({
           refNumber: t.refNumber,
           category: t.category,
           description: t.description,
@@ -437,7 +492,10 @@ router.get('/report', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('ESG report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate ESG report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate ESG report' },
+    });
   }
 });
 
@@ -479,11 +537,18 @@ router.post('/metrics', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create ESG metric error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create ESG metric' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create ESG metric' },
+    });
   }
 });
 
@@ -522,7 +587,10 @@ router.get('/metrics', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List ESG metrics error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list ESG metrics' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list ESG metrics' },
+    });
   }
 });
 

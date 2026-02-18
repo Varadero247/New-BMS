@@ -113,9 +113,7 @@ describe('Health & Safety Incidents API Routes', () => {
       (mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/incidents?status=CLOSED')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/incidents?status=CLOSED').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.incident.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -143,9 +141,7 @@ describe('Health & Safety Incidents API Routes', () => {
       (mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/incidents?search=forklift')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/incidents?search=forklift').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.incident.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -162,9 +158,7 @@ describe('Health & Safety Incidents API Routes', () => {
       (mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce(mockIncidents);
       (mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/incidents')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/incidents').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.incident.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -561,7 +555,9 @@ describe('Health & Safety Incidents API Routes', () => {
 
   describe('DELETE /api/incidents/:id', () => {
     it('should delete incident successfully', async () => {
-      (mockPrisma.incident.findUnique as jest.Mock).mockResolvedValueOnce({ id: '11000000-0000-4000-a000-000000000001' });
+      (mockPrisma.incident.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '11000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.incident.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)

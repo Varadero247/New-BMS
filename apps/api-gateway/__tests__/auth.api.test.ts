@@ -24,7 +24,11 @@ jest.mock('@ims/database', () => ({
     $transaction: jest.fn((ops: any) =>
       Array.isArray(ops)
         ? Promise.all(ops)
-        : ops({ user: { create: jest.fn(), update: jest.fn() }, session: { create: jest.fn(), deleteMany: jest.fn() }, passwordResetToken: { update: jest.fn() } })
+        : ops({
+            user: { create: jest.fn(), update: jest.fn() },
+            session: { create: jest.fn(), deleteMany: jest.fn() },
+            passwordResetToken: { update: jest.fn() },
+          })
     ),
   },
 }));
@@ -69,7 +73,14 @@ jest.mock('../src/middleware/account-lockout', () => ({
 }));
 
 import { prisma } from '@ims/database';
-import { comparePassword, hashPassword, generateToken, generateRefreshToken, verifyRefreshToken, authenticate } from '@ims/auth';
+import {
+  comparePassword,
+  hashPassword,
+  generateToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+  authenticate,
+} from '@ims/auth';
 import authRoutes from '../src/routes/auth';
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
@@ -115,9 +126,7 @@ describe('Auth API Routes', () => {
       mockComparePassword.mockResolvedValueOnce(true);
       mockPrisma.session.create.mockResolvedValueOnce({} as any);
 
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send(loginPayload);
+      const response = await request(app).post('/api/auth/login').send(loginPayload);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -132,9 +141,7 @@ describe('Auth API Routes', () => {
     it('should return 401 for invalid email', async () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce(null);
 
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send(loginPayload);
+      const response = await request(app).post('/api/auth/login').send(loginPayload);
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
@@ -145,9 +152,7 @@ describe('Auth API Routes', () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce(mockUser as any);
       mockComparePassword.mockResolvedValueOnce(false);
 
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send(loginPayload);
+      const response = await request(app).post('/api/auth/login').send(loginPayload);
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
@@ -158,9 +163,7 @@ describe('Auth API Routes', () => {
     it('should return 401 for inactive user', async () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce({ ...mockUser, isActive: false } as any);
 
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send(loginPayload);
+      const response = await request(app).post('/api/auth/login').send(loginPayload);
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
@@ -168,9 +171,7 @@ describe('Auth API Routes', () => {
     });
 
     it('should return 400 for missing email', async () => {
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({ password: 'password123' });
+      const response = await request(app).post('/api/auth/login').send({ password: 'password123' });
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -202,9 +203,7 @@ describe('Auth API Routes', () => {
       mockComparePassword.mockResolvedValueOnce(true);
       mockPrisma.session.create.mockResolvedValueOnce({} as any);
 
-      await request(app)
-        .post('/api/auth/login')
-        .send(loginPayload);
+      await request(app).post('/api/auth/login').send(loginPayload);
 
       expect(mockPrisma.session.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -217,9 +216,7 @@ describe('Auth API Routes', () => {
     it('should handle database errors gracefully', async () => {
       mockPrisma.user.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send(loginPayload);
+      const response = await request(app).post('/api/auth/login').send(loginPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -246,9 +243,7 @@ describe('Auth API Routes', () => {
       } as any);
       mockPrisma.session.create.mockResolvedValueOnce({} as any);
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(registerPayload);
+      const response = await request(app).post('/api/auth/register').send(registerPayload);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -262,9 +257,7 @@ describe('Auth API Routes', () => {
     it('should return 409 if user already exists', async () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce({ id: 'existing-user' } as any);
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(registerPayload);
+      const response = await request(app).post('/api/auth/register').send(registerPayload);
 
       expect(response.status).toBe(409);
       expect(response.body.success).toBe(false);
@@ -284,9 +277,7 @@ describe('Auth API Routes', () => {
     it('should return 400 for missing firstName', async () => {
       const { firstName, ...payload } = registerPayload;
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(payload);
+      const response = await request(app).post('/api/auth/register').send(payload);
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -295,9 +286,7 @@ describe('Auth API Routes', () => {
     it('should return 400 for missing lastName', async () => {
       const { lastName, ...payload } = registerPayload;
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(payload);
+      const response = await request(app).post('/api/auth/register').send(payload);
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -312,9 +301,7 @@ describe('Auth API Routes', () => {
       } as any);
       mockPrisma.session.create.mockResolvedValueOnce({} as any);
 
-      await request(app)
-        .post('/api/auth/register')
-        .send(registerPayload);
+      await request(app).post('/api/auth/register').send(registerPayload);
 
       expect(mockHashPassword).toHaveBeenCalledWith(registerPayload.password);
       expect(mockPrisma.user.create).toHaveBeenCalledWith({
@@ -340,9 +327,7 @@ describe('Auth API Routes', () => {
         jobTitle: 'Developer',
       };
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(payload);
+      const response = await request(app).post('/api/auth/register').send(payload);
 
       expect(response.status).toBe(201);
       expect(mockPrisma.user.create).toHaveBeenCalledWith({
@@ -404,9 +389,7 @@ describe('Auth API Routes', () => {
     });
 
     it('should return 400 for missing refresh token', async () => {
-      const response = await request(app)
-        .post('/api/auth/refresh')
-        .send({});
+      const response = await request(app).post('/api/auth/refresh').send({});
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -448,9 +431,7 @@ describe('Auth API Routes', () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce(mockUser as any);
       mockPrisma.session.create.mockResolvedValueOnce({} as any);
 
-      await request(app)
-        .post('/api/auth/refresh')
-        .send({ refreshToken: 'valid-refresh-token' });
+      await request(app).post('/api/auth/refresh').send({ refreshToken: 'valid-refresh-token' });
 
       expect(mockPrisma.session.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -476,9 +457,7 @@ describe('Auth API Routes', () => {
     it('should delete the session on logout', async () => {
       mockPrisma.session.deleteMany.mockResolvedValueOnce({ count: 1 });
 
-      await request(app)
-        .post('/api/auth/logout')
-        .set('Authorization', 'Bearer mock-jwt-token');
+      await request(app).post('/api/auth/logout').set('Authorization', 'Bearer mock-jwt-token');
 
       expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith({
         where: { token: 'mock-jwt-token' },
@@ -528,9 +507,7 @@ describe('Auth API Routes', () => {
     });
 
     it('should return 400 for missing email', async () => {
-      const response = await request(app)
-        .post('/api/auth/forgot-password')
-        .send({});
+      const response = await request(app).post('/api/auth/forgot-password').send({});
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');

@@ -21,7 +21,7 @@ async function generateRefNumber(): Promise<string> {
 
 const createSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  meetingDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  meetingDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   chairperson: z.string().max(200).optional().nullable(),
   attendees: z.string().max(5000).optional().nullable(),
   // §9.3.2 inputs
@@ -40,7 +40,11 @@ const createSchema = z.object({
   resourceNeeds: z.string().max(5000).optional().nullable(),
   decisions: z.string().max(5000).optional().nullable(),
   actionItems: z.string().max(5000).optional().nullable(),
-  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  nextReviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   minutes: z.string().max(50000).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
 });
@@ -70,14 +74,28 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      prisma.qualManagementReview.findMany({ where, skip, take: limit, orderBy: { meetingDate: 'desc' } }),
+      prisma.qualManagementReview.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { meetingDate: 'desc' },
+      }),
       prisma.qualManagementReview.count({ where }),
     ]);
 
-    res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error: unknown) {
-    logger.error('Failed to list management reviews', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list management reviews' } });
+    logger.error('Failed to list management reviews', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list management reviews' },
+    });
   }
 });
 
@@ -86,7 +104,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -106,19 +131,33 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to create management review', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create management review' } });
+    logger.error('Failed to create management review', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create management review' },
+    });
   }
 });
 
 // PUT /:id/complete — Complete the review
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.qualManagementReview.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
+    const existing = await prisma.qualManagementReview.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Management review not found' },
+      });
 
     if (existing.status === 'COMPLETED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_COMPLETED', message: 'Review is already completed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'ALREADY_COMPLETED', message: 'Review is already completed' },
+      });
     }
 
     const item = await prisma.qualManagementReview.update({
@@ -128,20 +167,36 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to complete management review', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete management review' } });
+    logger.error('Failed to complete management review', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete management review' },
+    });
   }
 });
 
 // GET /:id
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await prisma.qualManagementReview.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
+    const item = await prisma.qualManagementReview.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!item)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Management review not found' },
+      });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to get management review', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get management review' } });
+    logger.error('Failed to get management review', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get management review' },
+    });
   }
 });
 
@@ -150,11 +205,24 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.qualManagementReview.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
+    const existing = await prisma.qualManagementReview.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Management review not found' },
+      });
 
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.meetingDate) data.meetingDate = new Date(parsed.data.meetingDate);
@@ -163,22 +231,41 @@ router.put('/:id', async (req: Request, res: Response) => {
     const item = await prisma.qualManagementReview.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to update management review', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update management review' } });
+    logger.error('Failed to update management review', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update management review' },
+    });
   }
 });
 
 // DELETE /:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.qualManagementReview.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
+    const existing = await prisma.qualManagementReview.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Management review not found' },
+      });
 
-    await prisma.qualManagementReview.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualManagementReview.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete management review', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete management review' } });
+    logger.error('Failed to delete management review', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete management review' },
+    });
   }
 });
 

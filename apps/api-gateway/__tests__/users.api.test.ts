@@ -22,16 +22,18 @@ jest.mock('@ims/auth', () => ({
     req.user = mockUser;
     next();
   }),
-  requireRole: (...roles: string[]) => (req: any, res: any, next: any) => {
-    if (roles.includes(req.user.role)) {
-      next();
-    } else {
-      res.status(403).json({
-        success: false,
-        error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
-      });
-    }
-  },
+  requireRole:
+    (...roles: string[]) =>
+    (req: any, res: any, next: any) => {
+      if (roles.includes(req.user.role)) {
+        next();
+      } else {
+        res.status(403).json({
+          success: false,
+          error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
+        });
+      }
+    },
   hashPassword: jest.fn().mockResolvedValue('hashed-password'),
 }));
 
@@ -56,18 +58,32 @@ describe('Users API Routes', () => {
 
   describe('GET /api/users', () => {
     const mockUsers = [
-      { id: '20000000-0000-4000-a000-000000000001', email: 'user1@test.com', firstName: 'User', lastName: 'One', role: 'USER' },
-      { id: '20000000-0000-4000-a000-000000000002', email: 'user2@test.com', firstName: 'User', lastName: 'Two', role: 'MANAGER' },
+      {
+        id: '20000000-0000-4000-a000-000000000001',
+        email: 'user1@test.com',
+        firstName: 'User',
+        lastName: 'One',
+        role: 'USER',
+      },
+      {
+        id: '20000000-0000-4000-a000-000000000002',
+        email: 'user2@test.com',
+        firstName: 'User',
+        lastName: 'Two',
+        role: 'MANAGER',
+      },
     ];
 
     it('should return list of users for admin', async () => {
-      mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+      mockUser = {
+        id: '51000000-0000-4000-a000-000000000123',
+        email: 'admin@test.com',
+        role: 'ADMIN',
+      };
       mockPrisma.user.findMany.mockResolvedValueOnce(mockUsers as any);
       mockPrisma.user.count.mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/users')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/users').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -80,27 +96,31 @@ describe('Users API Routes', () => {
       mockPrisma.user.findMany.mockResolvedValueOnce(mockUsers as any);
       mockPrisma.user.count.mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/users')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/users').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
     });
 
     it('should return 403 for regular user', async () => {
-      mockUser = { id: '20000000-0000-4000-a000-000000000123', email: 'user@test.com', role: 'USER' };
+      mockUser = {
+        id: '20000000-0000-4000-a000-000000000123',
+        email: 'user@test.com',
+        role: 'USER',
+      };
 
-      const response = await request(app)
-        .get('/api/users')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/users').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(403);
       expect(response.body.error.code).toBe('FORBIDDEN');
     });
 
     it('should support pagination', async () => {
-      mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+      mockUser = {
+        id: '51000000-0000-4000-a000-000000000123',
+        email: 'admin@test.com',
+        role: 'ADMIN',
+      };
       mockPrisma.user.findMany.mockResolvedValueOnce(mockUsers as any);
       mockPrisma.user.count.mockResolvedValueOnce(100);
 
@@ -115,13 +135,15 @@ describe('Users API Routes', () => {
     });
 
     it('should support search filter', async () => {
-      mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+      mockUser = {
+        id: '51000000-0000-4000-a000-000000000123',
+        email: 'admin@test.com',
+        role: 'ADMIN',
+      };
       mockPrisma.user.findMany.mockResolvedValueOnce([]);
       mockPrisma.user.count.mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/users?search=john')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/users?search=john').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.user.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -133,13 +155,15 @@ describe('Users API Routes', () => {
     });
 
     it('should support role filter', async () => {
-      mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+      mockUser = {
+        id: '51000000-0000-4000-a000-000000000123',
+        email: 'admin@test.com',
+        role: 'ADMIN',
+      };
       mockPrisma.user.findMany.mockResolvedValueOnce([]);
       mockPrisma.user.count.mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/users?role=MANAGER')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/users?role=MANAGER').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.user.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -173,7 +197,11 @@ describe('Users API Routes', () => {
     });
 
     it('should return user data for admin viewing other user', async () => {
-      mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+      mockUser = {
+        id: '51000000-0000-4000-a000-000000000123',
+        email: 'admin@test.com',
+        role: 'ADMIN',
+      };
       mockPrisma.user.findUnique.mockResolvedValueOnce(mockUserData as any);
 
       const response = await request(app)
@@ -185,7 +213,11 @@ describe('Users API Routes', () => {
     });
 
     it('should return 403 when user tries to view other user', async () => {
-      mockUser = { id: '55000000-0000-4000-a000-000000000001', email: 'other@test.com', role: 'USER' };
+      mockUser = {
+        id: '55000000-0000-4000-a000-000000000001',
+        email: 'other@test.com',
+        role: 'USER',
+      };
 
       const response = await request(app)
         .get('/api/users/20000000-0000-4000-a000-000000000123')
@@ -196,7 +228,11 @@ describe('Users API Routes', () => {
     });
 
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff user', async () => {
-      mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+      mockUser = {
+        id: '51000000-0000-4000-a000-000000000123',
+        email: 'admin@test.com',
+        role: 'ADMIN',
+      };
       mockPrisma.user.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
@@ -217,7 +253,11 @@ describe('Users API Routes', () => {
     };
 
     it('should create user for admin', async () => {
-      mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+      mockUser = {
+        id: '51000000-0000-4000-a000-000000000123',
+        email: 'admin@test.com',
+        role: 'ADMIN',
+      };
       mockPrisma.user.findUnique.mockResolvedValueOnce(null);
       mockPrisma.user.create.mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
@@ -236,7 +276,11 @@ describe('Users API Routes', () => {
     });
 
     it('should return 403 for non-admin', async () => {
-      mockUser = { id: '20000000-0000-4000-a000-000000000123', email: 'user@test.com', role: 'USER' };
+      mockUser = {
+        id: '20000000-0000-4000-a000-000000000123',
+        email: 'user@test.com',
+        role: 'USER',
+      };
 
       const response = await request(app)
         .post('/api/users')
@@ -247,7 +291,11 @@ describe('Users API Routes', () => {
     });
 
     it('should return 409 for duplicate email', async () => {
-      mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+      mockUser = {
+        id: '51000000-0000-4000-a000-000000000123',
+        email: 'admin@test.com',
+        role: 'ADMIN',
+      };
       mockPrisma.user.findUnique.mockResolvedValueOnce({ id: 'existing' } as any);
 
       const response = await request(app)
@@ -260,7 +308,11 @@ describe('Users API Routes', () => {
     });
 
     it('should return 400 for invalid data', async () => {
-      mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+      mockUser = {
+        id: '51000000-0000-4000-a000-000000000123',
+        email: 'admin@test.com',
+        role: 'ADMIN',
+      };
 
       const response = await request(app)
         .post('/api/users')
@@ -272,7 +324,11 @@ describe('Users API Routes', () => {
     });
 
     it('should allow setting role', async () => {
-      mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+      mockUser = {
+        id: '51000000-0000-4000-a000-000000000123',
+        email: 'admin@test.com',
+        role: 'ADMIN',
+      };
       mockPrisma.user.findUnique.mockResolvedValueOnce(null);
       mockPrisma.user.create.mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
@@ -290,7 +346,9 @@ describe('Users API Routes', () => {
 
   describe('PATCH /api/users/:id', () => {
     it('should update own profile', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce({ id: '20000000-0000-4000-a000-000000000123' } as any);
+      mockPrisma.user.findUnique.mockResolvedValueOnce({
+        id: '20000000-0000-4000-a000-000000000123',
+      } as any);
       mockPrisma.user.update.mockResolvedValueOnce({
         id: '20000000-0000-4000-a000-000000000123',
         firstName: 'Updated',
@@ -306,8 +364,14 @@ describe('Users API Routes', () => {
     });
 
     it('should allow admin to update any user', async () => {
-      mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
-      mockPrisma.user.findUnique.mockResolvedValueOnce({ id: '55000000-0000-4000-a000-000000000001' } as any);
+      mockUser = {
+        id: '51000000-0000-4000-a000-000000000123',
+        email: 'admin@test.com',
+        role: 'ADMIN',
+      };
+      mockPrisma.user.findUnique.mockResolvedValueOnce({
+        id: '55000000-0000-4000-a000-000000000001',
+      } as any);
       mockPrisma.user.update.mockResolvedValueOnce({
         id: '55000000-0000-4000-a000-000000000001',
         firstName: 'Updated',
@@ -322,7 +386,11 @@ describe('Users API Routes', () => {
     });
 
     it('should return 403 when updating other user as non-admin', async () => {
-      mockUser = { id: '20000000-0000-4000-a000-000000000123', email: 'user@test.com', role: 'USER' };
+      mockUser = {
+        id: '20000000-0000-4000-a000-000000000123',
+        email: 'user@test.com',
+        role: 'USER',
+      };
 
       const response = await request(app)
         .patch('/api/users/55000000-0000-4000-a000-000000000001')
@@ -333,7 +401,9 @@ describe('Users API Routes', () => {
     });
 
     it('should not allow non-admin to change role', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce({ id: '20000000-0000-4000-a000-000000000123' } as any);
+      mockPrisma.user.findUnique.mockResolvedValueOnce({
+        id: '20000000-0000-4000-a000-000000000123',
+      } as any);
       mockPrisma.user.update.mockResolvedValueOnce({
         id: '20000000-0000-4000-a000-000000000123',
         role: 'USER',
@@ -352,8 +422,14 @@ describe('Users API Routes', () => {
     });
 
     it('should allow admin to change role', async () => {
-      mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
-      mockPrisma.user.findUnique.mockResolvedValueOnce({ id: '20000000-0000-4000-a000-000000000123' } as any);
+      mockUser = {
+        id: '51000000-0000-4000-a000-000000000123',
+        email: 'admin@test.com',
+        role: 'ADMIN',
+      };
+      mockPrisma.user.findUnique.mockResolvedValueOnce({
+        id: '20000000-0000-4000-a000-000000000123',
+      } as any);
       mockPrisma.user.update.mockResolvedValueOnce({
         id: '20000000-0000-4000-a000-000000000123',
         role: 'MANAGER',
@@ -374,7 +450,11 @@ describe('Users API Routes', () => {
 
   describe('DELETE /api/users/:id', () => {
     it('should delete user for admin', async () => {
-      mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+      mockUser = {
+        id: '51000000-0000-4000-a000-000000000123',
+        email: 'admin@test.com',
+        role: 'ADMIN',
+      };
       mockPrisma.user.delete.mockResolvedValueOnce({} as any);
 
       const response = await request(app)
@@ -385,7 +465,11 @@ describe('Users API Routes', () => {
     });
 
     it('should return 403 for non-admin', async () => {
-      mockUser = { id: '20000000-0000-4000-a000-000000000123', email: 'user@test.com', role: 'USER' };
+      mockUser = {
+        id: '20000000-0000-4000-a000-000000000123',
+        email: 'user@test.com',
+        role: 'USER',
+      };
 
       const response = await request(app)
         .delete('/api/users/55000000-0000-4000-a000-000000000001')
@@ -395,7 +479,11 @@ describe('Users API Routes', () => {
     });
 
     it('should not allow admin to delete self', async () => {
-      mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+      mockUser = {
+        id: '51000000-0000-4000-a000-000000000123',
+        email: 'admin@test.com',
+        role: 'ADMIN',
+      };
 
       const response = await request(app)
         .delete('/api/users/51000000-0000-4000-a000-000000000123')

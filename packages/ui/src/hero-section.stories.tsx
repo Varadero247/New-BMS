@@ -18,7 +18,8 @@ export const Default: Story = {
   args: {
     eyebrow: 'Integrated Management System',
     title: 'One platform for all your compliance needs',
-    description: 'Manage ISO 9001, 14001, 45001 and 30+ standards from a single, unified dashboard.',
+    description:
+      'Manage ISO 9001, 14001, 45001 and 30+ standards from a single, unified dashboard.',
     children: (
       <div style={{ display: 'flex', gap: '12px' }}>
         <HeroButton variant="primary">Get Started</HeroButton>
@@ -39,11 +40,11 @@ export const WithRichTitle: Story = {
     eyebrow: 'Now Available',
     title: (
       <>
-        Enterprise Risk Management,{' '}
-        <span style={{ color: '#14b8a6' }}>Reimagined</span>
+        Enterprise Risk Management, <span style={{ color: '#14b8a6' }}>Reimagined</span>
       </>
     ),
-    description: 'ISO 31000 compliant risk registers, bow-tie analysis, and real-time KRI monitoring.',
+    description:
+      'ISO 31000 compliant risk registers, bow-tie analysis, and real-time KRI monitoring.',
     children: <HeroButton variant="primary">Explore Risk Module</HeroButton>,
   },
 };

@@ -12,9 +12,15 @@ export interface ExportResult {
  * Supports 'html' and 'json'. PDF is not supported (no Chromium in Alpine containers).
  */
 export function exportTemplate(
-  template: { code: string; name: string; description?: string | null; fields: FieldDefinition[]; version?: number },
+  template: {
+    code: string;
+    name: string;
+    description?: string | null;
+    fields: FieldDefinition[];
+    version?: number;
+  },
   filledData: Record<string, unknown> | undefined,
-  format: 'html' | 'json' = 'html',
+  format: 'html' | 'json' = 'html'
 ): ExportResult {
   const slug = template.code.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 

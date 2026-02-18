@@ -34,7 +34,11 @@ export const NEXARA_EVENTS: Record<string, { description: string; triggers: stri
   // CRM → Finance → PM
   'deal.closed_won': {
     description: 'Sales deal closed as won',
-    triggers: ['finance.invoice.draft_create', 'pm.project.auto_create', 'workflow.onboarding.trigger'],
+    triggers: [
+      'finance.invoice.draft_create',
+      'pm.project.auto_create',
+      'workflow.onboarding.trigger',
+    ],
   },
   // CMMS → H&S
   'equipment.failure': {

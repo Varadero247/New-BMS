@@ -17,7 +17,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -83,9 +87,7 @@ describe('InfoSec Incidents API', () => {
     it('should create incident', async () => {
       (mockPrisma.isIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
 
-      const res = await request(app)
-        .post('/api/incidents')
-        .send(validCreatePayload);
+      const res = await request(app).post('/api/incidents').send(validCreatePayload);
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -162,9 +164,7 @@ describe('InfoSec Incidents API', () => {
     it('should NOT set GDPR deadline when personalDataInvolved is omitted', async () => {
       (mockPrisma.isIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
 
-      await request(app)
-        .post('/api/incidents')
-        .send(validCreatePayload);
+      await request(app).post('/api/incidents').send(validCreatePayload);
 
       const createCall = (mockPrisma.isIncident.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.gdprNotificationDeadline).toBeUndefined();
@@ -173,9 +173,7 @@ describe('InfoSec Incidents API', () => {
     it('should generate ref number starting with ISI-', async () => {
       (mockPrisma.isIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
 
-      await request(app)
-        .post('/api/incidents')
-        .send(validCreatePayload);
+      await request(app).post('/api/incidents').send(validCreatePayload);
 
       const createCall = (mockPrisma.isIncident.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.refNumber).toMatch(/^ISI-/);
@@ -184,9 +182,7 @@ describe('InfoSec Incidents API', () => {
     it('should set status to REPORTED on create', async () => {
       (mockPrisma.isIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
 
-      await request(app)
-        .post('/api/incidents')
-        .send(validCreatePayload);
+      await request(app).post('/api/incidents').send(validCreatePayload);
 
       const createCall = (mockPrisma.isIncident.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.status).toBe('REPORTED');
@@ -195,9 +191,7 @@ describe('InfoSec Incidents API', () => {
     it('should return 500 on database error', async () => {
       (mockPrisma.isIncident.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const res = await request(app)
-        .post('/api/incidents')
-        .send(validCreatePayload);
+      const res = await request(app).post('/api/incidents').send(validCreatePayload);
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);

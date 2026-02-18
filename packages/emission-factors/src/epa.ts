@@ -102,7 +102,7 @@ export const EPA_FACTORS: EmissionFactor[] = [
   },
   {
     type: 'business_travel_car',
-    factor: 0.210,
+    factor: 0.21,
     unit: 'km',
     co2eUnit: 'kgCO2e',
     scope: 'scope3',

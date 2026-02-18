@@ -16,7 +16,10 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // Helper: calculate risk level from L×S (5x5 matrix)
-function getRiskLevel(likelihood: number, severity: number): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
+function getRiskLevel(
+  likelihood: number,
+  severity: number
+): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
   const score = likelihood * severity;
   if (score <= 4) return 'LOW';
   if (score <= 9) return 'MEDIUM';
@@ -45,11 +48,16 @@ async function generateReferenceNumber(): Promise<string> {
 function getDefaultReviewDate(riskLevel: string): Date {
   const now = new Date();
   switch (riskLevel) {
-    case 'CRITICAL': return new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
-    case 'HIGH':     return new Date(now.getFullYear(), now.getMonth() + 3, now.getDate());
-    case 'MEDIUM':   return new Date(now.getFullYear(), now.getMonth() + 6, now.getDate());
-    case 'LOW':      return new Date(now.getFullYear(), now.getMonth() + 12, now.getDate());
-    default:         return new Date(now.getFullYear(), now.getMonth() + 6, now.getDate());
+    case 'CRITICAL':
+      return new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+    case 'HIGH':
+      return new Date(now.getFullYear(), now.getMonth() + 3, now.getDate());
+    case 'MEDIUM':
+      return new Date(now.getFullYear(), now.getMonth() + 6, now.getDate());
+    case 'LOW':
+      return new Date(now.getFullYear(), now.getMonth() + 12, now.getDate());
+    default:
+      return new Date(now.getFullYear(), now.getMonth() + 6, now.getDate());
   }
 }
 
@@ -91,7 +99,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List risks error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list risks' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list risks' } });
   }
 });
 
@@ -107,7 +117,7 @@ router.get('/matrix', async (req: AuthRequest, res: Response) => {
 
     const matrix: Record<string, { id: string; title: string; riskScore: number }[]> = {};
 
-    risks.forEach(risk => {
+    risks.forEach((risk) => {
       const key = `${risk.likelihood}-${risk.severity}`;
       if (!matrix[key]) matrix[key] = [];
       matrix[key].push({ id: risk.id, title: risk.title, riskScore: risk.riskScore || 0 });
@@ -116,7 +126,10 @@ router.get('/matrix', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: matrix });
   } catch (error) {
     logger.error('Risk matrix error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk matrix' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk matrix' },
+    });
   }
 });
 
@@ -129,13 +142,17 @@ router.get('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: Re
     });
 
     if (!risk || (risk as any).deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     }
 
     res.json({ success: true, data: risk });
   } catch (error) {
     logger.error('Get risk error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk' } });
   }
 });
 
@@ -164,7 +181,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       responsible: z.string().optional(),
       legalReference: z.string().optional(),
       status: z.enum(['ACTIVE', 'UNDER_REVIEW', 'MITIGATED', 'CLOSED', 'ACCEPTED']).optional(),
-      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      reviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const data = schema.parse(req.body);
@@ -222,10 +242,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: risk });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create risk error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create risk' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create risk' },
+    });
   }
 });
 
@@ -234,7 +264,9 @@ router.patch('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: 
   try {
     const existing = await prisma.risk.findUnique({ where: { id: req.params.id } });
     if (!existing || (existing as any).deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     }
 
     const schema = z.object({
@@ -259,7 +291,10 @@ router.patch('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: 
       responsible: z.string().optional(),
       legalReference: z.string().optional(),
       status: z.enum(['ACTIVE', 'UNDER_REVIEW', 'MITIGATED', 'CLOSED', 'ACCEPTED']).optional(),
-      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      reviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const data = schema.parse(req.body);
@@ -295,10 +330,20 @@ router.patch('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: 
     res.json({ success: true, data: risk });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update risk error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update risk' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update risk' },
+    });
   }
 });
 
@@ -314,7 +359,9 @@ router.delete('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res:
   try {
     const existing = await prisma.risk.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     }
 
     await prisma.risk.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
@@ -322,7 +369,10 @@ router.delete('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res:
     res.status(204).send();
   } catch (error) {
     logger.error('Delete risk error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete risk' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete risk' },
+    });
   }
 });
 

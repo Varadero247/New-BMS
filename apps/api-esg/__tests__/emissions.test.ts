@@ -174,7 +174,9 @@ describe('PUT /api/emissions/:id', () => {
     (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue(mockEmission);
     (prisma.esgEmission.update as jest.Mock).mockResolvedValue({ ...mockEmission, quantity: 2000 });
 
-    const res = await request(app).put('/api/emissions/00000000-0000-0000-0000-000000000001').send({ quantity: 2000 });
+    const res = await request(app)
+      .put('/api/emissions/00000000-0000-0000-0000-000000000001')
+      .send({ quantity: 2000 });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -182,12 +184,16 @@ describe('PUT /api/emissions/:id', () => {
   it('should return 404 when updating non-existent emission', async () => {
     (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/emissions/00000000-0000-0000-0000-000000000099').send({ quantity: 2000 });
+    const res = await request(app)
+      .put('/api/emissions/00000000-0000-0000-0000-000000000099')
+      .send({ quantity: 2000 });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid update data', async () => {
-    const res = await request(app).put('/api/emissions/00000000-0000-0000-0000-000000000001').send({ scope: 'INVALID_SCOPE' });
+    const res = await request(app)
+      .put('/api/emissions/00000000-0000-0000-0000-000000000001')
+      .send({ scope: 'INVALID_SCOPE' });
     expect(res.status).toBe(400);
   });
 });
@@ -195,7 +201,10 @@ describe('PUT /api/emissions/:id', () => {
 describe('DELETE /api/emissions/:id', () => {
   it('should soft delete an emission', async () => {
     (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue(mockEmission);
-    (prisma.esgEmission.update as jest.Mock).mockResolvedValue({ ...mockEmission, deletedAt: new Date() });
+    (prisma.esgEmission.update as jest.Mock).mockResolvedValue({
+      ...mockEmission,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/emissions/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);

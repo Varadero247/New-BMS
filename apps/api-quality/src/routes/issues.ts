@@ -65,7 +65,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List issues error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list issues' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list issues' },
+    });
   }
 });
 
@@ -80,13 +83,17 @@ router.get('/:id', checkOwnership(prisma.qualIssue), async (req: AuthRequest, re
     });
 
     if (!issue) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Issue not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Issue not found' } });
     }
 
     res.json({ success: true, data: issue });
   } catch (error) {
     logger.error('Get issue error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get issue' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get issue' } });
   }
 });
 
@@ -112,7 +119,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (data.partyId) {
       const party = await prisma.qualInterestedParty.findUnique({ where: { id: data.partyId } });
       if (!party) {
-        return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Referenced interested party not found' } });
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: 'Referenced interested party not found' },
+        });
       }
     }
 
@@ -129,10 +139,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: issue });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create issue error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create issue' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create issue' },
+    });
   }
 });
 
@@ -141,7 +161,9 @@ router.put('/:id', checkOwnership(prisma.qualIssue), async (req: AuthRequest, re
   try {
     const existing = await prisma.qualIssue.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Issue not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Issue not found' } });
     }
 
     const schema = z.object({
@@ -162,7 +184,10 @@ router.put('/:id', checkOwnership(prisma.qualIssue), async (req: AuthRequest, re
     if (data.partyId) {
       const party = await prisma.qualInterestedParty.findUnique({ where: { id: data.partyId } });
       if (!party) {
-        return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Referenced interested party not found' } });
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: 'Referenced interested party not found' },
+        });
       }
     }
 
@@ -177,10 +202,20 @@ router.put('/:id', checkOwnership(prisma.qualIssue), async (req: AuthRequest, re
     res.json({ success: true, data: issue });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update issue error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update issue' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update issue' },
+    });
   }
 });
 
@@ -189,15 +224,23 @@ router.delete('/:id', checkOwnership(prisma.qualIssue), async (req: AuthRequest,
   try {
     const existing = await prisma.qualIssue.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Issue not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Issue not found' } });
     }
 
-    await prisma.qualIssue.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualIssue.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
 
     res.status(204).send();
   } catch (error) {
     logger.error('Delete issue error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete issue' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete issue' },
+    });
   }
 });
 

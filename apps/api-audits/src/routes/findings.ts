@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate , type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
@@ -21,10 +21,19 @@ const findingCreateSchema = z.object({
   correctiveAction: z.string().optional(),
   assignee: z.string().optional(),
   assigneeName: z.string().optional(),
-  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  closedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  dueDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  closedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   verifiedBy: z.string().optional(),
-  verifiedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  verifiedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   linkedCapaId: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -46,31 +55,55 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { orgId, deletedAt: null };
     if (status) where.status = status;
     if (search) where.title = { contains: search, mode: 'insensitive' };
-    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
     const [data, total] = await Promise.all([
-      prisma.audFinding.findMany({ where, skip, take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100), orderBy: { createdAt: 'desc' } }),
+      prisma.audFinding.findMany({
+        where,
+        skip,
+        take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100),
+        orderBy: { createdAt: 'desc' },
+      }),
       prisma.audFinding.count({ where }),
     ]);
     res.json({
       success: true,
       data,
-      pagination: { page: Math.max(1, parseInt(page, 10) || 1), limit: Math.max(1, parseInt(limit, 10) || 20), total, totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)) },
+      pagination: {
+        page: Math.max(1, parseInt(page, 10) || 1),
+        limit: Math.max(1, parseInt(limit, 10) || 20),
+        total,
+        totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)),
+      },
     });
   } catch (error: unknown) {
     logger.error('Fetch failed', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch findings' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch findings' },
+    });
   }
 });
 
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
-    const item = await prisma.audFinding.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'finding not found' } });
+    const item = await prisma.audFinding.findFirst({
+      where: { id: req.params.id, orgId, deletedAt: null } as any,
+    });
+    if (!item)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'finding not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch finding' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch finding' },
+    });
   }
 });
 
@@ -96,8 +129,13 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' },
+    });
   }
 });
 
@@ -111,32 +149,52 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
       });
     }
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
-    const existing = await prisma.audFinding.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'finding not found' } });
+    const existing = await prisma.audFinding.findFirst({
+      where: { id: req.params.id, orgId, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'finding not found' } });
     const data = await prisma.audFinding.update({
       where: { id: req.params.id },
       data: { ...parsed.data, updatedBy: (req as AuthRequest).user?.id },
     });
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' },
+    });
   }
 });
 
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
-    const existing = await prisma.audFinding.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'finding not found' } });
+    const existing = await prisma.audFinding.findFirst({
+      where: { id: req.params.id, orgId, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'finding not found' } });
     await prisma.audFinding.update({
       where: { id: req.params.id },
       data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id },
     });
     res.json({ success: true, data: { message: 'finding deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete resource' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete resource' },
+    });
   }
 });
 

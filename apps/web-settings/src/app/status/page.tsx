@@ -2,8 +2,16 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Activity, RefreshCw, Server, Clock, Wifi, WifiOff, AlertTriangle,
-  CheckCircle, XCircle, ArrowUpRight,
+  Activity,
+  RefreshCw,
+  Server,
+  Clock,
+  Wifi,
+  WifiOff,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  ArrowUpRight,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -26,7 +34,10 @@ interface PlatformStatus {
   };
 }
 
-const STATUS_CONFIG: Record<string, { color: string; bg: string; icon: typeof CheckCircle; label: string; dot: string }> = {
+const STATUS_CONFIG: Record<
+  string,
+  { color: string; bg: string; icon: typeof CheckCircle; label: string; dot: string }
+> = {
   operational: {
     color: 'text-green-700 dark:text-green-400',
     bg: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800',
@@ -102,9 +113,9 @@ export default function StatusPage() {
   const overallConfig = STATUS_CONFIG[data.status] || STATUS_CONFIG.operational;
   const OverallIcon = overallConfig.icon;
 
-  const operationalCount = data.services.filter(s => s.status === 'operational').length;
-  const degradedCount = data.services.filter(s => s.status === 'degraded').length;
-  const downCount = data.services.filter(s => s.status === 'down').length;
+  const operationalCount = data.services.filter((s) => s.status === 'operational').length;
+  const degradedCount = data.services.filter((s) => s.status === 'degraded').length;
+  const downCount = data.services.filter((s) => s.status === 'down').length;
 
   return (
     <div className="p-6 space-y-6 max-w-4xl">
@@ -148,14 +159,23 @@ export default function StatusPage() {
           { label: '24h Uptime', value: data.uptime['24h'] },
           { label: '7d Uptime', value: data.uptime['7d'] },
           { label: '30d Uptime', value: data.uptime['30d'] },
-        ].map(stat => (
-          <div key={stat.label} className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">{stat.label}</p>
-            <p className={`text-2xl font-bold mt-1 ${
-              stat.value >= 99.9 ? 'text-green-600 dark:text-green-400' :
-              stat.value >= 99.0 ? 'text-yellow-600 dark:text-yellow-400' :
-              'text-red-600 dark:text-red-400'
-            }`}>
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+          >
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">
+              {stat.label}
+            </p>
+            <p
+              className={`text-2xl font-bold mt-1 ${
+                stat.value >= 99.9
+                  ? 'text-green-600 dark:text-green-400'
+                  : stat.value >= 99.0
+                    ? 'text-yellow-600 dark:text-yellow-400'
+                    : 'text-red-600 dark:text-red-400'
+              }`}
+            >
               {stat.value.toFixed(2)}%
             </p>
           </div>
@@ -168,38 +188,55 @@ export default function StatusPage() {
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Services</h3>
         </div>
         <div className="divide-y divide-gray-100 dark:divide-gray-700">
-          {data.services.map(service => (
-            <div key={`${service.name}:${service.port}`} className="flex items-center px-4 py-3 hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 transition-colors">
+          {data.services.map((service) => (
+            <div
+              key={`${service.name}:${service.port}`}
+              className="flex items-center px-4 py-3 hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 transition-colors"
+            >
               {/* Status Dot */}
               <div className="flex-shrink-0 mr-3">
-                <div className={`h-3 w-3 rounded-full ${SERVICE_DOT[service.status] || 'bg-gray-400'}`} />
+                <div
+                  className={`h-3 w-3 rounded-full ${SERVICE_DOT[service.status] || 'bg-gray-400'}`}
+                />
               </div>
 
               {/* Service Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <Server className="h-4 w-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{service.name}</span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">:{service.port}</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {service.name}
+                  </span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">
+                    :{service.port}
+                  </span>
                 </div>
               </div>
 
               {/* Status Text */}
               <div className="flex items-center gap-4">
-                <span className={`text-xs font-medium capitalize ${
-                  service.status === 'operational' ? 'text-green-600 dark:text-green-400' :
-                  service.status === 'degraded' ? 'text-yellow-600 dark:text-yellow-400' :
-                  'text-red-600 dark:text-red-400'
-                }`}>
+                <span
+                  className={`text-xs font-medium capitalize ${
+                    service.status === 'operational'
+                      ? 'text-green-600 dark:text-green-400'
+                      : service.status === 'degraded'
+                        ? 'text-yellow-600 dark:text-yellow-400'
+                        : 'text-red-600 dark:text-red-400'
+                  }`}
+                >
                   {service.status}
                 </span>
 
                 {/* Latency */}
-                <span className={`text-xs font-mono ${
-                  service.latencyMs < 20 ? 'text-green-500' :
-                  service.latencyMs < 50 ? 'text-yellow-500' :
-                  'text-red-500'
-                }`}>
+                <span
+                  className={`text-xs font-mono ${
+                    service.latencyMs < 20
+                      ? 'text-green-500'
+                      : service.latencyMs < 50
+                        ? 'text-yellow-500'
+                        : 'text-red-500'
+                  }`}
+                >
                   {service.latencyMs}ms
                 </span>
 

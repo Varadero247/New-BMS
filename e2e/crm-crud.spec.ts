@@ -13,7 +13,9 @@ test.describe('CRM CRUD', () => {
   });
 
   test('should display CRM dashboard', async ({ page }) => {
-    await expect(page.locator('text=/CRM|Lead|Contact|Deal|Account/i').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=/CRM|Lead|Contact|Deal|Account/i').first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should list leads via API', async ({ page }) => {

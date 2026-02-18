@@ -24,7 +24,11 @@ const UDI_DEVICE_STATUSES = ['DRAFT', 'ACTIVE', 'DISCONTINUED', 'RECALLED'] as c
 const UDI_DATABASES = ['GUDID', 'EUDAMED', 'UKCA'] as const;
 
 const UDI_SUBMISSION_STATUSES = [
-  'PENDING', 'SUBMITTED', 'ACCEPTED', 'REJECTED', 'UPDATE_REQUIRED',
+  'PENDING',
+  'SUBMITTED',
+  'ACCEPTED',
+  'REJECTED',
+  'UPDATE_REQUIRED',
 ] as const;
 
 /**
@@ -82,11 +86,18 @@ router.post('/devices', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create UDI device error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create UDI device' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create UDI device' },
+    });
   }
 });
 
@@ -95,10 +106,7 @@ router.post('/devices', async (req: AuthRequest, res: Response) => {
 // ============================================
 router.get('/devices', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
-    const {
-      page = '1', limit = '20', status, deviceClass,
-      deviceName, manufacturer,
-    } = req.query;
+    const { page = '1', limit = '20', status, deviceClass, deviceName, manufacturer } = req.query;
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
@@ -132,34 +140,46 @@ router.get('/devices', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List UDI devices error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list UDI devices' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list UDI devices' },
+    });
   }
 });
 
 // ============================================
 // 3. GET /devices/:id - Get device with DI, PI records, submissions
 // ============================================
-router.get('/devices/:id', checkOwnership(prisma.udiDevice), async (req: AuthRequest, res: Response) => {
-  try {
-    const device = await prisma.udiDevice.findUnique({
-      where: { id: req.params.id },
-      include: {
-        diRecords: { orderBy: { createdAt: 'desc' } },
-        piRecords: { orderBy: { createdAt: 'desc' } },
-        submissions: { orderBy: { createdAt: 'desc' } },
-      },
-    });
+router.get(
+  '/devices/:id',
+  checkOwnership(prisma.udiDevice),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const device = await prisma.udiDevice.findUnique({
+        where: { id: req.params.id },
+        include: {
+          diRecords: { orderBy: { createdAt: 'desc' } },
+          piRecords: { orderBy: { createdAt: 'desc' } },
+          submissions: { orderBy: { createdAt: 'desc' } },
+        },
+      });
 
-    if (!device || device.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'UDI device not found' } });
+      if (!device || device.deletedAt) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'UDI device not found' } });
+      }
+
+      res.json({ success: true, data: device });
+    } catch (error) {
+      logger.error('Get UDI device error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get UDI device' },
+      });
     }
-
-    res.json({ success: true, data: device });
-  } catch (error) {
-    logger.error('Get UDI device error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get UDI device' } });
   }
-});
+);
 
 // ============================================
 // 4. POST /devices/:id/di - Register UDI-DI
@@ -168,7 +188,9 @@ router.post('/devices/:id/di', async (req: AuthRequest, res: Response) => {
   try {
     const device = await prisma.udiDevice.findUnique({ where: { id: req.params.id } });
     if (!device || device.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'UDI device not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'UDI device not found' } });
     }
 
     const schema = z.object({
@@ -193,7 +215,11 @@ router.post('/devices/:id/di', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     if ((error as any)?.code === 'P2002') {
@@ -203,7 +229,10 @@ router.post('/devices/:id/di', async (req: AuthRequest, res: Response) => {
       });
     }
     logger.error('Create UDI-DI error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create UDI-DI record' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create UDI-DI record' },
+    });
   }
 });
 
@@ -214,14 +243,22 @@ router.post('/devices/:id/pi', async (req: AuthRequest, res: Response) => {
   try {
     const device = await prisma.udiDevice.findUnique({ where: { id: req.params.id } });
     if (!device || device.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'UDI device not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'UDI device not found' } });
     }
 
     const schema = z.object({
       lotNumber: z.string().optional(),
       serialNumber: z.string().optional(),
-      manufacturingDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      expirationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      manufacturingDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      expirationDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const data = schema.parse(req.body);
@@ -241,11 +278,18 @@ router.post('/devices/:id/pi', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create UDI-PI error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create UDI-PI record' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create UDI-PI record' },
+    });
   }
 });
 
@@ -256,7 +300,9 @@ router.get('/devices/:id/submissions', async (req: AuthRequest, res: Response) =
   try {
     const device = await prisma.udiDevice.findUnique({ where: { id: req.params.id } });
     if (!device || device.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'UDI device not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'UDI device not found' } });
     }
 
     const { page = '1', limit = '20', status, database } = req.query;
@@ -287,7 +333,10 @@ router.get('/devices/:id/submissions', async (req: AuthRequest, res: Response) =
     });
   } catch (error) {
     logger.error('List UDI submissions error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list UDI submissions' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list UDI submissions' },
+    });
   }
 });
 
@@ -298,20 +347,28 @@ router.put('/devices/:id/submissions/:sid', async (req: AuthRequest, res: Respon
   try {
     const device = await prisma.udiDevice.findUnique({ where: { id: req.params.id } });
     if (!device || device.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'UDI device not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'UDI device not found' } });
     }
 
     const existing = await prisma.udiSubmission.findFirst({
       where: { id: req.params.sid, deviceId: req.params.id },
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'UDI submission not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'UDI submission not found' },
+      });
     }
 
     const schema = z.object({
       status: z.enum(UDI_SUBMISSION_STATUSES).optional(),
       database: z.enum(UDI_DATABASES).optional(),
-      submissionDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      submissionDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       referenceNumber: z.string().optional(),
       notes: z.string().optional(),
     });
@@ -334,11 +391,18 @@ router.put('/devices/:id/submissions/:sid', async (req: AuthRequest, res: Respon
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update UDI submission error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update UDI submission' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update UDI submission' },
+    });
   }
 });
 

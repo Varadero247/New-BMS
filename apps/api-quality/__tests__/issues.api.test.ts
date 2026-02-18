@@ -61,7 +61,12 @@ describe('Quality Issues API Routes', () => {
         priority: 'HIGH',
         status: 'OPEN',
         treatmentMethod: 'Diversify suppliers',
-        party: { id: 'p1', partyName: 'Supplier A', partyType: 'EXTERNAL', referenceNumber: 'QMS-PTY-2026-001' },
+        party: {
+          id: 'p1',
+          partyName: 'Supplier A',
+          partyType: 'EXTERNAL',
+          referenceNumber: 'QMS-PTY-2026-001',
+        },
       },
       {
         id: 'issue-2',
@@ -79,9 +84,7 @@ describe('Quality Issues API Routes', () => {
       (mockPrisma.qualIssue.findMany as jest.Mock).mockResolvedValueOnce(mockIssues);
       (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/issues')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/issues').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -112,9 +115,7 @@ describe('Quality Issues API Routes', () => {
       (mockPrisma.qualIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/issues?bias=RISK')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/issues?bias=RISK').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualIssue.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -129,9 +130,7 @@ describe('Quality Issues API Routes', () => {
       (mockPrisma.qualIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/issues?priority=HIGH')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/issues?priority=HIGH').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualIssue.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -146,9 +145,7 @@ describe('Quality Issues API Routes', () => {
       (mockPrisma.qualIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/issues?status=OPEN')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/issues?status=OPEN').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualIssue.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -163,9 +160,7 @@ describe('Quality Issues API Routes', () => {
       (mockPrisma.qualIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/issues?search=supply')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/issues?search=supply').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualIssue.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -180,9 +175,7 @@ describe('Quality Issues API Routes', () => {
       (mockPrisma.qualIssue.findMany as jest.Mock).mockResolvedValueOnce(mockIssues);
       (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/issues')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/issues').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualIssue.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -195,14 +188,14 @@ describe('Quality Issues API Routes', () => {
       (mockPrisma.qualIssue.findMany as jest.Mock).mockResolvedValueOnce(mockIssues);
       (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/issues')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/issues').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualIssue.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           include: {
-            party: { select: { id: true, partyName: true, partyType: true, referenceNumber: true } },
+            party: {
+              select: { id: true, partyName: true, partyType: true, referenceNumber: true },
+            },
           },
         })
       );
@@ -211,9 +204,7 @@ describe('Quality Issues API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.qualIssue.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/issues')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/issues').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -309,7 +300,10 @@ describe('Quality Issues API Routes', () => {
 
     it('should create an issue with a valid partyId', async () => {
       (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({ id: '24000000-0000-4000-a000-000000000001', partyName: 'Valid Party' });
+      (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '24000000-0000-4000-a000-000000000001',
+        partyName: 'Valid Party',
+      });
       (mockPrisma.qualIssue.create as jest.Mock).mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         referenceNumber: 'QMS-ISS-2026-001',
@@ -472,7 +466,9 @@ describe('Quality Issues API Routes', () => {
 
   describe('DELETE /api/issues/:id', () => {
     it('should delete an issue successfully', async () => {
-      (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce({ id: '22000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '22000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualIssue.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)

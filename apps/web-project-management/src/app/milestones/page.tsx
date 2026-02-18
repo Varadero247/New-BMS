@@ -95,7 +95,9 @@ export default function MilestonesPage() {
               <Flag className="h-6 w-6 text-blue-600" />
               Milestones
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Track project milestones and deliverables</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+              Track project milestones and deliverables
+            </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -110,7 +112,9 @@ export default function MilestonesPage() {
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-4 mb-6">
           <div className="flex items-center gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Filter by Project
+              </label>
               <select
                 value={filterProjectId}
                 onChange={(e) => setFilterProjectId(e.target.value)}
@@ -118,7 +122,9 @@ export default function MilestonesPage() {
               >
                 <option value="">All Projects</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
@@ -130,43 +136,73 @@ export default function MilestonesPage() {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Project</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Planned Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actual Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Critical</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Approval</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Project
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Planned Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Actual Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Critical
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Approval
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {milestones.map((milestone) => (
                   <tr key={milestone.id} className="hover:bg-gray-50 dark:bg-gray-800">
-                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{milestone.milestoneName}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{milestone.project?.projectName || '-'}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                      {milestone.plannedDate ? new Date(milestone.plannedDate).toLocaleDateString() : '-'}
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                      {milestone.milestoneName}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                      {milestone.actualDate ? new Date(milestone.actualDate).toLocaleDateString() : '-'}
+                      {milestone.project?.projectName || '-'}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {milestone.plannedDate
+                        ? new Date(milestone.plannedDate).toLocaleDateString()
+                        : '-'}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      {milestone.actualDate
+                        ? new Date(milestone.actualDate).toLocaleDateString()
+                        : '-'}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${statusBadge(milestone.status)}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${statusBadge(milestone.status)}`}
+                      >
                         {milestone.status}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       {milestone.isCritical && (
-                        <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700">Critical</span>
+                        <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700">
+                          Critical
+                        </span>
                       )}
                     </td>
                     <td className="px-4 py-3">
                       {milestone.requiresApproval && (
-                        <span className={`text-xs px-2 py-1 rounded-full ${
-                          milestone.approvalStatus === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                          milestone.approvalStatus === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                          'bg-amber-100 text-amber-700'
-                        }`}>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full ${
+                            milestone.approvalStatus === 'APPROVED'
+                              ? 'bg-green-100 text-green-700'
+                              : milestone.approvalStatus === 'REJECTED'
+                                ? 'bg-red-100 text-red-700'
+                                : 'bg-amber-100 text-amber-700'
+                          }`}
+                        >
                           {milestone.approvalStatus || 'PENDING'}
                         </span>
                       )}
@@ -175,7 +211,10 @@ export default function MilestonesPage() {
                 ))}
                 {milestones.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={7}
+                      className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
+                    >
                       No milestones found. Create your first milestone.
                     </td>
                   </tr>
@@ -186,10 +225,17 @@ export default function MilestonesPage() {
         </div>
 
         {/* Create Modal */}
-        <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Milestone" size="lg">
+        <Modal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          title="Create Milestone"
+          size="lg"
+        >
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Project
+              </label>
               <select
                 required
                 value={form.projectId}
@@ -198,12 +244,16 @@ export default function MilestonesPage() {
               >
                 <option value="">Select Project</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Milestone Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Milestone Name
+              </label>
               <input
                 type="text"
                 required
@@ -213,7 +263,9 @@ export default function MilestonesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Planned Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Planned Date
+              </label>
               <input
                 type="date"
                 required
@@ -243,7 +295,9 @@ export default function MilestonesPage() {
               </label>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Description
+              </label>
               <textarea
                 rows={3}
                 value={form.milestoneDescription}
@@ -252,7 +306,9 @@ export default function MilestonesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Deliverables (one per line)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Deliverables (one per line)
+              </label>
               <textarea
                 rows={3}
                 value={form.deliverables}

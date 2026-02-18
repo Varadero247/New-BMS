@@ -5,18 +5,18 @@ const logger = createLogger('vat-summary-job');
 
 // Regional VAT rates
 const VAT_RATES = {
-  UK: 0.20,       // 20% UK VAT
-  EU: 0.00,       // 0% reverse charge
-  GCC: 0.05,      // 5% GCC VAT
-  ROW: 0.00,      // 0% rest of world
+  UK: 0.2, // 20% UK VAT
+  EU: 0.0, // 0% reverse charge
+  GCC: 0.05, // 5% GCC VAT
+  ROW: 0.0, // 0% rest of world
 };
 
 // Revenue distribution by region (estimated)
 const REGION_DISTRIBUTION = {
-  UK: 0.55,       // 55% UK revenue
-  EU: 0.20,       // 20% EU revenue
-  GCC: 0.10,      // 10% GCC revenue
-  ROW: 0.15,      // 15% rest of world
+  UK: 0.55, // 55% UK revenue
+  EU: 0.2, // 20% EU revenue
+  GCC: 0.1, // 10% GCC revenue
+  ROW: 0.15, // 15% rest of world
 };
 
 export async function runVatSummaryJob(): Promise<string> {
@@ -40,7 +40,9 @@ export async function runVatSummaryJob(): Promise<string> {
       totalRevenue = Number(snapshot[0].mrr);
     }
   } catch (err) {
-    logger.warn('Could not fetch snapshot for VAT calculation, using dummy data', { error: String(err) });
+    logger.warn('Could not fetch snapshot for VAT calculation, using dummy data', {
+      error: String(err),
+    });
   }
 
   // Fall back to the most recent available snapshot if no current-month data
@@ -58,10 +60,14 @@ export async function runVatSummaryJob(): Promise<string> {
           totalRevenue,
         });
       } else {
-        logger.warn('No revenue snapshot available; VAT summary will show zero revenue', { period });
+        logger.warn('No revenue snapshot available; VAT summary will show zero revenue', {
+          period,
+        });
       }
     } catch (fallbackErr) {
-      logger.warn('Could not fetch fallback snapshot; using zero revenue', { error: String(fallbackErr) });
+      logger.warn('Could not fetch fallback snapshot; using zero revenue', {
+        error: String(fallbackErr),
+      });
     }
   }
 
@@ -77,10 +83,31 @@ export async function runVatSummaryJob(): Promise<string> {
   const rowVat = rowRevenue * VAT_RATES.ROW;
 
   const breakdown = [
-    { region: 'UK', revenue: Math.round(ukRevenue * 100) / 100, vatRate: VAT_RATES.UK, vatDue: Math.round(ukVat * 100) / 100 },
-    { region: 'EU', revenue: Math.round(euRevenue * 100) / 100, vatRate: VAT_RATES.EU, vatDue: Math.round(euVat * 100) / 100, note: 'Reverse charge applies' },
-    { region: 'GCC', revenue: Math.round(gccRevenue * 100) / 100, vatRate: VAT_RATES.GCC, vatDue: Math.round(gccVat * 100) / 100 },
-    { region: 'Rest of World', revenue: Math.round(rowRevenue * 100) / 100, vatRate: VAT_RATES.ROW, vatDue: Math.round(rowVat * 100) / 100 },
+    {
+      region: 'UK',
+      revenue: Math.round(ukRevenue * 100) / 100,
+      vatRate: VAT_RATES.UK,
+      vatDue: Math.round(ukVat * 100) / 100,
+    },
+    {
+      region: 'EU',
+      revenue: Math.round(euRevenue * 100) / 100,
+      vatRate: VAT_RATES.EU,
+      vatDue: Math.round(euVat * 100) / 100,
+      note: 'Reverse charge applies',
+    },
+    {
+      region: 'GCC',
+      revenue: Math.round(gccRevenue * 100) / 100,
+      vatRate: VAT_RATES.GCC,
+      vatDue: Math.round(gccVat * 100) / 100,
+    },
+    {
+      region: 'Rest of World',
+      revenue: Math.round(rowRevenue * 100) / 100,
+      vatRate: VAT_RATES.ROW,
+      vatDue: Math.round(rowVat * 100) / 100,
+    },
   ];
 
   const vatSummary = await prisma.vatSummary.upsert({

@@ -1,7 +1,20 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
+} from '@ims/ui';
 import { Leaf, Target, TrendingDown, Droplets, Trash2, Zap, Plus, BarChart3 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -140,7 +153,9 @@ export default function ESGDashboardClient() {
     try {
       const res = await api.get('/esg/summary');
       setSummary(res.data.data || null);
-    } catch { setSummary(null); }
+    } catch {
+      setSummary(null);
+    }
   }, []);
 
   const fetchTargets = useCallback(async () => {
@@ -149,7 +164,9 @@ export default function ESGDashboardClient() {
       if (filterCategory) params.category = filterCategory;
       const res = await api.get('/esg/targets', { params });
       setTargets(res.data.data || []);
-    } catch { setTargets([]); }
+    } catch {
+      setTargets([]);
+    }
   }, [filterCategory]);
 
   const fetchMetrics = useCallback(async () => {
@@ -158,19 +175,25 @@ export default function ESGDashboardClient() {
       if (filterCategory) params.category = filterCategory;
       const res = await api.get('/esg/metrics', { params });
       setMetrics(res.data.data || []);
-    } catch { setMetrics([]); }
+    } catch {
+      setMetrics([]);
+    }
   }, [filterCategory]);
 
   const fetchTrends = useCallback(async () => {
     try {
       const res = await api.get('/esg/trends?months=12');
       setTrends(res.data.data || []);
-    } catch { setTrends([]); }
+    } catch {
+      setTrends([]);
+    }
   }, []);
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([fetchSummary(), fetchTargets(), fetchMetrics(), fetchTrends()]).finally(() => setLoading(false));
+    Promise.all([fetchSummary(), fetchTargets(), fetchMetrics(), fetchTrends()]).finally(() =>
+      setLoading(false)
+    );
   }, [fetchSummary, fetchTargets, fetchMetrics, fetchTrends]);
 
   // ============================================
@@ -188,14 +211,21 @@ export default function ESGDashboardClient() {
       });
       setShowTargetModal(false);
       setTargetForm({
-        category: 'GHG_SCOPE_1', subcategory: '', description: '',
-        baselineValue: '', baselineYear: String(new Date().getFullYear()),
-        targetValue: '', targetYear: String(new Date().getFullYear() + 5),
-        unit: 'tCO2e', notes: '',
+        category: 'GHG_SCOPE_1',
+        subcategory: '',
+        description: '',
+        baselineValue: '',
+        baselineYear: String(new Date().getFullYear()),
+        targetValue: '',
+        targetYear: String(new Date().getFullYear() + 5),
+        unit: 'tCO2e',
+        notes: '',
       });
       fetchTargets();
       fetchSummary();
-    } catch (err) { console.error('Failed to create ESG target', err); }
+    } catch (err) {
+      console.error('Failed to create ESG target', err);
+    }
   };
 
   const handleRecordMetric = async () => {
@@ -206,14 +236,20 @@ export default function ESGDashboardClient() {
       });
       setShowMetricModal(false);
       setMetricForm({
-        category: 'GHG_SCOPE_1', subcategory: '',
+        category: 'GHG_SCOPE_1',
+        subcategory: '',
         period: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
-        value: '', unit: 'tCO2e', source: '', notes: '',
+        value: '',
+        unit: 'tCO2e',
+        source: '',
+        notes: '',
       });
       fetchMetrics();
       fetchSummary();
       fetchTrends();
-    } catch (err) { console.error('Failed to record ESG metric', err); }
+    } catch (err) {
+      console.error('Failed to record ESG metric', err);
+    }
   };
 
   const formatNumber = (n: number) => {
@@ -221,7 +257,8 @@ export default function ESGDashboardClient() {
     return n.toFixed(1);
   };
 
-  const getCategoryLabel = (val: string) => CATEGORIES.find(c => c.value === val)?.label ?? val.replace(/_/g, ' ');
+  const getCategoryLabel = (val: string) =>
+    CATEGORIES.find((c) => c.value === val)?.label ?? val.replace(/_/g, ' ');
 
   // ============================================
   // Render
@@ -232,8 +269,12 @@ export default function ESGDashboardClient() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">ESG / Sustainability Dashboard</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">GRI/TCFD-aligned environmental, social and governance tracking</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            ESG / Sustainability Dashboard
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            GRI/TCFD-aligned environmental, social and governance tracking
+          </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setShowMetricModal(true)}>
@@ -255,7 +296,9 @@ export default function ESGDashboardClient() {
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Total GHG</p>
-                <p className="text-2xl font-bold">{summary ? formatNumber(summary.ghg.total) : '0'}</p>
+                <p className="text-2xl font-bold">
+                  {summary ? formatNumber(summary.ghg.total) : '0'}
+                </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500">tCO2e</p>
               </div>
             </div>
@@ -270,7 +313,9 @@ export default function ESGDashboardClient() {
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Energy</p>
-                <p className="text-2xl font-bold">{summary ? formatNumber(summary.energy.total) : '0'}</p>
+                <p className="text-2xl font-bold">
+                  {summary ? formatNumber(summary.energy.total) : '0'}
+                </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500">MWh</p>
               </div>
             </div>
@@ -285,7 +330,9 @@ export default function ESGDashboardClient() {
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Water</p>
-                <p className="text-2xl font-bold">{summary ? formatNumber(summary.water.total) : '0'}</p>
+                <p className="text-2xl font-bold">
+                  {summary ? formatNumber(summary.water.total) : '0'}
+                </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500">m3</p>
               </div>
             </div>
@@ -300,7 +347,9 @@ export default function ESGDashboardClient() {
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Waste</p>
-                <p className="text-2xl font-bold">{summary ? formatNumber(summary.waste.total) : '0'}</p>
+                <p className="text-2xl font-bold">
+                  {summary ? formatNumber(summary.waste.total) : '0'}
+                </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500">tonnes</p>
               </div>
             </div>
@@ -321,27 +370,52 @@ export default function ESGDashboardClient() {
                 <p className="text-xl font-bold text-red-700">{formatNumber(summary.ghg.scope1)}</p>
                 <p className="text-xs text-gray-400 dark:text-gray-500">tCO2e</p>
                 <div className="mt-2 bg-gray-200 rounded-full h-2">
-                  <div className="bg-red-500 h-2 rounded-full" style={{ width: `${Math.round((summary.ghg.scope1 / summary.ghg.total) * 100)}%` }} />
+                  <div
+                    className="bg-red-500 h-2 rounded-full"
+                    style={{
+                      width: `${Math.round((summary.ghg.scope1 / summary.ghg.total) * 100)}%`,
+                    }}
+                  />
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{Math.round((summary.ghg.scope1 / summary.ghg.total) * 100)}%</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {Math.round((summary.ghg.scope1 / summary.ghg.total) * 100)}%
+                </p>
               </div>
               <div className="text-center p-4 bg-orange-50 rounded-lg">
                 <p className="text-sm text-gray-500 dark:text-gray-400">Scope 2 (Electricity)</p>
-                <p className="text-xl font-bold text-orange-700">{formatNumber(summary.ghg.scope2)}</p>
+                <p className="text-xl font-bold text-orange-700">
+                  {formatNumber(summary.ghg.scope2)}
+                </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500">tCO2e</p>
                 <div className="mt-2 bg-gray-200 rounded-full h-2">
-                  <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${Math.round((summary.ghg.scope2 / summary.ghg.total) * 100)}%` }} />
+                  <div
+                    className="bg-orange-500 h-2 rounded-full"
+                    style={{
+                      width: `${Math.round((summary.ghg.scope2 / summary.ghg.total) * 100)}%`,
+                    }}
+                  />
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{Math.round((summary.ghg.scope2 / summary.ghg.total) * 100)}%</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {Math.round((summary.ghg.scope2 / summary.ghg.total) * 100)}%
+                </p>
               </div>
               <div className="text-center p-4 bg-amber-50 rounded-lg">
                 <p className="text-sm text-gray-500 dark:text-gray-400">Scope 3 (Supply Chain)</p>
-                <p className="text-xl font-bold text-amber-700">{formatNumber(summary.ghg.scope3)}</p>
+                <p className="text-xl font-bold text-amber-700">
+                  {formatNumber(summary.ghg.scope3)}
+                </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500">tCO2e</p>
                 <div className="mt-2 bg-gray-200 rounded-full h-2">
-                  <div className="bg-amber-500 h-2 rounded-full" style={{ width: `${Math.round((summary.ghg.scope3 / summary.ghg.total) * 100)}%` }} />
+                  <div
+                    className="bg-amber-500 h-2 rounded-full"
+                    style={{
+                      width: `${Math.round((summary.ghg.scope3 / summary.ghg.total) * 100)}%`,
+                    }}
+                  />
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{Math.round((summary.ghg.scope3 / summary.ghg.total) * 100)}%</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {Math.round((summary.ghg.scope3 / summary.ghg.total) * 100)}%
+                </p>
               </div>
             </div>
           </CardContent>
@@ -350,17 +424,41 @@ export default function ESGDashboardClient() {
 
       {/* Tabs */}
       <div className="flex gap-2 border-b pb-2">
-        <button onClick={() => setActiveTab('overview')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'overview' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}>Overview</button>
-        <button onClick={() => setActiveTab('targets')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'targets' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}>Targets</button>
-        <button onClick={() => setActiveTab('metrics')} className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'metrics' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}>Metrics</button>
+        <button
+          onClick={() => setActiveTab('overview')}
+          className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'overview' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}
+        >
+          Overview
+        </button>
+        <button
+          onClick={() => setActiveTab('targets')}
+          className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'targets' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}
+        >
+          Targets
+        </button>
+        <button
+          onClick={() => setActiveTab('metrics')}
+          className={`px-4 py-2 rounded-t text-sm font-medium ${activeTab === 'metrics' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}
+        >
+          Metrics
+        </button>
       </div>
 
       {/* Filter Bar */}
       <div className="flex gap-4 items-center">
         <div className="w-64">
-          <Select value={filterCategory} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilterCategory(e.target.value)}>
+          <Select
+            value={filterCategory}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              setFilterCategory(e.target.value)
+            }
+          >
             <option value="">All Categories</option>
-            {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+            {CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
           </Select>
         </div>
       </div>
@@ -375,7 +473,9 @@ export default function ESGDashboardClient() {
             </CardHeader>
             <CardContent>
               {trends.length === 0 ? (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No trend data available. Start recording ESG metrics to see trends.</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                  No trend data available. Start recording ESG metrics to see trends.
+                </p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -391,15 +491,27 @@ export default function ESGDashboardClient() {
                       </tr>
                     </thead>
                     <tbody>
-                      {trends.map(t => (
+                      {trends.map((t) => (
                         <tr key={t.period} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                           <td className="py-2 pr-4 font-mono text-xs">{t.period}</td>
-                          <td className="py-2 pr-4">{typeof t.GHG_SCOPE_1 === 'number' ? t.GHG_SCOPE_1.toFixed(1) : '-'}</td>
-                          <td className="py-2 pr-4">{typeof t.GHG_SCOPE_2 === 'number' ? t.GHG_SCOPE_2.toFixed(1) : '-'}</td>
-                          <td className="py-2 pr-4">{typeof t.GHG_SCOPE_3 === 'number' ? t.GHG_SCOPE_3.toFixed(1) : '-'}</td>
-                          <td className="py-2 pr-4">{typeof t.ENERGY === 'number' ? t.ENERGY.toFixed(1) : '-'}</td>
-                          <td className="py-2 pr-4">{typeof t.WATER === 'number' ? t.WATER.toFixed(1) : '-'}</td>
-                          <td className="py-2">{typeof t.WASTE === 'number' ? t.WASTE.toFixed(1) : '-'}</td>
+                          <td className="py-2 pr-4">
+                            {typeof t.GHG_SCOPE_1 === 'number' ? t.GHG_SCOPE_1.toFixed(1) : '-'}
+                          </td>
+                          <td className="py-2 pr-4">
+                            {typeof t.GHG_SCOPE_2 === 'number' ? t.GHG_SCOPE_2.toFixed(1) : '-'}
+                          </td>
+                          <td className="py-2 pr-4">
+                            {typeof t.GHG_SCOPE_3 === 'number' ? t.GHG_SCOPE_3.toFixed(1) : '-'}
+                          </td>
+                          <td className="py-2 pr-4">
+                            {typeof t.ENERGY === 'number' ? t.ENERGY.toFixed(1) : '-'}
+                          </td>
+                          <td className="py-2 pr-4">
+                            {typeof t.WATER === 'number' ? t.WATER.toFixed(1) : '-'}
+                          </td>
+                          <td className="py-2">
+                            {typeof t.WASTE === 'number' ? t.WASTE.toFixed(1) : '-'}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -415,30 +527,52 @@ export default function ESGDashboardClient() {
               <div className="flex items-center justify-between">
                 <CardTitle>Target Progress</CardTitle>
                 <div className="flex gap-2 text-sm">
-                  <span className="text-green-600 font-medium">{summary?.targets.achieved ?? 0} achieved</span>
+                  <span className="text-green-600 font-medium">
+                    {summary?.targets.achieved ?? 0} achieved
+                  </span>
                   <span className="text-gray-400 dark:text-gray-500">|</span>
-                  <span className="text-yellow-600 font-medium">{summary?.targets.atRisk ?? 0} at risk</span>
+                  <span className="text-yellow-600 font-medium">
+                    {summary?.targets.atRisk ?? 0} at risk
+                  </span>
                   <span className="text-gray-400 dark:text-gray-500">|</span>
-                  <span className="text-gray-600 font-medium">{summary?.targets.total ?? 0} total</span>
+                  <span className="text-gray-600 font-medium">
+                    {summary?.targets.total ?? 0} total
+                  </span>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               {targets.length === 0 ? (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No ESG targets set. Click &quot;Set Target&quot; to get started.</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                  No ESG targets set. Click &quot;Set Target&quot; to get started.
+                </p>
               ) : (
                 <div className="space-y-4">
-                  {targets.slice(0, 5).map(t => (
+                  {targets.slice(0, 5).map((t) => (
                     <div key={t.id} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{t.refNumber}</span>
-                          <Badge className={CATEGORY_COLORS[t.category] || 'bg-gray-100 dark:bg-gray-800'}>{getCategoryLabel(t.category)}</Badge>
-                          <Badge className={STATUS_COLORS[t.status] || 'bg-gray-100 dark:bg-gray-800'}>{t.status.replace(/_/g, ' ')}</Badge>
+                          <span className="font-mono text-xs text-gray-500 dark:text-gray-400">
+                            {t.refNumber}
+                          </span>
+                          <Badge
+                            className={
+                              CATEGORY_COLORS[t.category] || 'bg-gray-100 dark:bg-gray-800'
+                            }
+                          >
+                            {getCategoryLabel(t.category)}
+                          </Badge>
+                          <Badge
+                            className={STATUS_COLORS[t.status] || 'bg-gray-100 dark:bg-gray-800'}
+                          >
+                            {t.status.replace(/_/g, ' ')}
+                          </Badge>
                         </div>
                         <span className="text-sm font-medium">{t.progressPercent}%</span>
                       </div>
-                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{t.description}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                        {t.description}
+                      </p>
                       <div className="bg-gray-200 rounded-full h-2.5">
                         <div
                           className={`h-2.5 rounded-full ${t.status === 'ACHIEVED' ? 'bg-blue-500' : t.status === 'AT_RISK' ? 'bg-yellow-500' : t.status === 'OFF_TRACK' ? 'bg-red-500' : 'bg-green-500'}`}
@@ -446,9 +580,15 @@ export default function ESGDashboardClient() {
                         />
                       </div>
                       <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
-                        <span>Baseline: {t.baselineValue} {t.unit} ({t.baselineYear})</span>
-                        <span>Current: {t.currentValue ?? '-'} {t.unit}</span>
-                        <span>Target: {t.targetValue} {t.unit} ({t.targetYear})</span>
+                        <span>
+                          Baseline: {t.baselineValue} {t.unit} ({t.baselineYear})
+                        </span>
+                        <span>
+                          Current: {t.currentValue ?? '-'} {t.unit}
+                        </span>
+                        <span>
+                          Target: {t.targetValue} {t.unit} ({t.targetYear})
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -465,11 +605,17 @@ export default function ESGDashboardClient() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>ESG Targets</CardTitle>
-              <Button onClick={() => setShowTargetModal(true)}><Plus className="h-4 w-4 mr-2" /> New Target</Button>
+              <Button onClick={() => setShowTargetModal(true)}>
+                <Plus className="h-4 w-4 mr-2" /> New Target
+              </Button>
             </div>
           </CardHeader>
           <CardContent>
-            {loading ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p> : targets.length === 0 ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">No targets found.</p> : (
+            {loading ? (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p>
+            ) : targets.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No targets found.</p>
+            ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -485,23 +631,47 @@ export default function ESGDashboardClient() {
                     </tr>
                   </thead>
                   <tbody>
-                    {targets.map(t => (
+                    {targets.map((t) => (
                       <tr key={t.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 pr-4 font-mono text-xs">{t.refNumber}</td>
-                        <td className="py-3 pr-4"><Badge className={CATEGORY_COLORS[t.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'}>{getCategoryLabel(t.category)}</Badge></td>
+                        <td className="py-3 pr-4">
+                          <Badge
+                            className={
+                              CATEGORY_COLORS[t.category] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-800'
+                            }
+                          >
+                            {getCategoryLabel(t.category)}
+                          </Badge>
+                        </td>
                         <td className="py-3 pr-4 max-w-xs truncate">{t.description}</td>
-                        <td className="py-3 pr-4 text-right">{t.baselineValue} {t.unit}</td>
-                        <td className="py-3 pr-4 text-right">{t.targetValue} {t.unit}</td>
-                        <td className="py-3 pr-4 text-right">{t.currentValue ?? '-'} {t.unit}</td>
+                        <td className="py-3 pr-4 text-right">
+                          {t.baselineValue} {t.unit}
+                        </td>
+                        <td className="py-3 pr-4 text-right">
+                          {t.targetValue} {t.unit}
+                        </td>
+                        <td className="py-3 pr-4 text-right">
+                          {t.currentValue ?? '-'} {t.unit}
+                        </td>
                         <td className="py-3 pr-4">
                           <div className="flex items-center gap-2">
                             <div className="w-16 bg-gray-200 rounded-full h-1.5">
-                              <div className={`h-1.5 rounded-full ${t.status === 'ACHIEVED' ? 'bg-blue-500' : t.status === 'OFF_TRACK' ? 'bg-red-500' : 'bg-green-500'}`} style={{ width: `${Math.min(100, t.progressPercent)}%` }} />
+                              <div
+                                className={`h-1.5 rounded-full ${t.status === 'ACHIEVED' ? 'bg-blue-500' : t.status === 'OFF_TRACK' ? 'bg-red-500' : 'bg-green-500'}`}
+                                style={{ width: `${Math.min(100, t.progressPercent)}%` }}
+                              />
                             </div>
                             <span className="text-xs">{t.progressPercent}%</span>
                           </div>
                         </td>
-                        <td className="py-3"><Badge className={STATUS_COLORS[t.status] || 'bg-gray-100 dark:bg-gray-800'}>{t.status.replace(/_/g, ' ')}</Badge></td>
+                        <td className="py-3">
+                          <Badge
+                            className={STATUS_COLORS[t.status] || 'bg-gray-100 dark:bg-gray-800'}
+                          >
+                            {t.status.replace(/_/g, ' ')}
+                          </Badge>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -518,11 +688,19 @@ export default function ESGDashboardClient() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>ESG Metric Entries</CardTitle>
-              <Button onClick={() => setShowMetricModal(true)}><Plus className="h-4 w-4 mr-2" /> Record Metric</Button>
+              <Button onClick={() => setShowMetricModal(true)}>
+                <Plus className="h-4 w-4 mr-2" /> Record Metric
+              </Button>
             </div>
           </CardHeader>
           <CardContent>
-            {loading ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p> : metrics.length === 0 ? <p className="text-gray-500 dark:text-gray-400 text-center py-8">No metrics recorded.</p> : (
+            {loading ? (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">Loading...</p>
+            ) : metrics.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                No metrics recorded.
+              </p>
+            ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -537,18 +715,32 @@ export default function ESGDashboardClient() {
                     </tr>
                   </thead>
                   <tbody>
-                    {metrics.map(m => (
+                    {metrics.map((m) => (
                       <tr key={m.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 pr-4 font-mono text-xs">{m.period}</td>
-                        <td className="py-3 pr-4"><Badge className={CATEGORY_COLORS[m.category] || 'bg-gray-100 dark:bg-gray-800'}>{getCategoryLabel(m.category)}</Badge></td>
+                        <td className="py-3 pr-4">
+                          <Badge
+                            className={
+                              CATEGORY_COLORS[m.category] || 'bg-gray-100 dark:bg-gray-800'
+                            }
+                          >
+                            {getCategoryLabel(m.category)}
+                          </Badge>
+                        </td>
                         <td className="py-3 pr-4">{m.subcategory}</td>
                         <td className="py-3 pr-4 text-right font-medium">{m.value.toFixed(2)}</td>
                         <td className="py-3 pr-4 text-gray-500 dark:text-gray-400">{m.unit}</td>
-                        <td className="py-3 pr-4 text-gray-500 dark:text-gray-400">{m.source || '-'}</td>
+                        <td className="py-3 pr-4 text-gray-500 dark:text-gray-400">
+                          {m.source || '-'}
+                        </td>
                         <td className="py-3">
-                          {m.verified
-                            ? <Badge className="bg-green-100 text-green-800">Verified</Badge>
-                            : <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600">Unverified</Badge>}
+                          {m.verified ? (
+                            <Badge className="bg-green-100 text-green-800">Verified</Badge>
+                          ) : (
+                            <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600">
+                              Unverified
+                            </Badge>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -561,60 +753,132 @@ export default function ESGDashboardClient() {
       )}
 
       {/* Create Target Modal */}
-      <Modal isOpen={showTargetModal} onClose={() => setShowTargetModal(false)} title="Set ESG Target" size="lg">
+      <Modal
+        isOpen={showTargetModal}
+        onClose={() => setShowTargetModal(false)}
+        title="Set ESG Target"
+        size="lg"
+      >
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Category *</Label>
-              <Select value={targetForm.category} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTargetForm({ ...targetForm, category: e.target.value })}>
-                {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+              <Select
+                value={targetForm.category}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setTargetForm({ ...targetForm, category: e.target.value })
+                }
+              >
+                {CATEGORIES.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
               </Select>
             </div>
             <div>
               <Label>Subcategory *</Label>
-              <Input value={targetForm.subcategory} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTargetForm({ ...targetForm, subcategory: e.target.value })} placeholder="e.g. Direct Fuel Combustion" />
+              <Input
+                value={targetForm.subcategory}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setTargetForm({ ...targetForm, subcategory: e.target.value })
+                }
+                placeholder="e.g. Direct Fuel Combustion"
+              />
             </div>
           </div>
           <div>
             <Label>Description *</Label>
-            <Textarea rows={2} value={targetForm.description} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTargetForm({ ...targetForm, description: e.target.value })} placeholder="e.g. Reduce Scope 1 GHG emissions by 30% by 2030" />
+            <Textarea
+              rows={2}
+              value={targetForm.description}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setTargetForm({ ...targetForm, description: e.target.value })
+              }
+              placeholder="e.g. Reduce Scope 1 GHG emissions by 30% by 2030"
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Baseline Value *</Label>
-              <Input type="number" value={targetForm.baselineValue} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTargetForm({ ...targetForm, baselineValue: e.target.value })} />
+              <Input
+                type="number"
+                value={targetForm.baselineValue}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setTargetForm({ ...targetForm, baselineValue: e.target.value })
+                }
+              />
             </div>
             <div>
               <Label>Baseline Year *</Label>
-              <Input type="number" value={targetForm.baselineYear} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTargetForm({ ...targetForm, baselineYear: e.target.value })} />
+              <Input
+                type="number"
+                value={targetForm.baselineYear}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setTargetForm({ ...targetForm, baselineYear: e.target.value })
+                }
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Target Value *</Label>
-              <Input type="number" value={targetForm.targetValue} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTargetForm({ ...targetForm, targetValue: e.target.value })} />
+              <Input
+                type="number"
+                value={targetForm.targetValue}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setTargetForm({ ...targetForm, targetValue: e.target.value })
+                }
+              />
             </div>
             <div>
               <Label>Target Year *</Label>
-              <Input type="number" value={targetForm.targetYear} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTargetForm({ ...targetForm, targetYear: e.target.value })} />
+              <Input
+                type="number"
+                value={targetForm.targetYear}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setTargetForm({ ...targetForm, targetYear: e.target.value })
+                }
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Unit *</Label>
-              <Input value={targetForm.unit} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTargetForm({ ...targetForm, unit: e.target.value })} placeholder="tCO2e, MWh, m3, tonnes" />
+              <Input
+                value={targetForm.unit}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setTargetForm({ ...targetForm, unit: e.target.value })
+                }
+                placeholder="tCO2e, MWh, m3, tonnes"
+              />
             </div>
           </div>
           <div>
             <Label>Notes</Label>
-            <Textarea rows={2} value={targetForm.notes} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTargetForm({ ...targetForm, notes: e.target.value })} />
+            <Textarea
+              rows={2}
+              value={targetForm.notes}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setTargetForm({ ...targetForm, notes: e.target.value })
+              }
+            />
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setShowTargetModal(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setShowTargetModal(false)}>
+            Cancel
+          </Button>
           <Button
             onClick={handleCreateTarget}
-            disabled={!targetForm.category || !targetForm.subcategory || !targetForm.description || !targetForm.baselineValue || !targetForm.targetValue || !targetForm.unit}
+            disabled={
+              !targetForm.category ||
+              !targetForm.subcategory ||
+              !targetForm.description ||
+              !targetForm.baselineValue ||
+              !targetForm.targetValue ||
+              !targetForm.unit
+            }
           >
             Create Target
           </Button>
@@ -622,48 +886,107 @@ export default function ESGDashboardClient() {
       </Modal>
 
       {/* Record Metric Modal */}
-      <Modal isOpen={showMetricModal} onClose={() => setShowMetricModal(false)} title="Record ESG Metric" size="lg">
+      <Modal
+        isOpen={showMetricModal}
+        onClose={() => setShowMetricModal(false)}
+        title="Record ESG Metric"
+        size="lg"
+      >
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Category *</Label>
-              <Select value={metricForm.category} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMetricForm({ ...metricForm, category: e.target.value })}>
-                {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+              <Select
+                value={metricForm.category}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setMetricForm({ ...metricForm, category: e.target.value })
+                }
+              >
+                {CATEGORIES.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
               </Select>
             </div>
             <div>
               <Label>Subcategory *</Label>
-              <Input value={metricForm.subcategory} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMetricForm({ ...metricForm, subcategory: e.target.value })} placeholder="e.g. Direct Fuel Combustion" />
+              <Input
+                value={metricForm.subcategory}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setMetricForm({ ...metricForm, subcategory: e.target.value })
+                }
+                placeholder="e.g. Direct Fuel Combustion"
+              />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
               <Label>Period * (YYYY-MM)</Label>
-              <Input value={metricForm.period} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMetricForm({ ...metricForm, period: e.target.value })} placeholder="2026-02" />
+              <Input
+                value={metricForm.period}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setMetricForm({ ...metricForm, period: e.target.value })
+                }
+                placeholder="2026-02"
+              />
             </div>
             <div>
               <Label>Value *</Label>
-              <Input type="number" step="0.01" value={metricForm.value} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMetricForm({ ...metricForm, value: e.target.value })} />
+              <Input
+                type="number"
+                step="0.01"
+                value={metricForm.value}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setMetricForm({ ...metricForm, value: e.target.value })
+                }
+              />
             </div>
             <div>
               <Label>Unit *</Label>
-              <Input value={metricForm.unit} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMetricForm({ ...metricForm, unit: e.target.value })} placeholder="tCO2e, MWh, m3" />
+              <Input
+                value={metricForm.unit}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setMetricForm({ ...metricForm, unit: e.target.value })
+                }
+                placeholder="tCO2e, MWh, m3"
+              />
             </div>
           </div>
           <div>
             <Label>Data Source</Label>
-            <Input value={metricForm.source} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMetricForm({ ...metricForm, source: e.target.value })} placeholder="e.g. Utility bill, Meter reading, Calculation" />
+            <Input
+              value={metricForm.source}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setMetricForm({ ...metricForm, source: e.target.value })
+              }
+              placeholder="e.g. Utility bill, Meter reading, Calculation"
+            />
           </div>
           <div>
             <Label>Notes</Label>
-            <Textarea rows={2} value={metricForm.notes} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMetricForm({ ...metricForm, notes: e.target.value })} />
+            <Textarea
+              rows={2}
+              value={metricForm.notes}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setMetricForm({ ...metricForm, notes: e.target.value })
+              }
+            />
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setShowMetricModal(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setShowMetricModal(false)}>
+            Cancel
+          </Button>
           <Button
             onClick={handleRecordMetric}
-            disabled={!metricForm.category || !metricForm.subcategory || !metricForm.period || !metricForm.value || !metricForm.unit}
+            disabled={
+              !metricForm.category ||
+              !metricForm.subcategory ||
+              !metricForm.period ||
+              !metricForm.value ||
+              !metricForm.unit
+            }
           >
             Record Metric
           </Button>

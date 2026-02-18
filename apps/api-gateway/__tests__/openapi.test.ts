@@ -89,8 +89,7 @@ describe('OpenAPI Routes', () => {
     });
 
     it('does not require authorization header', async () => {
-      const res = await request(app)
-        .get('/api/docs/openapi.json');
+      const res = await request(app).get('/api/docs/openapi.json');
       // No Authorization header — should still succeed
       expect(res.status).toBe(200);
     });

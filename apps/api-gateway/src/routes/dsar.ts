@@ -40,7 +40,9 @@ router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
       meta: { total: requests.length },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list DSAR requests', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list DSAR requests', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list DSAR requests' },
@@ -81,7 +83,9 @@ router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 
     res.status(201).json({ success: true, data: request });
   } catch (error: unknown) {
-    logger.error('Failed to create DSAR request', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to create DSAR request', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create DSAR request' },
@@ -102,7 +106,9 @@ router.get('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: request });
   } catch (error: unknown) {
-    logger.error('Failed to get DSAR request', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get DSAR request', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get DSAR request' },
@@ -135,7 +141,11 @@ router.post('/:id/process', requireRole('ADMIN'), async (req: AuthRequest, res: 
       });
     }
 
-    logger.info('Processing DSAR request', { id: request.id, type: request.type, userId: req.user?.id });
+    logger.info('Processing DSAR request', {
+      id: request.id,
+      type: request.type,
+      userId: req.user?.id,
+    });
 
     let result;
     if (request.type === 'EXPORT') {
@@ -151,11 +161,17 @@ router.post('/:id/process', requireRole('ADMIN'), async (req: AuthRequest, res: 
       });
     }
 
-    logger.info('DSAR request processed', { id: result.id, type: result.type, status: result.status });
+    logger.info('DSAR request processed', {
+      id: result.id,
+      type: result.type,
+      status: result.status,
+    });
 
     res.json({ success: true, data: result });
   } catch (error: unknown) {
-    logger.error('Failed to process DSAR request', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to process DSAR request', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to process DSAR request' },

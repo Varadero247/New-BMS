@@ -69,7 +69,11 @@ const standardConfig = {
 
 const severities = [
   { value: 'MINOR', label: 'Minor', color: 'bg-green-100 text-green-700 border-green-300' },
-  { value: 'MODERATE', label: 'Moderate', color: 'bg-yellow-100 text-yellow-700 border-yellow-300' },
+  {
+    value: 'MODERATE',
+    label: 'Moderate',
+    color: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+  },
   { value: 'MAJOR', label: 'Major', color: 'bg-orange-100 text-orange-700 border-orange-300' },
   { value: 'CRITICAL', label: 'Critical', color: 'bg-red-100 text-red-700 border-red-300' },
 ];
@@ -121,7 +125,9 @@ export default function ReportIncidentScreen({ standard }: ReportIncidentProps) 
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="text-center">
-          <div className={`w-16 h-16 bg-${config.color}-100 rounded-full flex items-center justify-center mx-auto mb-4`}>
+          <div
+            className={`w-16 h-16 bg-${config.color}-100 rounded-full flex items-center justify-center mx-auto mb-4`}
+          >
             <CheckCircle className={`w-8 h-8 text-${config.color}-500`} />
           </div>
           <h2 className="text-xl font-bold mb-2">Report Submitted</h2>
@@ -144,7 +150,9 @@ export default function ReportIncidentScreen({ standard }: ReportIncidentProps) 
             <span className="font-bold">{config.title}</span>
           </div>
         </div>
-        <p className="text-white/80 text-sm">{config.subtitle} - ISO {standard.split('_')[1]}</p>
+        <p className="text-white/80 text-sm">
+          {config.subtitle} - ISO {standard.split('_')[1]}
+        </p>
       </div>
 
       {/* Form */}

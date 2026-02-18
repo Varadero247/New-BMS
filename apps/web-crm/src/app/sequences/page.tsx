@@ -1,7 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+} from '@ims/ui';
 import {
   Plus,
   Search,
@@ -115,27 +126,22 @@ export default function SequencesPage() {
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
   function addStep() {
-    setSteps(prev => [
-      ...prev,
-      { ...emptyStep, stepNumber: prev.length + 1 },
-    ]);
+    setSteps((prev) => [...prev, { ...emptyStep, stepNumber: prev.length + 1 }]);
   }
 
   function removeStep(index: number) {
     if (steps.length <= 1) return;
-    setSteps(prev =>
+    setSteps((prev) =>
       prev.filter((_, i) => i !== index).map((s, i) => ({ ...s, stepNumber: i + 1 }))
     );
   }
 
   function updateStep(index: number, field: keyof SequenceStep, value: string | number) {
-    setSteps(prev =>
-      prev.map((s, i) => (i === index ? { ...s, [field]: value } : s))
-    );
+    setSteps((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)));
   }
 
   function openCreateModal() {
@@ -183,16 +189,22 @@ export default function SequencesPage() {
 
   async function handleCreate() {
     setFormError('');
-    if (!formData.name.trim()) { setFormError('Sequence name is required'); return; }
-    const validSteps = steps.filter(s => s.type);
-    if (validSteps.length === 0) { setFormError('At least one step is required'); return; }
+    if (!formData.name.trim()) {
+      setFormError('Sequence name is required');
+      return;
+    }
+    const validSteps = steps.filter((s) => s.type);
+    if (validSteps.length === 0) {
+      setFormError('At least one step is required');
+      return;
+    }
 
     setSubmitting(true);
     try {
       await api.post('/sequences', {
         name: formData.name,
         description: formData.description || undefined,
-        steps: validSteps.map(s => ({
+        steps: validSteps.map((s) => ({
           stepNumber: s.stepNumber,
           type: s.type,
           subject: s.subject || undefined,
@@ -211,14 +223,17 @@ export default function SequencesPage() {
 
   async function handleUpdate() {
     setFormError('');
-    if (!formData.name.trim()) { setFormError('Sequence name is required'); return; }
+    if (!formData.name.trim()) {
+      setFormError('Sequence name is required');
+      return;
+    }
 
     setSubmitting(true);
     try {
       await api.put(`/sequences/${editingId}`, {
         name: formData.name,
         description: formData.description || undefined,
-        steps: steps.map(s => ({
+        steps: steps.map((s) => ({
           stepNumber: s.stepNumber,
           type: s.type,
           subject: s.subject || undefined,
@@ -263,8 +278,9 @@ export default function SequencesPage() {
     }
   }
 
-  const filteredSequences = sequences.filter(s => {
-    const matchesSearch = !searchTerm ||
+  const filteredSequences = sequences.filter((s) => {
+    const matchesSearch =
+      !searchTerm ||
       s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (s.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || s.status === statusFilter;
@@ -272,11 +288,15 @@ export default function SequencesPage() {
   });
 
   // Summary stats
-  const totalActive = sequences.filter(s => s.status === 'ACTIVE').length;
-  const totalEnrolled = sequences.reduce((sum, s) => sum + (s.enrolledCount || s._count?.enrollments || 0), 0);
-  const avgOpenRate = sequences.length > 0
-    ? sequences.reduce((sum, s) => sum + (s.openRate || 0), 0) / sequences.length
-    : 0;
+  const totalActive = sequences.filter((s) => s.status === 'ACTIVE').length;
+  const totalEnrolled = sequences.reduce(
+    (sum, s) => sum + (s.enrolledCount || s._count?.enrollments || 0),
+    0
+  );
+  const avgOpenRate =
+    sequences.length > 0
+      ? sequences.reduce((sum, s) => sum + (s.openRate || 0), 0) / sequences.length
+      : 0;
 
   if (loading) {
     return (
@@ -284,7 +304,9 @@ export default function SequencesPage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-3 gap-4">
-            {[1, 2, 3].map(i => <div key={i} className="h-24 bg-gray-200 rounded" />)}
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-24 bg-gray-200 rounded" />
+            ))}
           </div>
           <div className="h-64 bg-gray-200 rounded" />
         </div>
@@ -299,7 +321,9 @@ export default function SequencesPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Email Sequences</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Automated multi-step email outreach campaigns</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Automated multi-step email outreach campaigns
+            </p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> New Sequence
@@ -307,7 +331,9 @@ export default function SequencesPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
         )}
 
         {/* Summary Cards */}
@@ -320,7 +346,9 @@ export default function SequencesPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active Sequences</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{totalActive}</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    {totalActive}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -333,7 +361,9 @@ export default function SequencesPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Enrolled</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{totalEnrolled}</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    {totalEnrolled}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -346,7 +376,9 @@ export default function SequencesPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Sequences</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{sequences.length}</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    {sequences.length}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -362,16 +394,17 @@ export default function SequencesPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
-                    aria-label="Search sequences..." placeholder="Search sequences..."
+                    aria-label="Search sequences..."
+                    placeholder="Search sequences..."
                     value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
                 </div>
               </div>
               <select
                 value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
+                onChange={(e) => setStatusFilter(e.target.value)}
                 className="border rounded-md px-3 py-2 text-sm"
               >
                 <option value="">All Status</option>
@@ -398,29 +431,54 @@ export default function SequencesPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Steps</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Enrolled</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Completed</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Open Rate</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Created</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Name
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Status
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Steps
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Enrolled
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Completed
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Open Rate
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Created
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredSequences.map(seq => (
+                    {filteredSequences.map((seq) => (
                       <tr key={seq.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4">
                           <div>
-                            <p className="font-medium text-gray-900 dark:text-gray-100">{seq.name}</p>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">
+                              {seq.name}
+                            </p>
                             {seq.description && (
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{seq.description}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">
+                                {seq.description}
+                              </p>
                             )}
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[seq.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+                          <Badge
+                            className={
+                              statusColors[seq.status] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
                             {seq.status}
                           </Badge>
                         </td>
@@ -435,7 +493,9 @@ export default function SequencesPage() {
                         </td>
                         <td className="py-3 px-4 text-center">
                           {seq.openRate !== undefined ? (
-                            <span className={`font-medium ${seq.openRate >= 30 ? 'text-green-600' : seq.openRate >= 15 ? 'text-amber-600' : 'text-gray-600'}`}>
+                            <span
+                              className={`font-medium ${seq.openRate >= 30 ? 'text-green-600' : seq.openRate >= 15 ? 'text-amber-600' : 'text-gray-600'}`}
+                            >
                               {seq.openRate.toFixed(1)}%
                             </span>
                           ) : (
@@ -496,7 +556,9 @@ export default function SequencesPage() {
               <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Mail className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p className="font-medium mb-1">No email sequences found</p>
-                <p className="text-sm text-gray-400 dark:text-gray-500 mb-4">Create your first automated outreach sequence</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-4">
+                  Create your first automated outreach sequence
+                </p>
                 <Button onClick={openCreateModal} className="flex items-center gap-2 mx-auto">
                   <Plus className="h-4 w-4" /> Create Sequence
                 </Button>
@@ -507,14 +569,27 @@ export default function SequencesPage() {
       </div>
 
       {/* Create Modal */}
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="New Email Sequence" size="full">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="New Email Sequence"
+        size="full"
+      >
         <div className="max-h-[70vh] overflow-y-auto pr-1 space-y-5">
           {formError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
           )}
           <div>
             <Label htmlFor="name">Sequence Name *</Label>
-            <Input id="name" name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Cold Outreach - Enterprise" />
+            <Input
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="e.g. Cold Outreach - Enterprise"
+            />
           </div>
           <div>
             <Label htmlFor="description">Description</Label>
@@ -550,7 +625,7 @@ export default function SequencesPage() {
                       </span>
                       <select
                         value={step.type}
-                        onChange={e => updateStep(idx, 'type', e.target.value)}
+                        onChange={(e) => updateStep(idx, 'type', e.target.value)}
                         className="border rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-violet-500"
                       >
                         <option value="EMAIL">Email</option>
@@ -567,7 +642,9 @@ export default function SequencesPage() {
                           min="0"
                           max="365"
                           value={step.delayDays}
-                          onChange={e => updateStep(idx, 'delayDays', parseInt(e.target.value) || 0)}
+                          onChange={(e) =>
+                            updateStep(idx, 'delayDays', parseInt(e.target.value) || 0)
+                          }
                           className="w-14 border rounded px-2 py-0.5 text-sm text-center"
                         />
                         days before this step
@@ -587,13 +664,13 @@ export default function SequencesPage() {
                       <input
                         type="text"
                         value={step.subject || ''}
-                        onChange={e => updateStep(idx, 'subject', e.target.value)}
+                        onChange={(e) => updateStep(idx, 'subject', e.target.value)}
                         placeholder="Email subject line..."
                         className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500"
                       />
                       <textarea
                         value={step.body || ''}
-                        onChange={e => updateStep(idx, 'body', e.target.value)}
+                        onChange={(e) => updateStep(idx, 'body', e.target.value)}
                         placeholder="Email body... (Use {{firstName}}, {{company}} for personalization)"
                         rows={3}
                         className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500"
@@ -603,7 +680,7 @@ export default function SequencesPage() {
                   {(step.type === 'TASK' || step.type === 'LINKEDIN' || step.type === 'CALL') && (
                     <textarea
                       value={step.body || ''}
-                      onChange={e => updateStep(idx, 'body', e.target.value)}
+                      onChange={(e) => updateStep(idx, 'body', e.target.value)}
                       placeholder={`${stepTypeLabels[step.type]} instructions or notes...`}
                       rows={2}
                       className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500"
@@ -615,16 +692,27 @@ export default function SequencesPage() {
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleCreate} disabled={submitting}>{submitting ? 'Creating...' : 'Create Sequence'}</Button>
+          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleCreate} disabled={submitting}>
+            {submitting ? 'Creating...' : 'Create Sequence'}
+          </Button>
         </ModalFooter>
       </Modal>
 
       {/* Edit Modal */}
-      <Modal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} title="Edit Sequence" size="full">
+      <Modal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        title="Edit Sequence"
+        size="full"
+      >
         <div className="max-h-[70vh] overflow-y-auto pr-1 space-y-5">
           {formError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
           )}
           <div>
             <Label htmlFor="e-name">Sequence Name *</Label>
@@ -662,7 +750,7 @@ export default function SequencesPage() {
                       </span>
                       <select
                         value={step.type}
-                        onChange={e => updateStep(idx, 'type', e.target.value)}
+                        onChange={(e) => updateStep(idx, 'type', e.target.value)}
                         className="border rounded-md px-2 py-1 text-sm"
                       >
                         <option value="EMAIL">Email</option>
@@ -678,14 +766,19 @@ export default function SequencesPage() {
                           min="0"
                           max="365"
                           value={step.delayDays}
-                          onChange={e => updateStep(idx, 'delayDays', parseInt(e.target.value) || 0)}
+                          onChange={(e) =>
+                            updateStep(idx, 'delayDays', parseInt(e.target.value) || 0)
+                          }
                           className="w-14 border rounded px-2 py-0.5 text-sm text-center"
                         />
                         days delay
                       </div>
                     </div>
                     {steps.length > 1 && (
-                      <button onClick={() => removeStep(idx)} className="text-red-400 hover:text-red-600">
+                      <button
+                        onClick={() => removeStep(idx)}
+                        className="text-red-400 hover:text-red-600"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </button>
                     )}
@@ -695,13 +788,13 @@ export default function SequencesPage() {
                       <input
                         type="text"
                         value={step.subject || ''}
-                        onChange={e => updateStep(idx, 'subject', e.target.value)}
+                        onChange={(e) => updateStep(idx, 'subject', e.target.value)}
                         placeholder="Email subject line..."
                         className="w-full border rounded-md px-3 py-2 text-sm"
                       />
                       <textarea
                         value={step.body || ''}
-                        onChange={e => updateStep(idx, 'body', e.target.value)}
+                        onChange={(e) => updateStep(idx, 'body', e.target.value)}
                         placeholder="Email body..."
                         rows={3}
                         className="w-full border rounded-md px-3 py-2 text-sm"
@@ -711,7 +804,7 @@ export default function SequencesPage() {
                   {(step.type === 'TASK' || step.type === 'LINKEDIN' || step.type === 'CALL') && (
                     <textarea
                       value={step.body || ''}
-                      onChange={e => updateStep(idx, 'body', e.target.value)}
+                      onChange={(e) => updateStep(idx, 'body', e.target.value)}
                       placeholder="Instructions or notes..."
                       rows={2}
                       className="w-full border rounded-md px-3 py-2 text-sm"
@@ -723,21 +816,36 @@ export default function SequencesPage() {
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setEditModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleUpdate} disabled={submitting}>{submitting ? 'Saving...' : 'Save Changes'}</Button>
+          <Button variant="outline" onClick={() => setEditModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleUpdate} disabled={submitting}>
+            {submitting ? 'Saving...' : 'Save Changes'}
+          </Button>
         </ModalFooter>
       </Modal>
 
       {/* View Modal */}
-      <Modal isOpen={viewModalOpen} onClose={() => setViewModalOpen(false)} title={viewSequence?.name || 'Sequence Details'} size="lg">
+      <Modal
+        isOpen={viewModalOpen}
+        onClose={() => setViewModalOpen(false)}
+        title={viewSequence?.name || 'Sequence Details'}
+        size="lg"
+      >
         {viewSequence && (
           <div className="space-y-5">
             {/* Status & Meta */}
             <div className="flex items-center gap-3">
-              <Badge className={statusColors[viewSequence.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+              <Badge
+                className={
+                  statusColors[viewSequence.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                }
+              >
                 {viewSequence.status}
               </Badge>
-              <span className="text-sm text-gray-500 dark:text-gray-400">Created {new Date(viewSequence.createdAt).toLocaleDateString()}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                Created {new Date(viewSequence.createdAt).toLocaleDateString()}
+              </span>
             </div>
             {viewSequence.description && (
               <p className="text-gray-600 text-sm">{viewSequence.description}</p>
@@ -746,15 +854,21 @@ export default function SequencesPage() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{viewSequence.stepsCount || viewSequence._count?.steps || 0}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {viewSequence.stepsCount || viewSequence._count?.steps || 0}
+                </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Steps</p>
               </div>
               <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <p className="text-2xl font-bold text-blue-700">{viewSequence.enrolledCount || viewSequence._count?.enrollments || 0}</p>
+                <p className="text-2xl font-bold text-blue-700">
+                  {viewSequence.enrolledCount || viewSequence._count?.enrollments || 0}
+                </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Enrolled</p>
               </div>
               <div className="text-center p-3 bg-green-50 rounded-lg">
-                <p className="text-2xl font-bold text-green-700">{viewSequence.completedCount || 0}</p>
+                <p className="text-2xl font-bold text-green-700">
+                  {viewSequence.completedCount || 0}
+                </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Completed</p>
               </div>
             </div>
@@ -762,7 +876,9 @@ export default function SequencesPage() {
             {/* Steps */}
             {viewSequence.steps && viewSequence.steps.length > 0 && (
               <div>
-                <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Sequence Steps</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-3">
+                  Sequence Steps
+                </h3>
                 <div className="space-y-2">
                   {viewSequence.steps.map((step, idx) => (
                     <div key={idx} className="flex items-start gap-3 p-3 border rounded-lg">
@@ -771,7 +887,12 @@ export default function SequencesPage() {
                       </span>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge className={stepTypeColors[step.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+                          <Badge
+                            className={
+                              stepTypeColors[step.type] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
                             {stepTypeLabels[step.type] || step.type}
                           </Badge>
                           {step.delayDays > 0 && (
@@ -781,7 +902,9 @@ export default function SequencesPage() {
                           )}
                         </div>
                         {step.subject && (
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{step.subject}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {step.subject}
+                          </p>
                         )}
                         {step.body && (
                           <p className="text-xs text-gray-600 mt-1 line-clamp-2">{step.body}</p>
@@ -796,7 +919,9 @@ export default function SequencesPage() {
           </div>
         )}
         <ModalFooter>
-          <Button variant="outline" onClick={() => setViewModalOpen(false)}>Close</Button>
+          <Button variant="outline" onClick={() => setViewModalOpen(false)}>
+            Close
+          </Button>
           {viewSequence && (
             <Button
               onClick={() => {

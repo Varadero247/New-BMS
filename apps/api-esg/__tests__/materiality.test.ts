@@ -159,9 +159,14 @@ describe('GET /api/materiality/:id', () => {
 describe('PUT /api/materiality/:id', () => {
   it('should update a materiality topic', async () => {
     (prisma.esgMateriality.findFirst as jest.Mock).mockResolvedValue(mockMateriality);
-    (prisma.esgMateriality.update as jest.Mock).mockResolvedValue({ ...mockMateriality, isMaterial: false });
+    (prisma.esgMateriality.update as jest.Mock).mockResolvedValue({
+      ...mockMateriality,
+      isMaterial: false,
+    });
 
-    const res = await request(app).put('/api/materiality/00000000-0000-0000-0000-000000000001').send({ isMaterial: false });
+    const res = await request(app)
+      .put('/api/materiality/00000000-0000-0000-0000-000000000001')
+      .send({ isMaterial: false });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -169,12 +174,16 @@ describe('PUT /api/materiality/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgMateriality.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/materiality/00000000-0000-0000-0000-000000000099').send({ isMaterial: false });
+    const res = await request(app)
+      .put('/api/materiality/00000000-0000-0000-0000-000000000099')
+      .send({ isMaterial: false });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid data', async () => {
-    const res = await request(app).put('/api/materiality/00000000-0000-0000-0000-000000000001').send({ category: 'INVALID' });
+    const res = await request(app)
+      .put('/api/materiality/00000000-0000-0000-0000-000000000001')
+      .send({ category: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
@@ -182,7 +191,10 @@ describe('PUT /api/materiality/:id', () => {
 describe('DELETE /api/materiality/:id', () => {
   it('should soft delete a materiality topic', async () => {
     (prisma.esgMateriality.findFirst as jest.Mock).mockResolvedValue(mockMateriality);
-    (prisma.esgMateriality.update as jest.Mock).mockResolvedValue({ ...mockMateriality, deletedAt: new Date() });
+    (prisma.esgMateriality.update as jest.Mock).mockResolvedValue({
+      ...mockMateriality,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/materiality/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
@@ -201,8 +213,24 @@ describe('GET /api/materiality/matrix', () => {
   it('should return materiality matrix data', async () => {
     (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([
       { ...mockMateriality, isMaterial: true },
-      { ...mockMateriality, id: 'mat-2', topic: 'Waste', category: 'ENVIRONMENTAL', isMaterial: false, importanceToStakeholders: 5, importanceToBusiness: 4 },
-      { ...mockMateriality, id: 'mat-3', topic: 'Ethics', category: 'GOVERNANCE', isMaterial: true, importanceToStakeholders: 8, importanceToBusiness: 9 },
+      {
+        ...mockMateriality,
+        id: 'mat-2',
+        topic: 'Waste',
+        category: 'ENVIRONMENTAL',
+        isMaterial: false,
+        importanceToStakeholders: 5,
+        importanceToBusiness: 4,
+      },
+      {
+        ...mockMateriality,
+        id: 'mat-3',
+        topic: 'Ethics',
+        category: 'GOVERNANCE',
+        isMaterial: true,
+        importanceToStakeholders: 8,
+        importanceToBusiness: 9,
+      },
     ]);
 
     const res = await request(app).get('/api/materiality/matrix');

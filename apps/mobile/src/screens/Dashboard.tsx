@@ -44,14 +44,7 @@ function ComplianceRing({ value, label, color }: { value: number; label: string;
     <div className="flex flex-col items-center">
       <div className="relative w-20 h-20">
         <svg className="w-full h-full transform -rotate-90">
-          <circle
-            cx="40"
-            cy="40"
-            r="36"
-            stroke="#e5e7eb"
-            strokeWidth="6"
-            fill="none"
-          />
+          <circle cx="40" cy="40" r="36" stroke="#e5e7eb" strokeWidth="6" fill="none" />
           <circle
             cx="40"
             cy="40"
@@ -181,10 +174,7 @@ export default function DashboardScreen() {
         {/* Quick Actions */}
         <h2 className="text-sm font-semibold text-gray-700 mb-3">Quick Report</h2>
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <Link
-            to="/hs/report"
-            className="bg-red-50 rounded-xl p-4 flex flex-col items-center"
-          >
+          <Link to="/hs/report" className="bg-red-50 rounded-xl p-4 flex flex-col items-center">
             <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mb-2">
               <HardHat className="w-5 h-5 text-red-600" />
             </div>

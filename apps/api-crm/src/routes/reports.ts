@@ -13,9 +13,15 @@ router.use(authenticate);
 router.get('/sales-dashboard', async (_req: Request, res: Response) => {
   try {
     const totalDeals = await prisma.crmDeal.count({ where: { deletedAt: null } as any });
-    const wonDeals = await prisma.crmDeal.count({ where: { status: 'WON', deletedAt: null } as any });
-    const lostDeals = await prisma.crmDeal.count({ where: { status: 'LOST', deletedAt: null } as any });
-    const openDeals = await prisma.crmDeal.count({ where: { status: 'OPEN', deletedAt: null } as any });
+    const wonDeals = await prisma.crmDeal.count({
+      where: { status: 'WON', deletedAt: null } as any,
+    });
+    const lostDeals = await prisma.crmDeal.count({
+      where: { status: 'LOST', deletedAt: null } as any,
+    });
+    const openDeals = await prisma.crmDeal.count({
+      where: { status: 'OPEN', deletedAt: null } as any,
+    });
 
     const totalValueAgg = await prisma.crmDeal.aggregate({
       where: { deletedAt: null } as any,
@@ -29,7 +35,7 @@ router.get('/sales-dashboard', async (_req: Request, res: Response) => {
 
     const totalValue = Number(totalValueAgg._sum.value || 0);
     const wonValue = Number(wonValueAgg._sum.value || 0);
-    const avgDealSize = wonDeals > 0 ? Math.round(wonValue / wonDeals * 100) / 100 : 0;
+    const avgDealSize = wonDeals > 0 ? Math.round((wonValue / wonDeals) * 100) / 100 : 0;
     const conversionRate = totalDeals > 0 ? Math.round((wonDeals / totalDeals) * 10000) / 100 : 0;
 
     return res.json({
@@ -46,8 +52,13 @@ router.get('/sales-dashboard', async (_req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get sales dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get sales dashboard' } });
+    logger.error('Failed to get sales dashboard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get sales dashboard' },
+    });
   }
 });
 
@@ -57,7 +68,8 @@ router.get('/pipeline-velocity', async (_req: Request, res: Response) => {
     const openDeals = await prisma.crmDeal.findMany({
       where: { status: 'OPEN', deletedAt: null } as any,
       select: { createdAt: true, stageId: true },
-      take: 1000});
+      take: 1000,
+    });
 
     const now = new Date();
     const dealAges = openDeals.map((d) => {
@@ -65,9 +77,10 @@ router.get('/pipeline-velocity', async (_req: Request, res: Response) => {
       return { ageDays: Math.floor(ageMs / (1000 * 60 * 60 * 24)), stageId: d.stageId };
     });
 
-    const avgDealAge = dealAges.length > 0
-      ? Math.round(dealAges.reduce((sum, d) => sum + d.ageDays, 0) / dealAges.length)
-      : 0;
+    const avgDealAge =
+      dealAges.length > 0
+        ? Math.round(dealAges.reduce((sum, d) => sum + d.ageDays, 0) / dealAges.length)
+        : 0;
 
     // Velocity by stage
     const stageMap: Record<string, { totalDays: number; count: number }> = {};
@@ -89,8 +102,13 @@ router.get('/pipeline-velocity', async (_req: Request, res: Response) => {
       data: { avgDealAge, velocityByStage },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get pipeline velocity', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get pipeline velocity' } });
+    logger.error('Failed to get pipeline velocity', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get pipeline velocity' },
+    });
   }
 });
 
@@ -100,7 +118,8 @@ router.get('/win-loss', async (_req: Request, res: Response) => {
     const closedDeals = await prisma.crmDeal.findMany({
       where: { status: { in: ['WON', 'LOST'] }, deletedAt: null },
       select: { status: true, source: true, assignedTo: true },
-      take: 1000});
+      take: 1000,
+    });
 
     const wonCount = closedDeals.filter((d) => d.status === 'WON').length;
     const lostCount = closedDeals.filter((d) => d.status === 'LOST').length;
@@ -148,8 +167,13 @@ router.get('/win-loss', async (_req: Request, res: Response) => {
       data: { winRate, lossRate, bySource, byAssignee },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get win/loss report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get win/loss report' } });
+    logger.error('Failed to get win/loss report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get win/loss report' },
+    });
   }
 });
 
@@ -159,7 +183,8 @@ router.get('/forecast', async (_req: Request, res: Response) => {
     const openDeals = await prisma.crmDeal.findMany({
       where: { status: 'OPEN', deletedAt: null } as any,
       select: { value: true, probability: true, expectedCloseDate: true },
-      take: 1000});
+      take: 1000,
+    });
 
     // Group by expected close month
     const monthMap: Record<string, { weighted: number; count: number; totalValue: number }> = {};
@@ -167,7 +192,7 @@ router.get('/forecast', async (_req: Request, res: Response) => {
     for (const deal of openDeals) {
       const value = Number(deal.value);
       const probability = deal.probability || 0;
-      const weighted = Math.round(value * probability / 100 * 100) / 100;
+      const weighted = Math.round(((value * probability) / 100) * 100) / 100;
 
       let monthKey: string;
       if (deal.expectedCloseDate) {
@@ -199,8 +224,13 @@ router.get('/forecast', async (_req: Request, res: Response) => {
       data: { totalWeightedForecast: Math.round(totalWeightedForecast * 100) / 100, forecast },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get forecast', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get forecast' } });
+    logger.error('Failed to get forecast', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get forecast' },
+    });
   }
 });
 
@@ -217,7 +247,8 @@ router.get('/partner-performance', async (_req: Request, res: Response) => {
         },
       },
       orderBy: { totalReferrals: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     let totalPartnerSourcedRevenue = 0;
     let totalCommissions = 0;
@@ -250,8 +281,13 @@ router.get('/partner-performance', async (_req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get partner performance', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get partner performance' } });
+    logger.error('Failed to get partner performance', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get partner performance' },
+    });
   }
 });
 
@@ -268,13 +304,15 @@ router.get('/customer-health', async (_req: Request, res: Response) => {
         openNCRCount: true,
         lastInvoiceDate: true,
       },
-      take: 1000});
+      take: 1000,
+    });
 
     const totalAccounts = accounts.length;
     const revenues = accounts.map((a) => Number(a.lifetimeRevenue || 0));
-    const avgLifetimeRevenue = totalAccounts > 0
-      ? Math.round(revenues.reduce((sum, r) => sum + r, 0) / totalAccounts * 100) / 100
-      : 0;
+    const avgLifetimeRevenue =
+      totalAccounts > 0
+        ? Math.round((revenues.reduce((sum, r) => sum + r, 0) / totalAccounts) * 100) / 100
+        : 0;
 
     const accountsWithComplaints = accounts.filter((a) => (a.openComplaintCount || 0) > 0);
     const accountsWithNCRs = accounts.filter((a) => (a.openNCRCount || 0) > 0);
@@ -306,8 +344,13 @@ router.get('/customer-health', async (_req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get customer health', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get customer health' } });
+    logger.error('Failed to get customer health', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get customer health' },
+    });
   }
 });
 

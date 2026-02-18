@@ -76,9 +76,7 @@ describe('Environment Aspects API Routes', () => {
       (mockPrisma.envAspect.findMany as jest.Mock).mockResolvedValueOnce(mockAspects);
       (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/aspects')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/aspects').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -109,9 +107,7 @@ describe('Environment Aspects API Routes', () => {
       (mockPrisma.envAspect.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/aspects?status=ACTIVE')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/aspects?status=ACTIVE').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envAspect.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -126,9 +122,7 @@ describe('Environment Aspects API Routes', () => {
       (mockPrisma.envAspect.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/aspects?significant=true')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/aspects?significant=true').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envAspect.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -143,9 +137,7 @@ describe('Environment Aspects API Routes', () => {
       (mockPrisma.envAspect.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/aspects?significant=false')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/aspects?significant=false').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envAspect.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -160,9 +152,7 @@ describe('Environment Aspects API Routes', () => {
       (mockPrisma.envAspect.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/aspects?search=emissions')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/aspects?search=emissions').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envAspect.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -182,9 +172,7 @@ describe('Environment Aspects API Routes', () => {
       (mockPrisma.envAspect.findMany as jest.Mock).mockResolvedValueOnce(mockAspects);
       (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/aspects')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/aspects').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envAspect.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -196,9 +184,7 @@ describe('Environment Aspects API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.envAspect.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/aspects')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/aspects').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -313,7 +299,12 @@ describe('Environment Aspects API Routes', () => {
       const response = await request(app)
         .post('/api/aspects')
         .set('Authorization', 'Bearer token')
-        .send({ aspect: 'Some aspect', impact: 'Some impact', activityCategory: 'EMISSIONS_TO_AIR', department: 'Ops' });
+        .send({
+          aspect: 'Some aspect',
+          impact: 'Some impact',
+          activityCategory: 'EMISSIONS_TO_AIR',
+          department: 'Ops',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -323,7 +314,12 @@ describe('Environment Aspects API Routes', () => {
       const response = await request(app)
         .post('/api/aspects')
         .set('Authorization', 'Bearer token')
-        .send({ activityProcess: 'Manufacturing', activityCategory: 'EMISSIONS_TO_AIR', department: 'Ops', impact: 'Some impact' });
+        .send({
+          activityProcess: 'Manufacturing',
+          activityCategory: 'EMISSIONS_TO_AIR',
+          department: 'Ops',
+          impact: 'Some impact',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -333,7 +329,12 @@ describe('Environment Aspects API Routes', () => {
       const response = await request(app)
         .post('/api/aspects')
         .set('Authorization', 'Bearer token')
-        .send({ activityProcess: 'Manufacturing', activityCategory: 'EMISSIONS_TO_AIR', department: 'Ops', aspect: 'Air emissions' });
+        .send({
+          activityProcess: 'Manufacturing',
+          activityCategory: 'EMISSIONS_TO_AIR',
+          department: 'Ops',
+          aspect: 'Air emissions',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -343,7 +344,12 @@ describe('Environment Aspects API Routes', () => {
       const response = await request(app)
         .post('/api/aspects')
         .set('Authorization', 'Bearer token')
-        .send({ activityProcess: 'Manufacturing', activityCategory: 'EMISSIONS_TO_AIR', aspect: 'Air emissions', impact: 'Pollution' });
+        .send({
+          activityProcess: 'Manufacturing',
+          activityCategory: 'EMISSIONS_TO_AIR',
+          aspect: 'Air emissions',
+          impact: 'Pollution',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -446,7 +452,9 @@ describe('Environment Aspects API Routes', () => {
 
   describe('DELETE /api/aspects/:id', () => {
     it('should delete aspect successfully', async () => {
-      (mockPrisma.envAspect.findUnique as jest.Mock).mockResolvedValueOnce({ id: '16000000-0000-4000-a000-000000000001' });
+      (mockPrisma.envAspect.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '16000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.envAspect.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)

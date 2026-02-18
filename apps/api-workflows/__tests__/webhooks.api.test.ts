@@ -30,7 +30,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '20000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -96,9 +100,7 @@ describe('Webhooks API Routes', () => {
 
       (mockPrisma.webhook.create as jest.Mock).mockResolvedValueOnce(mockWebhook);
 
-      const response = await request(app)
-        .post('/api/webhooks')
-        .send(createPayload);
+      const response = await request(app).post('/api/webhooks').send(createPayload);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -186,9 +188,7 @@ describe('Webhooks API Routes', () => {
     it('should handle database errors on create', async () => {
       (mockPrisma.webhook.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .post('/api/webhooks')
-        .send(createPayload);
+      const response = await request(app).post('/api/webhooks').send(createPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -283,9 +283,7 @@ describe('Webhooks API Routes', () => {
         url: 'https://example.com/webhook',
         events: ['incident.created'],
         isActive: true,
-        deliveries: [
-          { id: 'del-001', event: 'incident.created', success: true },
-        ],
+        deliveries: [{ id: 'del-001', event: 'incident.created', success: true }],
       };
 
       (mockPrisma.webhook.findFirst as jest.Mock).mockResolvedValueOnce(mockWebhook);
@@ -428,7 +426,9 @@ describe('Webhooks API Routes', () => {
         isActive: false,
       });
 
-      const response = await request(app).delete('/api/webhooks/00000000-0000-0000-0000-000000000001');
+      const response = await request(app).delete(
+        '/api/webhooks/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -438,7 +438,9 @@ describe('Webhooks API Routes', () => {
     it('should return 404 when deleting non-existent webhook', async () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).delete('/api/webhooks/00000000-0000-0000-0000-000000000099');
+      const response = await request(app).delete(
+        '/api/webhooks/00000000-0000-0000-0000-000000000099'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -451,7 +453,9 @@ describe('Webhooks API Routes', () => {
       });
       (mockPrisma.webhook.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).delete('/api/webhooks/00000000-0000-0000-0000-000000000001');
+      const response = await request(app).delete(
+        '/api/webhooks/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -494,7 +498,9 @@ describe('Webhooks API Routes', () => {
       });
       (mockPrisma.webhookDelivery.create as jest.Mock).mockResolvedValueOnce(mockDelivery);
 
-      const response = await request(app).post('/api/webhooks/00000000-0000-0000-0000-000000000001/test');
+      const response = await request(app).post(
+        '/api/webhooks/00000000-0000-0000-0000-000000000001/test'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -559,7 +565,9 @@ describe('Webhooks API Routes', () => {
         lastError: 'Connection refused',
       });
 
-      const response = await request(app).post('/api/webhooks/00000000-0000-0000-0000-000000000001/test');
+      const response = await request(app).post(
+        '/api/webhooks/00000000-0000-0000-0000-000000000001/test'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -576,7 +584,9 @@ describe('Webhooks API Routes', () => {
     it('should return 404 for non-existent webhook', async () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).post('/api/webhooks/00000000-0000-0000-0000-000000000099/test');
+      const response = await request(app).post(
+        '/api/webhooks/00000000-0000-0000-0000-000000000099/test'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -585,7 +595,9 @@ describe('Webhooks API Routes', () => {
     it('should handle database errors on test', async () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).post('/api/webhooks/00000000-0000-0000-0000-000000000001/test');
+      const response = await request(app).post(
+        '/api/webhooks/00000000-0000-0000-0000-000000000001/test'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -639,7 +651,9 @@ describe('Webhooks API Routes', () => {
       (mockPrisma.webhookDelivery.findMany as jest.Mock).mockResolvedValueOnce(mockDeliveries);
       (mockPrisma.webhookDelivery.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app).get('/api/webhooks/00000000-0000-0000-0000-000000000001/deliveries');
+      const response = await request(app).get(
+        '/api/webhooks/00000000-0000-0000-0000-000000000001/deliveries'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -651,7 +665,9 @@ describe('Webhooks API Routes', () => {
       (mockPrisma.webhookDelivery.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.webhookDelivery.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app).get('/api/webhooks/00000000-0000-0000-0000-000000000001/deliveries?event=incident.created');
+      await request(app).get(
+        '/api/webhooks/00000000-0000-0000-0000-000000000001/deliveries?event=incident.created'
+      );
 
       expect(mockPrisma.webhookDelivery.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -666,7 +682,9 @@ describe('Webhooks API Routes', () => {
       (mockPrisma.webhookDelivery.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.webhookDelivery.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app).get('/api/webhooks/00000000-0000-0000-0000-000000000001/deliveries?success=false');
+      await request(app).get(
+        '/api/webhooks/00000000-0000-0000-0000-000000000001/deliveries?success=false'
+      );
 
       expect(mockPrisma.webhookDelivery.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -678,9 +696,13 @@ describe('Webhooks API Routes', () => {
     });
 
     it('should handle database errors on deliveries list', async () => {
-      (mockPrisma.webhookDelivery.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.webhookDelivery.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
-      const response = await request(app).get('/api/webhooks/00000000-0000-0000-0000-000000000001/deliveries');
+      const response = await request(app).get(
+        '/api/webhooks/00000000-0000-0000-0000-000000000001/deliveries'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -724,7 +746,11 @@ describe('Webhooks API Routes', () => {
           text: jest.fn().mockResolvedValue('OK'),
         });
       (mockPrisma.webhookDelivery.create as jest.Mock)
-        .mockResolvedValueOnce({ id: 'del-001', webhookId: '00000000-0000-0000-0000-000000000001', success: true })
+        .mockResolvedValueOnce({
+          id: 'del-001',
+          webhookId: '00000000-0000-0000-0000-000000000001',
+          success: true,
+        })
         .mockResolvedValueOnce({ id: 'del-002', webhookId: 'wh-002', success: true });
 
       const response = await request(app)
@@ -756,12 +782,10 @@ describe('Webhooks API Routes', () => {
     });
 
     it('should return 400 for invalid event type', async () => {
-      const response = await request(app)
-        .post('/api/webhooks/dispatch')
-        .send({
-          event: 'invalid.event',
-          data: {},
-        });
+      const response = await request(app).post('/api/webhooks/dispatch').send({
+        event: 'invalid.event',
+        data: {},
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');

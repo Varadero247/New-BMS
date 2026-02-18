@@ -17,11 +17,27 @@ router.param('id', validateIdParam());
 router.param('aid', validateIdParam('aid'));
 
 const CAPA_TYPES = ['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT'] as const;
-const CAPA_SOURCES = ['INCIDENT', 'NEAR_MISS', 'AUDIT', 'RISK_ASSESSMENT', 'LEGAL', 'MANAGEMENT_REVIEW', 'WORKER_SUGGESTION', 'OTHER'] as const;
+const CAPA_SOURCES = [
+  'INCIDENT',
+  'NEAR_MISS',
+  'AUDIT',
+  'RISK_ASSESSMENT',
+  'LEGAL',
+  'MANAGEMENT_REVIEW',
+  'WORKER_SUGGESTION',
+  'OTHER',
+] as const;
 const CAPA_PRIORITIES = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'] as const;
 const CAPA_STATUSES = ['OPEN', 'IN_PROGRESS', 'PENDING_VERIFICATION', 'CLOSED', 'OVERDUE'] as const;
 const CAPA_ACTION_TYPES = ['IMMEDIATE', 'CORRECTIVE', 'PREVENTIVE'] as const;
-const CAPA_ACTION_STATUSES = ['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED'] as const;
+const CAPA_ACTION_STATUSES = [
+  'OPEN',
+  'IN_PROGRESS',
+  'COMPLETED',
+  'VERIFIED',
+  'OVERDUE',
+  'CANCELLED',
+] as const;
 
 // Generate reference number CAPA-001, CAPA-002, etc.
 async function generateReferenceNumber(): Promise<string> {
@@ -44,10 +60,14 @@ async function generateReferenceNumber(): Promise<string> {
 function getTargetDate(priority: string): Date {
   const now = new Date();
   switch (priority) {
-    case 'CRITICAL': return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);   // 7 days
-    case 'HIGH':     return new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);  // 14 days
-    case 'MEDIUM':   return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);  // 30 days
-    default:         return new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);  // 60 days
+    case 'CRITICAL':
+      return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    case 'HIGH':
+      return new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days
+    case 'MEDIUM':
+      return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+    default:
+      return new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000); // 60 days
   }
 }
 
@@ -90,7 +110,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List CAPAs error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list CAPAs' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list CAPAs' } });
   }
 });
 
@@ -103,13 +125,17 @@ router.get('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: Re
     });
 
     if (!capa || (capa as any).deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 
     res.json({ success: true, data: capa });
   } catch (error) {
     logger.error('Get CAPA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get CAPA' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get CAPA' } });
   }
 });
 
@@ -121,7 +147,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       description: z.string().optional(),
       type: z.enum(CAPA_ACTION_TYPES),
       owner: z.string().optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const schema = z.object({
@@ -130,7 +159,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       source: z.enum(CAPA_SOURCES),
       sourceReference: z.string().optional(),
       priority: z.enum(CAPA_PRIORITIES).optional(),
-      targetCompletionDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      targetCompletionDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       department: z.string().optional(),
       responsiblePerson: z.string().optional(),
       problemStatement: z.string().optional(),
@@ -178,17 +210,19 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         riskId: data.riskId,
         createdBy: req.user?.id,
         status: 'OPEN',
-        actions: data.actions ? {
-          create: data.actions.map((a, i) => ({
-            id: uuidv4(),
-            title: a.title,
-            description: a.description,
-            type: a.type,
-            owner: a.owner,
-            dueDate: a.dueDate ? new Date(a.dueDate) : null,
-            sortOrder: i,
-          })),
-        } : undefined,
+        actions: data.actions
+          ? {
+              create: data.actions.map((a, i) => ({
+                id: uuidv4(),
+                title: a.title,
+                description: a.description,
+                type: a.type,
+                owner: a.owner,
+                dueDate: a.dueDate ? new Date(a.dueDate) : null,
+                sortOrder: i,
+              })),
+            }
+          : undefined,
       },
       include: { actions: { orderBy: { sortOrder: 'asc' } } },
     });
@@ -196,10 +230,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: capa });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create CAPA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create CAPA' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create CAPA' },
+    });
   }
 });
 
@@ -208,7 +252,9 @@ router.patch('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: 
   try {
     const existing = await prisma.capa.findUnique({ where: { id: req.params.id } });
     if (!existing || (existing as any).deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 
     const schema = z.object({
@@ -217,7 +263,10 @@ router.patch('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: 
       source: z.enum(CAPA_SOURCES).optional(),
       sourceReference: z.string().optional(),
       priority: z.enum(CAPA_PRIORITIES).optional(),
-      targetCompletionDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      targetCompletionDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       department: z.string().optional(),
       responsiblePerson: z.string().optional(),
       problemStatement: z.string().optional(),
@@ -235,7 +284,8 @@ router.patch('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: 
     const data = schema.parse(req.body);
 
     const updateData: any = { ...data };
-    if (data.targetCompletionDate) updateData.targetCompletionDate = new Date(data.targetCompletionDate);
+    if (data.targetCompletionDate)
+      updateData.targetCompletionDate = new Date(data.targetCompletionDate);
     if (data.status === 'CLOSED') {
       (updateData as any).closedDate = new Date();
       (updateData as any).closedBy = req.user?.id;
@@ -250,10 +300,20 @@ router.patch('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: 
     res.json({ success: true, data: capa });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update CAPA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update CAPA' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update CAPA' },
+    });
   }
 });
 
@@ -262,14 +322,19 @@ router.delete('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res:
   try {
     const existing = await prisma.capa.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 
     await prisma.capa.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete CAPA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete CAPA' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete CAPA' },
+    });
   }
 });
 
@@ -281,7 +346,9 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
       include: { actions: true },
     });
     if (!capa || (capa as any).deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 
     const schema = z.object({
@@ -289,7 +356,10 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
       description: z.string().optional(),
       type: z.enum(CAPA_ACTION_TYPES),
       owner: z.string().optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const data = schema.parse(req.body);
@@ -311,10 +381,20 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: action });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Add CAPA action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add CAPA action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add CAPA action' },
+    });
   }
 });
 
@@ -323,7 +403,9 @@ router.patch('/:id/actions/:aid', async (req: AuthRequest, res: Response) => {
   try {
     const action = await prisma.capaAction.findUnique({ where: { id: req.params.aid } });
     if (!action || action.capaId !== req.params.id) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA action not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA action not found' } });
     }
 
     const schema = z.object({
@@ -331,7 +413,10 @@ router.patch('/:id/actions/:aid', async (req: AuthRequest, res: Response) => {
       description: z.string().optional(),
       type: z.enum(CAPA_ACTION_TYPES).optional(),
       owner: z.string().optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       status: z.enum(CAPA_ACTION_STATUSES).optional(),
     });
 
@@ -351,10 +436,20 @@ router.patch('/:id/actions/:aid', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update CAPA action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update CAPA action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update CAPA action' },
+    });
   }
 });
 

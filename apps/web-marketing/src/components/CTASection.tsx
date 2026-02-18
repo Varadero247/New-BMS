@@ -2,12 +2,7 @@
 
 import Link from 'next/link';
 
-const trustItems = [
-  'SOC 2',
-  'GDPR',
-  '99.97% SLA',
-  'EU & UK data residency',
-];
+const trustItems = ['SOC 2', 'GDPR', '99.97% SLA', 'EU & UK data residency'];
 
 export default function CTASection() {
   return (
@@ -33,8 +28,7 @@ export default function CTASection() {
 
           {/* Headline */}
           <h2 className="font-display text-4xl md:text-5xl font-bold text-white mt-4 leading-tight">
-            Your compliance stack,{' '}
-            <em className="text-teal not-italic">finally</em> simplified
+            Your compliance stack, <em className="text-teal not-italic">finally</em> simplified
           </h2>
 
           {/* Subtitle */}

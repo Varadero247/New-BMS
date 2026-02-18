@@ -76,7 +76,7 @@ export default function MetricsPage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-3 gap-4">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="h-32 bg-gray-200 rounded" />
             ))}
           </div>
@@ -92,7 +92,9 @@ export default function MetricsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Quality Metrics</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Key performance indicators for quality management</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Key performance indicators for quality management
+          </p>
         </div>
 
         {/* Key Metrics */}
@@ -108,7 +110,9 @@ export default function MetricsPage() {
                   <DollarSign className="h-8 w-8 text-red-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Cost of Poor Quality (Monthly)</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                Cost of Poor Quality (Monthly)
+              </p>
             </CardContent>
           </Card>
 
@@ -123,7 +127,9 @@ export default function MetricsPage() {
                   <AlertOctagon className="h-8 w-8 text-orange-600" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Defects Per Million Opportunities</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                Defects Per Million Opportunities
+              </p>
             </CardContent>
           </Card>
 
@@ -203,22 +209,30 @@ export default function MetricsPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="p-4 bg-blue-50 rounded-lg">
                 <p className="text-sm text-blue-600 font-medium">Prevention</p>
-                <p className="text-2xl font-bold text-blue-700">${data.copqBreakdown.prevention.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-blue-700">
+                  ${data.copqBreakdown.prevention.toLocaleString()}
+                </p>
                 <p className="text-xs text-blue-500">Training, planning, quality engineering</p>
               </div>
               <div className="p-4 bg-green-50 rounded-lg">
                 <p className="text-sm text-green-600 font-medium">Appraisal</p>
-                <p className="text-2xl font-bold text-green-700">${data.copqBreakdown.appraisal.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-green-700">
+                  ${data.copqBreakdown.appraisal.toLocaleString()}
+                </p>
                 <p className="text-xs text-green-500">Inspection, testing, audits</p>
               </div>
               <div className="p-4 bg-orange-50 rounded-lg">
                 <p className="text-sm text-orange-600 font-medium">Internal Failure</p>
-                <p className="text-2xl font-bold text-orange-700">${data.copqBreakdown.internalFailure.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-orange-700">
+                  ${data.copqBreakdown.internalFailure.toLocaleString()}
+                </p>
                 <p className="text-xs text-orange-500">Scrap, rework, retest</p>
               </div>
               <div className="p-4 bg-red-50 rounded-lg">
                 <p className="text-sm text-red-600 font-medium">External Failure</p>
-                <p className="text-2xl font-bold text-red-700">${data.copqBreakdown.externalFailure.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-red-700">
+                  ${data.copqBreakdown.externalFailure.toLocaleString()}
+                </p>
                 <p className="text-xs text-red-500">Returns, warranty, complaints</p>
               </div>
             </div>
@@ -234,12 +248,7 @@ export default function MetricsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {data.monthlyData && (
-              <QualityTrendChart
-                data={data.monthlyData}
-                height={350}
-              />
-            )}
+            {data.monthlyData && <QualityTrendChart data={data.monthlyData} height={350} />}
           </CardContent>
         </Card>
 
@@ -251,13 +260,18 @@ export default function MetricsPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-medium text-gray-900 dark:text-gray-100">COPQ (Cost of Poor Quality)</h4>
+                <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                  COPQ (Cost of Poor Quality)
+                </h4>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Total cost associated with producing defective products, including prevention, appraisal, and failure costs.
+                  Total cost associated with producing defective products, including prevention,
+                  appraisal, and failure costs.
                 </p>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900 dark:text-gray-100">DPMO (Defects Per Million Opportunities)</h4>
+                <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                  DPMO (Defects Per Million Opportunities)
+                </h4>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Number of defects per million opportunities for defects. Lower is better.
                 </p>
@@ -269,7 +283,9 @@ export default function MetricsPage() {
                 </p>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900 dark:text-gray-100">First Pass Yield (FPY)</h4>
+                <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                  First Pass Yield (FPY)
+                </h4>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Percentage of units that pass inspection without rework or defects.
                 </p>

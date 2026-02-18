@@ -145,9 +145,7 @@ const navGroups: NavGroup[] = [
   {
     title: 'Tools',
     collapsible: true,
-    items: [
-      { name: 'Templates', href: '/templates', icon: FileText },
-    ],
+    items: [{ name: 'Templates', href: '/templates', icon: FileText }],
   },
 ];
 
@@ -158,17 +156,9 @@ const externalLinks: NavItem[] = [
   { name: 'Settings', href: `${APP_BASE}:3004`, icon: Settings, external: true },
 ];
 
-function CollapsibleSection({
-  group,
-  pathname,
-}: {
-  group: NavGroup;
-  pathname: string;
-}) {
+function CollapsibleSection({ group, pathname }: { group: NavGroup; pathname: string }) {
   const hasActive = group.items.some(
-    (item) =>
-      pathname === item.href ||
-      (item.href !== '/' && pathname.startsWith(item.href))
+    (item) => pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
   );
   const [open, setOpen] = React.useState(hasActive || !group.collapsible);
 
@@ -199,8 +189,7 @@ function CollapsibleSection({
           {group.items.map((item) => {
             const Icon = item.icon;
             const isActive =
-              pathname === item.href ||
-              (item.href !== '/' && pathname.startsWith(item.href));
+              pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
 
             return (
               <li key={item.name}>
@@ -241,9 +230,7 @@ export function Sidebar() {
         <h1 className="text-lg font-bold font-display text-brand-900 dark:text-brand-100">
           Quality
         </h1>
-        <p className="text-xs text-brand-600 dark:text-brand-400 mt-0.5">
-          ISO 9001:2015 QMS
-        </p>
+        <p className="text-xs text-brand-600 dark:text-brand-400 mt-0.5">ISO 9001:2015 QMS</p>
       </div>
 
       {/* Navigation */}

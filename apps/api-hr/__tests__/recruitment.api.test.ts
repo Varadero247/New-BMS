@@ -183,9 +183,7 @@ describe('HR Recruitment API Routes', () => {
       (mockPrisma.jobPosting.findMany as jest.Mock).mockResolvedValueOnce(mockJobs);
       (mockPrisma.jobPosting.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/recruitment/jobs')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/recruitment/jobs').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.jobPosting.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -215,7 +213,12 @@ describe('HR Recruitment API Routes', () => {
       department: { name: 'Engineering' },
       position: { title: 'Senior Developer' },
       applicants: [
-        { id: '33000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', _count: { interviews: 1, evaluations: 0 } },
+        {
+          id: '33000000-0000-4000-a000-000000000001',
+          firstName: 'John',
+          lastName: 'Doe',
+          _count: { interviews: 1, evaluations: 0 },
+        },
       ],
       _count: { applicants: 1, interviews: 1 },
     };
@@ -803,8 +806,12 @@ describe('HR Recruitment API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.interview.findUnique as jest.Mock).mockResolvedValueOnce({ applicantId: '33000000-0000-4000-a000-000000000001' });
-      (mockPrisma.interviewEvaluation.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.interview.findUnique as jest.Mock).mockResolvedValueOnce({
+        applicantId: '33000000-0000-4000-a000-000000000001',
+      });
+      (mockPrisma.interviewEvaluation.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/recruitment/interviews/34000000-0000-4000-a000-000000000001/evaluate')
@@ -823,17 +830,21 @@ describe('HR Recruitment API Routes', () => {
         .mockResolvedValueOnce(100) // totalApplications
         .mockResolvedValueOnce(3); // hiredThisMonth
       (mockPrisma.applicant.groupBy as jest.Mock)
-        .mockResolvedValueOnce([ // byStatus
+        .mockResolvedValueOnce([
+          // byStatus
           { status: 'NEW', _count: { id: 20 } },
           { status: 'HIRED', _count: { id: 10 } },
         ])
-        .mockResolvedValueOnce([ // bySource
+        .mockResolvedValueOnce([
+          // bySource
           { source: 'LINKEDIN', _count: { id: 50 } },
         ])
-        .mockResolvedValueOnce([ // byStage
+        .mockResolvedValueOnce([
+          // byStage
           { stage: 'APPLICATION', _count: { id: 30 } },
         ])
-        .mockResolvedValueOnce([ // topPositionsRaw
+        .mockResolvedValueOnce([
+          // topPositionsRaw
           { jobPostingId: '32000000-0000-4000-a000-000000000001', _count: { id: 20 } },
         ]);
       (mockPrisma.jobPosting.findUnique as jest.Mock).mockResolvedValueOnce({

@@ -154,7 +154,9 @@ describe('PUT /api/reports/:id', () => {
     (prisma.esgReport.findFirst as jest.Mock).mockResolvedValue(mockReport);
     (prisma.esgReport.update as jest.Mock).mockResolvedValue({ ...mockReport, status: 'REVIEW' });
 
-    const res = await request(app).put('/api/reports/00000000-0000-0000-0000-000000000001').send({ status: 'REVIEW' });
+    const res = await request(app)
+      .put('/api/reports/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'REVIEW' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -162,12 +164,16 @@ describe('PUT /api/reports/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgReport.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/reports/00000000-0000-0000-0000-000000000099').send({ status: 'REVIEW' });
+    const res = await request(app)
+      .put('/api/reports/00000000-0000-0000-0000-000000000099')
+      .send({ status: 'REVIEW' });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid data', async () => {
-    const res = await request(app).put('/api/reports/00000000-0000-0000-0000-000000000001').send({ status: 'INVALID' });
+    const res = await request(app)
+      .put('/api/reports/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
@@ -175,7 +181,10 @@ describe('PUT /api/reports/:id', () => {
 describe('DELETE /api/reports/:id', () => {
   it('should soft delete a report', async () => {
     (prisma.esgReport.findFirst as jest.Mock).mockResolvedValue(mockReport);
-    (prisma.esgReport.update as jest.Mock).mockResolvedValue({ ...mockReport, deletedAt: new Date() });
+    (prisma.esgReport.update as jest.Mock).mockResolvedValue({
+      ...mockReport,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/reports/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
@@ -193,13 +202,17 @@ describe('DELETE /api/reports/:id', () => {
 describe('GET /api/reports/dashboard', () => {
   it('should return ESG dashboard KPIs', async () => {
     (prisma.esgEmission.findMany as jest.Mock).mockResolvedValue([
-      { co2Equivalent: 1000 }, { co2Equivalent: 500 },
+      { co2Equivalent: 1000 },
+      { co2Equivalent: 500 },
     ]);
     (prisma.esgTarget.findMany as jest.Mock).mockResolvedValue([
-      { status: 'ON_TRACK' }, { status: 'ACHIEVED' }, { status: 'AT_RISK' },
+      { status: 'ON_TRACK' },
+      { status: 'ACHIEVED' },
+      { status: 'AT_RISK' },
     ]);
     (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([
-      { status: 'IN_PROGRESS' }, { status: 'PLANNED' },
+      { status: 'IN_PROGRESS' },
+      { status: 'PLANNED' },
     ]);
     (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([mockReport]);
     (prisma.esgSocialMetric.findMany as jest.Mock).mockResolvedValue([{}, {}]);

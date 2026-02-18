@@ -3,7 +3,13 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    cmmsKpi: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    cmmsKpi: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
     cmmsAsset: { count: jest.fn() },
     cmmsWorkOrder: { count: jest.fn() },
     cmmsPart: { count: jest.fn() },
@@ -189,14 +195,18 @@ describe('KPIs Routes', () => {
       prisma.cmmsKpi.findFirst.mockResolvedValue(mockKpi);
       prisma.cmmsKpi.update.mockResolvedValue({ ...mockKpi, value: 750 });
 
-      const res = await request(app).put('/api/kpis/00000000-0000-0000-0000-000000000001').send({ value: 750 });
+      const res = await request(app)
+        .put('/api/kpis/00000000-0000-0000-0000-000000000001')
+        .send({ value: 750 });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent KPI', async () => {
       prisma.cmmsKpi.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/kpis/00000000-0000-0000-0000-000000000099').send({ value: 750 });
+      const res = await request(app)
+        .put('/api/kpis/00000000-0000-0000-0000-000000000099')
+        .send({ value: 750 });
       expect(res.status).toBe(404);
     });
   });

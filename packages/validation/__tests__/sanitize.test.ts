@@ -83,8 +83,9 @@ describe('sanitizeHtml', () => {
   });
 
   it('should allow specified tags only', () => {
-    expect(sanitizeHtml('<b>bold</b><i>italic</i>', { allowedTags: ['b'] }))
-      .toBe('<b>bold</b>italic');
+    expect(sanitizeHtml('<b>bold</b><i>italic</i>', { allowedTags: ['b'] })).toBe(
+      '<b>bold</b>italic'
+    );
   });
 
   it('should preserve safe links', () => {
@@ -216,10 +217,7 @@ describe('sanitizeObject', () => {
 
   it('should handle array of objects', () => {
     const input = {
-      users: [
-        { name: '<b>John</b>' },
-        { name: '<script>Jane</script>' },
-      ],
+      users: [{ name: '<b>John</b>' }, { name: '<script>Jane</script>' }],
     };
     const result = sanitizeObject(input);
     expect(result.users[0].name).toBe('John');
@@ -268,11 +266,11 @@ describe('containsXss', () => {
 
 describe('containsSqlInjection', () => {
   it('should detect SELECT injection', () => {
-    expect(containsSqlInjection("SELECT * FROM users WHERE id = 1")).toBe(true);
+    expect(containsSqlInjection('SELECT * FROM users WHERE id = 1')).toBe(true);
   });
 
   it('should detect DROP TABLE', () => {
-    expect(containsSqlInjection("; DROP TABLE users")).toBe(true);
+    expect(containsSqlInjection('; DROP TABLE users')).toBe(true);
   });
 
   it('should detect UNION SELECT', () => {

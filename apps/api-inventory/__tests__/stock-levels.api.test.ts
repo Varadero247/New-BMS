@@ -52,7 +52,15 @@ const mockInventoryItem = {
   quantityReserved: 10,
   quantityOnOrder: 5,
   inventoryValue: 2500,
-  product: { id: PRODUCT_ID, sku: 'SKU-001', name: 'Widget A', reorderPoint: 20, reorderQuantity: 100, maxStockLevel: 500, costPrice: 50 },
+  product: {
+    id: PRODUCT_ID,
+    sku: 'SKU-001',
+    name: 'Widget A',
+    reorderPoint: 20,
+    reorderQuantity: 100,
+    maxStockLevel: 500,
+    costPrice: 50,
+  },
   warehouse: { id: WAREHOUSE_ID, code: 'WH-01', name: 'Main Warehouse' },
 };
 
@@ -63,7 +71,17 @@ beforeEach(() => {
 describe('GET /api/stock-levels/low-stock', () => {
   it('returns low stock items', async () => {
     (mockPrisma.$queryRaw as jest.Mock)
-      .mockResolvedValueOnce([{ id: INV_ID, productId: PRODUCT_ID, warehouseId: WAREHOUSE_ID, quantityOnHand: 5, sku: 'SKU-001', name: 'Widget A', reorderPoint: 20 }])
+      .mockResolvedValueOnce([
+        {
+          id: INV_ID,
+          productId: PRODUCT_ID,
+          warehouseId: WAREHOUSE_ID,
+          quantityOnHand: 5,
+          sku: 'SKU-001',
+          name: 'Widget A',
+          reorderPoint: 20,
+        },
+      ])
       .mockResolvedValueOnce([{ count: BigInt(1) }]);
 
     const res = await request(app).get('/api/stock-levels/low-stock');
@@ -82,7 +100,9 @@ describe('GET /api/stock-levels/low-stock', () => {
 describe('GET /api/stock-levels/summary', () => {
   it('returns stock level summary', async () => {
     (mockPrisma.inventory.count as jest.Mock).mockResolvedValue(100);
-    (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({ _sum: { inventoryValue: 50000 } });
+    (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({
+      _sum: { inventoryValue: 50000 },
+    });
     (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValue([]);
 
     const res = await request(app).get('/api/stock-levels/summary');
@@ -94,7 +114,9 @@ describe('GET /api/stock-levels/summary', () => {
 
   it('filters by warehouseId', async () => {
     (mockPrisma.inventory.count as jest.Mock).mockResolvedValue(50);
-    (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({ _sum: { inventoryValue: 25000 } });
+    (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({
+      _sum: { inventoryValue: 25000 },
+    });
     (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValue([]);
 
     const res = await request(app).get(`/api/stock-levels/summary?warehouseId=${WAREHOUSE_ID}`);
@@ -124,7 +146,9 @@ describe('GET /api/stock-levels', () => {
     (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([]);
     (mockPrisma.inventory.count as jest.Mock).mockResolvedValue(0);
 
-    const res = await request(app).get(`/api/stock-levels?warehouseId=${WAREHOUSE_ID}&productId=${PRODUCT_ID}`);
+    const res = await request(app).get(
+      `/api/stock-levels?warehouseId=${WAREHOUSE_ID}&productId=${PRODUCT_ID}`
+    );
     expect(res.status).toBe(200);
   });
 

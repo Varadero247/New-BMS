@@ -57,9 +57,12 @@ export function useWelcomeWizard() {
     });
   }, []);
 
-  const setStep = useCallback((step: number) => {
-    update({ lastSeenStep: step });
-  }, [update]);
+  const setStep = useCallback(
+    (step: number) => {
+      update({ lastSeenStep: step });
+    },
+    [update]
+  );
 
   const minimize = useCallback(() => {
     update({ minimized: true });

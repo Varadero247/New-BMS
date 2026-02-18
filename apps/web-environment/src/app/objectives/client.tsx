@@ -68,7 +68,10 @@ const STATUS_COLOURS: Record<string, string> = {
   DEFERRED: 'bg-purple-100 text-purple-800',
 };
 
-const STATUS_BADGE_VARIANT: Record<string, 'secondary' | 'info' | 'warning' | 'danger' | 'success' | 'outline' | 'default'> = {
+const STATUS_BADGE_VARIANT: Record<
+  string,
+  'secondary' | 'info' | 'warning' | 'danger' | 'success' | 'outline' | 'default'
+> = {
   NOT_STARTED: 'secondary',
   ON_TRACK: 'info',
   AT_RISK: 'warning',
@@ -327,9 +330,7 @@ export default function ObjectivesClient() {
   function toggleSdg(sdg: string) {
     setForm((prev) => {
       const current = prev.sdgAlignment;
-      const next = current.includes(sdg)
-        ? current.filter((s) => s !== sdg)
-        : [...current, sdg];
+      const next = current.includes(sdg) ? current.filter((s) => s !== sdg) : [...current, sdg];
       return { ...prev, sdgAlignment: next };
     });
   }
@@ -488,7 +489,8 @@ export default function ObjectivesClient() {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  aria-label="Search by title, reference, owner or department..." placeholder="Search by title, reference, owner or department..."
+                  aria-label="Search by title, reference, owner or department..."
+                  placeholder="Search by title, reference, owner or department..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9"
@@ -545,9 +547,7 @@ export default function ObjectivesClient() {
               <div className="space-y-4">
                 {filtered.map((obj) => {
                   const progress = obj.progressPercent ?? 0;
-                  const countdown = obj.targetDate
-                    ? daysRemaining(obj.targetDate)
-                    : null;
+                  const countdown = obj.targetDate ? daysRemaining(obj.targetDate) : null;
                   return (
                     <div
                       key={obj.id}
@@ -564,7 +564,8 @@ export default function ObjectivesClient() {
                             </Badge>
                             <span
                               className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                                CATEGORY_COLOURS[obj.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'
+                                CATEGORY_COLOURS[obj.category] ||
+                                'bg-gray-100 dark:bg-gray-800 text-gray-800'
                               }`}
                             >
                               {formatCategory(obj.category)}
@@ -601,10 +602,10 @@ export default function ObjectivesClient() {
                                   progress >= 100
                                     ? '#059669'
                                     : progress >= 70
-                                    ? '#1E3A8A'
-                                    : progress >= 40
-                                    ? '#F59E0B'
-                                    : '#DC2626'
+                                      ? '#1E3A8A'
+                                      : progress >= 40
+                                        ? '#F59E0B'
+                                        : '#DC2626'
                                 }
                                 strokeWidth="6"
                                 strokeLinecap="round"
@@ -630,8 +631,7 @@ export default function ObjectivesClient() {
                       <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
                         {obj.targetValue != null && (
                           <span className="font-medium">
-                            KPI: {obj.currentValue ?? 0} / {obj.targetValue}{' '}
-                            {obj.unit || ''}
+                            KPI: {obj.currentValue ?? 0} / {obj.targetValue} {obj.unit || ''}
                           </span>
                         )}
                         {countdown && (
@@ -670,11 +670,7 @@ export default function ObjectivesClient() {
                 <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
                   Click Add Objective to set your first environmental target
                 </p>
-                <Button
-                  onClick={openNewModal}
-                  variant="outline"
-                  className="mt-6"
-                >
+                <Button onClick={openNewModal} variant="outline" className="mt-6">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Objective
                 </Button>
@@ -720,14 +716,12 @@ export default function ObjectivesClient() {
                     id="objectiveStatement"
                     rows={3}
                     value={form.objectiveStatement}
-                    onChange={(e) =>
-                      updateForm('objectiveStatement', e.target.value)
-                    }
+                    onChange={(e) => updateForm('objectiveStatement', e.target.value)}
                     placeholder="Describe the objective in SMART terms..."
                   />
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 italic">
-                    Guidance: &quot;By [when], [who] will [action] to achieve
-                    [measurable result] as measured by [KPI]&quot;
+                    Guidance: &quot;By [when], [who] will [action] to achieve [measurable result] as
+                    measured by [KPI]&quot;
                   </p>
                 </div>
                 <div>
@@ -774,9 +768,7 @@ export default function ObjectivesClient() {
                   <Input
                     id="policyCommitment"
                     value={form.policyCommitment}
-                    onChange={(e) =>
-                      updateForm('policyCommitment', e.target.value)
-                    }
+                    onChange={(e) => updateForm('policyCommitment', e.target.value)}
                     placeholder="Link to relevant policy commitment"
                   />
                 </div>
@@ -785,9 +777,7 @@ export default function ObjectivesClient() {
                   <Select
                     id="iso14001Clause"
                     value={form.iso14001Clause}
-                    onChange={(e) =>
-                      updateForm('iso14001Clause', e.target.value)
-                    }
+                    onChange={(e) => updateForm('iso14001Clause', e.target.value)}
                   >
                     <option value="">Select clause</option>
                     {ISO_CLAUSES.map((c) => (
@@ -821,25 +811,19 @@ export default function ObjectivesClient() {
                     <input
                       type="checkbox"
                       checked={form.netZeroTarget}
-                      onChange={(e) =>
-                        updateForm('netZeroTarget', e.target.checked)
-                      }
+                      onChange={(e) => updateForm('netZeroTarget', e.target.checked)}
                       className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                     />
                     <span className="font-medium">Net Zero Target</span>
                   </label>
                   {form.netZeroTarget && (
                     <div className="mt-3">
-                      <Label htmlFor="netZeroDescription">
-                        Net Zero Description
-                      </Label>
+                      <Label htmlFor="netZeroDescription">Net Zero Description</Label>
                       <Textarea
                         id="netZeroDescription"
                         rows={2}
                         value={form.netZeroDescription}
-                        onChange={(e) =>
-                          updateForm('netZeroDescription', e.target.value)
-                        }
+                        onChange={(e) => updateForm('netZeroDescription', e.target.value)}
                         placeholder="Describe the net zero pathway..."
                       />
                     </div>
@@ -863,9 +847,7 @@ export default function ObjectivesClient() {
                   <Input
                     id="kpiDescription"
                     value={form.kpiDescription}
-                    onChange={(e) =>
-                      updateForm('kpiDescription', e.target.value)
-                    }
+                    onChange={(e) => updateForm('kpiDescription', e.target.value)}
                     placeholder="e.g. Tonnes of CO2e emitted per annum"
                   />
                 </div>
@@ -884,9 +866,7 @@ export default function ObjectivesClient() {
                     id="baselineValue"
                     type="number"
                     value={form.baselineValue || ''}
-                    onChange={(e) =>
-                      updateForm('baselineValue', Number(e.target.value))
-                    }
+                    onChange={(e) => updateForm('baselineValue', Number(e.target.value))}
                   />
                 </div>
                 <div>
@@ -895,9 +875,7 @@ export default function ObjectivesClient() {
                     id="baselineDate"
                     type="date"
                     value={form.baselineDate}
-                    onChange={(e) =>
-                      updateForm('baselineDate', e.target.value)
-                    }
+                    onChange={(e) => updateForm('baselineDate', e.target.value)}
                   />
                 </div>
                 <div>
@@ -906,9 +884,7 @@ export default function ObjectivesClient() {
                     id="targetValue"
                     type="number"
                     value={form.targetValue || ''}
-                    onChange={(e) =>
-                      updateForm('targetValue', Number(e.target.value))
-                    }
+                    onChange={(e) => updateForm('targetValue', Number(e.target.value))}
                   />
                 </div>
                 <div>
@@ -917,9 +893,7 @@ export default function ObjectivesClient() {
                     id="currentValue"
                     type="number"
                     value={form.currentValue || ''}
-                    onChange={(e) =>
-                      updateForm('currentValue', Number(e.target.value))
-                    }
+                    onChange={(e) => updateForm('currentValue', Number(e.target.value))}
                   />
                 </div>
                 <div className="md:col-span-2">
@@ -928,9 +902,7 @@ export default function ObjectivesClient() {
                     id="measurementMethod"
                     rows={2}
                     value={form.measurementMethod}
-                    onChange={(e) =>
-                      updateForm('measurementMethod', e.target.value)
-                    }
+                    onChange={(e) => updateForm('measurementMethod', e.target.value)}
                     placeholder="How will this KPI be measured?"
                   />
                 </div>
@@ -939,9 +911,7 @@ export default function ObjectivesClient() {
                   <Input
                     id="dataSource"
                     value={form.dataSource}
-                    onChange={(e) =>
-                      updateForm('dataSource', e.target.value)
-                    }
+                    onChange={(e) => updateForm('dataSource', e.target.value)}
                     placeholder="e.g. Energy bills, meters"
                   />
                 </div>
@@ -962,9 +932,7 @@ export default function ObjectivesClient() {
                     id="startDate"
                     type="date"
                     value={form.startDate}
-                    onChange={(e) =>
-                      updateForm('startDate', e.target.value)
-                    }
+                    onChange={(e) => updateForm('startDate', e.target.value)}
                   />
                 </div>
                 <div>
@@ -975,9 +943,7 @@ export default function ObjectivesClient() {
                     id="targetDate"
                     type="date"
                     value={form.targetDate}
-                    onChange={(e) =>
-                      updateForm('targetDate', e.target.value)
-                    }
+                    onChange={(e) => updateForm('targetDate', e.target.value)}
                   />
                 </div>
                 <div>
@@ -985,9 +951,7 @@ export default function ObjectivesClient() {
                   <Select
                     id="reviewFrequency"
                     value={form.reviewFrequency}
-                    onChange={(e) =>
-                      updateForm('reviewFrequency', e.target.value)
-                    }
+                    onChange={(e) => updateForm('reviewFrequency', e.target.value)}
                   >
                     {REVIEW_FREQUENCIES.map((f) => (
                       <option key={f.value} value={f.value}>
@@ -1001,9 +965,7 @@ export default function ObjectivesClient() {
                   <Input
                     id="department"
                     value={form.department}
-                    onChange={(e) =>
-                      updateForm('department', e.target.value)
-                    }
+                    onChange={(e) => updateForm('department', e.target.value)}
                     placeholder="e.g. Operations"
                   />
                 </div>
@@ -1024,9 +986,7 @@ export default function ObjectivesClient() {
                     id="estimatedCost"
                     type="number"
                     value={form.estimatedCost || ''}
-                    onChange={(e) =>
-                      updateForm('estimatedCost', Number(e.target.value))
-                    }
+                    onChange={(e) => updateForm('estimatedCost', Number(e.target.value))}
                     placeholder="0.00"
                   />
                 </div>
@@ -1036,9 +996,7 @@ export default function ObjectivesClient() {
                     id="resourcesRequired"
                     rows={2}
                     value={form.resourcesRequired}
-                    onChange={(e) =>
-                      updateForm('resourcesRequired', e.target.value)
-                    }
+                    onChange={(e) => updateForm('resourcesRequired', e.target.value)}
                     placeholder="Budget, personnel, equipment..."
                   />
                 </div>
@@ -1057,15 +1015,9 @@ export default function ObjectivesClient() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-green-50 text-left">
-                        <th className="px-4 py-2 font-medium text-green-800">
-                          #
-                        </th>
-                        <th className="px-4 py-2 font-medium text-green-800">
-                          Milestone Title
-                        </th>
-                        <th className="px-4 py-2 font-medium text-green-800">
-                          Due Date
-                        </th>
+                        <th className="px-4 py-2 font-medium text-green-800">#</th>
+                        <th className="px-4 py-2 font-medium text-green-800">Milestone Title</th>
+                        <th className="px-4 py-2 font-medium text-green-800">Due Date</th>
                         <th className="px-4 py-2 font-medium text-green-800 w-12" />
                       </tr>
                     </thead>
@@ -1074,18 +1026,16 @@ export default function ObjectivesClient() {
                         <tr
                           key={idx}
                           className={
-                            idx % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'
+                            idx % 2 === 0
+                              ? 'bg-white dark:bg-gray-900'
+                              : 'bg-gray-50 dark:bg-gray-800'
                           }
                         >
-                          <td className="px-4 py-2 text-gray-500 dark:text-gray-400">
-                            {idx + 1}
-                          </td>
+                          <td className="px-4 py-2 text-gray-500 dark:text-gray-400">{idx + 1}</td>
                           <td className="px-4 py-2">
                             <Input
                               value={m.title}
-                              onChange={(e) =>
-                                updateMilestone(idx, 'title', e.target.value)
-                              }
+                              onChange={(e) => updateMilestone(idx, 'title', e.target.value)}
                               placeholder="Milestone title"
                               className="h-8"
                             />
@@ -1094,9 +1044,7 @@ export default function ObjectivesClient() {
                             <Input
                               type="date"
                               value={m.dueDate}
-                              onChange={(e) =>
-                                updateMilestone(idx, 'dueDate', e.target.value)
-                              }
+                              onChange={(e) => updateMilestone(idx, 'dueDate', e.target.value)}
                               className="h-8"
                             />
                           </td>
@@ -1156,7 +1104,12 @@ export default function ObjectivesClient() {
 
               {aiGenerated && (
                 <div className="mt-4 space-y-4">
-                  <AIDisclosure variant="inline" provider="claude" analysisType="Objective Analysis" confidence={0.85} />
+                  <AIDisclosure
+                    variant="inline"
+                    provider="claude"
+                    analysisType="Objective Analysis"
+                    confidence={0.85}
+                  />
                   {/* SMART Scorecard */}
                   <div className="border border-green-200 rounded-lg overflow-x-auto">
                     <table className="w-full text-sm">
@@ -1177,27 +1130,27 @@ export default function ObjectivesClient() {
                         {(aiGenerated.smartScores || []).map((row, i) => (
                           <tr
                             key={row.criterion}
-                            className={i % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'}
+                            className={
+                              i % 2 === 0
+                                ? 'bg-white dark:bg-gray-900'
+                                : 'bg-gray-50 dark:bg-gray-800'
+                            }
                           >
-                            <td className="px-4 py-2 font-medium">
-                              {row.criterion}
-                            </td>
+                            <td className="px-4 py-2 font-medium">{row.criterion}</td>
                             <td className="px-4 py-2 text-center">
                               <span
                                 className={`inline-block w-8 h-8 leading-8 rounded-full text-white text-xs font-bold ${
                                   row.score >= 4
                                     ? 'bg-green-500'
                                     : row.score >= 3
-                                    ? 'bg-yellow-500'
-                                    : 'bg-red-500'
+                                      ? 'bg-yellow-500'
+                                      : 'bg-red-500'
                                 }`}
                               >
                                 {row.score}
                               </span>
                             </td>
-                            <td className="px-4 py-2 text-gray-600">
-                              {row.feedback}
-                            </td>
+                            <td className="px-4 py-2 text-gray-600">{row.feedback}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1210,26 +1163,21 @@ export default function ObjectivesClient() {
                       <p className="text-sm font-medium text-green-800 mb-1">
                         Improved Statement Suggestion
                       </p>
-                      <p className="text-sm text-green-700">
-                        {aiGenerated.improvedStatement}
-                      </p>
+                      <p className="text-sm text-green-700">{aiGenerated.improvedStatement}</p>
                     </div>
                   )}
 
                   {/* Suggested KPIs */}
-                  {aiGenerated.suggestedKPIs &&
-                    aiGenerated.suggestedKPIs.length > 0 && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <p className="text-sm font-medium text-blue-800 mb-1">
-                          Suggested KPIs
-                        </p>
-                        <ul className="list-disc list-inside text-sm text-blue-700 space-y-1">
-                          {aiGenerated.suggestedKPIs.map((kpi, idx) => (
-                            <li key={idx}>{kpi}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+                  {aiGenerated.suggestedKPIs && aiGenerated.suggestedKPIs.length > 0 && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <p className="text-sm font-medium text-blue-800 mb-1">Suggested KPIs</p>
+                      <ul className="list-disc list-inside text-sm text-blue-700 space-y-1">
+                        {aiGenerated.suggestedKPIs.map((kpi, idx) => (
+                          <li key={idx}>{kpi}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
                   <Button
                     type="button"
@@ -1248,11 +1196,7 @@ export default function ObjectivesClient() {
 
           {/* Modal Footer */}
           <ModalFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowModal(false)}
-              disabled={submitting}
-            >
+            <Button variant="outline" onClick={() => setShowModal(false)} disabled={submitting}>
               Cancel
             </Button>
             <Button

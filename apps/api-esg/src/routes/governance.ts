@@ -21,13 +21,23 @@ const governanceCreateSchema = z.object({
   category: z.enum(['BOARD', 'ETHICS', 'RISK', 'COMPLIANCE', 'TRANSPARENCY', 'ANTI_CORRUPTION']),
   metric: z.string().trim().min(1).max(200),
   value: z.string().trim().min(1).max(1000),
-  periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodStart: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodEnd: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   notes: z.string().max(2000).optional().nullable(),
 });
 
 const governanceUpdateSchema = z.object({
-  category: z.enum(['BOARD', 'ETHICS', 'RISK', 'COMPLIANCE', 'TRANSPARENCY', 'ANTI_CORRUPTION']).optional(),
+  category: z
+    .enum(['BOARD', 'ETHICS', 'RISK', 'COMPLIANCE', 'TRANSPARENCY', 'ANTI_CORRUPTION'])
+    .optional(),
   metric: z.string().trim().min(1).max(200).optional(),
   value: z.string().trim().min(1).max(1000).optional(),
   periodStart: z.string().optional(),
@@ -45,8 +55,11 @@ router.get('/policies', async (req: Request, res: Response) => {
       category: { in: ['COMPLIANCE', 'TRANSPARENCY'] },
     };
 
-    const metrics = await prisma.esgGovernanceMetric.findMany({ where, orderBy: { periodStart: 'desc' },
-      take: 1000});
+    const metrics = await prisma.esgGovernanceMetric.findMany({
+      where,
+      orderBy: { periodStart: 'desc' },
+      take: 1000,
+    });
 
     const policies = metrics.map((m: Record<string, any>) => ({
       id: m.id,
@@ -59,8 +72,13 @@ router.get('/policies', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: policies });
   } catch (error: unknown) {
-    logger.error('Error fetching policies', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch policies' } });
+    logger.error('Error fetching policies', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch policies' },
+    });
   }
 });
 
@@ -72,8 +90,11 @@ router.get('/ethics', async (req: Request, res: Response) => {
       category: { in: ['ETHICS', 'ANTI_CORRUPTION'] },
     };
 
-    const metrics = await prisma.esgGovernanceMetric.findMany({ where, orderBy: { periodStart: 'desc' },
-      take: 1000});
+    const metrics = await prisma.esgGovernanceMetric.findMany({
+      where,
+      orderBy: { periodStart: 'desc' },
+      take: 1000,
+    });
 
     const ethicsData = metrics.map((m: Record<string, any>) => ({
       id: m.id,
@@ -86,8 +107,13 @@ router.get('/ethics', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: ethicsData });
   } catch (error: unknown) {
-    logger.error('Error fetching ethics data', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch ethics data' } });
+    logger.error('Error fetching ethics data', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch ethics data' },
+    });
   }
 });
 
@@ -95,7 +121,9 @@ router.get('/ethics', async (req: Request, res: Response) => {
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { category, periodStart, periodEnd, page = '1', limit = '20' } = req.query;
-    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * Math.max(1, parseInt(limit as string, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page as string, 10) || 1) - 1) *
+      Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
     const where: Record<string, any> = { deletedAt: null };
@@ -111,11 +139,21 @@ router.get('/', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data,
-      pagination: { page: Math.max(1, parseInt(page as string, 10) || 1), limit: take, total, totalPages: Math.ceil(total / take) },
+      pagination: {
+        page: Math.max(1, parseInt(page as string, 10) || 1),
+        limit: take,
+        total,
+        totalPages: Math.ceil(total / take),
+      },
     });
   } catch (error: unknown) {
-    logger.error('Error listing governance metrics', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list governance metrics' } });
+    logger.error('Error listing governance metrics', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list governance metrics' },
+    });
   }
 });
 
@@ -125,7 +163,14 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = governanceCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.issues,
+        },
+      });
     }
 
     const data = parsed.data;
@@ -143,8 +188,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: metric });
   } catch (error: unknown) {
-    logger.error('Error creating governance metric', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create governance metric' } });
+    logger.error('Error creating governance metric', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create governance metric' },
+    });
   }
 });
 
@@ -152,14 +202,24 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
-    const metric = await prisma.esgGovernanceMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const metric = await prisma.esgGovernanceMetric.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!metric) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Governance metric not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Governance metric not found' },
+      });
     }
     res.json({ success: true, data: metric });
   } catch (error: unknown) {
-    logger.error('Error fetching governance metric', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch governance metric' } });
+    logger.error('Error fetching governance metric', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch governance metric' },
+    });
   }
 });
 
@@ -168,39 +228,72 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = governanceUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.issues,
+        },
+      });
     }
 
-    const existing = await prisma.esgGovernanceMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.esgGovernanceMetric.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Governance metric not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Governance metric not found' },
+      });
     }
 
     const updateData: Record<string, any> = { ...parsed.data };
     if (updateData.periodStart) updateData.periodStart = new Date(updateData.periodStart);
     if (updateData.periodEnd) updateData.periodEnd = new Date(updateData.periodEnd);
 
-    const metric = await prisma.esgGovernanceMetric.update({ where: { id: req.params.id }, data: updateData });
+    const metric = await prisma.esgGovernanceMetric.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
     res.json({ success: true, data: metric });
   } catch (error: unknown) {
-    logger.error('Error updating governance metric', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update governance metric' } });
+    logger.error('Error updating governance metric', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update governance metric' },
+    });
   }
 });
 
 // DELETE /api/governance/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgGovernanceMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.esgGovernanceMetric.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Governance metric not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Governance metric not found' },
+      });
     }
 
-    await prisma.esgGovernanceMetric.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.esgGovernanceMetric.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Governance metric deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting governance metric', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete governance metric' } });
+    logger.error('Error deleting governance metric', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete governance metric' },
+    });
   }
 });
 

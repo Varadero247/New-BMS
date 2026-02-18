@@ -60,9 +60,7 @@ describe('GET /api/dashboard/stats', () => {
   });
 
   it('should return 500 when count throws an error', async () => {
-    (prisma as any).mgmtReview.count.mockRejectedValue(
-      new Error('Database error')
-    );
+    (prisma as any).mgmtReview.count.mockRejectedValue(new Error('Database error'));
 
     const res = await request(app).get('/api/dashboard/stats');
 

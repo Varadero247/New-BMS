@@ -20,11 +20,7 @@ interface PrismaLike {
   $queryRaw: (query: TemplateStringsArray) => Promise<unknown>;
 }
 
-export const createHealthCheck = (
-  serviceName: string,
-  prisma?: PrismaLike,
-  version?: string
-) => {
+export const createHealthCheck = (serviceName: string, prisma?: PrismaLike, version?: string) => {
   return async (_req: Request, res: Response) => {
     const checks: HealthStatus['checks'] = {};
     let status: HealthStatus['status'] = 'healthy';

@@ -26,22 +26,38 @@ jest.mock('@ims/monitoring', () => ({
 
 const mockListCertificates = jest.fn().mockReturnValue([]);
 const mockGetCertificate = jest.fn().mockReturnValue({
-  id: '00000000-0000-0000-0000-000000000001', standard: 'ISO 9001:2015', scope: 'Manufacturing',
-  certificationBody: 'BSI', certificateNumber: 'FS-123456', status: 'ACTIVE',
-  issueDate: new Date('2024-01-15'), expiryDate: new Date('2027-01-14'),
+  id: '00000000-0000-0000-0000-000000000001',
+  standard: 'ISO 9001:2015',
+  scope: 'Manufacturing',
+  certificationBody: 'BSI',
+  certificateNumber: 'FS-123456',
+  status: 'ACTIVE',
+  issueDate: new Date('2024-01-15'),
+  expiryDate: new Date('2027-01-14'),
 });
 const mockCreateCertificate = jest.fn().mockReturnValue({
-  id: '00000000-0000-0000-0000-000000000001', standard: 'ISO 9001:2015', scope: 'Manufacturing', certificationBody: 'BSI',
-  certificateNumber: 'FS-123456', status: 'ACTIVE',
-  issueDate: new Date('2024-01-15'), expiryDate: new Date('2027-01-14'),
+  id: '00000000-0000-0000-0000-000000000001',
+  standard: 'ISO 9001:2015',
+  scope: 'Manufacturing',
+  certificationBody: 'BSI',
+  certificateNumber: 'FS-123456',
+  status: 'ACTIVE',
+  issueDate: new Date('2024-01-15'),
+  expiryDate: new Date('2027-01-14'),
 });
 const mockUpdateCertificate = jest.fn().mockReturnValue({
-  id: '00000000-0000-0000-0000-000000000001', status: 'IN_RENEWAL',
-  issueDate: new Date('2024-01-15'), expiryDate: new Date('2027-01-14'),
+  id: '00000000-0000-0000-0000-000000000001',
+  status: 'IN_RENEWAL',
+  issueDate: new Date('2024-01-15'),
+  expiryDate: new Date('2027-01-14'),
 });
 const mockDeleteCertificate = jest.fn().mockReturnValue(true);
 const mockCalculateReadinessScore = jest.fn().mockReturnValue({
-  score: 85, maxScore: 100, grade: 'B', blockers: [], lastCalculatedAt: new Date(),
+  score: 85,
+  maxScore: 100,
+  grade: 'B',
+  blockers: [],
+  lastCalculatedAt: new Date(),
 });
 
 jest.mock('@ims/readiness', () => ({
@@ -69,8 +85,11 @@ describe('Certifications Routes', () => {
     it('lists certificates with readiness scores', async () => {
       mockListCertificates.mockReturnValue([
         {
-          id: '00000000-0000-0000-0000-000000000001', standard: 'ISO 9001:2015', status: 'ACTIVE',
-          issueDate: new Date('2024-01-15'), expiryDate: new Date('2027-01-14'),
+          id: '00000000-0000-0000-0000-000000000001',
+          standard: 'ISO 9001:2015',
+          status: 'ACTIVE',
+          issueDate: new Date('2024-01-15'),
+          expiryDate: new Date('2027-01-14'),
         },
       ]);
       const res = await request(app).get('/api/admin/certifications');
@@ -81,16 +100,14 @@ describe('Certifications Routes', () => {
 
   describe('POST /api/admin/certifications', () => {
     it('creates a certificate', async () => {
-      const res = await request(app)
-        .post('/api/admin/certifications')
-        .send({
-          standard: 'ISO 9001:2015',
-          scope: 'Manufacturing of widgets',
-          certificationBody: 'BSI',
-          certificateNumber: 'FS-123456',
-          issueDate: '2024-01-15',
-          expiryDate: '2027-01-14',
-        });
+      const res = await request(app).post('/api/admin/certifications').send({
+        standard: 'ISO 9001:2015',
+        scope: 'Manufacturing of widgets',
+        certificationBody: 'BSI',
+        certificateNumber: 'FS-123456',
+        issueDate: '2024-01-15',
+        expiryDate: '2027-01-14',
+      });
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
     });
@@ -115,7 +132,9 @@ describe('Certifications Routes', () => {
 
   describe('DELETE /api/admin/certifications/:id', () => {
     it('deletes a certificate', async () => {
-      const res = await request(app).delete('/api/admin/certifications/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/admin/certifications/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -123,7 +142,9 @@ describe('Certifications Routes', () => {
 
   describe('GET /api/admin/certifications/:id/readiness', () => {
     it('returns readiness score', async () => {
-      const res = await request(app).get('/api/admin/certifications/00000000-0000-0000-0000-000000000001/readiness');
+      const res = await request(app).get(
+        '/api/admin/certifications/00000000-0000-0000-0000-000000000001/readiness'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toHaveProperty('readiness');

@@ -31,10 +31,8 @@ describe('calculateCpk — comprehensive', () => {
   describe('CAPABLE status (Cpk >= 1.67)', () => {
     it('should return CAPABLE for tight, centered data', () => {
       const data = [
-        50.00, 50.01, 49.99, 50.00, 50.01, 49.99,
-        50.00, 50.01, 49.99, 50.00, 50.01, 49.99,
-        50.00, 50.01, 49.99, 50.00, 50.01, 49.99,
-        50.00, 50.01,
+        50.0, 50.01, 49.99, 50.0, 50.01, 49.99, 50.0, 50.01, 49.99, 50.0, 50.01, 49.99, 50.0, 50.01,
+        49.99, 50.0, 50.01, 49.99, 50.0, 50.01,
       ];
       const result = calculateCpk(data, 55, 45);
       expect(result.status).toBe('CAPABLE');
@@ -47,7 +45,7 @@ describe('calculateCpk — comprehensive', () => {
       // Construct data with moderate spread relative to specs
       const data: number[] = [];
       for (let i = 0; i < 30; i++) {
-        data.push(50 + (i % 5 - 2) * 0.5);
+        data.push(50 + ((i % 5) - 2) * 0.5);
       }
       const result = calculateCpk(data, 54, 46);
       // This may be CAPABLE or MARGINAL depending on exact spread
@@ -72,17 +70,13 @@ describe('calculateCpk — comprehensive', () => {
 
   describe('Cp vs Cpk (centering)', () => {
     it('should have Cpk < Cp when process is off-center', () => {
-      const data = [
-        51.0, 51.1, 50.9, 51.0, 51.2, 50.8, 51.0, 51.1, 50.9, 51.0,
-      ];
+      const data = [51.0, 51.1, 50.9, 51.0, 51.2, 50.8, 51.0, 51.1, 50.9, 51.0];
       const result = calculateCpk(data, 52, 48);
       expect(result.cpk).toBeLessThan(result.cp);
     });
 
     it('should have Cpk close to Cp when process is centered', () => {
-      const data = [
-        50.0, 50.1, 49.9, 50.0, 50.1, 49.9, 50.0, 50.1, 49.9, 50.0,
-      ];
+      const data = [50.0, 50.1, 49.9, 50.0, 50.1, 49.9, 50.0, 50.1, 49.9, 50.0];
       const result = calculateCpk(data, 52, 48);
       // When perfectly centered, Cpk = Cp
       expect(Math.abs(result.cpk - result.cp)).toBeLessThan(0.5);
@@ -127,9 +121,7 @@ describe('calculateCpk — comprehensive', () => {
     });
 
     it('should have Ppk <= Pp', () => {
-      const data = [
-        51.0, 51.1, 50.9, 51.0, 51.2, 50.8, 51.0, 51.1, 50.9, 51.0,
-      ];
+      const data = [51.0, 51.1, 50.9, 51.0, 51.2, 50.8, 51.0, 51.1, 50.9, 51.0];
       const result = calculateCpk(data, 52, 48);
       expect(result.ppk).toBeLessThanOrEqual(result.pp + 0.001); // small tolerance
     });
@@ -170,10 +162,8 @@ describe('calculatePpk — comprehensive', () => {
   describe('status based on Ppk (not Cpk)', () => {
     it('should return CAPABLE when Ppk >= 1.67', () => {
       const data = [
-        50.00, 50.01, 49.99, 50.00, 50.01, 49.99,
-        50.00, 50.01, 49.99, 50.00, 50.01, 49.99,
-        50.00, 50.01, 49.99, 50.00, 50.01, 49.99,
-        50.00, 50.01,
+        50.0, 50.01, 49.99, 50.0, 50.01, 49.99, 50.0, 50.01, 49.99, 50.0, 50.01, 49.99, 50.0, 50.01,
+        49.99, 50.0, 50.01, 49.99, 50.0, 50.01,
       ];
       const result = calculatePpk(data, 55, 45);
       if (result.ppk >= 1.67) {

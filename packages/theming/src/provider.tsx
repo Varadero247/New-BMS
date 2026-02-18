@@ -19,12 +19,15 @@ function applyThemeVars(theme: ThemeConfig) {
   if (theme.surfaceColor) root.style.setProperty('--bg-surface', theme.surfaceColor);
   if (theme.textColor) root.style.setProperty('--text-primary', theme.textColor);
   if (theme.sidebarColor) root.style.setProperty('--bg-sidebar', theme.sidebarColor);
-  if (theme.borderRadius !== undefined) root.style.setProperty('--radius', `${theme.borderRadius}px`);
+  if (theme.borderRadius !== undefined)
+    root.style.setProperty('--radius', `${theme.borderRadius}px`);
   if (theme.fontFamily) root.style.setProperty('--font-family', theme.fontFamily);
 
   // Update favicon
   if (theme.favicon) {
-    const link = document.querySelector<HTMLLinkElement>("link[rel*='icon']") || document.createElement('link');
+    const link =
+      document.querySelector<HTMLLinkElement>("link[rel*='icon']") ||
+      document.createElement('link');
     link.type = 'image/x-icon';
     link.rel = 'shortcut icon';
     link.href = theme.favicon;
@@ -34,9 +37,8 @@ function applyThemeVars(theme: ThemeConfig) {
   // Update page title with brand name
   if (theme.brandName) {
     const titleParts = document.title.split(' | ');
-    document.title = titleParts.length > 1
-      ? `${titleParts[0]} | ${theme.brandName}`
-      : theme.brandName;
+    document.title =
+      titleParts.length > 1 ? `${titleParts[0]} | ${theme.brandName}` : theme.brandName;
   }
 
   // Inject custom CSS

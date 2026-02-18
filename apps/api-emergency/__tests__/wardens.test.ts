@@ -32,7 +32,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/wardens', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockWarden = prisma.femFireWarden as any;
 
@@ -129,7 +131,9 @@ describe('POST /api/wardens/premises/:id', () => {
   it('creates a new warden for a premises and returns 201', async () => {
     mockWarden.create.mockResolvedValue(fakeWarden);
 
-    const res = await request(app).post(`/api/wardens/premises/${PREMISES_ID}`).send(validCreateBody);
+    const res = await request(app)
+      .post(`/api/wardens/premises/${PREMISES_ID}`)
+      .send(validCreateBody);
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -165,13 +169,15 @@ describe('POST /api/wardens/premises/:id', () => {
     };
     mockWarden.create.mockResolvedValue(withTraining);
 
-    const res = await request(app).post(`/api/wardens/premises/${PREMISES_ID}`).send({
-      ...validCreateBody,
-      trainingDate: '2026-01-15',
-      trainingExpiryDate: '2027-01-15',
-      trainingProvider: 'FireSafe Ltd',
-      trainingCurrent: true,
-    });
+    const res = await request(app)
+      .post(`/api/wardens/premises/${PREMISES_ID}`)
+      .send({
+        ...validCreateBody,
+        trainingDate: '2026-01-15',
+        trainingExpiryDate: '2027-01-15',
+        trainingProvider: 'FireSafe Ltd',
+        trainingCurrent: true,
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.data.trainingProvider).toBe('FireSafe Ltd');

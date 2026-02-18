@@ -52,13 +52,11 @@ export function CAPAFunnel({
   showConversionRates = true,
 }: CAPAFunnelProps) {
   const { maxCount, conversionRates } = useMemo(() => {
-    const maxCount = Math.max(...data.map(d => d.count), 1);
+    const maxCount = Math.max(...data.map((d) => d.count), 1);
 
     const conversionRates: number[] = [];
     for (let i = 1; i < data.length; i++) {
-      const rate = data[i - 1].count > 0
-        ? (data[i].count / data[i - 1].count) * 100
-        : 0;
+      const rate = data[i - 1].count > 0 ? (data[i].count / data[i - 1].count) * 100 : 0;
       conversionRates.push(rate);
     }
 
@@ -76,7 +74,9 @@ export function CAPAFunnel({
   return (
     <div className="w-full">
       {title && (
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">
+          {title}
+        </h3>
       )}
 
       <div className="space-y-2">
@@ -98,18 +98,17 @@ export function CAPAFunnel({
                   <div
                     className={`${color} w-full py-3 px-4 rounded-lg text-white flex items-center justify-between`}
                     style={{
-                      clipPath: index === data.length - 1
-                        ? 'none'
-                        : 'polygon(0 0, 100% 0, 95% 100%, 5% 100%)',
+                      clipPath:
+                        index === data.length - 1
+                          ? 'none'
+                          : 'polygon(0 0, 100% 0, 95% 100%, 5% 100%)',
                     }}
                   >
                     <span className="font-medium text-sm truncate">{label}</span>
                     <div className="text-right">
                       <span className="font-bold text-lg">{item.count}</span>
                       {item.averageDays !== undefined && (
-                        <span className="text-xs opacity-75 ml-2">
-                          ({item.averageDays}d avg)
-                        </span>
+                        <span className="text-xs opacity-75 ml-2">({item.averageDays}d avg)</span>
                       )}
                     </div>
                   </div>
@@ -136,35 +135,40 @@ export function CAPAFunnel({
           <p className="text-xs text-gray-600">Started</p>
         </div>
         <div className="bg-green-50 rounded-lg p-4 text-center">
-          <p className="text-2xl font-bold text-green-600">
-            {data[data.length - 1]?.count || 0}
-          </p>
+          <p className="text-2xl font-bold text-green-600">{data[data.length - 1]?.count || 0}</p>
           <p className="text-xs text-gray-600">Completed</p>
         </div>
         <div className="bg-purple-50 rounded-lg p-4 text-center">
           <p className="text-2xl font-bold text-purple-600">
             {data[0]?.count > 0
               ? ((data[data.length - 1]?.count / data[0]?.count) * 100).toFixed(0)
-              : 0}%
+              : 0}
+            %
           </p>
           <p className="text-xs text-gray-600">Completion Rate</p>
         </div>
       </div>
 
       {/* Average time by phase */}
-      {data.some(d => d.averageDays !== undefined) && (
+      {data.some((d) => d.averageDays !== undefined) && (
         <div className="mt-4">
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Average Time per Phase</h4>
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Average Time per Phase
+          </h4>
           <div className="flex gap-2 flex-wrap">
-            {data.filter(d => d.averageDays !== undefined).map(item => (
-              <div
-                key={item.phase}
-                className="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 text-sm"
-              >
-                <span className="text-gray-600">{phaseLabels[item.phase]?.split(':')[0] || item.phase}:</span>
-                <span className="font-medium ml-1">{item.averageDays}d</span>
-              </div>
-            ))}
+            {data
+              .filter((d) => d.averageDays !== undefined)
+              .map((item) => (
+                <div
+                  key={item.phase}
+                  className="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 text-sm"
+                >
+                  <span className="text-gray-600">
+                    {phaseLabels[item.phase]?.split(':')[0] || item.phase}:
+                  </span>
+                  <span className="font-medium ml-1">{item.averageDays}d</span>
+                </div>
+              ))}
           </div>
         </div>
       )}
@@ -177,9 +181,9 @@ export function create8DFunnelData(capas: Array<{ currentPhase: string }>): CAPA
   const phases = ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8'];
   const phaseOrder = new Map(phases.map((p, i) => [p, i]));
 
-  return phases.map(phase => {
+  return phases.map((phase) => {
     // Count CAPAs that have reached or passed this phase
-    const count = capas.filter(capa => {
+    const count = capas.filter((capa) => {
       const capaPhaseIndex = phaseOrder.get(capa.currentPhase) ?? -1;
       const targetPhaseIndex = phaseOrder.get(phase) ?? -1;
       return capaPhaseIndex >= targetPhaseIndex;

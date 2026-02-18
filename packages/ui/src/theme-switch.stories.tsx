@@ -14,7 +14,14 @@ export const Default: Story = {};
 
 export const InContext: Story = {
   render: () => (
-    <div style={{ position: 'relative', height: '200px', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+    <div
+      style={{
+        position: 'relative',
+        height: '200px',
+        border: '1px solid #e5e7eb',
+        borderRadius: '8px',
+      }}
+    >
       <p style={{ padding: '16px', fontSize: '14px', color: '#666' }}>
         The theme switch appears as a floating button (bottom-right by default).
       </p>

@@ -2,9 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import {
-  Zap, Shield, Leaf, Heart, Users, Wrench,
-  ChevronDown, ChevronUp, Clock, CheckCircle, XCircle, SkipForward,
-  ToggleLeft, ToggleRight, Filter,
+  Zap,
+  Shield,
+  Leaf,
+  Heart,
+  Users,
+  Wrench,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  CheckCircle,
+  XCircle,
+  SkipForward,
+  ToggleLeft,
+  ToggleRight,
+  Filter,
 } from 'lucide-react';
 import api from '@/lib/api';
 
@@ -45,7 +57,15 @@ interface ExecutionLogEntry {
   timestamp: string;
 }
 
-const CATEGORIES = ['all', 'quality', 'safety', 'environment', 'compliance', 'hr', 'maintenance'] as const;
+const CATEGORIES = [
+  'all',
+  'quality',
+  'safety',
+  'environment',
+  'compliance',
+  'hr',
+  'maintenance',
+] as const;
 
 const CATEGORY_ICONS: Record<string, typeof Zap> = {
   quality: Shield,
@@ -121,14 +141,14 @@ export default function RulesPage() {
     try {
       const action = currentEnabled ? 'disable' : 'enable';
       await api.post(`/admin/automation-rules/${ruleId}/${action}`);
-      setRules(prev => prev.map(r =>
-        r.id === ruleId ? { ...r, enabled: !currentEnabled } : r
-      ));
+      setRules((prev) =>
+        prev.map((r) => (r.id === ruleId ? { ...r, enabled: !currentEnabled } : r))
+      );
     } catch {
       // Optimistic update anyway
-      setRules(prev => prev.map(r =>
-        r.id === ruleId ? { ...r, enabled: !currentEnabled } : r
-      ));
+      setRules((prev) =>
+        prev.map((r) => (r.id === ruleId ? { ...r, enabled: !currentEnabled } : r))
+      );
     } finally {
       setTogglingId(null);
     }
@@ -137,9 +157,9 @@ export default function RulesPage() {
   async function loadExecutionLog(ruleId: string) {
     try {
       const res = await api.get(`/admin/automation-rules/${ruleId}/log?limit=5`);
-      setExecutionLogs(prev => ({ ...prev, [ruleId]: res.data.data || [] }));
+      setExecutionLogs((prev) => ({ ...prev, [ruleId]: res.data.data || [] }));
     } catch {
-      setExecutionLogs(prev => ({ ...prev, [ruleId]: [] }));
+      setExecutionLogs((prev) => ({ ...prev, [ruleId]: [] }));
     }
   }
 
@@ -154,11 +174,10 @@ export default function RulesPage() {
     }
   }
 
-  const filtered = activeCategory === 'all'
-    ? rules
-    : rules.filter(r => r.category === activeCategory);
+  const filtered =
+    activeCategory === 'all' ? rules : rules.filter((r) => r.category === activeCategory);
 
-  const enabledCount = rules.filter(r => r.enabled).length;
+  const enabledCount = rules.filter((r) => r.enabled).length;
 
   if (loading) {
     return (
@@ -167,7 +186,7 @@ export default function RulesPage() {
           <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1,2,3,4,5,6].map(i => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg" />
             ))}
           </div>
@@ -180,7 +199,9 @@ export default function RulesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Automation Rules Library</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Automation Rules Library
+        </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           {rules.length} pre-built rules available -- {enabledCount} enabled for your organisation
         </p>
@@ -188,7 +209,7 @@ export default function RulesPage() {
 
       {/* Category Tabs */}
       <div className="flex flex-wrap gap-2">
-        {CATEGORIES.map(cat => (
+        {CATEGORIES.map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
@@ -198,14 +219,16 @@ export default function RulesPage() {
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
             }`}
           >
-            {cat === 'all' ? `All (${rules.length})` : `${cat} (${rules.filter(r => r.category === cat).length})`}
+            {cat === 'all'
+              ? `All (${rules.length})`
+              : `${cat} (${rules.filter((r) => r.category === cat).length})`}
           </button>
         ))}
       </div>
 
       {/* Rules Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {filtered.map(rule => {
+        {filtered.map((rule) => {
           const CategoryIcon = CATEGORY_ICONS[rule.category] || Zap;
           const isExpanded = expandedRule === rule.id;
           const logs = executionLogs[rule.id] || [];
@@ -262,7 +285,9 @@ export default function RulesPage() {
                   ))}
 
                   {/* Category Badge */}
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_COLORS[rule.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+                  <span
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_COLORS[rule.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                  >
                     <CategoryIcon className="h-3 w-3" />
                     {rule.category}
                   </span>
@@ -270,7 +295,8 @@ export default function RulesPage() {
 
                 {/* Module Info */}
                 <div className="mt-2 text-xs text-gray-400 dark:text-gray-400">
-                  Module: <span className="font-medium">{rule.trigger.module}</span> -- Record: <span className="font-medium">{rule.trigger.recordType}</span>
+                  Module: <span className="font-medium">{rule.trigger.module}</span> -- Record:{' '}
+                  <span className="font-medium">{rule.trigger.recordType}</span>
                 </div>
               </div>
 
@@ -280,9 +306,13 @@ export default function RulesPage() {
                 className="w-full flex items-center justify-center gap-1 px-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 border-t border-gray-100 dark:border-gray-700 transition-colors"
               >
                 {isExpanded ? (
-                  <>Hide Executions <ChevronUp className="h-3.5 w-3.5" /></>
+                  <>
+                    Hide Executions <ChevronUp className="h-3.5 w-3.5" />
+                  </>
                 ) : (
-                  <>View Executions <ChevronDown className="h-3.5 w-3.5" /></>
+                  <>
+                    View Executions <ChevronDown className="h-3.5 w-3.5" />
+                  </>
                 )}
               </button>
 
@@ -290,10 +320,12 @@ export default function RulesPage() {
               {isExpanded && (
                 <div className="px-4 pb-4 border-t border-gray-100 dark:border-gray-700">
                   {logs.length === 0 ? (
-                    <p className="text-xs text-gray-400 dark:text-gray-500 py-3 text-center">No executions recorded yet</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 py-3 text-center">
+                      No executions recorded yet
+                    </p>
                   ) : (
                     <ul className="divide-y divide-gray-100 dark:divide-gray-700">
-                      {logs.map(log => (
+                      {logs.map((log) => (
                         <li key={log.id} className="flex items-center gap-2 py-2">
                           <StatusIcon status={log.status} />
                           <span className="text-xs text-gray-700 dark:text-gray-300 flex-1 truncate">

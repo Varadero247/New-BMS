@@ -25,7 +25,13 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 
 const confirmOrderSchema = z.object({
   notes: z.string().max(2000).optional().nullable(),
-  expectedDelivery: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  expectedDelivery: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
 });
 
 // ---------------------------------------------------------------------------
@@ -58,8 +64,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing purchase orders', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list purchase orders' } });
+    logger.error('Error listing purchase orders', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list purchase orders' },
+    });
   }
 });
 
@@ -72,19 +83,33 @@ router.post('/:id/confirm', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = confirmOrderSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const order = await prisma.portalOrder.findFirst({
-      where: { id: req.params.id, portalUserId: auth.user!.id, type: 'PURCHASE', deletedAt: null } as any,
+      where: {
+        id: req.params.id,
+        portalUserId: auth.user!.id,
+        type: 'PURCHASE',
+        deletedAt: null,
+      } as any,
     });
 
     if (!order) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Purchase order not found' },
+      });
     }
 
     if (order.status !== 'SUBMITTED') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Only submitted orders can be confirmed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Only submitted orders can be confirmed' },
+      });
     }
 
     const updated = await prisma.portalOrder.update({
@@ -92,15 +117,22 @@ router.post('/:id/confirm', async (req: Request, res: Response) => {
       data: {
         status: 'CONFIRMED',
         notes: parsed.data.notes ?? order.notes,
-        expectedDelivery: parsed.data.expectedDelivery ? new Date(parsed.data.expectedDelivery) : order.expectedDelivery,
+        expectedDelivery: parsed.data.expectedDelivery
+          ? new Date(parsed.data.expectedDelivery)
+          : order.expectedDelivery,
       },
     });
 
     logger.info('Purchase order confirmed', { id: updated.id, orderNumber: updated.orderNumber });
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Error confirming order', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to confirm order' } });
+    logger.error('Error confirming order', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to confirm order' },
+    });
   }
 });
 

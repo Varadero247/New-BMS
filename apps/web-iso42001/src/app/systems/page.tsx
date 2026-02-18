@@ -98,33 +98,90 @@ const aiTypeOptions = [
 const riskLevelOptions = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 const statusOptions = ['ACTIVE', 'UNDER_REVIEW', 'RETIRED', 'PLANNED'];
 const impactLevelOptions = ['NEGLIGIBLE', 'LOW', 'MODERATE', 'HIGH', 'VERY_HIGH'];
-const humanOversightOptions = ['FULL_AUTONOMY', 'HUMAN_IN_THE_LOOP', 'HUMAN_ON_THE_LOOP', 'HUMAN_IN_COMMAND'];
+const humanOversightOptions = [
+  'FULL_AUTONOMY',
+  'HUMAN_IN_THE_LOOP',
+  'HUMAN_ON_THE_LOOP',
+  'HUMAN_IN_COMMAND',
+];
 const dataRetentionOptions = ['30_DAYS', '90_DAYS', '1_YEAR', '3_YEARS', '7_YEARS', 'INDEFINITE'];
 const reviewFrequencyOptions = ['MONTHLY', 'QUARTERLY', 'SEMI_ANNUALLY', 'ANNUALLY'];
 
-const providerOptions = ['Anthropic', 'OpenAI', 'xAI', 'Google', 'Meta', 'Custom / In-House', 'Other'];
+const providerOptions = [
+  'Anthropic',
+  'OpenAI',
+  'xAI',
+  'Google',
+  'Meta',
+  'Custom / In-House',
+  'Other',
+];
 
 const claudeAnalysisTypes = [
-  'Risk Assessment', 'Document Analysis', 'Incident Classification', 'Compliance Checking',
-  'Audit Trail Analysis', 'Anomaly Detection', 'Policy Generation', 'Gap Analysis',
-  'Corrective Action Recommendations', 'Training Content Generation', 'Report Summarisation',
-  'Evidence Pack Review', 'Regulatory Change Analysis', 'KPI Forecasting', 'Root Cause Analysis',
-  'Supplier Risk Scoring', 'ESG Scoring', 'HACCP Hazard Analysis', 'Energy Optimisation',
-  'Predictive Maintenance', 'Sentiment Analysis', 'Natural Language Querying', 'Template Generation',
+  'Risk Assessment',
+  'Document Analysis',
+  'Incident Classification',
+  'Compliance Checking',
+  'Audit Trail Analysis',
+  'Anomaly Detection',
+  'Policy Generation',
+  'Gap Analysis',
+  'Corrective Action Recommendations',
+  'Training Content Generation',
+  'Report Summarisation',
+  'Evidence Pack Review',
+  'Regulatory Change Analysis',
+  'KPI Forecasting',
+  'Root Cause Analysis',
+  'Supplier Risk Scoring',
+  'ESG Scoring',
+  'HACCP Hazard Analysis',
+  'Energy Optimisation',
+  'Predictive Maintenance',
+  'Sentiment Analysis',
+  'Natural Language Querying',
+  'Template Generation',
 ];
 
 const allAnalysisTypes = [
   ...claudeAnalysisTypes,
-  'Image Classification', 'Object Detection', 'Speech-to-Text', 'Text-to-Speech',
-  'Code Generation', 'Data Extraction', 'Translation', 'Embedding Generation',
+  'Image Classification',
+  'Object Detection',
+  'Speech-to-Text',
+  'Text-to-Speech',
+  'Code Generation',
+  'Data Extraction',
+  'Translation',
+  'Embedding Generation',
 ];
 
 const moduleOptions = [
-  'Health & Safety', 'Environment', 'Quality', 'Finance', 'CRM', 'InfoSec',
-  'ESG', 'CMMS', 'Food Safety', 'Energy', 'Analytics', 'HR', 'Payroll',
-  'Workflows', 'Project Management', 'Automotive', 'Medical', 'Aerospace',
-  'Inventory', 'Field Service', 'ISO 42001', 'ISO 37001', 'Customer Portal', 'Supplier Portal',
-  'Dashboard', 'Settings',
+  'Health & Safety',
+  'Environment',
+  'Quality',
+  'Finance',
+  'CRM',
+  'InfoSec',
+  'ESG',
+  'CMMS',
+  'Food Safety',
+  'Energy',
+  'Analytics',
+  'HR',
+  'Payroll',
+  'Workflows',
+  'Project Management',
+  'Automotive',
+  'Medical',
+  'Aerospace',
+  'Inventory',
+  'Field Service',
+  'ISO 42001',
+  'ISO 37001',
+  'Customer Portal',
+  'Supplier Portal',
+  'Dashboard',
+  'Settings',
 ];
 
 const riskLevelColors: Record<string, string> = {
@@ -152,9 +209,11 @@ const oversightColors: Record<string, string> = {
 const prePopulatedSystems: Partial<FormData>[] = [
   {
     name: 'Claude (Anthropic)',
-    description: 'Claude AI assistant powering 23 analysis types across all IMS modules including risk assessment, compliance checking, document analysis, and natural language querying.',
+    description:
+      'Claude AI assistant powering 23 analysis types across all IMS modules including risk assessment, compliance checking, document analysis, and natural language querying.',
     aiType: 'GENERATIVE_AI',
-    purpose: 'Multi-purpose AI analysis engine for the Integrated Management System. Performs risk assessments, document analysis, compliance checking, incident classification, report summarisation, and 18 other analysis types across 26 web applications.',
+    purpose:
+      'Multi-purpose AI analysis engine for the Integrated Management System. Performs risk assessments, document analysis, compliance checking, incident classification, report summarisation, and 18 other analysis types across 26 web applications.',
     riskLevel: 'MEDIUM',
     status: 'ACTIVE',
     owner: 'AI Governance Team',
@@ -167,22 +226,28 @@ const prePopulatedSystems: Partial<FormData>[] = [
     humanOversight: 'HUMAN_IN_THE_LOOP',
     dataRetention: '1_YEAR',
     reviewFrequency: 'QUARTERLY',
-    dataTypes: 'Text documents, audit reports, compliance records, risk registers, incident reports, training records, financial data (anonymised), supplier data',
-    trainingData: 'Pre-trained foundation model. No organisation-specific fine-tuning. All analysis performed via prompting with context injection.',
-    limitations: 'Cannot access real-time external data. May produce plausible but incorrect analysis (hallucination risk). Requires human review for all compliance-critical outputs. Context window limitations for very large documents.',
+    dataTypes:
+      'Text documents, audit reports, compliance records, risk registers, incident reports, training records, financial data (anonymised), supplier data',
+    trainingData:
+      'Pre-trained foundation model. No organisation-specific fine-tuning. All analysis performed via prompting with context injection.',
+    limitations:
+      'Cannot access real-time external data. May produce plausible but incorrect analysis (hallucination risk). Requires human review for all compliance-critical outputs. Context window limitations for very large documents.',
   },
   {
     name: 'GPT-4o (OpenAI)',
-    description: 'OpenAI GPT-4o model used for supplementary text analysis, translation, and document classification tasks.',
+    description:
+      'OpenAI GPT-4o model used for supplementary text analysis, translation, and document classification tasks.',
     aiType: 'GENERATIVE_AI',
-    purpose: 'Supplementary AI engine for document classification, multi-language translation, and text extraction tasks where specialised processing is required.',
+    purpose:
+      'Supplementary AI engine for document classification, multi-language translation, and text extraction tasks where specialised processing is required.',
     riskLevel: 'MEDIUM',
     status: 'PLANNED',
     owner: 'AI Governance Team',
     vendor: 'OpenAI',
     provider: 'OpenAI',
     model: 'GPT-4o',
-    analysisTypes: 'Document Classification, Translation, Data Extraction, Text Summarisation, Embedding Generation',
+    analysisTypes:
+      'Document Classification, Translation, Data Extraction, Text Summarisation, Embedding Generation',
     modules: 'Quality, CRM, Customer Portal, Supplier Portal',
     impactLevel: 'MODERATE',
     humanOversight: 'HUMAN_IN_THE_LOOP',
@@ -190,20 +255,24 @@ const prePopulatedSystems: Partial<FormData>[] = [
     reviewFrequency: 'QUARTERLY',
     dataTypes: 'Text documents, customer communications, supplier documentation',
     trainingData: 'Pre-trained foundation model. No custom fine-tuning.',
-    limitations: 'Data residency concerns (US-hosted). Token limits. Rate limiting under high load.',
+    limitations:
+      'Data residency concerns (US-hosted). Token limits. Rate limiting under high load.',
   },
   {
     name: 'Grok (xAI)',
-    description: 'xAI Grok model evaluated for real-time regulatory monitoring and news analysis for compliance teams.',
+    description:
+      'xAI Grok model evaluated for real-time regulatory monitoring and news analysis for compliance teams.',
     aiType: 'GENERATIVE_AI',
-    purpose: 'Real-time regulatory change monitoring, news analysis, and emerging risk identification from public data sources.',
+    purpose:
+      'Real-time regulatory change monitoring, news analysis, and emerging risk identification from public data sources.',
     riskLevel: 'LOW',
     status: 'PLANNED',
     owner: 'Compliance Team',
     vendor: 'xAI',
     provider: 'xAI',
     model: 'Grok-2',
-    analysisTypes: 'Regulatory Change Analysis, Sentiment Analysis, News Monitoring, Emerging Risk Detection',
+    analysisTypes:
+      'Regulatory Change Analysis, Sentiment Analysis, News Monitoring, Emerging Risk Detection',
     modules: 'ESG, Environment, Health & Safety, Quality',
     impactLevel: 'LOW',
     humanOversight: 'HUMAN_ON_THE_LOOP',
@@ -211,7 +280,8 @@ const prePopulatedSystems: Partial<FormData>[] = [
     reviewFrequency: 'SEMI_ANNUALLY',
     dataTypes: 'Public regulatory feeds, news articles, social media (public)',
     trainingData: 'Pre-trained foundation model with real-time data access.',
-    limitations: 'Newer model with less established track record. Real-time data may include unverified information. Limited enterprise governance tooling.',
+    limitations:
+      'Newer model with less established track record. Real-time data may include unverified information. Limited enterprise governance tooling.',
   },
 ];
 
@@ -294,7 +364,9 @@ export default function AISystemRegisterPage() {
   const [form, setForm] = useState<FormData>(defaultForm);
   const [formStep, setFormStep] = useState(0);
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
-  const [viewTab, setViewTab] = useState<'overview' | 'analysis' | 'governance' | 'review'>('overview');
+  const [viewTab, setViewTab] = useState<'overview' | 'analysis' | 'governance' | 'review'>(
+    'overview'
+  );
 
   useEffect(() => {
     loadSystems();
@@ -421,7 +493,9 @@ export default function AISystemRegisterPage() {
   const totalSystems = systems.length;
   const activeSystems = systems.filter((s) => s.status === 'ACTIVE').length;
   const underReviewSystems = systems.filter((s) => s.status === 'UNDER_REVIEW').length;
-  const highRiskSystems = systems.filter((s) => s.riskLevel === 'HIGH' || s.riskLevel === 'CRITICAL').length;
+  const highRiskSystems = systems.filter(
+    (s) => s.riskLevel === 'HIGH' || s.riskLevel === 'CRITICAL'
+  ).length;
   const overdueReviews = systems.filter((s) => isReviewOverdue(s.nextReviewDate)).length;
 
   const inputClass =
@@ -433,13 +507,13 @@ export default function AISystemRegisterPage() {
   return (
     <div className="p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
-
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-foreground">AI System Register</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              ISO 42001 Clause 6.1 -- Inventory and classification of all AI systems in the organisation
+              ISO 42001 Clause 6.1 -- Inventory and classification of all AI systems in the
+              organisation
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -465,7 +539,10 @@ export default function AISystemRegisterPage() {
           <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800">
             <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
             <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
-            <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-600">
+            <button
+              onClick={() => setError(null)}
+              className="ml-auto text-red-400 hover:text-red-600"
+            >
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -476,35 +553,49 @@ export default function AISystemRegisterPage() {
           <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-1">
               <Cpu className="w-4 h-4 text-muted-foreground" />
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Systems</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Total Systems
+              </p>
             </div>
             <p className="text-3xl font-bold text-foreground">{totalSystems}</p>
           </div>
           <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-1">
               <ShieldCheck className="w-4 h-4 text-green-500" />
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Active
+              </p>
             </div>
             <p className="text-3xl font-bold text-green-600 dark:text-green-400">{activeSystems}</p>
           </div>
           <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-1">
               <Clock className="w-4 h-4 text-yellow-500" />
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Under Review</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Under Review
+              </p>
             </div>
-            <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">{underReviewSystems}</p>
+            <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+              {underReviewSystems}
+            </p>
           </div>
           <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-1">
               <AlertCircle className="w-4 h-4 text-orange-500" />
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">High/Critical Risk</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                High/Critical Risk
+              </p>
             </div>
-            <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">{highRiskSystems}</p>
+            <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+              {highRiskSystems}
+            </p>
           </div>
           <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-1">
               <Calendar className="w-4 h-4 text-red-500" />
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Overdue Reviews</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Overdue Reviews
+              </p>
             </div>
             <p className="text-3xl font-bold text-red-600 dark:text-red-400">{overdueReviews}</p>
           </div>
@@ -522,7 +613,9 @@ export default function AISystemRegisterPage() {
             >
               <option value="">All Statuses</option>
               {statusOptions.map((s) => (
-                <option key={s} value={s}>{formatLabel(s)}</option>
+                <option key={s} value={s}>
+                  {formatLabel(s)}
+                </option>
               ))}
             </select>
             <select
@@ -532,7 +625,9 @@ export default function AISystemRegisterPage() {
             >
               <option value="">All Risk Levels</option>
               {riskLevelOptions.map((r) => (
-                <option key={r} value={r}>{formatLabel(r)}</option>
+                <option key={r} value={r}>
+                  {formatLabel(r)}
+                </option>
               ))}
             </select>
             <select
@@ -542,12 +637,18 @@ export default function AISystemRegisterPage() {
             >
               <option value="">All Providers</option>
               {providerOptions.map((p) => (
-                <option key={p} value={p}>{p}</option>
+                <option key={p} value={p}>
+                  {p}
+                </option>
               ))}
             </select>
             {(filterStatus || filterRisk || filterProvider) && (
               <button
-                onClick={() => { setFilterStatus(''); setFilterRisk(''); setFilterProvider(''); }}
+                onClick={() => {
+                  setFilterStatus('');
+                  setFilterRisk('');
+                  setFilterProvider('');
+                }}
                 className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
               >
                 Clear filters
@@ -563,7 +664,10 @@ export default function AISystemRegisterPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse bg-card border border-border rounded-xl p-6 h-64" />
+              <div
+                key={i}
+                className="animate-pulse bg-card border border-border rounded-xl p-6 h-64"
+              />
             ))}
           </div>
         ) : filtered.length === 0 ? (
@@ -599,19 +703,26 @@ export default function AISystemRegisterPage() {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-sm font-semibold text-foreground truncate">{system.name}</h3>
+                          <h3 className="text-sm font-semibold text-foreground truncate">
+                            {system.name}
+                          </h3>
                         </div>
                         {system.provider && (
                           <p className="text-xs text-muted-foreground">
-                            {system.provider}{system.model ? ` -- ${system.model}` : ''}
+                            {system.provider}
+                            {system.model ? ` -- ${system.model}` : ''}
                           </p>
                         )}
                       </div>
                       <div className="flex flex-col items-end gap-1 ml-2">
-                        <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${riskLevelColors[system.riskLevel] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+                        <span
+                          className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${riskLevelColors[system.riskLevel] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                        >
                           {formatLabel(system.riskLevel)} RISK
                         </span>
-                        <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${statusColors[system.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+                        <span
+                          className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${statusColors[system.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                        >
                           {formatLabel(system.status)}
                         </span>
                       </div>
@@ -640,7 +751,9 @@ export default function AISystemRegisterPage() {
                       )}
                       {system.humanOversight && (
                         <div className="bg-muted/50 rounded-lg px-2 py-1.5 text-center">
-                          <span className={`inline-flex rounded px-1.5 py-0.5 text-[9px] font-medium ${oversightColors[system.humanOversight] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+                          <span
+                            className={`inline-flex rounded px-1.5 py-0.5 text-[9px] font-medium ${oversightColors[system.humanOversight] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                          >
                             {formatLabel(system.humanOversight).replace('Human ', '')}
                           </span>
                           <p className="text-[10px] text-muted-foreground mt-0.5">Oversight</p>
@@ -650,19 +763,20 @@ export default function AISystemRegisterPage() {
 
                     {/* Review Schedule */}
                     {system.nextReviewDate && (
-                      <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs mb-3 ${
-                        overdue
-                          ? 'bg-red-50 border border-red-200 text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'
-                          : reviewDays !== null && reviewDays <= 30
-                            ? 'bg-yellow-50 border border-yellow-200 text-yellow-700 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-400'
-                            : 'bg-muted/50 text-muted-foreground'
-                      }`}>
+                      <div
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs mb-3 ${
+                          overdue
+                            ? 'bg-red-50 border border-red-200 text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'
+                            : reviewDays !== null && reviewDays <= 30
+                              ? 'bg-yellow-50 border border-yellow-200 text-yellow-700 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-400'
+                              : 'bg-muted/50 text-muted-foreground'
+                        }`}
+                      >
                         <Calendar className="w-3.5 h-3.5" />
                         <span>
                           {overdue
                             ? `Review overdue (${Math.abs(reviewDays || 0)} days ago)`
-                            : `Next review: ${formatDate(system.nextReviewDate)}${reviewDays !== null ? ` (${reviewDays} days)` : ''}`
-                          }
+                            : `Next review: ${formatDate(system.nextReviewDate)}${reviewDays !== null ? ` (${reviewDays} days)` : ''}`}
                         </span>
                       </div>
                     )}
@@ -673,38 +787,58 @@ export default function AISystemRegisterPage() {
                         <div className="grid grid-cols-2 gap-2 text-xs">
                           <div>
                             <span className="text-muted-foreground">Owner:</span>
-                            <span className="ml-1 text-foreground font-medium">{system.owner || '--'}</span>
+                            <span className="ml-1 text-foreground font-medium">
+                              {system.owner || '--'}
+                            </span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Impact:</span>
-                            <span className="ml-1 text-foreground font-medium">{formatLabel(system.impactLevel || '--')}</span>
+                            <span className="ml-1 text-foreground font-medium">
+                              {formatLabel(system.impactLevel || '--')}
+                            </span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Retention:</span>
-                            <span className="ml-1 text-foreground font-medium">{formatLabel(system.dataRetention || '--')}</span>
+                            <span className="ml-1 text-foreground font-medium">
+                              {formatLabel(system.dataRetention || '--')}
+                            </span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Review Freq:</span>
-                            <span className="ml-1 text-foreground font-medium">{formatLabel(system.reviewFrequency || '--')}</span>
+                            <span className="ml-1 text-foreground font-medium">
+                              {formatLabel(system.reviewFrequency || '--')}
+                            </span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Deployed:</span>
-                            <span className="ml-1 text-foreground font-medium">{formatDate(system.deploymentDate)}</span>
+                            <span className="ml-1 text-foreground font-medium">
+                              {formatDate(system.deploymentDate)}
+                            </span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Last Review:</span>
-                            <span className="ml-1 text-foreground font-medium">{formatDate(system.lastReviewDate)}</span>
+                            <span className="ml-1 text-foreground font-medium">
+                              {formatDate(system.lastReviewDate)}
+                            </span>
                           </div>
                         </div>
                         {system.analysisTypes && (
                           <div className="mt-2">
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Analysis Types</p>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                              Analysis Types
+                            </p>
                             <div className="flex flex-wrap gap-1">
-                              {system.analysisTypes.split(',').slice(0, 8).map((t) => (
-                                <span key={t.trim()} className="inline-flex px-1.5 py-0.5 text-[10px] bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 rounded">
-                                  {t.trim()}
-                                </span>
-                              ))}
+                              {system.analysisTypes
+                                .split(',')
+                                .slice(0, 8)
+                                .map((t) => (
+                                  <span
+                                    key={t.trim()}
+                                    className="inline-flex px-1.5 py-0.5 text-[10px] bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 rounded"
+                                  >
+                                    {t.trim()}
+                                  </span>
+                                ))}
                               {system.analysisTypes.split(',').length > 8 && (
                                 <span className="inline-flex px-1.5 py-0.5 text-[10px] bg-muted text-muted-foreground rounded">
                                   +{system.analysisTypes.split(',').length - 8} more
@@ -723,7 +857,11 @@ export default function AISystemRegisterPage() {
                       onClick={() => setExpandedCard(isExpanded ? null : system.id)}
                       className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      {isExpanded ? (
+                        <ChevronUp className="w-3.5 h-3.5" />
+                      ) : (
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      )}
                       {isExpanded ? 'Less' : 'More'}
                     </button>
                     <div className="flex items-center gap-2">
@@ -766,7 +904,8 @@ export default function AISystemRegisterPage() {
       >
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Select a pre-configured AI system template to quickly register a new system. You can modify the details before saving.
+            Select a pre-configured AI system template to quickly register a new system. You can
+            modify the details before saving.
           </p>
           {prePopulatedSystems.map((template, idx) => (
             <button
@@ -776,7 +915,9 @@ export default function AISystemRegisterPage() {
             >
               <div className="flex items-center justify-between mb-1">
                 <h4 className="text-sm font-semibold text-foreground">{template.name}</h4>
-                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${riskLevelColors[template.riskLevel || 'LOW']}`}>
+                <span
+                  className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${riskLevelColors[template.riskLevel || 'LOW']}`}
+                >
                   {formatLabel(template.riskLevel || 'LOW')}
                 </span>
               </div>
@@ -823,45 +964,105 @@ export default function AISystemRegisterPage() {
           {formStep === 0 && (
             <div className="space-y-3">
               <div>
-                <label className={labelClass}>System Name <span className="text-red-500">*</span></label>
-                <input type="text" value={form.name} onChange={(e) => handleFormChange('name', e.target.value)} className={inputClass} placeholder="e.g. Claude (Anthropic)" required />
+                <label className={labelClass}>
+                  System Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={(e) => handleFormChange('name', e.target.value)}
+                  className={inputClass}
+                  placeholder="e.g. Claude (Anthropic)"
+                  required
+                />
               </div>
               <div>
                 <label className={labelClass}>Description</label>
-                <textarea value={form.description} onChange={(e) => handleFormChange('description', e.target.value)} className={inputClass} rows={2} placeholder="Brief description of what this system does" />
+                <textarea
+                  value={form.description}
+                  onChange={(e) => handleFormChange('description', e.target.value)}
+                  className={inputClass}
+                  rows={2}
+                  placeholder="Brief description of what this system does"
+                />
               </div>
               <div>
                 <label className={labelClass}>Purpose</label>
-                <textarea value={form.purpose} onChange={(e) => handleFormChange('purpose', e.target.value)} className={inputClass} rows={2} placeholder="What business problem does this system solve?" />
+                <textarea
+                  value={form.purpose}
+                  onChange={(e) => handleFormChange('purpose', e.target.value)}
+                  className={inputClass}
+                  rows={2}
+                  placeholder="What business problem does this system solve?"
+                />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className={labelClass}>AI Type</label>
-                  <select value={form.aiType} onChange={(e) => handleFormChange('aiType', e.target.value)} className={inputClass}>
-                    {aiTypeOptions.map((t) => <option key={t} value={t}>{formatLabel(t)}</option>)}
+                  <select
+                    value={form.aiType}
+                    onChange={(e) => handleFormChange('aiType', e.target.value)}
+                    className={inputClass}
+                  >
+                    {aiTypeOptions.map((t) => (
+                      <option key={t} value={t}>
+                        {formatLabel(t)}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label className={labelClass}>Risk Level</label>
-                  <select value={form.riskLevel} onChange={(e) => handleFormChange('riskLevel', e.target.value)} className={inputClass}>
-                    {riskLevelOptions.map((r) => <option key={r} value={r}>{formatLabel(r)}</option>)}
+                  <select
+                    value={form.riskLevel}
+                    onChange={(e) => handleFormChange('riskLevel', e.target.value)}
+                    className={inputClass}
+                  >
+                    {riskLevelOptions.map((r) => (
+                      <option key={r} value={r}>
+                        {formatLabel(r)}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label className={labelClass}>Status</label>
-                  <select value={form.status} onChange={(e) => handleFormChange('status', e.target.value)} className={inputClass}>
-                    {statusOptions.map((s) => <option key={s} value={s}>{formatLabel(s)}</option>)}
+                  <select
+                    value={form.status}
+                    onChange={(e) => handleFormChange('status', e.target.value)}
+                    className={inputClass}
+                  >
+                    {statusOptions.map((s) => (
+                      <option key={s} value={s}>
+                        {formatLabel(s)}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className={labelClass}>Owner <span className="text-red-500">*</span></label>
-                  <input type="text" value={form.owner} onChange={(e) => handleFormChange('owner', e.target.value)} className={inputClass} placeholder="Responsible team or person" required />
+                  <label className={labelClass}>
+                    Owner <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={form.owner}
+                    onChange={(e) => handleFormChange('owner', e.target.value)}
+                    className={inputClass}
+                    placeholder="Responsible team or person"
+                    required
+                  />
                 </div>
                 <div>
                   <label className={labelClass}>Vendor</label>
-                  <input type="text" value={form.vendor} onChange={(e) => handleFormChange('vendor', e.target.value)} className={inputClass} placeholder="Third-party vendor name" />
+                  <input
+                    type="text"
+                    value={form.vendor}
+                    onChange={(e) => handleFormChange('vendor', e.target.value)}
+                    className={inputClass}
+                    placeholder="Third-party vendor name"
+                  />
                 </div>
               </div>
             </div>
@@ -873,29 +1074,54 @@ export default function AISystemRegisterPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className={labelClass}>Provider</label>
-                  <select value={form.provider} onChange={(e) => handleFormChange('provider', e.target.value)} className={inputClass}>
+                  <select
+                    value={form.provider}
+                    onChange={(e) => handleFormChange('provider', e.target.value)}
+                    className={inputClass}
+                  >
                     <option value="">Select provider...</option>
-                    {providerOptions.map((p) => <option key={p} value={p}>{p}</option>)}
+                    {providerOptions.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label className={labelClass}>Model</label>
-                  <input type="text" value={form.model} onChange={(e) => handleFormChange('model', e.target.value)} className={inputClass} placeholder="e.g. Claude Opus 4, GPT-4o, Grok-2" />
+                  <input
+                    type="text"
+                    value={form.model}
+                    onChange={(e) => handleFormChange('model', e.target.value)}
+                    className={inputClass}
+                    placeholder="e.g. Claude Opus 4, GPT-4o, Grok-2"
+                  />
                 </div>
               </div>
               <div>
                 <label className={labelClass}>Analysis Types</label>
-                <p className="text-xs text-muted-foreground mb-2">Select the analysis types this system performs, or type custom ones (comma-separated).</p>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Select the analysis types this system performs, or type custom ones
+                  (comma-separated).
+                </p>
                 <div className="flex flex-wrap gap-1.5 mb-2 max-h-32 overflow-y-auto p-2 border border-border rounded-lg bg-muted/30">
                   {allAnalysisTypes.map((type) => {
-                    const selected = form.analysisTypes.split(',').map(s => s.trim()).includes(type);
+                    const selected = form.analysisTypes
+                      .split(',')
+                      .map((s) => s.trim())
+                      .includes(type);
                     return (
                       <button
                         key={type}
                         type="button"
                         onClick={() => {
-                          const current = form.analysisTypes.split(',').map(s => s.trim()).filter(Boolean);
-                          const updated = selected ? current.filter(t => t !== type) : [...current, type];
+                          const current = form.analysisTypes
+                            .split(',')
+                            .map((s) => s.trim())
+                            .filter(Boolean);
+                          const updated = selected
+                            ? current.filter((t) => t !== type)
+                            : [...current, type];
                           handleFormChange('analysisTypes', updated.join(', '));
                         }}
                         className={`px-2 py-0.5 text-[10px] rounded-full transition-colors ${
@@ -909,21 +1135,37 @@ export default function AISystemRegisterPage() {
                     );
                   })}
                 </div>
-                <textarea value={form.analysisTypes} onChange={(e) => handleFormChange('analysisTypes', e.target.value)} className={inputClass} rows={2} placeholder="Comma-separated analysis types" />
+                <textarea
+                  value={form.analysisTypes}
+                  onChange={(e) => handleFormChange('analysisTypes', e.target.value)}
+                  className={inputClass}
+                  rows={2}
+                  placeholder="Comma-separated analysis types"
+                />
               </div>
               <div>
                 <label className={labelClass}>Modules</label>
-                <p className="text-xs text-muted-foreground mb-2">Select the IMS modules this AI system serves.</p>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Select the IMS modules this AI system serves.
+                </p>
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {moduleOptions.map((mod) => {
-                    const selected = form.modules.split(',').map(s => s.trim()).includes(mod);
+                    const selected = form.modules
+                      .split(',')
+                      .map((s) => s.trim())
+                      .includes(mod);
                     return (
                       <button
                         key={mod}
                         type="button"
                         onClick={() => {
-                          const current = form.modules.split(',').map(s => s.trim()).filter(Boolean);
-                          const updated = selected ? current.filter(m => m !== mod) : [...current, mod];
+                          const current = form.modules
+                            .split(',')
+                            .map((s) => s.trim())
+                            .filter(Boolean);
+                          const updated = selected
+                            ? current.filter((m) => m !== mod)
+                            : [...current, mod];
                           handleFormChange('modules', updated.join(', '));
                         }}
                         className={`px-2 py-0.5 text-[10px] rounded-full transition-colors ${
@@ -947,50 +1189,109 @@ export default function AISystemRegisterPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className={labelClass}>Impact Level</label>
-                  <select value={form.impactLevel} onChange={(e) => handleFormChange('impactLevel', e.target.value)} className={inputClass}>
-                    {impactLevelOptions.map((l) => <option key={l} value={l}>{formatLabel(l)}</option>)}
+                  <select
+                    value={form.impactLevel}
+                    onChange={(e) => handleFormChange('impactLevel', e.target.value)}
+                    className={inputClass}
+                  >
+                    {impactLevelOptions.map((l) => (
+                      <option key={l} value={l}>
+                        {formatLabel(l)}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label className={labelClass}>Human Oversight</label>
-                  <select value={form.humanOversight} onChange={(e) => handleFormChange('humanOversight', e.target.value)} className={inputClass}>
-                    {humanOversightOptions.map((h) => <option key={h} value={h}>{formatLabel(h)}</option>)}
+                  <select
+                    value={form.humanOversight}
+                    onChange={(e) => handleFormChange('humanOversight', e.target.value)}
+                    className={inputClass}
+                  >
+                    {humanOversightOptions.map((h) => (
+                      <option key={h} value={h}>
+                        {formatLabel(h)}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
               <div className="p-3 rounded-lg bg-indigo-50 border border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-800 text-xs text-indigo-700 dark:text-indigo-400 space-y-1">
                 <p className="font-semibold">Human Oversight Levels (ISO 42001 A.8.5):</p>
-                <p><strong>Human-in-the-Loop:</strong> Human approves every AI output before action is taken.</p>
-                <p><strong>Human-on-the-Loop:</strong> AI acts autonomously, human monitors and can intervene.</p>
-                <p><strong>Human-in-Command:</strong> Human has full control and can override/disable the system.</p>
-                <p><strong>Full Autonomy:</strong> System operates without human intervention (highest risk).</p>
+                <p>
+                  <strong>Human-in-the-Loop:</strong> Human approves every AI output before action
+                  is taken.
+                </p>
+                <p>
+                  <strong>Human-on-the-Loop:</strong> AI acts autonomously, human monitors and can
+                  intervene.
+                </p>
+                <p>
+                  <strong>Human-in-Command:</strong> Human has full control and can override/disable
+                  the system.
+                </p>
+                <p>
+                  <strong>Full Autonomy:</strong> System operates without human intervention
+                  (highest risk).
+                </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className={labelClass}>Data Retention</label>
-                  <select value={form.dataRetention} onChange={(e) => handleFormChange('dataRetention', e.target.value)} className={inputClass}>
-                    {dataRetentionOptions.map((d) => <option key={d} value={d}>{formatLabel(d)}</option>)}
+                  <select
+                    value={form.dataRetention}
+                    onChange={(e) => handleFormChange('dataRetention', e.target.value)}
+                    className={inputClass}
+                  >
+                    {dataRetentionOptions.map((d) => (
+                      <option key={d} value={d}>
+                        {formatLabel(d)}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label className={labelClass}>Review Frequency</label>
-                  <select value={form.reviewFrequency} onChange={(e) => handleFormChange('reviewFrequency', e.target.value)} className={inputClass}>
-                    {reviewFrequencyOptions.map((r) => <option key={r} value={r}>{formatLabel(r)}</option>)}
+                  <select
+                    value={form.reviewFrequency}
+                    onChange={(e) => handleFormChange('reviewFrequency', e.target.value)}
+                    className={inputClass}
+                  >
+                    {reviewFrequencyOptions.map((r) => (
+                      <option key={r} value={r}>
+                        {formatLabel(r)}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className={labelClass}>Deployment Date</label>
-                  <input type="date" value={form.deploymentDate} onChange={(e) => handleFormChange('deploymentDate', e.target.value)} className={inputClass} />
+                  <input
+                    type="date"
+                    value={form.deploymentDate}
+                    onChange={(e) => handleFormChange('deploymentDate', e.target.value)}
+                    className={inputClass}
+                  />
                 </div>
                 <div>
                   <label className={labelClass}>Last Review Date</label>
-                  <input type="date" value={form.lastReviewDate} onChange={(e) => handleFormChange('lastReviewDate', e.target.value)} className={inputClass} />
+                  <input
+                    type="date"
+                    value={form.lastReviewDate}
+                    onChange={(e) => handleFormChange('lastReviewDate', e.target.value)}
+                    className={inputClass}
+                  />
                 </div>
                 <div>
                   <label className={labelClass}>Next Review Date</label>
-                  <input type="date" value={form.nextReviewDate} onChange={(e) => handleFormChange('nextReviewDate', e.target.value)} className={inputClass} />
+                  <input
+                    type="date"
+                    value={form.nextReviewDate}
+                    onChange={(e) => handleFormChange('nextReviewDate', e.target.value)}
+                    className={inputClass}
+                  />
                 </div>
               </div>
             </div>
@@ -1001,15 +1302,33 @@ export default function AISystemRegisterPage() {
             <div className="space-y-3">
               <div>
                 <label className={labelClass}>Data Types Processed</label>
-                <textarea value={form.dataTypes} onChange={(e) => handleFormChange('dataTypes', e.target.value)} className={inputClass} rows={2} placeholder="e.g. Personal data, financial records, images" />
+                <textarea
+                  value={form.dataTypes}
+                  onChange={(e) => handleFormChange('dataTypes', e.target.value)}
+                  className={inputClass}
+                  rows={2}
+                  placeholder="e.g. Personal data, financial records, images"
+                />
               </div>
               <div>
                 <label className={labelClass}>Training Data Description</label>
-                <textarea value={form.trainingData} onChange={(e) => handleFormChange('trainingData', e.target.value)} className={inputClass} rows={2} placeholder="Describe the training dataset, its source, and any preprocessing" />
+                <textarea
+                  value={form.trainingData}
+                  onChange={(e) => handleFormChange('trainingData', e.target.value)}
+                  className={inputClass}
+                  rows={2}
+                  placeholder="Describe the training dataset, its source, and any preprocessing"
+                />
               </div>
               <div>
                 <label className={labelClass}>Known Limitations</label>
-                <textarea value={form.limitations} onChange={(e) => handleFormChange('limitations', e.target.value)} className={inputClass} rows={3} placeholder="Document any known limitations, biases, or failure modes" />
+                <textarea
+                  value={form.limitations}
+                  onChange={(e) => handleFormChange('limitations', e.target.value)}
+                  className={inputClass}
+                  rows={3}
+                  placeholder="Document any known limitations, biases, or failure modes"
+                />
               </div>
             </div>
           )}
@@ -1018,21 +1337,37 @@ export default function AISystemRegisterPage() {
           <div className="flex items-center justify-between pt-2 border-t border-border">
             <div className="flex gap-2">
               {formStep > 0 && (
-                <button type="button" onClick={() => setFormStep(formStep - 1)} className="px-4 py-2 text-sm font-medium border border-border text-foreground rounded-lg hover:bg-muted transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setFormStep(formStep - 1)}
+                  className="px-4 py-2 text-sm font-medium border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
+                >
                   Previous
                 </button>
               )}
             </div>
             <div className="flex gap-2">
-              <button type="button" onClick={() => setAddEditOpen(false)} className="px-4 py-2 text-sm font-medium border border-border text-foreground rounded-lg hover:bg-muted transition-colors">
+              <button
+                type="button"
+                onClick={() => setAddEditOpen(false)}
+                className="px-4 py-2 text-sm font-medium border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
+              >
                 Cancel
               </button>
               {formStep < formSteps.length - 1 ? (
-                <button type="button" onClick={() => setFormStep(formStep + 1)} className="px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setFormStep(formStep + 1)}
+                  className="px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+                >
                   Next
                 </button>
               ) : (
-                <button type="submit" disabled={saving} className="px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white rounded-lg transition-colors">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white rounded-lg transition-colors"
+                >
                   {saving ? 'Saving...' : editingSystem ? 'Update System' : 'Register System'}
                 </button>
               )}
@@ -1052,14 +1387,20 @@ export default function AISystemRegisterPage() {
           <div className="space-y-5">
             {/* Badges row */}
             <div className="flex flex-wrap gap-2">
-              <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${riskLevelColors[viewingSystem.riskLevel] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+              <span
+                className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${riskLevelColors[viewingSystem.riskLevel] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+              >
                 Risk: {formatLabel(viewingSystem.riskLevel)}
               </span>
-              <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[viewingSystem.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+              <span
+                className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[viewingSystem.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+              >
                 {formatLabel(viewingSystem.status)}
               </span>
               {viewingSystem.humanOversight && (
-                <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${oversightColors[viewingSystem.humanOversight] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+                <span
+                  className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${oversightColors[viewingSystem.humanOversight] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                >
                   {formatLabel(viewingSystem.humanOversight)}
                 </span>
               )}
@@ -1100,10 +1441,30 @@ export default function AISystemRegisterPage() {
                   </div>
                 )}
                 <div className="grid grid-cols-2 gap-3">
-                  <div><dt className="text-xs text-muted-foreground">Provider</dt><dd className="text-sm font-medium text-foreground mt-0.5">{viewingSystem.provider || '--'}</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Model</dt><dd className="text-sm font-medium text-foreground mt-0.5">{viewingSystem.model || '--'}</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Owner</dt><dd className="text-sm font-medium text-foreground mt-0.5">{viewingSystem.owner || '--'}</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Vendor</dt><dd className="text-sm font-medium text-foreground mt-0.5">{viewingSystem.vendor || '--'}</dd></div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Provider</dt>
+                    <dd className="text-sm font-medium text-foreground mt-0.5">
+                      {viewingSystem.provider || '--'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Model</dt>
+                    <dd className="text-sm font-medium text-foreground mt-0.5">
+                      {viewingSystem.model || '--'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Owner</dt>
+                    <dd className="text-sm font-medium text-foreground mt-0.5">
+                      {viewingSystem.owner || '--'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Vendor</dt>
+                    <dd className="text-sm font-medium text-foreground mt-0.5">
+                      {viewingSystem.vendor || '--'}
+                    </dd>
+                  </div>
                 </div>
               </div>
             )}
@@ -1112,10 +1473,15 @@ export default function AISystemRegisterPage() {
               <div className="space-y-4">
                 {viewingSystem.analysisTypes ? (
                   <div>
-                    <p className="text-xs text-muted-foreground mb-2">Analysis Types ({viewingSystem.analysisTypes.split(',').length})</p>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Analysis Types ({viewingSystem.analysisTypes.split(',').length})
+                    </p>
                     <div className="flex flex-wrap gap-1.5">
                       {viewingSystem.analysisTypes.split(',').map((t) => (
-                        <span key={t.trim()} className="inline-flex px-2 py-1 text-xs bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-md">
+                        <span
+                          key={t.trim()}
+                          className="inline-flex px-2 py-1 text-xs bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-md"
+                        >
                           {t.trim()}
                         </span>
                       ))}
@@ -1126,10 +1492,15 @@ export default function AISystemRegisterPage() {
                 )}
                 {viewingSystem.modules ? (
                   <div>
-                    <p className="text-xs text-muted-foreground mb-2">Modules ({viewingSystem.modules.split(',').length})</p>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Modules ({viewingSystem.modules.split(',').length})
+                    </p>
                     <div className="flex flex-wrap gap-1.5">
                       {viewingSystem.modules.split(',').map((m) => (
-                        <span key={m.trim()} className="inline-flex px-2 py-1 text-xs bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-md">
+                        <span
+                          key={m.trim()}
+                          className="inline-flex px-2 py-1 text-xs bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-md"
+                        >
                           {m.trim()}
                         </span>
                       ))}
@@ -1144,16 +1515,42 @@ export default function AISystemRegisterPage() {
             {viewTab === 'governance' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <div><dt className="text-xs text-muted-foreground">Impact Level</dt><dd className="text-sm font-medium text-foreground mt-0.5">{formatLabel(viewingSystem.impactLevel || '--')}</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Human Oversight</dt><dd className="text-sm font-medium text-foreground mt-0.5">{formatLabel(viewingSystem.humanOversight || '--')}</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Data Retention</dt><dd className="text-sm font-medium text-foreground mt-0.5">{formatLabel(viewingSystem.dataRetention || '--')}</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Review Frequency</dt><dd className="text-sm font-medium text-foreground mt-0.5">{formatLabel(viewingSystem.reviewFrequency || '--')}</dd></div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Impact Level</dt>
+                    <dd className="text-sm font-medium text-foreground mt-0.5">
+                      {formatLabel(viewingSystem.impactLevel || '--')}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Human Oversight</dt>
+                    <dd className="text-sm font-medium text-foreground mt-0.5">
+                      {formatLabel(viewingSystem.humanOversight || '--')}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Data Retention</dt>
+                    <dd className="text-sm font-medium text-foreground mt-0.5">
+                      {formatLabel(viewingSystem.dataRetention || '--')}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Review Frequency</dt>
+                    <dd className="text-sm font-medium text-foreground mt-0.5">
+                      {formatLabel(viewingSystem.reviewFrequency || '--')}
+                    </dd>
+                  </div>
                 </div>
                 {viewingSystem.dataTypes && (
-                  <div><dt className="text-xs text-muted-foreground">Data Types Processed</dt><dd className="text-sm text-foreground mt-0.5">{viewingSystem.dataTypes}</dd></div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Data Types Processed</dt>
+                    <dd className="text-sm text-foreground mt-0.5">{viewingSystem.dataTypes}</dd>
+                  </div>
                 )}
                 {viewingSystem.trainingData && (
-                  <div><dt className="text-xs text-muted-foreground">Training Data</dt><dd className="text-sm text-foreground mt-0.5">{viewingSystem.trainingData}</dd></div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Training Data</dt>
+                    <dd className="text-sm text-foreground mt-0.5">{viewingSystem.trainingData}</dd>
+                  </div>
                 )}
                 {viewingSystem.limitations && (
                   <div>
@@ -1169,18 +1566,49 @@ export default function AISystemRegisterPage() {
             {viewTab === 'review' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <div><dt className="text-xs text-muted-foreground">Deployment Date</dt><dd className="text-sm font-medium text-foreground mt-0.5">{formatDate(viewingSystem.deploymentDate)}</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Last Review Date</dt><dd className="text-sm font-medium text-foreground mt-0.5">{formatDate(viewingSystem.lastReviewDate)}</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Next Review Date</dt><dd className="text-sm font-medium text-foreground mt-0.5">{formatDate(viewingSystem.nextReviewDate)}</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Review Frequency</dt><dd className="text-sm font-medium text-foreground mt-0.5">{formatLabel(viewingSystem.reviewFrequency || '--')}</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Registered</dt><dd className="text-sm font-medium text-foreground mt-0.5">{formatDate(viewingSystem.createdAt)}</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Last Updated</dt><dd className="text-sm font-medium text-foreground mt-0.5">{formatDate(viewingSystem.updatedAt)}</dd></div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Deployment Date</dt>
+                    <dd className="text-sm font-medium text-foreground mt-0.5">
+                      {formatDate(viewingSystem.deploymentDate)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Last Review Date</dt>
+                    <dd className="text-sm font-medium text-foreground mt-0.5">
+                      {formatDate(viewingSystem.lastReviewDate)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Next Review Date</dt>
+                    <dd className="text-sm font-medium text-foreground mt-0.5">
+                      {formatDate(viewingSystem.nextReviewDate)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Review Frequency</dt>
+                    <dd className="text-sm font-medium text-foreground mt-0.5">
+                      {formatLabel(viewingSystem.reviewFrequency || '--')}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Registered</dt>
+                    <dd className="text-sm font-medium text-foreground mt-0.5">
+                      {formatDate(viewingSystem.createdAt)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Last Updated</dt>
+                    <dd className="text-sm font-medium text-foreground mt-0.5">
+                      {formatDate(viewingSystem.updatedAt)}
+                    </dd>
+                  </div>
                 </div>
                 {isReviewOverdue(viewingSystem.nextReviewDate) && (
                   <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800">
                     <RotateCcw className="w-4 h-4 text-red-500" />
                     <p className="text-sm text-red-700 dark:text-red-400 font-medium">
-                      This system's review is overdue. The next review was due {formatDate(viewingSystem.nextReviewDate)}.
+                      This system's review is overdue. The next review was due{' '}
+                      {formatDate(viewingSystem.nextReviewDate)}.
                     </p>
                   </div>
                 )}
@@ -1190,7 +1618,10 @@ export default function AISystemRegisterPage() {
             {/* Footer actions */}
             <div className="flex justify-end gap-3 pt-2 border-t border-border">
               <button
-                onClick={() => { setViewOpen(false); openEditModal(viewingSystem); }}
+                onClick={() => {
+                  setViewOpen(false);
+                  openEditModal(viewingSystem);
+                }}
                 className="px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
               >
                 Edit System
@@ -1217,18 +1648,28 @@ export default function AISystemRegisterPage() {
           <div className="flex items-start gap-3 p-3 rounded-lg bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800">
             <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-red-700 dark:text-red-400">This action cannot be undone</p>
+              <p className="text-sm font-medium text-red-700 dark:text-red-400">
+                This action cannot be undone
+              </p>
               <p className="text-sm text-red-600 dark:text-red-300 mt-1">
                 You are about to permanently delete{' '}
-                <span className="font-semibold">{deletingSystem?.name}</span> from the AI System Register.
+                <span className="font-semibold">{deletingSystem?.name}</span> from the AI System
+                Register.
               </p>
             </div>
           </div>
           <div className="flex justify-end gap-3">
-            <button onClick={() => setDeleteOpen(false)} className="px-4 py-2 text-sm font-medium border border-border text-foreground rounded-lg hover:bg-muted transition-colors">
+            <button
+              onClick={() => setDeleteOpen(false)}
+              className="px-4 py-2 text-sm font-medium border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
+            >
               Cancel
             </button>
-            <button onClick={handleDelete} disabled={saving} className="px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white rounded-lg transition-colors">
+            <button
+              onClick={handleDelete}
+              disabled={saving}
+              className="px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white rounded-lg transition-colors"
+            >
               {saving ? 'Deleting...' : 'Delete System'}
             </button>
           </div>

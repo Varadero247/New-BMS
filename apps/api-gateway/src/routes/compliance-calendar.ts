@@ -14,26 +14,39 @@ router.use(authenticate);
 // Constants
 // ---------------------------------------------------------------------------
 const VALID_STANDARDS = [
-  'ISO_9001_CAL', 'ISO_14001_CAL', 'ISO_45001_CAL',
-  'IATF_16949', 'AS9100D', 'ISO_13485', 'COMBINED',
+  'ISO_9001_CAL',
+  'ISO_14001_CAL',
+  'ISO_45001_CAL',
+  'IATF_16949',
+  'AS9100D',
+  'ISO_13485',
+  'COMBINED',
 ] as const;
 
 const VALID_EVENT_TYPES = [
-  'AUDIT', 'LEGAL_REVIEW', 'OBJECTIVE_REVIEW', 'CAPA_DUE',
-  'MANAGEMENT_REVIEW', 'CERT_EXPIRY', 'CALIBRATION_DUE',
-  'TRAINING_EXPIRY', 'PPAP_GATE', 'FAI_DUE', 'REGULATORY_SUBMISSION',
+  'AUDIT',
+  'LEGAL_REVIEW',
+  'OBJECTIVE_REVIEW',
+  'CAPA_DUE',
+  'MANAGEMENT_REVIEW',
+  'CERT_EXPIRY',
+  'CALIBRATION_DUE',
+  'TRAINING_EXPIRY',
+  'PPAP_GATE',
+  'FAI_DUE',
+  'REGULATORY_SUBMISSION',
 ] as const;
 
 const VALID_STATUSES = ['UPCOMING', 'DUE_SOON', 'OVERDUE', 'COMPLETED'] as const;
 
 const STANDARD_COLORS: Record<string, string> = {
-  ISO_9001_CAL: '#3b82f6',   // blue
-  ISO_14001_CAL: '#22c55e',  // green
-  ISO_45001_CAL: '#f97316',  // orange
-  IATF_16949: '#ef4444',     // red
-  AS9100D: '#a855f7',        // purple
-  ISO_13485: '#14b8a6',      // teal
-  COMBINED: '#6b7280',       // gray
+  ISO_9001_CAL: '#3b82f6', // blue
+  ISO_14001_CAL: '#22c55e', // green
+  ISO_45001_CAL: '#f97316', // orange
+  IATF_16949: '#ef4444', // red
+  AS9100D: '#a855f7', // purple
+  ISO_13485: '#14b8a6', // teal
+  COMBINED: '#6b7280', // gray
 };
 
 // ---------------------------------------------------------------------------
@@ -86,8 +99,15 @@ const updateEventSchema = z.object({
   type: z.enum(VALID_EVENT_TYPES).optional(),
   standard: z.enum(VALID_STANDARDS).optional(),
   status: z.enum(VALID_STATUSES).optional(),
-  dueDate: z.string().refine((d) => !isNaN(Date.parse(d)), 'Invalid date').optional(),
-  completedAt: z.string().refine((d) => !isNaN(Date.parse(d)), 'Invalid date').nullable().optional(),
+  dueDate: z
+    .string()
+    .refine((d) => !isNaN(Date.parse(d)), 'Invalid date')
+    .optional(),
+  completedAt: z
+    .string()
+    .refine((d) => !isNaN(Date.parse(d)), 'Invalid date')
+    .nullable()
+    .optional(),
   assigneeId: z.string().optional(),
   assignee: z.string().max(200).optional(),
   location: z.string().max(500).optional(),
@@ -100,11 +120,7 @@ const updateEventSchema = z.object({
 // ---------------------------------------------------------------------------
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    const {
-      standard, type, status,
-      startDate, endDate,
-      page = '1', limit = '50',
-    } = req.query;
+    const { standard, type, status, startDate, endDate, page = '1', limit = '50' } = req.query;
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 50), 200);
@@ -197,7 +213,8 @@ router.get('/upcoming', async (req: AuthRequest, res: Response) => {
         events: enriched,
         summary: {
           total: enriched.length,
-          dueSoon: enriched.filter((e: Record<string, any>) => e.computedStatus === 'DUE_SOON').length,
+          dueSoon: enriched.filter((e: Record<string, any>) => e.computedStatus === 'DUE_SOON')
+            .length,
           byStandard,
           byType,
         },
@@ -301,9 +318,8 @@ router.put('/events/:id', async (req: AuthRequest, res: Response) => {
 
     // Recompute status based on updated dueDate / completedAt
     const finalDueDate = updateData.dueDate || existing.dueDate;
-    const finalCompletedAt = updateData.completedAt !== undefined
-      ? updateData.completedAt
-      : existing.completedAt;
+    const finalCompletedAt =
+      updateData.completedAt !== undefined ? updateData.completedAt : existing.completedAt;
 
     if (data.status !== undefined) {
       updateData.status = data.status;

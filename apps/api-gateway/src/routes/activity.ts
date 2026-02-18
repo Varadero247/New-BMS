@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate , type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { logActivity, getActivity, getRecentActivity } from '@ims/activity';
 import { z } from 'zod';
@@ -23,9 +23,17 @@ const getRecentSchema = z.object({
 });
 
 const VALID_ACTIONS = [
-  'created', 'updated', 'status_changed', 'commented',
-  'assigned', 'attachment_added', 'ai_analysis_run',
-  'review_completed', 'deleted', 'approved', 'rejected',
+  'created',
+  'updated',
+  'status_changed',
+  'commented',
+  'assigned',
+  'attachment_added',
+  'ai_analysis_run',
+  'review_completed',
+  'deleted',
+  'approved',
+  'rejected',
 ] as const;
 
 const postActivitySchema = z.object({
@@ -66,7 +74,9 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: unknown) {
-    logger.error('Failed to get activity', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get activity', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get activity' },
@@ -103,7 +113,9 @@ router.get('/recent', authenticate, async (req: Request, res: Response) => {
       data: { entries, total: entries.length },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get recent activity', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get recent activity', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get recent activity' },
@@ -130,7 +142,8 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       });
     }
 
-    const { recordType, recordId, action, field, oldValue, newValue, comment, metadata } = parsed.data;
+    const { recordType, recordId, action, field, oldValue, newValue, comment, metadata } =
+      parsed.data;
 
     await logActivity({
       orgId: (user as any).organisationId || 'default',
@@ -152,7 +165,9 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       data: { message: 'Activity logged successfully' },
     });
   } catch (error: unknown) {
-    logger.error('Failed to create activity', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to create activity', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create activity' },

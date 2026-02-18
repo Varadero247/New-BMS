@@ -134,7 +134,10 @@ export default function DrillsPage() {
 
   useEffect(() => {
     load();
-    api.get('/premises').then((r) => setPremises(r.data.data || [])).catch(() => {});
+    api
+      .get('/premises')
+      .then((r) => setPremises(r.data.data || []))
+      .catch(() => {});
   }, [load]);
 
   function openCreate() {
@@ -233,9 +236,14 @@ export default function DrillsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-3xl font-bold">{analytics.totalDrills}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Total Drills</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                        Total Drills
+                      </p>
                     </div>
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#FEE2E4' }}>
+                    <div
+                      className="w-10 h-10 rounded-lg flex items-center justify-center"
+                      style={{ backgroundColor: '#FEE2E4' }}
+                    >
                       <CalendarCheck className="h-5 w-5" style={{ color: '#F04B5A' }} />
                     </div>
                   </div>
@@ -265,7 +273,9 @@ export default function DrillsPage() {
                           ? `${Math.round(analytics.avgEvacuationTime)}m`
                           : '-'}
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Avg Evacuation Time</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                        Avg Evacuation Time
+                      </p>
                     </div>
                     <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
                       <Timer className="h-5 w-5 text-blue-600" />
@@ -277,14 +287,21 @@ export default function DrillsPage() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-3xl font-bold" style={{ color: analytics.overdueCount > 0 ? '#F04B5A' : '#10B981' }}>
+                      <p
+                        className="text-3xl font-bold"
+                        style={{ color: analytics.overdueCount > 0 ? '#F04B5A' : '#10B981' }}
+                      >
                         {analytics.overdueCount}
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Drills Overdue</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                        Drills Overdue
+                      </p>
                     </div>
                     <div
                       className="w-10 h-10 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: analytics.overdueCount > 0 ? '#FEE2E4' : '#ECFDF5' }}
+                      style={{
+                        backgroundColor: analytics.overdueCount > 0 ? '#FEE2E4' : '#ECFDF5',
+                      }}
                     >
                       <AlertTriangle
                         className="h-5 w-5"
@@ -361,15 +378,15 @@ export default function DrillsPage() {
                           drill.evacuationTime <= drill.targetEvacuationTime;
                         return (
                           <TableRow key={drill.id}>
-                            <TableCell className="font-mono text-xs">{drill.referenceNumber}</TableCell>
+                            <TableCell className="font-mono text-xs">
+                              {drill.referenceNumber}
+                            </TableCell>
                             <TableCell className="text-sm">
                               {new Date(drill.drillDate).toLocaleDateString()}
                             </TableCell>
                             <TableCell className="text-sm">{drill.premisesName}</TableCell>
                             <TableCell>
-                              <Badge variant="outline">
-                                {drill.drillType?.replace(/_/g, ' ')}
-                              </Badge>
+                              <Badge variant="outline">{drill.drillType?.replace(/_/g, ' ')}</Badge>
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-1.5">
@@ -383,13 +400,17 @@ export default function DrillsPage() {
                                   <Timer className="h-4 w-4 text-gray-400" />
                                   <span
                                     className={
-                                      timeMet ? 'text-green-600 font-medium' : 'text-red-600 font-medium'
+                                      timeMet
+                                        ? 'text-green-600 font-medium'
+                                        : 'text-red-600 font-medium'
                                     }
                                   >
                                     {drill.evacuationTime} mins
                                   </span>
                                 </div>
-                              ) : '-'}
+                              ) : (
+                                '-'
+                              )}
                             </TableCell>
                             <TableCell className="text-sm">
                               {drill.targetEvacuationTime != null
@@ -410,8 +431,8 @@ export default function DrillsPage() {
                                     drill.outcome === 'PASS'
                                       ? 'text-green-600 font-medium'
                                       : drill.outcome === 'FAIL'
-                                      ? 'text-red-600 font-medium'
-                                      : 'text-amber-600 font-medium'
+                                        ? 'text-red-600 font-medium'
+                                        : 'text-amber-600 font-medium'
                                   }
                                 >
                                   {drill.outcome}
@@ -429,7 +450,9 @@ export default function DrillsPage() {
                                 >
                                   {new Date(drill.nextDrillDate).toLocaleDateString()}
                                 </span>
-                              ) : '-'}
+                              ) : (
+                                '-'
+                              )}
                             </TableCell>
                             <TableCell>
                               <div className="flex gap-2">
@@ -484,7 +507,9 @@ export default function DrillsPage() {
                 >
                   <option value="">Select premises...</option>
                   {premises.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -503,7 +528,9 @@ export default function DrillsPage() {
                   onChange={(e) => setForm((f) => ({ ...f, drillType: e.target.value }))}
                 >
                   {DRILL_TYPES.map((t) => (
-                    <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
+                    <option key={t} value={t}>
+                      {t.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -524,7 +551,9 @@ export default function DrillsPage() {
                   type="number"
                   min={0}
                   value={form.participantCount}
-                  onChange={(e) => setForm((f) => ({ ...f, participantCount: parseInt(e.target.value) || 0 }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, participantCount: parseInt(e.target.value) || 0 }))
+                  }
                 />
               </div>
               <div>
@@ -542,7 +571,10 @@ export default function DrillsPage() {
                   min={0}
                   value={form.evacuationTime ?? ''}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, evacuationTime: e.target.value ? parseFloat(e.target.value) : null }))
+                    setForm((f) => ({
+                      ...f,
+                      evacuationTime: e.target.value ? parseFloat(e.target.value) : null,
+                    }))
                   }
                   placeholder="Minutes to complete"
                 />
@@ -554,7 +586,10 @@ export default function DrillsPage() {
                   min={0}
                   value={form.targetEvacuationTime ?? ''}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, targetEvacuationTime: e.target.value ? parseFloat(e.target.value) : null }))
+                    setForm((f) => ({
+                      ...f,
+                      targetEvacuationTime: e.target.value ? parseFloat(e.target.value) : null,
+                    }))
                   }
                   placeholder="Target in minutes"
                 />
@@ -596,7 +631,9 @@ export default function DrillsPage() {
             </div>
           </div>
           <ModalFooter>
-            <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
             <Button
               onClick={handleSubmit}
               disabled={saving || !form.premisesId || !form.drillDate}
@@ -604,8 +641,15 @@ export default function DrillsPage() {
               style={{ backgroundColor: '#F04B5A' }}
             >
               {saving ? (
-                <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</>
-              ) : editId ? 'Update Drill' : 'Record Drill'}
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : editId ? (
+                'Update Drill'
+              ) : (
+                'Record Drill'
+              )}
             </Button>
           </ModalFooter>
         </Modal>

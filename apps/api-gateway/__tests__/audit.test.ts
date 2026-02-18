@@ -201,14 +201,18 @@ describe('Audit Routes', () => {
         entries: [{ id: 'e-1', action: 'UPDATE' }],
         total: 1,
       });
-      const res = await request(app).get('/api/audit/trail/Document/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).get(
+        '/api/audit/trail/Document/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
 
     it('returns 500 on error', async () => {
       mockGetResourceHistory.mockRejectedValueOnce(new Error('DB error'));
-      const res = await request(app).get('/api/audit/trail/Document/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).get(
+        '/api/audit/trail/Document/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(500);
     });
   });
@@ -222,7 +226,9 @@ describe('Audit Routes', () => {
     // We test the route exists and returns a valid response via the resource history handler.
     it('verify path resolves via resource history handler (route ordering)', async () => {
       mockGetResourceHistory.mockResolvedValueOnce({ entries: [], total: 0 });
-      const res = await request(app).get('/api/audit/trail/verify/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).get(
+        '/api/audit/trail/verify/00000000-0000-0000-0000-000000000001'
+      );
       // The /:resourceType/:resourceId route handles this
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -230,7 +236,9 @@ describe('Audit Routes', () => {
 
     it('verify route returns 500 on resource history error', async () => {
       mockGetResourceHistory.mockRejectedValueOnce(new Error('Verify failed'));
-      const res = await request(app).get('/api/audit/trail/verify/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).get(
+        '/api/audit/trail/verify/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(500);
     });
   });
@@ -246,9 +254,7 @@ describe('Audit Routes', () => {
     };
 
     it('creates an electronic signature', async () => {
-      const res = await request(app)
-        .post('/api/audit/esignature')
-        .send(validPayload);
+      const res = await request(app).post('/api/audit/esignature').send(validPayload);
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toHaveProperty('id', 'sig-1');
@@ -272,17 +278,13 @@ describe('Audit Routes', () => {
 
     it('returns 404 if user not found', async () => {
       mockUserFindUnique.mockResolvedValueOnce(null);
-      const res = await request(app)
-        .post('/api/audit/esignature')
-        .send(validPayload);
+      const res = await request(app).post('/api/audit/esignature').send(validPayload);
       expect(res.status).toBe(404);
     });
 
     it('returns 401 if signature creation fails', async () => {
       mockCreateSignature.mockResolvedValueOnce({ signature: null, error: 'Invalid password' });
-      const res = await request(app)
-        .post('/api/audit/esignature')
-        .send(validPayload);
+      const res = await request(app).post('/api/audit/esignature').send(validPayload);
       expect(res.status).toBe(401);
       expect(res.body.error.code).toBe('AUTH_FAILED');
     });
@@ -290,7 +292,9 @@ describe('Audit Routes', () => {
 
   describe('GET /api/audit/esignature/:id', () => {
     it('returns signature verification', async () => {
-      const res = await request(app).get('/api/audit/esignature/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).get(
+        '/api/audit/esignature/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toHaveProperty('valid', true);
@@ -298,7 +302,9 @@ describe('Audit Routes', () => {
 
     it('returns 404 for non-existent signature', async () => {
       mockESignatureFindUnique.mockResolvedValueOnce(null);
-      const res = await request(app).get('/api/audit/esignature/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).get(
+        '/api/audit/esignature/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
     });
   });

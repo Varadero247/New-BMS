@@ -33,16 +33,18 @@ const executeSchema = z.object({
 // GET /api/admin/import/schemas — List available import schemas
 router.get('/schemas', requireRole('ADMIN'), (_req: AuthRequest, res: Response) => {
   try {
-    const schemas = IMPORT_SCHEMAS.map(s => ({
+    const schemas = IMPORT_SCHEMAS.map((s) => ({
       recordType: s.recordType,
       label: s.label,
       fieldCount: s.fields.length,
-      requiredFields: s.fields.filter(f => f.required).map(f => f.name),
+      requiredFields: s.fields.filter((f) => f.required).map((f) => f.name),
     }));
 
     res.json({ success: true, data: schemas });
   } catch (error: unknown) {
-    logger.error('Failed to list import schemas', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list import schemas', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list import schemas' },
@@ -95,7 +97,9 @@ router.post('/validate', requireRole('ADMIN'), (req: AuthRequest, res: Response)
       },
     });
   } catch (error: unknown) {
-    logger.error('CSV validation failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('CSV validation failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'CSV validation failed' },
@@ -132,7 +136,9 @@ router.post('/execute', requireRole('ADMIN'), (req: AuthRequest, res: Response) 
 
     res.json({ success: true, data: result });
   } catch (error: unknown) {
-    logger.error('Import execution failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Import execution failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Import execution failed' },
@@ -165,7 +171,9 @@ router.get('/templates/:type', requireRole('ADMIN'), (req: AuthRequest, res: Res
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get template', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get template', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get template' },

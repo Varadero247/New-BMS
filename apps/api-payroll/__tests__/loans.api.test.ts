@@ -87,9 +87,7 @@ describe('Payroll Loans API Routes', () => {
     it('should return list of loans', async () => {
       (mockPrisma.employeeLoan.findMany as jest.Mock).mockResolvedValueOnce(mockLoans);
 
-      const response = await request(app)
-        .get('/api/loans')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/loans').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -115,9 +113,7 @@ describe('Payroll Loans API Routes', () => {
     it('should filter by status', async () => {
       (mockPrisma.employeeLoan.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/loans?status=ACTIVE')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/loans?status=ACTIVE').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.employeeLoan.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -147,9 +143,7 @@ describe('Payroll Loans API Routes', () => {
     it('should order by createdAt descending', async () => {
       (mockPrisma.employeeLoan.findMany as jest.Mock).mockResolvedValueOnce(mockLoans);
 
-      await request(app)
-        .get('/api/loans')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/loans').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.employeeLoan.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -161,9 +155,7 @@ describe('Payroll Loans API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.employeeLoan.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/loans')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/loans').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -180,7 +172,12 @@ describe('Payroll Loans API Routes', () => {
       status: 'ACTIVE',
       employee: { firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001' },
       repayments: [
-        { id: '4a000000-0000-4000-a000-000000000001', installmentNumber: 1, amount: 437.5, status: 'PAID' },
+        {
+          id: '4a000000-0000-4000-a000-000000000001',
+          installmentNumber: 1,
+          amount: 437.5,
+          status: 'PAID',
+        },
       ],
     };
 
@@ -209,7 +206,9 @@ describe('Payroll Loans API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.employeeLoan.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.employeeLoan.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/loans/39000000-0000-4000-a000-000000000001')
@@ -417,7 +416,9 @@ describe('Payroll Loans API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.employeeLoan.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.employeeLoan.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/loans/39000000-0000-4000-a000-000000000001/approve')
@@ -501,7 +502,9 @@ describe('Payroll Loans API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/loans/39000000-0000-4000-a000-000000000001/repayments/4a000000-0000-4000-a000-000000000001/pay')
+        .post(
+          '/api/loans/39000000-0000-4000-a000-000000000001/repayments/4a000000-0000-4000-a000-000000000001/pay'
+        )
         .set('Authorization', 'Bearer token')
         .send({ paidAmount: 437.5, paymentMethod: 'PAYROLL_DEDUCTION' });
 
@@ -525,7 +528,9 @@ describe('Payroll Loans API Routes', () => {
       });
 
       await request(app)
-        .post('/api/loans/39000000-0000-4000-a000-000000000001/repayments/4a000000-0000-4000-a000-000000000001/pay')
+        .post(
+          '/api/loans/39000000-0000-4000-a000-000000000001/repayments/4a000000-0000-4000-a000-000000000001/pay'
+        )
         .set('Authorization', 'Bearer token')
         .send({ paidAmount: 437.5, paymentMethod: 'PAYROLL_DEDUCTION' });
 
@@ -542,7 +547,9 @@ describe('Payroll Loans API Routes', () => {
       (mockPrisma.loanRepayment.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/loans/39000000-0000-4000-a000-000000000001/repayments/4a000000-0000-4000-a000-000000000001/pay')
+        .post(
+          '/api/loans/39000000-0000-4000-a000-000000000001/repayments/4a000000-0000-4000-a000-000000000001/pay'
+        )
         .set('Authorization', 'Bearer token')
         .send({ paidAmount: 437.5, paymentMethod: 'PAYROLL_DEDUCTION' });
 

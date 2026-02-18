@@ -27,8 +27,18 @@ export function Breadcrumbs({ items, separator = 'chevron', className }: Breadcr
               {i > 0 && (
                 <span className="text-gray-400 dark:text-gray-500" aria-hidden="true">
                   {separator === 'chevron' ? (
-                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    <svg
+                      className="h-3.5 w-3.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                      />
                     </svg>
                   ) : (
                     '/'
@@ -39,9 +49,7 @@ export function Breadcrumbs({ items, separator = 'chevron', className }: Breadcr
                 <span
                   className={cn(
                     'font-medium',
-                    isLast
-                      ? 'text-gray-900 dark:text-gray-100'
-                      : 'text-gray-500 dark:text-gray-400'
+                    isLast ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'
                   )}
                   aria-current={isLast ? 'page' : undefined}
                 >

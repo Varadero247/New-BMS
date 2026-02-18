@@ -56,7 +56,15 @@ const externalLinks = [
   { name: 'Settings', href: `${APP_BASE}:3004`, icon: Settings },
 ];
 
-function NavSection({ title, items, pathname }: { title?: string; items: typeof mainNavigation; pathname: string }) {
+function NavSection({
+  title,
+  items,
+  pathname,
+}: {
+  title?: string;
+  items: typeof mainNavigation;
+  pathname: string;
+}) {
   return (
     <div className={title ? 'mt-4 pt-4 border-t border-border' : ''}>
       {title && (
@@ -67,7 +75,8 @@ function NavSection({ title, items, pathname }: { title?: string; items: typeof 
       <ul className="space-y-1">
         {items.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href + '/'));
+          const isActive =
+            pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href + '/'));
           const isExactActive = pathname === item.href;
 
           return (
@@ -80,7 +89,9 @@ function NavSection({ title, items, pathname }: { title?: string; items: typeof 
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
               >
-                <Icon className={`h-5 w-5 ${isExactActive || isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                <Icon
+                  className={`h-5 w-5 ${isExactActive || isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`}
+                />
                 <span className="text-sm font-medium">{item.name}</span>
               </Link>
             </li>
@@ -97,14 +108,22 @@ export function Sidebar() {
   return (
     <aside className="w-64 bg-card border-r border-border flex flex-col">
       <div className="p-6 border-b border-border bg-green-50 dark:bg-green-900/10">
-        <h1 className="text-xl font-bold font-display text-green-900 dark:text-green-100">ESG Management</h1>
-        <p className="text-xs text-green-600 dark:text-green-400 mt-1">Environmental, Social & Governance</p>
+        <h1 className="text-xl font-bold font-display text-green-900 dark:text-green-100">
+          ESG Management
+        </h1>
+        <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+          Environmental, Social & Governance
+        </p>
       </div>
 
       <nav className="flex-1 p-4 overflow-y-auto" aria-label="Module navigation">
         <NavSection items={mainNavigation} pathname={pathname} />
         <NavSection title="Environmental" items={environmentalNavigation} pathname={pathname} />
-        <NavSection title="Social & Governance" items={socialGovernanceNavigation} pathname={pathname} />
+        <NavSection
+          title="Social & Governance"
+          items={socialGovernanceNavigation}
+          pathname={pathname}
+        />
         <NavSection title="Reporting" items={reportingNavigation} pathname={pathname} />
 
         <div className="mt-4 pt-4 border-t border-border">

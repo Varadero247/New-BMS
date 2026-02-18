@@ -13,7 +13,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: (req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'admin@ims.local', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'admin@ims.local',
+      role: 'ADMIN',
+    };
     next();
   },
 }));
@@ -64,16 +68,19 @@ describe('Document Analysis Routes', () => {
     // broken substrings when multiple arrays exist as object values.
 
     it('should summarize document content', async () => {
-      mockOpenAIResponse(JSON.stringify({
-        summary: 'Test document about safety procedures',
-        keyPoints: 'Point 1; Point 2',
-        mainTopic: 'Safety',
-        actionItems: 'Review annually',
-      }));
+      mockOpenAIResponse(
+        JSON.stringify({
+          summary: 'Test document about safety procedures',
+          keyPoints: 'Point 1; Point 2',
+          mainTopic: 'Safety',
+          actionItems: 'Review annually',
+        })
+      );
 
-      const res = await request(app)
-        .post('/api/documents/analyze')
-        .send({ content: 'This is a test document about safety procedures...', analysisType: 'SUMMARIZE' });
+      const res = await request(app).post('/api/documents/analyze').send({
+        content: 'This is a test document about safety procedures...',
+        analysisType: 'SUMMARIZE',
+      });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -82,28 +89,40 @@ describe('Document Analysis Routes', () => {
     });
 
     it('should extract key terms', async () => {
-      mockOpenAIResponse(JSON.stringify({
-        terms: { coshh: { term: 'COSHH', type: 'regulation', definition: 'Control of Substances Hazardous to Health', frequency: 5 } },
-        totalTermsFound: 1,
-      }));
+      mockOpenAIResponse(
+        JSON.stringify({
+          terms: {
+            coshh: {
+              term: 'COSHH',
+              type: 'regulation',
+              definition: 'Control of Substances Hazardous to Health',
+              frequency: 5,
+            },
+          },
+          totalTermsFound: 1,
+        })
+      );
 
-      const res = await request(app)
-        .post('/api/documents/analyze')
-        .send({ content: 'COSHH regulations require employers to...', analysisType: 'EXTRACT_KEY_TERMS' });
+      const res = await request(app).post('/api/documents/analyze').send({
+        content: 'COSHH regulations require employers to...',
+        analysisType: 'EXTRACT_KEY_TERMS',
+      });
 
       expect(res.status).toBe(200);
       expect(res.body.data.result.terms.coshh.term).toBe('COSHH');
     });
 
     it('should classify documents', async () => {
-      mockOpenAIResponse(JSON.stringify({
-        documentType: 'Policy',
-        topStandard: { standard: 'ISO 45001', relevance: 95 },
-        department: 'Health & Safety',
-        complianceArea: 'Workplace Safety',
-        confidenceScore: 90,
-        suggestedTags: 'safety, policy',
-      }));
+      mockOpenAIResponse(
+        JSON.stringify({
+          documentType: 'Policy',
+          topStandard: { standard: 'ISO 45001', relevance: 95 },
+          department: 'Health & Safety',
+          complianceArea: 'Workplace Safety',
+          confidenceScore: 90,
+          suggestedTags: 'safety, policy',
+        })
+      );
 
       const res = await request(app)
         .post('/api/documents/analyze')
@@ -115,18 +134,21 @@ describe('Document Analysis Routes', () => {
     });
 
     it('should perform full analysis', async () => {
-      mockOpenAIResponse(JSON.stringify({
-        summary: 'Comprehensive safety document',
-        keyPoints: 'Key 1',
-        keyTerm: { term: 'PPE', definition: 'Personal Protective Equipment' },
-        classification: { documentType: 'Procedure', department: 'Operations' },
-        complianceInsight: 'Meets ISO 45001 cl.8.1',
-        recommendation: 'Update annually',
-      }));
+      mockOpenAIResponse(
+        JSON.stringify({
+          summary: 'Comprehensive safety document',
+          keyPoints: 'Key 1',
+          keyTerm: { term: 'PPE', definition: 'Personal Protective Equipment' },
+          classification: { documentType: 'Procedure', department: 'Operations' },
+          complianceInsight: 'Meets ISO 45001 cl.8.1',
+          recommendation: 'Update annually',
+        })
+      );
 
-      const res = await request(app)
-        .post('/api/documents/analyze')
-        .send({ content: 'Safety procedure for chemical handling...', analysisType: 'FULL_ANALYSIS' });
+      const res = await request(app).post('/api/documents/analyze').send({
+        content: 'Safety procedure for chemical handling...',
+        analysisType: 'FULL_ANALYSIS',
+      });
 
       expect(res.status).toBe(200);
       expect(res.body.data.analysisType).toBe('FULL_ANALYSIS');

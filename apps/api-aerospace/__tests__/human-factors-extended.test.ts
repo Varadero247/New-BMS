@@ -3,7 +3,13 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    humanFactorIncident: { findMany: jest.fn(), findUnique: jest.fn(), create: jest.fn(), count: jest.fn(), groupBy: jest.fn() },
+    humanFactorIncident: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      count: jest.fn(),
+      groupBy: jest.fn(),
+    },
     fatigueAssessment: { findMany: jest.fn(), create: jest.fn() },
   },
   Prisma: { HumanFactorIncidentWhereInput: {} },
@@ -51,7 +57,10 @@ describe('Human Factors Routes', () => {
     it('should report an HF incident', async () => {
       (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.humanFactorIncident.create as jest.Mock).mockResolvedValue({
-        id: 'hf-1', refNumber: 'HF-2602-0001', ...validBody, status: 'REPORTED',
+        id: 'hf-1',
+        refNumber: 'HF-2602-0001',
+        ...validBody,
+        status: 'REPORTED',
       });
 
       const res = await request(app).post('/api/human-factors/incidents').send(validBody);
@@ -72,9 +81,12 @@ describe('Human Factors Routes', () => {
     });
 
     it('should return 400 for invalid category', async () => {
-      const res = await request(app).post('/api/human-factors/incidents').send({
-        ...validBody, category: 'INVALID',
-      });
+      const res = await request(app)
+        .post('/api/human-factors/incidents')
+        .send({
+          ...validBody,
+          category: 'INVALID',
+        });
       expect(res.status).toBe(400);
     });
 
@@ -85,9 +97,12 @@ describe('Human Factors Routes', () => {
     });
 
     it('should return 400 for invalid incidentDate format', async () => {
-      const res = await request(app).post('/api/human-factors/incidents').send({
-        ...validBody, incidentDate: 'not-a-date',
-      });
+      const res = await request(app)
+        .post('/api/human-factors/incidents')
+        .send({
+          ...validBody,
+          incidentDate: 'not-a-date',
+        });
       expect(res.status).toBe(400);
     });
 
@@ -95,9 +110,12 @@ describe('Human Factors Routes', () => {
       (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.humanFactorIncident.create as jest.Mock).mockResolvedValue({ id: 'hf-2' });
 
-      const res = await request(app).post('/api/human-factors/incidents').send({
-        ...validBody, category: 'COMPLACENCY',
-      });
+      const res = await request(app)
+        .post('/api/human-factors/incidents')
+        .send({
+          ...validBody,
+          category: 'COMPLACENCY',
+        });
       expect(res.status).toBe(201);
     });
 
@@ -105,9 +123,12 @@ describe('Human Factors Routes', () => {
       (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.humanFactorIncident.create as jest.Mock).mockResolvedValue({ id: 'hf-3' });
 
-      const res = await request(app).post('/api/human-factors/incidents').send({
-        ...validBody, category: 'DISTRACTION',
-      });
+      const res = await request(app)
+        .post('/api/human-factors/incidents')
+        .send({
+          ...validBody,
+          category: 'DISTRACTION',
+        });
       expect(res.status).toBe(201);
     });
 
@@ -115,9 +136,12 @@ describe('Human Factors Routes', () => {
       (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.humanFactorIncident.create as jest.Mock).mockResolvedValue({ id: 'hf-4' });
 
-      const res = await request(app).post('/api/human-factors/incidents').send({
-        ...validBody, category: 'PRESSURE',
-      });
+      const res = await request(app)
+        .post('/api/human-factors/incidents')
+        .send({
+          ...validBody,
+          category: 'PRESSURE',
+        });
       expect(res.status).toBe(201);
     });
 
@@ -125,9 +149,12 @@ describe('Human Factors Routes', () => {
       (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.humanFactorIncident.create as jest.Mock).mockResolvedValue({ id: 'hf-5' });
 
-      const res = await request(app).post('/api/human-factors/incidents').send({
-        ...validBody, category: 'NORMS',
-      });
+      const res = await request(app)
+        .post('/api/human-factors/incidents')
+        .send({
+          ...validBody,
+          category: 'NORMS',
+        });
       expect(res.status).toBe(201);
     });
 
@@ -135,9 +162,12 @@ describe('Human Factors Routes', () => {
       (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.humanFactorIncident.create as jest.Mock).mockResolvedValue({ id: 'hf-6' });
 
-      const res = await request(app).post('/api/human-factors/incidents').send({
-        ...validBody, severity: 'HIGH',
-      });
+      const res = await request(app)
+        .post('/api/human-factors/incidents')
+        .send({
+          ...validBody,
+          severity: 'HIGH',
+        });
       expect(res.status).toBe(201);
     });
 
@@ -145,14 +175,16 @@ describe('Human Factors Routes', () => {
       (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.humanFactorIncident.create as jest.Mock).mockResolvedValue({ id: 'hf-7' });
 
-      const res = await request(app).post('/api/human-factors/incidents').send({
-        ...validBody,
-        location: 'Hangar B',
-        shift: 'Night',
-        personnelInvolved: ['John Doe', 'Jane Smith'],
-        rootCause: 'Extended overtime',
-        correctiveAction: 'Mandatory rest period',
-      });
+      const res = await request(app)
+        .post('/api/human-factors/incidents')
+        .send({
+          ...validBody,
+          location: 'Hangar B',
+          shift: 'Night',
+          personnelInvolved: ['John Doe', 'Jane Smith'],
+          rootCause: 'Extended overtime',
+          correctiveAction: 'Mandatory rest period',
+        });
       expect(res.status).toBe(201);
     });
 
@@ -215,7 +247,8 @@ describe('Human Factors Routes', () => {
 
     it('should log a fatigue assessment', async () => {
       (mockPrisma.fatigueAssessment.create as jest.Mock).mockResolvedValue({
-        id: 'fa-1', ...validBody,
+        id: 'fa-1',
+        ...validBody,
       });
 
       const res = await request(app).post('/api/human-factors/fatigue').send(validBody);
@@ -235,48 +268,69 @@ describe('Human Factors Routes', () => {
     });
 
     it('should return 400 for fatigueScore out of range (0)', async () => {
-      const res = await request(app).post('/api/human-factors/fatigue').send({
-        ...validBody, fatigueScore: 0,
-      });
+      const res = await request(app)
+        .post('/api/human-factors/fatigue')
+        .send({
+          ...validBody,
+          fatigueScore: 0,
+        });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for fatigueScore out of range (11)', async () => {
-      const res = await request(app).post('/api/human-factors/fatigue').send({
-        ...validBody, fatigueScore: 11,
-      });
+      const res = await request(app)
+        .post('/api/human-factors/fatigue')
+        .send({
+          ...validBody,
+          fatigueScore: 11,
+        });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for invalid riskLevel', async () => {
-      const res = await request(app).post('/api/human-factors/fatigue').send({
-        ...validBody, riskLevel: 'INVALID',
-      });
+      const res = await request(app)
+        .post('/api/human-factors/fatigue')
+        .send({
+          ...validBody,
+          riskLevel: 'INVALID',
+        });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for negative hoursWorked', async () => {
-      const res = await request(app).post('/api/human-factors/fatigue').send({
-        ...validBody, hoursWorked: -1,
-      });
+      const res = await request(app)
+        .post('/api/human-factors/fatigue')
+        .send({
+          ...validBody,
+          hoursWorked: -1,
+        });
       expect(res.status).toBe(400);
     });
 
     it('should accept LOW riskLevel', async () => {
       (mockPrisma.fatigueAssessment.create as jest.Mock).mockResolvedValue({ id: 'fa-2' });
 
-      const res = await request(app).post('/api/human-factors/fatigue').send({
-        ...validBody, riskLevel: 'LOW', fatigueScore: 2, fitForDuty: true,
-      });
+      const res = await request(app)
+        .post('/api/human-factors/fatigue')
+        .send({
+          ...validBody,
+          riskLevel: 'LOW',
+          fatigueScore: 2,
+          fitForDuty: true,
+        });
       expect(res.status).toBe(201);
     });
 
     it('should accept CRITICAL riskLevel', async () => {
       (mockPrisma.fatigueAssessment.create as jest.Mock).mockResolvedValue({ id: 'fa-3' });
 
-      const res = await request(app).post('/api/human-factors/fatigue').send({
-        ...validBody, riskLevel: 'CRITICAL', fatigueScore: 10,
-      });
+      const res = await request(app)
+        .post('/api/human-factors/fatigue')
+        .send({
+          ...validBody,
+          riskLevel: 'CRITICAL',
+          fatigueScore: 10,
+        });
       expect(res.status).toBe(201);
     });
   });
@@ -305,12 +359,12 @@ describe('Human Factors Routes', () => {
   describe('GET /api/human-factors/dashboard', () => {
     it('should return HF dashboard stats', async () => {
       (mockPrisma.humanFactorIncident.count as jest.Mock)
-        .mockResolvedValueOnce(50)   // totalIncidents
-        .mockResolvedValueOnce(10)   // openIncidents
-        .mockResolvedValueOnce(5);   // recentIncidents
+        .mockResolvedValueOnce(50) // totalIncidents
+        .mockResolvedValueOnce(10) // openIncidents
+        .mockResolvedValueOnce(5); // recentIncidents
       (mockPrisma.humanFactorIncident.groupBy as jest.Mock)
-        .mockResolvedValueOnce([{ severity: 'HIGH', _count: { id: 5 } }])   // bySeverity
-        .mockResolvedValueOnce([{ category: 'FATIGUE', _count: { id: 10 } }]);  // byCategory
+        .mockResolvedValueOnce([{ severity: 'HIGH', _count: { id: 5 } }]) // bySeverity
+        .mockResolvedValueOnce([{ category: 'FATIGUE', _count: { id: 10 } }]); // byCategory
       (mockPrisma.fatigueAssessment.findMany as jest.Mock).mockResolvedValue([
         { fatigueScore: 8, riskLevel: 'HIGH', fitForDuty: false },
         { fatigueScore: 3, riskLevel: 'LOW', fitForDuty: true },

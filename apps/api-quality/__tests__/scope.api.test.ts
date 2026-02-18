@@ -154,9 +154,7 @@ describe('Quality Scope API Routes', () => {
     });
 
     it('should return 400 for missing scope field', async () => {
-      const res = await request(app)
-        .put('/api/scope')
-        .send({ version: '1.0' });
+      const res = await request(app).put('/api/scope').send({ version: '1.0' });
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');

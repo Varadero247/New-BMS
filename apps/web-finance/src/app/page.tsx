@@ -78,7 +78,7 @@ export default function FinanceDashboard() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
@@ -176,7 +176,9 @@ export default function FinanceDashboard() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Finance Dashboard</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Financial overview and key metrics</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Financial overview and key metrics
+          </p>
         </div>
 
         {/* KPI Cards */}
@@ -191,7 +193,9 @@ export default function FinanceDashboard() {
                       <div>
                         <p className="text-sm text-gray-500 dark:text-gray-400">{card.title}</p>
                         <p className={`text-2xl font-bold ${card.valueColor}`}>{card.value}</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{card.subtitle}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                          {card.subtitle}
+                        </p>
                       </div>
                       <div className={`p-3 rounded-full ${card.bgColor}`}>
                         <Icon className={`h-6 w-6 ${card.iconColor}`} />
@@ -216,28 +220,36 @@ export default function FinanceDashboard() {
                 className="flex flex-col items-center p-4 bg-indigo-50 dark:bg-indigo-900 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-800 transition-colors"
               >
                 <Receipt className="h-8 w-8 text-indigo-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Create Invoice</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Create Invoice
+                </span>
               </Link>
               <Link
                 href="/payables"
                 className="flex flex-col items-center p-4 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
               >
                 <CreditCard className="h-8 w-8 text-blue-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Record Bill</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Record Bill
+                </span>
               </Link>
               <Link
                 href="/journal"
                 className="flex flex-col items-center p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors"
               >
                 <DollarSign className="h-8 w-8 text-purple-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Journal Entry</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Journal Entry
+                </span>
               </Link>
               <Link
                 href="/reports"
                 className="flex flex-col items-center p-4 bg-green-50 dark:bg-green-900 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
               >
                 <BarChart3 className="h-8 w-8 text-green-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">View Reports</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  View Reports
+                </span>
               </Link>
             </div>
           </CardContent>
@@ -254,10 +266,18 @@ export default function FinanceDashboard() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Date</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Description</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Amount</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Date
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Description
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Type
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Amount
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -266,17 +286,25 @@ export default function FinanceDashboard() {
                         <td className="py-3 px-4 text-gray-600">
                           {new Date(tx.date).toLocaleDateString()}
                         </td>
-                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{tx.description}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">
+                          {tx.description}
+                        </td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                            tx.type === 'CREDIT' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
-                          }`}>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                              tx.type === 'CREDIT'
+                                ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                                : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                            }`}
+                          >
                             {tx.type}
                           </span>
                         </td>
-                        <td className={`py-3 px-4 text-right font-medium ${
-                          tx.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
-                        }`}>
+                        <td
+                          className={`py-3 px-4 text-right font-medium ${
+                            tx.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
+                          }`}
+                        >
                           {formatCurrency(tx.amount)}
                         </td>
                       </tr>

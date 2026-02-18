@@ -2,20 +2,41 @@ import express from 'express';
 import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
-  prisma: { audProgramme: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() } },
+  prisma: {
+    audProgramme: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+  },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/programmes';
 import { prisma } from '../src/prisma';
-const app = express(); app.use(express.json()); app.use('/api/programmes', router);
-beforeEach(() => { jest.clearAllMocks(); });
+const app = express();
+app.use(express.json());
+app.use('/api/programmes', router);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('GET /api/programmes', () => {
   it('should return programmes with pagination', async () => {
-    (prisma as any).audProgramme.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'Annual Audit Programme 2026' }]);
+    (prisma as any).audProgramme.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Annual Audit Programme 2026' },
+    ]);
     (prisma as any).audProgramme.count.mockResolvedValue(1);
     const res = await request(app).get('/api/programmes');
     expect(res.status).toBe(200);
@@ -35,7 +56,9 @@ describe('GET /api/programmes', () => {
   });
 
   it('should filter by search term', async () => {
-    (prisma as any).audProgramme.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'ISO Programme' }]);
+    (prisma as any).audProgramme.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'ISO Programme' },
+    ]);
     (prisma as any).audProgramme.count.mockResolvedValue(1);
     const res = await request(app).get('/api/programmes?search=ISO');
     expect(res.status).toBe(200);
@@ -63,7 +86,11 @@ describe('GET /api/programmes', () => {
 
 describe('GET /api/programmes/:id', () => {
   it('should return programme by id', async () => {
-    (prisma as any).audProgramme.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Test Programme', year: 2026 });
+    (prisma as any).audProgramme.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Test Programme',
+      year: 2026,
+    });
     const res = await request(app).get('/api/programmes/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -138,9 +165,19 @@ describe('POST /api/programmes', () => {
 
 describe('PUT /api/programmes/:id', () => {
   it('should update a programme', async () => {
-    (prisma as any).audProgramme.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Old Programme', year: 2025 });
-    (prisma as any).audProgramme.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated Programme', year: 2026 });
-    const res = await request(app).put('/api/programmes/00000000-0000-0000-0000-000000000001').send({ title: 'Updated Programme', year: 2026 });
+    (prisma as any).audProgramme.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Old Programme',
+      year: 2025,
+    });
+    (prisma as any).audProgramme.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Updated Programme',
+      year: 2026,
+    });
+    const res = await request(app)
+      .put('/api/programmes/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated Programme', year: 2026 });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.title).toBe('Updated Programme');
@@ -148,16 +185,22 @@ describe('PUT /api/programmes/:id', () => {
 
   it('should return 404 if programme not found', async () => {
     (prisma as any).audProgramme.findFirst.mockResolvedValue(null);
-    const res = await request(app).put('/api/programmes/00000000-0000-0000-0000-000000000099').send({ title: 'Updated' });
+    const res = await request(app)
+      .put('/api/programmes/00000000-0000-0000-0000-000000000099')
+      .send({ title: 'Updated' });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on update error', async () => {
-    (prisma as any).audProgramme.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).audProgramme.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
     (prisma as any).audProgramme.update.mockRejectedValue(new Error('Update failed'));
-    const res = await request(app).put('/api/programmes/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
+    const res = await request(app)
+      .put('/api/programmes/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -166,8 +209,14 @@ describe('PUT /api/programmes/:id', () => {
 
 describe('DELETE /api/programmes/:id', () => {
   it('should soft-delete a programme', async () => {
-    (prisma as any).audProgramme.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'To Delete' });
-    (prisma as any).audProgramme.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    (prisma as any).audProgramme.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'To Delete',
+    });
+    (prisma as any).audProgramme.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
     const res = await request(app).delete('/api/programmes/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -183,7 +232,9 @@ describe('DELETE /api/programmes/:id', () => {
   });
 
   it('should return 500 on delete error', async () => {
-    (prisma as any).audProgramme.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).audProgramme.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
     (prisma as any).audProgramme.update.mockRejectedValue(new Error('Delete failed'));
     const res = await request(app).delete('/api/programmes/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);

@@ -14,7 +14,10 @@ jest.mock('../src/prisma', () => ({
 }));
 
 jest.mock('@ims/auth', () => ({
-  authenticate: (_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', email: 'a@b.com' }; next(); },
+  authenticate: (_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', email: 'a@b.com' };
+    next();
+  },
 }));
 
 jest.mock('@ims/monitoring', () => ({
@@ -35,7 +38,12 @@ beforeEach(() => {
 describe('GET /api/dsars', () => {
   it('lists data requests with pagination', async () => {
     (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([
-      { id: '00000000-0000-0000-0000-000000000001', type: 'ACCESS', requesterName: 'John', status: 'RECEIVED' },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        type: 'ACCESS',
+        requesterName: 'John',
+        status: 'RECEIVED',
+      },
     ]);
     (prisma.dataRequest.count as jest.Mock).mockResolvedValue(1);
 
@@ -74,7 +82,10 @@ describe('GET /api/dsars', () => {
 describe('GET /api/dsars/:id', () => {
   it('returns a single data request', async () => {
     (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({
-      id: '00000000-0000-0000-0000-000000000001', type: 'ACCESS', requesterName: 'John Doe', status: 'RECEIVED',
+      id: '00000000-0000-0000-0000-000000000001',
+      type: 'ACCESS',
+      requesterName: 'John Doe',
+      status: 'RECEIVED',
     });
 
     const res = await request(app).get('/api/dsars/00000000-0000-0000-0000-000000000001');
@@ -93,13 +104,20 @@ describe('GET /api/dsars/:id', () => {
 describe('POST /api/dsars', () => {
   it('creates a data request with 30-day deadline', async () => {
     const created = {
-      id: 'dr-new', type: 'ERASURE', requesterEmail: 'jane@test.com',
-      requesterName: 'Jane Doe', status: 'RECEIVED', deadlineAt: new Date(),
+      id: 'dr-new',
+      type: 'ERASURE',
+      requesterEmail: 'jane@test.com',
+      requesterName: 'Jane Doe',
+      status: 'RECEIVED',
+      deadlineAt: new Date(),
     };
     (prisma.dataRequest.create as jest.Mock).mockResolvedValue(created);
 
     const res = await request(app).post('/api/dsars').send({
-      type: 'ERASURE', requesterEmail: 'jane@test.com', requesterName: 'Jane Doe', description: 'Delete my data',
+      type: 'ERASURE',
+      requesterEmail: 'jane@test.com',
+      requesterName: 'Jane Doe',
+      description: 'Delete my data',
     });
     expect(res.status).toBe(201);
     expect(res.body.data.request.type).toBe('ERASURE');
@@ -120,7 +138,9 @@ describe('POST /api/dsars', () => {
 
   it('returns 400 for invalid type', async () => {
     const res = await request(app).post('/api/dsars').send({
-      type: 'INVALID', requesterEmail: 'a@b.com', requesterName: 'Test',
+      type: 'INVALID',
+      requesterEmail: 'a@b.com',
+      requesterName: 'Test',
     });
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -136,26 +156,45 @@ describe('POST /api/dsars', () => {
     });
 
     await request(app).post('/api/dsars').send({
-      type: 'ACCESS', requesterEmail: 'a@b.com', requesterName: 'Test',
+      type: 'ACCESS',
+      requesterEmail: 'a@b.com',
+      requesterName: 'Test',
     });
   });
 });
 
 describe('PATCH /api/dsars/:id/status', () => {
   it('transitions RECEIVED to VERIFIED', async () => {
-    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'RECEIVED' });
-    (prisma.dataRequest.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'VERIFIED' });
+    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'RECEIVED',
+    });
+    (prisma.dataRequest.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'VERIFIED',
+    });
 
-    const res = await request(app).patch('/api/dsars/00000000-0000-0000-0000-000000000001/status').send({ status: 'VERIFIED' });
+    const res = await request(app)
+      .patch('/api/dsars/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'VERIFIED' });
     expect(res.status).toBe(200);
     expect(res.body.data.request.status).toBe('VERIFIED');
   });
 
   it('transitions PROCESSING to COMPLETED and sets completedAt', async () => {
-    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'PROCESSING' });
-    (prisma.dataRequest.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED', completedAt: new Date() });
+    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'PROCESSING',
+    });
+    (prisma.dataRequest.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'COMPLETED',
+      completedAt: new Date(),
+    });
 
-    const res = await request(app).patch('/api/dsars/00000000-0000-0000-0000-000000000001/status').send({ status: 'COMPLETED' });
+    const res = await request(app)
+      .patch('/api/dsars/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'COMPLETED' });
     expect(res.status).toBe(200);
     expect(prisma.dataRequest.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -168,32 +207,52 @@ describe('PATCH /api/dsars/:id/status', () => {
   });
 
   it('rejects invalid status transitions', async () => {
-    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'RECEIVED' });
+    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'RECEIVED',
+    });
 
-    const res = await request(app).patch('/api/dsars/00000000-0000-0000-0000-000000000001/status').send({ status: 'COMPLETED' });
+    const res = await request(app)
+      .patch('/api/dsars/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'COMPLETED' });
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INVALID_TRANSITION');
   });
 
   it('allows REJECTED from any active status', async () => {
-    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'VERIFIED' });
-    (prisma.dataRequest.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'REJECTED' });
+    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'VERIFIED',
+    });
+    (prisma.dataRequest.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'REJECTED',
+    });
 
-    const res = await request(app).patch('/api/dsars/00000000-0000-0000-0000-000000000001/status').send({ status: 'REJECTED' });
+    const res = await request(app)
+      .patch('/api/dsars/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'REJECTED' });
     expect(res.status).toBe(200);
   });
 
   it('returns 404 for missing request', async () => {
     (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).patch('/api/dsars/00000000-0000-0000-0000-000000000099/status').send({ status: 'VERIFIED' });
+    const res = await request(app)
+      .patch('/api/dsars/00000000-0000-0000-0000-000000000099/status')
+      .send({ status: 'VERIFIED' });
     expect(res.status).toBe(404);
   });
 
   it('returns 400 for missing status field', async () => {
-    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'RECEIVED' });
+    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'RECEIVED',
+    });
 
-    const res = await request(app).patch('/api/dsars/00000000-0000-0000-0000-000000000001/status').send({});
+    const res = await request(app)
+      .patch('/api/dsars/00000000-0000-0000-0000-000000000001/status')
+      .send({});
     expect(res.status).toBe(400);
   });
 });

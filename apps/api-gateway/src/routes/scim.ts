@@ -119,16 +119,22 @@ const createUserSchema = z.object({
   schemas: z.array(z.string()).optional(),
   externalId: z.string().optional(),
   userName: z.string().min(1, 'userName is required'),
-  name: z.object({
-    formatted: z.string().optional(),
-    givenName: z.string().optional().default(''),
-    familyName: z.string().optional().default(''),
-  }).optional(),
-  emails: z.array(z.object({
-    value: z.string().trim().email(),
-    type: z.string().optional().default('work'),
-    primary: z.boolean().optional().default(true),
-  })).optional(),
+  name: z
+    .object({
+      formatted: z.string().optional(),
+      givenName: z.string().optional().default(''),
+      familyName: z.string().optional().default(''),
+    })
+    .optional(),
+  emails: z
+    .array(
+      z.object({
+        value: z.string().trim().email(),
+        type: z.string().optional().default('work'),
+        primary: z.boolean().optional().default(true),
+      })
+    )
+    .optional(),
   active: z.boolean().optional().default(true),
   displayName: z.string().optional(),
   title: z.string().optional(),
@@ -136,20 +142,28 @@ const createUserSchema = z.object({
 
 const patchUserSchema = z.object({
   schemas: z.array(z.string()).optional(),
-  Operations: z.array(z.object({
-    op: z.enum(['add', 'replace', 'remove']),
-    path: z.string().max(200).optional(),
-    value: z.any().optional(),
-  })).max(50),
+  Operations: z
+    .array(
+      z.object({
+        op: z.enum(['add', 'replace', 'remove']),
+        path: z.string().max(200).optional(),
+        value: z.any().optional(),
+      })
+    )
+    .max(50),
 });
 
 const patchGroupSchema = z.object({
   schemas: z.array(z.string()).optional(),
-  Operations: z.array(z.object({
-    op: z.enum(['add', 'replace', 'remove']),
-    path: z.string().max(200).optional(),
-    value: z.any().optional(),
-  })).max(100),
+  Operations: z
+    .array(
+      z.object({
+        op: z.enum(['add', 'replace', 'remove']),
+        path: z.string().max(200).optional(),
+        value: z.any().optional(),
+      })
+    )
+    .max(100),
 });
 
 // ─── SCIM Bearer Token Auth Middleware ───────────────────────────────────────
@@ -221,7 +235,7 @@ function parseScimFilter(filter: string): ((user: ScimUser) => boolean) | null {
         break;
       case 'emails.value':
       case 'emails[type eq "work"].value':
-        fieldValue = user.emails.find(e => e.primary)?.value || user.emails[0]?.value;
+        fieldValue = user.emails.find((e) => e.primary)?.value || user.emails[0]?.value;
         break;
       case 'active':
         fieldValue = String(user.active);
@@ -234,19 +248,30 @@ function parseScimFilter(filter: string): ((user: ScimUser) => boolean) | null {
     const lowerField = fieldValue.toLowerCase();
 
     switch (op.toLowerCase()) {
-      case 'eq': return lowerField === lowerValue;
-      case 'ne': return lowerField !== lowerValue;
-      case 'co': return lowerField.includes(lowerValue);
-      case 'sw': return lowerField.startsWith(lowerValue);
-      case 'ew': return lowerField.endsWith(lowerValue);
-      default: return false;
+      case 'eq':
+        return lowerField === lowerValue;
+      case 'ne':
+        return lowerField !== lowerValue;
+      case 'co':
+        return lowerField.includes(lowerValue);
+      case 'sw':
+        return lowerField.startsWith(lowerValue);
+      case 'ew':
+        return lowerField.endsWith(lowerValue);
+      default:
+        return false;
     }
   };
 }
 
 // ─── SCIM Response Helpers ──────────────────────────────────────────────────
 
-function scimListResponse(resources: unknown[], totalResults: number, startIndex: number, itemsPerPage: number) {
+function scimListResponse(
+  resources: unknown[],
+  totalResults: number,
+  startIndex: number,
+  itemsPerPage: number
+) {
   return {
     schemas: ['urn:ietf:params:scim:api:messages:2.0:ListResponse'],
     totalResults,
@@ -317,7 +342,8 @@ router.get('/Users', (req: Request, res: Response) => {
       } else {
         return res.status(400).json({
           schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
-          detail: 'Unsupported filter expression. Supported: attributePath (eq|ne|co|sw|ew) "value"',
+          detail:
+            'Unsupported filter expression. Supported: attributePath (eq|ne|co|sw|ew) "value"',
           scimType: 'invalidFilter',
           status: '400',
         });
@@ -328,7 +354,9 @@ router.get('/Users', (req: Request, res: Response) => {
 
     res.json(scimListResponse(paged, allUsers.length, startIndex, paged.length));
   } catch (error: unknown) {
-    logger.error('SCIM list users failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('SCIM list users failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
       detail: 'Internal server error',
@@ -353,7 +381,9 @@ router.get('/Users/:id', (req: Request, res: Response) => {
       ...user,
     });
   } catch (error: unknown) {
-    logger.error('SCIM get user failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('SCIM get user failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
       detail: 'Internal server error',
@@ -404,7 +434,9 @@ router.post('/Users', (req: Request, res: Response) => {
       externalId: data.externalId,
       userName: data.userName,
       name: {
-        formatted: data.name?.formatted || `${data.name?.givenName || ''} ${data.name?.familyName || ''}`.trim(),
+        formatted:
+          data.name?.formatted ||
+          `${data.name?.givenName || ''} ${data.name?.familyName || ''}`.trim(),
         givenName: data.name?.givenName || '',
         familyName: data.name?.familyName || '',
       },
@@ -430,7 +462,9 @@ router.post('/Users', (req: Request, res: Response) => {
       ...user,
     });
   } catch (error: unknown) {
-    logger.error('SCIM create user failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('SCIM create user failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
       detail: 'Internal server error',
@@ -471,7 +505,9 @@ router.put('/Users/:id', (req: Request, res: Response) => {
     existing.userName = data.userName;
     existing.externalId = data.externalId;
     existing.name = {
-      formatted: data.name?.formatted || `${data.name?.givenName || ''} ${data.name?.familyName || ''}`.trim(),
+      formatted:
+        data.name?.formatted ||
+        `${data.name?.givenName || ''} ${data.name?.familyName || ''}`.trim(),
       givenName: data.name?.givenName || '',
       familyName: data.name?.familyName || '',
     };
@@ -488,7 +524,9 @@ router.put('/Users/:id', (req: Request, res: Response) => {
       ...existing,
     });
   } catch (error: unknown) {
-    logger.error('SCIM replace user failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('SCIM replace user failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
       detail: 'Internal server error',
@@ -520,11 +558,18 @@ router.patch('/Users/:id', (req: Request, res: Response) => {
 
     for (const op of parsed.data.Operations) {
       if (op.op === 'replace') {
-        if (op.path === 'active' || (!op.path && typeof op.value === 'object' && 'active' in op.value)) {
+        if (
+          op.path === 'active' ||
+          (!op.path && typeof op.value === 'object' && 'active' in op.value)
+        ) {
           existing.active = op.path === 'active' ? !!op.value : !!op.value.active;
         }
-        if (op.path === 'displayName' || (!op.path && typeof op.value === 'object' && 'displayName' in op.value)) {
-          existing.displayName = op.path === 'displayName' ? String(op.value) : String(op.value.displayName);
+        if (
+          op.path === 'displayName' ||
+          (!op.path && typeof op.value === 'object' && 'displayName' in op.value)
+        ) {
+          existing.displayName =
+            op.path === 'displayName' ? String(op.value) : String(op.value.displayName);
         }
         if (op.path === 'name.givenName' && op.value) {
           existing.name.givenName = String(op.value);
@@ -545,7 +590,9 @@ router.patch('/Users/:id', (req: Request, res: Response) => {
       ...existing,
     });
   } catch (error: unknown) {
-    logger.error('SCIM patch user failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('SCIM patch user failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
       detail: 'Internal server error',
@@ -572,7 +619,9 @@ router.delete('/Users/:id', (req: Request, res: Response) => {
 
     res.status(204).send();
   } catch (error: unknown) {
-    logger.error('SCIM delete user failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('SCIM delete user failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
       detail: 'Internal server error',
@@ -596,7 +645,7 @@ router.get('/Groups', (req: Request, res: Response) => {
       if (match) {
         const [, op, value] = match;
         const lv = value.toLowerCase();
-        allGroups = allGroups.filter(g => {
+        allGroups = allGroups.filter((g) => {
           const dn = g.displayName.toLowerCase();
           if (op.toLowerCase() === 'eq') return dn === lv;
           if (op.toLowerCase() === 'co') return dn.includes(lv);
@@ -610,7 +659,9 @@ router.get('/Groups', (req: Request, res: Response) => {
 
     res.json(scimListResponse(paged, allGroups.length, startIndex, paged.length));
   } catch (error: unknown) {
-    logger.error('SCIM list groups failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('SCIM list groups failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
       detail: 'Internal server error',
@@ -635,7 +686,9 @@ router.get('/Groups/:id', (req: Request, res: Response) => {
       ...group,
     });
   } catch (error: unknown) {
-    logger.error('SCIM get group failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('SCIM get group failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
       detail: 'Internal server error',
@@ -673,17 +726,23 @@ router.patch('/Groups/:id', (req: Request, res: Response) => {
         const newMembers = Array.isArray(op.value) ? op.value : [op.value];
         for (const member of newMembers) {
           // Validate member value is a non-empty string with length limit
-          if (!member || typeof member !== 'object' || typeof member.value !== 'string' || member.value.length === 0 || member.value.length > 200) {
+          if (
+            !member ||
+            typeof member !== 'object' ||
+            typeof member.value !== 'string' ||
+            member.value.length === 0 ||
+            member.value.length > 200
+          ) {
             continue;
           }
-          if (!group.members.find(m => m.value === member.value)) {
+          if (!group.members.find((m) => m.value === member.value)) {
             const user = scimUserStore.get(member.value);
             group.members.push({
               value: String(member.value),
               display: String(member.display || user?.displayName || member.value).slice(0, 200),
             });
             // Also add group reference to user
-            if (user && !user.groups.find(g => g.value === group.id)) {
+            if (user && !user.groups.find((g) => g.value === group.id)) {
               user.groups.push({ value: group.id, display: group.displayName });
             }
           }
@@ -694,10 +753,10 @@ router.patch('/Groups/:id', (req: Request, res: Response) => {
         if (memberMatch) {
           const memberId = memberMatch[1];
           if (memberId.length > 200) continue;
-          group.members = group.members.filter(m => m.value !== memberId);
+          group.members = group.members.filter((m) => m.value !== memberId);
           const user = scimUserStore.get(memberId);
           if (user) {
-            user.groups = user.groups.filter(g => g.value !== group.id);
+            user.groups = user.groups.filter((g) => g.value !== group.id);
           }
         }
       } else if (op.op === 'replace' && op.path === 'displayName') {
@@ -706,14 +765,20 @@ router.patch('/Groups/:id', (req: Request, res: Response) => {
     }
 
     group.meta.lastModified = new Date().toISOString();
-    logger.info('SCIM group patched', { id: req.params.id, displayName: group.displayName, memberCount: group.members.length });
+    logger.info('SCIM group patched', {
+      id: req.params.id,
+      displayName: group.displayName,
+      memberCount: group.members.length,
+    });
 
     res.json({
       schemas: ['urn:ietf:params:scim:schemas:core:2.0:Group'],
       ...group,
     });
   } catch (error: unknown) {
-    logger.error('SCIM patch group failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('SCIM patch group failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
       detail: 'Internal server error',

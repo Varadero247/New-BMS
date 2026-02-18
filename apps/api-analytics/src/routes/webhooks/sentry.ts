@@ -16,9 +16,11 @@ const sentryEventSchema = z.object({
 
 const sentryWebhookSchema = z.object({
   event: sentryEventSchema.optional(),
-  data: z.object({
-    event: sentryEventSchema.optional(),
-  }).optional(),
+  data: z
+    .object({
+      event: sentryEventSchema.optional(),
+    })
+    .optional(),
 });
 
 const logger = createLogger('webhook-sentry');
@@ -40,7 +42,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = sentryWebhookSchema.safeParse(req.body || {});
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { event, data } = parsed.data;
@@ -50,11 +55,14 @@ router.post('/', async (req: Request, res: Response) => {
     const title = (sentryEvent as any).title || (sentryEvent as any).message || 'Unknown error';
     const level = (sentryEvent as any).level || 'error';
     const platform = (sentryEvent as any).platform || 'unknown';
-    const environment = (sentryEvent as any).environment || (sentryEvent as any).tags?.environment || 'production';
+    const environment =
+      (sentryEvent as any).environment || (sentryEvent as any).tags?.environment || 'production';
     const errorMessage = (sentryEvent as any).message || (sentryEvent as any).title || '';
 
     if (!sentryEventId) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Missing event_id' } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Missing event_id' } });
     }
 
     // Check for duplicate
@@ -84,7 +92,10 @@ router.post('/', async (req: Request, res: Response) => {
     res.json({ success: true, data: { bugReport } });
   } catch (err) {
     logger.error('Failed to process Sentry webhook', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to process webhook' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to process webhook' },
+    });
   }
 });
 

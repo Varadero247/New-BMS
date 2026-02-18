@@ -37,10 +37,10 @@ import { NotificationBell } from '@ims/notifications/react';
 
 ## Gateway Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/notifications` | List user notifications |
-| POST | `/api/notifications` | Create notification |
-| PATCH | `/api/notifications/:id/read` | Mark as read |
-| PATCH | `/api/notifications/read-all` | Mark all as read |
-| DELETE | `/api/notifications/:id` | Delete notification |
+| Method | Path                          | Description             |
+| ------ | ----------------------------- | ----------------------- |
+| GET    | `/api/notifications`          | List user notifications |
+| POST   | `/api/notifications`          | Create notification     |
+| PATCH  | `/api/notifications/:id/read` | Mark as read            |
+| PATCH  | `/api/notifications/read-all` | Mark all as read        |
+| DELETE | `/api/notifications/:id`      | Delete notification     |

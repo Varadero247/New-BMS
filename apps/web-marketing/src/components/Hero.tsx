@@ -71,10 +71,7 @@ function DashboardMockup() {
         }}
       >
         {/* Top accent gradient */}
-        <div
-          className="h-[2px]"
-          style={{ background: 'var(--g-brand)' }}
-        />
+        <div className="h-[2px]" style={{ background: 'var(--g-brand)' }} />
 
         <div className="p-6">
           {/* Header bar */}
@@ -111,14 +108,11 @@ function DashboardMockup() {
           <div className="flex items-center gap-6 mb-6">
             <div className="relative" style={{ width: 96, height: 96 }}>
               <svg viewBox="0 0 96 96" width="96" height="96">
+                <circle cx="48" cy="48" r="42" fill="none" stroke="var(--border)" strokeWidth="4" />
                 <circle
-                  cx="48" cy="48" r="42"
-                  fill="none"
-                  stroke="var(--border)"
-                  strokeWidth="4"
-                />
-                <circle
-                  cx="48" cy="48" r="42"
+                  cx="48"
+                  cy="48"
+                  r="42"
                   fill="none"
                   stroke="var(--teal-core)"
                   strokeWidth="4"
@@ -128,9 +122,7 @@ function DashboardMockup() {
                   style={{ transition: 'stroke-dasharray 0.3s ease' }}
                 />
               </svg>
-              <div
-                className="absolute inset-0 flex flex-col items-center justify-center"
-              >
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span
                   style={{
                     fontFamily: 'var(--font-display)',
@@ -163,10 +155,22 @@ function DashboardMockup() {
               ].map((item) => (
                 <div key={item.label}>
                   <div className="flex justify-between mb-0.5">
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.58rem', color: 'var(--steel)' }}>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.58rem',
+                        color: 'var(--steel)',
+                      }}
+                    >
                       {item.label}
                     </span>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.58rem', color: 'var(--silver)' }}>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.58rem',
+                        color: 'var(--silver)',
+                      }}
+                    >
                       {item.pct}%
                     </span>
                   </div>
@@ -202,14 +206,35 @@ function DashboardMockup() {
                   borderRadius: 8,
                 }}
               >
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.5rem', color: 'var(--muted)', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }}>
+                <div
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.5rem',
+                    color: 'var(--muted)',
+                    textTransform: 'uppercase' as const,
+                    letterSpacing: '0.1em',
+                  }}
+                >
                   {kpi.label}
                 </div>
                 <div className="flex items-baseline gap-1 mt-1">
-                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.1rem', color: 'var(--white)' }}>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontWeight: 700,
+                      fontSize: '1.1rem',
+                      color: 'var(--white)',
+                    }}
+                  >
                     {kpi.value}
                   </span>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.55rem', color: kpi.trend.startsWith('-') ? 'var(--teal-core)' : 'var(--m-payroll)' }}>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.55rem',
+                      color: kpi.trend.startsWith('-') ? 'var(--teal-core)' : 'var(--m-payroll)',
+                    }}
+                  >
                     {kpi.trend}
                   </span>
                 </div>
@@ -321,8 +346,8 @@ export default function Hero({ onOpenLogin }: HeroProps) {
                 color: 'var(--silver)',
               }}
             >
-              29 ISO standards. One platform. No integrations required. Nexara unifies
-              compliance, ESG, and regulatory management into a single AI-powered system.
+              29 ISO standards. One platform. No integrations required. Nexara unifies compliance,
+              ESG, and regulatory management into a single AI-powered system.
             </p>
 
             {/* CTA buttons */}
@@ -374,7 +399,10 @@ export default function Hero({ onOpenLogin }: HeroProps) {
               }}
             >
               {stats.map((stat, i) => (
-                <div key={stat.label} className={i === 0 ? 'pr-8' : i === stats.length - 1 ? 'pl-8' : 'px-8'}>
+                <div
+                  key={stat.label}
+                  className={i === 0 ? 'pr-8' : i === stats.length - 1 ? 'pl-8' : 'px-8'}
+                >
                   <div
                     style={{
                       fontFamily: 'var(--font-display)',

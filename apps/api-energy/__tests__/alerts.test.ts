@@ -19,7 +19,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -41,7 +45,9 @@ beforeEach(() => {
 
 describe('GET /api/alerts', () => {
   it('should return paginated alerts', async () => {
-    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([{ id: 'e4000000-0000-4000-a000-000000000001', type: 'OVERCONSUMPTION' }]);
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([
+      { id: 'e4000000-0000-4000-a000-000000000001', type: 'OVERCONSUMPTION' },
+    ]);
     (prisma.energyAlert.count as jest.Mock).mockResolvedValue(1);
 
     const res = await request(app).get('/api/alerts');
@@ -107,7 +113,11 @@ describe('POST /api/alerts', () => {
   };
 
   it('should create an alert', async () => {
-    (prisma.energyAlert.create as jest.Mock).mockResolvedValue({ id: 'new-id', ...validBody, acknowledged: false });
+    (prisma.energyAlert.create as jest.Mock).mockResolvedValue({
+      id: 'new-id',
+      ...validBody,
+      acknowledged: false,
+    });
 
     const res = await request(app).post('/api/alerts').send(validBody);
 
@@ -118,7 +128,9 @@ describe('POST /api/alerts', () => {
   it('should validate meter if provided', async () => {
     (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).post('/api/alerts').send({ ...validBody, meterId: '00000000-0000-0000-0000-000000000099' });
+    const res = await request(app)
+      .post('/api/alerts')
+      .send({ ...validBody, meterId: '00000000-0000-0000-0000-000000000099' });
 
     expect(res.status).toBe(404);
   });
@@ -132,7 +144,10 @@ describe('POST /api/alerts', () => {
 
 describe('GET /api/alerts/:id', () => {
   it('should return an alert', async () => {
-    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({ id: 'e4000000-0000-4000-a000-000000000001', type: 'ANOMALY' });
+    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+      type: 'ANOMALY',
+    });
 
     const res = await request(app).get('/api/alerts/e4000000-0000-4000-a000-000000000001');
 
@@ -151,10 +166,17 @@ describe('GET /api/alerts/:id', () => {
 
 describe('PUT /api/alerts/:id', () => {
   it('should update an alert', async () => {
-    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({ id: 'e4000000-0000-4000-a000-000000000001' });
-    (prisma.energyAlert.update as jest.Mock).mockResolvedValue({ id: 'e4000000-0000-4000-a000-000000000001', severity: 'CRITICAL' });
+    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyAlert.update as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+      severity: 'CRITICAL',
+    });
 
-    const res = await request(app).put('/api/alerts/e4000000-0000-4000-a000-000000000001').send({ severity: 'CRITICAL' });
+    const res = await request(app)
+      .put('/api/alerts/e4000000-0000-4000-a000-000000000001')
+      .send({ severity: 'CRITICAL' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.severity).toBe('CRITICAL');
@@ -163,7 +185,9 @@ describe('PUT /api/alerts/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000099').send({ severity: 'HIGH' });
+    const res = await request(app)
+      .put('/api/alerts/00000000-0000-0000-0000-000000000099')
+      .send({ severity: 'HIGH' });
 
     expect(res.status).toBe(404);
   });
@@ -171,8 +195,12 @@ describe('PUT /api/alerts/:id', () => {
 
 describe('DELETE /api/alerts/:id', () => {
   it('should soft delete an alert', async () => {
-    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({ id: 'e4000000-0000-4000-a000-000000000001' });
-    (prisma.energyAlert.update as jest.Mock).mockResolvedValue({ id: 'e4000000-0000-4000-a000-000000000001' });
+    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyAlert.update as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+    });
 
     const res = await request(app).delete('/api/alerts/e4000000-0000-4000-a000-000000000001');
 
@@ -191,19 +219,33 @@ describe('DELETE /api/alerts/:id', () => {
 
 describe('PUT /api/alerts/:id/acknowledge', () => {
   it('should acknowledge an alert', async () => {
-    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({ id: 'e4000000-0000-4000-a000-000000000001', acknowledged: false });
-    (prisma.energyAlert.update as jest.Mock).mockResolvedValue({ id: 'e4000000-0000-4000-a000-000000000001', acknowledged: true, acknowledgedBy: '00000000-0000-4000-a000-000000000123' });
+    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+      acknowledged: false,
+    });
+    (prisma.energyAlert.update as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+      acknowledged: true,
+      acknowledgedBy: '00000000-0000-4000-a000-000000000123',
+    });
 
-    const res = await request(app).put('/api/alerts/e4000000-0000-4000-a000-000000000001/acknowledge');
+    const res = await request(app).put(
+      '/api/alerts/e4000000-0000-4000-a000-000000000001/acknowledge'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.acknowledged).toBe(true);
   });
 
   it('should reject if already acknowledged', async () => {
-    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({ id: 'e4000000-0000-4000-a000-000000000001', acknowledged: true });
+    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+      acknowledged: true,
+    });
 
-    const res = await request(app).put('/api/alerts/e4000000-0000-4000-a000-000000000001/acknowledge');
+    const res = await request(app).put(
+      '/api/alerts/e4000000-0000-4000-a000-000000000001/acknowledge'
+    );
 
     expect(res.status).toBe(400);
   });
@@ -211,7 +253,9 @@ describe('PUT /api/alerts/:id/acknowledge', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000099/acknowledge');
+    const res = await request(app).put(
+      '/api/alerts/00000000-0000-0000-0000-000000000099/acknowledge'
+    );
 
     expect(res.status).toBe(404);
   });
@@ -220,9 +264,15 @@ describe('PUT /api/alerts/:id/acknowledge', () => {
 describe('PUT /api/alerts/:id/resolve', () => {
   it('should resolve an alert', async () => {
     (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({
-      id: 'e4000000-0000-4000-a000-000000000001', resolvedAt: null, acknowledgedAt: null, acknowledgedBy: null,
+      id: 'e4000000-0000-4000-a000-000000000001',
+      resolvedAt: null,
+      acknowledgedAt: null,
+      acknowledgedBy: null,
     });
-    (prisma.energyAlert.update as jest.Mock).mockResolvedValue({ id: 'e4000000-0000-4000-a000-000000000001', resolvedAt: new Date() });
+    (prisma.energyAlert.update as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+      resolvedAt: new Date(),
+    });
 
     const res = await request(app).put('/api/alerts/e4000000-0000-4000-a000-000000000001/resolve');
 
@@ -231,7 +281,10 @@ describe('PUT /api/alerts/:id/resolve', () => {
   });
 
   it('should reject if already resolved', async () => {
-    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({ id: 'e4000000-0000-4000-a000-000000000001', resolvedAt: new Date() });
+    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+      resolvedAt: new Date(),
+    });
 
     const res = await request(app).put('/api/alerts/e4000000-0000-4000-a000-000000000001/resolve');
 

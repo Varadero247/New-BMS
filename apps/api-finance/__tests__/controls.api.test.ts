@@ -15,7 +15,12 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN', orgId: '00000000-0000-4000-a000-000000000100' };
+    req.user = {
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'test@test.com',
+      role: 'ADMIN',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    };
     next();
   }),
 }));
@@ -41,8 +46,18 @@ beforeEach(() => {
 describe('GET /api/controls', () => {
   it('should return a list of controls with pagination', async () => {
     const controls = [
-      { id: '00000000-0000-0000-0000-000000000001', referenceNumber: 'FCR-2026-0001', name: 'Segregation of Duties', status: 'ACTIVE' },
-      { id: '00000000-0000-0000-0000-000000000002', referenceNumber: 'FCR-2026-0002', name: 'Bank Reconciliation', status: 'ACTIVE' },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        referenceNumber: 'FCR-2026-0001',
+        name: 'Segregation of Duties',
+        status: 'ACTIVE',
+      },
+      {
+        id: '00000000-0000-0000-0000-000000000002',
+        referenceNumber: 'FCR-2026-0002',
+        name: 'Bank Reconciliation',
+        status: 'ACTIVE',
+      },
     ];
     (prisma as any).finControl.findMany.mockResolvedValue(controls);
     (prisma as any).finControl.count.mockResolvedValue(2);
@@ -190,7 +205,11 @@ describe('POST /api/controls', () => {
 // ===================================================================
 describe('PUT /api/controls/:id', () => {
   it('should update a control successfully', async () => {
-    const existing = { id: '00000000-0000-0000-0000-000000000001', name: 'Old Name', deletedAt: null };
+    const existing = {
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Old Name',
+      deletedAt: null,
+    };
     (prisma as any).finControl.findFirst.mockResolvedValue(existing);
     (prisma as any).finControl.update.mockResolvedValue({
       ...existing,
@@ -217,7 +236,10 @@ describe('PUT /api/controls/:id', () => {
   });
 
   it('should return 500 on update error', async () => {
-    (prisma as any).finControl.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+    (prisma as any).finControl.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
     (prisma as any).finControl.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
@@ -234,7 +256,10 @@ describe('PUT /api/controls/:id', () => {
 // ===================================================================
 describe('DELETE /api/controls/:id', () => {
   it('should soft-delete a control successfully', async () => {
-    (prisma as any).finControl.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    (prisma as any).finControl.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/controls/00000000-0000-0000-0000-000000000001');
 
@@ -244,7 +269,9 @@ describe('DELETE /api/controls/:id', () => {
   });
 
   it('should call update with deletedAt set', async () => {
-    (prisma as any).finControl.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).finControl.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
 
     await request(app).delete('/api/controls/00000000-0000-0000-0000-000000000001');
 

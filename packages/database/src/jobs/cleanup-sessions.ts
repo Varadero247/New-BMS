@@ -61,11 +61,17 @@ export class SessionCleanupJob {
   private prisma: PrismaClient;
   private intervalId: NodeJS.Timeout | null = null;
   private isRunning: boolean = false;
-  private logger: { info: (msg: string, meta?: object) => void; error: (msg: string, meta?: object) => void };
+  private logger: {
+    info: (msg: string, meta?: object) => void;
+    error: (msg: string, meta?: object) => void;
+  };
 
   constructor(
     prisma: PrismaClient,
-    logger?: { info: (msg: string, meta?: object) => void; error: (msg: string, meta?: object) => void }
+    logger?: {
+      info: (msg: string, meta?: object) => void;
+      error: (msg: string, meta?: object) => void;
+    }
   ) {
     this.prisma = prisma;
     this.logger = logger || {
@@ -149,7 +155,10 @@ export class SessionCleanupJob {
 // Factory function to create a cleanup job with the default prisma instance
 export function createSessionCleanupJob(
   prisma: PrismaClient,
-  logger?: { info: (msg: string, meta?: object) => void; error: (msg: string, meta?: object) => void }
+  logger?: {
+    info: (msg: string, meta?: object) => void;
+    error: (msg: string, meta?: object) => void;
+  }
 ): SessionCleanupJob {
   return new SessionCleanupJob(prisma, logger);
 }

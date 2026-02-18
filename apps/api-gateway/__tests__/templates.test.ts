@@ -30,7 +30,11 @@ jest.mock('@ims/auth', () => ({
     req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN' };
     next();
   }),
-  requireRole: jest.fn((..._roles: string[]) => (_req: any, _res: any, next: any) => next()),
+  requireRole: jest.fn(
+    (..._roles: string[]) =>
+      (_req: any, _res: any, next: any) =>
+        next()
+  ),
 }));
 
 jest.mock('@ims/templates', () => ({
@@ -137,7 +141,7 @@ describe('Templates API', () => {
       expect(mockPrisma.template.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ module: 'HEALTH_SAFETY' }),
-        }),
+        })
       );
     });
 
@@ -151,7 +155,7 @@ describe('Templates API', () => {
       expect(mockPrisma.template.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ category: 'AUDIT', status: 'ACTIVE' }),
-        }),
+        })
       );
     });
 
@@ -169,7 +173,7 @@ describe('Templates API', () => {
               expect.objectContaining({ name: { contains: 'risk', mode: 'insensitive' } }),
             ]),
           }),
-        }),
+        })
       );
     });
 
@@ -181,7 +185,7 @@ describe('Templates API', () => {
 
       expect(res.status).toBe(200);
       expect(mockPrisma.template.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ skip: 20, take: 10 }),
+        expect.objectContaining({ skip: 20, take: 10 })
       );
     });
 
@@ -211,7 +215,13 @@ describe('Templates API', () => {
           { category: 'AUDIT', _count: 4 },
         ]);
       mockPrisma.template.findMany.mockResolvedValue([
-        { id: '00000000-0000-0000-0000-000000000001', code: 'TPL-ENV-001', name: 'Aspect Register', module: 'ENVIRONMENT', usageCount: 12 },
+        {
+          id: '00000000-0000-0000-0000-000000000001',
+          code: 'TPL-ENV-001',
+          name: 'Aspect Register',
+          module: 'ENVIRONMENT',
+          usageCount: 12,
+        },
       ]);
       mockPrisma.template.aggregate.mockResolvedValue({
         _count: 57,
@@ -299,9 +309,7 @@ describe('Templates API', () => {
         isBuiltIn: false,
       });
 
-      const res = await request(app)
-        .post('/api/v1/templates')
-        .send(validPayload);
+      const res = await request(app).post('/api/v1/templates').send(validPayload);
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -309,9 +317,7 @@ describe('Templates API', () => {
     });
 
     it('should reject invalid payload (missing fields)', async () => {
-      const res = await request(app)
-        .post('/api/v1/templates')
-        .send({ name: 'No Fields' });
+      const res = await request(app).post('/api/v1/templates').send({ name: 'No Fields' });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -353,7 +359,7 @@ describe('Templates API', () => {
             templateId: '00000000-0000-0000-0000-000000000001',
             version: 1,
           }),
-        }),
+        })
       );
     });
 
@@ -380,21 +386,25 @@ describe('Templates API', () => {
         deletedAt: new Date(),
       });
 
-      const res = await request(app).delete('/api/v1/templates/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/v1/templates/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.data.message).toBe('Template deleted');
       expect(mockPrisma.template.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({ deletedAt: expect.any(Date) }),
-        }),
+        })
       );
     });
 
     it('should return 404 for non-existent template', async () => {
       mockPrisma.template.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/v1/templates/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/v1/templates/00000000-0000-0000-0000-000000000099'
+      );
 
       expect(res.status).toBe(404);
     });
@@ -409,7 +419,9 @@ describe('Templates API', () => {
 
       mockPrisma.template.findFirst.mockResolvedValue(mockTemplate); // isBuiltIn: true
 
-      const res = await request(app).delete('/api/v1/templates/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/v1/templates/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(res.status).toBe(403);
       expect(res.body.error.message).toMatch(/administrators/i);
@@ -446,9 +458,7 @@ describe('Templates API', () => {
     });
 
     it('should allow custom name for clone', async () => {
-      mockPrisma.template.findFirst
-        .mockResolvedValueOnce(mockTemplate)
-        .mockResolvedValueOnce(null);
+      mockPrisma.template.findFirst.mockResolvedValueOnce(mockTemplate).mockResolvedValueOnce(null);
       mockPrisma.template.create.mockResolvedValue({
         ...mockTemplate,
         id: 'tpl-clone',
@@ -465,7 +475,7 @@ describe('Templates API', () => {
       expect(mockPrisma.template.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({ name: 'My Custom RA' }),
-        }),
+        })
       );
     });
 
@@ -513,7 +523,7 @@ describe('Templates API', () => {
       expect(mockPrisma.template.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: { usageCount: { increment: 1 } },
-        }),
+        })
       );
     });
 
@@ -552,7 +562,7 @@ describe('Templates API', () => {
       expect(mockPrisma.templateInstance.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({ referenceId: 'risk-42' }),
-        }),
+        })
       );
     });
 
@@ -573,13 +583,27 @@ describe('Templates API', () => {
 
   describe('GET /api/v1/templates/:id/versions', () => {
     it('should return version history', async () => {
-      mockPrisma.template.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+      mockPrisma.template.findFirst.mockResolvedValue({
+        id: '00000000-0000-0000-0000-000000000001',
+      });
       mockPrisma.templateVersion.findMany.mockResolvedValue([
-        { id: 'ver-2', templateId: '00000000-0000-0000-0000-000000000001', version: 2, changeNote: 'Updated fields' },
-        { id: 'ver-1', templateId: '00000000-0000-0000-0000-000000000001', version: 1, changeNote: 'Initial' },
+        {
+          id: 'ver-2',
+          templateId: '00000000-0000-0000-0000-000000000001',
+          version: 2,
+          changeNote: 'Updated fields',
+        },
+        {
+          id: 'ver-1',
+          templateId: '00000000-0000-0000-0000-000000000001',
+          version: 1,
+          changeNote: 'Initial',
+        },
       ]);
 
-      const res = await request(app).get('/api/v1/templates/00000000-0000-0000-0000-000000000001/versions');
+      const res = await request(app).get(
+        '/api/v1/templates/00000000-0000-0000-0000-000000000001/versions'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(2);
@@ -589,7 +613,9 @@ describe('Templates API', () => {
     it('should return 404 for non-existent template', async () => {
       mockPrisma.template.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/v1/templates/00000000-0000-0000-0000-000000000099/versions');
+      const res = await request(app).get(
+        '/api/v1/templates/00000000-0000-0000-0000-000000000099/versions'
+      );
 
       expect(res.status).toBe(404);
     });
@@ -630,7 +656,7 @@ describe('Templates API', () => {
       expect(mockPrisma.templateVersion.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({ version: 3 }),
-        }),
+        })
       );
     });
 
@@ -653,7 +679,9 @@ describe('Templates API', () => {
     it('should export as HTML by default', async () => {
       mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
 
-      const res = await request(app).get('/api/v1/templates/00000000-0000-0000-0000-000000000001/export');
+      const res = await request(app).get(
+        '/api/v1/templates/00000000-0000-0000-0000-000000000001/export'
+      );
 
       expect(res.status).toBe(200);
       expect(res.headers['content-type']).toMatch(/text\/html/);
@@ -663,7 +691,9 @@ describe('Templates API', () => {
     it('should export as JSON when format=json', async () => {
       mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
 
-      const res = await request(app).get('/api/v1/templates/00000000-0000-0000-0000-000000000001/export?format=json');
+      const res = await request(app).get(
+        '/api/v1/templates/00000000-0000-0000-0000-000000000001/export?format=json'
+      );
 
       expect(res.status).toBe(200);
       expect(res.headers['content-type']).toMatch(/application\/json/);
@@ -676,7 +706,9 @@ describe('Templates API', () => {
     it('should return 404 for non-existent template', async () => {
       mockPrisma.template.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/v1/templates/00000000-0000-0000-0000-000000000099/export');
+      const res = await request(app).get(
+        '/api/v1/templates/00000000-0000-0000-0000-000000000099/export'
+      );
 
       expect(res.status).toBe(404);
     });

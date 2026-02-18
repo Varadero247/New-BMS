@@ -16,7 +16,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -71,7 +75,10 @@ describe('InfoSec Controls API', () => {
 
   describe('GET /api/controls', () => {
     it('should return all controls with pagination', async () => {
-      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl, mockControl2]);
+      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([
+        mockControl,
+        mockControl2,
+      ]);
       (mockPrisma.isControl.count as jest.Mock).mockResolvedValueOnce(2);
 
       const res = await request(app).get('/api/controls');
@@ -148,7 +155,10 @@ describe('InfoSec Controls API', () => {
 
   describe('GET /api/controls/soa', () => {
     it('should return Statement of Applicability', async () => {
-      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl, mockControl2]);
+      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([
+        mockControl,
+        mockControl2,
+      ]);
 
       const res = await request(app).get('/api/controls/soa');
 
@@ -160,8 +170,16 @@ describe('InfoSec Controls API', () => {
     });
 
     it('should calculate summary counts correctly', async () => {
-      const notApplicable = { ...mockControl, id: 'a3000000-0000-4000-a000-000000000003', applicability: 'NOT_APPLICABLE', implementationStatus: 'NOT_APPLICABLE' };
-      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl, notApplicable]);
+      const notApplicable = {
+        ...mockControl,
+        id: 'a3000000-0000-4000-a000-000000000003',
+        applicability: 'NOT_APPLICABLE',
+        implementationStatus: 'NOT_APPLICABLE',
+      };
+      (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([
+        mockControl,
+        notApplicable,
+      ]);
 
       const res = await request(app).get('/api/controls/soa');
 
@@ -191,7 +209,9 @@ describe('InfoSec Controls API', () => {
       expect(res.headers['content-type']).toMatch(/application\/pdf/);
       expect(res.headers['content-disposition']).toMatch(/attachment/);
       // PDF binary starts with %PDF-1.4
-      const bodyStr = Buffer.isBuffer(res.body) ? res.body.toString('ascii', 0, 8) : String(res.body ?? '');
+      const bodyStr = Buffer.isBuffer(res.body)
+        ? res.body.toString('ascii', 0, 8)
+        : String(res.body ?? '');
       expect(bodyStr.startsWith('%PDF-1.4')).toBe(true);
     });
 
@@ -242,7 +262,10 @@ describe('InfoSec Controls API', () => {
   describe('PUT /api/controls/:id/status', () => {
     it('should update applicability to APPLICABLE', async () => {
       (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(mockControl);
-      (mockPrisma.isControl.update as jest.Mock).mockResolvedValueOnce({ ...mockControl, applicability: 'APPLICABLE' });
+      (mockPrisma.isControl.update as jest.Mock).mockResolvedValueOnce({
+        ...mockControl,
+        applicability: 'APPLICABLE',
+      });
 
       const res = await request(app)
         .put('/api/controls/a3000000-0000-4000-a000-000000000001/status')

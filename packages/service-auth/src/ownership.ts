@@ -24,7 +24,10 @@ const ROLE_HIERARCHY: Record<UserRole, number> = {
  * We only require the subset of fields the ownership middleware actually uses.
  */
 export interface PrismaModelDelegate {
-  findUnique(args: { where: { id: string }; select: Record<string, boolean> }): Promise<Record<string, unknown> | null>;
+  findUnique(args: {
+    where: { id: string };
+    select: Record<string, boolean>;
+  }): Promise<Record<string, unknown> | null>;
 }
 
 // ---------------------------------------------------------------------------

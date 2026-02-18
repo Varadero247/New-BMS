@@ -45,11 +45,37 @@ beforeEach(() => {
 describe('runBoardPackJob', () => {
   it('creates a board pack with aggregated snapshot data', async () => {
     const snapshots = [
-      { id: 's1', mrr: 5000, customers: 10, mrrGrowthPct: 5, newCustomers: 2, revenueChurnPct: 1, ndr: 110, founderDraw: 3000, trajectory: 'ON_TRACK', monthNumber: 3 },
-      { id: 's2', mrr: 4500, customers: 9, mrrGrowthPct: 4, newCustomers: 1, revenueChurnPct: 2, ndr: 105, founderDraw: 2800, trajectory: 'BEHIND', monthNumber: 2 },
+      {
+        id: 's1',
+        mrr: 5000,
+        customers: 10,
+        mrrGrowthPct: 5,
+        newCustomers: 2,
+        revenueChurnPct: 1,
+        ndr: 110,
+        founderDraw: 3000,
+        trajectory: 'ON_TRACK',
+        monthNumber: 3,
+      },
+      {
+        id: 's2',
+        mrr: 4500,
+        customers: 9,
+        mrrGrowthPct: 4,
+        newCustomers: 1,
+        revenueChurnPct: 2,
+        ndr: 105,
+        founderDraw: 2800,
+        trajectory: 'BEHIND',
+        monthNumber: 2,
+      },
     ];
     (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue(snapshots);
-    (prisma.boardPack.create as jest.Mock).mockResolvedValue({ id: 'bp-1', title: 'Q1 2026 Board Pack', status: 'DRAFT' });
+    (prisma.boardPack.create as jest.Mock).mockResolvedValue({
+      id: 'bp-1',
+      title: 'Q1 2026 Board Pack',
+      status: 'DRAFT',
+    });
 
     const id = await runBoardPackJob();
     expect(id).toBe('bp-1');
@@ -84,7 +110,9 @@ describe('runBoardPackJob', () => {
 // ---------------------------------------------------------------------------
 describe('GET /api/board-packs', () => {
   it('lists board packs newest first', async () => {
-    (prisma.boardPack.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'Q1 2026' }]);
+    (prisma.boardPack.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Q1 2026' },
+    ]);
     (prisma.boardPack.count as jest.Mock).mockResolvedValue(1);
 
     const res = await request(app).get('/api/board-packs');
@@ -116,27 +144,48 @@ describe('GET /api/board-packs/:id', () => {
 
 describe('PATCH /api/board-packs/:id', () => {
   it('transitions DRAFT to FINAL', async () => {
-    (prisma.boardPack.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' });
-    (prisma.boardPack.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'FINAL' });
+    (prisma.boardPack.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'DRAFT',
+    });
+    (prisma.boardPack.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'FINAL',
+    });
 
-    const res = await request(app).patch('/api/board-packs/00000000-0000-0000-0000-000000000001').send({ status: 'FINAL' });
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'FINAL' });
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('FINAL');
   });
 
   it('transitions FINAL to DISTRIBUTED', async () => {
-    (prisma.boardPack.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'FINAL' });
-    (prisma.boardPack.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'DISTRIBUTED' });
+    (prisma.boardPack.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'FINAL',
+    });
+    (prisma.boardPack.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'DISTRIBUTED',
+    });
 
-    const res = await request(app).patch('/api/board-packs/00000000-0000-0000-0000-000000000001').send({ status: 'DISTRIBUTED' });
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'DISTRIBUTED' });
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('DISTRIBUTED');
   });
 
   it('rejects invalid status transition', async () => {
-    (prisma.boardPack.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' });
+    (prisma.boardPack.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'DRAFT',
+    });
 
-    const res = await request(app).patch('/api/board-packs/00000000-0000-0000-0000-000000000001').send({ status: 'DISTRIBUTED' });
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'DISTRIBUTED' });
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INVALID_TRANSITION');
   });

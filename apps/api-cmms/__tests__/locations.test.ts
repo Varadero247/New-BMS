@@ -3,7 +3,13 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    cmmsLocation: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    cmmsLocation: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
   },
   Prisma: { Decimal: jest.fn((v: any) => v) },
 }));
@@ -142,14 +148,18 @@ describe('Locations Routes', () => {
       prisma.cmmsLocation.findFirst.mockResolvedValue(mockLocation);
       prisma.cmmsLocation.update.mockResolvedValue({ ...mockLocation, name: 'Updated' });
 
-      const res = await request(app).put('/api/locations/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
+      const res = await request(app)
+        .put('/api/locations/00000000-0000-0000-0000-000000000001')
+        .send({ name: 'Updated' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent location', async () => {
       prisma.cmmsLocation.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/locations/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
+      const res = await request(app)
+        .put('/api/locations/00000000-0000-0000-0000-000000000099')
+        .send({ name: 'Updated' });
       expect(res.status).toBe(404);
     });
   });

@@ -38,7 +38,10 @@ export default function TicketDetailPage() {
 
   useEffect(() => {
     const token = localStorage.getItem('partner_token');
-    if (!token) { router.push('/login'); return; }
+    if (!token) {
+      router.push('/login');
+      return;
+    }
     fetchTicket();
   }, [ticketId]);
 
@@ -102,7 +105,10 @@ export default function TicketDetailPage() {
       <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <button onClick={() => router.push('/support')} className="text-sm text-gray-400 hover:text-white mb-4 inline-block">
+          <button
+            onClick={() => router.push('/support')}
+            className="text-sm text-gray-400 hover:text-white mb-4 inline-block"
+          >
             &larr; Back to Support
           </button>
 
@@ -110,20 +116,29 @@ export default function TicketDetailPage() {
             <div className="flex items-start justify-between">
               <div>
                 <h1 className="text-xl font-bold text-white">{ticket.subject}</h1>
-                <p className="text-sm text-gray-400 mt-1">Created {new Date(ticket.createdAt).toLocaleString('en-GB')}</p>
+                <p className="text-sm text-gray-400 mt-1">
+                  Created {new Date(ticket.createdAt).toLocaleString('en-GB')}
+                </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                  ticket.priority === 'URGENT' ? 'bg-red-500/20 text-red-400' :
-                  ticket.priority === 'HIGH' ? 'bg-orange-500/20 text-orange-400' :
-                  ticket.priority === 'MEDIUM' ? 'bg-blue-500/20 text-blue-400' :
-                  'bg-gray-500/20 text-gray-400'
-                }`}>
+                <span
+                  className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                    ticket.priority === 'URGENT'
+                      ? 'bg-red-500/20 text-red-400'
+                      : ticket.priority === 'HIGH'
+                        ? 'bg-orange-500/20 text-orange-400'
+                        : ticket.priority === 'MEDIUM'
+                          ? 'bg-blue-500/20 text-blue-400'
+                          : 'bg-gray-500/20 text-gray-400'
+                  }`}
+                >
                   {ticket.priority}
                 </span>
-                <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                  isClosed ? 'bg-gray-500/20 text-gray-400' : 'bg-green-500/20 text-green-400'
-                }`}>
+                <span
+                  className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                    isClosed ? 'bg-gray-500/20 text-gray-400' : 'bg-green-500/20 text-green-400'
+                  }`}
+                >
                   {ticket.status.replace(/_/g, ' ')}
                 </span>
               </div>
@@ -133,7 +148,12 @@ export default function TicketDetailPage() {
           {error && (
             <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center justify-between">
               <p className="text-sm text-red-400">{error}</p>
-              <button onClick={() => setError('')} className="text-red-500 hover:text-red-300 ml-4 text-sm">Dismiss</button>
+              <button
+                onClick={() => setError('')}
+                className="text-red-500 hover:text-red-300 ml-4 text-sm"
+              >
+                Dismiss
+              </button>
             </div>
           )}
 

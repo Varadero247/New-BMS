@@ -58,10 +58,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: plan });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create control plan error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create control plan' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create control plan' },
+    });
   }
 });
 
@@ -96,7 +106,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List control plans error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list control plans' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list control plans' },
+    });
   }
 });
 
@@ -111,13 +124,18 @@ router.get('/:id', checkOwnership(prisma.controlPlan), async (req: AuthRequest, 
     });
 
     if (!plan) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control plan not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Control plan not found' } });
     }
 
     res.json({ success: true, data: plan });
   } catch (error) {
     logger.error('Get control plan error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get control plan' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get control plan' },
+    });
   }
 });
 
@@ -129,7 +147,9 @@ router.put('/:id/characteristics/:charId', async (req: AuthRequest, res: Respons
     // Verify plan exists
     const plan = await prisma.controlPlan.findUnique({ where: { id } });
     if (!plan || plan.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control plan not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Control plan not found' } });
     }
 
     // Find characteristic and verify it belongs to this plan
@@ -138,7 +158,10 @@ router.put('/:id/characteristics/:charId', async (req: AuthRequest, res: Respons
     });
 
     if (!characteristic || characteristic.planId !== id) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Characteristic not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Characteristic not found' },
+      });
     }
 
     const schema = z.object({
@@ -175,10 +198,20 @@ router.put('/:id/characteristics/:charId', async (req: AuthRequest, res: Respons
     res.json({ success: true, data: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update characteristic error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update characteristic' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update characteristic' },
+    });
   }
 });
 
@@ -190,7 +223,9 @@ router.post('/:id/characteristics', async (req: AuthRequest, res: Response) => {
     // Verify plan exists
     const plan = await prisma.controlPlan.findUnique({ where: { id } });
     if (!plan || plan.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control plan not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Control plan not found' } });
     }
 
     const schema = z.object({
@@ -239,10 +274,20 @@ router.post('/:id/characteristics', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: characteristic });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Add characteristic error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add characteristic' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add characteristic' },
+    });
   }
 });
 
@@ -253,11 +298,16 @@ router.post('/:id/approve', async (req: AuthRequest, res: Response) => {
 
     const plan = await prisma.controlPlan.findUnique({ where: { id } });
     if (!plan || plan.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control plan not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Control plan not found' } });
     }
 
     if (plan.status === 'APPROVED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_APPROVED', message: 'Control plan is already approved' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'ALREADY_APPROVED', message: 'Control plan is already approved' },
+      });
     }
 
     const updated = await prisma.controlPlan.update({
@@ -272,7 +322,10 @@ router.post('/:id/approve', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: updated });
   } catch (error) {
     logger.error('Approve control plan error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve control plan' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve control plan' },
+    });
   }
 });
 

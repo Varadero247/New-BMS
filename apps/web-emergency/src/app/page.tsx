@@ -75,7 +75,7 @@ export default function DashboardPage() {
         setError(
           e.response?.status === 401
             ? 'Session expired. Please log in again.'
-            : 'Failed to load dashboard data.',
+            : 'Failed to load dashboard data.'
         );
         // Use fallback empty data so the page still renders
         setData({
@@ -224,7 +224,8 @@ export default function DashboardPage() {
               </div>
               <div className="flex-1">
                 <p className="font-bold text-lg" style={{ color: '#B91C2A' }}>
-                  {data.activeIncidents} Active Emergency{data.activeIncidents > 1 ? ' Incidents' : ' Incident'}
+                  {data.activeIncidents} Active Emergency
+                  {data.activeIncidents > 1 ? ' Incidents' : ' Incident'}
                 </p>
                 <p className="text-sm" style={{ color: '#F04B5A' }}>
                   Emergency response protocols are in effect. Check the Incidents tab for details.
@@ -250,7 +251,9 @@ export default function DashboardPage() {
                     className={`hover:shadow-md transition-all cursor-pointer h-full ${
                       kpi.urgent ? 'ring-2' : ''
                     }`}
-                    style={kpi.urgent ? { ringColor: '#F04B5A', borderColor: '#F04B5A' } : undefined}
+                    style={
+                      kpi.urgent ? { ringColor: '#F04B5A', borderColor: '#F04B5A' } : undefined
+                    }
                   >
                     <CardContent className="p-4">
                       <div
@@ -312,8 +315,11 @@ export default function DashboardPage() {
                             className="mt-0.5 w-2.5 h-2.5 rounded-full flex-shrink-0"
                             style={{
                               backgroundColor:
-                                incident.status === 'ACTIVE' ? '#F04B5A' :
-                                incident.status === 'CONTROLLED' ? '#F59E0B' : '#10B981',
+                                incident.status === 'ACTIVE'
+                                  ? '#F04B5A'
+                                  : incident.status === 'CONTROLLED'
+                                    ? '#F59E0B'
+                                    : '#10B981',
                             }}
                           />
                           <div className="flex-1 min-w-0">
@@ -354,7 +360,9 @@ export default function DashboardPage() {
               <CardContent className="p-0">
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
                   <Bell className="h-5 w-5" style={{ color: '#F04B5A' }} />
-                  <h2 className="font-semibold text-gray-900 dark:text-gray-100">Critical Alerts</h2>
+                  <h2 className="font-semibold text-gray-900 dark:text-gray-100">
+                    Critical Alerts
+                  </h2>
                 </div>
                 {data && data.criticalAlerts.length > 0 ? (
                   <ul className="divide-y divide-gray-100 dark:divide-gray-800">

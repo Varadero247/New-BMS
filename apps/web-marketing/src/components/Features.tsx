@@ -27,8 +27,7 @@ const features: Feature[] = [
     title: 'Audit Management',
     tag: 'ISO ALIGNED',
     tagColor: 'text-warning-500',
-    description:
-      'Plan, execute and track audits across 29 standards with evidence linking.',
+    description: 'Plan, execute and track audits across 29 standards with evidence linking.',
   },
   {
     iconBg: 'bg-brand-700/10',
@@ -36,8 +35,7 @@ const features: Feature[] = [
     title: 'Real-time Dashboards',
     tag: 'LIVE DATA',
     tagColor: 'text-info-500',
-    description:
-      'Live compliance scores, trend analysis and executive reporting.',
+    description: 'Live compliance scores, trend analysis and executive reporting.',
   },
   {
     iconBg: 'bg-gray-400/10',
@@ -45,8 +43,7 @@ const features: Feature[] = [
     title: 'Action & CAPA Tracking',
     tag: 'AUTOMATED',
     tagColor: 'text-gray-400',
-    description:
-      'Automated workflows for corrective actions with root cause analysis.',
+    description: 'Automated workflows for corrective actions with root cause analysis.',
   },
   {
     iconBg: 'bg-success-600/10',
@@ -54,8 +51,7 @@ const features: Feature[] = [
     title: 'Document Control',
     tag: 'E-SIGN READY',
     tagColor: 'text-sage',
-    description:
-      'Version-controlled documents with electronic signatures and approval workflows.',
+    description: 'Version-controlled documents with electronic signatures and approval workflows.',
   },
   {
     iconBg: 'bg-teal/10',
@@ -63,8 +59,7 @@ const features: Feature[] = [
     title: 'AI Compliance Assistant',
     tag: 'BETA',
     tagColor: 'text-teal',
-    description:
-      'Natural language queries across your compliance data. Ask anything.',
+    description: 'Natural language queries across your compliance data. Ask anything.',
   },
 ];
 
@@ -76,8 +71,8 @@ export default function Features() {
         Everything you need to stay compliant
       </h2>
       <p className="text-gray-400 dark:text-gray-500 text-center max-w-2xl mx-auto mt-4 font-body">
-        One platform for every standard, every audit, every action — from gap analysis to board-level
-        reporting.
+        One platform for every standard, every audit, every action — from gap analysis to
+        board-level reporting.
       </p>
 
       {/* Feature grid */}

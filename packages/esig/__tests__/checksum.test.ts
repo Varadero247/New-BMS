@@ -108,27 +108,41 @@ describe('verifyAuditChecksum — comprehensive', () => {
 
   it('should return false for tampered userId', () => {
     const checksum = computeAuditChecksum(baseParams);
-    expect(verifyAuditChecksum({ ...baseParams, userId: 'attacker', storedChecksum: checksum })).toBe(false);
+    expect(
+      verifyAuditChecksum({ ...baseParams, userId: 'attacker', storedChecksum: checksum })
+    ).toBe(false);
   });
 
   it('should return false for tampered action', () => {
     const checksum = computeAuditChecksum(baseParams);
-    expect(verifyAuditChecksum({ ...baseParams, action: 'DELETE', storedChecksum: checksum })).toBe(false);
+    expect(verifyAuditChecksum({ ...baseParams, action: 'DELETE', storedChecksum: checksum })).toBe(
+      false
+    );
   });
 
   it('should return false for tampered resourceId', () => {
     const checksum = computeAuditChecksum(baseParams);
-    expect(verifyAuditChecksum({ ...baseParams, resourceId: 'fake', storedChecksum: checksum })).toBe(false);
+    expect(
+      verifyAuditChecksum({ ...baseParams, resourceId: 'fake', storedChecksum: checksum })
+    ).toBe(false);
   });
 
   it('should return false for tampered timestamp', () => {
     const checksum = computeAuditChecksum(baseParams);
-    expect(verifyAuditChecksum({ ...baseParams, timestamp: new Date('2020-01-01'), storedChecksum: checksum })).toBe(false);
+    expect(
+      verifyAuditChecksum({
+        ...baseParams,
+        timestamp: new Date('2020-01-01'),
+        storedChecksum: checksum,
+      })
+    ).toBe(false);
   });
 
   it('should return false for tampered changes', () => {
     const checksum = computeAuditChecksum(baseParams);
-    expect(verifyAuditChecksum({ ...baseParams, changes: [], storedChecksum: checksum })).toBe(false);
+    expect(verifyAuditChecksum({ ...baseParams, changes: [], storedChecksum: checksum })).toBe(
+      false
+    );
   });
 
   it('should return false for garbage checksum', () => {
@@ -208,17 +222,23 @@ describe('verifySignatureChecksum — comprehensive', () => {
 
   it('should return false for tampered userId', () => {
     const checksum = computeSignatureChecksum(baseParams);
-    expect(verifySignatureChecksum({ ...baseParams, userId: 'attacker', storedChecksum: checksum })).toBe(false);
+    expect(
+      verifySignatureChecksum({ ...baseParams, userId: 'attacker', storedChecksum: checksum })
+    ).toBe(false);
   });
 
   it('should return false for tampered meaning', () => {
     const checksum = computeSignatureChecksum(baseParams);
-    expect(verifySignatureChecksum({ ...baseParams, meaning: 'REJECTED', storedChecksum: checksum })).toBe(false);
+    expect(
+      verifySignatureChecksum({ ...baseParams, meaning: 'REJECTED', storedChecksum: checksum })
+    ).toBe(false);
   });
 
   it('should return false for tampered resourceType', () => {
     const checksum = computeSignatureChecksum(baseParams);
-    expect(verifySignatureChecksum({ ...baseParams, resourceType: 'Fake', storedChecksum: checksum })).toBe(false);
+    expect(
+      verifySignatureChecksum({ ...baseParams, resourceType: 'Fake', storedChecksum: checksum })
+    ).toBe(false);
   });
 
   it('should return false for empty stored checksum', () => {
@@ -251,18 +271,12 @@ describe('computeChanges — comprehensive', () => {
   });
 
   it('should handle multiple simultaneous changes', () => {
-    const changes = computeChanges(
-      { a: 1, b: 2, c: 3 },
-      { a: 1, b: 99, d: 4 }
-    );
+    const changes = computeChanges({ a: 1, b: 2, c: 3 }, { a: 1, b: 99, d: 4 });
     expect(changes).toHaveLength(3); // b modified, c removed, d added
   });
 
   it('should handle nested object changes', () => {
-    const changes = computeChanges(
-      { config: { timeout: 30 } },
-      { config: { timeout: 60 } }
-    );
+    const changes = computeChanges({ config: { timeout: 30 } }, { config: { timeout: 60 } });
     expect(changes).toHaveLength(1);
     expect(changes[0].field).toBe('config');
   });

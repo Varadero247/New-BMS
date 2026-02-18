@@ -99,9 +99,7 @@ describe('Inventory Categories API Routes', () => {
     it('should filter by isActive', async () => {
       (mockPrisma.productCategory.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/categories?isActive=true')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/categories?isActive=true').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.productCategory.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -115,9 +113,7 @@ describe('Inventory Categories API Routes', () => {
     it('should order by parentId, sortOrder, name', async () => {
       (mockPrisma.productCategory.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/categories')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/categories').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.productCategory.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -127,7 +123,9 @@ describe('Inventory Categories API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.productCategory.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.productCategory.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/categories')
@@ -145,7 +143,14 @@ describe('Inventory Categories API Routes', () => {
       description: 'Electronic components',
       parent: null,
       children: [{ id: 'cat-2', name: 'Resistors', code: 'RES' }],
-      products: [{ id: '27000000-0000-4000-a000-000000000001', sku: 'SKU001', name: 'Resistor 10k', status: 'ACTIVE' }],
+      products: [
+        {
+          id: '27000000-0000-4000-a000-000000000001',
+          sku: 'SKU001',
+          name: 'Resistor 10k',
+          status: 'ACTIVE',
+        },
+      ],
       _count: { products: 5 },
     };
 
@@ -174,7 +179,9 @@ describe('Inventory Categories API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.productCategory.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.productCategory.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/categories/4d000000-0000-4000-a000-000000000001')
@@ -225,7 +232,9 @@ describe('Inventory Categories API Routes', () => {
 
     it('should reject duplicate code', async () => {
       // No parent lookup needed (no parentId), but code check returns existing
-      (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'existing' });
+      (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: 'existing',
+      });
 
       const response = await request(app)
         .post('/api/categories')
@@ -324,7 +333,9 @@ describe('Inventory Categories API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.productCategory.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.productCategory.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .patch('/api/categories/4d000000-0000-4000-a000-000000000001')
@@ -398,7 +409,9 @@ describe('Inventory Categories API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.productCategory.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.productCategory.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/categories/4d000000-0000-4000-a000-000000000001')

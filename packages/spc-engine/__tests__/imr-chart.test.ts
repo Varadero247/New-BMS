@@ -141,7 +141,7 @@ describe('iMrChart — comprehensive', () => {
       const data = makeDataPoints(values);
       const chart = iMrChart(data);
 
-      const oocIndiv = chart.outOfControl.filter(p => !p.rules[0]?.startsWith('MR:'));
+      const oocIndiv = chart.outOfControl.filter((p) => !p.rules[0]?.startsWith('MR:'));
       expect(oocIndiv.length).toBeGreaterThan(0);
     });
 
@@ -151,7 +151,7 @@ describe('iMrChart — comprehensive', () => {
       const data = makeDataPoints(values);
       const chart = iMrChart(data);
 
-      const oocIndiv = chart.outOfControl.filter(p => !p.rules[0]?.startsWith('MR:'));
+      const oocIndiv = chart.outOfControl.filter((p) => !p.rules[0]?.startsWith('MR:'));
       expect(oocIndiv.length).toBeGreaterThan(0);
     });
 
@@ -160,7 +160,7 @@ describe('iMrChart — comprehensive', () => {
       const data = makeDataPoints(values);
       const chart = iMrChart(data);
 
-      const oocMR = chart.outOfControl.filter(p => p.rules[0]?.startsWith('MR:'));
+      const oocMR = chart.outOfControl.filter((p) => p.rules[0]?.startsWith('MR:'));
       expect(oocMR.length).toBeGreaterThan(0);
     });
 

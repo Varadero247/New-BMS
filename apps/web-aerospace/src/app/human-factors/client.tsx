@@ -2,14 +2,27 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  Card, CardContent,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
 } from '@ims/ui';
 import {
-  Plus, Search, Loader2, Users,
-  AlertTriangle, Brain, BarChart3,
-  Clock, Activity,
+  Plus,
+  Search,
+  Loader2,
+  Users,
+  AlertTriangle,
+  Brain,
+  BarChart3,
+  Clock,
+  Activity,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -79,23 +92,35 @@ const SEVERITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getSeverityVariant(severity: string): 'success' | 'warning' | 'info' | 'secondary' | 'danger' | 'destructive' {
+function getSeverityVariant(
+  severity: string
+): 'success' | 'warning' | 'info' | 'secondary' | 'danger' | 'destructive' {
   switch (severity) {
-    case 'LOW': return 'secondary';
-    case 'MEDIUM': return 'warning';
-    case 'HIGH': return 'danger';
-    case 'CRITICAL': return 'destructive';
-    default: return 'info';
+    case 'LOW':
+      return 'secondary';
+    case 'MEDIUM':
+      return 'warning';
+    case 'HIGH':
+      return 'danger';
+    case 'CRITICAL':
+      return 'destructive';
+    default:
+      return 'info';
   }
 }
 
 function getSeverityColor(severity: string): string {
   switch (severity) {
-    case 'LOW': return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
-    case 'MEDIUM': return 'bg-yellow-100 text-yellow-700 border-yellow-300';
-    case 'HIGH': return 'bg-orange-100 text-orange-700 border-orange-300';
-    case 'CRITICAL': return 'bg-red-100 text-red-700 border-red-300';
-    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
+    case 'LOW':
+      return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
+    case 'MEDIUM':
+      return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+    case 'HIGH':
+      return 'bg-orange-100 text-orange-700 border-orange-300';
+    case 'CRITICAL':
+      return 'bg-red-100 text-red-700 border-red-300';
+    default:
+      return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300';
   }
 }
 
@@ -115,9 +140,18 @@ function getFatigueRiskLabel(score: number): string {
 
 function getCategoryBarColor(index: number): string {
   const colors = [
-    'bg-red-500', 'bg-orange-500', 'bg-amber-500', 'bg-yellow-500',
-    'bg-lime-500', 'bg-green-500', 'bg-emerald-500', 'bg-teal-500',
-    'bg-cyan-500', 'bg-sky-500', 'bg-blue-500', 'bg-indigo-500',
+    'bg-red-500',
+    'bg-orange-500',
+    'bg-amber-500',
+    'bg-yellow-500',
+    'bg-lime-500',
+    'bg-green-500',
+    'bg-emerald-500',
+    'bg-teal-500',
+    'bg-cyan-500',
+    'bg-sky-500',
+    'bg-blue-500',
+    'bg-indigo-500',
   ];
   return colors[index % colors.length];
 }
@@ -225,68 +259,82 @@ export default function HumanFactorsClient() {
   // Submit handlers
   // ---------------------------------------------------------------------------
 
-  const handleCreateIncident = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post('/human-factors/incidents', incidentForm);
-      setShowIncidentModal(false);
-      setIncidentForm(emptyIncidentForm);
-      fetchIncidents();
-      fetchDashboard();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create incident');
-      console.error('Failed to create HF incident:', err);
-    } finally {
-      setSubmitting(false);
-    }
-  }, [incidentForm, fetchIncidents, fetchDashboard]);
+  const handleCreateIncident = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post('/human-factors/incidents', incidentForm);
+        setShowIncidentModal(false);
+        setIncidentForm(emptyIncidentForm);
+        fetchIncidents();
+        fetchDashboard();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create incident');
+        console.error('Failed to create HF incident:', err);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [incidentForm, fetchIncidents, fetchDashboard]
+  );
 
-  const handleCreateFatigue = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post('/human-factors/fatigue', {
-        personnelName: fatigueForm.personnelName,
-        hoursWorked: Number(fatigueForm.hoursWorked),
-        restHours: Number(fatigueForm.restHours),
-        fatigueScore: Number(fatigueForm.fatigueScore),
-      });
-      setShowFatigueModal(false);
-      setFatigueForm(emptyFatigueForm);
-      fetchFatigue();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create fatigue assessment');
-      console.error('Failed to create fatigue assessment:', err);
-    } finally {
-      setSubmitting(false);
-    }
-  }, [fatigueForm, fetchFatigue]);
+  const handleCreateFatigue = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post('/human-factors/fatigue', {
+          personnelName: fatigueForm.personnelName,
+          hoursWorked: Number(fatigueForm.hoursWorked),
+          restHours: Number(fatigueForm.restHours),
+          fatigueScore: Number(fatigueForm.fatigueScore),
+        });
+        setShowFatigueModal(false);
+        setFatigueForm(emptyFatigueForm);
+        fetchFatigue();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create fatigue assessment');
+        console.error('Failed to create fatigue assessment:', err);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [fatigueForm, fetchFatigue]
+  );
 
   // ---------------------------------------------------------------------------
   // Filtered data
   // ---------------------------------------------------------------------------
 
-  const filteredIncidents = useMemo(() => incidents.filter(item => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      item.title.toLowerCase().includes(query) ||
-      (item.refNumber || '').toLowerCase().includes(query) ||
-      item.category.toLowerCase().includes(query)
-    );
-  }), [incidents, searchQuery]);
+  const filteredIncidents = useMemo(
+    () =>
+      incidents.filter((item) => {
+        if (!searchQuery) return true;
+        const query = searchQuery.toLowerCase();
+        return (
+          item.title.toLowerCase().includes(query) ||
+          (item.refNumber || '').toLowerCase().includes(query) ||
+          item.category.toLowerCase().includes(query)
+        );
+      }),
+    [incidents, searchQuery]
+  );
 
-  const filteredFatigue = useMemo(() => fatigueAssessments.filter(item => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      item.personnelName.toLowerCase().includes(query) ||
-      (item.refNumber || '').toLowerCase().includes(query)
-    );
-  }), [fatigueAssessments, searchQuery]);
+  const filteredFatigue = useMemo(
+    () =>
+      fatigueAssessments.filter((item) => {
+        if (!searchQuery) return true;
+        const query = searchQuery.toLowerCase();
+        return (
+          item.personnelName.toLowerCase().includes(query) ||
+          (item.refNumber || '').toLowerCase().includes(query)
+        );
+      }),
+    [fatigueAssessments, searchQuery]
+  );
 
   // ---------------------------------------------------------------------------
   // Loading spinner
@@ -304,7 +352,7 @@ export default function HumanFactorsClient() {
   // ---------------------------------------------------------------------------
 
   const maxDDCount = useMemo(() => {
-    const max = Math.max(...dirtyDozenData.map(d => d.count), 1);
+    const max = Math.max(...dirtyDozenData.map((d) => d.count), 1);
     return max;
   }, [dirtyDozenData]);
 
@@ -318,7 +366,9 @@ export default function HumanFactorsClient() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Human Factors</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Aviation human factors management -- Dirty Dozen analysis and fatigue risk</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Aviation human factors management -- Dirty Dozen analysis and fatigue risk
+          </p>
         </div>
 
         {/* Tab Navigation */}
@@ -327,7 +377,7 @@ export default function HumanFactorsClient() {
             { key: 'incidents' as const, label: 'Incidents', icon: AlertTriangle },
             { key: 'fatigue' as const, label: 'Fatigue', icon: Activity },
             { key: 'dashboard' as const, label: 'Dashboard', icon: BarChart3 },
-          ].map(tab => {
+          ].map((tab) => {
             const Icon = tab.icon;
             return (
               <button
@@ -356,14 +406,19 @@ export default function HumanFactorsClient() {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  aria-label="Search by title, ref number, category..." placeholder="Search by title, ref number, category..."
+                  aria-label="Search by title, ref number, category..."
+                  placeholder="Search by title, ref number, category..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
               </div>
               <Button
-                onClick={() => { setIncidentForm(emptyIncidentForm); setError(''); setShowIncidentModal(true); }}
+                onClick={() => {
+                  setIncidentForm(emptyIncidentForm);
+                  setError('');
+                  setShowIncidentModal(true);
+                }}
                 className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700"
               >
                 <Plus className="h-4 w-4" />
@@ -372,34 +427,57 @@ export default function HumanFactorsClient() {
             </div>
 
             {/* Incidents list */}
-            {incidentsLoading ? <LoadingSpinner text="Loading human factors incidents..." /> : filteredIncidents.length > 0 ? (
+            {incidentsLoading ? (
+              <LoadingSpinner text="Loading human factors incidents..." />
+            ) : filteredIncidents.length > 0 ? (
               <Card>
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Ref</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Title</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Category (Dirty Dozen)</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Severity</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Date</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                            Ref
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                            Title
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                            Category (Dirty Dozen)
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                            Severity
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                            Date
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                         {filteredIncidents.map((item) => (
-                          <tr key={item.id} className="hover:bg-gray-50 dark:bg-gray-800 transition-colors">
+                          <tr
+                            key={item.id}
+                            className="hover:bg-gray-50 dark:bg-gray-800 transition-colors"
+                          >
                             <td className="px-4 py-3">
-                              <span className="text-sm font-mono text-indigo-600 font-medium">{item.refNumber || '--'}</span>
+                              <span className="text-sm font-mono text-indigo-600 font-medium">
+                                {item.refNumber || '--'}
+                              </span>
                             </td>
                             <td className="px-4 py-3">
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.title}</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {item.title}
+                              </p>
                               {item.description && (
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate max-w-xs">{item.description}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate max-w-xs">
+                                  {item.description}
+                                </p>
                               )}
                             </td>
                             <td className="px-4 py-3">
-                              <span className="text-sm text-gray-700 dark:text-gray-300">{item.category}</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
+                                {item.category}
+                              </span>
                             </td>
                             <td className="px-4 py-3">
                               <Badge variant={getSeverityVariant(item.severity)}>
@@ -421,12 +499,18 @@ export default function HumanFactorsClient() {
             ) : (
               <div className="text-center py-16">
                 <AlertTriangle className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Human Factors Incidents</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  No Human Factors Incidents
+                </h3>
                 <p className="text-gray-500 dark:text-gray-400 mb-6">
                   Report a human factors incident to begin tracking Dirty Dozen categories.
                 </p>
                 <Button
-                  onClick={() => { setIncidentForm(emptyIncidentForm); setError(''); setShowIncidentModal(true); }}
+                  onClick={() => {
+                    setIncidentForm(emptyIncidentForm);
+                    setError('');
+                    setShowIncidentModal(true);
+                  }}
                   className="bg-indigo-600 hover:bg-indigo-700"
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -453,14 +537,19 @@ export default function HumanFactorsClient() {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  aria-label="Search by personnel name..." placeholder="Search by personnel name..."
+                  aria-label="Search by personnel name..."
+                  placeholder="Search by personnel name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
               </div>
               <Button
-                onClick={() => { setFatigueForm(emptyFatigueForm); setError(''); setShowFatigueModal(true); }}
+                onClick={() => {
+                  setFatigueForm(emptyFatigueForm);
+                  setError('');
+                  setShowFatigueModal(true);
+                }}
                 className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700"
               >
                 <Plus className="h-4 w-4" />
@@ -469,44 +558,75 @@ export default function HumanFactorsClient() {
             </div>
 
             {/* Fatigue list */}
-            {fatigueLoading ? <LoadingSpinner text="Loading fatigue assessments..." /> : filteredFatigue.length > 0 ? (
+            {fatigueLoading ? (
+              <LoadingSpinner text="Loading fatigue assessments..." />
+            ) : filteredFatigue.length > 0 ? (
               <Card>
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Ref</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Personnel Name</th>
-                          <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Hours Worked</th>
-                          <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Rest Hours</th>
-                          <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Fatigue Score</th>
-                          <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Risk Level</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Date</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                            Ref
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                            Personnel Name
+                          </th>
+                          <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                            Hours Worked
+                          </th>
+                          <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                            Rest Hours
+                          </th>
+                          <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                            Fatigue Score
+                          </th>
+                          <th className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                            Risk Level
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                            Date
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                         {filteredFatigue.map((item) => (
-                          <tr key={item.id} className="hover:bg-gray-50 dark:bg-gray-800 transition-colors">
+                          <tr
+                            key={item.id}
+                            className="hover:bg-gray-50 dark:bg-gray-800 transition-colors"
+                          >
                             <td className="px-4 py-3">
-                              <span className="text-sm font-mono text-indigo-600 font-medium">{item.refNumber || '--'}</span>
+                              <span className="text-sm font-mono text-indigo-600 font-medium">
+                                {item.refNumber || '--'}
+                              </span>
                             </td>
                             <td className="px-4 py-3">
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.personnelName}</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {item.personnelName}
+                              </p>
                             </td>
                             <td className="px-4 py-3 text-center">
-                              <span className="text-sm text-gray-700 dark:text-gray-300">{item.hoursWorked}h</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
+                                {item.hoursWorked}h
+                              </span>
                             </td>
                             <td className="px-4 py-3 text-center">
-                              <span className="text-sm text-gray-700 dark:text-gray-300">{item.restHours}h</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
+                                {item.restHours}h
+                              </span>
                             </td>
                             <td className="px-4 py-3 text-center">
-                              <span className={`inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full border ${getFatigueRiskColor(item.fatigueScore)}`}>
+                              <span
+                                className={`inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full border ${getFatigueRiskColor(item.fatigueScore)}`}
+                              >
                                 {item.fatigueScore}/10
                               </span>
                             </td>
                             <td className="px-4 py-3 text-center">
-                              <span className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full border ${getFatigueRiskColor(item.fatigueScore)}`}>
+                              <span
+                                className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full border ${getFatigueRiskColor(item.fatigueScore)}`}
+                              >
                                 {item.riskLevel || getFatigueRiskLabel(item.fatigueScore)}
                               </span>
                             </td>
@@ -525,12 +645,18 @@ export default function HumanFactorsClient() {
             ) : (
               <div className="text-center py-16">
                 <Activity className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Fatigue Assessments</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  No Fatigue Assessments
+                </h3>
                 <p className="text-gray-500 dark:text-gray-400 mb-6">
                   Create a fatigue assessment to begin monitoring personnel fatigue risk.
                 </p>
                 <Button
-                  onClick={() => { setFatigueForm(emptyFatigueForm); setError(''); setShowFatigueModal(true); }}
+                  onClick={() => {
+                    setFatigueForm(emptyFatigueForm);
+                    setError('');
+                    setShowFatigueModal(true);
+                  }}
                   className="bg-indigo-600 hover:bg-indigo-700"
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -552,7 +678,9 @@ export default function HumanFactorsClient() {
         {/* ================================================================= */}
         {activeTab === 'dashboard' && (
           <>
-            {dashboardLoading ? <LoadingSpinner text="Loading dashboard..." /> : (
+            {dashboardLoading ? (
+              <LoadingSpinner text="Loading dashboard..." />
+            ) : (
               <div className="space-y-8">
                 {/* Summary cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -560,7 +688,9 @@ export default function HumanFactorsClient() {
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Total Incidents</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Total Incidents
+                          </p>
                           <p className="text-3xl font-bold">{dashboardData?.totalIncidents || 0}</p>
                         </div>
                         <AlertTriangle className="h-8 w-8 text-indigo-500" />
@@ -572,10 +702,14 @@ export default function HumanFactorsClient() {
                       <CardContent className="pt-6">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{item.severity}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {item.severity}
+                            </p>
                             <p className="text-3xl font-bold">{item.count}</p>
                           </div>
-                          <span className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full border ${getSeverityColor(item.severity)}`}>
+                          <span
+                            className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full border ${getSeverityColor(item.severity)}`}
+                          >
                             {item.severity}
                           </span>
                         </div>
@@ -587,12 +721,17 @@ export default function HumanFactorsClient() {
                 {/* Dirty Dozen Analysis */}
                 <Card>
                   <CardContent className="pt-6">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">Dirty Dozen Category Analysis</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">
+                      Dirty Dozen Category Analysis
+                    </h3>
                     {dirtyDozenData.length > 0 ? (
                       <div className="space-y-3">
                         {dirtyDozenData.map((item, idx) => (
                           <div key={item.category} className="flex items-center gap-4">
-                            <div className="w-48 text-sm text-gray-700 dark:text-gray-300 text-right truncate" title={item.category}>
+                            <div
+                              className="w-48 text-sm text-gray-700 dark:text-gray-300 text-right truncate"
+                              title={item.category}
+                            >
                               {item.category}
                             </div>
                             <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-full h-6 overflow-hidden">
@@ -611,7 +750,9 @@ export default function HumanFactorsClient() {
                       <div className="text-center py-12 text-gray-400 dark:text-gray-500">
                         <Brain className="h-12 w-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
                         <p className="text-sm">No Dirty Dozen data available yet.</p>
-                        <p className="text-xs mt-1">Report human factors incidents to populate this analysis.</p>
+                        <p className="text-xs mt-1">
+                          Report human factors incidents to populate this analysis.
+                        </p>
                       </div>
                     )}
                   </CardContent>
@@ -621,11 +762,15 @@ export default function HumanFactorsClient() {
                 {dashboardData?.bySeverity && dashboardData.bySeverity.length > 0 && (
                   <Card>
                     <CardContent className="pt-6">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">Incidents by Severity</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">
+                        Incidents by Severity
+                      </h3>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {dashboardData.bySeverity.map((item) => (
                           <div key={item.severity} className="text-center">
-                            <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full border-2 mb-2 ${getSeverityColor(item.severity)}`}>
+                            <div
+                              className={`inline-flex items-center justify-center w-16 h-16 rounded-full border-2 mb-2 ${getSeverityColor(item.severity)}`}
+                            >
                               <span className="text-xl font-bold">{item.count}</span>
                             </div>
                             <p className="text-sm text-gray-600">{item.severity}</p>
@@ -644,7 +789,12 @@ export default function HumanFactorsClient() {
       {/* ==================================================================== */}
       {/* MODAL: Create HF Incident                                            */}
       {/* ==================================================================== */}
-      <Modal isOpen={showIncidentModal} onClose={() => setShowIncidentModal(false)} title="Report Human Factors Incident" size="lg">
+      <Modal
+        isOpen={showIncidentModal}
+        onClose={() => setShowIncidentModal(false)}
+        title="Report Human Factors Incident"
+        size="lg"
+      >
         <form onSubmit={handleCreateIncident}>
           <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
             {error && (
@@ -674,7 +824,9 @@ export default function HumanFactorsClient() {
                   <Textarea
                     id="hf-description"
                     value={incidentForm.description}
-                    onChange={(e) => setIncidentForm({ ...incidentForm, description: e.target.value })}
+                    onChange={(e) =>
+                      setIncidentForm({ ...incidentForm, description: e.target.value })
+                    }
                     required
                     rows={4}
                     placeholder="Detailed description of the human factors incident..."
@@ -687,10 +839,14 @@ export default function HumanFactorsClient() {
                     <Select
                       id="hf-category"
                       value={incidentForm.category}
-                      onChange={(e) => setIncidentForm({ ...incidentForm, category: e.target.value })}
+                      onChange={(e) =>
+                        setIncidentForm({ ...incidentForm, category: e.target.value })
+                      }
                     >
-                      {DIRTY_DOZEN.map(c => (
-                        <option key={c} value={c}>{c}</option>
+                      {DIRTY_DOZEN.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -699,10 +855,14 @@ export default function HumanFactorsClient() {
                     <Select
                       id="hf-severity"
                       value={incidentForm.severity}
-                      onChange={(e) => setIncidentForm({ ...incidentForm, severity: e.target.value })}
+                      onChange={(e) =>
+                        setIncidentForm({ ...incidentForm, severity: e.target.value })
+                      }
                     >
-                      {SEVERITIES.map(s => (
-                        <option key={s} value={s}>{s}</option>
+                      {SEVERITIES.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -714,7 +874,9 @@ export default function HumanFactorsClient() {
                     id="hf-date"
                     type="date"
                     value={incidentForm.incidentDate}
-                    onChange={(e) => setIncidentForm({ ...incidentForm, incidentDate: e.target.value })}
+                    onChange={(e) =>
+                      setIncidentForm({ ...incidentForm, incidentDate: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -723,11 +885,22 @@ export default function HumanFactorsClient() {
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowIncidentModal(false)}>Cancel</Button>
-            <Button type="submit" disabled={submitting} className="bg-indigo-600 hover:bg-indigo-700">
+            <Button type="button" variant="outline" onClick={() => setShowIncidentModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-indigo-600 hover:bg-indigo-700"
+            >
               {submitting ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Reporting...</span>
-              ) : 'Report Incident'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Reporting...
+                </span>
+              ) : (
+                'Report Incident'
+              )}
             </Button>
           </ModalFooter>
         </form>
@@ -736,7 +909,12 @@ export default function HumanFactorsClient() {
       {/* ==================================================================== */}
       {/* MODAL: Create Fatigue Assessment                                     */}
       {/* ==================================================================== */}
-      <Modal isOpen={showFatigueModal} onClose={() => setShowFatigueModal(false)} title="New Fatigue Assessment" size="lg">
+      <Modal
+        isOpen={showFatigueModal}
+        onClose={() => setShowFatigueModal(false)}
+        title="New Fatigue Assessment"
+        size="lg"
+      >
         <form onSubmit={handleCreateFatigue}>
           <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
             {error && (
@@ -755,7 +933,9 @@ export default function HumanFactorsClient() {
                   <Input
                     id="fa-name"
                     value={fatigueForm.personnelName}
-                    onChange={(e) => setFatigueForm({ ...fatigueForm, personnelName: e.target.value })}
+                    onChange={(e) =>
+                      setFatigueForm({ ...fatigueForm, personnelName: e.target.value })
+                    }
                     required
                     placeholder="e.g. John Smith"
                   />
@@ -771,7 +951,9 @@ export default function HumanFactorsClient() {
                       max="24"
                       step="0.5"
                       value={fatigueForm.hoursWorked}
-                      onChange={(e) => setFatigueForm({ ...fatigueForm, hoursWorked: e.target.value })}
+                      onChange={(e) =>
+                        setFatigueForm({ ...fatigueForm, hoursWorked: e.target.value })
+                      }
                       required
                       placeholder="e.g. 12"
                     />
@@ -785,7 +967,9 @@ export default function HumanFactorsClient() {
                       max="24"
                       step="0.5"
                       value={fatigueForm.restHours}
-                      onChange={(e) => setFatigueForm({ ...fatigueForm, restHours: e.target.value })}
+                      onChange={(e) =>
+                        setFatigueForm({ ...fatigueForm, restHours: e.target.value })
+                      }
                       required
                       placeholder="e.g. 8"
                     />
@@ -801,10 +985,14 @@ export default function HumanFactorsClient() {
                       min="1"
                       max="10"
                       value={fatigueForm.fatigueScore}
-                      onChange={(e) => setFatigueForm({ ...fatigueForm, fatigueScore: e.target.value })}
+                      onChange={(e) =>
+                        setFatigueForm({ ...fatigueForm, fatigueScore: e.target.value })
+                      }
                       className="flex-1"
                     />
-                    <span className={`inline-flex items-center text-sm font-bold px-3 py-1 rounded-full border ${getFatigueRiskColor(Number(fatigueForm.fatigueScore))}`}>
+                    <span
+                      className={`inline-flex items-center text-sm font-bold px-3 py-1 rounded-full border ${getFatigueRiskColor(Number(fatigueForm.fatigueScore))}`}
+                    >
                       {fatigueForm.fatigueScore}/10
                     </span>
                   </div>
@@ -814,7 +1002,10 @@ export default function HumanFactorsClient() {
                     <span>10 - Exhausted</span>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    Risk Level: <span className="font-semibold">{getFatigueRiskLabel(Number(fatigueForm.fatigueScore))}</span>
+                    Risk Level:{' '}
+                    <span className="font-semibold">
+                      {getFatigueRiskLabel(Number(fatigueForm.fatigueScore))}
+                    </span>
                   </p>
                 </div>
               </div>
@@ -822,11 +1013,22 @@ export default function HumanFactorsClient() {
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowFatigueModal(false)}>Cancel</Button>
-            <Button type="submit" disabled={submitting} className="bg-indigo-600 hover:bg-indigo-700">
+            <Button type="button" variant="outline" onClick={() => setShowFatigueModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-indigo-600 hover:bg-indigo-700"
+            >
               {submitting ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Saving...</span>
-              ) : 'Save Assessment'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Saving...
+                </span>
+              ) : (
+                'Save Assessment'
+              )}
             </Button>
           </ModalFooter>
         </form>

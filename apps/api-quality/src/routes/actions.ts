@@ -63,7 +63,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List actions error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list actions' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list actions' },
+    });
   }
 });
 
@@ -106,7 +109,10 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Action stats error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get action statistics' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get action statistics' },
+    });
   }
 });
 
@@ -118,13 +124,17 @@ router.get('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest, r
     });
 
     if (!action) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
     }
 
     res.json({ success: true, data: action });
   } catch (error) {
     logger.error('Get action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get action' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get action' } });
   }
 });
 
@@ -133,17 +143,40 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      actionType: z.enum(['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT', 'AUDIT_FINDING', 'RISK_TREATMENT', 'OBJECTIVE_SUPPORT', 'LEGAL_COMPLIANCE', 'OTHER']),
+      actionType: z.enum([
+        'CORRECTIVE',
+        'PREVENTIVE',
+        'IMPROVEMENT',
+        'AUDIT_FINDING',
+        'RISK_TREATMENT',
+        'OBJECTIVE_SUPPORT',
+        'LEGAL_COMPLIANCE',
+        'OTHER',
+      ]),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
-      source: z.enum(['NC_REPORT', 'CAPA', 'INTERNAL_AUDIT', 'MANAGEMENT_REVIEW', 'RISK_REGISTER', 'FMEA', 'CUSTOMER_COMPLAINT', 'SUPPLIER_AUDIT', 'CONTINUAL_IMPROVEMENT', 'OBJECTIVE', 'OTHER']),
+      source: z.enum([
+        'NC_REPORT',
+        'CAPA',
+        'INTERNAL_AUDIT',
+        'MANAGEMENT_REVIEW',
+        'RISK_REGISTER',
+        'FMEA',
+        'CUSTOMER_COMPLAINT',
+        'SUPPLIER_AUDIT',
+        'CONTINUAL_IMPROVEMENT',
+        'OBJECTIVE',
+        'OTHER',
+      ]),
       sourceReference: z.string().optional(),
       description: z.string().trim().min(1).max(2000),
       expectedOutcome: z.string().trim().min(1).max(200),
       assignedTo: z.string().trim().min(1).max(200),
       department: z.string().trim().min(1).max(200),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      dueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       progressNotes: z.string().optional(),
-      verificationMethod: z.enum(['DOCUMENT_REVIEW', 'INSPECTION', 'AUDIT', 'TEST', 'SIGN_OFF']).optional(),
+      verificationMethod: z
+        .enum(['DOCUMENT_REVIEW', 'INSPECTION', 'AUDIT', 'TEST', 'SIGN_OFF'])
+        .optional(),
       linkedNc: z.string().optional(),
       linkedCapa: z.string().optional(),
       linkedProcess: z.string().optional(),
@@ -166,10 +199,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: action });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create action' },
+    });
   }
 });
 
@@ -178,27 +221,70 @@ router.put('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest, r
   try {
     const existing = await prisma.qualAction.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
     }
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200).optional(),
-      actionType: z.enum(['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT', 'AUDIT_FINDING', 'RISK_TREATMENT', 'OBJECTIVE_SUPPORT', 'LEGAL_COMPLIANCE', 'OTHER']).optional(),
+      actionType: z
+        .enum([
+          'CORRECTIVE',
+          'PREVENTIVE',
+          'IMPROVEMENT',
+          'AUDIT_FINDING',
+          'RISK_TREATMENT',
+          'OBJECTIVE_SUPPORT',
+          'LEGAL_COMPLIANCE',
+          'OTHER',
+        ])
+        .optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
-      source: z.enum(['NC_REPORT', 'CAPA', 'INTERNAL_AUDIT', 'MANAGEMENT_REVIEW', 'RISK_REGISTER', 'FMEA', 'CUSTOMER_COMPLAINT', 'SUPPLIER_AUDIT', 'CONTINUAL_IMPROVEMENT', 'OBJECTIVE', 'OTHER']).optional(),
+      source: z
+        .enum([
+          'NC_REPORT',
+          'CAPA',
+          'INTERNAL_AUDIT',
+          'MANAGEMENT_REVIEW',
+          'RISK_REGISTER',
+          'FMEA',
+          'CUSTOMER_COMPLAINT',
+          'SUPPLIER_AUDIT',
+          'CONTINUAL_IMPROVEMENT',
+          'OBJECTIVE',
+          'OTHER',
+        ])
+        .optional(),
       sourceReference: z.string().nullable().optional(),
       description: z.string().optional(),
       expectedOutcome: z.string().optional(),
       assignedTo: z.string().optional(),
       department: z.string().optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED']).optional(),
+      dueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      status: z
+        .enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED'])
+        .optional(),
       progressNotes: z.string().nullable().optional(),
-      completionDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      completionDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       percentComplete: z.number().min(0).max(100).optional(),
-      verificationMethod: z.enum(['DOCUMENT_REVIEW', 'INSPECTION', 'AUDIT', 'TEST', 'SIGN_OFF']).nullable().optional(),
+      verificationMethod: z
+        .enum(['DOCUMENT_REVIEW', 'INSPECTION', 'AUDIT', 'TEST', 'SIGN_OFF'])
+        .nullable()
+        .optional(),
       verifiedBy: z.string().nullable().optional(),
-      verificationDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      verificationDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       effective: z.enum(['YES', 'NO', 'PENDING']).nullable().optional(),
       linkedNc: z.string().nullable().optional(),
       linkedCapa: z.string().nullable().optional(),
@@ -221,12 +307,16 @@ router.put('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest, r
         ? new Date(data.completionDate)
         : data.status === 'COMPLETED' && !existing.completionDate
           ? new Date()
-          : data.completionDate === null ? null : undefined,
+          : data.completionDate === null
+            ? null
+            : undefined,
       verificationDate: data.verificationDate
         ? new Date(data.verificationDate)
         : data.status === 'VERIFIED' && !existing.verificationDate
           ? new Date()
-          : data.verificationDate === null ? null : undefined,
+          : data.verificationDate === null
+            ? null
+            : undefined,
     };
 
     const action = await prisma.qualAction.update({
@@ -237,28 +327,50 @@ router.put('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest, r
     res.json({ success: true, data: action });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update action' },
+    });
   }
 });
 
 // DELETE /:id - Delete action
-router.delete('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.qualAction.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.qualAction),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.qualAction.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
+      }
+
+      await prisma.qualAction.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete action error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete action' },
+      });
     }
-
-    await prisma.qualAction.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete action' } });
   }
-});
+);
 
 export default router;

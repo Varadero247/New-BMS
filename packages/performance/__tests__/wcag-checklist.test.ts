@@ -64,11 +64,11 @@ describe('WCAG 2.2 AA Checklist', () => {
 
     // WCAG 2.2 new criteria
     expect(ids).toContain('2.4.11'); // Focus Not Obscured
-    expect(ids).toContain('2.5.7');  // Dragging Movements
-    expect(ids).toContain('2.5.8');  // Target Size (Minimum)
-    expect(ids).toContain('3.2.6');  // Consistent Help
-    expect(ids).toContain('3.3.7');  // Redundant Entry
-    expect(ids).toContain('3.3.8');  // Accessible Authentication
+    expect(ids).toContain('2.5.7'); // Dragging Movements
+    expect(ids).toContain('2.5.8'); // Target Size (Minimum)
+    expect(ids).toContain('3.2.6'); // Consistent Help
+    expect(ids).toContain('3.3.7'); // Redundant Entry
+    expect(ids).toContain('3.3.8'); // Accessible Authentication
   });
 
   it('should have descriptions of reasonable length', () => {

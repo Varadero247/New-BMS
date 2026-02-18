@@ -38,18 +38,21 @@ beforeEach(() => {
 
 describe('POST /api/supplier/documents', () => {
   it('should upload a document', async () => {
-    const doc = { id: 'd-1', title: 'ISO 9001 Cert', category: 'CERTIFICATE', portalType: 'SUPPLIER' };
+    const doc = {
+      id: 'd-1',
+      title: 'ISO 9001 Cert',
+      category: 'CERTIFICATE',
+      portalType: 'SUPPLIER',
+    };
     (prisma as any).portalDocument.create.mockResolvedValue(doc);
 
-    const res = await request(app)
-      .post('/api/supplier/documents')
-      .send({
-        title: 'ISO 9001 Cert',
-        fileName: 'cert.pdf',
-        fileSize: 1024,
-        mimeType: 'application/pdf',
-        category: 'CERTIFICATE',
-      });
+    const res = await request(app).post('/api/supplier/documents').send({
+      title: 'ISO 9001 Cert',
+      fileName: 'cert.pdf',
+      fileSize: 1024,
+      mimeType: 'application/pdf',
+      category: 'CERTIFICATE',
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -57,17 +60,24 @@ describe('POST /api/supplier/documents', () => {
   });
 
   it('should return 400 for missing title', async () => {
-    const res = await request(app)
-      .post('/api/supplier/documents')
-      .send({ fileName: 'cert.pdf', fileSize: 1024, mimeType: 'application/pdf', category: 'CERTIFICATE' });
+    const res = await request(app).post('/api/supplier/documents').send({
+      fileName: 'cert.pdf',
+      fileSize: 1024,
+      mimeType: 'application/pdf',
+      category: 'CERTIFICATE',
+    });
 
     expect(res.status).toBe(400);
   });
 
   it('should return 400 for invalid category', async () => {
-    const res = await request(app)
-      .post('/api/supplier/documents')
-      .send({ title: 'Test', fileName: 'test.pdf', fileSize: 1024, mimeType: 'application/pdf', category: 'INVALID' });
+    const res = await request(app).post('/api/supplier/documents').send({
+      title: 'Test',
+      fileName: 'test.pdf',
+      fileSize: 1024,
+      mimeType: 'application/pdf',
+      category: 'INVALID',
+    });
 
     expect(res.status).toBe(400);
   });
@@ -75,9 +85,13 @@ describe('POST /api/supplier/documents', () => {
   it('should handle server error on upload', async () => {
     (prisma as any).portalDocument.create.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app)
-      .post('/api/supplier/documents')
-      .send({ title: 'Test', fileName: 'test.pdf', fileSize: 1024, mimeType: 'application/pdf', category: 'CERTIFICATE' });
+    const res = await request(app).post('/api/supplier/documents').send({
+      title: 'Test',
+      fileName: 'test.pdf',
+      fileSize: 1024,
+      mimeType: 'application/pdf',
+      category: 'CERTIFICATE',
+    });
 
     expect(res.status).toBe(500);
   });

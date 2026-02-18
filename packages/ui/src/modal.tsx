@@ -74,7 +74,10 @@ export function Modal({
         {(title || description) && (
           <div className="mb-4">
             {title && (
-              <h2 id="modal-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <h2
+                id="modal-title"
+                className="text-lg font-semibold text-gray-900 dark:text-gray-100"
+              >
                 {title}
               </h2>
             )}
@@ -122,9 +125,5 @@ interface ModalFooterProps {
 }
 
 export function ModalFooter({ children, className }: ModalFooterProps) {
-  return (
-    <div className={cn('mt-6 flex justify-end space-x-2', className)}>
-      {children}
-    </div>
-  );
+  return <div className={cn('mt-6 flex justify-end space-x-2', className)}>{children}</div>;
 }

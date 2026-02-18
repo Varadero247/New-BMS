@@ -36,8 +36,8 @@ All API services follow this pattern:
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    risk: { findMany: jest.fn(), create: jest.fn(), findUnique: jest.fn() }
-  }
+    risk: { findMany: jest.fn(), create: jest.fn(), findUnique: jest.fn() },
+  },
 }));
 
 jest.mock('@ims/auth', () => ({
@@ -45,10 +45,10 @@ jest.mock('@ims/auth', () => ({
     req.user = {
       id: '00000000-0000-0000-0000-000000000001',
       role: 'ADMIN',
-      organisationId: 'org-1'
+      organisationId: 'org-1',
     };
     next();
-  }
+  },
 }));
 
 jest.mock('@ims/monitoring', () => ({
@@ -143,11 +143,11 @@ curl -s http://localhost:4000/api/auth/me | jq
 
 ## Test Coverage Summary
 
-| Area | Tests |
-|------|-------|
-| 27 API services | ~6,889 |
-| 23 shared packages | ~1,148 |
-| **Total** | **~8,037** |
+| Area               | Tests      |
+| ------------------ | ---------- |
+| 27 API services    | ~6,889     |
+| 23 shared packages | ~1,148     |
+| **Total**          | **~8,037** |
 
 All services have route-level unit test coverage + RBAC middleware tests.
 

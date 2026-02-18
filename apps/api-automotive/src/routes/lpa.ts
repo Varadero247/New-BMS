@@ -53,10 +53,14 @@ router.post('/schedules', async (req: AuthRequest, res: Response) => {
       processArea: z.string().trim().min(1).max(200),
       layer: z.number().int().min(1).max(4),
       frequency: z.enum(['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY']),
-      questions: z.array(z.object({
-        questionText: z.string().trim().min(1).max(200),
-        category: z.string().optional(),
-      })).min(1),
+      questions: z
+        .array(
+          z.object({
+            questionText: z.string().trim().min(1).max(200),
+            category: z.string().optional(),
+          })
+        )
+        .min(1),
     });
 
     const data = schema.parse(req.body);
@@ -94,10 +98,20 @@ router.post('/schedules', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: schedule });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create LPA schedule error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create LPA schedule' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create LPA schedule' },
+    });
   }
 });
 
@@ -111,7 +125,10 @@ router.get('/schedules', scopeToUser, async (req: AuthRequest, res: Response) =>
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = {};
-    if (layer) { const n = parseInt(layer as string, 10); if (!isNaN(n)) where.layer = n; }
+    if (layer) {
+      const n = parseInt(layer as string, 10);
+      if (!isNaN(n)) where.layer = n;
+    }
     if (frequency) where.frequency = frequency as any;
     if (active !== undefined) where.active = active === 'true';
 
@@ -136,7 +153,10 @@ router.get('/schedules', scopeToUser, async (req: AuthRequest, res: Response) =>
     });
   } catch (error) {
     logger.error('List LPA schedules error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list LPA schedules' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list LPA schedules' },
+    });
   }
 });
 
@@ -159,15 +179,23 @@ router.post('/audits', async (req: AuthRequest, res: Response) => {
     });
 
     if (!schedule) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'LPA schedule not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'LPA schedule not found' } });
     }
 
     if (!schedule.active) {
-      return res.status(400).json({ success: false, error: { code: 'SCHEDULE_INACTIVE', message: 'LPA schedule is inactive' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'SCHEDULE_INACTIVE', message: 'LPA schedule is inactive' },
+      });
     }
 
     if (schedule.questions.length === 0) {
-      return res.status(400).json({ success: false, error: { code: 'NO_QUESTIONS', message: 'LPA schedule has no active questions' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'NO_QUESTIONS', message: 'LPA schedule has no active questions' },
+      });
     }
 
     const refNumber = await generateRefNumber();
@@ -188,10 +216,20 @@ router.post('/audits', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: audit });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create LPA audit error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create LPA audit' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create LPA audit' },
+    });
   }
 });
 
@@ -206,7 +244,10 @@ router.get('/audits', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     const where: any = {};
     if (status) where.status = status as any;
-    if (layer) { const n = parseInt(layer as string, 10); if (!isNaN(n)) where.layer = n; }
+    if (layer) {
+      const n = parseInt(layer as string, 10);
+      if (!isNaN(n)) where.layer = n;
+    }
     if (processArea) where.processArea = { contains: processArea as string, mode: 'insensitive' };
     if (auditor) where.auditor = { contains: auditor as string, mode: 'insensitive' };
 
@@ -230,7 +271,10 @@ router.get('/audits', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List LPA audits error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list LPA audits' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list LPA audits' },
+    });
   }
 });
 
@@ -242,19 +286,28 @@ router.post('/audits/:id/respond', async (req: AuthRequest, res: Response) => {
     // Verify audit exists and is in progress
     const audit = await prisma.lpaAudit.findUnique({ where: { id } });
     if (!audit) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'LPA audit not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'LPA audit not found' } });
     }
 
     if (audit.status !== 'IN_PROGRESS') {
-      return res.status(400).json({ success: false, error: { code: 'AUDIT_NOT_IN_PROGRESS', message: 'LPA audit is not in progress' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'AUDIT_NOT_IN_PROGRESS', message: 'LPA audit is not in progress' },
+      });
     }
 
     const schema = z.object({
-      responses: z.array(z.object({
-        questionId: z.string().trim().min(1).max(200),
-        result: z.enum(['PASS', 'FAIL', 'NOT_APPLICABLE']),
-        notes: z.string().optional(),
-      })).min(1),
+      responses: z
+        .array(
+          z.object({
+            questionId: z.string().trim().min(1).max(200),
+            result: z.enum(['PASS', 'FAIL', 'NOT_APPLICABLE']),
+            notes: z.string().optional(),
+          })
+        )
+        .min(1),
     });
 
     const data = schema.parse(req.body);
@@ -266,13 +319,22 @@ router.post('/audits/:id/respond', async (req: AuthRequest, res: Response) => {
     });
 
     if (!schedule) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Associated schedule not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Associated schedule not found' },
+      });
     }
 
-    const validQuestionIds = new Set(schedule.questions.map(q => q.id));
+    const validQuestionIds = new Set(schedule.questions.map((q) => q.id));
     for (const resp of data.responses) {
       if (!validQuestionIds.has(resp.questionId)) {
-        return res.status(400).json({ success: false, error: { code: 'INVALID_QUESTION', message: `Question ${resp.questionId} does not belong to this schedule` } });
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'INVALID_QUESTION',
+            message: `Question ${resp.questionId} does not belong to this schedule`,
+          },
+        });
       }
     }
 
@@ -281,7 +343,7 @@ router.post('/audits/:id/respond', async (req: AuthRequest, res: Response) => {
       const created = [];
 
       for (const resp of data.responses) {
-        const question = schedule.questions.find(q => q.id === resp.questionId);
+        const question = schedule.questions.find((q) => q.id === resp.questionId);
 
         let capaRef: string | undefined;
         if (resp.result === 'FAIL') {
@@ -305,11 +367,12 @@ router.post('/audits/:id/respond', async (req: AuthRequest, res: Response) => {
       // Update audit counts
       const allResponses = await tx.lpaResponse.findMany({
         where: { auditId: id },
-        take: 1000});
+        take: 1000,
+      });
 
-      const passCount = allResponses.filter(r => r.result === 'PASS').length;
-      const failCount = allResponses.filter(r => r.result === 'FAIL').length;
-      const naCount = allResponses.filter(r => r.result === 'NOT_APPLICABLE').length;
+      const passCount = allResponses.filter((r) => r.result === 'PASS').length;
+      const failCount = allResponses.filter((r) => r.result === 'FAIL').length;
+      const naCount = allResponses.filter((r) => r.result === 'NOT_APPLICABLE').length;
 
       await tx.lpaAudit.update({
         where: { id },
@@ -322,10 +385,20 @@ router.post('/audits/:id/respond', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: responses });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Submit LPA responses error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit LPA responses' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to submit LPA responses' },
+    });
   }
 });
 
@@ -340,19 +413,25 @@ router.post('/audits/:id/complete', async (req: AuthRequest, res: Response) => {
     });
 
     if (!audit) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'LPA audit not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'LPA audit not found' } });
     }
 
     if (audit.status !== 'IN_PROGRESS') {
-      return res.status(400).json({ success: false, error: { code: 'AUDIT_NOT_IN_PROGRESS', message: 'LPA audit is not in progress' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'AUDIT_NOT_IN_PROGRESS', message: 'LPA audit is not in progress' },
+      });
     }
 
     // Calculate score: passCount / (totalQuestions - naCount) * 100
-    const passCount = audit.responses.filter(r => r.result === 'PASS').length;
-    const failCount = audit.responses.filter(r => r.result === 'FAIL').length;
-    const naCount = audit.responses.filter(r => r.result === 'NOT_APPLICABLE').length;
+    const passCount = audit.responses.filter((r) => r.result === 'PASS').length;
+    const failCount = audit.responses.filter((r) => r.result === 'FAIL').length;
+    const naCount = audit.responses.filter((r) => r.result === 'NOT_APPLICABLE').length;
     const applicableQuestions = audit.totalQuestions - naCount;
-    const score = applicableQuestions > 0 ? Math.round((passCount / applicableQuestions) * 10000) / 100 : 0;
+    const score =
+      applicableQuestions > 0 ? Math.round((passCount / applicableQuestions) * 10000) / 100 : 0;
 
     const notesSchema = z.object({
       notes: z.string().optional(),
@@ -376,10 +455,20 @@ router.post('/audits/:id/complete', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Complete LPA audit error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete LPA audit' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete LPA audit' },
+    });
   }
 });
 
@@ -420,12 +509,21 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
     // Fail rate by process area (bounded to prevent memory issues)
     const completedByArea = await prisma.lpaAudit.findMany({
       where: { status: 'COMPLETED' },
-      select: { processArea: true, passCount: true, failCount: true, naCount: true, totalQuestions: true },
+      select: {
+        processArea: true,
+        passCount: true,
+        failCount: true,
+        naCount: true,
+        totalQuestions: true,
+      },
       take: 10000,
       orderBy: { createdAt: 'desc' },
     });
 
-    const areaMap: Record<string, { totalApplicable: number; totalFails: number; auditCount: number }> = {};
+    const areaMap: Record<
+      string,
+      { totalApplicable: number; totalFails: number; auditCount: number }
+    > = {};
     for (const audit of completedByArea) {
       if (!areaMap[audit.processArea]) {
         areaMap[audit.processArea] = { totalApplicable: 0, totalFails: 0, auditCount: 0 };
@@ -439,9 +537,10 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
     const failRateByProcessArea = Object.entries(areaMap)
       .map(([processArea, stats]) => ({
         processArea,
-        failRate: stats.totalApplicable > 0
-          ? Math.round((stats.totalFails / stats.totalApplicable) * 10000) / 100
-          : 0,
+        failRate:
+          stats.totalApplicable > 0
+            ? Math.round((stats.totalFails / stats.totalApplicable) * 10000) / 100
+            : 0,
         auditCount: stats.auditCount,
         totalFails: stats.totalFails,
       }))
@@ -458,7 +557,10 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
     });
   } catch (error) {
     logger.error('LPA dashboard error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to load LPA dashboard' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to load LPA dashboard' },
+    });
   }
 });
 

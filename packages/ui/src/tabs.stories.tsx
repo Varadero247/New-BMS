@@ -22,19 +22,25 @@ export const Default: Story = {
       <TabsContent value="overview">
         <div style={{ padding: '16px 0' }}>
           <h3 style={{ marginBottom: '8px', fontWeight: '600' }}>Overview</h3>
-          <p style={{ color: '#666', fontSize: '14px' }}>This is the overview tab content with general information about this item.</p>
+          <p style={{ color: '#666', fontSize: '14px' }}>
+            This is the overview tab content with general information about this item.
+          </p>
         </div>
       </TabsContent>
       <TabsContent value="details">
         <div style={{ padding: '16px 0' }}>
           <h3 style={{ marginBottom: '8px', fontWeight: '600' }}>Details</h3>
-          <p style={{ color: '#666', fontSize: '14px' }}>Here are the detailed specifications and additional information.</p>
+          <p style={{ color: '#666', fontSize: '14px' }}>
+            Here are the detailed specifications and additional information.
+          </p>
         </div>
       </TabsContent>
       <TabsContent value="history">
         <div style={{ padding: '16px 0' }}>
           <h3 style={{ marginBottom: '8px', fontWeight: '600' }}>History</h3>
-          <p style={{ color: '#666', fontSize: '14px' }}>Activity timeline and revision history appears here.</p>
+          <p style={{ color: '#666', fontSize: '14px' }}>
+            Activity timeline and revision history appears here.
+          </p>
         </div>
       </TabsContent>
     </Tabs>
@@ -69,19 +75,25 @@ export const ManyTabs: Story = {
       <TabsContent value="tab1">
         <div style={{ padding: '16px 0' }}>
           <h3 style={{ marginBottom: '8px', fontWeight: '600' }}>General Settings</h3>
-          <p style={{ color: '#666', fontSize: '14px' }}>General configuration options for your account.</p>
+          <p style={{ color: '#666', fontSize: '14px' }}>
+            General configuration options for your account.
+          </p>
         </div>
       </TabsContent>
       <TabsContent value="tab2">
         <div style={{ padding: '16px 0' }}>
           <h3 style={{ marginBottom: '8px', fontWeight: '600' }}>Security</h3>
-          <p style={{ color: '#666', fontSize: '14px' }}>Manage your security settings and passwords.</p>
+          <p style={{ color: '#666', fontSize: '14px' }}>
+            Manage your security settings and passwords.
+          </p>
         </div>
       </TabsContent>
       <TabsContent value="tab3">
         <div style={{ padding: '16px 0' }}>
           <h3 style={{ marginBottom: '8px', fontWeight: '600' }}>Notifications</h3>
-          <p style={{ color: '#666', fontSize: '14px' }}>Configure your notification preferences.</p>
+          <p style={{ color: '#666', fontSize: '14px' }}>
+            Configure your notification preferences.
+          </p>
         </div>
       </TabsContent>
       <TabsContent value="tab4">
@@ -106,7 +118,9 @@ export const WithDisabledTab: Story = {
       <TabsList>
         <TabsTrigger value="active">Active</TabsTrigger>
         <TabsTrigger value="settings">Settings</TabsTrigger>
-        <TabsTrigger value="locked" disabled={true}>Locked</TabsTrigger>
+        <TabsTrigger value="locked" disabled={true}>
+          Locked
+        </TabsTrigger>
       </TabsList>
       <TabsContent value="active">
         <div style={{ padding: '16px 0' }}>
@@ -185,16 +199,49 @@ export const RichContent: Story = {
           <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '12px' }}>
             <tbody>
               <tr>
-                <td style={{ padding: '8px', borderBottom: '1px solid #eee', fontSize: '14px' }}>Weight</td>
-                <td style={{ padding: '8px', borderBottom: '1px solid #eee', fontSize: '14px', textAlign: 'right' }}>2.5 kg</td>
+                <td style={{ padding: '8px', borderBottom: '1px solid #eee', fontSize: '14px' }}>
+                  Weight
+                </td>
+                <td
+                  style={{
+                    padding: '8px',
+                    borderBottom: '1px solid #eee',
+                    fontSize: '14px',
+                    textAlign: 'right',
+                  }}
+                >
+                  2.5 kg
+                </td>
               </tr>
               <tr>
-                <td style={{ padding: '8px', borderBottom: '1px solid #eee', fontSize: '14px' }}>Dimensions</td>
-                <td style={{ padding: '8px', borderBottom: '1px solid #eee', fontSize: '14px', textAlign: 'right' }}>30x20x15 cm</td>
+                <td style={{ padding: '8px', borderBottom: '1px solid #eee', fontSize: '14px' }}>
+                  Dimensions
+                </td>
+                <td
+                  style={{
+                    padding: '8px',
+                    borderBottom: '1px solid #eee',
+                    fontSize: '14px',
+                    textAlign: 'right',
+                  }}
+                >
+                  30x20x15 cm
+                </td>
               </tr>
               <tr>
-                <td style={{ padding: '8px', borderBottom: '1px solid #eee', fontSize: '14px' }}>Power</td>
-                <td style={{ padding: '8px', borderBottom: '1px solid #eee', fontSize: '14px', textAlign: 'right' }}>AC 220V</td>
+                <td style={{ padding: '8px', borderBottom: '1px solid #eee', fontSize: '14px' }}>
+                  Power
+                </td>
+                <td
+                  style={{
+                    padding: '8px',
+                    borderBottom: '1px solid #eee',
+                    fontSize: '14px',
+                    textAlign: 'right',
+                  }}
+                >
+                  AC 220V
+                </td>
               </tr>
             </tbody>
           </table>
@@ -204,12 +251,25 @@ export const RichContent: Story = {
         <div style={{ padding: '16px 0' }}>
           <h3 style={{ marginBottom: '8px', fontWeight: '600' }}>Customer Reviews</h3>
           <div style={{ marginTop: '12px' }}>
-            <div style={{ padding: '12px', backgroundColor: '#f9fafb', borderRadius: '6px', marginBottom: '12px' }}>
-              <p style={{ fontWeight: '500', fontSize: '14px', marginBottom: '4px' }}>★★★★★ Great product!</p>
-              <p style={{ color: '#666', fontSize: '13px' }}>Highly recommend this to anyone looking for quality.</p>
+            <div
+              style={{
+                padding: '12px',
+                backgroundColor: '#f9fafb',
+                borderRadius: '6px',
+                marginBottom: '12px',
+              }}
+            >
+              <p style={{ fontWeight: '500', fontSize: '14px', marginBottom: '4px' }}>
+                ★★★★★ Great product!
+              </p>
+              <p style={{ color: '#666', fontSize: '13px' }}>
+                Highly recommend this to anyone looking for quality.
+              </p>
             </div>
             <div style={{ padding: '12px', backgroundColor: '#f9fafb', borderRadius: '6px' }}>
-              <p style={{ fontWeight: '500', fontSize: '14px', marginBottom: '4px' }}>★★★★ Very good</p>
+              <p style={{ fontWeight: '500', fontSize: '14px', marginBottom: '4px' }}>
+                ★★★★ Very good
+              </p>
               <p style={{ color: '#666', fontSize: '13px' }}>Excellent value for money.</p>
             </div>
           </div>

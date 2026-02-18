@@ -13,7 +13,9 @@ test.describe('Quality CRUD', () => {
   });
 
   test('should display Quality dashboard', async ({ page }) => {
-    await expect(page.locator('text=/Quality|Document|Audit|Process/i').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=/Quality|Document|Audit|Process/i').first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should list documents via API', async ({ page }) => {

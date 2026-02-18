@@ -36,25 +36,58 @@ export async function collectStripeMetrics(): Promise<{
     // Approximate churn — getSubscriptions only fetches active, so estimate from data
     const canceled: any[] = [];
     const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
-    const recentCanceled = canceled.filter((s: any) => new Date(s.canceled_at || 0).getTime() > thirtyDaysAgo);
-    const churnedMrr = recentCanceled.reduce((sum: number, s: any) => sum + (s.plan?.amount || 0) / 100, 0);
+    const recentCanceled = canceled.filter(
+      (s: any) => new Date(s.canceled_at || 0).getTime() > thirtyDaysAgo
+    );
+    const churnedMrr = recentCanceled.reduce(
+      (sum: number, s: any) => sum + (s.plan?.amount || 0) / 100,
+      0
+    );
     const churnedCustomers = recentCanceled.length;
 
     // New subscriptions in last 30 days
-    const newSubs = subscriptions.filter((s: any) => new Date(s.created || 0).getTime() > thirtyDaysAgo);
+    const newSubs = subscriptions.filter(
+      (s: any) => new Date(s.created || 0).getTime() > thirtyDaysAgo
+    );
     const newMrr = newSubs.reduce((sum: number, s: any) => sum + (s.plan?.amount || 0) / 100, 0);
     const newCustomers = newSubs.length;
 
     const netNewMrr = newMrr - churnedMrr;
     const prevMrr = mrr - netNewMrr;
     const mrrGrowthPct = prevMrr > 0 ? (netNewMrr / prevMrr) * 100 : 0;
-    const revenueChurnPct = (prevMrr + newMrr) > 0 ? (churnedMrr / (prevMrr + newMrr)) * 100 : 0;
+    const revenueChurnPct = prevMrr + newMrr > 0 ? (churnedMrr / (prevMrr + newMrr)) * 100 : 0;
     const ltv = revenueChurnPct > 0 ? arpu / (revenueChurnPct / 100) : arpu * 36;
 
-    return { mrr, arr: mrr * 12, newMrr, churnedMrr, netNewMrr, mrrGrowthPct, revenueChurnPct, customers, newCustomers, churnedCustomers, arpu, ltv };
+    return {
+      mrr,
+      arr: mrr * 12,
+      newMrr,
+      churnedMrr,
+      netNewMrr,
+      mrrGrowthPct,
+      revenueChurnPct,
+      customers,
+      newCustomers,
+      churnedCustomers,
+      arpu,
+      ltv,
+    };
   } catch (err) {
     logger.warn('Stripe metrics unavailable, using defaults', { error: String(err) });
-    return { mrr: 0, arr: 0, newMrr: 0, churnedMrr: 0, netNewMrr: 0, mrrGrowthPct: 0, revenueChurnPct: 0, customers: 0, newCustomers: 0, churnedCustomers: 0, arpu: 0, ltv: 0 };
+    return {
+      mrr: 0,
+      arr: 0,
+      newMrr: 0,
+      churnedMrr: 0,
+      netNewMrr: 0,
+      mrrGrowthPct: 0,
+      revenueChurnPct: 0,
+      customers: 0,
+      newCustomers: 0,
+      churnedCustomers: 0,
+      arpu: 0,
+      ltv: 0,
+    };
   }
 }
 
@@ -78,29 +111,57 @@ export async function collectHubSpotMetrics(): Promise<{
 
     const rawDeals: unknown = await hs.getDeals(200);
     const deals: any[] = (rawDeals as any)?.results || (Array.isArray(rawDeals) ? rawDeals : []);
-    const openDeals = deals.filter((d: any) => !['closedwon', 'closedlost'].includes(d.properties?.dealstage));
-    const pipelineValue = openDeals.reduce((sum: number, d: any) => sum + Number(d.properties?.amount || 0), 0);
+    const openDeals = deals.filter(
+      (d: any) => !['closedwon', 'closedlost'].includes(d.properties?.dealstage)
+    );
+    const pipelineValue = openDeals.reduce(
+      (sum: number, d: any) => sum + Number(d.properties?.amount || 0),
+      0
+    );
     const pipelineDeals = openDeals.length;
 
     const wonDeals = deals.filter((d: any) => d.properties?.dealstage === 'closedwon').length;
     const lostDeals = deals.filter((d: any) => d.properties?.dealstage === 'closedlost').length;
     const totalClosed = wonDeals + lostDeals;
     const winRate = totalClosed > 0 ? (wonDeals / totalClosed) * 100 : 0;
-    const avgDealSize = wonDeals > 0
-      ? deals.filter((d: any) => d.properties?.dealstage === 'closedwon').reduce((sum: number, d: any) => sum + Number(d.properties?.amount || 0), 0) / wonDeals
-      : 0;
+    const avgDealSize =
+      wonDeals > 0
+        ? deals
+            .filter((d: any) => d.properties?.dealstage === 'closedwon')
+            .reduce((sum: number, d: any) => sum + Number(d.properties?.amount || 0), 0) / wonDeals
+        : 0;
 
     // HubSpotClient doesn't have getContacts yet, so estimate leads from deals
     const newLeads = deals.filter((d: any) => {
       const created = d.createdAt || d.properties?.createdate;
-      return created && (Date.now() - new Date(created).getTime()) < 30 * 24 * 60 * 60 * 1000;
+      return created && Date.now() - new Date(created).getTime() < 30 * 24 * 60 * 60 * 1000;
     }).length;
     const qualifiedLeads = Math.round(newLeads * 0.3); // approximate
 
-    return { pipelineValue, pipelineDeals, wonDeals, lostDeals, avgDealSize, winRate, newLeads, qualifiedLeads, avgSalesCycle: 30 };
+    return {
+      pipelineValue,
+      pipelineDeals,
+      wonDeals,
+      lostDeals,
+      avgDealSize,
+      winRate,
+      newLeads,
+      qualifiedLeads,
+      avgSalesCycle: 30,
+    };
   } catch (err) {
     logger.warn('HubSpot metrics unavailable, using defaults', { error: String(err) });
-    return { pipelineValue: 0, pipelineDeals: 0, wonDeals: 0, lostDeals: 0, avgDealSize: 0, winRate: 0, newLeads: 0, qualifiedLeads: 0, avgSalesCycle: 0 };
+    return {
+      pipelineValue: 0,
+      pipelineDeals: 0,
+      wonDeals: 0,
+      lostDeals: 0,
+      avgDealSize: 0,
+      winRate: 0,
+      newLeads: 0,
+      qualifiedLeads: 0,
+      avgSalesCycle: 0,
+    };
   }
 }
 
@@ -130,25 +191,44 @@ export async function collectDatabaseMetrics(): Promise<{
     };
   } catch (err) {
     logger.warn('Database metrics unavailable', { error: String(err) });
-    return { activeTrials: 0, trialConversions: 0, trialConversionPct: 0, avgHealthScore: 0, nps: 0, activePartners: 0, partnerRevenue: 0 };
+    return {
+      activeTrials: 0,
+      trialConversions: 0,
+      trialConversionPct: 0,
+      avgHealthScore: 0,
+      nps: 0,
+      activePartners: 0,
+      partnerRevenue: 0,
+    };
   }
 }
 
 // ---------------------------------------------------------------------------
 // Loan amortisation helper
 // ---------------------------------------------------------------------------
-export function calculateAmortisation(principal: number, annualRate: number, termMonths: number, paymentNumber: number): {
+export function calculateAmortisation(
+  principal: number,
+  annualRate: number,
+  termMonths: number,
+  paymentNumber: number
+): {
   payment: number;
   interest: number;
   principalPaid: number;
   balance: number;
 } {
   if (paymentNumber <= 0 || paymentNumber > termMonths) {
-    return { payment: 0, interest: 0, principalPaid: 0, balance: paymentNumber <= 0 ? principal : 0 };
+    return {
+      payment: 0,
+      interest: 0,
+      principalPaid: 0,
+      balance: paymentNumber <= 0 ? principal : 0,
+    };
   }
 
   const monthlyRate = annualRate / 12;
-  const payment = (principal * monthlyRate * Math.pow(1 + monthlyRate, termMonths)) /
+  const payment =
+    (principal * monthlyRate * Math.pow(1 + monthlyRate, termMonths)) /
     (Math.pow(1 + monthlyRate, termMonths) - 1);
 
   // Calculate balance after (paymentNumber - 1) payments to get opening balance
@@ -174,7 +254,7 @@ export function calculateAmortisation(principal: number, annualRate: number, ter
 // ---------------------------------------------------------------------------
 export interface FounderIncomeResult {
   salary: number;
-  loanPayment: number;   // total combined loan payment (backward compat)
+  loanPayment: number; // total combined loan payment (backward compat)
   dividend: number;
   savingsInterest: number;
   total: number;
@@ -213,8 +293,14 @@ export function calculateFounderIncome(monthNumber: number, arr: number = 0): Fo
   const starterLoanRate = 0.08;
   const starterLoanTerm = 24;
   const starterLoanStartMonth = 2;
-  const starterPaymentNum = monthNumber >= starterLoanStartMonth ? monthNumber - starterLoanStartMonth + 1 : 0;
-  const starterLoan = calculateAmortisation(starterLoanPrincipal, starterLoanRate, starterLoanTerm, starterPaymentNum);
+  const starterPaymentNum =
+    monthNumber >= starterLoanStartMonth ? monthNumber - starterLoanStartMonth + 1 : 0;
+  const starterLoan = calculateAmortisation(
+    starterLoanPrincipal,
+    starterLoanRate,
+    starterLoanTerm,
+    starterPaymentNum
+  );
 
   const totalLoanPayment = dirLoan.payment + starterLoan.payment;
 

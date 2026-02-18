@@ -24,11 +24,11 @@ const risks = await prisma.hsRiskAssessment.findMany();
 
 ## Scripts
 
-| Script | Description |
-|--------|-------------|
-| `pnpm generate:all` | Regenerate all 44 Prisma clients |
-| `pnpm push:all` | Push all schemas to database |
-| `pnpm seed:all` | Run all seed scripts |
+| Script                   | Description                         |
+| ------------------------ | ----------------------------------- |
+| `pnpm generate:all`      | Regenerate all 44 Prisma clients    |
+| `pnpm push:all`          | Push all schemas to database        |
+| `pnpm seed:all`          | Run all seed scripts                |
 | `pnpm generate:<domain>` | Regenerate a specific domain client |
 
 ## Important Notes

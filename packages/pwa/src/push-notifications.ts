@@ -114,9 +114,7 @@ export async function isSubscribedToPush(): Promise<boolean> {
 /**
  * Show a local notification (not via push — useful for in-app alerts).
  */
-export async function showLocalNotification(
-  options: PushNotificationOptions
-): Promise<void> {
+export async function showLocalNotification(options: PushNotificationOptions): Promise<void> {
   if (!isPushSupported()) return;
   if (Notification.permission !== 'granted') return;
 

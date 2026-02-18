@@ -35,7 +35,17 @@ function generateIncidentRef(): string {
 const incidentCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
   description: z.string().max(5000).optional(),
-  type: z.enum(['DATA_BREACH', 'UNAUTHORIZED_ACCESS', 'MALWARE', 'PHISHING', 'DENIAL_OF_SERVICE', 'INSIDER_THREAT', 'PHYSICAL_SECURITY', 'SOCIAL_ENGINEERING', 'OTHER']),
+  type: z.enum([
+    'DATA_BREACH',
+    'UNAUTHORIZED_ACCESS',
+    'MALWARE',
+    'PHISHING',
+    'DENIAL_OF_SERVICE',
+    'INSIDER_THREAT',
+    'PHYSICAL_SECURITY',
+    'SOCIAL_ENGINEERING',
+    'OTHER',
+  ]),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
   affectedSystems: z.array(z.string()).optional(),
   affectedAssetIds: z.array(z.string()).optional(),
@@ -64,7 +74,11 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = incidentCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -93,11 +107,20 @@ router.post('/', async (req: Request, res: Response) => {
 
     const incident = await prisma.isIncident.create({ data: data as any });
 
-    logger.info('Security incident reported', { incidentId: incident.id, refNumber, severity: parsed.data.severity });
+    logger.info('Security incident reported', {
+      incidentId: incident.id,
+      refNumber,
+      severity: parsed.data.severity,
+    });
     res.status(201).json({ success: true, data: incident });
   } catch (error: unknown) {
-    logger.error('Failed to report security incident', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to report security incident' } });
+    logger.error('Failed to report security incident', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to report security incident' },
+    });
   }
 });
 
@@ -146,8 +169,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list security incidents', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list security incidents' } });
+    logger.error('Failed to list security incidents', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list security incidents' },
+    });
   }
 });
 
@@ -163,13 +191,22 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!incident) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Security incident not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Security incident not found' },
+      });
     }
 
     res.json({ success: true, data: incident });
   } catch (error: unknown) {
-    logger.error('Failed to get security incident', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get security incident' } });
+    logger.error('Failed to get security incident', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get security incident' },
+    });
   }
 });
 
@@ -181,12 +218,19 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = investigateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const existing = await prisma.isIncident.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Security incident not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Security incident not found' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -206,8 +250,14 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
     logger.info('Security incident investigation updated', { incidentId: id });
     res.json({ success: true, data: incident });
   } catch (error: unknown) {
-    logger.error('Failed to update investigation', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update investigation' } });
+    logger.error('Failed to update investigation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update investigation' },
+    });
   }
 });
 
@@ -219,12 +269,19 @@ router.put('/:id/close', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = closeSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const existing = await prisma.isIncident.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Security incident not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Security incident not found' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -245,8 +302,14 @@ router.put('/:id/close', async (req: Request, res: Response) => {
     logger.info('Security incident closed', { incidentId: id });
     res.json({ success: true, data: incident });
   } catch (error: unknown) {
-    logger.error('Failed to close security incident', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close security incident' } });
+    logger.error('Failed to close security incident', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to close security incident' },
+    });
   }
 });
 
@@ -259,11 +322,20 @@ router.post('/:id/notify', async (req: Request, res: Response) => {
 
     const existing = await prisma.isIncident.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Security incident not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Security incident not found' },
+      });
     }
 
     if (!existing.gdprBreachNotification) {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'This incident does not require GDPR breach notification' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_STATE',
+          message: 'This incident does not require GDPR breach notification',
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -279,8 +351,14 @@ router.post('/:id/notify', async (req: Request, res: Response) => {
     logger.info('GDPR breach notification logged', { incidentId: id });
     res.json({ success: true, data: incident });
   } catch (error: unknown) {
-    logger.error('Failed to log GDPR notification', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log GDPR notification' } });
+    logger.error('Failed to log GDPR notification', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to log GDPR notification' },
+    });
   }
 });
 

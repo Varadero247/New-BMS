@@ -19,7 +19,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const { projectId, status, severity, page = '1', limit = '50' } = req.query;
 
     if (!projectId) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' },
+      });
     }
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -47,7 +50,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List issues error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list issues' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list issues' },
+    });
   }
 });
 
@@ -61,15 +67,20 @@ const createIssueSchema = z.object({
   severity: z.string().optional(),
   priority: z.string().optional(),
   assignedTo: z.string().optional(),
-  targetResolutionDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  targetResolutionDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   impactOnSchedule: z.number().optional(),
   impactOnBudget: z.number().nonnegative().optional(),
   impactOnScope: z.string().optional(),
 });
-const updateIssueSchema = createIssueSchema.extend({
-  actualResolutionDate: z.string().optional(),
-  escalationDate: z.string().optional(),
-}).partial();
+const updateIssueSchema = createIssueSchema
+  .extend({
+    actualResolutionDate: z.string().optional(),
+    escalationDate: z.string().optional(),
+  })
+  .partial();
 
 // POST /api/issues - Create issue
 router.post('/', async (req: AuthRequest, res: Response) => {
@@ -89,7 +100,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         reportedBy: req.user?.id,
         assignedTo: data.assignedTo,
         raisedDate: new Date(),
-        targetResolutionDate: data.targetResolutionDate ? new Date(data.targetResolutionDate) : null,
+        targetResolutionDate: data.targetResolutionDate
+          ? new Date(data.targetResolutionDate)
+          : null,
         impactOnSchedule: data.impactOnSchedule,
         impactOnBudget: data.impactOnBudget,
         impactOnScope: data.impactOnScope,
@@ -100,10 +113,16 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: issue });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
     logger.error('Create issue error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create issue' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create issue' },
+    });
   }
 });
 
@@ -112,16 +131,24 @@ router.put('/:id', checkOwnership(prisma.projectIssue), async (req: AuthRequest,
   try {
     const existing = await prisma.projectIssue.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Issue not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Issue not found' } });
     }
 
     const parsed = updateIssueSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const data = parsed.data;
     const updateData = { ...data } as Record<string, unknown>;
 
-    if (data.targetResolutionDate) updateData.targetResolutionDate = new Date(data.targetResolutionDate);
-    if (data.actualResolutionDate) updateData.actualResolutionDate = new Date(data.actualResolutionDate);
+    if (data.targetResolutionDate)
+      updateData.targetResolutionDate = new Date(data.targetResolutionDate);
+    if (data.actualResolutionDate)
+      updateData.actualResolutionDate = new Date(data.actualResolutionDate);
     if (data.escalationDate) updateData.escalationDate = new Date(data.escalationDate);
 
     const issue = await prisma.projectIssue.update({
@@ -132,55 +159,87 @@ router.put('/:id', checkOwnership(prisma.projectIssue), async (req: AuthRequest,
     res.json({ success: true, data: issue });
   } catch (error) {
     logger.error('Update issue error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update issue' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update issue' },
+    });
   }
 });
 
 // PUT /api/issues/:id/resolve - Resolve issue
-router.put('/:id/resolve', checkOwnership(prisma.projectIssue), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectIssue.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Issue not found' } });
+router.put(
+  '/:id/resolve',
+  checkOwnership(prisma.projectIssue),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectIssue.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Issue not found' } });
+      }
+
+      const _schema = z.object({
+        resolutionDescription: z.string().trim().min(1),
+        rootCause: z.string().trim().optional(),
+        preventiveAction: z.string().trim().optional(),
+      });
+      const _parsed = _schema.safeParse(req.body);
+      if (!_parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+        });
+      const { resolutionDescription, rootCause, preventiveAction } = _parsed.data;
+
+      const issue = await prisma.projectIssue.update({
+        where: { id: req.params.id },
+        data: {
+          status: 'RESOLVED',
+          resolutionDescription,
+          rootCause,
+          preventiveAction,
+          actualResolutionDate: new Date(),
+        },
+      });
+
+      res.json({ success: true, data: issue });
+    } catch (error) {
+      logger.error('Resolve issue error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to resolve issue' },
+      });
     }
-
-    const _schema = z.object({ resolutionDescription: z.string().trim().min(1), rootCause: z.string().trim().optional(), preventiveAction: z.string().trim().optional() });
-    const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
-    const { resolutionDescription, rootCause, preventiveAction } = _parsed.data;
-
-    const issue = await prisma.projectIssue.update({
-      where: { id: req.params.id },
-      data: {
-        status: 'RESOLVED',
-        resolutionDescription,
-        rootCause,
-        preventiveAction,
-        actualResolutionDate: new Date(),
-      },
-    });
-
-    res.json({ success: true, data: issue });
-  } catch (error) {
-    logger.error('Resolve issue error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to resolve issue' } });
   }
-});
+);
 
 // DELETE /api/issues/:id - Delete issue
-router.delete('/:id', checkOwnership(prisma.projectIssue), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectIssue.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Issue not found' } });
-    }
+router.delete(
+  '/:id',
+  checkOwnership(prisma.projectIssue),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectIssue.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Issue not found' } });
+      }
 
-    await prisma.projectIssue.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete issue error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete issue' } });
+      await prisma.projectIssue.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete issue error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete issue' },
+      });
+    }
   }
-});
+);
 
 export default router;

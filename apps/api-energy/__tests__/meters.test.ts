@@ -20,7 +20,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -42,7 +46,14 @@ beforeEach(() => {
 
 describe('GET /api/meters', () => {
   it('should return paginated meters', async () => {
-    const mockMeters = [{ id: 'e1000000-0000-4000-a000-000000000001', name: 'Main Electricity', code: 'M001', type: 'ELECTRICITY' }];
+    const mockMeters = [
+      {
+        id: 'e1000000-0000-4000-a000-000000000001',
+        name: 'Main Electricity',
+        code: 'M001',
+        type: 'ELECTRICITY',
+      },
+    ];
     (prisma.energyMeter.findMany as jest.Mock).mockResolvedValue(mockMeters);
     (prisma.energyMeter.count as jest.Mock).mockResolvedValue(1);
 
@@ -99,7 +110,11 @@ describe('POST /api/meters', () => {
 
   it('should create a meter', async () => {
     (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue(null);
-    (prisma.energyMeter.create as jest.Mock).mockResolvedValue({ id: 'new-id', ...validBody, status: 'ACTIVE' });
+    (prisma.energyMeter.create as jest.Mock).mockResolvedValue({
+      id: 'new-id',
+      ...validBody,
+      status: 'ACTIVE',
+    });
 
     const res = await request(app).post('/api/meters').send(validBody);
 
@@ -108,7 +123,10 @@ describe('POST /api/meters', () => {
   });
 
   it('should reject duplicate code', async () => {
-    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({ id: 'e1000000-0000-4000-a000-000000000099', code: 'M001' });
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000099',
+      code: 'M001',
+    });
 
     const res = await request(app).post('/api/meters').send(validBody);
 
@@ -126,7 +144,9 @@ describe('POST /api/meters', () => {
       .mockResolvedValueOnce(null) // code check
       .mockResolvedValueOnce(null); // parent check
 
-    const res = await request(app).post('/api/meters').send({ ...validBody, parentMeterId: '00000000-0000-0000-0000-000000000099' });
+    const res = await request(app)
+      .post('/api/meters')
+      .send({ ...validBody, parentMeterId: '00000000-0000-0000-0000-000000000099' });
 
     expect(res.status).toBe(404);
     expect(res.body.error.message).toContain('Parent meter');
@@ -135,7 +155,11 @@ describe('POST /api/meters', () => {
 
 describe('GET /api/meters/:id', () => {
   it('should return a meter', async () => {
-    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({ id: 'e1000000-0000-4000-a000-000000000001', name: 'Meter 1', children: [] });
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+      name: 'Meter 1',
+      children: [],
+    });
 
     const res = await request(app).get('/api/meters/e1000000-0000-4000-a000-000000000001');
 
@@ -154,10 +178,18 @@ describe('GET /api/meters/:id', () => {
 
 describe('PUT /api/meters/:id', () => {
   it('should update a meter', async () => {
-    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({ id: 'e1000000-0000-4000-a000-000000000001', deletedAt: null });
-    (prisma.energyMeter.update as jest.Mock).mockResolvedValue({ id: 'e1000000-0000-4000-a000-000000000001', name: 'Updated' });
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+      deletedAt: null,
+    });
+    (prisma.energyMeter.update as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+      name: 'Updated',
+    });
 
-    const res = await request(app).put('/api/meters/e1000000-0000-4000-a000-000000000001').send({ name: 'Updated' });
+    const res = await request(app)
+      .put('/api/meters/e1000000-0000-4000-a000-000000000001')
+      .send({ name: 'Updated' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.name).toBe('Updated');
@@ -166,7 +198,9 @@ describe('PUT /api/meters/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/meters/00000000-0000-0000-0000-000000000099').send({ name: 'X' });
+    const res = await request(app)
+      .put('/api/meters/00000000-0000-0000-0000-000000000099')
+      .send({ name: 'X' });
 
     expect(res.status).toBe(404);
   });
@@ -174,8 +208,14 @@ describe('PUT /api/meters/:id', () => {
 
 describe('DELETE /api/meters/:id', () => {
   it('should soft delete a meter', async () => {
-    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({ id: 'e1000000-0000-4000-a000-000000000001', deletedAt: null });
-    (prisma.energyMeter.update as jest.Mock).mockResolvedValue({ id: 'e1000000-0000-4000-a000-000000000001', deletedAt: new Date() });
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+      deletedAt: null,
+    });
+    (prisma.energyMeter.update as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/meters/e1000000-0000-4000-a000-000000000001');
 
@@ -194,8 +234,12 @@ describe('DELETE /api/meters/:id', () => {
 
 describe('GET /api/meters/:id/readings', () => {
   it('should return readings for a meter', async () => {
-    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({ id: 'e1000000-0000-4000-a000-000000000001' });
-    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([{ id: 'e1100000-0000-4000-a000-000000000001', value: 100 }]);
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([
+      { id: 'e1100000-0000-4000-a000-000000000001', value: 100 },
+    ]);
     (prisma.energyReading.count as jest.Mock).mockResolvedValue(1);
 
     const res = await request(app).get('/api/meters/e1000000-0000-4000-a000-000000000001/readings');
@@ -217,7 +261,11 @@ describe('GET /api/meters/hierarchy', () => {
   it('should return meter tree structure', async () => {
     const mockMeters = [
       { id: 'e1000000-0000-4000-a000-000000000001', name: 'Parent', parentMeterId: null },
-      { id: 'e1000000-0000-4000-a000-000000000002', name: 'Child', parentMeterId: 'e1000000-0000-4000-a000-000000000001' },
+      {
+        id: 'e1000000-0000-4000-a000-000000000002',
+        name: 'Child',
+        parentMeterId: 'e1000000-0000-4000-a000-000000000001',
+      },
     ];
     (prisma.energyMeter.findMany as jest.Mock).mockResolvedValue(mockMeters);
 

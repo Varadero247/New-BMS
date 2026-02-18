@@ -34,8 +34,14 @@ const assetCreateSchema = z.object({
   serialNumber: z.string().max(200).optional().nullable(),
   location: z.string().max(200).optional().nullable(),
   department: z.string().max(200).optional().nullable(),
-  status: z.enum(['ACTIVE', 'INACTIVE', 'UNDER_MAINTENANCE', 'DECOMMISSIONED', 'DISPOSED']).optional(),
-  purchaseDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  status: z
+    .enum(['ACTIVE', 'INACTIVE', 'UNDER_MAINTENANCE', 'DECOMMISSIONED', 'DISPOSED'])
+    .optional(),
+  purchaseDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   purchaseCost: z.number().nonnegative().optional().nullable(),
   warrantyExpiry: z.string().optional().nullable(),
   parentAssetId: z.string().trim().uuid().optional().nullable(),
@@ -45,15 +51,23 @@ const assetCreateSchema = z.object({
 const assetUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
-  assetType: z.enum(['EQUIPMENT', 'VEHICLE', 'BUILDING', 'INFRASTRUCTURE', 'IT_ASSET', 'TOOL']).optional(),
+  assetType: z
+    .enum(['EQUIPMENT', 'VEHICLE', 'BUILDING', 'INFRASTRUCTURE', 'IT_ASSET', 'TOOL'])
+    .optional(),
   category: z.string().max(100).optional().nullable(),
   manufacturer: z.string().max(200).optional().nullable(),
   model: z.string().max(200).optional().nullable(),
   serialNumber: z.string().max(200).optional().nullable(),
   location: z.string().max(200).optional().nullable(),
   department: z.string().max(200).optional().nullable(),
-  status: z.enum(['ACTIVE', 'INACTIVE', 'UNDER_MAINTENANCE', 'DECOMMISSIONED', 'DISPOSED']).optional(),
-  purchaseDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  status: z
+    .enum(['ACTIVE', 'INACTIVE', 'UNDER_MAINTENANCE', 'DECOMMISSIONED', 'DISPOSED'])
+    .optional(),
+  purchaseDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   purchaseCost: z.number().nonnegative().optional().nullable(),
   warrantyExpiry: z.string().optional().nullable(),
   parentAssetId: z.string().trim().uuid().optional().nullable(),
@@ -105,8 +119,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list assets', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list assets' } });
+    logger.error('Failed to list assets', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list assets' },
+    });
   }
 });
 
@@ -115,7 +134,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = assetCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -145,8 +167,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: asset });
   } catch (error: unknown) {
-    logger.error('Failed to create asset', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create asset' } });
+    logger.error('Failed to create asset', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create asset' },
+    });
   }
 });
 
@@ -158,18 +185,28 @@ router.get('/:id', async (req: Request, res: Response) => {
       include: {
         workOrders: { where: { deletedAt: null } as any, take: 10, orderBy: { createdAt: 'desc' } },
         preventivePlans: { where: { deletedAt: null } as any },
-        inspections: { where: { deletedAt: null } as any, take: 10, orderBy: { createdAt: 'desc' } },
+        inspections: {
+          where: { deletedAt: null } as any,
+          take: 10,
+          orderBy: { createdAt: 'desc' },
+        },
       },
     });
 
     if (!asset) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Asset not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Asset not found' } });
     }
 
     res.json({ success: true, data: asset });
   } catch (error: unknown) {
-    logger.error('Failed to get asset', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get asset' } });
+    logger.error('Failed to get asset', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get asset' } });
   }
 });
 
@@ -178,75 +215,116 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = assetUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
-    const existing = await prisma.cmmsAsset.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsAsset.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Asset not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Asset not found' } });
     }
 
     const data = parsed.data;
     const updateData: Record<string, unknown> = { ...data };
-    if (data.purchaseDate !== undefined) updateData.purchaseDate = data.purchaseDate ? new Date(data.purchaseDate) : null;
-    if (data.purchaseCost !== undefined) updateData.purchaseCost = data.purchaseCost != null ? new Prisma.Decimal(data.purchaseCost) : null;
-    if (data.warrantyExpiry !== undefined) updateData.warrantyExpiry = data.warrantyExpiry ? new Date(data.warrantyExpiry) : null;
+    if (data.purchaseDate !== undefined)
+      updateData.purchaseDate = data.purchaseDate ? new Date(data.purchaseDate) : null;
+    if (data.purchaseCost !== undefined)
+      updateData.purchaseCost =
+        data.purchaseCost != null ? new Prisma.Decimal(data.purchaseCost) : null;
+    if (data.warrantyExpiry !== undefined)
+      updateData.warrantyExpiry = data.warrantyExpiry ? new Date(data.warrantyExpiry) : null;
 
     const asset = await prisma.cmmsAsset.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: asset });
   } catch (error: unknown) {
-    logger.error('Failed to update asset', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update asset' } });
+    logger.error('Failed to update asset', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update asset' },
+    });
   }
 });
 
 // DELETE /:id — Soft delete asset
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsAsset.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsAsset.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Asset not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Asset not found' } });
     }
 
-    await prisma.cmmsAsset.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.cmmsAsset.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Asset deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete asset', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete asset' } });
+    logger.error('Failed to delete asset', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete asset' },
+    });
   }
 });
 
 // GET /:id/history — Asset maintenance & calibration history
 router.get('/:id/history', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsAsset.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsAsset.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Asset not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Asset not found' } });
     }
 
     const [workOrders, inspections, meterReadings, downtimes] = await Promise.all([
       prisma.cmmsWorkOrder.findMany({
         where: { assetId: req.params.id, deletedAt: null } as any,
         orderBy: { createdAt: 'desc' },
-        take: 1000}),
+        take: 1000,
+      }),
       prisma.cmmsInspection.findMany({
         where: { assetId: req.params.id, deletedAt: null } as any,
         orderBy: { createdAt: 'desc' },
-        take: 1000}),
+        take: 1000,
+      }),
       prisma.cmmsMeterReading.findMany({
         where: { assetId: req.params.id, deletedAt: null } as any,
         orderBy: { readingDate: 'desc' },
-        take: 1000}),
+        take: 1000,
+      }),
       prisma.cmmsDowntime.findMany({
         where: { assetId: req.params.id, deletedAt: null } as any,
         orderBy: { startTime: 'desc' },
-        take: 1000}),
+        take: 1000,
+      }),
     ]);
 
     res.json({ success: true, data: { workOrders, inspections, meterReadings, downtimes } });
   } catch (error: unknown) {
-    logger.error('Failed to get asset history', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get asset history' } });
+    logger.error('Failed to get asset history', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get asset history' },
+    });
   }
 });
 
@@ -255,11 +333,20 @@ router.get('/:id/qr-code', async (req: Request, res: Response) => {
   try {
     const asset = await prisma.cmmsAsset.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
-      select: { id: true, code: true, name: true, assetType: true, location: true, serialNumber: true },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        assetType: true,
+        location: true,
+        serialNumber: true,
+      },
     });
 
     if (!asset) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Asset not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Asset not found' } });
     }
 
     const qrData = {
@@ -275,8 +362,13 @@ router.get('/:id/qr-code', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: qrData });
   } catch (error: unknown) {
-    logger.error('Failed to get QR code data', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get QR code data' } });
+    logger.error('Failed to get QR code data', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get QR code data' },
+    });
   }
 });
 

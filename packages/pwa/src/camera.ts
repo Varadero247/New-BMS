@@ -60,113 +60,151 @@ export function useCamera(options: CameraOptions = {}): CameraState {
   const [lastCapture, setLastCapture] = useState<CapturedImage | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const startCamera = useCallback(async (videoElement: HTMLVideoElement) => {
-    if (!isCameraSupported()) {
-      setError('Camera not supported in this browser');
-      return;
-    }
+  const startCamera = useCallback(
+    async (videoElement: HTMLVideoElement) => {
+      if (!isCameraSupported()) {
+        setError('Camera not supported in this browser');
+        return;
+      }
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width: { ideal: maxWidth }, height: { ideal: maxHeight } },
-        audio: false,
-      });
-      videoElement.srcObject = stream;
-      await videoElement.play();
-      streamRef.current = stream;
-      setIsActive(true);
-      setError(null);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Camera access denied';
-      setError(message);
-      setIsActive(false);
-    }
-  }, [facingMode, maxWidth, maxHeight]);
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode, width: { ideal: maxWidth }, height: { ideal: maxHeight } },
+          audio: false,
+        });
+        videoElement.srcObject = stream;
+        await videoElement.play();
+        streamRef.current = stream;
+        setIsActive(true);
+        setError(null);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Camera access denied';
+        setError(message);
+        setIsActive(false);
+      }
+    },
+    [facingMode, maxWidth, maxHeight]
+  );
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
     setIsActive(false);
   }, []);
 
-  const captureImage = useCallback(async (videoElement: HTMLVideoElement): Promise<CapturedImage | null> => {
-    if (!isActive || !videoElement.videoWidth) {
-      setError('Camera is not active');
-      return null;
-    }
+  const captureImage = useCallback(
+    async (videoElement: HTMLVideoElement): Promise<CapturedImage | null> => {
+      if (!isActive || !videoElement.videoWidth) {
+        setError('Camera is not active');
+        return null;
+      }
 
-    const canvas = document.createElement('canvas');
-    let width = videoElement.videoWidth;
-    let height = videoElement.videoHeight;
+      const canvas = document.createElement('canvas');
+      let width = videoElement.videoWidth;
+      let height = videoElement.videoHeight;
 
-    // Scale down if necessary
-    if (width > maxWidth) {
-      height = Math.round((height * maxWidth) / width);
-      width = maxWidth;
-    }
-    if (height > maxHeight) {
-      width = Math.round((width * maxHeight) / height);
-      height = maxHeight;
-    }
+      // Scale down if necessary
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+      if (height > maxHeight) {
+        width = Math.round((width * maxHeight) / height);
+        height = maxHeight;
+      }
 
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return null;
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
 
-    ctx.drawImage(videoElement, 0, 0, width, height);
+      ctx.drawImage(videoElement, 0, 0, width, height);
 
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        if (!blob) { resolve(null); return; }
-        const dataUrl = canvas.toDataURL('image/jpeg', quality);
-        const captured: CapturedImage = { dataUrl, blob, width, height, capturedAt: new Date() };
-        setLastCapture(captured);
-        resolve(captured);
-      }, 'image/jpeg', quality);
-    });
-  }, [isActive, quality, maxWidth, maxHeight]);
-
-  const captureFromFileInput = useCallback(async (file: File): Promise<CapturedImage | null> => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-
-          if (width > maxWidth) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          }
-          if (height > maxHeight) {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) { resolve(null); return; }
-          ctx.drawImage(img, 0, 0, width, height);
-
-          canvas.toBlob((blob) => {
-            if (!blob) { resolve(null); return; }
+      return new Promise((resolve) => {
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              resolve(null);
+              return;
+            }
             const dataUrl = canvas.toDataURL('image/jpeg', quality);
-            const captured: CapturedImage = { dataUrl, blob, width, height, capturedAt: new Date() };
+            const captured: CapturedImage = {
+              dataUrl,
+              blob,
+              width,
+              height,
+              capturedAt: new Date(),
+            };
             setLastCapture(captured);
             resolve(captured);
-          }, 'image/jpeg', quality);
+          },
+          'image/jpeg',
+          quality
+        );
+      });
+    },
+    [isActive, quality, maxWidth, maxHeight]
+  );
+
+  const captureFromFileInput = useCallback(
+    async (file: File): Promise<CapturedImage | null> => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            if (height > maxHeight) {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              resolve(null);
+              return;
+            }
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob(
+              (blob) => {
+                if (!blob) {
+                  resolve(null);
+                  return;
+                }
+                const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                const captured: CapturedImage = {
+                  dataUrl,
+                  blob,
+                  width,
+                  height,
+                  capturedAt: new Date(),
+                };
+                setLastCapture(captured);
+                resolve(captured);
+              },
+              'image/jpeg',
+              quality
+            );
+          };
+          img.src = e.target?.result as string;
         };
-        img.src = e.target?.result as string;
-      };
-      reader.readAsDataURL(file);
-    });
-  }, [quality, maxWidth, maxHeight]);
+        reader.readAsDataURL(file);
+      });
+    },
+    [quality, maxWidth, maxHeight]
+  );
 
   return {
     isSupported: isCameraSupported(),

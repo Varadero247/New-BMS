@@ -20,7 +20,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/partner-onboarding', partnerOnboardingRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 // ===================================================================
 // POST /api/partner-onboarding/enqueue/:partnerId
@@ -37,7 +39,9 @@ describe('POST /api/partner-onboarding/enqueue/:partnerId', () => {
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.data.jobsScheduled).toBe(3);
-    expect(res.body.data.sequenceId).toBe('partner-onboarding-00000000-0000-0000-0000-000000000001');
+    expect(res.body.data.sequenceId).toBe(
+      'partner-onboarding-00000000-0000-0000-0000-000000000001'
+    );
   });
 
   it('should schedule 3 jobs even without a name', async () => {
@@ -62,7 +66,9 @@ describe('POST /api/partner-onboarding/enqueue/:partnerId', () => {
     const firstCall = (prisma.mktEmailJob.create as jest.Mock).mock.calls[0][0];
     expect(firstCall.data.template).toBe('partner_welcome');
     expect(firstCall.data.email).toBe('partner@example.com');
-    expect(firstCall.data.sequenceId).toBe('partner-onboarding-00000000-0000-0000-0000-000000000001');
+    expect(firstCall.data.sequenceId).toBe(
+      'partner-onboarding-00000000-0000-0000-0000-000000000001'
+    );
   });
 
   it('should create a day 7 tips email', async () => {

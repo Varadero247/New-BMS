@@ -164,7 +164,10 @@ export default function ForecastClient() {
   const [sortBy, setSortBy] = useState<'value' | 'probability' | 'date'>('value');
 
   const totalPipeline = mockDeals.reduce((sum, deal) => sum + deal.value, 0);
-  const weightedForecast = mockDeals.reduce((sum, deal) => sum + deal.value * (deal.probability / 100), 0);
+  const weightedForecast = mockDeals.reduce(
+    (sum, deal) => sum + deal.value * (deal.probability / 100),
+    0
+  );
   const avgDealSize = Math.round(totalPipeline / mockDeals.length);
   const winRate = 62;
 
@@ -198,7 +201,9 @@ export default function ForecastClient() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-slate-900 mb-2">Sales Forecast</h1>
-          <p className="text-slate-600">Pipeline analysis and revenue projection for the next 6 months</p>
+          <p className="text-slate-600">
+            Pipeline analysis and revenue projection for the next 6 months
+          </p>
         </div>
 
         {/* Summary Cards */}
@@ -236,9 +241,7 @@ export default function ForecastClient() {
               <Target className="w-5 h-5 text-cyan-500" />
             </div>
             <p className="text-2xl font-bold text-slate-900">{mockDeals.length}</p>
-            <div className="mt-2 text-xs text-cyan-600">
-              Average deal age: 3.2 weeks
-            </div>
+            <div className="mt-2 text-xs text-cyan-600">Average deal age: 3.2 weeks</div>
           </div>
 
           {/* Average Deal Size */}
@@ -248,9 +251,7 @@ export default function ForecastClient() {
               <PieChart className="w-5 h-5 text-amber-500" />
             </div>
             <p className="text-2xl font-bold text-slate-900">{formatCurrency(avgDealSize)}</p>
-            <div className="mt-2 text-xs text-amber-600">
-              Range: £85k - £420k
-            </div>
+            <div className="mt-2 text-xs text-amber-600">Range: £85k - £420k</div>
           </div>
 
           {/* Win Rate */}
@@ -260,9 +261,7 @@ export default function ForecastClient() {
               <Percent className="w-5 h-5 text-emerald-500" />
             </div>
             <p className="text-2xl font-bold text-slate-900">{winRate}%</p>
-            <div className="mt-2 text-xs text-emerald-600">
-              Industry avg: 55%
-            </div>
+            <div className="mt-2 text-xs text-emerald-600">Industry avg: 55%</div>
           </div>
         </div>
 
@@ -270,17 +269,34 @@ export default function ForecastClient() {
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6 mb-8">
           <h2 className="text-xl font-bold text-slate-900 mb-6">6-Month Forecast</h2>
           <div className="flex items-center gap-4 mb-4 text-xs">
-            <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-violet-500" /><span className="text-slate-600">Weighted Forecast</span></div>
-            <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-slate-300" /><span className="text-slate-600">Unweighted Pipeline</span></div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded bg-violet-500" />
+              <span className="text-slate-600">Weighted Forecast</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded bg-slate-300" />
+              <span className="text-slate-600">Unweighted Pipeline</span>
+            </div>
           </div>
           <div className="flex items-end gap-4 h-64">
             {monthlyForecastData.map((d) => {
               const maxVal = Math.max(...monthlyForecastData.map((m) => m.unweighted));
               return (
-                <div key={d.month} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+                <div
+                  key={d.month}
+                  className="flex-1 flex flex-col items-center gap-1 h-full justify-end"
+                >
                   <div className="w-full flex gap-1 items-end flex-1">
-                    <div className="flex-1 bg-violet-500 rounded-t-md transition-all" style={{ height: `${(d.weighted / maxVal) * 100}%` }} title={`Weighted: ${formatCurrency(d.weighted)}`} />
-                    <div className="flex-1 bg-slate-300 rounded-t-md transition-all" style={{ height: `${(d.unweighted / maxVal) * 100}%` }} title={`Unweighted: ${formatCurrency(d.unweighted)}`} />
+                    <div
+                      className="flex-1 bg-violet-500 rounded-t-md transition-all"
+                      style={{ height: `${(d.weighted / maxVal) * 100}%` }}
+                      title={`Weighted: ${formatCurrency(d.weighted)}`}
+                    />
+                    <div
+                      className="flex-1 bg-slate-300 rounded-t-md transition-all"
+                      style={{ height: `${(d.unweighted / maxVal) * 100}%` }}
+                      title={`Unweighted: ${formatCurrency(d.unweighted)}`}
+                    />
                   </div>
                   <span className="text-xs text-slate-500 font-medium">{d.month}</span>
                 </div>
@@ -315,7 +331,9 @@ export default function ForecastClient() {
                         </p>
                       </div>
                       {stage.conversionRate > 0 && (
-                        <p className="text-xs font-medium text-emerald-600">{stage.conversionRate}% conv.</p>
+                        <p className="text-xs font-medium text-emerald-600">
+                          {stage.conversionRate}% conv.
+                        </p>
                       )}
                     </div>
                     <div className="flex items-center">
@@ -346,7 +364,9 @@ export default function ForecastClient() {
                   <div key={stage.stage}>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-slate-700">{stage.stage}</span>
-                      <span className="text-sm font-semibold text-slate-900">{percentage.toFixed(1)}%</span>
+                      <span className="text-sm font-semibold text-slate-900">
+                        {percentage.toFixed(1)}%
+                      </span>
                     </div>
                     <div className="w-full bg-slate-200 rounded-full h-2.5">
                       <div
@@ -402,10 +422,16 @@ export default function ForecastClient() {
                   <th className="px-4 py-3 text-left font-semibold text-slate-700">Deal Name</th>
                   <th className="px-4 py-3 text-left font-semibold text-slate-700">Company</th>
                   <th className="px-4 py-3 text-right font-semibold text-slate-700">Value</th>
-                  <th className="px-4 py-3 text-center font-semibold text-slate-700">Probability</th>
-                  <th className="px-4 py-3 text-right font-semibold text-slate-700">Weighted Value</th>
+                  <th className="px-4 py-3 text-center font-semibold text-slate-700">
+                    Probability
+                  </th>
+                  <th className="px-4 py-3 text-right font-semibold text-slate-700">
+                    Weighted Value
+                  </th>
                   <th className="px-4 py-3 text-center font-semibold text-slate-700">Stage</th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-700">Expected Close</th>
+                  <th className="px-4 py-3 text-left font-semibold text-slate-700">
+                    Expected Close
+                  </th>
                   <th className="px-4 py-3 text-left font-semibold text-slate-700">Owner</th>
                 </tr>
               </thead>
@@ -413,7 +439,10 @@ export default function ForecastClient() {
                 {filteredDeals.map((deal) => {
                   const weightedValue = deal.value * (deal.probability / 100);
                   return (
-                    <tr key={deal.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                    <tr
+                      key={deal.id}
+                      className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
+                    >
                       <td className="px-4 py-3 font-medium text-slate-900">{deal.name}</td>
                       <td className="px-4 py-3 text-slate-700">{deal.company}</td>
                       <td className="px-4 py-3 text-right text-slate-900 font-semibold">
@@ -427,7 +456,9 @@ export default function ForecastClient() {
                               style={{ width: `${deal.probability}%` }}
                             ></div>
                           </div>
-                          <span className="font-medium text-slate-900 min-w-max">{deal.probability}%</span>
+                          <span className="font-medium text-slate-900 min-w-max">
+                            {deal.probability}%
+                          </span>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right text-slate-900 font-semibold">

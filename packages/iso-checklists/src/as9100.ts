@@ -112,7 +112,8 @@ export const as9100Checklist: StandardChecklist = {
     },
     {
       clause: '8.4.1',
-      title: 'Control of Externally Provided Processes, Products and Services — Supplemental (Approved Supplier List)',
+      title:
+        'Control of Externally Provided Processes, Products and Services — Supplemental (Approved Supplier List)',
       questions: [
         'Does the organization maintain an approved supplier list (ASL) or register that documents the scope of approval, approval status, and any limitations for each external provider?',
         'Are criteria for initial evaluation, selection, and ongoing monitoring of external providers defined and documented, including quality performance, delivery performance, and regulatory compliance?',
@@ -262,7 +263,8 @@ export const as9100Checklist: StandardChecklist = {
     },
     {
       clause: '8.5.5',
-      title: 'Post-Delivery Activities — Supplemental (In-Service Data and Airworthiness Directives)',
+      title:
+        'Post-Delivery Activities — Supplemental (In-Service Data and Airworthiness Directives)',
       questions: [
         'Does the organization have a process for collecting, analyzing, and acting upon in-service feedback and reliability data from customers, operators, and regulatory authorities?',
         'Is there a defined process for reviewing and implementing Airworthiness Directives (ADs), Service Bulletins (SBs), and other mandatory continuing airworthiness requirements that affect delivered products?',
@@ -296,7 +298,8 @@ export const as9100Checklist: StandardChecklist = {
     },
     {
       clause: '8.6',
-      title: 'Release of Products and Services — Supplemental (First Article Inspection and Certificates of Conformance)',
+      title:
+        'Release of Products and Services — Supplemental (First Article Inspection and Certificates of Conformance)',
       questions: [
         'Does the organization perform First Article Inspection (FAI) in accordance with AS9102 for new parts, after design changes, or after significant process changes, and are FAI reports complete and approved before production release?',
         'Are Certificates of Conformance (CofC) or Authorized Release Certificates (e.g., EASA Form 1, FAA 8130-3) issued for delivered products, and do they accurately reflect the released configuration?',
@@ -334,7 +337,8 @@ export const as9100Checklist: StandardChecklist = {
     // ─── Clause 9: Performance Evaluation ────────────────────────────────
     {
       clause: '9.1.1',
-      title: 'Monitoring, Measurement, Analysis and Evaluation — Supplemental (Key Performance Indicators)',
+      title:
+        'Monitoring, Measurement, Analysis and Evaluation — Supplemental (Key Performance Indicators)',
       questions: [
         'Has the organization defined Key Performance Indicators (KPIs) for quality, delivery, and safety performance that are aligned with customer and organizational objectives?',
         'Are KPIs measured at defined frequencies, and are targets or thresholds established that trigger investigation and corrective action when not met?',

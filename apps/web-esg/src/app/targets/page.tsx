@@ -2,7 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Modal } from '@ims/ui';
-import { Plus, Search, Target, Pencil, Trash2, TrendingUp, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import {
+  Plus,
+  Search,
+  Target,
+  Pencil,
+  Trash2,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface ESGTarget {
@@ -62,7 +72,9 @@ export default function TargetsPage() {
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  useEffect(() => { loadTargets(); }, []);
+  useEffect(() => {
+    loadTargets();
+  }, []);
 
   async function loadTargets() {
     try {
@@ -83,7 +95,18 @@ export default function TargetsPage() {
 
   function openEdit(t: ESGTarget) {
     setEditing(t);
-    setForm({ name: t.name, category: t.category, baselineYear: t.baselineYear, targetYear: t.targetYear, baselineValue: t.baselineValue, targetValue: t.targetValue, currentValue: t.currentValue, unit: t.unit, status: t.status, description: t.description || '' });
+    setForm({
+      name: t.name,
+      category: t.category,
+      baselineYear: t.baselineYear,
+      targetYear: t.targetYear,
+      baselineValue: t.baselineValue,
+      targetValue: t.targetValue,
+      currentValue: t.currentValue,
+      unit: t.unit,
+      status: t.status,
+      description: t.description || '',
+    });
     setModalOpen(true);
   }
 
@@ -92,10 +115,10 @@ export default function TargetsPage() {
     try {
       if (editing) {
         const res = await api.put(`/targets/${editing.id}`, form);
-        setTargets(prev => prev.map(t => t.id === editing.id ? res.data.data : t));
+        setTargets((prev) => prev.map((t) => (t.id === editing.id ? res.data.data : t)));
       } else {
         const res = await api.post('/targets', form);
-        setTargets(prev => [res.data.data, ...prev]);
+        setTargets((prev) => [res.data.data, ...prev]);
       }
       setModalOpen(false);
     } catch (err) {
@@ -108,7 +131,7 @@ export default function TargetsPage() {
   async function handleDelete(id: string) {
     try {
       await api.delete(`/targets/${id}`);
-      setTargets(prev => prev.filter(t => t.id !== id));
+      setTargets((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       console.error(err);
     } finally {
@@ -116,23 +139,31 @@ export default function TargetsPage() {
     }
   }
 
-  const filtered = targets.filter(t => {
-    const matchesSearch = !searchTerm || JSON.stringify(t).toLowerCase().includes(searchTerm.toLowerCase());
+  const filtered = targets.filter((t) => {
+    const matchesSearch =
+      !searchTerm || JSON.stringify(t).toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || t.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const achieved = targets.filter(t => t.status === 'ACHIEVED').length;
-  const onTrack = targets.filter(t => t.status === 'ON_TRACK').length;
-  const atRisk = targets.filter(t => t.status === 'AT_RISK' || t.status === 'BEHIND').length;
-  const avgProgress = targets.length > 0 ? Math.round(targets.reduce((s, t) => s + (t.progress || 0), 0) / targets.length) : 0;
+  const achieved = targets.filter((t) => t.status === 'ACHIEVED').length;
+  const onTrack = targets.filter((t) => t.status === 'ON_TRACK').length;
+  const atRisk = targets.filter((t) => t.status === 'AT_RISK' || t.status === 'BEHIND').length;
+  const avgProgress =
+    targets.length > 0
+      ? Math.round(targets.reduce((s, t) => s + (t.progress || 0), 0) / targets.length)
+      : 0;
 
   if (loading) {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
-          <div className="grid grid-cols-4 gap-4">{[1,2,3,4].map(i => <div key={i} className="h-24 bg-gray-200 rounded" />)}</div>
+          <div className="grid grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-24 bg-gray-200 rounded" />
+            ))}
+          </div>
           <div className="h-64 bg-gray-200 rounded" />
         </div>
       </div>
@@ -145,9 +176,14 @@ export default function TargetsPage() {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">ESG Targets</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Track sustainability targets and reduction commitments</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Track sustainability targets and reduction commitments
+            </p>
           </div>
-          <button onClick={openCreate} className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors">
+          <button
+            onClick={openCreate}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors"
+          >
             <Plus className="h-5 w-5" /> Add Target
           </button>
         </div>
@@ -155,14 +191,26 @@ export default function TargetsPage() {
         {/* Stat Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {[
-            { label: 'Total Targets', value: targets.length, color: 'text-gray-800', bg: 'bg-gray-50 dark:bg-gray-800' },
+            {
+              label: 'Total Targets',
+              value: targets.length,
+              color: 'text-gray-800',
+              bg: 'bg-gray-50 dark:bg-gray-800',
+            },
             { label: 'On Track', value: onTrack, color: 'text-green-700', bg: 'bg-green-50' },
             { label: 'At Risk / Behind', value: atRisk, color: 'text-red-700', bg: 'bg-red-50' },
-            { label: 'Avg Progress', value: `${avgProgress}%`, color: 'text-blue-700', bg: 'bg-blue-50' },
-          ].map(c => (
+            {
+              label: 'Avg Progress',
+              value: `${avgProgress}%`,
+              color: 'text-blue-700',
+              bg: 'bg-blue-50',
+            },
+          ].map((c) => (
             <Card key={c.label}>
               <CardContent className={`pt-5 pb-4 ${c.bg} rounded-lg`}>
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase">{c.label}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase">
+                  {c.label}
+                </p>
                 <p className={`text-2xl font-bold mt-1 ${c.color}`}>{c.value}</p>
               </CardContent>
             </Card>
@@ -175,9 +223,21 @@ export default function TargetsPage() {
             <div className="flex flex-wrap gap-3 items-center">
               <div className="flex-1 min-w-[200px] relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                <input type="text" aria-label="Search targets..." placeholder="Search targets..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+                <input
+                  type="text"
+                  aria-label="Search targets..."
+                  placeholder="Search targets..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
               </div>
-              <select aria-label="Filter by status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+              <select
+                aria-label="Filter by status"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
                 <option value="">All Statuses</option>
                 <option value="NOT_STARTED">Not Started</option>
                 <option value="ON_TRACK">On Track</option>
@@ -203,44 +263,77 @@ export default function TargetsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Category</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Baseline → Target</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Progress</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Name
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Category
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Baseline → Target
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Progress
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Status
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map(t => (
+                    {filtered.map((t) => (
                       <tr key={t.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
                         <td className="py-3 px-4">
                           <p className="font-medium text-gray-900 dark:text-gray-100">{t.name}</p>
-                          <p className="text-xs text-gray-400 dark:text-gray-500">{t.baselineYear} → {t.targetYear}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">
+                            {t.baselineYear} → {t.targetYear}
+                          </p>
                         </td>
-                        <td className="py-3 px-4 text-gray-600">{t.category?.replace(/_/g, ' ')}</td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {t.category?.replace(/_/g, ' ')}
+                        </td>
                         <td className="py-3 px-4 text-gray-600">
                           <span>{t.baselineValue} → </span>
-                          <span className="font-medium text-green-700">{t.targetValue} {t.unit}</span>
+                          <span className="font-medium text-green-700">
+                            {t.targetValue} {t.unit}
+                          </span>
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2 min-w-[120px]">
                             <div className="flex-1 bg-gray-200 rounded-full h-2">
-                              <div className={`h-2 rounded-full ${(t.progress || 0) >= 100 ? 'bg-green-500' : (t.progress || 0) >= 50 ? 'bg-blue-500' : 'bg-amber-500'}`} style={{ width: `${Math.min(t.progress || 0, 100)}%` }} />
+                              <div
+                                className={`h-2 rounded-full ${(t.progress || 0) >= 100 ? 'bg-green-500' : (t.progress || 0) >= 50 ? 'bg-blue-500' : 'bg-amber-500'}`}
+                                style={{ width: `${Math.min(t.progress || 0, 100)}%` }}
+                              />
                             </div>
                             <span className="text-xs font-medium w-9">{t.progress || 0}%</span>
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${statusColors[t.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${statusColors[t.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                          >
                             {statusIcons[t.status]}
                             {t.status?.replace(/_/g, ' ')}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex justify-end gap-2">
-                            <button onClick={() => openEdit(t)} className="text-gray-400 dark:text-gray-500 hover:text-green-600 transition-colors"><Pencil className="h-4 w-4" /></button>
-                            <button onClick={() => setDeleteId(t.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600 transition-colors"><Trash2 className="h-4 w-4" /></button>
+                            <button
+                              onClick={() => openEdit(t)}
+                              className="text-gray-400 dark:text-gray-500 hover:text-green-600 transition-colors"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteId(t.id)}
+                              className="text-gray-400 dark:text-gray-500 hover:text-red-600 transition-colors"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -252,7 +345,9 @@ export default function TargetsPage() {
               <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <Target className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p className="font-medium">No targets found</p>
-                <p className="text-sm mt-1">Click "Add Target" to set your first sustainability target</p>
+                <p className="text-sm mt-1">
+                  Click "Add Target" to set your first sustainability target
+                </p>
               </div>
             )}
           </CardContent>
@@ -260,16 +355,34 @@ export default function TargetsPage() {
       </div>
 
       {/* Create / Edit Modal */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Target' : 'Add ESG Target'} size="lg">
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editing ? 'Edit Target' : 'Add ESG Target'}
+        size="lg"
+      >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Name *</label>
-            <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="e.g. Net Zero Emissions by 2030" />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Target Name *
+            </label>
+            <input
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="e.g. Net Zero Emissions by 2030"
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-              <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Category
+              </label>
+              <select
+                value={form.category}
+                onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
                 <option value="EMISSIONS">Emissions</option>
                 <option value="ENERGY">Energy</option>
                 <option value="WATER">Water</option>
@@ -280,37 +393,95 @@ export default function TargetsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit</label>
-              <input value={form.unit} onChange={e => setForm(f => ({ ...f, unit: e.target.value }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="tCO2e, kWh, m³..." />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Unit
+              </label>
+              <input
+                value={form.unit}
+                onChange={(e) => setForm((f) => ({ ...f, unit: e.target.value }))}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="tCO2e, kWh, m³..."
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Baseline Year</label>
-              <input type="number" value={form.baselineYear} onChange={e => setForm(f => ({ ...f, baselineYear: parseInt(e.target.value) || 2020 }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Baseline Year
+              </label>
+              <input
+                type="number"
+                value={form.baselineYear}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, baselineYear: parseInt(e.target.value) || 2020 }))
+                }
+                className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Year</label>
-              <input type="number" value={form.targetYear} onChange={e => setForm(f => ({ ...f, targetYear: parseInt(e.target.value) || 2030 }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Target Year
+              </label>
+              <input
+                type="number"
+                value={form.targetYear}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, targetYear: parseInt(e.target.value) || 2030 }))
+                }
+                className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Baseline Value</label>
-              <input type="number" value={form.baselineValue} onChange={e => setForm(f => ({ ...f, baselineValue: parseFloat(e.target.value) || 0 }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Baseline Value
+              </label>
+              <input
+                type="number"
+                value={form.baselineValue}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, baselineValue: parseFloat(e.target.value) || 0 }))
+                }
+                className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Value</label>
-              <input type="number" value={form.targetValue} onChange={e => setForm(f => ({ ...f, targetValue: parseFloat(e.target.value) || 0 }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Target Value
+              </label>
+              <input
+                type="number"
+                value={form.targetValue}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, targetValue: parseFloat(e.target.value) || 0 }))
+                }
+                className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Value</label>
-              <input type="number" value={form.currentValue} onChange={e => setForm(f => ({ ...f, currentValue: parseFloat(e.target.value) || 0 }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Current Value
+              </label>
+              <input
+                type="number"
+                value={form.currentValue}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, currentValue: parseFloat(e.target.value) || 0 }))
+                }
+                className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-            <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Status
+            </label>
+            <select
+              value={form.status}
+              onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
               <option value="NOT_STARTED">Not Started</option>
               <option value="ON_TRACK">On Track</option>
               <option value="AT_RISK">At Risk</option>
@@ -319,13 +490,30 @@ export default function TargetsPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-            <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Describe the target and how it will be achieved..." />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Description
+            </label>
+            <textarea
+              value={form.description}
+              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              rows={3}
+              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="Describe the target and how it will be achieved..."
+            />
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
-          <button onClick={handleSave} disabled={saving || !form.name} className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50">
+          <button
+            onClick={() => setModalOpen(false)}
+            className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border rounded-lg hover:bg-gray-50 dark:bg-gray-800"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving || !form.name}
+            className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+          >
             {saving ? 'Saving...' : editing ? 'Save Changes' : 'Add Target'}
           </button>
         </div>
@@ -333,10 +521,22 @@ export default function TargetsPage() {
 
       {/* Delete Confirm */}
       <Modal isOpen={!!deleteId} onClose={() => setDeleteId(null)} title="Delete Target" size="sm">
-        <p className="text-sm text-gray-600">Are you sure you want to delete this target? This action cannot be undone.</p>
+        <p className="text-sm text-gray-600">
+          Are you sure you want to delete this target? This action cannot be undone.
+        </p>
         <div className="flex justify-end gap-3 mt-6">
-          <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border rounded-lg hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
-          <button onClick={() => deleteId && handleDelete(deleteId)} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
+          <button
+            onClick={() => setDeleteId(null)}
+            className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border rounded-lg hover:bg-gray-50 dark:bg-gray-800"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => deleteId && handleDelete(deleteId)}
+            className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Delete
+          </button>
         </div>
       </Modal>
     </div>

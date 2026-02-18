@@ -258,7 +258,9 @@ describe('Workflows Tasks API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.workflowTask.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.workflowTask.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app).get('/api/tasks/3d000000-0000-4000-a000-000000000001');
 
@@ -283,9 +285,7 @@ describe('Workflows Tasks API Routes', () => {
         instance: { referenceNumber: 'WF-001' },
       });
 
-      const response = await request(app)
-        .post('/api/tasks')
-        .send(createPayload);
+      const response = await request(app).post('/api/tasks').send(createPayload);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -298,9 +298,7 @@ describe('Workflows Tasks API Routes', () => {
         status: 'PENDING',
       });
 
-      await request(app)
-        .post('/api/tasks')
-        .send(createPayload);
+      await request(app).post('/api/tasks').send(createPayload);
 
       expect(mockPrisma.workflowTask.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -312,13 +310,11 @@ describe('Workflows Tasks API Routes', () => {
     });
 
     it('should return 400 for missing title', async () => {
-      const response = await request(app)
-        .post('/api/tasks')
-        .send({
-          instanceId: '11111111-1111-1111-1111-111111111111',
-          assignedToId: '22222222-2222-2222-2222-222222222222',
-          taskType: 'REVIEW',
-        });
+      const response = await request(app).post('/api/tasks').send({
+        instanceId: '11111111-1111-1111-1111-111111111111',
+        assignedToId: '22222222-2222-2222-2222-222222222222',
+        taskType: 'REVIEW',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -345,9 +341,7 @@ describe('Workflows Tasks API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.workflowTask.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .post('/api/tasks')
-        .send(createPayload);
+      const response = await request(app).post('/api/tasks').send(createPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -471,7 +465,9 @@ describe('Workflows Tasks API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.workflowTask.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.workflowTask.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/tasks/3d000000-0000-4000-a000-000000000001/reassign')

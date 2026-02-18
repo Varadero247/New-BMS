@@ -1,17 +1,17 @@
 # Database Schema Notes
 
-## Why hs_* Tables May Be Missing After Restart
+## Why hs\_\* Tables May Be Missing After Restart
 
 When Docker recreates the postgres container (e.g. after `fuser -k` kills the process, or `--force-recreate` is used), the volume may be lost. This means:
 
 1. The `ims_user` role no longer exists (only `postgres` superuser)
 2. The admin user record is gone
-3. All 15 hs_* tables are missing
+3. All 15 hs\_\* tables are missing
 4. Any columns added after initial migration are lost
 
 The health-safety schema uses a separate Prisma schema file (`packages/database/prisma/schemas/health-safety.prisma`) and does not have migration files — it was created with `prisma db push`.
 
-## Recreating hs_* Tables
+## Recreating hs\_\* Tables
 
 **Important:** You MUST push the schema from the HOST machine, not from inside a container.
 
@@ -24,6 +24,7 @@ Error loading shared library libssl.so.1.1: No such file or directory
 ```
 
 **Fix applied:** All Prisma schema `generator` blocks now include:
+
 ```prisma
 generator client {
   provider      = "prisma-client-js"
@@ -33,6 +34,7 @@ generator client {
 ```
 
 This was added to:
+
 - `packages/database/prisma/schema.prisma`
 - `packages/database/prisma/schemas/health-safety.prisma`
 - All other schemas in `packages/database/prisma/schemas/`
@@ -109,7 +111,7 @@ ALTER TABLE sessions ADD COLUMN IF NOT EXISTS "lastActivityAt" TIMESTAMP;
 ALTER TABLE sessions ADD COLUMN IF NOT EXISTS "deletedAt" TIMESTAMP;
 ```
 
-## All 15 hs_* Tables
+## All 15 hs\_\* Tables
 
 ```
 hs_actions, hs_bow_tie_analyses, hs_capa_actions, hs_capas,
@@ -120,7 +122,8 @@ hs_risks, hs_safety_inspections, hs_safety_metrics, hs_safety_permits
 
 ## Quick Verification
 
-Check how many hs_* tables exist:
+Check how many hs\_\* tables exist:
+
 ```bash
 export DOCKER_API_VERSION=1.41
 docker exec ims-postgres psql -U postgres -d ims -t -c \

@@ -49,11 +49,23 @@ const trainingCreateSchema = z.object({
     'SPECIALIST',
     'OTHER',
   ]),
-  assignedDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  dueDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  assignedDate: z
+    .string()
+    .trim()
+    .min(1)
+    .max(200)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  dueDate: z
+    .string()
+    .trim()
+    .min(1)
+    .max(200)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   department: z.string().max(200).optional(),
   position: z.string().max(200).optional(),
-  deliveryMethod: z.enum(['ONLINE', 'CLASSROOM', 'WORKSHOP', 'WEBINAR', 'SELF_STUDY', 'BLENDED']).optional(),
+  deliveryMethod: z
+    .enum(['ONLINE', 'CLASSROOM', 'WORKSHOP', 'WEBINAR', 'SELF_STUDY', 'BLENDED'])
+    .optional(),
   duration: z.number().int().min(0).optional(),
   provider: z.string().max(300).optional(),
   passMark: z.number().int().min(0).max(100).optional(),
@@ -63,22 +75,32 @@ const trainingCreateSchema = z.object({
 const trainingUpdateSchema = z.object({
   employeeName: z.string().trim().min(1).max(200).optional(),
   courseName: z.string().trim().min(1).max(300).optional(),
-  courseType: z.enum([
-    'GENERAL_AWARENESS',
-    'ROLE_SPECIFIC',
-    'MANAGEMENT_TRAINING',
-    'BOARD_TRAINING',
-    'THIRD_PARTY_TRAINING',
-    'REFRESHER',
-    'INDUCTION',
-    'SPECIALIST',
-    'OTHER',
-  ]).optional(),
-  assignedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  courseType: z
+    .enum([
+      'GENERAL_AWARENESS',
+      'ROLE_SPECIFIC',
+      'MANAGEMENT_TRAINING',
+      'BOARD_TRAINING',
+      'THIRD_PARTY_TRAINING',
+      'REFRESHER',
+      'INDUCTION',
+      'SPECIALIST',
+      'OTHER',
+    ])
+    .optional(),
+  assignedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  dueDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   department: z.string().max(200).optional(),
   position: z.string().max(200).optional(),
-  deliveryMethod: z.enum(['ONLINE', 'CLASSROOM', 'WORKSHOP', 'WEBINAR', 'SELF_STUDY', 'BLENDED']).optional(),
+  deliveryMethod: z
+    .enum(['ONLINE', 'CLASSROOM', 'WORKSHOP', 'WEBINAR', 'SELF_STUDY', 'BLENDED'])
+    .optional(),
   duration: z.number().int().min(0).optional(),
   provider: z.string().max(300).optional(),
   passMark: z.number().int().min(0).max(100).optional(),
@@ -87,7 +109,10 @@ const trainingUpdateSchema = z.object({
 
 const completeSchema = z.object({
   score: z.number().int().min(0).max(100),
-  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  completedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   certificate: z.string().max(500).optional(),
   feedback: z.string().max(2000).optional(),
 });
@@ -136,8 +161,13 @@ router.get('/overdue', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list overdue training', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list overdue training' } });
+    logger.error('Failed to list overdue training', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list overdue training' },
+    });
   }
 });
 
@@ -147,7 +177,9 @@ router.get('/stats', async (_req: Request, res: Response) => {
     const [total, completed, inProgress, overdue, byType] = await Promise.all([
       (prisma as any).abTraining.count({ where: { deletedAt: null } as any }),
       (prisma as any).abTraining.count({ where: { deletedAt: null, status: 'COMPLETED' } as any }),
-      (prisma as any).abTraining.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } as any }),
+      (prisma as any).abTraining.count({
+        where: { deletedAt: null, status: 'IN_PROGRESS' } as any,
+      }),
       (prisma as any).abTraining.count({
         where: {
           deletedAt: null,
@@ -179,8 +211,13 @@ router.get('/stats', async (_req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get training stats', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get training stats' } });
+    logger.error('Failed to get training stats', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get training stats' },
+    });
   }
 });
 
@@ -232,8 +269,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list training records', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list training records' } });
+    logger.error('Failed to list training records', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list training records' },
+    });
   }
 });
 
@@ -261,8 +303,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Training record created', { id: record.id, referenceNumber });
     res.status(201).json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Failed to create training record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create training record' } });
+    logger.error('Failed to create training record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create training record' },
+    });
   }
 });
 
@@ -276,13 +323,21 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!record) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Training record not found' },
+      });
     }
 
     res.json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Failed to get training record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get training record' } });
+    logger.error('Failed to get training record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get training record' },
+    });
   }
 });
 
@@ -300,7 +355,10 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Training record not found' },
+      });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -316,8 +374,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Training record updated', { id: record.id });
     res.json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Failed to update training record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update training record' } });
+    logger.error('Failed to update training record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update training record' },
+    });
   }
 });
 
@@ -333,7 +396,10 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Training record not found' },
+      });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -357,8 +423,13 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     logger.info('Training record completed', { id: record.id, score: parsed.data.score, passed });
     res.json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Failed to complete training record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete training record' } });
+    logger.error('Failed to complete training record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete training record' },
+    });
   }
 });
 

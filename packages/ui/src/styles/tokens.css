@@ -4,91 +4,91 @@
 
 :root {
   /* ── Foundation (12 neutrals, dark-first) ──────────────── */
-  --ink:        #080B12;
-  --deep:       #0C1220;
-  --midnight:   #101828;
-  --surface:    #162032;
-  --raised:     #1C2940;
-  --border:     #1E2E48;
-  --border-hi:  #263852;
-  --muted:      #344D72;
-  --steel:      #5A7099;
-  --silver:     #8EA8CC;
-  --light:      #C8D9EF;
-  --white:      #EDF3FC;
+  --ink: #080b12;
+  --deep: #0c1220;
+  --midnight: #101828;
+  --surface: #162032;
+  --raised: #1c2940;
+  --border: #1e2e48;
+  --border-hi: #263852;
+  --muted: #344d72;
+  --steel: #5a7099;
+  --silver: #8ea8cc;
+  --light: #c8d9ef;
+  --white: #edf3fc;
 
   /* ── Brand Signal (6 hues) ─────────────────────────────── */
-  --blue-deep:  #1A4FBF;
-  --blue-core:  #2660D8;
-  --blue-mid:   #3B78F5;
-  --blue-hi:    #5B94FF;
-  --teal-deep:  #009E87;
-  --teal-core:  #00C4A8;
-  --teal-hi:    #00E0BF;
+  --blue-deep: #1a4fbf;
+  --blue-core: #2660d8;
+  --blue-mid: #3b78f5;
+  --blue-hi: #5b94ff;
+  --teal-deep: #009e87;
+  --teal-core: #00c4a8;
+  --teal-hi: #00e0bf;
 
   /* ── Gradients ─────────────────────────────────────────── */
-  --g-brand:    linear-gradient(135deg, #2660D8 0%, #3B78F5 45%, #00C4A8 100%);
-  --g-brand-r:  linear-gradient(315deg, #2660D8 0%, #3B78F5 45%, #00C4A8 100%);
-  --g-dark:     linear-gradient(160deg, #0C1220 0%, #101828 100%);
+  --g-brand: linear-gradient(135deg, #2660d8 0%, #3b78f5 45%, #00c4a8 100%);
+  --g-brand-r: linear-gradient(315deg, #2660d8 0%, #3b78f5 45%, #00c4a8 100%);
+  --g-dark: linear-gradient(160deg, #0c1220 0%, #101828 100%);
 
   /* ── Module Colours (12) ───────────────────────────────── */
-  --m-quality:  #3B78F5;
-  --m-safety:   #F04B5A;
-  --m-env:      #00C4A8;
-  --m-hr:       #9B6FEA;
-  --m-payroll:  #F59E0B;
-  --m-projects: #4EB8FF;
-  --m-finance:  #34D399;
-  --m-crm:      #FB923C;
-  --m-infosec:  #818CF8;
-  --m-esg:      #6EE7B7;
-  --m-cmms:     #FCD34D;
-  --m-ai:       #E879F9;
+  --m-quality: #3b78f5;
+  --m-safety: #f04b5a;
+  --m-env: #00c4a8;
+  --m-hr: #9b6fea;
+  --m-payroll: #f59e0b;
+  --m-projects: #4eb8ff;
+  --m-finance: #34d399;
+  --m-crm: #fb923c;
+  --m-infosec: #818cf8;
+  --m-esg: #6ee7b7;
+  --m-cmms: #fcd34d;
+  --m-ai: #e879f9;
 
   /* ── Sector Vertical Colours (6) ───────────────────────── */
-  --s-auto:     #DC2626;
-  --s-medical:  #0891B2;
-  --s-aero:     #1D4ED8;
-  --s-food:     #16A34A;
-  --s-energy:   #D97706;
-  --s-antibrib: #7C3AED;
+  --s-auto: #dc2626;
+  --s-medical: #0891b2;
+  --s-aero: #1d4ed8;
+  --s-food: #16a34a;
+  --s-energy: #d97706;
+  --s-antibrib: #7c3aed;
 
   /* ── Fonts ─────────────────────────────────────────────── */
   --font-display: 'Syne', sans-serif;
-  --font-body:    'DM Sans', sans-serif;
-  --font-mono:    'DM Mono', monospace;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
 
   /* ── Semantic Aliases ──────────────────────────────────── */
-  --bg-page:        var(--ink);
-  --bg-section:     var(--deep);
-  --bg-nav:         var(--midnight);
-  --bg-card:        var(--surface);
-  --bg-raised:      var(--raised);
-  --text-primary:   var(--white);
-  --text-body:      var(--silver);
-  --text-muted:     var(--steel);
-  --text-faint:     var(--muted);
+  --bg-page: var(--ink);
+  --bg-section: var(--deep);
+  --bg-nav: var(--midnight);
+  --bg-card: var(--surface);
+  --bg-raised: var(--raised);
+  --text-primary: var(--white);
+  --text-body: var(--silver);
+  --text-muted: var(--steel);
+  --text-faint: var(--muted);
   --border-default: var(--border);
-  --border-strong:  var(--border-hi);
+  --border-strong: var(--border-hi);
   --accent-primary: var(--blue-mid);
-  --accent-teal:    var(--teal-core);
+  --accent-teal: var(--teal-core);
 
   /* ── Transition ────────────────────────────────────────── */
   --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ── Light Mode Overrides ─────────────────────────────── */
-:root:not(.dark):not([data-theme="dark"]) {
-  --ink:        #F8FAFC;
-  --deep:       #F1F5F9;
-  --midnight:   #E2E8F0;
-  --surface:    #FFFFFF;
-  --raised:     #F8FAFC;
-  --border:     #CBD5E1;
-  --border-hi:  #94A3B8;
-  --muted:      #94A3B8;
-  --steel:      #64748B;
-  --silver:     #475569;
-  --light:      #334155;
-  --white:      #0F172A;
+:root:not(.dark):not([data-theme='dark']) {
+  --ink: #f8fafc;
+  --deep: #f1f5f9;
+  --midnight: #e2e8f0;
+  --surface: #ffffff;
+  --raised: #f8fafc;
+  --border: #cbd5e1;
+  --border-hi: #94a3b8;
+  --muted: #94a3b8;
+  --steel: #64748b;
+  --silver: #475569;
+  --light: #334155;
+  --white: #0f172a;
 }

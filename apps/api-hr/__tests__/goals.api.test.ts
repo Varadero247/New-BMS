@@ -29,7 +29,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((_req: any, _res: any, next: any) => {
-    _req.user = { id: '00000000-0000-4000-a000-000000000099', orgId: '00000000-0000-4000-a000-000000000100', role: 'ADMIN' };
+    _req.user = {
+      id: '00000000-0000-4000-a000-000000000099',
+      orgId: '00000000-0000-4000-a000-000000000100',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -70,7 +74,13 @@ const mockGoal = {
   status: 'NOT_STARTED',
   progress: 0,
   dueDate: new Date('2026-12-31'),
-  employee: { id: EMP_ID, employeeNumber: 'EMP-001', firstName: 'John', lastName: 'Doe', jobTitle: 'Engineer' },
+  employee: {
+    id: EMP_ID,
+    employeeNumber: 'EMP-001',
+    firstName: 'John',
+    lastName: 'Doe',
+    jobTitle: 'Engineer',
+  },
   cycle: { id: CYCLE_ID, name: '2026 Annual', status: 'ACTIVE' },
   _count: { updates: 0 },
 };
@@ -126,7 +136,9 @@ describe('GET /api/goals/stats', () => {
   it('returns goal statistics', async () => {
     (mockPrisma.performanceGoal.count as jest.Mock).mockResolvedValue(5);
     (mockPrisma.performanceGoal.groupBy as jest.Mock).mockResolvedValue([]);
-    (mockPrisma.performanceGoal.aggregate as jest.Mock).mockResolvedValue({ _avg: { progress: 50 } });
+    (mockPrisma.performanceGoal.aggregate as jest.Mock).mockResolvedValue({
+      _avg: { progress: 50 },
+    });
 
     const res = await request(app).get('/api/goals/stats');
     expect(res.status).toBe(200);
@@ -144,7 +156,10 @@ describe('GET /api/goals/stats', () => {
 
 describe('GET /api/goals/:id', () => {
   it('returns a single goal', async () => {
-    (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValue({ ...mockGoal, updates: [] });
+    (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValue({
+      ...mockGoal,
+      updates: [],
+    });
 
     const res = await request(app).get(`/api/goals/${GOAL_ID}`);
     expect(res.status).toBe(200);
@@ -216,9 +231,14 @@ describe('POST /api/goals', () => {
 describe('PUT /api/goals/:id', () => {
   it('updates goal successfully', async () => {
     (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValue(mockGoal);
-    (mockPrisma.performanceGoal.update as jest.Mock).mockResolvedValue({ ...mockGoal, progress: 50 });
+    (mockPrisma.performanceGoal.update as jest.Mock).mockResolvedValue({
+      ...mockGoal,
+      progress: 50,
+    });
 
-    const res = await request(app).put(`/api/goals/${GOAL_ID}`).send({ progress: 50, status: 'IN_PROGRESS' });
+    const res = await request(app)
+      .put(`/api/goals/${GOAL_ID}`)
+      .send({ progress: 50, status: 'IN_PROGRESS' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -267,7 +287,12 @@ describe('DELETE /api/goals/:id', () => {
 describe('POST /api/goals/:id/updates', () => {
   it('adds progress update successfully', async () => {
     (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValue(mockGoal);
-    const mockUpdate = { id: '00000000-0000-4000-a000-000000000010', goalId: GOAL_ID, progressBefore: 0, progressAfter: 50 };
+    const mockUpdate = {
+      id: '00000000-0000-4000-a000-000000000010',
+      goalId: GOAL_ID,
+      progressBefore: 0,
+      progressAfter: 50,
+    };
     (mockPrisma.$transaction as jest.Mock).mockResolvedValue(mockUpdate);
 
     const res = await request(app).post(`/api/goals/${GOAL_ID}/updates`).send({
@@ -291,7 +316,9 @@ describe('POST /api/goals/:id/updates', () => {
   it('returns 400 on validation error', async () => {
     (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValue(mockGoal);
 
-    const res = await request(app).post(`/api/goals/${GOAL_ID}/updates`).send({ progressAfter: 200 });
+    const res = await request(app)
+      .post(`/api/goals/${GOAL_ID}/updates`)
+      .send({ progressAfter: 200 });
     expect(res.status).toBe(400);
   });
 });

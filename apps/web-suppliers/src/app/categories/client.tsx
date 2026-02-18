@@ -2,8 +2,14 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Card, CardContent,
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  Card,
+  CardContent,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
 } from '@ims/ui';
 import { Tag, Search } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -29,10 +35,12 @@ export default function CategoriesClient() {
     }
   }, []);
 
-  useEffect(() => { loadItems(); }, [loadItems]);
+  useEffect(() => {
+    loadItems();
+  }, [loadItems]);
 
   const filtered = searchTerm
-    ? items.filter(i => i.category.toLowerCase().includes(searchTerm.toLowerCase()))
+    ? items.filter((i) => i.category.toLowerCase().includes(searchTerm.toLowerCase()))
     : items;
 
   const totalSuppliers = items.reduce((sum, i) => sum + i.count, 0);
@@ -52,15 +60,36 @@ export default function CategoriesClient() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Supplier Categories</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Breakdown of suppliers by category</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Supplier Categories
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Breakdown of suppliers by category
+            </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card><CardContent className="pt-6 text-center"><p className="text-3xl font-bold">{items.length}</p><p className="text-sm text-gray-500 dark:text-gray-400">Categories</p></CardContent></Card>
-          <Card><CardContent className="pt-6 text-center"><p className="text-3xl font-bold text-teal-600">{totalSuppliers}</p><p className="text-sm text-gray-500 dark:text-gray-400">Total Suppliers</p></CardContent></Card>
-          <Card><CardContent className="pt-6 text-center"><p className="text-3xl font-bold text-blue-600">{items.length > 0 ? Math.round(totalSuppliers / items.length) : 0}</p><p className="text-sm text-gray-500 dark:text-gray-400">Avg per Category</p></CardContent></Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <p className="text-3xl font-bold">{items.length}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Categories</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <p className="text-3xl font-bold text-teal-600">{totalSuppliers}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Suppliers</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <p className="text-3xl font-bold text-blue-600">
+                {items.length > 0 ? Math.round(totalSuppliers / items.length) : 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Avg per Category</p>
+            </CardContent>
+          </Card>
         </div>
 
         {items.length > 0 && (
@@ -68,9 +97,16 @@ export default function CategoriesClient() {
             {sorted.slice(0, 6).map((cat, idx) => (
               <Card key={cat.category} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4 text-center">
-                  <div className={`inline-block px-2 py-1 rounded text-xs font-medium mb-2 ${colors[idx % colors.length]}`}>{cat.category}</div>
+                  <div
+                    className={`inline-block px-2 py-1 rounded text-xs font-medium mb-2 ${colors[idx % colors.length]}`}
+                  >
+                    {cat.category}
+                  </div>
                   <p className="text-2xl font-bold">{cat.count}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{totalSuppliers > 0 ? Math.round((cat.count / totalSuppliers) * 100) : 0}% of total</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {totalSuppliers > 0 ? Math.round((cat.count / totalSuppliers) * 100) : 0}% of
+                    total
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -80,15 +116,25 @@ export default function CategoriesClient() {
         <div className="flex gap-4 mb-6 flex-wrap items-center">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input type="text" aria-label="Search categories" placeholder="Search categories..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" />
+            <input
+              type="text"
+              aria-label="Search categories"
+              placeholder="Search categories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+            />
           </div>
         </div>
 
         <Card>
           <CardContent className="p-0">
             {loading ? (
-              <div className="animate-pulse space-y-4 p-6">{[1,2,3].map(i => <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded" />)}</div>
+              <div className="animate-pulse space-y-4 p-6">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded" />
+                ))}
+              </div>
             ) : sorted.length > 0 ? (
               <div className="overflow-x-auto">
                 <Table>
@@ -104,15 +150,23 @@ export default function CategoriesClient() {
                     {sorted.map((cat, idx) => (
                       <TableRow key={cat.category}>
                         <TableCell className="font-medium">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${colors[idx % colors.length]}`}>{cat.category}</span>
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium ${colors[idx % colors.length]}`}
+                          >
+                            {cat.category}
+                          </span>
                         </TableCell>
                         <TableCell className="text-sm font-medium">{cat.count}</TableCell>
-                        <TableCell className="text-sm">{totalSuppliers > 0 ? Math.round((cat.count / totalSuppliers) * 100) : 0}%</TableCell>
+                        <TableCell className="text-sm">
+                          {totalSuppliers > 0 ? Math.round((cat.count / totalSuppliers) * 100) : 0}%
+                        </TableCell>
                         <TableCell>
                           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 max-w-xs">
                             <div
                               className="bg-teal-500 h-2 rounded-full transition-all"
-                              style={{ width: `${totalSuppliers > 0 ? (cat.count / totalSuppliers) * 100 : 0}%` }}
+                              style={{
+                                width: `${totalSuppliers > 0 ? (cat.count / totalSuppliers) * 100 : 0}%`,
+                              }}
                             />
                           </div>
                         </TableCell>
@@ -125,7 +179,9 @@ export default function CategoriesClient() {
               <div className="text-center py-12">
                 <Tag className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">No categories found</p>
-                <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Categories are derived from supplier records</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                  Categories are derived from supplier records
+                </p>
               </div>
             )}
           </CardContent>

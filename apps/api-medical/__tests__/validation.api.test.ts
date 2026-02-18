@@ -227,9 +227,7 @@ describe('Medical Design Validation API Routes', () => {
     });
 
     it('should return 400 for missing required fields', async () => {
-      const res = await request(app)
-        .post('/api/validation')
-        .send({ projectId: 'project-uuid-1' });
+      const res = await request(app).post('/api/validation').send({ projectId: 'project-uuid-1' });
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');

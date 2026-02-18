@@ -40,8 +40,13 @@ router.get('/', async (_req: Request, res: Response) => {
 
     res.json({ success: true, data: scope });
   } catch (error: unknown) {
-    logger.error('Failed to get ISMS scope', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get ISMS scope' } });
+    logger.error('Failed to get ISMS scope', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get ISMS scope' },
+    });
   }
 });
 
@@ -52,7 +57,11 @@ router.put('/', async (req: Request, res: Response) => {
   try {
     const parsed = scopeUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -91,8 +100,13 @@ router.put('/', async (req: Request, res: Response) => {
     logger.info('ISMS scope updated', { scopeId: scope.id });
     res.json({ success: true, data: scope });
   } catch (error: unknown) {
-    logger.error('Failed to update ISMS scope', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update ISMS scope' } });
+    logger.error('Failed to update ISMS scope', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update ISMS scope' },
+    });
   }
 });
 

@@ -42,7 +42,11 @@ const ccpUpdateSchema = z.object({
 
 const monitoringRecordCreateSchema = z.object({
   monitoredBy: z.string().max(200).optional().nullable(),
-  monitoredAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  monitoredAt: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   value: z.string().trim().min(1).max(200),
   unit: z.string().max(50).optional().nullable(),
   withinLimits: z.boolean(),
@@ -80,7 +84,13 @@ router.get('/', async (req: Request, res: Response) => {
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
     const [data, total] = await Promise.all([
-      prisma.fsCcp.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' }, include: { hazard: true } }),
+      prisma.fsCcp.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: { hazard: true },
+      }),
       prisma.fsCcp.count({ where }),
     ]);
 
@@ -90,8 +100,12 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing CCPs', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list CCPs' } });
+    logger.error('Error listing CCPs', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list CCPs' } });
   }
 });
 
@@ -102,7 +116,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = ccpCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -120,8 +137,12 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('CCP created', { id: ccp.id, number });
     res.status(201).json({ success: true, data: ccp });
   } catch (error: unknown) {
-    logger.error('Error creating CCP', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create CCP' } });
+    logger.error('Error creating CCP', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create CCP' } });
   }
 });
 
@@ -131,21 +152,34 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const RESERVED = new Set(['monitoring-records']);
-    if (RESERVED.has(req.params.id)) return (undefined as any);
+    if (RESERVED.has(req.params.id)) return undefined as any;
 
     const ccp = await prisma.fsCcp.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
-      include: { hazard: true, monitoringRecords: { where: { deletedAt: null } as any, orderBy: { monitoredAt: 'desc' }, take: 20 } },
+      include: {
+        hazard: true,
+        monitoringRecords: {
+          where: { deletedAt: null } as any,
+          orderBy: { monitoredAt: 'desc' },
+          take: 20,
+        },
+      },
     });
 
     if (!ccp) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
     }
 
     res.json({ success: true, data: ccp });
   } catch (error: unknown) {
-    logger.error('Error fetching CCP', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch CCP' } });
+    logger.error('Error fetching CCP', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch CCP' } });
   }
 });
 
@@ -154,14 +188,21 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsCcp.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsCcp.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
     }
 
     const parsed = ccpUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const ccp = await prisma.fsCcp.update({
@@ -172,8 +213,12 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('CCP updated', { id: ccp.id });
     res.json({ success: true, data: ccp });
   } catch (error: unknown) {
-    logger.error('Error updating CCP', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update CCP' } });
+    logger.error('Error updating CCP', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update CCP' } });
   }
 });
 
@@ -182,9 +227,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsCcp.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsCcp.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
     }
 
     await prisma.fsCcp.update({
@@ -195,8 +244,12 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('CCP deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'CCP deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting CCP', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete CCP' } });
+    logger.error('Error deleting CCP', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete CCP' } });
   }
 });
 
@@ -209,15 +262,24 @@ router.get('/:id/monitoring-records', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50, 100);
     const skip = (page - 1) * limit;
 
-    const ccp = await prisma.fsCcp.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const ccp = await prisma.fsCcp.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!ccp) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
     }
 
     const where: Record<string, unknown> = { ccpId: req.params.id, deletedAt: null };
 
     const [data, total] = await Promise.all([
-      prisma.fsMonitoringRecord.findMany({ where, skip, take: limit, orderBy: { monitoredAt: 'desc' } }),
+      prisma.fsMonitoringRecord.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { monitoredAt: 'desc' },
+      }),
       prisma.fsMonitoringRecord.count({ where }),
     ]);
 
@@ -227,8 +289,13 @@ router.get('/:id/monitoring-records', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error fetching monitoring records', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch monitoring records' } });
+    logger.error('Error fetching monitoring records', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch monitoring records' },
+    });
   }
 });
 
@@ -237,14 +304,21 @@ router.get('/:id/monitoring-records', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/:id/monitoring-records', async (req: Request, res: Response) => {
   try {
-    const ccp = await prisma.fsCcp.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const ccp = await prisma.fsCcp.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!ccp) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
     }
 
     const parsed = monitoringRecordCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -263,8 +337,13 @@ router.post('/:id/monitoring-records', async (req: Request, res: Response) => {
     logger.info('Monitoring record created for CCP', { id: record.id, ccpId: req.params.id });
     res.status(201).json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Error creating monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create monitoring record' } });
+    logger.error('Error creating monitoring record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create monitoring record' },
+    });
   }
 });
 

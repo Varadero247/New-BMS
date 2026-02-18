@@ -1,7 +1,18 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+} from '@ims/ui';
 import {
   TrendingUp,
   Target,
@@ -78,7 +89,11 @@ function formatCurrency(value: number): string {
 }
 
 function formatCurrencyFull(value: number): string {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(value);
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+  }).format(value);
 }
 
 const initialFormState = {
@@ -138,12 +153,14 @@ export default function ForecastPage() {
     }
   }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
-      setFormData(prev => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
+      setFormData((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   }
 
@@ -170,8 +187,14 @@ export default function ForecastPage() {
 
   async function handleCreate() {
     setFormError('');
-    if (!formData.period.trim()) { setFormError('Period is required'); return; }
-    if (!formData.weightedValue) { setFormError('Weighted value is required'); return; }
+    if (!formData.period.trim()) {
+      setFormError('Period is required');
+      return;
+    }
+    if (!formData.weightedValue) {
+      setFormError('Weighted value is required');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -196,7 +219,10 @@ export default function ForecastPage() {
 
   async function handleUpdate() {
     setFormError('');
-    if (!formData.period.trim()) { setFormError('Period is required'); return; }
+    if (!formData.period.trim()) {
+      setFormError('Period is required');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -229,17 +255,21 @@ export default function ForecastPage() {
   }
 
   // Compute stats from live deals
-  const openDeals = deals.filter(d => d.status !== 'CLOSED_LOST');
-  const totalPipeline = forecastData?.totalPipeline ?? openDeals.reduce((s, d) => s + (d.value || 0), 0);
-  const weightedForecast = forecastData?.weightedForecast ?? openDeals.reduce((s, d) => s + (d.value || 0) * ((d.probability || 0) / 100), 0);
+  const openDeals = deals.filter((d) => d.status !== 'CLOSED_LOST');
+  const totalPipeline =
+    forecastData?.totalPipeline ?? openDeals.reduce((s, d) => s + (d.value || 0), 0);
+  const weightedForecast =
+    forecastData?.weightedForecast ??
+    openDeals.reduce((s, d) => s + (d.value || 0) * ((d.probability || 0) / 100), 0);
   const commitForecast = forecastData?.commitForecast ?? 0;
-  const bestCaseForecast = forecastData?.bestCaseForecast ?? openDeals.reduce((s, d) => s + (d.value || 0), 0);
+  const bestCaseForecast =
+    forecastData?.bestCaseForecast ?? openDeals.reduce((s, d) => s + (d.value || 0), 0);
   const avgDealSize = openDeals.length > 0 ? totalPipeline / openDeals.length : 0;
 
   // Pipeline funnel by stage
   const stageGroups = useMemo(() => {
     const groups: Record<string, { count: number; value: number }> = {};
-    openDeals.forEach(d => {
+    openDeals.forEach((d) => {
       if (!groups[d.stage]) groups[d.stage] = { count: 0, value: 0 };
       groups[d.stage].count++;
       groups[d.stage].value += d.value || 0;
@@ -253,7 +283,7 @@ export default function ForecastPage() {
   // Monthly forecast from deals
   const monthlyData = useMemo(() => {
     const months: Record<string, { weighted: number; unweighted: number }> = {};
-    openDeals.forEach(d => {
+    openDeals.forEach((d) => {
       if (d.expectedCloseDate) {
         const date = new Date(d.expectedCloseDate);
         const key = date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
@@ -271,7 +301,7 @@ export default function ForecastPage() {
   // Filtered deal list
   const filteredDeals = useMemo(() => {
     let filtered = openDeals;
-    if (selectedStage) filtered = filtered.filter(d => d.stage === selectedStage);
+    if (selectedStage) filtered = filtered.filter((d) => d.stage === selectedStage);
     return filtered.sort((a, b) => {
       if (sortBy === 'probability') return (b.probability || 0) - (a.probability || 0);
       if (sortBy === 'date') {
@@ -291,7 +321,9 @@ export default function ForecastPage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-5 gap-4">
-            {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-28 bg-gray-200 rounded" />)}
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-28 bg-gray-200 rounded" />
+            ))}
           </div>
           <div className="h-64 bg-gray-200 rounded" />
         </div>
@@ -299,7 +331,7 @@ export default function ForecastPage() {
     );
   }
 
-  const maxMonthly = Math.max(...monthlyData.map(m => m.unweighted), 1);
+  const maxMonthly = Math.max(...monthlyData.map((m) => m.unweighted), 1);
 
   return (
     <div className="p-8">
@@ -308,7 +340,9 @@ export default function ForecastPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Sales Forecast</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Pipeline analysis and revenue projection</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Pipeline analysis and revenue projection
+            </p>
           </div>
           <div className="flex gap-3">
             <Button variant="outline" onClick={loadAll} className="flex items-center gap-2">
@@ -321,7 +355,9 @@ export default function ForecastPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
         )}
 
         {/* KPI Cards */}
@@ -331,7 +367,9 @@ export default function ForecastPage() {
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Pipeline</p>
               <DollarSign className="h-4 w-4 text-blue-500" />
             </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(totalPipeline)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {formatCurrency(totalPipeline)}
+            </p>
             <div className="mt-1 flex items-center text-xs text-blue-600">
               <ArrowUpRight className="h-3 w-3 mr-1" />
               {openDeals.length} open deals
@@ -340,21 +378,30 @@ export default function ForecastPage() {
 
           <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-5 border-l-4 border-violet-500">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Weighted Forecast</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                Weighted Forecast
+              </p>
               <TrendingUp className="h-4 w-4 text-violet-500" />
             </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(weightedForecast)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {formatCurrency(weightedForecast)}
+            </p>
             <div className="mt-1 text-xs text-violet-600">
-              {totalPipeline > 0 ? ((weightedForecast / totalPipeline) * 100).toFixed(0) : 0}% of pipeline
+              {totalPipeline > 0 ? ((weightedForecast / totalPipeline) * 100).toFixed(0) : 0}% of
+              pipeline
             </div>
           </div>
 
           <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-5 border-l-4 border-green-500">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Commit Forecast</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                Commit Forecast
+              </p>
               <Target className="h-4 w-4 text-green-500" />
             </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(commitForecast)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {formatCurrency(commitForecast)}
+            </p>
             <div className="mt-1 text-xs text-green-600">Committed deals</div>
           </div>
 
@@ -363,7 +410,9 @@ export default function ForecastPage() {
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Best Case</p>
               <ArrowUpRight className="h-4 w-4 text-amber-500" />
             </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(bestCaseForecast)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {formatCurrency(bestCaseForecast)}
+            </p>
             <div className="mt-1 text-xs text-amber-600">Optimistic scenario</div>
           </div>
 
@@ -372,7 +421,9 @@ export default function ForecastPage() {
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Avg Deal Size</p>
               <Percent className="h-4 w-4 text-cyan-500" />
             </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(avgDealSize)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {formatCurrency(avgDealSize)}
+            </p>
             <div className="mt-1 text-xs text-cyan-600">Per open deal</div>
           </div>
         </div>
@@ -388,12 +439,19 @@ export default function ForecastPage() {
               {monthlyData.length > 0 ? (
                 <>
                   <div className="flex items-center gap-4 mb-4 text-xs text-gray-500 dark:text-gray-400">
-                    <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-violet-500" /> Weighted</span>
-                    <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded bg-gray-200" /> Unweighted</span>
+                    <span className="flex items-center gap-1">
+                      <span className="inline-block w-3 h-3 rounded bg-violet-500" /> Weighted
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="inline-block w-3 h-3 rounded bg-gray-200" /> Unweighted
+                    </span>
                   </div>
                   <div className="flex items-end gap-3 h-48">
-                    {monthlyData.map(d => (
-                      <div key={d.month} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+                    {monthlyData.map((d) => (
+                      <div
+                        key={d.month}
+                        className="flex-1 flex flex-col items-center gap-1 h-full justify-end"
+                      >
                         <div className="w-full flex gap-0.5 items-end flex-1">
                           <div
                             className="flex-1 bg-violet-500 rounded-t-sm"
@@ -407,7 +465,9 @@ export default function ForecastPage() {
                           />
                         </div>
                         <span className="text-xs text-gray-500 dark:text-gray-400">{d.month}</span>
-                        <span className="text-xs text-violet-600 font-medium">{formatCurrency(d.weighted)}</span>
+                        <span className="text-xs text-violet-600 font-medium">
+                          {formatCurrency(d.weighted)}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -435,10 +495,16 @@ export default function ForecastPage() {
                     return (
                       <div key={stage}>
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{STAGE_LABELS[stage] || stage}</span>
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {STAGE_LABELS[stage] || stage}
+                          </span>
                           <div className="text-right">
-                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{data.count} deals</span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">{formatCurrency(data.value)}</span>
+                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {data.count} deals
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                              {formatCurrency(data.value)}
+                            </span>
                           </div>
                         </div>
                         <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-6">
@@ -454,7 +520,9 @@ export default function ForecastPage() {
                   })}
                 </div>
               ) : (
-                <div className="text-center py-12 text-gray-400 dark:text-gray-500 text-sm">No open deals in pipeline</div>
+                <div className="text-center py-12 text-gray-400 dark:text-gray-500 text-sm">
+                  No open deals in pipeline
+                </div>
               )}
             </CardContent>
           </Card>
@@ -474,34 +542,70 @@ export default function ForecastPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Period</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Deal</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Weighted</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Best Case</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Worst Case</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Committed</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Period
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Deal
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Weighted
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Best Case
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Worst Case
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Committed
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {forecastItems.map((item) => (
                       <tr key={item.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                        <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{item.period}</td>
-                        <td className="py-3 px-4 text-gray-600">{item.dealTitle || item.dealId || '-'}</td>
-                        <td className="py-3 px-4 text-right text-gray-900 dark:text-gray-100">{formatCurrencyFull(item.weightedValue || 0)}</td>
-                        <td className="py-3 px-4 text-right text-green-700">{formatCurrencyFull(item.bestCase || 0)}</td>
-                        <td className="py-3 px-4 text-right text-red-700">{formatCurrencyFull(item.worstCase || 0)}</td>
+                        <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">
+                          {item.period}
+                        </td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {item.dealTitle || item.dealId || '-'}
+                        </td>
+                        <td className="py-3 px-4 text-right text-gray-900 dark:text-gray-100">
+                          {formatCurrencyFull(item.weightedValue || 0)}
+                        </td>
+                        <td className="py-3 px-4 text-right text-green-700">
+                          {formatCurrencyFull(item.bestCase || 0)}
+                        </td>
+                        <td className="py-3 px-4 text-right text-red-700">
+                          {formatCurrencyFull(item.worstCase || 0)}
+                        </td>
                         <td className="py-3 px-4 text-center">
-                          <Badge className={item.committed ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-600'}>
+                          <Badge
+                            className={
+                              item.committed
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600'
+                            }
+                          >
                             {item.committed ? 'Yes' : 'No'}
                           </Badge>
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openEditModal(item)} className="text-gray-400 dark:text-gray-500 hover:text-violet-600">
+                            <button
+                              onClick={() => openEditModal(item)}
+                              className="text-gray-400 dark:text-gray-500 hover:text-violet-600"
+                            >
                               <Edit className="h-4 w-4" />
                             </button>
-                            <button onClick={() => handleDelete(item.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600">
+                            <button
+                              onClick={() => handleDelete(item.id)}
+                              className="text-gray-400 dark:text-gray-500 hover:text-red-600"
+                            >
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
@@ -526,17 +630,19 @@ export default function ForecastPage() {
               <div className="flex items-center gap-3">
                 <select
                   value={selectedStage}
-                  onChange={e => setSelectedStage(e.target.value)}
+                  onChange={(e) => setSelectedStage(e.target.value)}
                   className="border rounded-md px-3 py-2 text-sm"
                 >
                   <option value="">All Stages</option>
                   {Object.entries(STAGE_LABELS).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
                   ))}
                 </select>
                 <select
                   value={sortBy}
-                  onChange={e => setSortBy(e.target.value as 'value' | 'probability' | 'date')}
+                  onChange={(e) => setSortBy(e.target.value as 'value' | 'probability' | 'date')}
                   className="border rounded-md px-3 py-2 text-sm"
                 >
                   <option value="value">Sort by Value</option>
@@ -552,24 +658,44 @@ export default function ForecastPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Deal</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Account</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Value</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Probability</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Weighted</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Stage</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Expected Close</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Owner</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Deal
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Account
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Value
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Probability
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Weighted
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Stage
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Expected Close
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Owner
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredDeals.map(deal => {
+                    {filteredDeals.map((deal) => {
                       const weightedVal = (deal.value || 0) * ((deal.probability || 0) / 100);
                       const stageColor = STAGE_COLORS[deal.stage] || '#64748b';
                       return (
                         <tr key={deal.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                          <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{deal.title}</td>
-                          <td className="py-3 px-4 text-gray-600">{deal.account?.name || deal.accountName || '-'}</td>
+                          <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">
+                            {deal.title}
+                          </td>
+                          <td className="py-3 px-4 text-gray-600">
+                            {deal.account?.name || deal.accountName || '-'}
+                          </td>
                           <td className="py-3 px-4 text-right font-semibold text-gray-900 dark:text-gray-100">
                             {formatCurrencyFull(deal.value || 0)}
                           </td>
@@ -581,7 +707,9 @@ export default function ForecastPage() {
                                   style={{ width: `${deal.probability || 0}%` }}
                                 />
                               </div>
-                              <span className="text-xs font-medium text-gray-700 dark:text-gray-300 min-w-max">{deal.probability || 0}%</span>
+                              <span className="text-xs font-medium text-gray-700 dark:text-gray-300 min-w-max">
+                                {deal.probability || 0}%
+                              </span>
                             </div>
                           </td>
                           <td className="py-3 px-4 text-right font-medium text-violet-700">
@@ -601,7 +729,9 @@ export default function ForecastPage() {
                                 <Calendar className="h-3 w-3 text-gray-400 dark:text-gray-500" />
                                 {new Date(deal.expectedCloseDate).toLocaleDateString()}
                               </div>
-                            ) : '-'}
+                            ) : (
+                              '-'
+                            )}
                           </td>
                           <td className="py-3 px-4 text-gray-600">
                             {deal.assignedTo ? (
@@ -609,7 +739,9 @@ export default function ForecastPage() {
                                 <User className="h-3 w-3 text-gray-400 dark:text-gray-500" />
                                 {deal.assignedTo}
                               </div>
-                            ) : '-'}
+                            ) : (
+                              '-'
+                            )}
                           </td>
                         </tr>
                       );
@@ -619,9 +751,18 @@ export default function ForecastPage() {
                     <tr className="bg-gray-50 dark:bg-gray-800 font-medium border-t-2 border-gray-200 dark:border-gray-700">
                       <td className="py-3 px-4 text-gray-700 dark:text-gray-300">Totals</td>
                       <td />
-                      <td className="py-3 px-4 text-right text-gray-900 dark:text-gray-100">{formatCurrencyFull(filteredDeals.reduce((s, d) => s + (d.value || 0), 0))}</td>
+                      <td className="py-3 px-4 text-right text-gray-900 dark:text-gray-100">
+                        {formatCurrencyFull(filteredDeals.reduce((s, d) => s + (d.value || 0), 0))}
+                      </td>
                       <td />
-                      <td className="py-3 px-4 text-right text-violet-700">{formatCurrencyFull(filteredDeals.reduce((s, d) => s + (d.value || 0) * ((d.probability || 0) / 100), 0))}</td>
+                      <td className="py-3 px-4 text-right text-violet-700">
+                        {formatCurrencyFull(
+                          filteredDeals.reduce(
+                            (s, d) => s + (d.value || 0) * ((d.probability || 0) / 100),
+                            0
+                          )
+                        )}
+                      </td>
                       <td colSpan={3} />
                     </tr>
                   </tfoot>
@@ -638,20 +779,43 @@ export default function ForecastPage() {
       </div>
 
       {/* Create Forecast Entry Modal */}
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Add Forecast Entry" size="lg">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Add Forecast Entry"
+        size="lg"
+      >
         <div className="space-y-4">
-          {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>}
+          {formError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="period">Period *</Label>
-              <Input id="period" name="period" value={formData.period} onChange={handleChange} placeholder="e.g. Q1 2026 or Mar 2026" />
+              <Input
+                id="period"
+                name="period"
+                value={formData.period}
+                onChange={handleChange}
+                placeholder="e.g. Q1 2026 or Mar 2026"
+              />
             </div>
             <div>
               <Label htmlFor="dealId">Deal (optional)</Label>
-              <select id="dealId" name="dealId" value={formData.dealId} onChange={handleChange} className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500">
+              <select
+                id="dealId"
+                name="dealId"
+                value={formData.dealId}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500"
+              >
                 <option value="">-- No specific deal --</option>
-                {deals.map(d => (
-                  <option key={d.id} value={d.id}>{d.title} ({formatCurrency(d.value || 0)})</option>
+                {deals.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.title} ({formatCurrency(d.value || 0)})
+                  </option>
                 ))}
               </select>
             </div>
@@ -659,15 +823,39 @@ export default function ForecastPage() {
           <div className="grid grid-cols-3 gap-4">
             <div>
               <Label htmlFor="weightedValue">Weighted Value *</Label>
-              <Input id="weightedValue" name="weightedValue" type="number" step="1000" value={formData.weightedValue} onChange={handleChange} placeholder="250000" />
+              <Input
+                id="weightedValue"
+                name="weightedValue"
+                type="number"
+                step="1000"
+                value={formData.weightedValue}
+                onChange={handleChange}
+                placeholder="250000"
+              />
             </div>
             <div>
               <Label htmlFor="bestCase">Best Case</Label>
-              <Input id="bestCase" name="bestCase" type="number" step="1000" value={formData.bestCase} onChange={handleChange} placeholder="350000" />
+              <Input
+                id="bestCase"
+                name="bestCase"
+                type="number"
+                step="1000"
+                value={formData.bestCase}
+                onChange={handleChange}
+                placeholder="350000"
+              />
             </div>
             <div>
               <Label htmlFor="worstCase">Worst Case</Label>
-              <Input id="worstCase" name="worstCase" type="number" step="1000" value={formData.worstCase} onChange={handleChange} placeholder="150000" />
+              <Input
+                id="worstCase"
+                name="worstCase"
+                type="number"
+                step="1000"
+                value={formData.worstCase}
+                onChange={handleChange}
+                placeholder="150000"
+              />
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -679,7 +867,9 @@ export default function ForecastPage() {
               onChange={handleChange}
               className="h-4 w-4 rounded border-gray-300 text-violet-600"
             />
-            <Label htmlFor="committed" className="cursor-pointer">Committed (high confidence)</Label>
+            <Label htmlFor="committed" className="cursor-pointer">
+              Committed (high confidence)
+            </Label>
           </div>
           <div>
             <Label htmlFor="notes">Notes</Label>
@@ -695,15 +885,28 @@ export default function ForecastPage() {
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleCreate} disabled={submitting}>{submitting ? 'Creating...' : 'Create Entry'}</Button>
+          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleCreate} disabled={submitting}>
+            {submitting ? 'Creating...' : 'Create Entry'}
+          </Button>
         </ModalFooter>
       </Modal>
 
       {/* Edit Forecast Entry Modal */}
-      <Modal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} title="Edit Forecast Entry" size="lg">
+      <Modal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        title="Edit Forecast Entry"
+        size="lg"
+      >
         <div className="space-y-4">
-          {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>}
+          {formError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
+          )}
           <div>
             <Label htmlFor="e-period">Period *</Label>
             <Input id="e-period" name="period" value={formData.period} onChange={handleChange} />
@@ -711,15 +914,36 @@ export default function ForecastPage() {
           <div className="grid grid-cols-3 gap-4">
             <div>
               <Label htmlFor="e-weightedValue">Weighted Value *</Label>
-              <Input id="e-weightedValue" name="weightedValue" type="number" step="1000" value={formData.weightedValue} onChange={handleChange} />
+              <Input
+                id="e-weightedValue"
+                name="weightedValue"
+                type="number"
+                step="1000"
+                value={formData.weightedValue}
+                onChange={handleChange}
+              />
             </div>
             <div>
               <Label htmlFor="e-bestCase">Best Case</Label>
-              <Input id="e-bestCase" name="bestCase" type="number" step="1000" value={formData.bestCase} onChange={handleChange} />
+              <Input
+                id="e-bestCase"
+                name="bestCase"
+                type="number"
+                step="1000"
+                value={formData.bestCase}
+                onChange={handleChange}
+              />
             </div>
             <div>
               <Label htmlFor="e-worstCase">Worst Case</Label>
-              <Input id="e-worstCase" name="worstCase" type="number" step="1000" value={formData.worstCase} onChange={handleChange} />
+              <Input
+                id="e-worstCase"
+                name="worstCase"
+                type="number"
+                step="1000"
+                value={formData.worstCase}
+                onChange={handleChange}
+              />
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -731,7 +955,9 @@ export default function ForecastPage() {
               onChange={handleChange}
               className="h-4 w-4 rounded border-gray-300 text-violet-600"
             />
-            <Label htmlFor="e-committed" className="cursor-pointer">Committed</Label>
+            <Label htmlFor="e-committed" className="cursor-pointer">
+              Committed
+            </Label>
           </div>
           <div>
             <Label htmlFor="e-notes">Notes</Label>
@@ -746,8 +972,12 @@ export default function ForecastPage() {
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setEditModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleUpdate} disabled={submitting}>{submitting ? 'Saving...' : 'Save Changes'}</Button>
+          <Button variant="outline" onClick={() => setEditModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleUpdate} disabled={submitting}>
+            {submitting ? 'Saving...' : 'Save Changes'}
+          </Button>
         </ModalFooter>
       </Modal>
     </div>

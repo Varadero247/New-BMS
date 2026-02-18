@@ -85,9 +85,7 @@ describe('Quality Changes API Routes', () => {
       (mockPrisma.qualChange.findMany as jest.Mock).mockResolvedValueOnce(mockChanges);
       (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/changes')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/changes').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -133,9 +131,7 @@ describe('Quality Changes API Routes', () => {
       (mockPrisma.qualChange.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/changes?status=APPROVED')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/changes?status=APPROVED').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualChange.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -150,9 +146,7 @@ describe('Quality Changes API Routes', () => {
       (mockPrisma.qualChange.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/changes?priority=URGENT')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/changes?priority=URGENT').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualChange.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -167,9 +161,7 @@ describe('Quality Changes API Routes', () => {
       (mockPrisma.qualChange.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/changes?search=welding')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/changes?search=welding').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualChange.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -184,9 +176,7 @@ describe('Quality Changes API Routes', () => {
       (mockPrisma.qualChange.findMany as jest.Mock).mockResolvedValueOnce(mockChanges);
       (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/changes')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/changes').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualChange.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -198,9 +188,7 @@ describe('Quality Changes API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.qualChange.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/changes')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/changes').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -489,7 +477,9 @@ describe('Quality Changes API Routes', () => {
   // ============================================
   describe('DELETE /api/changes/:id', () => {
     it('should delete change successfully', async () => {
-      (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce({ id: '26000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '26000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualChange.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)

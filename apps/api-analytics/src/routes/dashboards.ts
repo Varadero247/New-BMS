@@ -25,8 +25,27 @@ function generateReference(prefix: string): string {
 // Zod Schemas
 // ---------------------------------------------------------------------------
 
-const widgetTypeEnum = z.enum(['CHART', 'TABLE', 'KPI', 'MAP', 'GAUGE', 'HEATMAP', 'FUNNEL', 'TIMELINE']);
-const dataSourceEnum = z.enum(['HEALTH_SAFETY', 'ENVIRONMENT', 'QUALITY', 'HR', 'FINANCE', 'CRM', 'INVENTORY', 'CMMS', 'ALL']);
+const widgetTypeEnum = z.enum([
+  'CHART',
+  'TABLE',
+  'KPI',
+  'MAP',
+  'GAUGE',
+  'HEATMAP',
+  'FUNNEL',
+  'TIMELINE',
+]);
+const dataSourceEnum = z.enum([
+  'HEALTH_SAFETY',
+  'ENVIRONMENT',
+  'QUALITY',
+  'HR',
+  'FINANCE',
+  'CRM',
+  'INVENTORY',
+  'CMMS',
+  'ALL',
+]);
 
 const dashboardCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
@@ -97,13 +116,21 @@ router.get('/default', async (req: Request, res: Response) => {
     });
 
     if (!dashboard) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'No default dashboard found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'No default dashboard found' },
+      });
     }
 
     res.json({ success: true, data: dashboard });
   } catch (error: unknown) {
-    logger.error('Failed to get default dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get default dashboard' } });
+    logger.error('Failed to get default dashboard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get default dashboard' },
+    });
   }
 });
 
@@ -151,8 +178,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list dashboards', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list dashboards' } });
+    logger.error('Failed to list dashboards', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list dashboards' },
+    });
   }
 });
 
@@ -165,7 +197,14 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = dashboardCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const data = parsed.data;
@@ -186,8 +225,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Dashboard created', { id: dashboard.id, name: dashboard.name });
     res.status(201).json({ success: true, data: dashboard });
   } catch (error: unknown) {
-    logger.error('Failed to create dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create dashboard' } });
+    logger.error('Failed to create dashboard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create dashboard' },
+    });
   }
 });
 
@@ -206,7 +250,9 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
     });
 
     if (!original) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Dashboard not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Dashboard not found' } });
     }
 
     const clone = await prisma.analyticsDashboard.create({
@@ -226,7 +272,7 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
     // Clone widgets
     if (original.analyticsWidgets.length > 0) {
       await prisma.analyticsWidget.createMany({
-        data: original.analyticsWidgets.map(widget => ({
+        data: original.analyticsWidgets.map((widget) => ({
           dashboardId: clone.id,
           title: widget.title,
           type: widget.type,
@@ -248,8 +294,13 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
     logger.info('Dashboard cloned', { originalId: id, cloneId: clone.id });
     res.status(201).json({ success: true, data: result });
   } catch (error: unknown) {
-    logger.error('Failed to clone dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to clone dashboard' } });
+    logger.error('Failed to clone dashboard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to clone dashboard' },
+    });
   }
 });
 
@@ -262,14 +313,25 @@ router.post('/:id/widgets', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const { id } = req.params;
 
-    const dashboard = await prisma.analyticsDashboard.findFirst({ where: { id, deletedAt: null } as any });
+    const dashboard = await prisma.analyticsDashboard.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!dashboard) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Dashboard not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Dashboard not found' } });
     }
 
     const parsed = widgetCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const data = parsed.data;
@@ -290,8 +352,13 @@ router.post('/:id/widgets', async (req: Request, res: Response) => {
     logger.info('Widget created', { id: widget.id, dashboardId: id });
     res.status(201).json({ success: true, data: widget });
   } catch (error: unknown) {
-    logger.error('Failed to create widget', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create widget' } });
+    logger.error('Failed to create widget', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create widget' },
+    });
   }
 });
 
@@ -307,12 +374,21 @@ router.put('/:id/widgets/:widgetId', async (req: Request, res: Response) => {
       where: { id: widgetId, dashboardId: id, deletedAt: null } as any,
     });
     if (!widget) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Widget not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Widget not found' } });
     }
 
     const parsed = widgetUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const updated = await prisma.analyticsWidget.update({
@@ -322,8 +398,13 @@ router.put('/:id/widgets/:widgetId', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Failed to update widget', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update widget' } });
+    logger.error('Failed to update widget', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update widget' },
+    });
   }
 });
 
@@ -339,7 +420,9 @@ router.delete('/:id/widgets/:widgetId', async (req: Request, res: Response) => {
       where: { id: widgetId, dashboardId: id, deletedAt: null } as any,
     });
     if (!widget) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Widget not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Widget not found' } });
     }
 
     await prisma.analyticsWidget.update({
@@ -349,8 +432,13 @@ router.delete('/:id/widgets/:widgetId', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { message: 'Widget deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete widget', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete widget' } });
+    logger.error('Failed to delete widget', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete widget' },
+    });
   }
 });
 
@@ -368,13 +456,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!dashboard) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Dashboard not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Dashboard not found' } });
     }
 
     res.json({ success: true, data: dashboard });
   } catch (error: unknown) {
-    logger.error('Failed to get dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get dashboard' } });
+    logger.error('Failed to get dashboard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get dashboard' },
+    });
   }
 });
 
@@ -386,14 +481,25 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsDashboard.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsDashboard.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Dashboard not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Dashboard not found' } });
     }
 
     const parsed = dashboardUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const updated = await prisma.analyticsDashboard.update({
@@ -403,8 +509,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Failed to update dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update dashboard' } });
+    logger.error('Failed to update dashboard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update dashboard' },
+    });
   }
 });
 
@@ -416,9 +527,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsDashboard.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsDashboard.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Dashboard not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Dashboard not found' } });
     }
 
     await prisma.analyticsDashboard.update({
@@ -434,8 +549,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { message: 'Dashboard deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete dashboard' } });
+    logger.error('Failed to delete dashboard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete dashboard' },
+    });
   }
 });
 

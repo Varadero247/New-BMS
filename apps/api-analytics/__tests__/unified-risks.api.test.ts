@@ -28,7 +28,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/unified-risks', unifiedRisksRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('Unified Risks Routes', () => {
   describe('GET /api/unified-risks', () => {

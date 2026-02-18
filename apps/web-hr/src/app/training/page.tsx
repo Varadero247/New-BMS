@@ -1,7 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Label, Input, Textarea } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+  Label,
+  Input,
+  Textarea,
+} from '@ims/ui';
 import { Plus, GraduationCap, Calendar, Users, Clock, BookOpen } from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
@@ -45,13 +57,24 @@ const sessionStatusColors: Record<string, string> = {
 };
 
 const CATEGORIES = [
-  'TECHNICAL', 'SOFT_SKILLS', 'COMPLIANCE', 'SAFETY',
-  'MANAGEMENT', 'LEADERSHIP', 'INDUSTRY_SPECIFIC', 'OTHER',
+  'TECHNICAL',
+  'SOFT_SKILLS',
+  'COMPLIANCE',
+  'SAFETY',
+  'MANAGEMENT',
+  'LEADERSHIP',
+  'INDUSTRY_SPECIFIC',
+  'OTHER',
 ];
 
 const DELIVERY_METHODS = [
-  'CLASSROOM', 'VIRTUAL', 'E_LEARNING', 'ON_THE_JOB',
-  'WORKSHOP', 'BLENDED', 'SELF_PACED',
+  'CLASSROOM',
+  'VIRTUAL',
+  'E_LEARNING',
+  'ON_THE_JOB',
+  'WORKSHOP',
+  'BLENDED',
+  'SELF_PACED',
 ];
 
 export default function TrainingPage() {
@@ -150,7 +173,10 @@ export default function TrainingPage() {
         payload.maxParticipants = parseInt(courseMaxParticipants);
       }
       if (coursePrerequisites) {
-        payload.prerequisites = coursePrerequisites.split(',').map(s => s.trim()).filter(Boolean);
+        payload.prerequisites = coursePrerequisites
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
       }
       if (courseLearningObjectives) {
         payload.objectives = courseLearningObjectives;
@@ -214,7 +240,7 @@ export default function TrainingPage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-3 gap-4">
-            {[1, 2, 3, 4, 5, 6].map(i => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="h-40 bg-gray-200 rounded" />
             ))}
           </div>
@@ -223,7 +249,9 @@ export default function TrainingPage() {
     );
   }
 
-  const upcomingSessions = sessions.filter(s => new Date(s.startDate) > new Date() && s.status === 'SCHEDULED');
+  const upcomingSessions = sessions.filter(
+    (s) => new Date(s.startDate) > new Date() && s.status === 'SCHEDULED'
+  );
 
   return (
     <div className="p-8">
@@ -231,8 +259,12 @@ export default function TrainingPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Training & Development</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Courses, sessions, and employee development</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Training & Development
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Courses, sessions, and employee development
+            </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className="flex items-center gap-2" onClick={openCourseModal}>
@@ -274,7 +306,7 @@ export default function TrainingPage() {
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Mandatory Courses</p>
                   <p className="text-2xl font-bold text-orange-600">
-                    {courses.filter(c => c.isMandatory).length}
+                    {courses.filter((c) => c.isMandatory).length}
                   </p>
                 </div>
                 <GraduationCap className="h-8 w-8 text-orange-500" />
@@ -327,7 +359,9 @@ export default function TrainingPage() {
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-2">
                             <GraduationCap className="h-5 w-5 text-blue-600" />
-                            <span className="text-sm text-gray-500 dark:text-gray-400">{course.code}</span>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              {course.code}
+                            </span>
                           </div>
                           {course.isMandatory && (
                             <Badge className="bg-red-100 text-red-700">Mandatory</Badge>
@@ -335,13 +369,22 @@ export default function TrainingPage() {
                         </div>
                         <h3 className="font-medium mb-2">{course.name}</h3>
                         {course.description && (
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">{course.description}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">
+                            {course.description}
+                          </p>
                         )}
                         <div className="flex flex-wrap gap-2 mb-3">
-                          <Badge className={deliveryColors[course.deliveryMethod] || 'bg-gray-100 dark:bg-gray-800'}>
+                          <Badge
+                            className={
+                              deliveryColors[course.deliveryMethod] ||
+                              'bg-gray-100 dark:bg-gray-800'
+                            }
+                          >
                             {course.deliveryMethod.replace('_', ' ')}
                           </Badge>
-                          <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">{course.category}</Badge>
+                          <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                            {course.category}
+                          </Badge>
                         </div>
                         <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
                           <div className="flex items-center gap-1">
@@ -376,7 +419,10 @@ export default function TrainingPage() {
               {sessions.length > 0 ? (
                 <div className="space-y-4">
                   {sessions.map((session) => (
-                    <div key={session.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div
+                      key={session.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
                       <div className="flex items-center gap-4">
                         <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
                           <Calendar className="h-5 w-5 text-blue-600" />
@@ -384,7 +430,12 @@ export default function TrainingPage() {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium">{session.course.name}</span>
-                            <Badge className={sessionStatusColors[session.status] || 'bg-gray-100 dark:bg-gray-800'}>
+                            <Badge
+                              className={
+                                sessionStatusColors[session.status] ||
+                                'bg-gray-100 dark:bg-gray-800'
+                              }
+                            >
                               {session.status}
                             </Badge>
                           </div>
@@ -392,7 +443,8 @@ export default function TrainingPage() {
                             <span>{session.sessionCode}</span>
                             <span>•</span>
                             <span>
-                              {new Date(session.startDate).toLocaleDateString()} - {new Date(session.endDate).toLocaleDateString()}
+                              {new Date(session.startDate).toLocaleDateString()} -{' '}
+                              {new Date(session.endDate).toLocaleDateString()}
                             </span>
                           </div>
                         </div>
@@ -418,7 +470,12 @@ export default function TrainingPage() {
       </div>
 
       {/* Create Course Modal */}
-      <Modal isOpen={courseModalOpen} onClose={() => setCourseModalOpen(false)} title="New Training Course" size="lg">
+      <Modal
+        isOpen={courseModalOpen}
+        onClose={() => setCourseModalOpen(false)}
+        title="New Training Course"
+        size="lg"
+      >
         <div className="space-y-4 max-h-[70vh] overflow-y-auto">
           {courseError && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
@@ -581,7 +638,12 @@ export default function TrainingPage() {
       </Modal>
 
       {/* Create Session Modal */}
-      <Modal isOpen={sessionModalOpen} onClose={() => setSessionModalOpen(false)} title="Schedule Training Session" size="lg">
+      <Modal
+        isOpen={sessionModalOpen}
+        onClose={() => setSessionModalOpen(false)}
+        title="Schedule Training Session"
+        size="lg"
+      >
         <div className="space-y-4 max-h-[70vh] overflow-y-auto">
           {sessionError && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">

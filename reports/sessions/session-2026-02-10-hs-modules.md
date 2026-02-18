@@ -8,21 +8,27 @@
 ---
 
 ## Objective
+
 Implement 4 fully functional H&S modules — Incident Register, Legal Register, OHS Objectives, and CAPA Management — each with full CRUD APIs, AI-assisted analysis, and comprehensive frontend modals with multi-section forms.
 
 ## Architecture Decisions
 
 ### 1. Raw SQL for Schema Changes
+
 `prisma db push` drops core tables (users, sessions) when run against shared database. All new tables created via `docker exec ims-postgres psql` with `CREATE TABLE IF NOT EXISTS` and `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`.
 
 ### 2. Incident API Bug Fixes
+
 Original `incidents.ts` had 3 bugs from the initial scaffold:
+
 - Used `standard: STANDARD` in where clauses (field doesn't exist in H&S schema)
 - Included `reporter`/`investigator` relations (User model is in core schema, not H&S)
 - Missing all new fields from schema extension
 
 ### 3. Auto-Business Logic
+
 Embedded in API routes rather than frontend:
+
 - **RIDDOR**: CRITICAL/CATASTROPHIC/MAJOR severity → `riddorReportable: true`
 - **Investigation**: Same severities → `investigationRequired: true`, auto due dates
 - **CAPA targets**: Priority-based (CRITICAL=7d, HIGH=14d, MEDIUM=30d, LOW=60d)
@@ -30,14 +36,18 @@ Embedded in API routes rather than frontend:
 - **Compliance audit**: `lastReviewedAt` auto-set when compliance status changes
 
 ### 4. AI Route Pattern
+
 All 4 AI routes follow the same pattern established by `risks/generate-controls/route.ts`:
+
 - Next.js API routes (server-side, API key secure)
 - Direct `fetch` to Anthropic API (no SDK dependency)
 - JSON extraction with code fence handling
 - Field validation with safe defaults
 
 ### 5. Frontend Pattern
+
 All 4 client components follow the `risks/client.tsx` pattern:
+
 - Single `client.tsx` file with `'use client'` directive
 - Thin `page.tsx` server wrapper
 - Multi-section modal with tab navigation
@@ -49,6 +59,7 @@ All 4 client components follow the `risks/client.tsx` pattern:
 ## Technical Implementation
 
 ### Database Layer
+
 ```
 health-safety.prisma changes:
   Incident model  → +18 new fields (RIDDOR, investigation, AI analysis)
@@ -61,6 +72,7 @@ health-safety.prisma changes:
 ```
 
 ### API Layer
+
 ```
 api-health-safety/src/routes/
   incidents.ts    → Rewritten (CRUD, auto RIDDOR, auto investigation dates)
@@ -71,6 +83,7 @@ api-health-safety/src/routes/
 ```
 
 ### AI Layer
+
 ```
 web-health-safety/src/app/api/
   incidents/analyse/route.ts   → 5-Why root cause (ICAM methodology)
@@ -80,6 +93,7 @@ web-health-safety/src/app/api/
 ```
 
 ### Frontend Layer
+
 ```
 web-health-safety/src/app/
   incidents/client.tsx  → 4-section modal, severity colors, RIDDOR badges
@@ -89,6 +103,7 @@ web-health-safety/src/app/
 ```
 
 ## Test Results
+
 ```
 Automated test suite: 70/70 passing
 
@@ -148,12 +163,14 @@ Automated test suite: 70/70 passing
 ```
 
 ## Files Summary
+
 - **New files**: 16 (3 API routes, 4 AI routes, 4 client.tsx, 4 page.tsx, 1 test script)
 - **Modified files**: 3 (schema, incidents.ts, index.ts)
 - **Total new code**: ~3,500 lines
 - **Modified code**: ~600 lines changed
 
 ## What's Next
+
 - End-to-end browser testing of all modal workflows
 - Edit modals (reuse same forms, pre-populate from existing records)
 - Dashboard integration (summary cards on H&S main page)

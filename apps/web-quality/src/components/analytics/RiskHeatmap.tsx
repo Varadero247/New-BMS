@@ -50,7 +50,7 @@ export function RiskHeatmap({
   // Group risks by cell
   const risksByCell = useMemo(() => {
     const map = new Map<string, RiskItem[]>();
-    risks.forEach(risk => {
+    risks.forEach((risk) => {
       const key = `${risk.likelihood}-${risk.severity}`;
       if (!map.has(key)) {
         map.set(key, []);
@@ -63,7 +63,9 @@ export function RiskHeatmap({
   return (
     <div className="w-full">
       {title && (
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
+          {title}
+        </h3>
       )}
 
       <div className="flex">
@@ -91,7 +93,7 @@ export function RiskHeatmap({
             ))}
 
             {/* Matrix rows (reversed so 5 is at top) */}
-            {[5, 4, 3, 2, 1].map(likelihood => (
+            {[5, 4, 3, 2, 1].map((likelihood) => (
               <>
                 {/* Likelihood label */}
                 <div
@@ -102,7 +104,7 @@ export function RiskHeatmap({
                 </div>
 
                 {/* Cells */}
-                {[1, 2, 3, 4, 5].map(severity => {
+                {[1, 2, 3, 4, 5].map((severity) => {
                   const cellRisks = risksByCell.get(`${likelihood}-${severity}`) || [];
                   const riskLevel = getRiskLevel(likelihood, severity);
 
@@ -121,7 +123,7 @@ export function RiskHeatmap({
 
                       {/* Risk dots */}
                       <div className="flex flex-wrap gap-1 overflow-hidden h-full">
-                        {cellRisks.slice(0, 6).map(risk => (
+                        {cellRisks.slice(0, 6).map((risk) => (
                           <button
                             key={risk.id}
                             onClick={() => onRiskClick?.(risk)}
@@ -139,10 +141,14 @@ export function RiskHeatmap({
                       {/* Hover tooltip */}
                       {cellRisks.length > 0 && (
                         <div className="hidden group-hover:block absolute z-10 bg-white dark:bg-gray-900 shadow-lg rounded-lg p-2 min-w-[200px] left-full ml-2 top-0">
-                          <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">{riskLevel} Risk</p>
+                          <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                            {riskLevel} Risk
+                          </p>
                           <ul className="text-xs text-gray-600 space-y-1">
-                            {cellRisks.map(r => (
-                              <li key={r.id} className="truncate">• {r.title}</li>
+                            {cellRisks.map((r) => (
+                              <li key={r.id} className="truncate">
+                                • {r.title}
+                              </li>
                             ))}
                           </ul>
                         </div>
@@ -171,7 +177,7 @@ export function RiskHeatmap({
             { color: 'bg-orange-400', label: 'Medium-High (8-12)' },
             { color: 'bg-red-400', label: 'High (12-20)' },
             { color: 'bg-red-600', label: 'Critical (20-25)' },
-          ].map(item => (
+          ].map((item) => (
             <div key={item.label} className="flex items-center gap-2">
               <div className={`w-4 h-4 rounded ${item.color}`} />
               <span className="text-xs text-gray-600">{item.label}</span>
@@ -184,22 +190,24 @@ export function RiskHeatmap({
       <div className="mt-4 grid grid-cols-3 gap-4 text-center">
         <div className="bg-red-50 rounded-lg p-3">
           <p className="text-2xl font-bold text-red-600">
-            {risks.filter(r => r.likelihood * r.severity >= 12).length}
+            {risks.filter((r) => r.likelihood * r.severity >= 12).length}
           </p>
           <p className="text-xs text-gray-600">High/Critical Risks</p>
         </div>
         <div className="bg-yellow-50 rounded-lg p-3">
           <p className="text-2xl font-bold text-yellow-600">
-            {risks.filter(r => {
-              const score = r.likelihood * r.severity;
-              return score >= 4 && score < 12;
-            }).length}
+            {
+              risks.filter((r) => {
+                const score = r.likelihood * r.severity;
+                return score >= 4 && score < 12;
+              }).length
+            }
           </p>
           <p className="text-xs text-gray-600">Medium Risks</p>
         </div>
         <div className="bg-green-50 rounded-lg p-3">
           <p className="text-2xl font-bold text-green-600">
-            {risks.filter(r => r.likelihood * r.severity < 4).length}
+            {risks.filter((r) => r.likelihood * r.severity < 4).length}
           </p>
           <p className="text-xs text-gray-600">Low Risks</p>
         </div>

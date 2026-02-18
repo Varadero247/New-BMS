@@ -33,10 +33,7 @@ router.get('/', async (req: Request, res: Response) => {
     const where: Record<string, unknown> = {
       portalType: 'CUSTOMER',
       deletedAt: null,
-      OR: [
-        { visibility: 'PUBLIC' },
-        { visibility: 'SHARED', uploadedBy: auth.user!.id },
-      ],
+      OR: [{ visibility: 'PUBLIC' }, { visibility: 'SHARED', uploadedBy: auth.user!.id }],
     };
     if (category) where.category = category;
 
@@ -51,8 +48,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing customer documents', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list documents' } });
+    logger.error('Error listing customer documents', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list documents' },
+    });
   }
 });
 
@@ -72,13 +74,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!document) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
     }
 
     return res.json({ success: true, data: document });
   } catch (error: unknown) {
-    logger.error('Error fetching document', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch document' } });
+    logger.error('Error fetching document', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch document' },
+    });
   }
 });
 

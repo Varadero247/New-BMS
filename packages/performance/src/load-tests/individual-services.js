@@ -49,9 +49,7 @@ const services = new SharedArray('services', function () {
       name: 'AI Analysis',
       port: 4004,
       healthPath: '/health',
-      endpoints: [
-        { path: '/api/status', method: 'GET' },
-      ],
+      endpoints: [{ path: '/api/status', method: 'GET' }],
     },
     {
       name: 'Inventory',
@@ -311,57 +309,43 @@ const services = new SharedArray('services', function () {
       name: 'Complaints',
       port: 4032,
       healthPath: '/health',
-      endpoints: [
-        { path: '/api/complaints', method: 'GET' },
-      ],
+      endpoints: [{ path: '/api/complaints', method: 'GET' }],
     },
     {
       name: 'Contracts',
       port: 4033,
       healthPath: '/health',
-      endpoints: [
-        { path: '/api/contracts', method: 'GET' },
-      ],
+      endpoints: [{ path: '/api/contracts', method: 'GET' }],
     },
     {
       name: 'PTW',
       port: 4034,
       healthPath: '/health',
-      endpoints: [
-        { path: '/api/permits', method: 'GET' },
-      ],
+      endpoints: [{ path: '/api/permits', method: 'GET' }],
     },
     {
       name: 'Reg Monitor',
       port: 4035,
       healthPath: '/health',
-      endpoints: [
-        { path: '/api/regulations', method: 'GET' },
-      ],
+      endpoints: [{ path: '/api/regulations', method: 'GET' }],
     },
     {
       name: 'Incidents',
       port: 4036,
       healthPath: '/health',
-      endpoints: [
-        { path: '/api/incidents', method: 'GET' },
-      ],
+      endpoints: [{ path: '/api/incidents', method: 'GET' }],
     },
     {
       name: 'Audits',
       port: 4037,
       healthPath: '/health',
-      endpoints: [
-        { path: '/api/audits', method: 'GET' },
-      ],
+      endpoints: [{ path: '/api/audits', method: 'GET' }],
     },
     {
       name: 'Mgmt Review',
       port: 4038,
       healthPath: '/health',
-      endpoints: [
-        { path: '/api/reviews', method: 'GET' },
-      ],
+      endpoints: [{ path: '/api/reviews', method: 'GET' }],
     },
     {
       name: 'Chemicals',
@@ -389,13 +373,13 @@ const services = new SharedArray('services', function () {
 // k6 options - lower VU count for focused testing
 export const options = {
   stages: [
-    { duration: '15s', target: 10 },  // Ramp up to 10 VUs
-    { duration: '1m', target: 10 },   // Hold 10 VUs for 1 minute
-    { duration: '15s', target: 0 },   // Ramp down
+    { duration: '15s', target: 10 }, // Ramp up to 10 VUs
+    { duration: '1m', target: 10 }, // Hold 10 VUs for 1 minute
+    { duration: '15s', target: 0 }, // Ramp down
   ],
   thresholds: {
-    http_req_duration: ['p(95)<200'],   // p95 response time < 200ms
-    http_req_failed: ['rate<0.05'],     // Allow slightly higher error rate (services may be down)
+    http_req_duration: ['p(95)<200'], // p95 response time < 200ms
+    http_req_failed: ['rate<0.05'], // Allow slightly higher error rate (services may be down)
     errors: ['rate<0.05'],
   },
   tags: {
@@ -482,8 +466,7 @@ export default function (data) {
             const passed = check(res, {
               [`${service.name} ${endpoint.path} status OK`]: (r) =>
                 r.status === 200 || r.status === 401 || r.status === 403,
-              [`${service.name} ${endpoint.path} p95 < 200ms`]: (r) =>
-                r.timings.duration < 200,
+              [`${service.name} ${endpoint.path} p95 < 200ms`]: (r) => r.timings.duration < 200,
             });
             errorRate.add(!passed);
           }

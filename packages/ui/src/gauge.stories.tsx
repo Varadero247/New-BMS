@@ -212,25 +212,33 @@ export const DashboardMetrics: Story = {
   render: () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6 bg-gray-50 dark:bg-gray-900 rounded-lg">
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">CPU Usage</h3>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
+          CPU Usage
+        </h3>
         <div className="flex justify-center">
           <Gauge value={42} color="auto" size="md" sublabel="%" showValue={true} />
         </div>
       </div>
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">Memory</h3>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
+          Memory
+        </h3>
         <div className="flex justify-center">
           <Gauge value={68} color="auto" size="md" sublabel="GB" showValue={true} />
         </div>
       </div>
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">Disk Space</h3>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
+          Disk Space
+        </h3>
         <div className="flex justify-center">
           <Gauge value={85} color="auto" size="md" sublabel="TB" showValue={true} />
         </div>
       </div>
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">Network</h3>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
+          Network
+        </h3>
         <div className="flex justify-center">
           <Gauge value={52} color="auto" size="md" sublabel="Mbps" showValue={true} />
         </div>
@@ -244,14 +252,20 @@ export const PerformanceScores: Story = {
     <div className="space-y-6">
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Accessibility Score</h3>
-          <span className="text-sm font-semibold text-green-600 dark:text-green-400">Excellent</span>
+          <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+            Accessibility Score
+          </h3>
+          <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+            Excellent
+          </span>
         </div>
         <Gauge value={95} color="green" size="lg" showValue={true} />
       </div>
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Performance Score</h3>
+          <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+            Performance Score
+          </h3>
           <span className="text-sm font-semibold text-yellow-600 dark:text-yellow-400">Good</span>
         </div>
         <Gauge value={72} color="yellow" size="lg" showValue={true} />

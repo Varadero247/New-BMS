@@ -47,7 +47,8 @@ export const inventoryApi = {
 
   // Inventory
   getInventory: (params?: Record<string, any>) => api.get('/inventory', { params }),
-  getInventorySummary: (warehouseId?: string) => api.get('/inventory/summary', { params: { warehouseId } }),
+  getInventorySummary: (warehouseId?: string) =>
+    api.get('/inventory/summary', { params: { warehouseId } }),
   getAvailability: (productId: string) => api.get(`/inventory/availability/${productId}`),
   adjustStock: (data: unknown) => api.post('/inventory/adjust', data),
   transferStock: (data: unknown) => api.post('/inventory/transfer', data),
@@ -56,7 +57,8 @@ export const inventoryApi = {
 
   // Transactions
   getTransactions: (params?: Record<string, any>) => api.get('/transactions', { params }),
-  getTransactionSummary: (params?: Record<string, any>) => api.get('/transactions/summary', { params }),
+  getTransactionSummary: (params?: Record<string, any>) =>
+    api.get('/transactions/summary', { params }),
   getProductTransactions: (productId: string, params?: Record<string, any>) =>
     api.get(`/transactions/product/${productId}`, { params }),
 

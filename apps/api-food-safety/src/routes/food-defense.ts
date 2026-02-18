@@ -17,25 +17,60 @@ router.param('id', validateIdParam());
 const foodDefenseCreateSchema = z.object({
   title: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional().nullable(),
-  threatType: z.enum(['INTENTIONAL_CONTAMINATION', 'SABOTAGE', 'TAMPERING', 'BIOTERRORISM', 'CYBER']),
+  threatType: z.enum([
+    'INTENTIONAL_CONTAMINATION',
+    'SABOTAGE',
+    'TAMPERING',
+    'BIOTERRORISM',
+    'CYBER',
+  ]),
   vulnerabilityAssessment: z.string().max(2000).optional().nullable(),
   mitigationMeasure: z.string().max(2000).optional().nullable(),
-  status: z.enum(['IDENTIFIED', 'ASSESSED', 'MITIGATED', 'MONITORED']).optional().default('IDENTIFIED'),
+  status: z
+    .enum(['IDENTIFIED', 'ASSESSED', 'MITIGATED', 'MONITORED'])
+    .optional()
+    .default('IDENTIFIED'),
   riskLevel: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']),
-  assessedDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
-  reviewDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  assessedDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
+  reviewDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
 });
 
 const foodDefenseUpdateSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
-  threatType: z.enum(['INTENTIONAL_CONTAMINATION', 'SABOTAGE', 'TAMPERING', 'BIOTERRORISM', 'CYBER']).optional(),
+  threatType: z
+    .enum(['INTENTIONAL_CONTAMINATION', 'SABOTAGE', 'TAMPERING', 'BIOTERRORISM', 'CYBER'])
+    .optional(),
   vulnerabilityAssessment: z.string().max(2000).optional().nullable(),
   mitigationMeasure: z.string().max(2000).optional().nullable(),
   status: z.enum(['IDENTIFIED', 'ASSESSED', 'MITIGATED', 'MONITORED']).optional(),
   riskLevel: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
-  assessedDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
-  reviewDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  assessedDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
+  reviewDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
 });
 
 // ---------------------------------------------------------------------------
@@ -73,8 +108,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing food defense records', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list food defense records' } });
+    logger.error('Error listing food defense records', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list food defense records' },
+    });
   }
 });
 
@@ -85,7 +125,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = foodDefenseCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -103,8 +146,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Food defense record created', { id: record.id });
     res.status(201).json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Error creating food defense record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create food defense record' } });
+    logger.error('Error creating food defense record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create food defense record' },
+    });
   }
 });
 
@@ -118,13 +166,21 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!record) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Food defense record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Food defense record not found' },
+      });
     }
 
     res.json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Error fetching food defense record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch food defense record' } });
+    logger.error('Error fetching food defense record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch food defense record' },
+    });
   }
 });
 
@@ -133,14 +189,22 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsFoodDefense.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsFoodDefense.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Food defense record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Food defense record not found' },
+      });
     }
 
     const parsed = foodDefenseUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -156,8 +220,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Food defense record updated', { id: record.id });
     res.json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Error updating food defense record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update food defense record' } });
+    logger.error('Error updating food defense record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update food defense record' },
+    });
   }
 });
 
@@ -166,9 +235,14 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsFoodDefense.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsFoodDefense.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Food defense record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Food defense record not found' },
+      });
     }
 
     await prisma.fsFoodDefense.update({
@@ -179,8 +253,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Food defense record deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Food defense record deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting food defense record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete food defense record' } });
+    logger.error('Error deleting food defense record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete food defense record' },
+    });
   }
 });
 

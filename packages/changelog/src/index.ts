@@ -45,7 +45,10 @@ export function listEntries(limit = 20, offset = 0): { entries: ChangelogEntry[]
   };
 }
 
-export function listAllEntries(limit = 50, offset = 0): { entries: ChangelogEntry[]; total: number } {
+export function listAllEntries(
+  limit = 50,
+  offset = 0
+): { entries: ChangelogEntry[]; total: number } {
   const sorted = [...entries].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
@@ -94,35 +97,40 @@ function seed(): void {
   const seedData: Array<CreateEntryInput & { daysAgo: number }> = [
     {
       title: 'ISO 42001 AI Management Module',
-      description: 'Full AI governance module with system register, impact assessments, controls mapping, and audit trail. Compliant with ISO/IEC 42001:2023.',
+      description:
+        'Full AI governance module with system register, impact assessments, controls mapping, and audit trail. Compliant with ISO/IEC 42001:2023.',
       category: 'new_feature',
       modules: ['ISO 42001'],
       daysAgo: 1,
     },
     {
       title: 'ISO 37001 Anti-Bribery Module',
-      description: 'Anti-bribery management system with risk assessments, due diligence workflows, gift/hospitality register, and whistleblower channel.',
+      description:
+        'Anti-bribery management system with risk assessments, due diligence workflows, gift/hospitality register, and whistleblower channel.',
       category: 'new_feature',
       modules: ['ISO 37001'],
       daysAgo: 2,
     },
     {
       title: 'Enhanced Evidence Pack Generator',
-      description: 'Automatically compile audit evidence packs with linked documents, records, and compliance matrices. Export as PDF or ZIP.',
+      description:
+        'Automatically compile audit evidence packs with linked documents, records, and compliance matrices. Export as PDF or ZIP.',
       category: 'improvement',
       modules: ['Quality', 'Audit'],
       daysAgo: 3,
     },
     {
       title: 'Multi-Tenant MSP Mode',
-      description: 'Manage multiple client organisations from a single dashboard with tenant isolation, aggregated reporting, and bulk operations.',
+      description:
+        'Manage multiple client organisations from a single dashboard with tenant isolation, aggregated reporting, and bulk operations.',
       category: 'new_feature',
       modules: ['Platform'],
       daysAgo: 5,
     },
     {
       title: 'Critical Security Patch — Session Management',
-      description: 'Fixed a session fixation vulnerability in the authentication flow. All active sessions have been invalidated. Users must re-authenticate.',
+      description:
+        'Fixed a session fixation vulnerability in the authentication flow. All active sessions have been invalidated. Users must re-authenticate.',
       category: 'security',
       modules: ['Auth', 'Platform'],
       daysAgo: 7,

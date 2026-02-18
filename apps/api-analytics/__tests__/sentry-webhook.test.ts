@@ -119,10 +119,16 @@ describe('POST /webhooks/sentry', () => {
 
     await request(app)
       .post('/webhooks/sentry')
-      .send({ data: { event: { event_id: 'evt-5', platform: 'python', environment: 'staging', message: 'err' } } });
+      .send({
+        data: {
+          event: { event_id: 'evt-5', platform: 'python', environment: 'staging', message: 'err' },
+        },
+      });
 
     expect(prisma.bugReport.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ platform: 'python', environment: 'staging' }) })
+      expect.objectContaining({
+        data: expect.objectContaining({ platform: 'python', environment: 'staging' }),
+      })
     );
   });
 
@@ -135,7 +141,9 @@ describe('POST /webhooks/sentry', () => {
       .send({ data: { event: { event_id: 'evt-6', message: 'err' } } });
 
     expect(prisma.bugReport.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ platform: 'unknown', environment: 'production' }) })
+      expect.objectContaining({
+        data: expect.objectContaining({ platform: 'unknown', environment: 'production' }),
+      })
     );
   });
 

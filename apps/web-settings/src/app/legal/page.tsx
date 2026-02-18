@@ -47,7 +47,9 @@ export default function LegalPage() {
       const res = await fetch(`${API_URL}/api/admin/dpa`, { headers: getHeaders() });
       const data = await res.json();
       if (data.success) setDpa(data.data);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   const fetchAcceptance = useCallback(async () => {
@@ -57,7 +59,9 @@ export default function LegalPage() {
       if (data.success && data.data.acceptance) {
         setAcceptance(data.data.acceptance);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   useEffect(() => {
@@ -79,7 +83,7 @@ export default function LegalPage() {
       const data = await res.json();
       if (data.success) {
         setAcceptance(data.data);
-        setDpa(prev => prev ? { ...prev, accepted: true } : null);
+        setDpa((prev) => (prev ? { ...prev, accepted: true } : null));
         setShowAcceptForm(false);
       } else {
         setError(data.error?.message || 'Failed to accept DPA');
@@ -114,38 +118,63 @@ export default function LegalPage() {
       )}
 
       {/* Acceptance Status */}
-      <div className={`border rounded-xl p-6 ${
-        acceptance
-          ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800'
-          : 'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800'
-      }`}>
+      <div
+        className={`border rounded-xl p-6 ${
+          acceptance
+            ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800'
+            : 'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800'
+        }`}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {acceptance ? (
               <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg
+                  className="w-5 h-5 text-green-600 dark:text-green-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               </div>
             ) : (
               <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                <svg
+                  className="w-5 h-5 text-yellow-600 dark:text-yellow-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
                 </svg>
               </div>
             )}
             <div>
-              <h2 className={`text-lg font-semibold ${
-                acceptance
-                  ? 'text-green-800 dark:text-green-300'
-                  : 'text-yellow-800 dark:text-yellow-300'
-              }`}>
+              <h2
+                className={`text-lg font-semibold ${
+                  acceptance
+                    ? 'text-green-800 dark:text-green-300'
+                    : 'text-yellow-800 dark:text-yellow-300'
+                }`}
+              >
                 {acceptance ? 'DPA Accepted' : 'DPA Acceptance Required'}
               </h2>
               {acceptance ? (
                 <p className="text-sm text-green-600 dark:text-green-400">
                   Signed by {acceptance.signerName} ({acceptance.signerTitle}) on{' '}
-                  {new Date(acceptance.acceptedAt).toLocaleDateString()} - Version {acceptance.dpaVersion}
+                  {new Date(acceptance.acceptedAt).toLocaleDateString()} - Version{' '}
+                  {acceptance.dpaVersion}
                 </p>
               ) : (
                 <p className="text-sm text-yellow-600 dark:text-yellow-400">
@@ -168,14 +197,19 @@ export default function LegalPage() {
       {/* Accept Form */}
       {showAcceptForm && !acceptance && (
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Accept Data Processing Agreement</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Accept Data Processing Agreement
+          </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            By accepting, you confirm that you have read, understood, and agree to the terms of the DPA on behalf of your organisation.
+            By accepting, you confirm that you have read, understood, and agree to the terms of the
+            DPA on behalf of your organisation.
           </p>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Full Name
+              </label>
               <input
                 type="text"
                 value={signerName}
@@ -185,7 +219,9 @@ export default function LegalPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title / Role</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Title / Role
+              </label>
               <input
                 type="text"
                 value={signerTitle}
@@ -219,16 +255,21 @@ export default function LegalPage() {
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{dpa.title}</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {dpa.title}
+              </h2>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Version {dpa.version} | Effective: {new Date(dpa.effectiveDate).toLocaleDateString()}
+                Version {dpa.version} | Effective:{' '}
+                {new Date(dpa.effectiveDate).toLocaleDateString()}
               </p>
             </div>
-            <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
-              dpa.isActive
-                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
-            }`}>
+            <span
+              className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
+                dpa.isActive
+                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+              }`}
+            >
               {dpa.isActive ? 'Active' : 'Inactive'}
             </span>
           </div>

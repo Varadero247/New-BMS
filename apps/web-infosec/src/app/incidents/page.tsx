@@ -1,7 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+} from '@ims/ui';
 import { AlertOctagon, Plus, Search, Shield } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -25,7 +34,16 @@ const severityColors: Record<string, string> = {
   CRITICAL: 'bg-red-100 text-red-700',
 };
 
-const incidentTypes = ['DATA_BREACH', 'MALWARE', 'PHISHING', 'UNAUTHORIZED_ACCESS', 'DENIAL_OF_SERVICE', 'INSIDER_THREAT', 'PHYSICAL_SECURITY', 'OTHER'];
+const incidentTypes = [
+  'DATA_BREACH',
+  'MALWARE',
+  'PHISHING',
+  'UNAUTHORIZED_ACCESS',
+  'DENIAL_OF_SERVICE',
+  'INSIDER_THREAT',
+  'PHYSICAL_SECURITY',
+  'OTHER',
+];
 const severities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 const incidentStatuses = ['REPORTED', 'INVESTIGATING', 'CONTAINED', 'RESOLVED', 'CLOSED'];
 
@@ -71,7 +89,13 @@ export default function IncidentsPage() {
   }
 
   function openCreateModal() {
-    setForm({ title: '', type: 'DATA_BREACH', severity: 'MEDIUM', description: '', isGdprBreach: false });
+    setForm({
+      title: '',
+      type: 'DATA_BREACH',
+      severity: 'MEDIUM',
+      description: '',
+      isGdprBreach: false,
+    });
     setModalOpen(true);
   }
 
@@ -88,11 +112,16 @@ export default function IncidentsPage() {
     }
   }
 
-  const filtered = incidents.filter(i => {
+  const filtered = incidents.filter((i) => {
     if (typeFilter && i.type !== typeFilter) return false;
     if (severityFilter && i.severity !== severityFilter) return false;
     if (statusFilter && i.status !== statusFilter) return false;
-    if (searchTerm && !i.title.toLowerCase().includes(searchTerm.toLowerCase()) && !i.referenceNumber.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+    if (
+      searchTerm &&
+      !i.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      !i.referenceNumber.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+      return false;
     return true;
   });
 
@@ -112,15 +141,26 @@ export default function IncidentsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Security Incidents</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Incident reporting and response management</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Security Incidents
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Incident reporting and response management
+            </p>
           </div>
-          <Button onClick={openCreateModal} className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700">
+          <Button
+            onClick={openCreateModal}
+            className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
+          >
             <Plus className="h-4 w-4" /> Report Incident
           </Button>
         </div>
 
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
 
         {/* Filters */}
         <Card className="mb-6">
@@ -128,19 +168,53 @@ export default function IncidentsPage() {
             <div className="flex flex-wrap gap-4">
               <div className="relative flex-1 min-w-[200px]">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                <input type="text" aria-label="Search incidents..." placeholder="Search incidents..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                <input
+                  type="text"
+                  aria-label="Search incidents..."
+                  placeholder="Search incidents..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
               </div>
-              <select aria-label="Filter by type" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
+              <select
+                aria-label="Filter by type"
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
                 <option value="">All Types</option>
-                {incidentTypes.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
+                {incidentTypes.map((t) => (
+                  <option key={t} value={t}>
+                    {t.replace(/_/g, ' ')}
+                  </option>
+                ))}
               </select>
-              <select aria-label="Filter by severity" value={severityFilter} onChange={(e) => setSeverityFilter(e.target.value)} className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
+              <select
+                aria-label="Filter by severity"
+                value={severityFilter}
+                onChange={(e) => setSeverityFilter(e.target.value)}
+                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
                 <option value="">All Severities</option>
-                {severities.map(s => <option key={s} value={s}>{s}</option>)}
+                {severities.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
               </select>
-              <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
+              <select
+                aria-label="Filter by status"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
                 <option value="">All Statuses</option>
-                {incidentStatuses.map(s => <option key={s} value={s}>{s}</option>)}
+                {incidentStatuses.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
               </select>
             </div>
           </CardContent>
@@ -154,34 +228,68 @@ export default function IncidentsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Severity</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Reported</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">GDPR</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Ref
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Title
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Type
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Severity
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Status
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Reported
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        GDPR
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map((incident) => {
                       const daysLeft = getDaysUntilDeadline(incident.gdprDeadline);
                       return (
-                        <tr key={incident.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                          <td className="py-3 px-4 font-mono text-xs text-gray-600">{incident.referenceNumber}</td>
-                          <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{incident.title}</td>
-                          <td className="py-3 px-4 text-gray-600">{incident.type.replace(/_/g, ' ')}</td>
+                        <tr
+                          key={incident.id}
+                          className="border-b hover:bg-gray-50 dark:bg-gray-800"
+                        >
+                          <td className="py-3 px-4 font-mono text-xs text-gray-600">
+                            {incident.referenceNumber}
+                          </td>
+                          <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                            {incident.title}
+                          </td>
+                          <td className="py-3 px-4 text-gray-600">
+                            {incident.type.replace(/_/g, ' ')}
+                          </td>
                           <td className="py-3 px-4">
-                            <Badge className={severityColors[incident.severity] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{incident.severity}</Badge>
+                            <Badge
+                              className={
+                                severityColors[incident.severity] ||
+                                'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                              }
+                            >
+                              {incident.severity}
+                            </Badge>
                           </td>
                           <td className="py-3 px-4 text-gray-600">{incident.status}</td>
-                          <td className="py-3 px-4 text-gray-600">{new Date(incident.reportedDate).toLocaleDateString()}</td>
+                          <td className="py-3 px-4 text-gray-600">
+                            {new Date(incident.reportedDate).toLocaleDateString()}
+                          </td>
                           <td className="py-3 px-4">
                             {incident.isGdprBreach ? (
                               <div className="flex items-center gap-1">
                                 <Shield className="h-4 w-4 text-red-500" />
                                 {daysLeft !== null && (
-                                  <span className={`text-xs font-medium ${daysLeft <= 3 ? 'text-red-600' : daysLeft <= 14 ? 'text-orange-600' : 'text-gray-600'}`}>
+                                  <span
+                                    className={`text-xs font-medium ${daysLeft <= 3 ? 'text-red-600' : daysLeft <= 14 ? 'text-orange-600' : 'text-gray-600'}`}
+                                  >
                                     {daysLeft > 0 ? `${daysLeft}d left` : 'Overdue'}
                                   </span>
                                 )}
@@ -206,37 +314,87 @@ export default function IncidentsPage() {
         </Card>
       </div>
 
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Report Security Incident" size="lg">
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="Report Security Incident"
+        size="lg"
+      >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
-            <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Title
+            </label>
+            <input
+              type="text"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
-              <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
-                {incidentTypes.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Type
+              </label>
+              <select
+                value={form.type}
+                onChange={(e) => setForm({ ...form, type: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                {incidentTypes.map((t) => (
+                  <option key={t} value={t}>
+                    {t.replace(/_/g, ' ')}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Severity</label>
-              <select value={form.severity} onChange={(e) => setForm({ ...form, severity: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
-                {severities.map(s => <option key={s} value={s}>{s}</option>)}
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Severity
+              </label>
+              <select
+                value={form.severity}
+                onChange={(e) => setForm({ ...form, severity: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                {severities.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-            <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Describe the incident in detail..." />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Description
+            </label>
+            <textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              rows={4}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              placeholder="Describe the incident in detail..."
+            />
           </div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" id="gdprBreach" checked={form.isGdprBreach} onChange={(e) => setForm({ ...form, isGdprBreach: e.target.checked })} className="rounded text-teal-600 focus:ring-teal-500" />
-            <label htmlFor="gdprBreach" className="text-sm text-gray-700 dark:text-gray-300">This is a GDPR-reportable breach (72-hour notification deadline)</label>
+            <input
+              type="checkbox"
+              id="gdprBreach"
+              checked={form.isGdprBreach}
+              onChange={(e) => setForm({ ...form, isGdprBreach: e.target.checked })}
+              className="rounded text-teal-600 focus:ring-teal-500"
+            />
+            <label htmlFor="gdprBreach" className="text-sm text-gray-700 dark:text-gray-300">
+              This is a GDPR-reportable breach (72-hour notification deadline)
+            </label>
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setModalOpen(false)}>
+            Cancel
+          </Button>
           <Button onClick={handleSave} disabled={saving} className="bg-teal-600 hover:bg-teal-700">
             {saving ? 'Saving...' : 'Report Incident'}
           </Button>

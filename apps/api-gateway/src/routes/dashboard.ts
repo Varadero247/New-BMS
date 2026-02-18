@@ -80,7 +80,9 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
       // Action counts
       Promise.all([
         prisma.action.count({ where: { deletedAt: null } }),
-        prisma.action.count({ where: { deletedAt: null, status: { in: ['OPEN', 'IN_PROGRESS'] } } }),
+        prisma.action.count({
+          where: { deletedAt: null, status: { in: ['OPEN', 'IN_PROGRESS'] } },
+        }),
         prisma.action.count({
           where: {
             deletedAt: null,
@@ -145,12 +147,14 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
     ]);
 
     const compliance = {
-      iso45001: complianceScores.find(s => s.standard === 'ISO_45001')?.overallScore || 0,
-      iso14001: complianceScores.find(s => s.standard === 'ISO_14001')?.overallScore || 0,
-      iso9001: complianceScores.find(s => s.standard === 'ISO_9001')?.overallScore || 0,
+      iso45001: complianceScores.find((s) => s.standard === 'ISO_45001')?.overallScore || 0,
+      iso14001: complianceScores.find((s) => s.standard === 'ISO_14001')?.overallScore || 0,
+      iso9001: complianceScores.find((s) => s.standard === 'ISO_9001')?.overallScore || 0,
       overall: 0,
     };
-    compliance.overall = Math.round((compliance.iso45001 + compliance.iso14001 + compliance.iso9001) / 3);
+    compliance.overall = Math.round(
+      (compliance.iso45001 + compliance.iso14001 + compliance.iso9001) / 3
+    );
 
     res.json({
       success: true,
@@ -160,17 +164,13 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
           total: totalRisks,
           high: highRisks,
           critical: criticalRisks,
-          byStandard: Object.fromEntries(
-            risksByStandard.map(r => [r.standard, r._count.id])
-          ),
+          byStandard: Object.fromEntries(risksByStandard.map((r) => [r.standard, r._count.id])),
         },
         incidents: {
           total: totalIncidents,
           open: openIncidents,
           thisMonth: thisMonthIncidents,
-          byStandard: Object.fromEntries(
-            incidentsByStandard.map(i => [i.standard, i._count.id])
-          ),
+          byStandard: Object.fromEntries(incidentsByStandard.map((i) => [i.standard, i._count.id])),
         },
         actions: {
           total: totalActions,

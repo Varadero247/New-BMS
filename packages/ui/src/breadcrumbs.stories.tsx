@@ -46,9 +46,7 @@ export const SlashSeparator: Story = {
 
 export const SingleItem: Story = {
   args: {
-    items: [
-      { label: 'Dashboard' },
-    ],
+    items: [{ label: 'Dashboard' }],
   },
 };
 

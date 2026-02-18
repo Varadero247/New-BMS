@@ -64,12 +64,8 @@ export const Default: Story = {
           onMarkRead={(id) =>
             setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
           }
-          onMarkAllRead={() =>
-            setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
-          }
-          onDismiss={(id) =>
-            setNotifications((prev) => prev.filter((n) => n.id !== id))
-          }
+          onMarkAllRead={() => setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))}
+          onDismiss={(id) => setNotifications((prev) => prev.filter((n) => n.id !== id))}
         />
       </div>
     );

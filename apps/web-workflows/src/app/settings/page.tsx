@@ -10,7 +10,9 @@ export default function WorkflowSettingsPage() {
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Workflow Settings</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Configure workflow engine preferences</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Configure workflow engine preferences
+          </p>
         </div>
 
         <div className="space-y-6">
@@ -23,12 +25,24 @@ export default function WorkflowSettingsPage() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Default Task SLA (hours)</label>
-                  <input type="number" defaultValue={24} className="w-full border rounded-md px-3 py-2 text-sm" />
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Default Task SLA (hours)
+                  </label>
+                  <input
+                    type="number"
+                    defaultValue={24}
+                    className="w-full border rounded-md px-3 py-2 text-sm"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Escalation After (hours)</label>
-                  <input type="number" defaultValue={48} className="w-full border rounded-md px-3 py-2 text-sm" />
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Escalation After (hours)
+                  </label>
+                  <input
+                    type="number"
+                    defaultValue={48}
+                    className="w-full border rounded-md px-3 py-2 text-sm"
+                  />
                 </div>
               </div>
             </CardContent>
@@ -44,19 +58,27 @@ export default function WorkflowSettingsPage() {
               <div className="space-y-3">
                 <label className="flex items-center gap-2">
                   <input type="checkbox" defaultChecked className="rounded" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Notify assignees when a task is assigned</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Notify assignees when a task is assigned
+                  </span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input type="checkbox" defaultChecked className="rounded" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Send reminders before SLA deadline</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Send reminders before SLA deadline
+                  </span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input type="checkbox" defaultChecked className="rounded" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Notify managers on escalation</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Notify managers on escalation
+                  </span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input type="checkbox" className="rounded" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Send daily digest of pending tasks</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Send daily digest of pending tasks
+                  </span>
                 </label>
               </div>
             </CardContent>
@@ -72,11 +94,15 @@ export default function WorkflowSettingsPage() {
               <div className="space-y-3">
                 <label className="flex items-center gap-2">
                   <input type="checkbox" defaultChecked className="rounded" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Auto-assign tasks based on workload</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Auto-assign tasks based on workload
+                  </span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input type="checkbox" className="rounded" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Auto-close completed workflows after 7 days</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Auto-close completed workflows after 7 days
+                  </span>
                 </label>
               </div>
             </CardContent>

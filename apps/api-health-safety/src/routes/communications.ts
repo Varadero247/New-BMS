@@ -59,7 +59,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       recipients: z.string().optional(),
       sender: z.string().optional(),
       relatedIncidentId: z.string().optional(),
-      scheduledDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      scheduledDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       attendees: z.string().optional(),
       location: z.string().optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
@@ -92,11 +95,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create communication error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create communication' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create communication' },
+    });
   }
 });
 
@@ -106,7 +116,16 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
-    const { page = '1', limit = '20', direction, type, status, dateFrom, dateTo, search } = req.query;
+    const {
+      page = '1',
+      limit = '20',
+      direction,
+      type,
+      status,
+      dateFrom,
+      dateTo,
+      search,
+    } = req.query;
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
@@ -151,7 +170,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List communications error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list communications' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list communications' },
+    });
   }
 });
 
@@ -168,7 +190,8 @@ router.get('/participation', scopeToUser, async (req: AuthRequest, res: Response
       prisma.hsCommunication.findMany({
         where,
         select: { type: true, direction: true, status: true, createdAt: true } as any,
-        take: 1000}),
+        take: 1000,
+      }),
     ]);
 
     const byType: Record<string, number> = {};
@@ -197,12 +220,18 @@ router.get('/participation', scopeToUser, async (req: AuthRequest, res: Response
         workerConsultations,
         toolboxTalks,
         committeeMeetings,
-        participationScore: total > 0 ? Math.round(((workerConsultations + toolboxTalks + committeeMeetings) / total) * 100) : 0,
+        participationScore:
+          total > 0
+            ? Math.round(((workerConsultations + toolboxTalks + committeeMeetings) / total) * 100)
+            : 0,
       },
     });
   } catch (error) {
     logger.error('Participation summary error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get participation summary' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get participation summary' },
+    });
   }
 });
 
@@ -210,104 +239,141 @@ router.get('/participation', scopeToUser, async (req: AuthRequest, res: Response
 // GET /:id — Get communication detail
 // =============================================
 
-router.get('/:id', checkOwnership(prisma.hsCommunication), async (req: AuthRequest, res: Response) => {
-  try {
-    const communication = await prisma.hsCommunication.findUnique({
-      where: { id: req.params.id },
-    });
+router.get(
+  '/:id',
+  checkOwnership(prisma.hsCommunication),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const communication = await prisma.hsCommunication.findUnique({
+        where: { id: req.params.id },
+      });
 
-    if (!communication || communication.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Communication not found' } });
+      if (!communication || communication.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Communication not found' },
+        });
+      }
+
+      res.json({ success: true, data: communication });
+    } catch (error) {
+      logger.error('Get communication error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get communication' },
+      });
     }
-
-    res.json({ success: true, data: communication });
-  } catch (error) {
-    logger.error('Get communication error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get communication' } });
   }
-});
+);
 
 // =============================================
 // PUT /:id — Update/respond
 // =============================================
 
-router.put('/:id', checkOwnership(prisma.hsCommunication), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.hsCommunication.findUnique({ where: { id: req.params.id } });
-    if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Communication not found' } });
-    }
+router.put(
+  '/:id',
+  checkOwnership(prisma.hsCommunication),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.hsCommunication.findUnique({ where: { id: req.params.id } });
+      if (!existing || existing.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Communication not found' },
+        });
+      }
 
-    const schema = z.object({
-      subject: z.string().trim().min(1).max(200).optional(),
-      content: z.string().optional(),
-      recipients: z.string().optional(),
-      response: z.string().optional(),
-      status: z.enum(['DRAFT', 'SENT', 'ACKNOWLEDGED', 'RESPONDED', 'CLOSED']).optional(),
-      attendees: z.string().optional(),
-      location: z.string().optional(),
-      priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
-      scheduledDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      outcome: z.string().optional(),
-    });
+      const schema = z.object({
+        subject: z.string().trim().min(1).max(200).optional(),
+        content: z.string().optional(),
+        recipients: z.string().optional(),
+        response: z.string().optional(),
+        status: z.enum(['DRAFT', 'SENT', 'ACKNOWLEDGED', 'RESPONDED', 'CLOSED']).optional(),
+        attendees: z.string().optional(),
+        location: z.string().optional(),
+        priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+        scheduledDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        outcome: z.string().optional(),
+      });
 
-    const data = schema.parse(req.body);
+      const data = schema.parse(req.body);
 
-    const updateData: Record<string, unknown> = {};
-    if (data.subject !== undefined) updateData.subject = data.subject;
-    if (data.content !== undefined) updateData.content = data.content;
-    if (data.recipients !== undefined) updateData.recipients = data.recipients;
-    if (data.response !== undefined) {
-      updateData.response = data.response;
-      updateData.respondedBy = req.user!.id;
-      updateData.respondedAt = new Date();
-    }
-    if (data.status !== undefined) updateData.status = data.status;
-    if (data.attendees !== undefined) updateData.attendees = data.attendees;
-    if (data.location !== undefined) updateData.location = data.location;
-    if (data.priority !== undefined) updateData.priority = data.priority;
-    if (data.scheduledDate !== undefined) updateData.scheduledDate = new Date(data.scheduledDate);
-    if (data.outcome !== undefined) updateData.outcome = data.outcome;
+      const updateData: Record<string, unknown> = {};
+      if (data.subject !== undefined) updateData.subject = data.subject;
+      if (data.content !== undefined) updateData.content = data.content;
+      if (data.recipients !== undefined) updateData.recipients = data.recipients;
+      if (data.response !== undefined) {
+        updateData.response = data.response;
+        updateData.respondedBy = req.user!.id;
+        updateData.respondedAt = new Date();
+      }
+      if (data.status !== undefined) updateData.status = data.status;
+      if (data.attendees !== undefined) updateData.attendees = data.attendees;
+      if (data.location !== undefined) updateData.location = data.location;
+      if (data.priority !== undefined) updateData.priority = data.priority;
+      if (data.scheduledDate !== undefined) updateData.scheduledDate = new Date(data.scheduledDate);
+      if (data.outcome !== undefined) updateData.outcome = data.outcome;
 
-    const communication = await prisma.hsCommunication.update({
-      where: { id: req.params.id },
-      data: updateData,
-    });
+      const communication = await prisma.hsCommunication.update({
+        where: { id: req.params.id },
+        data: updateData,
+      });
 
-    res.json({ success: true, data: communication });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.json({ success: true, data: communication });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update communication error', { error: (error as Error).message });
+      res.status(500).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update communication' },
       });
     }
-    logger.error('Update communication error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update communication' } });
   }
-});
+);
 
 // =============================================
 // DELETE /:id — Soft delete
 // =============================================
 
-router.delete('/:id', checkOwnership(prisma.hsCommunication), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.hsCommunication.findUnique({ where: { id: req.params.id } });
-    if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Communication not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.hsCommunication),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.hsCommunication.findUnique({ where: { id: req.params.id } });
+      if (!existing || existing.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Communication not found' },
+        });
+      }
+
+      await prisma.hsCommunication.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date(), deletedBy: req.user!.id } as any,
+      });
+
+      res.json({ success: true, data: { message: 'Communication deleted' } });
+    } catch (error) {
+      logger.error('Delete communication error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete communication' },
+      });
     }
-
-    await prisma.hsCommunication.update({
-      where: { id: req.params.id },
-      data: { deletedAt: new Date(), deletedBy: req.user!.id } as any,
-    });
-
-    res.json({ success: true, data: { message: 'Communication deleted' } });
-  } catch (error) {
-    logger.error('Delete communication error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete communication' } });
   }
-});
+);
 
 export default router;

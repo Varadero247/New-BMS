@@ -11,7 +11,7 @@ import {
   comparePassword,
   validatePasswordStrength,
   authenticate,
-  type AuthRequest
+  type AuthRequest,
 } from '@ims/auth';
 import { getEmailService, templates } from '@ims/email';
 import { z } from 'zod';
@@ -99,7 +99,12 @@ router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
     await lockoutManager.reset(email);
 
     // Generate access token (15 minutes) and refresh token (7 days)
-    const accessToken = generateToken({ userId: user.id, email: user.email, role: user.role, expiresIn: '15m' });
+    const accessToken = generateToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      expiresIn: '15m',
+    });
     const refreshToken = generateRefreshToken(user.id);
     const accessTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
     const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
@@ -140,7 +145,11 @@ router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Login error', { error });
@@ -184,7 +193,12 @@ router.post('/register', registerLimiter, async (req, res) => {
 
     // Pre-compute tokens before the transaction (CPU-only, no I/O)
     const userId = uuidv4();
-    const accessToken = generateToken({ userId, email: data.email, role: 'USER', expiresIn: '15m' });
+    const accessToken = generateToken({
+      userId,
+      email: data.email,
+      role: 'USER',
+      expiresIn: '15m',
+    });
     const refreshToken = generateRefreshToken(userId);
     const accessTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
     const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -239,7 +253,11 @@ router.post('/register', registerLimiter, async (req, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Registration error', { error });
@@ -323,7 +341,12 @@ router.post('/refresh', async (req, res) => {
     }
 
     // Generate new access token (15 minutes)
-    const newAccessToken = generateToken({ userId: user.id, email: user.email, role: user.role, expiresIn: '15m' });
+    const newAccessToken = generateToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      expiresIn: '15m',
+    });
     const newRefreshToken = generateRefreshToken(user.id);
     const accessTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
     const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -428,7 +451,10 @@ router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
       if (result.success) {
         logger.info('Password reset email sent', { userId: user.id, messageId: result.messageId });
       } else {
-        logger.warn('Password reset email failed to send', { userId: user.id, error: result.error });
+        logger.warn('Password reset email failed to send', {
+          userId: user.id,
+          error: result.error,
+        });
       }
     }
 
@@ -456,10 +482,12 @@ router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
 // Complete password reset with token
 router.post('/reset-password', passwordResetLimiter, async (req, res) => {
   try {
-    const { token, password } = z.object({
-      token: z.string().min(1),
-      password: z.string().min(12).max(72),
-    }).parse(req.body);
+    const { token, password } = z
+      .object({
+        token: z.string().min(1),
+        password: z.string().min(12).max(72),
+      })
+      .parse(req.body);
 
     // Hash the provided token
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
@@ -528,13 +556,19 @@ router.post('/reset-password', passwordResetLimiter, async (req, res) => {
 
     res.json({
       success: true,
-      data: { message: 'Password has been reset successfully. Please log in with your new password.' },
+      data: {
+        message: 'Password has been reset successfully. Please log in with your new password.',
+      },
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Reset password error', { error });

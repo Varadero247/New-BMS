@@ -39,10 +39,20 @@ async function generateFindingRefNumber(auditRef: string): Promise<string> {
 
 const createAuditSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  auditType: z.enum(['INTERNAL', 'EXTERNAL', 'CUSTOMER', 'REGULATORY', 'CERTIFICATION', 'SURVEILLANCE']),
+  auditType: z.enum([
+    'INTERNAL',
+    'EXTERNAL',
+    'CUSTOMER',
+    'REGULATORY',
+    'CERTIFICATION',
+    'SURVEILLANCE',
+  ]),
   standard: z.string().optional().default('AS9100D'),
   scope: z.string().min(1, 'Scope is required'),
-  scheduledDate: z.string().min(1, 'Scheduled date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  scheduledDate: z
+    .string()
+    .min(1, 'Scheduled date is required')
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   leadAuditor: z.string().min(1, 'Lead auditor is required'),
   auditTeam: z.array(z.string()).optional().default([]),
   auditee: z.string().optional(),
@@ -54,11 +64,19 @@ const createAuditSchema = z.object({
 
 const updateAuditSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
-  auditType: z.enum(['INTERNAL', 'EXTERNAL', 'CUSTOMER', 'REGULATORY', 'CERTIFICATION', 'SURVEILLANCE']).optional(),
+  auditType: z
+    .enum(['INTERNAL', 'EXTERNAL', 'CUSTOMER', 'REGULATORY', 'CERTIFICATION', 'SURVEILLANCE'])
+    .optional(),
   standard: z.string().optional(),
   scope: z.string().optional(),
-  scheduledDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  actualDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  scheduledDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  actualDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   leadAuditor: z.string().optional(),
   auditTeam: z.array(z.string()).optional(),
   auditee: z.string().optional(),
@@ -72,14 +90,22 @@ const updateAuditSchema = z.object({
 
 const createFindingSchema = z.object({
   auditId: z.string().min(1, 'Audit ID is required'),
-  findingType: z.enum(['NONCONFORMITY', 'OBSERVATION', 'OPPORTUNITY_FOR_IMPROVEMENT', 'POSITIVE_FINDING']),
+  findingType: z.enum([
+    'NONCONFORMITY',
+    'OBSERVATION',
+    'OPPORTUNITY_FOR_IMPROVEMENT',
+    'POSITIVE_FINDING',
+  ]),
   severity: z.enum(['MAJOR', 'MINOR']).optional(),
   clause: z.string().optional(),
   description: z.string().min(1, 'Description is required'),
   evidence: z.string().optional(),
   requirement: z.string().optional(),
   responsiblePerson: z.string().optional(),
-  targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  targetDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
 });
 
 const closeFindingSchema = z.object({
@@ -134,7 +160,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List audits error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list audits' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list audits' },
+    });
   }
 });
 
@@ -147,13 +176,17 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!audit || audit.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
     res.json({ success: true, data: audit });
   } catch (error) {
     logger.error('Get audit error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit' } });
   }
 });
 
@@ -188,11 +221,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create audit error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit' },
+    });
   }
 });
 
@@ -201,7 +241,9 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroAudit.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
     const data = updateAuditSchema.parse(req.body);
@@ -220,11 +262,18 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update audit error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update audit' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update audit' },
+    });
   }
 });
 
@@ -233,7 +282,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroAudit.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
     await prisma.aeroAudit.update({
@@ -244,7 +295,10 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     res.status(204).send();
   } catch (error) {
     logger.error('Delete audit error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete audit' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete audit' },
+    });
   }
 });
 
@@ -259,7 +313,9 @@ router.post('/findings', async (req: AuthRequest, res: Response) => {
 
     const audit = await prisma.aeroAudit.findUnique({ where: { id: data.auditId } });
     if (!audit || audit.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
     const refNumber = await generateFindingRefNumber(audit.refNumber);
@@ -287,11 +343,18 @@ router.post('/findings', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create finding error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create finding' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create finding' },
+    });
   }
 });
 
@@ -300,7 +363,9 @@ router.put('/findings/:id/close', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroAuditFinding.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Finding not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Finding not found' } });
     }
 
     const data = closeFindingSchema.parse(req.body);
@@ -321,11 +386,18 @@ router.put('/findings/:id/close', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Close finding error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close finding' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to close finding' },
+    });
   }
 });
 
@@ -360,10 +432,22 @@ router.get('/schedule/upcoming', async (req: AuthRequest, res: Response) => {
       prisma.aeroAudit.count({ where }),
     ]);
 
-    res.json({ success: true, data: audits, pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) } });
+    res.json({
+      success: true,
+      data: audits,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    });
   } catch (error) {
     logger.error('Upcoming schedule error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get upcoming audits' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get upcoming audits' },
+    });
   }
 });
 

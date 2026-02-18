@@ -17,7 +17,13 @@ router.post('/start/:orgId', async (req: Request, res: Response) => {
   try {
     const parsed = startWinbackSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.errors[0]?.message || 'Invalid input',
+        },
+      });
     }
 
     const { orgId } = req.params;
@@ -46,7 +52,7 @@ router.post('/start/:orgId', async (req: Request, res: Response) => {
       data: {
         email: parsed.data.email || '',
         template: 'winback_day3_reason',
-        subject: 'We\'d love to understand — what made you cancel?',
+        subject: "We'd love to understand — what made you cancel?",
         scheduledFor: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         sequenceId: `winback-${orgId}`,
       },
@@ -114,7 +120,7 @@ router.get('/reason/:reason', async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      data: { message: 'Thank you for your feedback. We\'ll be in touch.' },
+      data: { message: "Thank you for your feedback. We'll be in touch." },
     });
   } catch (error) {
     logger.error('Win-back reason recording failed', { error: String(error) });
@@ -146,12 +152,18 @@ router.get('/active', async (req: Request, res: Response) => {
 
 function getReasonSubject(reason: string): string {
   switch (reason) {
-    case 'price': return 'We\'d love to keep you — here\'s a plan that works better';
-    case 'features': return 'We\'ve been building — check out what\'s new';
-    case 'time': return 'We\'ll set it all up for you — free implementation session';
-    case 'competitor': return 'An honest comparison for your evaluation';
-    case 'business': return 'Pause your account free for up to 3 months';
-    default: return 'We miss you at Nexara';
+    case 'price':
+      return "We'd love to keep you — here's a plan that works better";
+    case 'features':
+      return "We've been building — check out what's new";
+    case 'time':
+      return "We'll set it all up for you — free implementation session";
+    case 'competitor':
+      return 'An honest comparison for your evaluation';
+    case 'business':
+      return 'Pause your account free for up to 3 months';
+    default:
+      return 'We miss you at Nexara';
   }
 }
 

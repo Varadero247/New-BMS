@@ -1,10 +1,5 @@
 import bcrypt from 'bcryptjs';
-import {
-  createSignature,
-  verifySignature,
-  isValidMeaning,
-  getValidMeanings,
-} from '../src';
+import { createSignature, verifySignature, isValidMeaning, getValidMeanings } from '../src';
 import type { SignatureRequest, ElectronicSignature, SignatureMeaning } from '../src';
 
 jest.mock('@ims/monitoring', () => ({

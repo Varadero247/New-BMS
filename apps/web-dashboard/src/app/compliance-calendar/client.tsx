@@ -99,8 +99,18 @@ const RECURRENCE_OPTIONS = [
 
 const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -117,7 +127,9 @@ function getStatusBadge(status: string) {
   const s = STATUSES.find((st) => st.value === status);
   if (!s) return null;
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${s.bgColor} ${s.textColor}`}>
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${s.bgColor} ${s.textColor}`}
+    >
       {s.label}
     </span>
   );
@@ -133,7 +145,9 @@ function getTypeLabel(type: string): string {
 
 function formatDate(d: string): string {
   return new Date(d).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
   });
 }
 
@@ -305,7 +319,12 @@ export default function ComplianceCalendarClient() {
 
     // Empty cells before first day
     for (let i = 0; i < firstDayOfWeek; i++) {
-      cells.push(<div key={`empty-${i}`} className="h-28 border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800" />);
+      cells.push(
+        <div
+          key={`empty-${i}`}
+          className="h-28 border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+        />
+      );
     }
 
     // Day cells
@@ -313,9 +332,7 @@ export default function ComplianceCalendarClient() {
     for (let day = 1; day <= daysInMonth; day++) {
       const dayEvents = getEventsForDate(day);
       const isToday =
-        day === today.getDate() &&
-        month === today.getMonth() &&
-        year === today.getFullYear();
+        day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
 
       cells.push(
         <div
@@ -324,7 +341,9 @@ export default function ComplianceCalendarClient() {
             isToday ? 'bg-indigo-50 border-indigo-300' : ''
           }`}
         >
-          <div className={`text-xs font-medium mb-1 ${isToday ? 'text-indigo-600' : 'text-gray-500 dark:text-gray-400'}`}>
+          <div
+            className={`text-xs font-medium mb-1 ${isToday ? 'text-indigo-600' : 'text-gray-500 dark:text-gray-400'}`}
+          >
             {day}
           </div>
           <div className="space-y-0.5">
@@ -340,7 +359,9 @@ export default function ComplianceCalendarClient() {
               </button>
             ))}
             {dayEvents.length > 3 && (
-              <div className="text-xs text-gray-400 dark:text-gray-500 pl-1">+{dayEvents.length - 3} more</div>
+              <div className="text-xs text-gray-400 dark:text-gray-500 pl-1">
+                +{dayEvents.length - 3} more
+              </div>
             )}
           </div>
         </div>
@@ -370,7 +391,10 @@ export default function ComplianceCalendarClient() {
         {/* Day headers */}
         <div className="grid grid-cols-7 mb-1">
           {DAY_NAMES.map((d) => (
-            <div key={d} className="text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2">
+            <div
+              key={d}
+              className="text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2"
+            >
               {d}
             </div>
           ))}
@@ -414,7 +438,9 @@ export default function ComplianceCalendarClient() {
             {/* Event details */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{event.title}</h3>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                  {event.title}
+                </h3>
                 {getStatusBadge(event.computedStatus)}
               </div>
               <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
@@ -441,9 +467,7 @@ export default function ComplianceCalendarClient() {
               ) : event.daysUntilDue === 0 ? (
                 <span className="text-yellow-600 text-sm font-medium">Due today</span>
               ) : (
-                <span className="text-gray-600 text-sm">
-                  {event.daysUntilDue}d remaining
-                </span>
+                <span className="text-gray-600 text-sm">{event.daysUntilDue}d remaining</span>
               )}
             </div>
 
@@ -518,7 +542,9 @@ export default function ComplianceCalendarClient() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Compliance Calendar</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Compliance Calendar
+              </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 Track audits, reviews, certifications, and regulatory deadlines across all standards
               </p>
@@ -601,31 +627,31 @@ export default function ComplianceCalendarClient() {
                   >
                     <option value="">All Standards</option>
                     {STANDARDS.map((s) => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
                     ))}
                   </Select>
                 </div>
                 <div className="min-w-[160px]">
                   <Label className="text-xs mb-1">Type</Label>
-                  <Select
-                    value={filterType}
-                    onChange={(e) => setFilterType(e.target.value)}
-                  >
+                  <Select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
                     <option value="">All Types</option>
                     {EVENT_TYPES.map((t) => (
-                      <option key={t.value} value={t.value}>{t.label}</option>
+                      <option key={t.value} value={t.value}>
+                        {t.label}
+                      </option>
                     ))}
                   </Select>
                 </div>
                 <div className="min-w-[160px]">
                   <Label className="text-xs mb-1">Status</Label>
-                  <Select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                  >
+                  <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
                     <option value="">All Statuses</option>
                     {STATUSES.map((s) => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -715,7 +741,9 @@ export default function ComplianceCalendarClient() {
                 onChange={(e) => setFormData({ ...formData, standard: e.target.value })}
               >
                 {STANDARDS.map((s) => (
-                  <option key={s.value} value={s.value}>{s.label}</option>
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -726,7 +754,9 @@ export default function ComplianceCalendarClient() {
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
               >
                 {EVENT_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -747,7 +777,9 @@ export default function ComplianceCalendarClient() {
                 onChange={(e) => setFormData({ ...formData, recurrence: e.target.value })}
               >
                 {RECURRENCE_OPTIONS.map((r) => (
-                  <option key={r.value} value={r.value}>{r.label}</option>
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
                 ))}
               </Select>
             </div>

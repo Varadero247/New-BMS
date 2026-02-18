@@ -74,9 +74,7 @@ describe('Environment Legal Obligations API Routes', () => {
       (mockPrisma.envLegal.findMany as jest.Mock).mockResolvedValueOnce(mockObligations);
       (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/legal')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/legal').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -158,9 +156,7 @@ describe('Environment Legal Obligations API Routes', () => {
       (mockPrisma.envLegal.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/legal?status=ACTIVE')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/legal?status=ACTIVE').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envLegal.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -175,9 +171,7 @@ describe('Environment Legal Obligations API Routes', () => {
       (mockPrisma.envLegal.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/legal?search=protection')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/legal?search=protection').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envLegal.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -197,9 +191,7 @@ describe('Environment Legal Obligations API Routes', () => {
       (mockPrisma.envLegal.findMany as jest.Mock).mockResolvedValueOnce(mockObligations);
       (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/legal')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/legal').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envLegal.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -211,9 +203,7 @@ describe('Environment Legal Obligations API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.envLegal.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/legal')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/legal').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -443,7 +433,9 @@ describe('Environment Legal Obligations API Routes', () => {
 
   describe('DELETE /api/legal/:id', () => {
     it('should delete legal obligation successfully', async () => {
-      (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce({ id: '14000000-0000-4000-a000-000000000001' });
+      (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '14000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.envLegal.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)

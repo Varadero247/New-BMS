@@ -30,7 +30,12 @@ export function isValidId(value: string): boolean {
  * that router that declares the named param — no per-route changes needed.
  */
 export function validateIdParam(paramName: string = 'id') {
-  return (req: { params?: Record<string, string> }, res: { status: (code: number) => { json: (body: unknown) => void } }, next: (err?: unknown) => void, value?: string) => {
+  return (
+    req: { params?: Record<string, string> },
+    res: { status: (code: number) => { json: (body: unknown) => void } },
+    next: (err?: unknown) => void,
+    value?: string
+  ) => {
     // router.param() passes (req, res, next, value, name)
     // regular middleware passes (req, res, next)
     const id = value ?? req.params?.[paramName];

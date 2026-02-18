@@ -1,4 +1,5 @@
 # IMS Testing - Quick Start Guide
+
 **Get testing infrastructure running in 30 minutes**
 
 ---
@@ -62,13 +63,16 @@ module.exports = {
   roots: ['<rootDir>/packages', '<rootDir>/apps'],
   testMatch: ['**/__tests__/**/*.test.ts', '**/?(*.)+(spec|test).ts'],
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', {
-      tsconfig: {
-        jsx: 'react',
-        esModuleInterop: true,
-        allowSyntheticDefaultImports: true,
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        tsconfig: {
+          jsx: 'react',
+          esModuleInterop: true,
+          allowSyntheticDefaultImports: true,
+        },
       },
-    }],
+    ],
   },
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
@@ -126,7 +130,9 @@ beforeEach(async () => {
   for (const { tablename } of tables) {
     if (tablename !== '_prisma_migrations') {
       try {
-        await prisma.$executeRawUnsafe(`TRUNCATE TABLE "public"."${tablename}" RESTART IDENTITY CASCADE;`);
+        await prisma.$executeRawUnsafe(
+          `TRUNCATE TABLE "public"."${tablename}" RESTART IDENTITY CASCADE;`
+        );
       } catch (error) {
         console.warn(`Warning: Could not truncate ${tablename}`);
       }
@@ -219,7 +225,7 @@ describe('Password Utilities', () => {
     it('should hash a password', async () => {
       const password = 'MySecurePassword123!';
       const hashed = await hashPassword(password);
-      
+
       expect(hashed).toBeDefined();
       expect(hashed).not.toBe(password);
       expect(hashed).toHaveLength(60); // bcrypt hash length
@@ -229,7 +235,7 @@ describe('Password Utilities', () => {
       const password = 'SamePassword123!';
       const hash1 = await hashPassword(password);
       const hash2 = await hashPassword(password);
-      
+
       expect(hash1).not.toBe(hash2);
     });
   });
@@ -239,7 +245,7 @@ describe('Password Utilities', () => {
       const password = 'CorrectPassword123!';
       const hashed = await hashPassword(password);
       const isValid = await comparePassword(password, hashed);
-      
+
       expect(isValid).toBe(true);
     });
 
@@ -247,7 +253,7 @@ describe('Password Utilities', () => {
       const password = 'CorrectPassword123!';
       const hashed = await hashPassword(password);
       const isValid = await comparePassword('WrongPassword123!', hashed);
-      
+
       expect(isValid).toBe(false);
     });
   });
@@ -350,6 +356,7 @@ describe('JWT Module', () => {
 ```
 
 Run it:
+
 ```bash
 pnpm test jwt
 ```
@@ -379,12 +386,10 @@ describe('Authentication API', () => {
       });
 
       // Attempt login
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: 'test@example.com',
-          password: 'Password123!',
-        });
+      const response = await request(app).post('/api/auth/login').send({
+        email: 'test@example.com',
+        password: 'Password123!',
+      });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -393,12 +398,10 @@ describe('Authentication API', () => {
     });
 
     it('should reject invalid credentials', async () => {
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: 'nonexistent@example.com',
-          password: 'WrongPassword123!',
-        });
+      const response = await request(app).post('/api/auth/login').send({
+        email: 'nonexistent@example.com',
+        password: 'WrongPassword123!',
+      });
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
@@ -406,12 +409,10 @@ describe('Authentication API', () => {
     });
 
     it('should validate required fields', async () => {
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: 'invalid-email',
-          // Missing password
-        });
+      const response = await request(app).post('/api/auth/login').send({
+        email: 'invalid-email',
+        // Missing password
+      });
 
       expect(response.status).toBe(400);
     });
@@ -420,6 +421,7 @@ describe('Authentication API', () => {
 ```
 
 Run it:
+
 ```bash
 pnpm test auth.test
 ```
@@ -440,6 +442,7 @@ pnpm test:coverage
 ```
 
 Open the HTML report:
+
 ```bash
 open coverage/lcov-report/index.html
 ```
@@ -451,6 +454,7 @@ open coverage/lcov-report/index.html
 ### Issue: "Cannot find module '@ims/...'"
 
 **Fix**:
+
 ```bash
 # Build all packages first
 pnpm turbo build
@@ -459,6 +463,7 @@ pnpm turbo build
 ### Issue: "Connection refused" to PostgreSQL
 
 **Fix**:
+
 ```bash
 # Start PostgreSQL
 docker-compose up postgres -d
@@ -470,6 +475,7 @@ sudo service postgresql start
 ### Issue: "Test database not found"
 
 **Fix**:
+
 ```bash
 psql -U postgres -c "CREATE DATABASE ims_test;"
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ims_test" \
@@ -483,6 +489,7 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ims_test" \
 ### Issue: Tests are slow
 
 **Fix**: Use `--maxWorkers=50%` to limit parallel execution
+
 ```bash
 pnpm test --maxWorkers=50%
 ```
@@ -494,6 +501,7 @@ pnpm test --maxWorkers=50%
 Now that testing is working, test in this order:
 
 ### Priority 1: Security-Critical Functions
+
 ```bash
 # 1. Authentication
 packages/auth/__tests__/
@@ -505,6 +513,7 @@ packages/auth/__tests__/
 ```
 
 ### Priority 2: API Endpoints
+
 ```bash
 # 1. Auth endpoints (/api/auth/*)
 apps/api-gateway/__tests__/
@@ -515,6 +524,7 @@ apps/api-gateway/__tests__/
 ```
 
 ### Priority 3: Business Logic
+
 ```bash
 # 1. Risk calculations
 # 2. Compliance checks
@@ -526,6 +536,7 @@ apps/api-gateway/__tests__/
 ## 📈 TESTING BEST PRACTICES
 
 ### Write Tests That:
+
 - ✅ Test one thing at a time
 - ✅ Have clear, descriptive names
 - ✅ Are independent (can run in any order)
@@ -533,17 +544,19 @@ apps/api-gateway/__tests__/
 - ✅ Test both success and failure cases
 
 ### Example Good Test:
+
 ```typescript
 it('should reject password shorter than 8 characters', async () => {
   const shortPassword = 'Short1!';
-  
-  await expect(
-    hashPassword(shortPassword)
-  ).rejects.toThrow('Password must be at least 8 characters');
+
+  await expect(hashPassword(shortPassword)).rejects.toThrow(
+    'Password must be at least 8 characters'
+  );
 });
 ```
 
 ### Example Bad Test:
+
 ```typescript
 it('should work', async () => {
   // Too vague, tests multiple things
@@ -605,9 +618,7 @@ it('should do something', async () => {
 ```typescript
 it('should handle async errors', async () => {
   // Use async/await
-  await expect(
-    asyncFunction()
-  ).rejects.toThrow('Expected error');
+  await expect(asyncFunction()).rejects.toThrow('Expected error');
 });
 ```
 
@@ -616,12 +627,14 @@ it('should handle async errors', async () => {
 ## 📚 NEXT STEPS
 
 ### Today:
+
 1. ✅ Get tests running (done!)
 2. Write 5 more tests for auth package
 3. Run tests with coverage
 4. Fix any failing tests
 
 ### This Week:
+
 1. Test all authentication functions
 2. Test all password functions
 3. Test JWT functions
@@ -629,6 +642,7 @@ it('should handle async errors', async () => {
 5. Aim for 50% coverage
 
 ### This Month:
+
 1. Test all API endpoints
 2. Add integration tests
 3. Achieve 80% coverage
@@ -699,6 +713,7 @@ Your testing environment is now set up and working. You can:
 ---
 
 **Questions? Issues?**
+
 - Check the troubleshooting section above
 - Review the testing patterns
 - Refer to Phase 2 guide for advanced testing

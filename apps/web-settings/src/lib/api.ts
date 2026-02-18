@@ -18,7 +18,7 @@ export const aiApi = axios.create({
 });
 
 // Add auth token to requests
-[api, aiApi].forEach(instance => {
+[api, aiApi].forEach((instance) => {
   instance.interceptors.request.use(
     (config) => {
       const token = localStorage.getItem('token');

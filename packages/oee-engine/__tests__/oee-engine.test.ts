@@ -92,33 +92,39 @@ describe('oee-engine', () => {
     });
 
     it('should throw for negative downtime', () => {
-      expect(() => calculateOEE({
-        plannedProductionTime: 480,
-        downtime: -10,
-        idealCycleTime: 1,
-        totalPieces: 400,
-        goodPieces: 400,
-      })).toThrow('Downtime must be non-negative');
+      expect(() =>
+        calculateOEE({
+          plannedProductionTime: 480,
+          downtime: -10,
+          idealCycleTime: 1,
+          totalPieces: 400,
+          goodPieces: 400,
+        })
+      ).toThrow('Downtime must be non-negative');
     });
 
     it('should throw when downtime exceeds planned time', () => {
-      expect(() => calculateOEE({
-        plannedProductionTime: 480,
-        downtime: 500,
-        idealCycleTime: 1,
-        totalPieces: 400,
-        goodPieces: 400,
-      })).toThrow('Downtime cannot exceed planned production time');
+      expect(() =>
+        calculateOEE({
+          plannedProductionTime: 480,
+          downtime: 500,
+          idealCycleTime: 1,
+          totalPieces: 400,
+          goodPieces: 400,
+        })
+      ).toThrow('Downtime cannot exceed planned production time');
     });
 
     it('should throw when good pieces exceed total', () => {
-      expect(() => calculateOEE({
-        plannedProductionTime: 480,
-        downtime: 0,
-        idealCycleTime: 1,
-        totalPieces: 100,
-        goodPieces: 150,
-      })).toThrow('Good pieces cannot exceed total pieces');
+      expect(() =>
+        calculateOEE({
+          plannedProductionTime: 480,
+          downtime: 0,
+          idealCycleTime: 1,
+          totalPieces: 100,
+          goodPieces: 150,
+        })
+      ).toThrow('Good pieces cannot exceed total pieces');
     });
   });
 
@@ -157,26 +163,26 @@ describe('oee-engine', () => {
   describe('isWorldClass', () => {
     it('should return true for OEE >= 0.85', () => {
       expect(isWorldClass(0.85)).toBe(true);
-      expect(isWorldClass(0.90)).toBe(true);
+      expect(isWorldClass(0.9)).toBe(true);
     });
 
     it('should return false for OEE < 0.85', () => {
       expect(isWorldClass(0.84)).toBe(false);
-      expect(isWorldClass(0.50)).toBe(false);
+      expect(isWorldClass(0.5)).toBe(false);
     });
   });
 
   describe('getOEECategory', () => {
     it('should return world-class for >= 85%', () => {
-      expect(getOEECategory(0.90)).toBe('world-class');
+      expect(getOEECategory(0.9)).toBe('world-class');
     });
 
     it('should return good for 75-84%', () => {
-      expect(getOEECategory(0.80)).toBe('good');
+      expect(getOEECategory(0.8)).toBe('good');
     });
 
     it('should return average for 65-74%', () => {
-      expect(getOEECategory(0.70)).toBe('average');
+      expect(getOEECategory(0.7)).toBe('average');
     });
 
     it('should return below-average for 50-64%', () => {
@@ -184,7 +190,7 @@ describe('oee-engine', () => {
     });
 
     it('should return poor for < 50%', () => {
-      expect(getOEECategory(0.40)).toBe('poor');
+      expect(getOEECategory(0.4)).toBe('poor');
     });
   });
 });

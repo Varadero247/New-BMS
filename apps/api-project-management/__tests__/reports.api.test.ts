@@ -79,7 +79,9 @@ describe('Reports API Routes', () => {
       (mockPrisma.projectStatusReport.findMany as jest.Mock).mockResolvedValue([mockReport]);
       (mockPrisma.projectStatusReport.count as jest.Mock).mockResolvedValue(1);
 
-      const res = await request(app).get('/api/reports').query({ projectId: '44000000-0000-4000-a000-000000000001' });
+      const res = await request(app)
+        .get('/api/reports')
+        .query({ projectId: '44000000-0000-4000-a000-000000000001' });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -91,7 +93,7 @@ describe('Reports API Routes', () => {
         expect.objectContaining({
           where: { projectId: '44000000-0000-4000-a000-000000000001', deletedAt: null },
           orderBy: { reportDate: 'desc' },
-        }),
+        })
       );
     });
 
@@ -105,10 +107,14 @@ describe('Reports API Routes', () => {
     });
 
     it('should return 500 on internal error', async () => {
-      (mockPrisma.projectStatusReport.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+      (mockPrisma.projectStatusReport.findMany as jest.Mock).mockRejectedValue(
+        new Error('DB error')
+      );
       (mockPrisma.projectStatusReport.count as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/reports').query({ projectId: '44000000-0000-4000-a000-000000000001' });
+      const res = await request(app)
+        .get('/api/reports')
+        .query({ projectId: '44000000-0000-4000-a000-000000000001' });
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -145,7 +151,9 @@ describe('Reports API Routes', () => {
     });
 
     it('should return 500 on internal error', async () => {
-      (mockPrisma.projectStatusReport.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+      (mockPrisma.projectStatusReport.findUnique as jest.Mock).mockRejectedValue(
+        new Error('DB error')
+      );
 
       const res = await request(app).get('/api/reports/49000000-0000-4000-a000-000000000001');
 
@@ -272,7 +280,10 @@ describe('Reports API Routes', () => {
       const res = await request(app).delete('/api/reports/49000000-0000-4000-a000-000000000001');
 
       expect(res.status).toBe(204);
-      expect(mockPrisma.projectStatusReport.update).toHaveBeenCalledWith({ where: { id: '49000000-0000-4000-a000-000000000001' }, data: { deletedAt: expect.any(Date) } });
+      expect(mockPrisma.projectStatusReport.update).toHaveBeenCalledWith({
+        where: { id: '49000000-0000-4000-a000-000000000001' },
+        data: { deletedAt: expect.any(Date) },
+      });
     });
 
     it('should return 404 when report does not exist', async () => {

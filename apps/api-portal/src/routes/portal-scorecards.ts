@@ -61,8 +61,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing scorecards', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list scorecards' } });
+    logger.error('Error listing scorecards', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list scorecards' },
+    });
   }
 });
 
@@ -75,7 +80,10 @@ router.post('/', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = scorecardCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const data = parsed.data;
@@ -88,7 +96,8 @@ router.post('/', async (req: Request, res: Response) => {
         qualityScore: data.qualityScore != null ? new Prisma.Decimal(data.qualityScore) : null,
         deliveryScore: data.deliveryScore != null ? new Prisma.Decimal(data.deliveryScore) : null,
         responseScore: data.responseScore != null ? new Prisma.Decimal(data.responseScore) : null,
-        complianceScore: data.complianceScore != null ? new Prisma.Decimal(data.complianceScore) : null,
+        complianceScore:
+          data.complianceScore != null ? new Prisma.Decimal(data.complianceScore) : null,
         notes: data.notes ?? null,
         createdBy: auth.user!.id,
       },
@@ -97,8 +106,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Scorecard created', { id: scorecard.id, portalUserId: data.portalUserId });
     return res.status(201).json({ success: true, data: scorecard });
   } catch (error: unknown) {
-    logger.error('Error creating scorecard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create scorecard' } });
+    logger.error('Error creating scorecard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create scorecard' },
+    });
   }
 });
 
@@ -113,13 +127,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!scorecard) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Scorecard not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Scorecard not found' } });
     }
 
     return res.json({ success: true, data: scorecard });
   } catch (error: unknown) {
-    logger.error('Error fetching scorecard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch scorecard' } });
+    logger.error('Error fetching scorecard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch scorecard' },
+    });
   }
 });
 

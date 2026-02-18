@@ -14,10 +14,17 @@ router.param('id', validateIdParam());
 // Severity / Likelihood scoring maps
 // ---------------------------------------------------------------------------
 const severityScores: Record<string, number> = {
-  CRITICAL: 5, HIGH: 4, MEDIUM: 3, LOW: 2,
+  CRITICAL: 5,
+  HIGH: 4,
+  MEDIUM: 3,
+  LOW: 2,
 };
 const likelihoodScores: Record<string, number> = {
-  ALMOST_CERTAIN: 5, LIKELY: 4, POSSIBLE: 3, UNLIKELY: 2, RARE: 1,
+  ALMOST_CERTAIN: 5,
+  LIKELY: 4,
+  POSSIBLE: 3,
+  UNLIKELY: 2,
+  RARE: 1,
 };
 
 // ---------------------------------------------------------------------------
@@ -86,8 +93,13 @@ router.get('/summary', async (req: Request, res: Response) => {
       data: { total: hazards.length, byType, bySeverity, significantCount },
     });
   } catch (error: unknown) {
-    logger.error('Error fetching hazard summary', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch hazard summary' } });
+    logger.error('Error fetching hazard summary', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch hazard summary' },
+    });
   }
 });
 
@@ -117,8 +129,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing hazards', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list hazards' } });
+    logger.error('Error listing hazards', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list hazards' },
+    });
   }
 });
 
@@ -129,11 +146,15 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = hazardCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
-    const riskScore = (severityScores[body.severity] || 1) * (likelihoodScores[body.likelihood] || 1);
+    const riskScore =
+      (severityScores[body.severity] || 1) * (likelihoodScores[body.likelihood] || 1);
     const user = (req as AuthRequest).user;
 
     const hazard = await prisma.fsHazard.create({
@@ -147,8 +168,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Hazard created', { id: hazard.id });
     res.status(201).json({ success: true, data: hazard });
   } catch (error: unknown) {
-    logger.error('Error creating hazard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create hazard' } });
+    logger.error('Error creating hazard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create hazard' },
+    });
   }
 });
 
@@ -163,13 +189,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!hazard) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Hazard not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Hazard not found' } });
     }
 
     res.json({ success: true, data: hazard });
   } catch (error: unknown) {
-    logger.error('Error fetching hazard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch hazard' } });
+    logger.error('Error fetching hazard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch hazard' },
+    });
   }
 });
 
@@ -178,14 +211,21 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsHazard.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsHazard.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Hazard not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Hazard not found' } });
     }
 
     const parsed = hazardUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -201,8 +241,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Hazard updated', { id: hazard.id });
     res.json({ success: true, data: hazard });
   } catch (error: unknown) {
-    logger.error('Error updating hazard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update hazard' } });
+    logger.error('Error updating hazard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update hazard' },
+    });
   }
 });
 
@@ -211,9 +256,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsHazard.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsHazard.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Hazard not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Hazard not found' } });
     }
 
     await prisma.fsHazard.update({
@@ -224,8 +273,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Hazard deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Hazard deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting hazard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete hazard' } });
+    logger.error('Error deleting hazard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete hazard' },
+    });
   }
 });
 

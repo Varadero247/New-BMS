@@ -36,7 +36,10 @@ export function initSentry(serviceName: string): void {
     });
 
     sentryInitialized = true;
-    logger.info('Sentry initialized', { serviceName, environment: process.env.NODE_ENV || 'development' });
+    logger.info('Sentry initialized', {
+      serviceName,
+      environment: process.env.NODE_ENV || 'development',
+    });
   } catch (error: unknown) {
     // @sentry/node not installed — graceful degradation
     logger.info('Sentry SDK not available (@sentry/node not installed) — error tracking disabled', {
@@ -50,7 +53,12 @@ export function initSentry(serviceName: string): void {
  * Returns an Express error-handling middleware for Sentry.
  * If Sentry is not initialized, returns a passthrough middleware.
  */
-export function sentryErrorHandler(): (err: unknown, req: unknown, res: unknown, next: (err?: unknown) => void) => void {
+export function sentryErrorHandler(): (
+  err: unknown,
+  req: unknown,
+  res: unknown,
+  next: (err?: unknown) => void
+) => void {
   if (sentryInitialized && SentryModule?.Handlers?.errorHandler) {
     return SentryModule.Handlers.errorHandler();
   }
@@ -75,7 +83,10 @@ export function captureException(error: Error | unknown): void {
  * Capture a message in Sentry.
  * No-op if Sentry is not initialized.
  */
-export function captureMessage(message: string, level: 'info' | 'warning' | 'error' = 'info'): void {
+export function captureMessage(
+  message: string,
+  level: 'info' | 'warning' | 'error' = 'info'
+): void {
   if (sentryInitialized && SentryModule?.captureMessage) {
     SentryModule.captureMessage(message, level);
   }
@@ -85,7 +96,9 @@ export function captureMessage(message: string, level: 'info' | 'warning' | 'err
  * Set user context in Sentry for error reports.
  * No-op if Sentry is not initialized.
  */
-export function setSentryUser(user: { id: string; email?: string; username?: string } | null): void {
+export function setSentryUser(
+  user: { id: string; email?: string; username?: string } | null
+): void {
   if (sentryInitialized && SentryModule?.setUser) {
     SentryModule.setUser(user);
   }

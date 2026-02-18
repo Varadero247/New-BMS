@@ -16,12 +16,36 @@ const router = Router();
 // Email delays in milliseconds
 const SEQUENCE_DELAYS = [
   { template: 'welcome', delayMs: 0, subject: 'Welcome to Nexara — your 21-day trial is live' },
-  { template: 'inactive_or_active', delayMs: 3 * 24 * 60 * 60 * 1000, subject: 'How is your Nexara trial going?' },
-  { template: 'feature_highlight', delayMs: 7 * 24 * 60 * 60 * 1000, subject: 'Discover the feature most relevant to your ISO standards' },
-  { template: 'case_study', delayMs: 14 * 24 * 60 * 60 * 1000, subject: 'How companies like yours reduced audit prep by 60%' },
-  { template: 'expiry_warning', delayMs: 18 * 24 * 60 * 60 * 1000, subject: 'Your trial ends in 3 days — here\'s what you\'d keep' },
-  { template: 'extension', delayMs: 21 * 24 * 60 * 60 * 1000, subject: 'Get 7 more free days — just book a quick call' },
-  { template: 'final_offer', delayMs: 25 * 24 * 60 * 60 * 1000, subject: '20% off your first 3 months — today only' },
+  {
+    template: 'inactive_or_active',
+    delayMs: 3 * 24 * 60 * 60 * 1000,
+    subject: 'How is your Nexara trial going?',
+  },
+  {
+    template: 'feature_highlight',
+    delayMs: 7 * 24 * 60 * 60 * 1000,
+    subject: 'Discover the feature most relevant to your ISO standards',
+  },
+  {
+    template: 'case_study',
+    delayMs: 14 * 24 * 60 * 60 * 1000,
+    subject: 'How companies like yours reduced audit prep by 60%',
+  },
+  {
+    template: 'expiry_warning',
+    delayMs: 18 * 24 * 60 * 60 * 1000,
+    subject: "Your trial ends in 3 days — here's what you'd keep",
+  },
+  {
+    template: 'extension',
+    delayMs: 21 * 24 * 60 * 60 * 1000,
+    subject: 'Get 7 more free days — just book a quick call',
+  },
+  {
+    template: 'final_offer',
+    delayMs: 25 * 24 * 60 * 60 * 1000,
+    subject: '20% off your first 3 months — today only',
+  },
 ];
 
 // POST /api/onboarding/enqueue/:userId
@@ -30,7 +54,10 @@ router.post('/enqueue/:userId', async (req: Request, res: Response) => {
     const { userId } = req.params;
     const parsed = enqueueOnboardingSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { email, firstName, companyName } = parsed.data;
@@ -49,9 +76,7 @@ router.post('/enqueue/:userId', async (req: Request, res: Response) => {
     }));
 
     // Create all jobs in a transaction
-    await prisma.$transaction(
-      jobs.map((job) => prisma.mktEmailJob.create({ data: job }))
-    );
+    await prisma.$transaction(jobs.map((job) => prisma.mktEmailJob.create({ data: job })));
 
     res.status(201).json({
       success: true,
@@ -75,7 +100,8 @@ router.get('/status/:userId', async (req: Request, res: Response) => {
         sequenceId: { startsWith: 'onboarding-' },
       },
       orderBy: { scheduledFor: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     const sent = jobs.filter((j) => j.status === 'SENT').length;
     const pending = jobs.filter((j) => j.status === 'PENDING').length;

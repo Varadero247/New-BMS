@@ -1,7 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+} from '@ims/ui';
 import { Plus, Search, Briefcase } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -72,7 +83,7 @@ export default function PartnersPage() {
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
   function openCreateModal() {
@@ -83,7 +94,10 @@ export default function PartnersPage() {
 
   async function handleCreate() {
     setFormError('');
-    if (!formData.accountId.trim()) { setFormError('Account ID is required'); return; }
+    if (!formData.accountId.trim()) {
+      setFormError('Account ID is required');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -101,7 +115,7 @@ export default function PartnersPage() {
     }
   }
 
-  const filteredPartners = partners.filter(p => {
+  const filteredPartners = partners.filter((p) => {
     const matchesTier = !tierFilter || p.tier === tierFilter;
     const matchesStatus = !statusFilter || p.status === statusFilter;
     return matchesTier && matchesStatus;
@@ -124,7 +138,9 @@ export default function PartnersPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Partners</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage partner relationships and commissions</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Manage partner relationships and commissions
+            </p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> Register Partner
@@ -132,19 +148,31 @@ export default function PartnersPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
         )}
 
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-center">
-              <select aria-label="Filter by tier" value={tierFilter} onChange={(e) => setTierFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+              <select
+                aria-label="Filter by tier"
+                value={tierFilter}
+                onChange={(e) => setTierFilter(e.target.value)}
+                className="border rounded-md px-3 py-2 text-sm"
+              >
                 <option value="">All Tiers</option>
                 <option value="TIER_1_REFERRAL">Tier 1 - Referral</option>
                 <option value="TIER_2_COSELL">Tier 2 - Co-Sell</option>
                 <option value="TIER_3_RESELLER">Tier 3 - Reseller</option>
               </select>
-              <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+              <select
+                aria-label="Filter by status"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="border rounded-md px-3 py-2 text-sm"
+              >
                 <option value="">All Status</option>
                 <option value="ACTIVE">Active</option>
                 <option value="PENDING">Pending</option>
@@ -168,24 +196,54 @@ export default function PartnersPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Account</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Tier</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Commission Rate</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Total Referrals</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Account
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Tier
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Commission Rate
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Total Referrals
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Status
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredPartners.map((partner) => (
                       <tr key={partner.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{partner.account?.name || partner.accountName || '-'}</td>
-                        <td className="py-3 px-4">
-                          <Badge className={tierColors[partner.tier] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{tierLabels[partner.tier] || partner.tier}</Badge>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                          {partner.account?.name || partner.accountName || '-'}
                         </td>
-                        <td className="py-3 px-4 text-center text-gray-600">{partner.commissionRate}%</td>
-                        <td className="py-3 px-4 text-center text-gray-600">{partner.totalReferrals || 0}</td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[partner.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{partner.status}</Badge>
+                          <Badge
+                            className={
+                              tierColors[partner.tier] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
+                            {tierLabels[partner.tier] || partner.tier}
+                          </Badge>
+                        </td>
+                        <td className="py-3 px-4 text-center text-gray-600">
+                          {partner.commissionRate}%
+                        </td>
+                        <td className="py-3 px-4 text-center text-gray-600">
+                          {partner.totalReferrals || 0}
+                        </td>
+                        <td className="py-3 px-4">
+                          <Badge
+                            className={
+                              statusColors[partner.status] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
+                            {partner.status}
+                          </Badge>
                         </td>
                       </tr>
                     ))}
@@ -203,17 +261,38 @@ export default function PartnersPage() {
       </div>
 
       {/* Create Modal */}
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Register Partner" size="lg">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Register Partner"
+        size="lg"
+      >
         <div className="space-y-4">
-          {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>}
+          {formError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
+          )}
           <div>
             <Label htmlFor="accountId">Account ID *</Label>
-            <Input id="accountId" name="accountId" value={formData.accountId} onChange={handleChange} placeholder="Account ID or name" />
+            <Input
+              id="accountId"
+              name="accountId"
+              value={formData.accountId}
+              onChange={handleChange}
+              placeholder="Account ID or name"
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="tier">Partner Tier</Label>
-              <select id="tier" name="tier" value={formData.tier} onChange={handleChange} className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500">
+              <select
+                id="tier"
+                name="tier"
+                value={formData.tier}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500"
+              >
                 <option value="TIER_1_REFERRAL">Tier 1 - Referral</option>
                 <option value="TIER_2_COSELL">Tier 2 - Co-Sell</option>
                 <option value="TIER_3_RESELLER">Tier 3 - Reseller</option>
@@ -221,13 +300,26 @@ export default function PartnersPage() {
             </div>
             <div>
               <Label htmlFor="commissionRate">Commission Rate (%)</Label>
-              <Input id="commissionRate" name="commissionRate" type="number" min="0" max="100" step="0.5" value={formData.commissionRate} onChange={handleChange} />
+              <Input
+                id="commissionRate"
+                name="commissionRate"
+                type="number"
+                min="0"
+                max="100"
+                step="0.5"
+                value={formData.commissionRate}
+                onChange={handleChange}
+              />
             </div>
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleCreate} disabled={submitting}>{submitting ? 'Registering...' : 'Register Partner'}</Button>
+          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleCreate} disabled={submitting}>
+            {submitting ? 'Registering...' : 'Register Partner'}
+          </Button>
         </ModalFooter>
       </Modal>
     </div>

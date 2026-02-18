@@ -25,7 +25,9 @@ const createActionSchema = z.object({
 });
 
 const updateActionSchema = createActionSchema.partial().extend({
-  status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED']).optional(),
+  status: z
+    .enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED'])
+    .optional(),
   verificationNotes: z.string().optional(),
   effectivenessRating: z.number().min(1).max(5).optional(),
   actualCost: z.number().nonnegative().optional(),
@@ -172,7 +174,10 @@ router.get('/stats', authenticate, async (req, res, next) => {
         dueThisWeek,
         byStatus: byStatus.reduce((acc, item) => ({ ...acc, [item.status]: item._count.id }), {}),
         byType: byType.reduce((acc, item) => ({ ...acc, [item.type]: item._count.id }), {}),
-        byPriority: byPriority.reduce((acc, item) => ({ ...acc, [item.priority]: item._count.id }), {}),
+        byPriority: byPriority.reduce(
+          (acc, item) => ({ ...acc, [item.priority]: item._count.id }),
+          {}
+        ),
       },
     });
   } catch (error) {
@@ -333,58 +338,66 @@ router.post('/:id/complete', authenticate, async (req, res, next) => {
 });
 
 // POST /api/actions/:id/verify - Verify completed action
-router.post('/:id/verify', authenticate, requireRole(['ADMIN', 'MANAGER', 'AUDITOR']), async (req, res, next) => {
-  try {
-    const { verificationNotes, effectivenessRating } = req.body;
+router.post(
+  '/:id/verify',
+  authenticate,
+  requireRole(['ADMIN', 'MANAGER', 'AUDITOR']),
+  async (req, res, next) => {
+    try {
+      const { verificationNotes, effectivenessRating } = req.body;
 
-    const existing = await prisma.action.findUnique({
-      where: { id: req.params.id },
-    });
-
-    if (!existing) {
-      return res.status(404).json({
-        success: false,
-        error: { code: 'NOT_FOUND', message: 'Action not found' },
+      const existing = await prisma.action.findUnique({
+        where: { id: req.params.id },
       });
-    }
 
-    if (existing.status !== 'COMPLETED') {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'INVALID_STATUS', message: 'Action must be completed before verification' },
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Action not found' },
+        });
+      }
+
+      if (existing.status !== 'COMPLETED') {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'INVALID_STATUS',
+            message: 'Action must be completed before verification',
+          },
+        });
+      }
+
+      const action = await prisma.action.update({
+        where: { id: req.params.id },
+        data: {
+          status: 'VERIFIED',
+          verifiedAt: new Date(),
+          verificationNotes,
+          effectivenessRating,
+        },
+        include: {
+          owner: { select: { id: true, firstName: true, lastName: true, email: true } },
+        },
       });
+
+      // Log audit
+      await prisma.auditLog.create({
+        data: {
+          userId: req.user!.id,
+          action: 'VERIFY',
+          entity: 'Action',
+          entityId: action.id,
+          oldData: existing as any,
+          newData: action as any,
+        },
+      });
+
+      res.json({ success: true, data: action });
+    } catch (error) {
+      next(error);
     }
-
-    const action = await prisma.action.update({
-      where: { id: req.params.id },
-      data: {
-        status: 'VERIFIED',
-        verifiedAt: new Date(),
-        verificationNotes,
-        effectivenessRating,
-      },
-      include: {
-        owner: { select: { id: true, firstName: true, lastName: true, email: true } },
-      },
-    });
-
-    // Log audit
-    await prisma.auditLog.create({
-      data: {
-        userId: req.user!.id,
-        action: 'VERIFY',
-        entity: 'Action',
-        entityId: action.id,
-        oldData: existing as any,
-        newData: action as any,
-      },
-    });
-
-    res.json({ success: true, data: action });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 // DELETE /api/actions/:id - Delete action
 router.delete('/:id', authenticate, requireRole(['ADMIN', 'MANAGER']), async (req, res, next) => {

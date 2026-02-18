@@ -3,8 +3,7 @@ import type { StandardChecklist } from './types';
 export const iso45001Checklist: StandardChecklist = {
   standard: 'ISO_45001',
   version: '2018',
-  title:
-    'Occupational Health and Safety Management Systems — Requirements with guidance for use',
+  title: 'Occupational Health and Safety Management Systems — Requirements with guidance for use',
   clauses: [
     // ───────────────────────────────────────────────
     // Clause 4 — Context of the Organization
@@ -27,8 +26,7 @@ export const iso45001Checklist: StandardChecklist = {
     },
     {
       clause: '4.2',
-      title:
-        'Understanding the needs and expectations of workers and other interested parties',
+      title: 'Understanding the needs and expectations of workers and other interested parties',
       questions: [
         'Has the organization determined the workers and other interested parties (e.g., regulators, contractors, visitors, neighbouring communities) relevant to the OH&S management system?',
         'Have the relevant needs and expectations (requirements) of workers and other interested parties been identified, including legal and regulatory obligations?',
@@ -64,7 +62,7 @@ export const iso45001Checklist: StandardChecklist = {
       questions: [
         'Has the organization established, implemented, maintained, and continually improved an OH&S management system in accordance with ISO 45001:2018?',
         'Are the processes needed for the OH&S management system and their interactions identified and documented?',
-        'Does the management system integrate OH&S requirements into the organization\'s business processes?',
+        "Does the management system integrate OH&S requirements into the organization's business processes?",
       ],
       evidence: [
         'OH&S management system manual or equivalent documentation describing the system structure and process interactions',
@@ -83,7 +81,7 @@ export const iso45001Checklist: StandardChecklist = {
       questions: [
         'Does top management demonstrate leadership and commitment with respect to the OH&S management system by taking overall responsibility and accountability for the prevention of work-related injury and ill health?',
         'Does top management ensure that the OH&S policy and OH&S objectives are established and are compatible with the strategic direction of the organization?',
-        'Does top management ensure the integration of OH&S management system requirements into the organization\'s business processes?',
+        "Does top management ensure the integration of OH&S management system requirements into the organization's business processes?",
         'Does top management ensure that the resources needed for the OH&S management system are available and adequate?',
         'Does top management actively promote and lead a positive OH&S culture that supports the intended outcomes of the management system?',
       ],
@@ -101,7 +99,7 @@ export const iso45001Checklist: StandardChecklist = {
       questions: [
         'Has top management established, implemented, and maintained an OH&S policy that includes a commitment to provide safe and healthy working conditions for the prevention of work-related injury and ill health?',
         'Does the OH&S policy include a commitment to the elimination of hazards and the reduction of OH&S risks using the hierarchy of controls?',
-        'Does the policy include commitments to consultation and participation of workers, and where they exist, workers\' representatives?',
+        "Does the policy include commitments to consultation and participation of workers, and where they exist, workers' representatives?",
         'Does the policy include a commitment to compliance with legal requirements and other requirements, and to continual improvement of the OH&S management system?',
         'Is the OH&S policy available as documented information, communicated within the organization, and available to interested parties as appropriate?',
       ],
@@ -114,8 +112,7 @@ export const iso45001Checklist: StandardChecklist = {
     },
     {
       clause: '5.3',
-      title:
-        'Organizational roles, responsibilities, and authorities',
+      title: 'Organizational roles, responsibilities, and authorities',
       questions: [
         'Has top management assigned and communicated the responsibilities and authorities for relevant roles within the OH&S management system?',
         'Are workers at each level of the organization assigned responsibility for those aspects of the OH&S management system over which they have control?',
@@ -169,8 +166,7 @@ export const iso45001Checklist: StandardChecklist = {
     },
     {
       clause: '6.1.2',
-      title:
-        'Hazard identification and assessment of risks and opportunities',
+      title: 'Hazard identification and assessment of risks and opportunities',
       questions: [
         'Has the organization established, implemented, and maintained ongoing and proactive processes for hazard identification that consider how work is organized, social factors, routine and non-routine activities, past incidents, and potential emergency situations?',
         'Does the hazard identification process consider the work environment including infrastructure, equipment, materials, and physical conditions of the workplace?',
@@ -188,8 +184,7 @@ export const iso45001Checklist: StandardChecklist = {
     },
     {
       clause: '6.1.3',
-      title:
-        'Determination of legal requirements and other requirements',
+      title: 'Determination of legal requirements and other requirements',
       questions: [
         'Has the organization established, implemented, and maintained processes to determine and have access to up-to-date legal requirements and other requirements applicable to its hazards and OH&S risks?',
         'Has the organization determined how these legal requirements and other requirements apply to the organization and what needs to be communicated?',
@@ -284,7 +279,7 @@ export const iso45001Checklist: StandardChecklist = {
       evidence: [
         'Records of induction and ongoing awareness training covering OH&S policy, hazards, and worker rights',
         'Toolbox talk records, safety briefing attendance registers, and safety notice boards',
-        'Evidence of communication about workers\' right to remove themselves from dangerous situations without reprisal',
+        "Evidence of communication about workers' right to remove themselves from dangerous situations without reprisal",
       ],
       mandatory: true,
     },
@@ -413,8 +408,7 @@ export const iso45001Checklist: StandardChecklist = {
     // ───────────────────────────────────────────────
     {
       clause: '9.1',
-      title:
-        'Monitoring, measurement, analysis, and performance evaluation',
+      title: 'Monitoring, measurement, analysis, and performance evaluation',
       questions: [
         'Has the organization determined what needs to be monitored and measured for OH&S performance, including the extent to which legal requirements and other requirements are fulfilled?',
         'Has the organization determined the methods for monitoring, measurement, analysis, and performance evaluation, and the criteria against which OH&S performance will be evaluated?',
@@ -450,10 +444,10 @@ export const iso45001Checklist: StandardChecklist = {
       clause: '9.2',
       title: 'Internal audit',
       questions: [
-        'Does the organization conduct internal audits at planned intervals to provide information on whether the OH&S management system conforms to ISO 45001 requirements and the organization\'s own requirements, and is effectively implemented and maintained?',
+        "Does the organization conduct internal audits at planned intervals to provide information on whether the OH&S management system conforms to ISO 45001 requirements and the organization's own requirements, and is effectively implemented and maintained?",
         'Has the organization established, implemented, and maintained an internal audit programme including frequency, methods, responsibilities, and reporting requirements?',
         'Are audit criteria and scope defined for each audit, and are auditors selected to ensure objectivity and impartiality?',
-        'Are audit findings and results reported to relevant management, workers, and workers\' representatives?',
+        "Are audit findings and results reported to relevant management, workers, and workers' representatives?",
         'Does the organization take necessary corrective action without undue delay in response to audit findings?',
       ],
       evidence: [
@@ -472,13 +466,13 @@ export const iso45001Checklist: StandardChecklist = {
         'Does the management review consider the status of actions from previous management reviews, changes in external and internal issues, OH&S performance and trends, and the adequacy of resources?',
         'Does the management review consider the results of worker consultation and participation, relevant communications from interested parties, opportunities for continual improvement, and the effectiveness of actions taken to address risks and opportunities?',
         'Do the outputs of management review include decisions related to the continuing suitability, adequacy, and effectiveness of the OH&S management system, continual improvement opportunities, and any need for changes?',
-        'Are the results of management reviews communicated to workers and workers\' representatives?',
+        "Are the results of management reviews communicated to workers and workers' representatives?",
       ],
       evidence: [
         'Management review meeting minutes including all required input topics and documented output decisions',
         'Attendance records showing top management participation in the review',
         'Action items arising from management reviews with assigned responsibilities, deadlines, and follow-up records',
-        'Evidence that management review outputs were communicated to workers and workers\' representatives',
+        "Evidence that management review outputs were communicated to workers and workers' representatives",
       ],
       mandatory: true,
     },
@@ -503,8 +497,7 @@ export const iso45001Checklist: StandardChecklist = {
     },
     {
       clause: '10.2',
-      title:
-        'Incident, nonconformity, and corrective action',
+      title: 'Incident, nonconformity, and corrective action',
       questions: [
         'Has the organization established, implemented, and maintained processes for reporting, investigating, and taking action to determine and manage incidents and nonconformities, including near-misses?',
         'When an incident or nonconformity occurs, does the organization react in a timely manner to control and correct it and deal with the consequences?',
@@ -527,7 +520,7 @@ export const iso45001Checklist: StandardChecklist = {
         'Does the organization continually improve the suitability, adequacy, and effectiveness of the OH&S management system?',
         'Does the organization enhance OH&S performance by improving organizational culture, worker participation, and the effectiveness of actions to address risks and opportunities?',
         'Does the organization use the results of monitoring, measurement, analysis, evaluation, audits, management reviews, and incident investigations to drive continual improvement?',
-        'Does the organization communicate the relevant results of continual improvement to its workers and workers\' representatives?',
+        "Does the organization communicate the relevant results of continual improvement to its workers and workers' representatives?",
       ],
       evidence: [
         'Continual improvement programme or plan with defined targets, timescales, and responsibilities',

@@ -69,19 +69,21 @@ const createSpecialProcessSchema = z.object({
 const updateSpecialProcessSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
-  processType: z.enum([
-    'CHEMICAL_PROCESSING',
-    'COATINGS',
-    'COMPOSITES',
-    'ELASTOMERS',
-    'HEAT_TREATING',
-    'MATERIALS_TESTING',
-    'NONDESTRUCTIVE_TESTING',
-    'SHOT_PEENING',
-    'WELDING',
-    'BRAZING',
-    'OTHER',
-  ]).optional(),
+  processType: z
+    .enum([
+      'CHEMICAL_PROCESSING',
+      'COATINGS',
+      'COMPOSITES',
+      'ELASTOMERS',
+      'HEAT_TREATING',
+      'MATERIALS_TESTING',
+      'NONDESTRUCTIVE_TESTING',
+      'SHOT_PEENING',
+      'WELDING',
+      'BRAZING',
+      'OTHER',
+    ])
+    .optional(),
   specification: z.string().optional(),
   approvalBody: z.enum(['NADCAP', 'CUSTOMER', 'INTERNAL', 'OTHER']).optional(),
   applicableParts: z.array(z.string()).optional(),
@@ -100,9 +102,18 @@ const createNadcapApprovalSchema = z.object({
   commodity: z.string().min(1, 'Commodity is required'),
   accreditationBody: z.string().optional().default('PRI - Performance Review Institute'),
   certificateNumber: z.string().optional(),
-  auditDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  approvalDate: z.string().min(1, 'Approval date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  expiryDate: z.string().min(1, 'Expiry date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  auditDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  approvalDate: z
+    .string()
+    .min(1, 'Approval date is required')
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  expiryDate: z
+    .string()
+    .min(1, 'Expiry date is required')
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   scope: z.string().optional(),
   limitations: z.string().optional(),
   notes: z.string().optional(),
@@ -110,9 +121,18 @@ const createNadcapApprovalSchema = z.object({
 
 const updateNadcapApprovalSchema = z.object({
   certificateNumber: z.string().optional(),
-  auditDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  approvalDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  auditDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  approvalDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  expiryDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   scope: z.string().optional(),
   limitations: z.string().optional(),
   approvalStatus: z.enum(['ACTIVE', 'EXPIRING_SOON', 'EXPIRED', 'SUSPENDED', 'REVOKED']).optional(),
@@ -166,7 +186,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List special processes error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list special processes' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list special processes' },
+    });
   }
 });
 
@@ -206,7 +229,10 @@ router.get('/nadcap', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     const enriched = approvals.map((approval: any) => ({
       ...approval,
-      expiringSoon: approval.expiryDate && new Date(approval.expiryDate) <= ninetyDays && new Date(approval.expiryDate) > now,
+      expiringSoon:
+        approval.expiryDate &&
+        new Date(approval.expiryDate) <= ninetyDays &&
+        new Date(approval.expiryDate) > now,
       expired: approval.expiryDate && new Date(approval.expiryDate) <= now,
     }));
 
@@ -217,7 +243,10 @@ router.get('/nadcap', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List Nadcap approvals error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list Nadcap approvals' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list Nadcap approvals' },
+    });
   }
 });
 
@@ -230,13 +259,19 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!process || process.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Special process not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Special process not found' },
+      });
     }
 
     res.json({ success: true, data: process });
   } catch (error) {
     logger.error('Get special process error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get special process' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get special process' },
+    });
   }
 });
 
@@ -271,11 +306,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create special process error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create special process' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create special process' },
+    });
   }
 });
 
@@ -284,7 +326,10 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroSpecialProcess.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Special process not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Special process not found' },
+      });
     }
 
     const data = updateSpecialProcessSchema.parse(req.body);
@@ -299,11 +344,18 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update special process error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update special process' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update special process' },
+    });
   }
 });
 
@@ -312,7 +364,10 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroSpecialProcess.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Special process not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Special process not found' },
+      });
     }
 
     await prisma.aeroSpecialProcess.update({
@@ -323,7 +378,10 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     res.status(204).send();
   } catch (error) {
     logger.error('Delete special process error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete special process' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete special process' },
+    });
   }
 });
 
@@ -337,9 +395,14 @@ router.post('/nadcap', async (req: AuthRequest, res: Response) => {
     const data = createNadcapApprovalSchema.parse(req.body);
     const refNumber = await generateNadcapApprovalRefNumber();
 
-    const process = await prisma.aeroSpecialProcess.findUnique({ where: { id: data.specialProcessId } });
+    const process = await prisma.aeroSpecialProcess.findUnique({
+      where: { id: data.specialProcessId },
+    });
     if (!process || process.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Special process not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Special process not found' },
+      });
     }
 
     const approval = await prisma.aeroNadcapApproval.create({
@@ -366,11 +429,18 @@ router.post('/nadcap', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create Nadcap approval error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to record Nadcap approval' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to record Nadcap approval' },
+    });
   }
 });
 
@@ -379,7 +449,10 @@ router.put('/nadcap/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroNadcapApproval.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Nadcap approval not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Nadcap approval not found' },
+      });
     }
 
     const data = updateNadcapApprovalSchema.parse(req.body);
@@ -399,11 +472,18 @@ router.put('/nadcap/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update Nadcap approval error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update Nadcap approval' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update Nadcap approval' },
+    });
   }
 });
 

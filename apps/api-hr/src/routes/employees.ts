@@ -27,8 +27,10 @@ const createEmployeeSchema = z.object({
   departmentId: z.string().trim().uuid(),
   positionId: z.string().trim().uuid().optional(),
   managerId: z.string().trim().uuid().optional(),
-  employmentType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'TEMPORARY', 'INTERN', 'CONSULTANT', 'FREELANCE']).default('FULL_TIME'),
-  hireDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  employmentType: z
+    .enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'TEMPORARY', 'INTERN', 'CONSULTANT', 'FREELANCE'])
+    .default('FULL_TIME'),
+  hireDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   jobTitle: z.string().trim().min(1).max(200),
   jobGrade: z.string().optional(),
   workLocation: z.string().optional(),
@@ -103,7 +105,10 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching employees', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch employees' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch employees' },
+    });
   }
 });
 
@@ -129,8 +134,8 @@ router.get('/org-chart', async (_req: Request, res: Response) => {
     // Build hierarchical structure
     const buildTree = (managerId: string | null): unknown[] => {
       return employees
-        .filter(e => e.managerId === managerId)
-        .map(e => ({
+        .filter((e) => e.managerId === managerId)
+        .map((e) => ({
           ...e,
           children: buildTree(e.id),
         }));
@@ -141,7 +146,10 @@ router.get('/org-chart', async (_req: Request, res: Response) => {
     res.json({ success: true, data: orgChart });
   } catch (error) {
     logger.error('Error fetching org chart', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch org chart' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch org chart' },
+    });
   }
 });
 
@@ -188,7 +196,8 @@ router.get('/stats', async (_req: Request, res: Response) => {
       }),
       prisma.hRDepartment.findMany({
         select: { id: true, name: true },
-        take: 1000}),
+        take: 1000,
+      }),
       // Get salary data from EmployeeSalary table
       prisma.employeeSalary.aggregate({
         _avg: { baseSalary: true },
@@ -198,7 +207,9 @@ router.get('/stats', async (_req: Request, res: Response) => {
     ]);
 
     // Map department IDs to names
-    const departmentMap = new Map(departments.map((d: { id: string; name: string }) => [d.id, d.name]));
+    const departmentMap = new Map(
+      departments.map((d: { id: string; name: string }) => [d.id, d.name])
+    );
     const byDepartment = byDepartmentRaw.map((d: any) => ({
       department: departmentMap.get(d.departmentId) || 'Unknown',
       departmentId: d.departmentId,
@@ -216,18 +227,23 @@ router.get('/stats', async (_req: Request, res: Response) => {
         terminated,
         inactive: suspended + terminated, // Combined for backwards compatibility
         byDepartment,
-        byEmploymentType: byEmploymentType.map((e: { employmentType: string; _count: { id: number } }) => ({
-          employmentType: e.employmentType,
-          count: e._count.id,
-        })),
+        byEmploymentType: byEmploymentType.map(
+          (e: { employmentType: string; _count: { id: number } }) => ({
+            employmentType: e.employmentType,
+            count: e._count.id,
+          })
+        ),
         recentHires,
-        avgSalary: Math.round((salaryData._avg?.baseSalary || 0) as any || 0),
-        totalSalaryExpense: Math.round((salaryData._sum?.baseSalary || 0) as any || 0),
+        avgSalary: Math.round(((salaryData._avg?.baseSalary || 0) as any) || 0),
+        totalSalaryExpense: Math.round(((salaryData._sum?.baseSalary || 0) as any) || 0),
       },
     });
   } catch (error) {
     logger.error('Error fetching employee stats', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' },
+    });
   }
 });
 
@@ -240,10 +256,22 @@ router.get('/:id', checkOwnership(prisma.employee), async (req: Request, res: Re
         department: true,
         position: true,
         manager: {
-          select: { id: true, firstName: true, lastName: true, employeeNumber: true, jobTitle: true },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            employeeNumber: true,
+            jobTitle: true,
+          },
         },
         subordinates: {
-          select: { id: true, firstName: true, lastName: true, employeeNumber: true, jobTitle: true },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            employeeNumber: true,
+            jobTitle: true,
+          },
         },
         leaveBalances: {
           include: { leaveType: true },
@@ -259,13 +287,18 @@ router.get('/:id', checkOwnership(prisma.employee), async (req: Request, res: Re
     });
 
     if (!employee) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Employee not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Employee not found' } });
     }
 
     res.json({ success: true, data: employee });
   } catch (error) {
     logger.error('Error fetching employee', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch employee' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch employee' },
+    });
   }
 });
 
@@ -289,10 +322,15 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: employee });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating employee', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create employee' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create employee' },
+    });
   }
 });
 
@@ -317,10 +355,15 @@ router.put('/:id', checkOwnership(prisma.employee), async (req: Request, res: Re
     res.json({ success: true, data: employee });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error updating employee', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update employee' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update employee' },
+    });
   }
 });
 
@@ -338,7 +381,10 @@ router.delete('/:id', checkOwnership(prisma.employee), async (req: Request, res:
     res.status(204).send();
   } catch (error) {
     logger.error('Error deleting employee', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete employee' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete employee' },
+    });
   }
 });
 
@@ -359,7 +405,10 @@ router.get('/:id/subordinates', async (req: Request, res: Response) => {
     res.json({ success: true, data: subordinates });
   } catch (error) {
     logger.error('Error fetching subordinates', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch subordinates' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch subordinates' },
+    });
   }
 });
 

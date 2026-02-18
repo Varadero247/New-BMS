@@ -153,7 +153,9 @@ export default function Articles() {
                     className={`w-8 h-8 rounded-full bg-gradient-to-br ${filteredFeatured.avatarFrom} ${filteredFeatured.avatarTo} flex-shrink-0`}
                   />
                   <div>
-                    <p className="text-sm text-gray-400 dark:text-gray-500 font-body">{filteredFeatured.author}</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 font-body">
+                      {filteredFeatured.author}
+                    </p>
                     <p className="text-xs text-gray-600 font-mono">{filteredFeatured.readTime}</p>
                   </div>
                 </div>
@@ -193,7 +195,9 @@ export default function Articles() {
                   className={`w-8 h-8 rounded-full bg-gradient-to-br ${article.avatarFrom} ${article.avatarTo} flex-shrink-0`}
                 />
                 <div>
-                  <p className="text-sm text-gray-400 dark:text-gray-500 font-body">{article.author}</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500 font-body">
+                    {article.author}
+                  </p>
                   <p className="text-xs text-gray-600 font-mono">{article.readTime}</p>
                 </div>
               </div>

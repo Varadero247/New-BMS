@@ -163,11 +163,31 @@ export default function QualityOverviewPage() {
   };
 
   const quickLinks = [
-    { name: 'Processes', href: '/quality/processes', icon: BarChart3, count: summary?.summary.risks.active },
-    { name: 'Non-Conformances', href: '/quality/ncs', icon: XCircle, count: summary?.summary.incidents.open },
+    {
+      name: 'Processes',
+      href: '/quality/processes',
+      icon: BarChart3,
+      count: summary?.summary.risks.active,
+    },
+    {
+      name: 'Non-Conformances',
+      href: '/quality/ncs',
+      icon: XCircle,
+      count: summary?.summary.incidents.open,
+    },
     { name: 'Legal', href: '/quality/legal', icon: FileText, count: summary?.summary.legal.total },
-    { name: 'Objectives', href: '/quality/objectives', icon: Target, count: summary?.summary.objectives.total },
-    { name: 'Actions', href: '/quality/actions', icon: ClipboardCheck, count: summary?.summary.actions.open },
+    {
+      name: 'Objectives',
+      href: '/quality/objectives',
+      icon: Target,
+      count: summary?.summary.objectives.total,
+    },
+    {
+      name: 'Actions',
+      href: '/quality/actions',
+      icon: ClipboardCheck,
+      count: summary?.summary.actions.open,
+    },
     { name: 'Metrics', href: '/quality/metrics', icon: TrendingUp },
   ];
 
@@ -273,9 +293,7 @@ export default function QualityOverviewPage() {
               {qualityMetrics?.ytd.processSigma?.toFixed(1) || '0.0'}σ
             </span>
           </div>
-          <div className={`mt-2 text-sm font-medium ${sigmaRating.color}`}>
-            {sigmaRating.label}
-          </div>
+          <div className={`mt-2 text-sm font-medium ${sigmaRating.color}`}>{sigmaRating.label}</div>
         </Card>
 
         <Card className="p-6">
@@ -369,11 +387,15 @@ export default function QualityOverviewPage() {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-yellow-500 rounded"></div>
-              <span>Internal: ${qualityMetrics?.ytd.copq.internalFailure?.toLocaleString() || 0}</span>
+              <span>
+                Internal: ${qualityMetrics?.ytd.copq.internalFailure?.toLocaleString() || 0}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-red-500 rounded"></div>
-              <span>External: ${qualityMetrics?.ytd.copq.externalFailure?.toLocaleString() || 0}</span>
+              <span>
+                External: ${qualityMetrics?.ytd.copq.externalFailure?.toLocaleString() || 0}
+              </span>
             </div>
           </div>
         </Card>
@@ -430,13 +452,17 @@ export default function QualityOverviewPage() {
                       {nc.referenceNumber} • {new Date(nc.dateOccurred).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(nc.severity)}`}>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(nc.severity)}`}
+                  >
                     {nc.severity}
                   </span>
                 </Link>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">No recent non-conformances</p>
+              <p className="text-sm text-muted-foreground text-center py-4">
+                No recent non-conformances
+              </p>
             )}
           </div>
         </Card>
@@ -462,17 +488,19 @@ export default function QualityOverviewPage() {
                 >
                   <div>
                     <p className="font-medium text-sm">{process.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Risk Score: {process.riskScore}
-                    </p>
+                    <p className="text-xs text-muted-foreground">Risk Score: {process.riskScore}</p>
                   </div>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getRiskLevelColor(process.riskLevel)}`}>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${getRiskLevelColor(process.riskLevel)}`}
+                  >
                     {process.riskLevel}
                   </span>
                 </Link>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">No high risk processes</p>
+              <p className="text-sm text-muted-foreground text-center py-4">
+                No high risk processes
+              </p>
             )}
           </div>
         </Card>
@@ -491,15 +519,21 @@ export default function QualityOverviewPage() {
         </div>
         <div className="grid md:grid-cols-3 gap-4">
           <div className="p-4 bg-muted/50 rounded-lg text-center">
-            <p className="text-3xl font-bold text-blue-500">{summary?.summary.objectives.total || 0}</p>
+            <p className="text-3xl font-bold text-blue-500">
+              {summary?.summary.objectives.total || 0}
+            </p>
             <p className="text-sm text-muted-foreground">Total Objectives</p>
           </div>
           <div className="p-4 bg-muted/50 rounded-lg text-center">
-            <p className="text-3xl font-bold text-green-500">{summary?.summary.objectives.achieved || 0}</p>
+            <p className="text-3xl font-bold text-green-500">
+              {summary?.summary.objectives.achieved || 0}
+            </p>
             <p className="text-sm text-muted-foreground">Achieved</p>
           </div>
           <div className="p-4 bg-muted/50 rounded-lg text-center">
-            <p className="text-3xl font-bold">{summary?.summary.objectives.achievementRate || 0}%</p>
+            <p className="text-3xl font-bold">
+              {summary?.summary.objectives.achievementRate || 0}%
+            </p>
             <p className="text-sm text-muted-foreground">Achievement Rate</p>
           </div>
         </div>

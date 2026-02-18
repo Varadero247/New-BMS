@@ -73,10 +73,10 @@ function mockPushEnvironment() {
 
   (globalThis as any).PushManager = class {};
 
-  (globalThis as any).Notification = Object.assign(
-    jest.fn(),
-    { permission: 'granted' as NotificationPermission, requestPermission: jest.fn().mockResolvedValue('granted') }
-  );
+  (globalThis as any).Notification = Object.assign(jest.fn(), {
+    permission: 'granted' as NotificationPermission,
+    requestPermission: jest.fn().mockResolvedValue('granted'),
+  });
 
   return {
     subscribeFn,
@@ -163,7 +163,8 @@ describe('push-notifications', () => {
   describe('subscribeToPush', () => {
     it('subscribes to push with converted VAPID key', async () => {
       const env = mockPushEnvironment();
-      const vapidKey = 'BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QTpQtUbVlUls0VJXg7A8u-Ts1XbjhazAkj7I99e8p8VfCRdo';
+      const vapidKey =
+        'BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QTpQtUbVlUls0VJXg7A8u-Ts1XbjhazAkj7I99e8p8VfCRdo';
       const result = await subscribeToPush(vapidKey);
 
       expect(result).toEqual({
@@ -265,10 +266,13 @@ describe('push-notifications', () => {
         badge: '/custom-badge.png',
       });
 
-      expect(env.showNotificationFn).toHaveBeenCalledWith('Custom', expect.objectContaining({
-        icon: '/custom-icon.png',
-        badge: '/custom-badge.png',
-      }));
+      expect(env.showNotificationFn).toHaveBeenCalledWith(
+        'Custom',
+        expect.objectContaining({
+          icon: '/custom-icon.png',
+          badge: '/custom-badge.png',
+        })
+      );
     });
 
     it('does nothing when permission not granted', async () => {
@@ -581,7 +585,9 @@ describe('manifest-generator', () => {
 
     beforeEach(() => {
       mockLink = { rel: '', href: '' };
-      appendChildSpy = jest.spyOn(document.head, 'appendChild').mockImplementation((node: any) => node);
+      appendChildSpy = jest
+        .spyOn(document.head, 'appendChild')
+        .mockImplementation((node: any) => node);
       createObjectURLMock = jest.fn().mockReturnValue('blob:http://localhost/manifest-123');
       revokeObjectURLMock = jest.fn();
       URL.createObjectURL = createObjectURLMock;
@@ -642,9 +648,7 @@ describe('manifest-generator', () => {
       const manifest = { name: 'IMS', short_name: 'IMS' };
       injectManifest(manifest);
 
-      expect(createObjectURLMock).toHaveBeenCalledWith(
-        expect.any(Blob)
-      );
+      expect(createObjectURLMock).toHaveBeenCalledWith(expect.any(Blob));
     });
   });
 
@@ -652,7 +656,9 @@ describe('manifest-generator', () => {
     let appendChildSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      appendChildSpy = jest.spyOn(document.head, 'appendChild').mockImplementation((node: any) => node);
+      appendChildSpy = jest
+        .spyOn(document.head, 'appendChild')
+        .mockImplementation((node: any) => node);
     });
 
     afterEach(() => {
@@ -711,11 +717,13 @@ describe('install-banner', () => {
         if (!listeners[event]) listeners[event] = [];
         listeners[event].push(handler);
       });
-      jest.spyOn(window, 'removeEventListener').mockImplementation((event: string, handler: any) => {
-        if (listeners[event]) {
-          listeners[event] = listeners[event].filter(h => h !== handler);
-        }
-      });
+      jest
+        .spyOn(window, 'removeEventListener')
+        .mockImplementation((event: string, handler: any) => {
+          if (listeners[event]) {
+            listeners[event] = listeners[event].filter((h) => h !== handler);
+          }
+        });
     });
 
     afterEach(() => {
@@ -805,9 +813,19 @@ describe('cross-module integration', () => {
 
   it('all module themes produce valid hex colors', () => {
     const modules = [
-      'dashboard', 'health-safety', 'environment', 'quality', 'hr',
-      'finance', 'crm', 'infosec', 'esg', 'risk', 'chemicals',
-      'emergency', 'field-service',
+      'dashboard',
+      'health-safety',
+      'environment',
+      'quality',
+      'hr',
+      'finance',
+      'crm',
+      'infosec',
+      'esg',
+      'risk',
+      'chemicals',
+      'emergency',
+      'field-service',
     ];
     const hexRegex = /^#[0-9a-fA-F]{6}$/;
 
@@ -828,7 +846,8 @@ describe('cross-module integration', () => {
     // A standard VAPID key is 65 bytes (uncompressed EC P-256 public key)
     // Base64url encoded: 88 chars
     const env = mockPushEnvironment();
-    const vapidKey = 'BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QTpQtUbVlUls0VJXg7A8u-Ts1XbjhazAkj7I99e8p8VfCRdo';
+    const vapidKey =
+      'BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QTpQtUbVlUls0VJXg7A8u-Ts1XbjhazAkj7I99e8p8VfCRdo';
 
     await subscribeToPush(vapidKey);
 

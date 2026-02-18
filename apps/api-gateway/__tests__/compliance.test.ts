@@ -175,9 +175,7 @@ describe('Compliance Regulatory Intelligence Routes', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.data.items.length).toBeGreaterThan(0);
-      const found = response.body.data.items.some((item: any) =>
-        item.title.includes('CSRD')
-      );
+      const found = response.body.data.items.some((item: any) => item.title.includes('CSRD'));
       expect(found).toBe(true);
     });
 
@@ -310,8 +308,15 @@ describe('Compliance Regulatory Intelligence Routes', () => {
 
     it('should accept all valid targetModule values', async () => {
       const validModules = [
-        'health-safety', 'environment', 'quality', 'infosec',
-        'food-safety', 'energy', 'esg', 'iso42001', 'iso37001',
+        'health-safety',
+        'environment',
+        'quality',
+        'infosec',
+        'food-safety',
+        'energy',
+        'esg',
+        'iso42001',
+        'iso37001',
       ];
 
       // Test one module to confirm schema accepts it

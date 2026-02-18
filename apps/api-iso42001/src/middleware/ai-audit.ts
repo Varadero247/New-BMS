@@ -9,7 +9,9 @@ const logger = createLogger('ai-audit-middleware');
 const AUDITED_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 // Map HTTP methods to AiAuditAction enum values
-function methodToAction(method: string): 'DECISION' | 'OVERRIDE' | 'REVIEW' | 'APPROVAL' | 'REJECTION' | 'ESCALATION' | 'CONFIG_CHANGE' {
+function methodToAction(
+  method: string
+): 'DECISION' | 'OVERRIDE' | 'REVIEW' | 'APPROVAL' | 'REJECTION' | 'ESCALATION' | 'CONFIG_CHANGE' {
   switch (method.toUpperCase()) {
     case 'POST':
       return 'DECISION';
@@ -111,7 +113,11 @@ export function createAiAuditMiddleware(systemId?: string) {
           },
         })
         .then((entry) => {
-          logger.debug('AI audit log entry written', { entryId: entry.id, action, path: req.originalUrl });
+          logger.debug('AI audit log entry written', {
+            entryId: entry.id,
+            action,
+            path: req.originalUrl,
+          });
         })
         .catch((error: unknown) => {
           // Audit logging should never break the request flow

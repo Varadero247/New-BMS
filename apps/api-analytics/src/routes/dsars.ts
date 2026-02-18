@@ -7,9 +7,16 @@ import { validateIdParam } from '@ims/shared';
 
 const createDataRequestSchema = z.object({
   type: z.enum(['ACCESS', 'RECTIFICATION', 'ERASURE', 'PORTABILITY', 'RESTRICTION', 'OBJECTION'], {
-    errorMap: () => ({ message: 'type must be one of: ACCESS, RECTIFICATION, ERASURE, PORTABILITY, RESTRICTION, OBJECTION' }),
+    errorMap: () => ({
+      message:
+        'type must be one of: ACCESS, RECTIFICATION, ERASURE, PORTABILITY, RESTRICTION, OBJECTION',
+    }),
   }),
-  requesterEmail: z.string().trim().email('Valid email is required').min(1, 'requesterEmail is required'),
+  requesterEmail: z
+    .string()
+    .trim()
+    .email('Valid email is required')
+    .min(1, 'requesterEmail is required'),
   requesterName: z.string().min(1, 'requesterName is required'),
   description: z.string().nullable().optional(),
 });
@@ -63,7 +70,10 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Failed to list data requests', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list data requests' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list data requests' },
+    });
   }
 });
 
@@ -74,12 +84,17 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const dataRequest = await prisma.dataRequest.findUnique({ where: { id: req.params.id } });
     if (!dataRequest) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Data request not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Data request not found' } });
     }
     res.json({ success: true, data: { request: dataRequest } });
   } catch (err) {
     logger.error('Failed to get data request', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get data request' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get data request' },
+    });
   }
 });
 
@@ -90,7 +105,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createDataRequestSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { type, requesterEmail, requesterName, description } = parsed.data;
@@ -113,7 +131,10 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: { request: dataRequest } });
   } catch (err) {
     logger.error('Failed to create data request', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create data request' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create data request' },
+    });
   }
 });
 
@@ -124,12 +145,17 @@ router.patch('/:id/status', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.dataRequest.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Data request not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Data request not found' } });
     }
 
     const parsed = updateDataRequestStatusSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { status } = parsed.data;
@@ -155,11 +181,18 @@ router.patch('/:id/status', async (req: Request, res: Response) => {
       data,
     });
 
-    logger.info('Data request status updated', { id: dataRequest.id, from: existing.status, to: status });
+    logger.info('Data request status updated', {
+      id: dataRequest.id,
+      from: existing.status,
+      to: status,
+    });
     res.json({ success: true, data: { request: dataRequest } });
   } catch (err) {
     logger.error('Failed to update data request status', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update status' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update status' },
+    });
   }
 });
 

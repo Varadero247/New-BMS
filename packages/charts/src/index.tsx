@@ -90,12 +90,19 @@ interface RiskMatrixProps {
 
 export function RiskMatrix({ data, risks, onCellClick }: RiskMatrixProps) {
   // Transform risks array to data format if provided
-  const matrixData = data ?? (risks ? risks.reduce((acc, risk) => {
-    const key = `${risk.likelihood}-${risk.severity}`;
-    if (!acc[key]) acc[key] = [];
-    acc[key].push({ id: risk.id, title: risk.title });
-    return acc;
-  }, {} as { [key: string]: { id: string; title: string }[] }) : {});
+  const matrixData =
+    data ??
+    (risks
+      ? risks.reduce(
+          (acc, risk) => {
+            const key = `${risk.likelihood}-${risk.severity}`;
+            if (!acc[key]) acc[key] = [];
+            acc[key].push({ id: risk.id, title: risk.title });
+            return acc;
+          },
+          {} as { [key: string]: { id: string; title: string }[] }
+        )
+      : {});
   const getCellColor = (likelihood: number, severity: number): string => {
     const score = likelihood * severity;
     if (score <= 4) return 'bg-green-100 hover:bg-green-200';
@@ -175,7 +182,20 @@ interface TrendChartProps {
 }
 
 export function TrendChart({ data, label, color, type = 'line' }: TrendChartProps) {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
 
   const chartData = {
     labels: data.map((d) => months[d.month - 1]),
@@ -312,7 +332,12 @@ interface COPQChartProps {
   externalFailure: number;
 }
 
-export function COPQChart({ prevention, appraisal, internalFailure, externalFailure }: COPQChartProps) {
+export function COPQChart({
+  prevention,
+  appraisal,
+  internalFailure,
+  externalFailure,
+}: COPQChartProps) {
   const data = {
     labels: ['Prevention', 'Appraisal', 'Internal Failure', 'External Failure'],
     datasets: [

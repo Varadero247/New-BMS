@@ -153,7 +153,9 @@ describe('Workflows Automation API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.automationRule.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.automationRule.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app).get('/api/automation/rules');
 
@@ -177,7 +179,9 @@ describe('Workflows Automation API Routes', () => {
     it('should return single automation rule with executions', async () => {
       (mockPrisma.automationRule.findUnique as jest.Mock).mockResolvedValueOnce(mockRule);
 
-      const response = await request(app).get('/api/automation/rules/42000000-0000-4000-a000-000000000001');
+      const response = await request(app).get(
+        '/api/automation/rules/42000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -188,16 +192,22 @@ describe('Workflows Automation API Routes', () => {
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff rule', async () => {
       (mockPrisma.automationRule.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/automation/rules/00000000-0000-4000-a000-ffffffffffff');
+      const response = await request(app).get(
+        '/api/automation/rules/00000000-0000-4000-a000-ffffffffffff'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.automationRule.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.automationRule.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
-      const response = await request(app).get('/api/automation/rules/42000000-0000-4000-a000-000000000001');
+      const response = await request(app).get(
+        '/api/automation/rules/42000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -221,9 +231,7 @@ describe('Workflows Automation API Routes', () => {
         isActive: true,
       });
 
-      const response = await request(app)
-        .post('/api/automation/rules')
-        .send(createPayload);
+      const response = await request(app).post('/api/automation/rules').send(createPayload);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -233,27 +241,31 @@ describe('Workflows Automation API Routes', () => {
     it('should reject duplicate code', async () => {
       (mockPrisma.automationRule.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'existing' });
 
-      const response = await request(app)
-        .post('/api/automation/rules')
-        .send(createPayload);
+      const response = await request(app).post('/api/automation/rules').send(createPayload);
 
       expect(response.status).toBe(409);
       expect(response.body.error.code).toBe('DUPLICATE');
     });
 
     it('should return 400 for missing name', async () => {
-      const response = await request(app)
-        .post('/api/automation/rules')
-        .send({ code: 'CODE', triggerType: 'EVENT', actionType: 'SEND_NOTIFICATION', actionConfig: {} });
+      const response = await request(app).post('/api/automation/rules').send({
+        code: 'CODE',
+        triggerType: 'EVENT',
+        actionType: 'SEND_NOTIFICATION',
+        actionConfig: {},
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
     });
 
     it('should return 400 for missing code', async () => {
-      const response = await request(app)
-        .post('/api/automation/rules')
-        .send({ name: 'Rule', triggerType: 'EVENT', actionType: 'SEND_NOTIFICATION', actionConfig: {} });
+      const response = await request(app).post('/api/automation/rules').send({
+        name: 'Rule',
+        triggerType: 'EVENT',
+        actionType: 'SEND_NOTIFICATION',
+        actionConfig: {},
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -281,9 +293,7 @@ describe('Workflows Automation API Routes', () => {
       (mockPrisma.automationRule.findUnique as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.automationRule.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .post('/api/automation/rules')
-        .send(createPayload);
+      const response = await request(app).post('/api/automation/rules').send(createPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -330,7 +340,9 @@ describe('Workflows Automation API Routes', () => {
     it('should delete automation rule successfully', async () => {
       (mockPrisma.automationRule.update as jest.Mock).mockResolvedValueOnce({});
 
-      const response = await request(app).delete('/api/automation/rules/42000000-0000-4000-a000-000000000001');
+      const response = await request(app).delete(
+        '/api/automation/rules/42000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(204);
     });
@@ -338,7 +350,9 @@ describe('Workflows Automation API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.automationRule.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).delete('/api/automation/rules/42000000-0000-4000-a000-000000000001');
+      const response = await request(app).delete(
+        '/api/automation/rules/42000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -401,7 +415,9 @@ describe('Workflows Automation API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.automationRule.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.automationRule.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/automation/rules/42000000-0000-4000-a000-000000000001/execute')
@@ -419,7 +435,11 @@ describe('Workflows Automation API Routes', () => {
   describe('GET /api/automation/executions', () => {
     it('should return execution history', async () => {
       (mockPrisma.automationExecution.findMany as jest.Mock).mockResolvedValueOnce([
-        { id: '43000000-0000-4000-a000-000000000001', status: 'COMPLETED', rule: { id: '42000000-0000-4000-a000-000000000001', name: 'Test', code: 'TST' } },
+        {
+          id: '43000000-0000-4000-a000-000000000001',
+          status: 'COMPLETED',
+          rule: { id: '42000000-0000-4000-a000-000000000001', name: 'Test', code: 'TST' },
+        },
       ]);
       (mockPrisma.automationExecution.count as jest.Mock).mockResolvedValueOnce(1);
 
@@ -435,7 +455,9 @@ describe('Workflows Automation API Routes', () => {
       (mockPrisma.automationExecution.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.automationExecution.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app).get('/api/automation/executions?ruleId=42000000-0000-4000-a000-000000000001');
+      await request(app).get(
+        '/api/automation/executions?ruleId=42000000-0000-4000-a000-000000000001'
+      );
 
       expect(mockPrisma.automationExecution.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -462,7 +484,9 @@ describe('Workflows Automation API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.automationExecution.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.automationExecution.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app).get('/api/automation/executions');
 
@@ -479,7 +503,9 @@ describe('Workflows Automation API Routes', () => {
         rule: { id: '42000000-0000-4000-a000-000000000001', name: 'Test' },
       });
 
-      const response = await request(app).get('/api/automation/executions/43000000-0000-4000-a000-000000000001');
+      const response = await request(app).get(
+        '/api/automation/executions/43000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -489,16 +515,22 @@ describe('Workflows Automation API Routes', () => {
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff execution', async () => {
       (mockPrisma.automationExecution.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/automation/executions/00000000-0000-4000-a000-ffffffffffff');
+      const response = await request(app).get(
+        '/api/automation/executions/00000000-0000-4000-a000-ffffffffffff'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.automationExecution.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.automationExecution.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
-      const response = await request(app).get('/api/automation/executions/43000000-0000-4000-a000-000000000001');
+      const response = await request(app).get(
+        '/api/automation/executions/43000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -524,7 +556,9 @@ describe('Workflows Automation API Routes', () => {
         status: 'RETRYING',
       });
 
-      const response = await request(app).post('/api/automation/executions/43000000-0000-4000-a000-000000000001/retry');
+      const response = await request(app).post(
+        '/api/automation/executions/43000000-0000-4000-a000-000000000001/retry'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -534,7 +568,9 @@ describe('Workflows Automation API Routes', () => {
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff execution', async () => {
       (mockPrisma.automationExecution.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).post('/api/automation/executions/00000000-0000-4000-a000-ffffffffffff/retry');
+      const response = await request(app).post(
+        '/api/automation/executions/00000000-0000-4000-a000-ffffffffffff/retry'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -547,7 +583,9 @@ describe('Workflows Automation API Routes', () => {
         rule: { maxRetries: 3 },
       });
 
-      const response = await request(app).post('/api/automation/executions/43000000-0000-4000-a000-000000000001/retry');
+      const response = await request(app).post(
+        '/api/automation/executions/43000000-0000-4000-a000-000000000001/retry'
+      );
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('INVALID_STATUS');
@@ -561,16 +599,22 @@ describe('Workflows Automation API Routes', () => {
         rule: { maxRetries: 3 },
       });
 
-      const response = await request(app).post('/api/automation/executions/43000000-0000-4000-a000-000000000001/retry');
+      const response = await request(app).post(
+        '/api/automation/executions/43000000-0000-4000-a000-000000000001/retry'
+      );
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('MAX_RETRIES');
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.automationExecution.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.automationExecution.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
-      const response = await request(app).post('/api/automation/executions/43000000-0000-4000-a000-000000000001/retry');
+      const response = await request(app).post(
+        '/api/automation/executions/43000000-0000-4000-a000-000000000001/retry'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');

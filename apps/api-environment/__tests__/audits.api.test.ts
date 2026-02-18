@@ -28,7 +28,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '20000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -106,9 +110,7 @@ describe('Environment Audits API Routes', () => {
       (mockPrisma.envAudit.findMany as jest.Mock).mockResolvedValueOnce(mockAudits);
       (mockPrisma.envAudit.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/audits')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/audits').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -139,9 +141,7 @@ describe('Environment Audits API Routes', () => {
       (mockPrisma.envAudit.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envAudit.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/audits?type=SYSTEM')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/audits?type=SYSTEM').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envAudit.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -156,9 +156,7 @@ describe('Environment Audits API Routes', () => {
       (mockPrisma.envAudit.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envAudit.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/audits?status=PLANNED')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/audits?status=PLANNED').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envAudit.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -193,9 +191,7 @@ describe('Environment Audits API Routes', () => {
       (mockPrisma.envAudit.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envAudit.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/audits?search=system')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/audits?search=system').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envAudit.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -214,9 +210,7 @@ describe('Environment Audits API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.envAudit.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/audits')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/audits').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -227,8 +221,22 @@ describe('Environment Audits API Routes', () => {
   describe('GET /api/audits/schedule', () => {
     it('should return active audit schedules ordered by next due date', async () => {
       const mockSchedules = [
-        { id: 'env11000-0000-4000-a000-000000000001', title: 'Annual EMS Audit', type: 'SYSTEM', frequency: 'ANNUAL', nextDueDate: new Date('2026-06-01'), active: true },
-        { id: 'env11000-0000-4000-a000-000000000002', title: 'Compliance Check', type: 'COMPLIANCE', frequency: 'QUARTERLY', nextDueDate: new Date('2026-09-01'), active: true },
+        {
+          id: 'env11000-0000-4000-a000-000000000001',
+          title: 'Annual EMS Audit',
+          type: 'SYSTEM',
+          frequency: 'ANNUAL',
+          nextDueDate: new Date('2026-06-01'),
+          active: true,
+        },
+        {
+          id: 'env11000-0000-4000-a000-000000000002',
+          title: 'Compliance Check',
+          type: 'COMPLIANCE',
+          frequency: 'QUARTERLY',
+          nextDueDate: new Date('2026-09-01'),
+          active: true,
+        },
       ];
       (mockPrisma.envAuditSchedule.findMany as jest.Mock).mockResolvedValueOnce(mockSchedules);
 
@@ -248,7 +256,9 @@ describe('Environment Audits API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.envAuditSchedule.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envAuditSchedule.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/audits/schedule')
@@ -270,7 +280,12 @@ describe('Environment Audits API Routes', () => {
     };
 
     it('should create an audit schedule successfully', async () => {
-      const mockSchedule = { id: 'env11000-0000-4000-a000-000000000001', ...schedulePayload, nextDueDate: new Date('2026-06-01'), active: true };
+      const mockSchedule = {
+        id: 'env11000-0000-4000-a000-000000000001',
+        ...schedulePayload,
+        nextDueDate: new Date('2026-06-01'),
+        active: true,
+      };
       (mockPrisma.envAuditSchedule.create as jest.Mock).mockResolvedValueOnce(mockSchedule);
 
       const response = await request(app)
@@ -287,7 +302,12 @@ describe('Environment Audits API Routes', () => {
       const response = await request(app)
         .post('/api/audits/schedule')
         .set('Authorization', 'Bearer token')
-        .send({ type: 'SYSTEM', frequency: 'ANNUAL', nextDueDate: '2026-06-01', iso14001Clauses: ['4.1'] });
+        .send({
+          type: 'SYSTEM',
+          frequency: 'ANNUAL',
+          nextDueDate: '2026-06-01',
+          iso14001Clauses: ['4.1'],
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -314,7 +334,9 @@ describe('Environment Audits API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.envAuditSchedule.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envAuditSchedule.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/audits/schedule')
@@ -415,7 +437,13 @@ describe('Environment Audits API Routes', () => {
       const response = await request(app)
         .post('/api/audits')
         .set('Authorization', 'Bearer token')
-        .send({ type: 'SYSTEM', scope: 'Scope', auditDate: '2026-03-15', leadAuditor: 'JS', iso14001Clauses: ['4.1'] });
+        .send({
+          type: 'SYSTEM',
+          scope: 'Scope',
+          auditDate: '2026-03-15',
+          leadAuditor: 'JS',
+          iso14001Clauses: ['4.1'],
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -425,7 +453,13 @@ describe('Environment Audits API Routes', () => {
       const response = await request(app)
         .post('/api/audits')
         .set('Authorization', 'Bearer token')
-        .send({ title: 'Audit', type: 'SYSTEM', auditDate: '2026-03-15', leadAuditor: 'JS', iso14001Clauses: ['4.1'] });
+        .send({
+          title: 'Audit',
+          type: 'SYSTEM',
+          auditDate: '2026-03-15',
+          leadAuditor: 'JS',
+          iso14001Clauses: ['4.1'],
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -537,8 +571,13 @@ describe('Environment Audits API Routes', () => {
   // ─── DELETE /api/audits/:id ───────────────────────────────────────────────
   describe('DELETE /api/audits/:id', () => {
     it('should soft-delete audit successfully', async () => {
-      (mockPrisma.envAudit.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001' });
-      (mockPrisma.envAudit.update as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+      (mockPrisma.envAudit.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '00000000-0000-0000-0000-000000000001',
+      });
+      (mockPrisma.envAudit.update as jest.Mock).mockResolvedValueOnce({
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: new Date(),
+      });
 
       const response = await request(app)
         .delete('/api/audits/00000000-0000-0000-0000-000000000001')
@@ -583,7 +622,9 @@ describe('Environment Audits API Routes', () => {
     };
 
     it('should add a finding to an audit', async () => {
-      (mockPrisma.envAudit.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.envAudit.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '00000000-0000-0000-0000-000000000001',
+      });
       (mockPrisma.envAuditFinding.create as jest.Mock).mockResolvedValueOnce({
         id: '00000000-0000-0000-0000-000000000001',
         auditId: 'env10000-0000-4000-a000-000000000001',
@@ -615,7 +656,9 @@ describe('Environment Audits API Routes', () => {
     });
 
     it('should return 400 for missing clause', async () => {
-      (mockPrisma.envAudit.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.envAudit.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '00000000-0000-0000-0000-000000000001',
+      });
 
       const response = await request(app)
         .post('/api/audits/00000000-0000-0000-0000-000000000001/findings')
@@ -627,7 +670,9 @@ describe('Environment Audits API Routes', () => {
     });
 
     it('should return 400 for invalid finding type', async () => {
-      (mockPrisma.envAudit.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.envAudit.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '00000000-0000-0000-0000-000000000001',
+      });
 
       const response = await request(app)
         .post('/api/audits/00000000-0000-0000-0000-000000000001/findings')
@@ -639,7 +684,9 @@ describe('Environment Audits API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.envAudit.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.envAudit.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '00000000-0000-0000-0000-000000000001',
+      });
       (mockPrisma.envAuditFinding.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
@@ -671,7 +718,9 @@ describe('Environment Audits API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/audits/00000000-0000-0000-0000-000000000001/findings/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/audits/00000000-0000-0000-0000-000000000001/findings/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ correctiveAction: 'Update all documentation' });
 
@@ -684,7 +733,9 @@ describe('Environment Audits API Routes', () => {
       (mockPrisma.envAuditFinding.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/audits/00000000-0000-0000-0000-000000000001/findings/00000000-0000-4000-a000-ffffffffffff')
+        .put(
+          '/api/audits/00000000-0000-0000-0000-000000000001/findings/00000000-0000-4000-a000-ffffffffffff'
+        )
         .set('Authorization', 'Bearer token')
         .send({ description: 'Updated' });
 
@@ -696,7 +747,9 @@ describe('Environment Audits API Routes', () => {
       (mockPrisma.envAuditFinding.findFirst as jest.Mock).mockResolvedValueOnce(existingFinding);
 
       const response = await request(app)
-        .put('/api/audits/00000000-0000-0000-0000-000000000001/findings/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/audits/00000000-0000-0000-0000-000000000001/findings/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ description: 'Updated', unknownField: 'bad' });
 
@@ -713,7 +766,9 @@ describe('Environment Audits API Routes', () => {
       });
 
       await request(app)
-        .put('/api/audits/00000000-0000-0000-0000-000000000001/findings/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/audits/00000000-0000-0000-0000-000000000001/findings/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'CLOSED' });
 
@@ -727,10 +782,14 @@ describe('Environment Audits API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.envAuditFinding.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envAuditFinding.findFirst as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
-        .put('/api/audits/00000000-0000-0000-0000-000000000001/findings/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/audits/00000000-0000-0000-0000-000000000001/findings/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ description: 'Updated' });
 

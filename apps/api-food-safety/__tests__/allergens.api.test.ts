@@ -38,7 +38,9 @@ beforeEach(() => {
 
 describe('GET /api/allergens', () => {
   it('should return allergens with pagination', async () => {
-    (prisma as any).fsAllergen.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', name: 'Peanuts' }]);
+    (prisma as any).fsAllergen.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Peanuts' },
+    ]);
     (prisma as any).fsAllergen.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/allergens');
@@ -77,11 +79,17 @@ describe('GET /api/allergens', () => {
 
 describe('POST /api/allergens', () => {
   it('should create an allergen with auto-generated code', async () => {
-    const created = { id: '00000000-0000-0000-0000-000000000001', name: 'Peanuts', code: 'ALG-123', type: 'MAJOR' };
+    const created = {
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Peanuts',
+      code: 'ALG-123',
+      type: 'MAJOR',
+    };
     (prisma as any).fsAllergen.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/allergens').send({
-      name: 'Peanuts', type: 'MAJOR',
+      name: 'Peanuts',
+      type: 'MAJOR',
     });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -96,7 +104,8 @@ describe('POST /api/allergens', () => {
     (prisma as any).fsAllergen.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/allergens').send({
-      name: 'Peanuts', type: 'MAJOR',
+      name: 'Peanuts',
+      type: 'MAJOR',
     });
     expect(res.status).toBe(500);
   });
@@ -104,7 +113,10 @@ describe('POST /api/allergens', () => {
 
 describe('GET /api/allergens/:id', () => {
   it('should return an allergen by id', async () => {
-    (prisma as any).fsAllergen.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Peanuts' });
+    (prisma as any).fsAllergen.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Peanuts',
+    });
 
     const res = await request(app).get('/api/allergens/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
@@ -121,10 +133,17 @@ describe('GET /api/allergens/:id', () => {
 
 describe('PUT /api/allergens/:id', () => {
   it('should update an allergen', async () => {
-    (prisma as any).fsAllergen.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsAllergen.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    (prisma as any).fsAllergen.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsAllergen.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Updated',
+    });
 
-    const res = await request(app).put('/api/allergens/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
+    const res = await request(app)
+      .put('/api/allergens/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -132,22 +151,32 @@ describe('PUT /api/allergens/:id', () => {
   it('should return 404 for non-existent allergen', async () => {
     (prisma as any).fsAllergen.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/allergens/00000000-0000-0000-0000-000000000099').send({ name: 'Test' });
+    const res = await request(app)
+      .put('/api/allergens/00000000-0000-0000-0000-000000000099')
+      .send({ name: 'Test' });
     expect(res.status).toBe(404);
   });
 
   it('should reject invalid update', async () => {
-    (prisma as any).fsAllergen.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsAllergen.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
 
-    const res = await request(app).put('/api/allergens/00000000-0000-0000-0000-000000000001').send({ type: 'INVALID' });
+    const res = await request(app)
+      .put('/api/allergens/00000000-0000-0000-0000-000000000001')
+      .send({ type: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
 
 describe('DELETE /api/allergens/:id', () => {
   it('should soft delete an allergen', async () => {
-    (prisma as any).fsAllergen.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsAllergen.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsAllergen.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsAllergen.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
 
     const res = await request(app).delete('/api/allergens/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);

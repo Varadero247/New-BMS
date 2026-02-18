@@ -94,11 +94,14 @@ router.post('/message', async (req: Request, res: Response) => {
       });
     }
 
-    const history = JSON.parse(session.messages as string) as Array<{ role: string; content: string }>;
+    const history = JSON.parse(session.messages as string) as Array<{
+      role: string;
+      content: string;
+    }>;
     history.push({ role: 'user', content: message });
 
     // Call Anthropic API
-    let assistantMessage = "Thank you for your interest! Let me help you find the right solution.";
+    let assistantMessage = 'Thank you for your interest! Let me help you find the right solution.';
     try {
       const apiKey = process.env.ANTHROPIC_API_KEY;
       if (apiKey) {
@@ -121,7 +124,7 @@ router.post('/message', async (req: Request, res: Response) => {
         });
 
         if (response.ok) {
-          const data = await response.json() as any;
+          const data = (await response.json()) as any;
           assistantMessage = data.content?.[0]?.text || assistantMessage;
         }
       }
@@ -139,15 +142,21 @@ router.post('/message', async (req: Request, res: Response) => {
         assistantMessage = assistantMessage.replace(/CAPTURE:\{[^}]+\}/, '').trim();
 
         // Save lead
-        await prisma.mktLead.create({
-          data: {
-            email: capturedData.email,
-            name: capturedData.name,
-            source: 'CHATBOT',
-            isoCount: capturedData.isoStandards ? capturedData.isoStandards.split(',').length : null,
-            employeeCount: capturedData.companySize || null,
-          },
-        }).catch((err: unknown) => logger.error('Failed to save chatbot lead', { error: String(err) }));
+        await prisma.mktLead
+          .create({
+            data: {
+              email: capturedData.email,
+              name: capturedData.name,
+              source: 'CHATBOT',
+              isoCount: capturedData.isoStandards
+                ? capturedData.isoStandards.split(',').length
+                : null,
+              employeeCount: capturedData.companySize || null,
+            },
+          })
+          .catch((err: unknown) =>
+            logger.error('Failed to save chatbot lead', { error: String(err) })
+          );
       } catch {
         logger.warn('Failed to parse CAPTURE JSON');
       }

@@ -35,7 +35,8 @@ export default function MonthlyReviewListPage() {
   }, []);
 
   const formatCurrency = (v: number) => `£${Number(v || 0).toLocaleString()}`;
-  const formatMonth = (m: string) => new Date(m + '-01').toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+  const formatMonth = (m: string) =>
+    new Date(m + '-01').toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
 
   const trajectoryBadge = (t: string | null) => {
     const map: Record<string, { bg: string; text: string; label: string }> = {
@@ -46,7 +47,9 @@ export default function MonthlyReviewListPage() {
     const style = map[t || 'ON_TRACK'] || map.ON_TRACK;
     const Icon = t === 'AHEAD' ? ArrowUpRight : t === 'BEHIND' ? ArrowDownRight : Minus;
     return (
-      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${style.bg} ${style.text}`}>
+      <span
+        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${style.bg} ${style.text}`}
+      >
         <Icon className="w-3 h-3" />
         {style.label}
       </span>
@@ -63,7 +66,9 @@ export default function MonthlyReviewListPage() {
               <CalendarCheck className="w-6 h-6 text-blue-400" />
               Monthly Reviews
             </h1>
-            <p className="text-gray-400 dark:text-gray-500 mt-1">Performance snapshots and target approvals</p>
+            <p className="text-gray-400 dark:text-gray-500 mt-1">
+              Performance snapshots and target approvals
+            </p>
           </div>
         </div>
 
@@ -73,18 +78,30 @@ export default function MonthlyReviewListPage() {
           <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-12 text-center">
             <CalendarCheck className="w-12 h-12 text-gray-600 mx-auto mb-4" />
             <p className="text-gray-400 dark:text-gray-500">No monthly snapshots yet.</p>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Snapshots are generated on the 1st of each month, or triggered manually.</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">
+              Snapshots are generated on the 1st of each month, or triggered manually.
+            </p>
           </div>
         ) : (
           <div className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#1B3A6B]/30">
-                  <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Month</th>
-                  <th className="text-right py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">MRR</th>
-                  <th className="text-right py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Customers</th>
-                  <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Trajectory</th>
-                  <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">Approved</th>
+                  <th className="text-left py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                    Month
+                  </th>
+                  <th className="text-right py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                    MRR
+                  </th>
+                  <th className="text-right py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                    Customers
+                  </th>
+                  <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                    Trajectory
+                  </th>
+                  <th className="text-center py-3 px-4 text-gray-400 dark:text-gray-500 font-medium">
+                    Approved
+                  </th>
                   <th className="text-right py-3 px-4 text-gray-400 dark:text-gray-500 font-medium"></th>
                 </tr>
               </thead>
@@ -93,7 +110,9 @@ export default function MonthlyReviewListPage() {
                   <tr key={s.id} className="border-b border-[#1B3A6B]/10 hover:bg-[#1B3A6B]/10">
                     <td className="py-3 px-4 text-white font-medium">
                       {formatMonth(s.month)}
-                      <span className="text-gray-500 dark:text-gray-400 text-xs ml-2">M{s.monthNumber}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-xs ml-2">
+                        M{s.monthNumber}
+                      </span>
                     </td>
                     <td className="py-3 px-4 text-white text-right">{formatCurrency(s.mrr)}</td>
                     <td className="py-3 px-4 text-gray-300 text-right">{s.customers}</td>
@@ -106,7 +125,10 @@ export default function MonthlyReviewListPage() {
                       )}
                     </td>
                     <td className="py-3 px-4 text-right">
-                      <a href={`/monthly-review/${s.id}`} className="text-blue-400 hover:text-blue-300">
+                      <a
+                        href={`/monthly-review/${s.id}`}
+                        className="text-blue-400 hover:text-blue-300"
+                      >
                         <ChevronRight className="w-4 h-4" />
                       </a>
                     </td>

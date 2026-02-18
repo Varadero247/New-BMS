@@ -35,17 +35,21 @@ const cta = (url: string, text: string) =>
 export function day90Email(vars: RenewalVars) {
   const s = vars.stats;
   return {
-    subject: 'Your Nexara renewal is coming up — here\'s your year in review',
+    subject: "Your Nexara renewal is coming up — here's your year in review",
     html: `${header('Your Year with Nexara')}
 <p>Hi ${vars.firstName},</p>
 <p>Your Nexara subscription renews on <strong>${vars.renewalDate}</strong>. Here's what ${vars.companyName} achieved this year:</p>
-${s ? `<div style="background: #f0f4ff; border-radius: 8px; padding: 20px; margin: 16px 0;">
+${
+  s
+    ? `<div style="background: #f0f4ff; border-radius: 8px; padding: 20px; margin: 16px 0;">
   <p><strong>${s.recordsCreated.toLocaleString()}</strong> records created</p>
   <p><strong>${s.auditsCompleted}</strong> audits completed</p>
   <p><strong>${s.documentsManaged.toLocaleString()}</strong> documents managed</p>
   <p><strong>${s.ncResolved}</strong> non-conformances resolved</p>
   <p><strong>${s.activeUsers}</strong> active users across <strong>${s.modulesUsed}</strong> modules</p>
-</div>` : ''}
+</div>`
+    : ''
+}
 ${cta(vars.billingUrl, 'Renew Now & Lock In Pricing')}
 ${cta(vars.calendlyUrl, 'Book a Renewal Review Call')}
 <p>Best,<br>The Nexara Team</p>

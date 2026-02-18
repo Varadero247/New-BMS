@@ -52,7 +52,10 @@ router.post('/', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = complaintCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const data = parsed.data;
@@ -74,8 +77,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Customer complaint submitted', { id: complaint.id, referenceNumber });
     return res.status(201).json({ success: true, data: complaint });
   } catch (error: unknown) {
-    logger.error('Error creating complaint', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create complaint' } });
+    logger.error('Error creating complaint', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create complaint' },
+    });
   }
 });
 
@@ -99,7 +107,12 @@ router.get('/', async (req: Request, res: Response) => {
     if (status) where.status = status;
 
     const [items, total] = await Promise.all([
-      prisma.portalQualityReport.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.portalQualityReport.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
       prisma.portalQualityReport.count({ where }),
     ]);
 
@@ -109,8 +122,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing complaints', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list complaints' } });
+    logger.error('Error listing complaints', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list complaints' },
+    });
   }
 });
 
@@ -126,13 +144,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!complaint) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Complaint not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Complaint not found' } });
     }
 
     return res.json({ success: true, data: complaint });
   } catch (error: unknown) {
-    logger.error('Error fetching complaint', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch complaint' } });
+    logger.error('Error fetching complaint', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch complaint' },
+    });
   }
 });
 

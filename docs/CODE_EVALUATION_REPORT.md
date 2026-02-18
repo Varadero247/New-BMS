@@ -8,12 +8,14 @@
 **Classification:** CONFIDENTIAL
 
 **Evaluation Standards:**
+
 - OWASP Top 10 2023, OWASP ASVS 4.0 Level 2, CWE/SANS Top 25
 - NIST SP 800-53 Rev 5, ISO 27001, GDPR Article 32
 - 12-Factor App, Clean Architecture, ISO/IEC 25010:2023
 - Google Engineering Guide, Node.js Best Practices
 
 **Audit Personas:**
+
 - Chief Security Engineer (CISSP, CEH)
 - Principal Software Architect
 - Staff Full-Stack Engineer
@@ -925,23 +927,23 @@ Total Findings:              55
 
 ---
 
-| ID | Category | Title | File | Est. Fix |
-|----|----------|-------|------|----------|
-| FINDING-030 | SECURITY | No Special Character in Password Policy | packages/auth/src/password.ts:13-39 | 0.5h |
-| FINDING-031 | SECURITY | Session Token Stored as Full JWT in DB | apps/api-gateway/src/routes/auth.ts:107-116 | 2h |
-| FINDING-032 | SECURITY | Missing ID Validation on 5 Services | Quality, Inventory, HR, Payroll, Workflows routes | 2h |
-| FINDING-033 | SECURITY | SQL Injection Regex Detection Bypassable | packages/validation/src/sanitize.ts:52-61 | 1h |
-| FINDING-034 | SECURITY | CSP and HSTS Disabled in Non-Production | apps/api-gateway/src/middleware/security-headers.ts | 1h |
-| FINDING-035 | SECURITY | Duplicate CORS Middleware in Gateway | apps/api-gateway/src/index.ts | 0.5h |
-| FINDING-036 | ARCHITECTURE | Some Models Missing Audit Trail Fields | environment.prisma (MonitoringData, EnvMilestone), PM schema | 2h |
-| FINDING-037 | ARCHITECTURE | PM Schema Uses Strings Instead of Enums | packages/database/prisma/schemas/project-management.prisma | 4h |
-| FINDING-038 | ARCHITECTURE | Prisma Metrics Middleware Exists But Unused | packages/monitoring/src/metrics.ts:86-98 | 1h |
-| FINDING-039 | ARCHITECTURE | Log File Rotation Not Configured | packages/monitoring/src/logger.ts:47-57 | 1h |
-| FINDING-040 | PERFORMANCE | Select Clause Not Used on High-Volume Queries | Various list endpoints returning all columns | 4h |
-| FINDING-041 | CODE_QUALITY | Stale Closure Risk in Older H&S Components | apps/web-health-safety/src/app/risks/client.tsx:185-187 | 2h |
-| FINDING-042 | CODE_QUALITY | Chart.js registerables Import (Non-Tree-Shakeable) | apps/web-quality/src/components/analytics/*.tsx | 1h |
-| FINDING-043 | CODE_QUALITY | Auto-Numbering Logic Duplicated 15+ Times | Various POST handlers across services | 2h |
-| FINDING-044 | ARCHITECTURE | Full Stack Traces in Structured Logs | All apps/api-*/src/index.ts error handlers | 1h |
+| ID          | Category     | Title                                              | File                                                         | Est. Fix |
+| ----------- | ------------ | -------------------------------------------------- | ------------------------------------------------------------ | -------- |
+| FINDING-030 | SECURITY     | No Special Character in Password Policy            | packages/auth/src/password.ts:13-39                          | 0.5h     |
+| FINDING-031 | SECURITY     | Session Token Stored as Full JWT in DB             | apps/api-gateway/src/routes/auth.ts:107-116                  | 2h       |
+| FINDING-032 | SECURITY     | Missing ID Validation on 5 Services                | Quality, Inventory, HR, Payroll, Workflows routes            | 2h       |
+| FINDING-033 | SECURITY     | SQL Injection Regex Detection Bypassable           | packages/validation/src/sanitize.ts:52-61                    | 1h       |
+| FINDING-034 | SECURITY     | CSP and HSTS Disabled in Non-Production            | apps/api-gateway/src/middleware/security-headers.ts          | 1h       |
+| FINDING-035 | SECURITY     | Duplicate CORS Middleware in Gateway               | apps/api-gateway/src/index.ts                                | 0.5h     |
+| FINDING-036 | ARCHITECTURE | Some Models Missing Audit Trail Fields             | environment.prisma (MonitoringData, EnvMilestone), PM schema | 2h       |
+| FINDING-037 | ARCHITECTURE | PM Schema Uses Strings Instead of Enums            | packages/database/prisma/schemas/project-management.prisma   | 4h       |
+| FINDING-038 | ARCHITECTURE | Prisma Metrics Middleware Exists But Unused        | packages/monitoring/src/metrics.ts:86-98                     | 1h       |
+| FINDING-039 | ARCHITECTURE | Log File Rotation Not Configured                   | packages/monitoring/src/logger.ts:47-57                      | 1h       |
+| FINDING-040 | PERFORMANCE  | Select Clause Not Used on High-Volume Queries      | Various list endpoints returning all columns                 | 4h       |
+| FINDING-041 | CODE_QUALITY | Stale Closure Risk in Older H&S Components         | apps/web-health-safety/src/app/risks/client.tsx:185-187      | 2h       |
+| FINDING-042 | CODE_QUALITY | Chart.js registerables Import (Non-Tree-Shakeable) | apps/web-quality/src/components/analytics/\*.tsx             | 1h       |
+| FINDING-043 | CODE_QUALITY | Auto-Numbering Logic Duplicated 15+ Times          | Various POST handlers across services                        | 2h       |
+| FINDING-044 | ARCHITECTURE | Full Stack Traces in Structured Logs               | All apps/api-\*/src/index.ts error handlers                  | 1h       |
 
 ---
 
@@ -949,33 +951,33 @@ Total Findings:              55
 
 ---
 
-| # | Category | Practice | Status |
-|---|----------|----------|--------|
-| 1 | SECURITY | JWT algorithm pinned to HS256 — prevents algorithm confusion attacks | Implemented |
-| 2 | SECURITY | Bcrypt with cost factor 12 for password hashing | Implemented |
-| 3 | SECURITY | 5-tier rate limiting with Redis backing (auth, register, reset, API, strict) | Implemented |
-| 4 | SECURITY | Account lockout after 5 failed attempts (30-min cooldown) | Implemented |
-| 5 | SECURITY | Zod schema validation on all input across all services | Implemented |
-| 6 | SECURITY | Input sanitization middleware (HTML strip, XSS pattern blocking) | Implemented |
-| 7 | SECURITY | Comprehensive Helmet config with CSP, X-Frame-Options, Permissions-Policy | Implemented |
-| 8 | SECURITY | Zero dangerouslySetInnerHTML in all React code — XSS prevented | Implemented |
-| 9 | SECURITY | Parameterized queries exclusively — no raw SQL interpolation | Implemented |
-| 10 | SECURITY | Password reset uses SHA-256 hashed tokens with 1-hour expiry | Implemented |
-| 11 | ARCHITECTURE | Clean microservice decomposition with single responsibility per service | Implemented |
-| 12 | ARCHITECTURE | Consistent response envelope: { success, data, error: { code, message } } | Implemented |
-| 13 | ARCHITECTURE | API versioning with deprecation headers and sunset dates | Implemented |
-| 14 | ARCHITECTURE | Inter-service authentication via service tokens (refreshed every 50min) | Implemented |
-| 15 | ARCHITECTURE | Graceful shutdown with SIGTERM/SIGINT handlers on all services | Implemented |
-| 16 | ARCHITECTURE | Health (/health) and readiness (/ready) endpoints on all 10 services | Implemented |
-| 17 | ARCHITECTURE | Comprehensive database indexing (200+ indexes across 10 schemas) | Implemented |
-| 18 | ARCHITECTURE | FK cascades correctly applied; unique constraints on business identifiers | Implemented |
-| 19 | CODE_QUALITY | TypeScript strict mode enabled globally with noImplicitAny | Implemented |
-| 20 | CODE_QUALITY | Structured logging (Winston) with correlation IDs across all services | Implemented |
-| 21 | CODE_QUALITY | Promise.all used for parallel DB queries in list+count patterns | Implemented |
-| 22 | CODE_QUALITY | useCallback properly applied in newer frontend components | Implemented |
-| 23 | CODE_QUALITY | Error boundaries on all 10 web applications | Implemented |
-| 24 | CODE_QUALITY | No heavy legacy dependencies (moment, lodash, jQuery, Bootstrap) | Verified |
-| 25 | CODE_QUALITY | 2,633 unit tests across 103 suites with comprehensive route coverage | Implemented |
+| #   | Category     | Practice                                                                     | Status      |
+| --- | ------------ | ---------------------------------------------------------------------------- | ----------- |
+| 1   | SECURITY     | JWT algorithm pinned to HS256 — prevents algorithm confusion attacks         | Implemented |
+| 2   | SECURITY     | Bcrypt with cost factor 12 for password hashing                              | Implemented |
+| 3   | SECURITY     | 5-tier rate limiting with Redis backing (auth, register, reset, API, strict) | Implemented |
+| 4   | SECURITY     | Account lockout after 5 failed attempts (30-min cooldown)                    | Implemented |
+| 5   | SECURITY     | Zod schema validation on all input across all services                       | Implemented |
+| 6   | SECURITY     | Input sanitization middleware (HTML strip, XSS pattern blocking)             | Implemented |
+| 7   | SECURITY     | Comprehensive Helmet config with CSP, X-Frame-Options, Permissions-Policy    | Implemented |
+| 8   | SECURITY     | Zero dangerouslySetInnerHTML in all React code — XSS prevented               | Implemented |
+| 9   | SECURITY     | Parameterized queries exclusively — no raw SQL interpolation                 | Implemented |
+| 10  | SECURITY     | Password reset uses SHA-256 hashed tokens with 1-hour expiry                 | Implemented |
+| 11  | ARCHITECTURE | Clean microservice decomposition with single responsibility per service      | Implemented |
+| 12  | ARCHITECTURE | Consistent response envelope: { success, data, error: { code, message } }    | Implemented |
+| 13  | ARCHITECTURE | API versioning with deprecation headers and sunset dates                     | Implemented |
+| 14  | ARCHITECTURE | Inter-service authentication via service tokens (refreshed every 50min)      | Implemented |
+| 15  | ARCHITECTURE | Graceful shutdown with SIGTERM/SIGINT handlers on all services               | Implemented |
+| 16  | ARCHITECTURE | Health (/health) and readiness (/ready) endpoints on all 10 services         | Implemented |
+| 17  | ARCHITECTURE | Comprehensive database indexing (200+ indexes across 10 schemas)             | Implemented |
+| 18  | ARCHITECTURE | FK cascades correctly applied; unique constraints on business identifiers    | Implemented |
+| 19  | CODE_QUALITY | TypeScript strict mode enabled globally with noImplicitAny                   | Implemented |
+| 20  | CODE_QUALITY | Structured logging (Winston) with correlation IDs across all services        | Implemented |
+| 21  | CODE_QUALITY | Promise.all used for parallel DB queries in list+count patterns              | Implemented |
+| 22  | CODE_QUALITY | useCallback properly applied in newer frontend components                    | Implemented |
+| 23  | CODE_QUALITY | Error boundaries on all 10 web applications                                  | Implemented |
+| 24  | CODE_QUALITY | No heavy legacy dependencies (moment, lodash, jQuery, Bootstrap)             | Verified    |
+| 25  | CODE_QUALITY | 2,633 unit tests across 103 suites with comprehensive route coverage         | Implemented |
 
 ---
 
@@ -985,71 +987,71 @@ Total Findings:              55
 
 ### SPRINT 0 — THIS WEEK (Security Critical)
 
-| | Finding | Title | Hours |
-|---|---------|-------|-------|
-| 1 | FINDING-001 | Secrets exposed in .env files — rotate + remove fallback | 2 |
-| 2 | FINDING-002 | PII encryption at rest — implement field-level crypto | 8 |
-| 3 | FINDING-003 | Remove hardcoded admin credentials from UI | 2 |
-| 4 | FINDING-005 | Apply strictApiLimiter to AI routes | 1 |
-| 5 | FINDING-006 | Set Redis password | 1 |
-| 6 | FINDING-009 | Remove host port mappings for downstream services | 2 |
-| 7 | FINDING-010 | Add proxyTimeout to gateway proxy | 1 |
-| 8 | FINDING-013 | Wire up validatePasswordStrength in registration | 1 |
-| **Total** | | | **18 hours** |
+|           | Finding     | Title                                                    | Hours        |
+| --------- | ----------- | -------------------------------------------------------- | ------------ |
+| 1         | FINDING-001 | Secrets exposed in .env files — rotate + remove fallback | 2            |
+| 2         | FINDING-002 | PII encryption at rest — implement field-level crypto    | 8            |
+| 3         | FINDING-003 | Remove hardcoded admin credentials from UI               | 2            |
+| 4         | FINDING-005 | Apply strictApiLimiter to AI routes                      | 1            |
+| 5         | FINDING-006 | Set Redis password                                       | 1            |
+| 6         | FINDING-009 | Remove host port mappings for downstream services        | 2            |
+| 7         | FINDING-010 | Add proxyTimeout to gateway proxy                        | 1            |
+| 8         | FINDING-013 | Wire up validatePasswordStrength in registration         | 1            |
+| **Total** |             |                                                          | **18 hours** |
 
 ### SPRINT 1 — NEXT SPRINT (High Priority)
 
-| | Finding | Title | Hours |
-|---|---------|-------|-------|
-| 1 | FINDING-004 | Implement RBAC on all downstream services | 4 |
-| 2 | FINDING-007 | GDPR right-to-erasure and DSAR endpoints | 16 |
-| 3 | FINDING-008 | PII masking in API responses | 4 |
-| 4 | FINDING-011 | Circuit breakers on gateway proxy | 4 |
-| 5 | FINDING-012 | Per-service database users with table grants | 2 |
-| 6 | FINDING-014 | Admin approval workflow for registration | 4 |
-| 7 | FINDING-017 | Implement audit log redaction function | 2 |
-| 8 | FINDING-018 | Add missing services to docker-compose | 2 |
-| **Total** | | | **38 hours** |
+|           | Finding     | Title                                        | Hours        |
+| --------- | ----------- | -------------------------------------------- | ------------ |
+| 1         | FINDING-004 | Implement RBAC on all downstream services    | 4            |
+| 2         | FINDING-007 | GDPR right-to-erasure and DSAR endpoints     | 16           |
+| 3         | FINDING-008 | PII masking in API responses                 | 4            |
+| 4         | FINDING-011 | Circuit breakers on gateway proxy            | 4            |
+| 5         | FINDING-012 | Per-service database users with table grants | 2            |
+| 6         | FINDING-014 | Admin approval workflow for registration     | 4            |
+| 7         | FINDING-017 | Implement audit log redaction function       | 2            |
+| 8         | FINDING-018 | Add missing services to docker-compose       | 2            |
+| **Total** |             |                                              | **38 hours** |
 
 ### SPRINT 2 — BACKLOG (Medium Priority)
 
-| | Finding | Title | Hours |
-|---|---------|-------|-------|
-| 1 | FINDING-015 | Remove K8s secrets template from repo | 1 |
-| 2 | FINDING-016 | Add rate limiting to downstream services | 4 |
-| 3 | FINDING-019 | DB connection pool configuration | 4 |
-| 4 | FINDING-020 | Activate OpenTelemetry tracing | 2 |
-| 5 | FINDING-021 | Add take limits to unbounded queries | 2 |
-| 6 | FINDING-022 | Fix N+1 query patterns | 3 |
-| 7 | FINDING-023 | Extract asyncHandler wrapper (DRY) | 8 |
-| 8 | FINDING-024 | Extract pagination helper (DRY) | 4 |
-| 9 | FINDING-025 | Reduce any/as any occurrences | 4 |
-| 10 | FINDING-026 | Row-level security policies | 4 |
-| 11 | FINDING-027 | Require explicit service URLs in production | 2 |
-| 12 | FINDING-028 | Create per-service .env.example files | 1 |
-| 13 | FINDING-029 | Gateway response caching for degradation | 4 |
-| **Total** | | | **43 hours** |
+|           | Finding     | Title                                       | Hours        |
+| --------- | ----------- | ------------------------------------------- | ------------ |
+| 1         | FINDING-015 | Remove K8s secrets template from repo       | 1            |
+| 2         | FINDING-016 | Add rate limiting to downstream services    | 4            |
+| 3         | FINDING-019 | DB connection pool configuration            | 4            |
+| 4         | FINDING-020 | Activate OpenTelemetry tracing              | 2            |
+| 5         | FINDING-021 | Add take limits to unbounded queries        | 2            |
+| 6         | FINDING-022 | Fix N+1 query patterns                      | 3            |
+| 7         | FINDING-023 | Extract asyncHandler wrapper (DRY)          | 8            |
+| 8         | FINDING-024 | Extract pagination helper (DRY)             | 4            |
+| 9         | FINDING-025 | Reduce any/as any occurrences               | 4            |
+| 10        | FINDING-026 | Row-level security policies                 | 4            |
+| 11        | FINDING-027 | Require explicit service URLs in production | 2            |
+| 12        | FINDING-028 | Create per-service .env.example files       | 1            |
+| 13        | FINDING-029 | Gateway response caching for degradation    | 4            |
+| **Total** |             |                                             | **43 hours** |
 
 ### SPRINT 3 — TECH DEBT (Low Priority)
 
-| | Finding | Title | Hours |
-|---|---------|-------|-------|
-| 1 | FINDING-030 | Add special char requirement + max length | 0.5 |
-| 2 | FINDING-031 | Store hashed session tokens | 2 |
-| 3 | FINDING-032 | Add validateIdParam to remaining services | 2 |
-| 4 | FINDING-033 | Improve SQL injection regex or remove | 1 |
-| 5 | FINDING-034 | Enable CSP/HSTS in staging environments | 1 |
-| 6 | FINDING-035 | Remove duplicate CORS middleware | 0.5 |
-| 7 | FINDING-036 | Add missing audit fields to models | 2 |
-| 8 | FINDING-037 | Convert PM schema strings to enums | 4 |
-| 9 | FINDING-038 | Wire Prisma metrics middleware | 1 |
-| 10 | FINDING-039 | Configure log file rotation | 1 |
-| 11 | FINDING-040 | Add select clauses to list queries | 4 |
-| 12 | FINDING-041 | Fix stale closures in H&S components | 2 |
-| 13 | FINDING-042 | Tree-shake Chart.js imports | 1 |
-| 14 | FINDING-043 | Extract auto-numbering utility | 2 |
-| 15 | FINDING-044 | Truncate stack traces in production logs | 1 |
-| **Total** | | | **25 hours** |
+|           | Finding     | Title                                     | Hours        |
+| --------- | ----------- | ----------------------------------------- | ------------ |
+| 1         | FINDING-030 | Add special char requirement + max length | 0.5          |
+| 2         | FINDING-031 | Store hashed session tokens               | 2            |
+| 3         | FINDING-032 | Add validateIdParam to remaining services | 2            |
+| 4         | FINDING-033 | Improve SQL injection regex or remove     | 1            |
+| 5         | FINDING-034 | Enable CSP/HSTS in staging environments   | 1            |
+| 6         | FINDING-035 | Remove duplicate CORS middleware          | 0.5          |
+| 7         | FINDING-036 | Add missing audit fields to models        | 2            |
+| 8         | FINDING-037 | Convert PM schema strings to enums        | 4            |
+| 9         | FINDING-038 | Wire Prisma metrics middleware            | 1            |
+| 10        | FINDING-039 | Configure log file rotation               | 1            |
+| 11        | FINDING-040 | Add select clauses to list queries        | 4            |
+| 12        | FINDING-041 | Fix stale closures in H&S components      | 2            |
+| 13        | FINDING-042 | Tree-shake Chart.js imports               | 1            |
+| 14        | FINDING-043 | Extract auto-numbering utility            | 2            |
+| 15        | FINDING-044 | Truncate stack traces in production logs  | 1            |
+| **Total** |             |                                           | **25 hours** |
 
 ---
 
@@ -1058,6 +1060,7 @@ Total Findings:              55
 The IMS platform demonstrates strong engineering practices that should be preserved and enforced:
 
 ### Security Strengths
+
 1. **JWT Security**: Algorithm pinned to HS256, preventing none-algorithm and RSA/HMAC confusion attacks. Issuer/audience validation on all verify calls. 15-minute access token expiry with 7-day refresh tokens.
 2. **Password Hashing**: bcrypt with cost factor 12 (above minimum recommendation). SHA-256 hashed reset tokens with 1-hour expiry.
 3. **Rate Limiting**: 5-tier rate limiting strategy (auth: 5/15min, register: 3/hr, reset: 3/15min, API: 100/15min, strict: 20/15min). Redis-backed with in-memory fallback. Custom error responses in API envelope format.
@@ -1068,6 +1071,7 @@ The IMS platform demonstrates strong engineering practices that should be preser
 8. **XSS Prevention**: Zero instances of dangerouslySetInnerHTML across all 10 web applications.
 
 ### Architecture Strengths
+
 9. **Microservice Design**: Clean domain decomposition with single responsibility per service. Each service has its own Prisma schema and generated client.
 10. **API Design**: Consistent response envelope pattern. REST naming conventions with plural nouns. API versioning with deprecation headers.
 11. **Resilience Foundation**: Graceful shutdown on all services. Health and readiness endpoints. Inter-service authentication. Circuit breaker package available.
@@ -1075,6 +1079,7 @@ The IMS platform demonstrates strong engineering practices that should be preser
 13. **Observability Foundation**: Structured logging with Winston. Correlation ID propagation. Prometheus metrics collection. OpenTelemetry tracing package (needs activation).
 
 ### Code Quality Strengths
+
 14. **TypeScript Safety**: Strict mode enabled globally. Only 1 @ts-expect-error in production code. Consistent type annotations.
 15. **Error Handling**: Every async route handler wrapped in try/catch. Consistent error response format. Error boundaries on all web apps.
 16. **React Patterns**: useCallback properly applied in newer components. No heavy legacy dependencies. Loading states and error states handled.

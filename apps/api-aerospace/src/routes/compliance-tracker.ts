@@ -78,7 +78,10 @@ const createComplianceItemSchema = z.object({
   standard: z.string().optional().default('AS9100D'),
   evidenceDocuments: z.array(z.string()).optional().default([]),
   responsiblePerson: z.string().optional(),
-  targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  targetDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   notes: z.string().optional(),
 });
 
@@ -87,12 +90,23 @@ const updateComplianceItemSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   standard: z.string().optional(),
-  complianceStatus: z.enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'NOT_APPLICABLE', 'UNDER_REVIEW']).optional(),
+  complianceStatus: z
+    .enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'NOT_APPLICABLE', 'UNDER_REVIEW'])
+    .optional(),
   evidenceDocuments: z.array(z.string()).optional(),
   responsiblePerson: z.string().optional(),
-  targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  lastReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  targetDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  lastReviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  nextReviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   notes: z.string().optional(),
 });
 
@@ -106,7 +120,10 @@ router.get('/clauses', async (_req: AuthRequest, res: Response) => {
     res.json({ success: true, data: AS9100D_CLAUSES });
   } catch (error) {
     logger.error('List clauses error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list clauses' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list clauses' },
+    });
   }
 });
 
@@ -147,7 +164,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List compliance items error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list compliance items' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list compliance items' },
+    });
   }
 });
 
@@ -159,13 +179,19 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!item || item.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance item not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Compliance item not found' },
+      });
     }
 
     res.json({ success: true, data: item });
   } catch (error) {
     logger.error('Get compliance item error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance item' },
+    });
   }
 });
 
@@ -176,7 +202,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const refNumber = await generateComplianceItemRefNumber();
 
     // Look up clause title if not provided
-    const clauseData = AS9100D_CLAUSES.find(c => c.clause === data.clause);
+    const clauseData = AS9100D_CLAUSES.find((c) => c.clause === data.clause);
     const title = data.title || clauseData?.title || data.clause;
 
     const item = await prisma.aeroComplianceItem.create({
@@ -200,11 +226,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create compliance item error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create compliance item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create compliance item' },
+    });
   }
 });
 
@@ -213,7 +246,10 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroComplianceItem.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance item not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Compliance item not found' },
+      });
     }
 
     const data = updateComplianceItemSchema.parse(req.body);
@@ -223,8 +259,12 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
       data: {
         ...data,
         targetDate: data.targetDate ? new Date(data.targetDate) : existing.targetDate,
-        lastReviewDate: data.lastReviewDate ? new Date(data.lastReviewDate) : existing.lastReviewDate,
-        nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : existing.nextReviewDate,
+        lastReviewDate: data.lastReviewDate
+          ? new Date(data.lastReviewDate)
+          : existing.lastReviewDate,
+        nextReviewDate: data.nextReviewDate
+          ? new Date(data.nextReviewDate)
+          : existing.nextReviewDate,
       } as any,
     });
 
@@ -233,11 +273,18 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update compliance item error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update compliance item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update compliance item' },
+    });
   }
 });
 
@@ -246,7 +293,10 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroComplianceItem.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance item not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Compliance item not found' },
+      });
     }
 
     await prisma.aeroComplianceItem.update({
@@ -257,26 +307,39 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     res.status(204).send();
   } catch (error) {
     logger.error('Delete compliance item error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete compliance item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete compliance item' },
+    });
   }
 });
 
 // GET /dashboard/summary - Compliance summary dashboard
 router.get('/dashboard/summary', async (_req: AuthRequest, res: Response) => {
   try {
-    const [total, compliant, partiallyCompliant, nonCompliant, notApplicable, underReview] = await Promise.all([
-      prisma.aeroComplianceItem.count({ where: { deletedAt: null } as any }),
-      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'COMPLIANT' } as any }),
-      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'PARTIALLY_COMPLIANT' } as any }),
-      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'NON_COMPLIANT' } as any }),
-      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'NOT_APPLICABLE' } as any }),
-      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'UNDER_REVIEW' } as any }),
-    ]);
+    const [total, compliant, partiallyCompliant, nonCompliant, notApplicable, underReview] =
+      await Promise.all([
+        prisma.aeroComplianceItem.count({ where: { deletedAt: null } as any }),
+        prisma.aeroComplianceItem.count({
+          where: { deletedAt: null, complianceStatus: 'COMPLIANT' } as any,
+        }),
+        prisma.aeroComplianceItem.count({
+          where: { deletedAt: null, complianceStatus: 'PARTIALLY_COMPLIANT' } as any,
+        }),
+        prisma.aeroComplianceItem.count({
+          where: { deletedAt: null, complianceStatus: 'NON_COMPLIANT' } as any,
+        }),
+        prisma.aeroComplianceItem.count({
+          where: { deletedAt: null, complianceStatus: 'NOT_APPLICABLE' } as any,
+        }),
+        prisma.aeroComplianceItem.count({
+          where: { deletedAt: null, complianceStatus: 'UNDER_REVIEW' } as any,
+        }),
+      ]);
 
     const applicable = total - notApplicable;
-    const complianceScore = applicable > 0
-      ? Math.round(((compliant + partiallyCompliant * 0.5) / applicable) * 100)
-      : 0;
+    const complianceScore =
+      applicable > 0 ? Math.round(((compliant + partiallyCompliant * 0.5) / applicable) * 100) : 0;
 
     res.json({
       success: true,
@@ -298,7 +361,10 @@ router.get('/dashboard/summary', async (_req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Compliance summary error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance summary' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance summary' },
+    });
   }
 });
 

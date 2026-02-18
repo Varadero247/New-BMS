@@ -7,13 +7,11 @@ import type { FieldDefinition, TemplateDefinition } from './types';
  */
 export function renderTemplateToHtml(
   template: { code: string; name: string; description?: string | null; fields: FieldDefinition[] },
-  filledData?: Record<string, unknown>,
+  filledData?: Record<string, unknown>
 ): string {
   const isPreview = !filledData;
   const title = `${template.code} — ${template.name}`;
-  const rows = template.fields
-    .map((f) => renderField(f, filledData))
-    .join('\n');
+  const rows = template.fields.map((f) => renderField(f, filledData)).join('\n');
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -114,7 +112,9 @@ function renderTableField(field: FieldDefinition, data?: Record<string, unknown>
   let bodyRows: string;
   if (rows.length > 0) {
     bodyRows = rows
-      .map((row) => `<tr>${cols.map((c) => `<td>${esc(String(row[c.id] ?? ''))}</td>`).join('')}</tr>`)
+      .map(
+        (row) => `<tr>${cols.map((c) => `<td>${esc(String(row[c.id] ?? ''))}</td>`).join('')}</tr>`
+      )
       .join('\n');
   } else {
     bodyRows = `<tr>${cols.map(() => '<td>&nbsp;</td>').join('')}</tr>`.repeat(3);
@@ -133,10 +133,12 @@ function renderTableField(field: FieldDefinition, data?: Record<string, unknown>
 function formatValue(field: FieldDefinition, value: unknown): string {
   if (value === undefined || value === null || value === '') return '';
   if (field.type === 'multiselect' && Array.isArray(value)) {
-    return value.map((v) => {
-      const opt = field.options?.find((o) => o.value === v);
-      return esc(opt?.label ?? String(v));
-    }).join(', ');
+    return value
+      .map((v) => {
+        const opt = field.options?.find((o) => o.value === v);
+        return esc(opt?.label ?? String(v));
+      })
+      .join(', ');
   }
   if ((field.type === 'select' || field.type === 'radio') && field.options) {
     const opt = field.options.find((o) => o.value === String(value));

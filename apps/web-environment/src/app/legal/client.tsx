@@ -2,9 +2,18 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
   AIDisclosure,
 } from '@ims/ui';
 import { Plus, Scale, Loader2, Search, Sparkles, Shield, AlertTriangle } from 'lucide-react';
@@ -41,11 +50,36 @@ const LEGAL_STATUSES = [
 ] as const;
 
 const COMPLIANCE_STATUSES = [
-  { value: 'COMPLIANT', label: 'Compliant', color: 'bg-green-100 text-green-800', variant: 'success' as const },
-  { value: 'PARTIALLY_COMPLIANT', label: 'Partially Compliant', color: 'bg-yellow-100 text-yellow-800', variant: 'warning' as const },
-  { value: 'NON_COMPLIANT', label: 'Non-Compliant', color: 'bg-red-100 text-red-800', variant: 'danger' as const },
-  { value: 'NOT_ASSESSED', label: 'Not Assessed', color: 'bg-gray-100 dark:bg-gray-800 text-gray-800', variant: 'secondary' as const },
-  { value: 'NOT_APPLICABLE', label: 'Not Applicable', color: 'bg-gray-100 dark:bg-gray-800 text-gray-500', variant: 'outline' as const },
+  {
+    value: 'COMPLIANT',
+    label: 'Compliant',
+    color: 'bg-green-100 text-green-800',
+    variant: 'success' as const,
+  },
+  {
+    value: 'PARTIALLY_COMPLIANT',
+    label: 'Partially Compliant',
+    color: 'bg-yellow-100 text-yellow-800',
+    variant: 'warning' as const,
+  },
+  {
+    value: 'NON_COMPLIANT',
+    label: 'Non-Compliant',
+    color: 'bg-red-100 text-red-800',
+    variant: 'danger' as const,
+  },
+  {
+    value: 'NOT_ASSESSED',
+    label: 'Not Assessed',
+    color: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
+    variant: 'secondary' as const,
+  },
+  {
+    value: 'NOT_APPLICABLE',
+    label: 'Not Applicable',
+    color: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
+    variant: 'outline' as const,
+  },
 ] as const;
 
 const ASSESSMENT_METHODS = [
@@ -234,7 +268,7 @@ export default function LegalClient() {
   }
 
   function updateForm(field: keyof LegalForm, value: string | boolean | string[]) {
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   async function generateAiAnalysis() {
@@ -258,7 +292,14 @@ export default function LegalClient() {
   }
 
   async function handleSubmit() {
-    if (!form.title || !form.description || !form.regulatoryBody || !form.legislationReference || !form.responsiblePerson) return;
+    if (
+      !form.title ||
+      !form.description ||
+      !form.regulatoryBody ||
+      !form.legislationReference ||
+      !form.responsiblePerson
+    )
+      return;
     setSubmitting(true);
     try {
       await api.post('/legal', {
@@ -286,22 +327,22 @@ export default function LegalClient() {
   }
 
   function getComplianceBadgeVariant(status: string) {
-    const found = COMPLIANCE_STATUSES.find(s => s.value === status);
+    const found = COMPLIANCE_STATUSES.find((s) => s.value === status);
     return found?.variant || 'secondary';
   }
 
   function getComplianceLabel(status: string) {
-    const found = COMPLIANCE_STATUSES.find(s => s.value === status);
+    const found = COMPLIANCE_STATUSES.find((s) => s.value === status);
     return found?.label || status.replace(/_/g, ' ');
   }
 
   function getObligationLabel(type: string) {
-    const found = OBLIGATION_TYPES.find(t => t.value === type);
+    const found = OBLIGATION_TYPES.find((t) => t.value === type);
     return found?.label || type.replace(/_/g, ' ');
   }
 
   function getJurisdictionLabel(j: string) {
-    const found = JURISDICTIONS.find(jur => jur.value === j);
+    const found = JURISDICTIONS.find((jur) => jur.value === j);
     return found?.label || j;
   }
 
@@ -314,15 +355,14 @@ export default function LegalClient() {
 
   const counts = {
     total: records.length,
-    compliant: records.filter(r => r.complianceStatus === 'COMPLIANT').length,
-    partiallyCompliant: records.filter(r => r.complianceStatus === 'PARTIALLY_COMPLIANT').length,
-    nonCompliant: records.filter(r => r.complianceStatus === 'NON_COMPLIANT').length,
-    notAssessed: records.filter(r => r.complianceStatus === 'NOT_ASSESSED').length,
+    compliant: records.filter((r) => r.complianceStatus === 'COMPLIANT').length,
+    partiallyCompliant: records.filter((r) => r.complianceStatus === 'PARTIALLY_COMPLIANT').length,
+    nonCompliant: records.filter((r) => r.complianceStatus === 'NON_COMPLIANT').length,
+    notAssessed: records.filter((r) => r.complianceStatus === 'NOT_ASSESSED').length,
   };
 
-  const compliancePercentage = counts.total > 0
-    ? Math.round((counts.compliant / counts.total) * 100)
-    : 0;
+  const compliancePercentage =
+    counts.total > 0 ? Math.round((counts.compliant / counts.total) * 100) : 0;
 
   // ─── Render ─────────────────────────────────────────────────────
 
@@ -337,7 +377,10 @@ export default function LegalClient() {
               ISO 14001 Clause 6.1.3 -- Compliance Obligations Register
             </p>
           </div>
-          <Button onClick={openModal} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
+          <Button
+            onClick={openModal}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+          >
             <Plus className="h-4 w-4" />
             Add Requirement
           </Button>
@@ -384,7 +427,9 @@ export default function LegalClient() {
         {counts.total > 0 && (
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">Compliance Health</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Compliance Health
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-4 mb-3">
@@ -414,20 +459,26 @@ export default function LegalClient() {
                     />
                   )}
                 </div>
-                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{compliancePercentage}%</span>
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  {compliancePercentage}%
+                </span>
               </div>
               <div className="flex gap-6 text-xs text-gray-500 dark:text-gray-400">
                 <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-full bg-green-500 inline-block" /> Compliant ({counts.compliant})
+                  <span className="w-3 h-3 rounded-full bg-green-500 inline-block" /> Compliant (
+                  {counts.compliant})
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-full bg-yellow-400 inline-block" /> Partial ({counts.partiallyCompliant})
+                  <span className="w-3 h-3 rounded-full bg-yellow-400 inline-block" /> Partial (
+                  {counts.partiallyCompliant})
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-full bg-red-500 inline-block" /> Non-Compliant ({counts.nonCompliant})
+                  <span className="w-3 h-3 rounded-full bg-red-500 inline-block" /> Non-Compliant (
+                  {counts.nonCompliant})
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-full bg-gray-300 inline-block" /> Not Assessed ({counts.notAssessed})
+                  <span className="w-3 h-3 rounded-full bg-gray-300 inline-block" /> Not Assessed (
+                  {counts.notAssessed})
                 </span>
               </div>
             </CardContent>
@@ -440,30 +491,35 @@ export default function LegalClient() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              aria-label="Search legal requirements..." placeholder="Search legal requirements..."
+              aria-label="Search legal requirements..."
+              placeholder="Search legal requirements..."
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
           <select
             value={complianceFilter}
-            onChange={e => setComplianceFilter(e.target.value)}
+            onChange={(e) => setComplianceFilter(e.target.value)}
             className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
           >
             <option value="ALL">All Compliance</option>
-            {COMPLIANCE_STATUSES.map(s => (
-              <option key={s.value} value={s.value}>{s.label}</option>
+            {COMPLIANCE_STATUSES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
             ))}
           </select>
           <select
             value={typeFilter}
-            onChange={e => setTypeFilter(e.target.value)}
+            onChange={(e) => setTypeFilter(e.target.value)}
             className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
           >
             <option value="ALL">All Types</option>
-            {OBLIGATION_TYPES.map(t => (
-              <option key={t.value} value={t.value}>{t.label}</option>
+            {OBLIGATION_TYPES.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
             ))}
           </select>
         </div>
@@ -472,19 +528,21 @@ export default function LegalClient() {
         <div className="space-y-4">
           {loading ? (
             <div className="animate-pulse space-y-4">
-              {[1, 2, 3].map(i => (
+              {[1, 2, 3].map((i) => (
                 <div key={i} className="h-32 bg-gray-200 rounded-lg" />
               ))}
             </div>
           ) : records.length > 0 ? (
-            records.map(record => (
+            records.map((record) => (
               <Card key={record.id} className="hover:border-green-300 transition-colors">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       {/* Top row: ref + compliance badge */}
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-mono text-gray-400 dark:text-gray-500">{record.referenceNumber}</span>
+                        <span className="text-xs font-mono text-gray-400 dark:text-gray-500">
+                          {record.referenceNumber}
+                        </span>
                         <Badge variant={getComplianceBadgeVariant(record.complianceStatus)}>
                           {getComplianceLabel(record.complianceStatus)}
                         </Badge>
@@ -497,7 +555,9 @@ export default function LegalClient() {
                       </div>
 
                       {/* Title */}
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{record.title}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                        {record.title}
+                      </h3>
 
                       {/* Type + Jurisdiction badges */}
                       <div className="flex items-center gap-2 mb-2">
@@ -509,7 +569,9 @@ export default function LegalClient() {
                       </div>
 
                       {/* Description preview */}
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">{record.description}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">
+                        {record.description}
+                      </p>
 
                       {/* Meta row */}
                       <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500 flex-wrap">
@@ -517,7 +579,9 @@ export default function LegalClient() {
                           <span>Regulatory Body: {record.regulatoryBody}</span>
                         )}
                         {record.expiryReviewDate && (
-                          <span>Review: {new Date(record.expiryReviewDate).toLocaleDateString()}</span>
+                          <span>
+                            Review: {new Date(record.expiryReviewDate).toLocaleDateString()}
+                          </span>
                         )}
                         {record.responsiblePerson && (
                           <span>Responsible: {record.responsiblePerson}</span>
@@ -536,7 +600,9 @@ export default function LegalClient() {
               <CardContent className="py-16">
                 <div className="text-center">
                   <Scale className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-500 dark:text-gray-400 font-medium">No legal requirements found</p>
+                  <p className="text-gray-500 dark:text-gray-400 font-medium">
+                    No legal requirements found
+                  </p>
                   <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
                     Click Add Requirement to start building your compliance register
                   </p>
@@ -551,9 +617,13 @@ export default function LegalClient() {
         </div>
 
         {/* Modal */}
-        <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Add Legal Requirement" size="full">
+        <Modal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          title="Add Legal Requirement"
+          size="full"
+        >
           <div className="max-h-[70vh] overflow-y-auto pr-2 space-y-8">
-
             {/* Section A - Legislation Identification */}
             <div>
               <h3 className="text-lg font-semibold text-gray-800 border-l-4 border-green-500 pl-3 mb-4">
@@ -563,17 +633,27 @@ export default function LegalClient() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Obligation Type *</Label>
-                    <Select value={form.obligationType} onChange={e => updateForm('obligationType', e.target.value)}>
-                      {OBLIGATION_TYPES.map(t => (
-                        <option key={t.value} value={t.value}>{t.label}</option>
+                    <Select
+                      value={form.obligationType}
+                      onChange={(e) => updateForm('obligationType', e.target.value)}
+                    >
+                      {OBLIGATION_TYPES.map((t) => (
+                        <option key={t.value} value={t.value}>
+                          {t.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
                   <div>
                     <Label>Status</Label>
-                    <Select value={form.status} onChange={e => updateForm('status', e.target.value)}>
-                      {LEGAL_STATUSES.map(s => (
-                        <option key={s.value} value={s.value}>{s.label}</option>
+                    <Select
+                      value={form.status}
+                      onChange={(e) => updateForm('status', e.target.value)}
+                    >
+                      {LEGAL_STATUSES.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          {s.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -582,16 +662,21 @@ export default function LegalClient() {
                   <Label>Title *</Label>
                   <Input
                     value={form.title}
-                    onChange={e => updateForm('title', e.target.value)}
+                    onChange={(e) => updateForm('title', e.target.value)}
                     placeholder="e.g., Environmental Protection Act 1990"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Jurisdiction *</Label>
-                    <Select value={form.jurisdiction} onChange={e => updateForm('jurisdiction', e.target.value)}>
-                      {JURISDICTIONS.map(j => (
-                        <option key={j.value} value={j.value}>{j.label}</option>
+                    <Select
+                      value={form.jurisdiction}
+                      onChange={(e) => updateForm('jurisdiction', e.target.value)}
+                    >
+                      {JURISDICTIONS.map((j) => (
+                        <option key={j.value} value={j.value}>
+                          {j.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -599,7 +684,7 @@ export default function LegalClient() {
                     <Label>Regulatory Body *</Label>
                     <Input
                       value={form.regulatoryBody}
-                      onChange={e => updateForm('regulatoryBody', e.target.value)}
+                      onChange={(e) => updateForm('regulatoryBody', e.target.value)}
                       placeholder="e.g., Environment Agency"
                     />
                   </div>
@@ -609,7 +694,7 @@ export default function LegalClient() {
                     <Label>Legislation Reference *</Label>
                     <Input
                       value={form.legislationReference}
-                      onChange={e => updateForm('legislationReference', e.target.value)}
+                      onChange={(e) => updateForm('legislationReference', e.target.value)}
                       placeholder="e.g., EPA 1990, SI 2010/675"
                     />
                   </div>
@@ -617,7 +702,7 @@ export default function LegalClient() {
                     <Label>Relevant Section</Label>
                     <Input
                       value={form.relevantSection}
-                      onChange={e => updateForm('relevantSection', e.target.value)}
+                      onChange={(e) => updateForm('relevantSection', e.target.value)}
                       placeholder="e.g., Part 2A, Section 34"
                     />
                   </div>
@@ -628,7 +713,7 @@ export default function LegalClient() {
                     <Input
                       type="date"
                       value={form.effectiveDate}
-                      onChange={e => updateForm('effectiveDate', e.target.value)}
+                      onChange={(e) => updateForm('effectiveDate', e.target.value)}
                     />
                   </div>
                   <div>
@@ -636,7 +721,7 @@ export default function LegalClient() {
                     <Input
                       type="date"
                       value={form.expiryReviewDate}
-                      onChange={e => updateForm('expiryReviewDate', e.target.value)}
+                      onChange={(e) => updateForm('expiryReviewDate', e.target.value)}
                     />
                   </div>
                 </div>
@@ -653,7 +738,7 @@ export default function LegalClient() {
                   <Label>Description *</Label>
                   <Textarea
                     value={form.description}
-                    onChange={e => updateForm('description', e.target.value)}
+                    onChange={(e) => updateForm('description', e.target.value)}
                     placeholder="Describe the legal requirement, its scope and key provisions..."
                     rows={3}
                   />
@@ -662,7 +747,7 @@ export default function LegalClient() {
                   <Label>Applicable Activities *</Label>
                   <Textarea
                     value={form.applicableActivities}
-                    onChange={e => updateForm('applicableActivities', e.target.value)}
+                    onChange={(e) => updateForm('applicableActivities', e.target.value)}
                     placeholder="e.g., Waste handling, emissions discharge, chemical storage..."
                     rows={2}
                   />
@@ -671,7 +756,7 @@ export default function LegalClient() {
                   <Label>Applicable Sites</Label>
                   <Input
                     value={form.applicableSites}
-                    onChange={e => updateForm('applicableSites', e.target.value)}
+                    onChange={(e) => updateForm('applicableSites', e.target.value)}
                     placeholder="e.g., All sites, Main plant, Warehouse A"
                   />
                 </div>
@@ -679,7 +764,7 @@ export default function LegalClient() {
                   <Label>Penalties</Label>
                   <Textarea
                     value={form.penalties}
-                    onChange={e => updateForm('penalties', e.target.value)}
+                    onChange={(e) => updateForm('penalties', e.target.value)}
                     placeholder="Describe potential penalties for non-compliance..."
                     rows={2}
                   />
@@ -696,18 +781,28 @@ export default function LegalClient() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Compliance Status</Label>
-                    <Select value={form.complianceStatus} onChange={e => updateForm('complianceStatus', e.target.value)}>
-                      {COMPLIANCE_STATUSES.map(s => (
-                        <option key={s.value} value={s.value}>{s.label}</option>
+                    <Select
+                      value={form.complianceStatus}
+                      onChange={(e) => updateForm('complianceStatus', e.target.value)}
+                    >
+                      {COMPLIANCE_STATUSES.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          {s.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
                   <div>
                     <Label>Assessment Method</Label>
-                    <Select value={form.assessmentMethod} onChange={e => updateForm('assessmentMethod', e.target.value)}>
+                    <Select
+                      value={form.assessmentMethod}
+                      onChange={(e) => updateForm('assessmentMethod', e.target.value)}
+                    >
                       <option value="">-- Select --</option>
-                      {ASSESSMENT_METHODS.map(m => (
-                        <option key={m.value} value={m.value}>{m.label}</option>
+                      {ASSESSMENT_METHODS.map((m) => (
+                        <option key={m.value} value={m.value}>
+                          {m.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -716,7 +811,7 @@ export default function LegalClient() {
                   <Label>Compliance Evidence</Label>
                   <Textarea
                     value={form.complianceEvidence}
-                    onChange={e => updateForm('complianceEvidence', e.target.value)}
+                    onChange={(e) => updateForm('complianceEvidence', e.target.value)}
                     placeholder="Describe evidence of compliance..."
                     rows={2}
                   />
@@ -725,7 +820,7 @@ export default function LegalClient() {
                   <Label>Evidence Reference</Label>
                   <Input
                     value={form.evidenceReference}
-                    onChange={e => updateForm('evidenceReference', e.target.value)}
+                    onChange={(e) => updateForm('evidenceReference', e.target.value)}
                     placeholder="e.g., Document reference, audit report number"
                   />
                 </div>
@@ -735,14 +830,14 @@ export default function LegalClient() {
                     <Input
                       type="date"
                       value={form.lastAssessedDate}
-                      onChange={e => updateForm('lastAssessedDate', e.target.value)}
+                      onChange={(e) => updateForm('lastAssessedDate', e.target.value)}
                     />
                   </div>
                   <div>
                     <Label>Assessed By</Label>
                     <Input
                       value={form.assessedBy}
-                      onChange={e => updateForm('assessedBy', e.target.value)}
+                      onChange={(e) => updateForm('assessedBy', e.target.value)}
                       placeholder="Name of assessor"
                     />
                   </div>
@@ -760,7 +855,7 @@ export default function LegalClient() {
                   <Label>Compliance Gaps</Label>
                   <Textarea
                     value={form.complianceGaps}
-                    onChange={e => updateForm('complianceGaps', e.target.value)}
+                    onChange={(e) => updateForm('complianceGaps', e.target.value)}
                     placeholder="Describe any identified compliance gaps..."
                     rows={2}
                   />
@@ -769,7 +864,7 @@ export default function LegalClient() {
                   <Label>Required Actions</Label>
                   <Textarea
                     value={form.requiredActions}
-                    onChange={e => updateForm('requiredActions', e.target.value)}
+                    onChange={(e) => updateForm('requiredActions', e.target.value)}
                     placeholder="Actions required to achieve or maintain compliance..."
                     rows={2}
                   />
@@ -777,10 +872,15 @@ export default function LegalClient() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Action Priority</Label>
-                    <Select value={form.actionPriority} onChange={e => updateForm('actionPriority', e.target.value)}>
+                    <Select
+                      value={form.actionPriority}
+                      onChange={(e) => updateForm('actionPriority', e.target.value)}
+                    >
                       <option value="">-- Select --</option>
-                      {ACTION_PRIORITIES.map(p => (
-                        <option key={p.value} value={p.value}>{p.label}</option>
+                      {ACTION_PRIORITIES.map((p) => (
+                        <option key={p.value} value={p.value}>
+                          {p.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -789,7 +889,7 @@ export default function LegalClient() {
                     <Input
                       type="date"
                       value={form.actionsDueDate}
-                      onChange={e => updateForm('actionsDueDate', e.target.value)}
+                      onChange={(e) => updateForm('actionsDueDate', e.target.value)}
                     />
                   </div>
                 </div>
@@ -798,7 +898,7 @@ export default function LegalClient() {
                     <Label>Responsible Person *</Label>
                     <Input
                       value={form.responsiblePerson}
-                      onChange={e => updateForm('responsiblePerson', e.target.value)}
+                      onChange={(e) => updateForm('responsiblePerson', e.target.value)}
                       placeholder="Name of responsible person"
                     />
                   </div>
@@ -807,10 +907,12 @@ export default function LegalClient() {
                       <input
                         type="checkbox"
                         checked={form.capaRequired}
-                        onChange={e => updateForm('capaRequired', e.target.checked)}
+                        onChange={(e) => updateForm('capaRequired', e.target.checked)}
                         className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
                       />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">CAPA Required</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                        CAPA Required
+                      </span>
                     </label>
                   </div>
                 </div>
@@ -827,7 +929,7 @@ export default function LegalClient() {
                   <Label>Monitoring Requirements</Label>
                   <Textarea
                     value={form.monitoringRequirements}
-                    onChange={e => updateForm('monitoringRequirements', e.target.value)}
+                    onChange={(e) => updateForm('monitoringRequirements', e.target.value)}
                     placeholder="Describe ongoing monitoring requirements..."
                     rows={2}
                   />
@@ -836,7 +938,7 @@ export default function LegalClient() {
                   <Label>Reporting Requirements</Label>
                   <Textarea
                     value={form.reportingRequirements}
-                    onChange={e => updateForm('reportingRequirements', e.target.value)}
+                    onChange={(e) => updateForm('reportingRequirements', e.target.value)}
                     placeholder="Describe regulatory reporting obligations..."
                     rows={2}
                   />
@@ -844,10 +946,15 @@ export default function LegalClient() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Reporting Frequency</Label>
-                    <Select value={form.reportingFrequency} onChange={e => updateForm('reportingFrequency', e.target.value)}>
+                    <Select
+                      value={form.reportingFrequency}
+                      onChange={(e) => updateForm('reportingFrequency', e.target.value)}
+                    >
                       <option value="">-- Select --</option>
-                      {REPORTING_FREQUENCIES.map(f => (
-                        <option key={f.value} value={f.value}>{f.label}</option>
+                      {REPORTING_FREQUENCIES.map((f) => (
+                        <option key={f.value} value={f.value}>
+                          {f.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -856,7 +963,7 @@ export default function LegalClient() {
                     <Input
                       type="date"
                       value={form.nextReportingDue}
-                      onChange={e => updateForm('nextReportingDue', e.target.value)}
+                      onChange={(e) => updateForm('nextReportingDue', e.target.value)}
                     />
                   </div>
                 </div>
@@ -864,7 +971,7 @@ export default function LegalClient() {
                   <Label>Permit Conditions</Label>
                   <Textarea
                     value={form.permitConditions}
-                    onChange={e => updateForm('permitConditions', e.target.value)}
+                    onChange={(e) => updateForm('permitConditions', e.target.value)}
                     placeholder="Describe any specific permit conditions..."
                     rows={2}
                   />
@@ -904,7 +1011,9 @@ export default function LegalClient() {
                     </Button>
                   </div>
                   <p className="text-xs text-green-600">
-                    Enter the requirement title and legislation reference first, then click to generate an AI compliance assessment including key obligations, gap analysis, and recommended actions.
+                    Enter the requirement title and legislation reference first, then click to
+                    generate an AI compliance assessment including key obligations, gap analysis,
+                    and recommended actions.
                   </p>
                 </div>
 
@@ -913,53 +1022,90 @@ export default function LegalClient() {
                     <h4 className="font-medium text-green-800 flex items-center gap-2 text-sm">
                       <Sparkles className="h-4 w-4" /> AI Analysis Results
                     </h4>
-                    <AIDisclosure variant="inline" provider="claude" analysisType="Legal Compliance" confidence={0.85} />
+                    <AIDisclosure
+                      variant="inline"
+                      provider="claude"
+                      analysisType="Legal Compliance"
+                      confidence={0.85}
+                    />
                     {aiGenerated.keyObligations && (
                       <div>
-                        <Label className="text-xs text-gray-500 dark:text-gray-400">Key Obligations</Label>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.keyObligations}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">
+                          Key Obligations
+                        </Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                          {aiGenerated.keyObligations}
+                        </p>
                       </div>
                     )}
                     {aiGenerated.complianceChecklist && (
                       <div>
-                        <Label className="text-xs text-gray-500 dark:text-gray-400">Compliance Checklist</Label>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.complianceChecklist}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">
+                          Compliance Checklist
+                        </Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                          {aiGenerated.complianceChecklist}
+                        </p>
                       </div>
                     )}
                     {aiGenerated.gapAnalysis && (
                       <div>
-                        <Label className="text-xs text-gray-500 dark:text-gray-400">Gap Analysis</Label>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.gapAnalysis}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">
+                          Gap Analysis
+                        </Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                          {aiGenerated.gapAnalysis}
+                        </p>
                       </div>
                     )}
                     {aiGenerated.requiredActions && (
                       <div>
-                        <Label className="text-xs text-gray-500 dark:text-gray-400">Required Actions</Label>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.requiredActions}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">
+                          Required Actions
+                        </Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                          {aiGenerated.requiredActions}
+                        </p>
                       </div>
                     )}
                     {aiGenerated.evidenceRequired && (
                       <div>
-                        <Label className="text-xs text-gray-500 dark:text-gray-400">Evidence Required</Label>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.evidenceRequired}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">
+                          Evidence Required
+                        </Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                          {aiGenerated.evidenceRequired}
+                        </p>
                       </div>
                     )}
                     {aiGenerated.monitoring && (
                       <div>
-                        <Label className="text-xs text-gray-500 dark:text-gray-400">Monitoring Recommendations</Label>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.monitoring}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">
+                          Monitoring Recommendations
+                        </Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                          {aiGenerated.monitoring}
+                        </p>
                       </div>
                     )}
                     {aiGenerated.penalty && (
                       <div>
-                        <Label className="text-xs text-gray-500 dark:text-gray-400">Penalty Information</Label>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.penalty}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">
+                          Penalty Information
+                        </Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                          {aiGenerated.penalty}
+                        </p>
                       </div>
                     )}
                     {aiGenerated.recentChanges && (
                       <div>
-                        <Label className="text-xs text-gray-500 dark:text-gray-400">Recent Legislative Changes</Label>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiGenerated.recentChanges}</p>
+                        <Label className="text-xs text-gray-500 dark:text-gray-400">
+                          Recent Legislative Changes
+                        </Label>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                          {aiGenerated.recentChanges}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -969,10 +1115,19 @@ export default function LegalClient() {
           </div>
 
           <ModalFooter>
-            <Button variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowModal(false)}>
+              Cancel
+            </Button>
             <Button
               onClick={handleSubmit}
-              disabled={submitting || !form.title || !form.description || !form.regulatoryBody || !form.legislationReference || !form.responsiblePerson}
+              disabled={
+                submitting ||
+                !form.title ||
+                !form.description ||
+                !form.regulatoryBody ||
+                !form.legislationReference ||
+                !form.responsiblePerson
+              }
               className="bg-green-600 hover:bg-green-700"
             >
               {submitting ? (

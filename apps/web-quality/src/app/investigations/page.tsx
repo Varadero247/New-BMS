@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@ims/ui';
-import { Search, Plus, Filter, AlertTriangle, Clock, CheckCircle, Users, FileSearch } from 'lucide-react';
+import {
+  Search,
+  Plus,
+  Filter,
+  AlertTriangle,
+  Clock,
+  CheckCircle,
+  Users,
+  FileSearch,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
 
@@ -78,10 +87,13 @@ export default function InvestigationsPage() {
 
   const stats = {
     total: investigations.length,
-    open: investigations.filter(i => !['COMPLETED', 'CLOSED'].includes(i.status)).length,
-    inProgress: investigations.filter(i => i.status === 'ANALYSIS_IN_PROGRESS').length,
-    completed: investigations.filter(i => i.status === 'COMPLETED' || i.status === 'CLOSED').length,
-    critical: investigations.filter(i => i.severity === 'CRITICAL' || i.severity === 'CATASTROPHIC').length,
+    open: investigations.filter((i) => !['COMPLETED', 'CLOSED'].includes(i.status)).length,
+    inProgress: investigations.filter((i) => i.status === 'ANALYSIS_IN_PROGRESS').length,
+    completed: investigations.filter((i) => i.status === 'COMPLETED' || i.status === 'CLOSED')
+      .length,
+    critical: investigations.filter(
+      (i) => i.severity === 'CRITICAL' || i.severity === 'CATASTROPHIC'
+    ).length,
   };
 
   if (loading) {
@@ -90,7 +102,7 @@ export default function InvestigationsPage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-24 bg-gray-200 rounded" />
             ))}
           </div>
@@ -105,8 +117,12 @@ export default function InvestigationsPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Investigation Management</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Root cause analysis and incident investigation</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Investigation Management
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Root cause analysis and incident investigation
+            </p>
           </div>
           <Link href="/investigations/new">
             <Button className="flex items-center gap-2">
@@ -223,10 +239,16 @@ export default function InvestigationsPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium">{inv.title}</span>
-                          <Badge className={statusColors[inv.status] || 'bg-gray-100 dark:bg-gray-800'}>
+                          <Badge
+                            className={statusColors[inv.status] || 'bg-gray-100 dark:bg-gray-800'}
+                          >
                             {inv.status.replace(/_/g, ' ')}
                           </Badge>
-                          <Badge className={severityColors[inv.severity] || 'bg-gray-100 dark:bg-gray-800'}>
+                          <Badge
+                            className={
+                              severityColors[inv.severity] || 'bg-gray-100 dark:bg-gray-800'
+                            }
+                          >
                             {inv.severity}
                           </Badge>
                         </div>
@@ -248,7 +270,9 @@ export default function InvestigationsPage() {
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
                         {inv.targetCompletionDate && (
-                          <span>Due: {new Date(inv.targetCompletionDate).toLocaleDateString()}</span>
+                          <span>
+                            Due: {new Date(inv.targetCompletionDate).toLocaleDateString()}
+                          </span>
                         )}
                       </div>
                     </div>

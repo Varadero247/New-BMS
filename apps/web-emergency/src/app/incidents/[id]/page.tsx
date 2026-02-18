@@ -2,7 +2,18 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
+} from '@ims/ui';
 import {
   ArrowLeft,
   Flame,
@@ -200,7 +211,11 @@ export default function IncidentDetailPage() {
         {/* Top Banner */}
         <div
           className={`px-6 py-4 ${isClosed ? 'bg-gray-700' : ''}`}
-          style={!isClosed ? { backgroundColor: incident.severity === 'CRITICAL' ? '#DC2626' : '#F04B5A' } : undefined}
+          style={
+            !isClosed
+              ? { backgroundColor: incident.severity === 'CRITICAL' ? '#DC2626' : '#F04B5A' }
+              : undefined
+          }
         >
           <div className="flex items-center gap-4 flex-wrap">
             <Button
@@ -216,7 +231,10 @@ export default function IncidentDetailPage() {
                 <span className="font-mono text-white/70 text-sm">{incident.referenceNumber}</span>
                 <span
                   className="px-2 py-0.5 rounded-full text-xs font-bold text-white border border-white/30"
-                  style={{ backgroundColor: `${SEVERITY_STYLES[incident.severity] || 'bg-red-600'}`.replace('bg-', '') }}
+                  style={{
+                    backgroundColor:
+                      `${SEVERITY_STYLES[incident.severity] || 'bg-red-600'}`.replace('bg-', ''),
+                  }}
                 >
                   {incident.severity}
                 </span>
@@ -269,14 +287,18 @@ export default function IncidentDetailPage() {
                     <div className="flex justify-between">
                       <dt className="text-gray-500">Status</dt>
                       <dd>
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold text-white ${SEVERITY_STYLES[incident.severity] || 'bg-gray-500'}`}>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-xs font-bold text-white ${SEVERITY_STYLES[incident.severity] || 'bg-gray-500'}`}
+                        >
                           {incident.status}
                         </span>
                       </dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-gray-500">Evacuation</dt>
-                      <dd className="font-medium">{incident.evacuationStatus?.replace(/_/g, ' ') || 'Unknown'}</dd>
+                      <dd className="font-medium">
+                        {incident.evacuationStatus?.replace(/_/g, ' ') || 'Unknown'}
+                      </dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-gray-500">All Accounted For</dt>
@@ -320,7 +342,10 @@ export default function IncidentDetailPage() {
                     </h3>
                     <div className="flex flex-wrap gap-1">
                       {incident.agenciesNotified.map((agency) => (
-                        <span key={agency} className="px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800">
+                        <span
+                          key={agency}
+                          className="px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800"
+                        >
                           {agency}
                         </span>
                       ))}
@@ -333,7 +358,9 @@ export default function IncidentDetailPage() {
                 <Card>
                   <CardContent className="p-4">
                     <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-2">Description</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{incident.description}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {incident.description}
+                    </p>
                   </CardContent>
                 </Card>
               )}
@@ -348,9 +375,7 @@ export default function IncidentDetailPage() {
                       <Clock className="h-4 w-4" style={{ color: '#F04B5A' }} />
                       Timeline
                     </h3>
-                    <span className="text-xs text-gray-400">
-                      Updates every 30s
-                    </span>
+                    <span className="text-xs text-gray-400">Updates every 30s</span>
                   </div>
                   <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
                     {incident.timeline && incident.timeline.length > 0 ? (
@@ -403,7 +428,10 @@ export default function IncidentDetailPage() {
                     <Button
                       className="w-full justify-start gap-3"
                       variant="outline"
-                      onClick={() => { setLogModal('DECISION'); setLogText(''); }}
+                      onClick={() => {
+                        setLogModal('DECISION');
+                        setLogText('');
+                      }}
                       disabled={isClosed}
                     >
                       <CheckCircle className="h-4 w-4 text-blue-500" />
@@ -412,7 +440,10 @@ export default function IncidentDetailPage() {
                     <Button
                       className="w-full justify-start gap-3"
                       variant="outline"
-                      onClick={() => { setLogModal('RESOURCE'); setLogText(''); }}
+                      onClick={() => {
+                        setLogModal('RESOURCE');
+                        setLogText('');
+                      }}
                       disabled={isClosed}
                     >
                       <Package className="h-4 w-4 text-amber-500" />
@@ -421,7 +452,10 @@ export default function IncidentDetailPage() {
                     <Button
                       className="w-full justify-start gap-3"
                       variant="outline"
-                      onClick={() => { setLogModal('COMMUNICATION'); setLogText(''); }}
+                      onClick={() => {
+                        setLogModal('COMMUNICATION');
+                        setLogText('');
+                      }}
                       disabled={isClosed}
                     >
                       <MessageSquare className="h-4 w-4 text-green-500" />
@@ -430,7 +464,10 @@ export default function IncidentDetailPage() {
                     <Button
                       className="w-full justify-start gap-3"
                       variant="outline"
-                      onClick={() => { setLogModal('AGENCY'); setLogText(''); }}
+                      onClick={() => {
+                        setLogModal('AGENCY');
+                        setLogText('');
+                      }}
                       disabled={isClosed}
                     >
                       <Phone className="h-4 w-4 text-purple-500" />
@@ -494,13 +531,22 @@ export default function IncidentDetailPage() {
             </div>
           </div>
           <ModalFooter>
-            <Button variant="outline" onClick={() => setLogModal(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setLogModal(null)}>
+              Cancel
+            </Button>
             <Button
               onClick={() => logEntry('DECISION', logText)}
               disabled={logSubmitting || !logText}
               style={{ backgroundColor: '#F04B5A', color: 'white' }}
             >
-              {logSubmitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Logging...</> : 'Log Decision'}
+              {logSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Logging...
+                </>
+              ) : (
+                'Log Decision'
+              )}
             </Button>
           </ModalFooter>
         </Modal>
@@ -522,13 +568,22 @@ export default function IncidentDetailPage() {
             </div>
           </div>
           <ModalFooter>
-            <Button variant="outline" onClick={() => setLogModal(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setLogModal(null)}>
+              Cancel
+            </Button>
             <Button
               onClick={() => logEntry('RESOURCE', logText)}
               disabled={logSubmitting || !logText}
               style={{ backgroundColor: '#F04B5A', color: 'white' }}
             >
-              {logSubmitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Logging...</> : 'Log Resource'}
+              {logSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Logging...
+                </>
+              ) : (
+                'Log Resource'
+              )}
             </Button>
           </ModalFooter>
         </Modal>
@@ -550,13 +605,22 @@ export default function IncidentDetailPage() {
             </div>
           </div>
           <ModalFooter>
-            <Button variant="outline" onClick={() => setLogModal(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setLogModal(null)}>
+              Cancel
+            </Button>
             <Button
               onClick={() => logEntry('COMMUNICATION', logText)}
               disabled={logSubmitting || !logText}
               style={{ backgroundColor: '#F04B5A', color: 'white' }}
             >
-              {logSubmitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Logging...</> : 'Log Communication'}
+              {logSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Logging...
+                </>
+              ) : (
+                'Log Communication'
+              )}
             </Button>
           </ModalFooter>
         </Modal>
@@ -578,13 +642,22 @@ export default function IncidentDetailPage() {
             </div>
           </div>
           <ModalFooter>
-            <Button variant="outline" onClick={() => setLogModal(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setLogModal(null)}>
+              Cancel
+            </Button>
             <Button
               onClick={() => logEntry('AGENCY_NOTIFICATION', logText)}
               disabled={logSubmitting || !logText}
               style={{ backgroundColor: '#F04B5A', color: 'white' }}
             >
-              {logSubmitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Logging...</> : 'Log Notification'}
+              {logSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Logging...
+                </>
+              ) : (
+                'Log Notification'
+              )}
             </Button>
           </ModalFooter>
         </Modal>
@@ -592,21 +665,26 @@ export default function IncidentDetailPage() {
 
       {/* Close Incident Confirm */}
       {closeConfirm && (
-        <Modal isOpen={true} onClose={() => setCloseConfirm(false)} title="Close Incident" size="lg">
+        <Modal
+          isOpen={true}
+          onClose={() => setCloseConfirm(false)}
+          title="Close Incident"
+          size="lg"
+        >
           <div>
             <p className="text-gray-700 dark:text-gray-300">
               Are you sure you want to close incident <strong>{incident.referenceNumber}</strong>?
             </p>
             <p className="text-sm text-gray-500 mt-2">
-              This will mark the incident as closed. Ensure all actions are complete and all persons are accounted for.
+              This will mark the incident as closed. Ensure all actions are complete and all persons
+              are accounted for.
             </p>
           </div>
           <ModalFooter>
-            <Button variant="outline" onClick={() => setCloseConfirm(false)}>Cancel</Button>
-            <Button
-              onClick={closeIncident}
-              style={{ backgroundColor: '#F04B5A', color: 'white' }}
-            >
+            <Button variant="outline" onClick={() => setCloseConfirm(false)}>
+              Cancel
+            </Button>
+            <Button onClick={closeIncident} style={{ backgroundColor: '#F04B5A', color: 'white' }}>
               <XCircle className="h-4 w-4 mr-2" />
               Close Incident
             </Button>

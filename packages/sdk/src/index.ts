@@ -113,7 +113,11 @@ export class NexaraClient {
     this.timeout = config.timeout || 30000;
   }
 
-  private async request<T>(method: string, path: string, body?: Record<string, unknown>): Promise<T> {
+  private async request<T>(
+    method: string,
+    path: string,
+    body?: Record<string, unknown>
+  ): Promise<T> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
@@ -122,7 +126,7 @@ export class NexaraClient {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
         },
         body: body ? JSON.stringify(body) : undefined,
         signal: controller.signal,
@@ -130,7 +134,9 @@ export class NexaraClient {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({ message: response.statusText }));
-        throw new Error(`Nexara API Error ${response.status}: ${error.message || response.statusText}`);
+        throw new Error(
+          `Nexara API Error ${response.status}: ${error.message || response.statusText}`
+        );
       }
 
       return response.json();
@@ -152,16 +158,21 @@ export class NexaraClient {
 
   risks = {
     list: (params?: { page?: number; status?: string }) =>
-      this.request<ApiResponse<Risk[]>>('GET', `/api/health-safety/risks?${this.toSearchParams(params)}`),
-    get: (id: string) =>
-      this.request<ApiResponse<Risk>>('GET', `/api/health-safety/risks/${id}`),
+      this.request<ApiResponse<Risk[]>>(
+        'GET',
+        `/api/health-safety/risks?${this.toSearchParams(params)}`
+      ),
+    get: (id: string) => this.request<ApiResponse<Risk>>('GET', `/api/health-safety/risks/${id}`),
     create: (data: Partial<Risk>) =>
       this.request<ApiResponse<Risk>>('POST', '/api/health-safety/risks', data),
   };
 
   incidents = {
     list: (params?: { page?: number; status?: string }) =>
-      this.request<ApiResponse<Incident[]>>('GET', `/api/health-safety/incidents?${this.toSearchParams(params)}`),
+      this.request<ApiResponse<Incident[]>>(
+        'GET',
+        `/api/health-safety/incidents?${this.toSearchParams(params)}`
+      ),
     get: (id: string) =>
       this.request<ApiResponse<Incident>>('GET', `/api/health-safety/incidents/${id}`),
     create: (data: Partial<Incident>) =>
@@ -170,7 +181,10 @@ export class NexaraClient {
 
   actions = {
     list: (params?: { page?: number; status?: string }) =>
-      this.request<ApiResponse<Action[]>>('GET', `/api/health-safety/actions?${this.toSearchParams(params)}`),
+      this.request<ApiResponse<Action[]>>(
+        'GET',
+        `/api/health-safety/actions?${this.toSearchParams(params)}`
+      ),
     get: (id: string) =>
       this.request<ApiResponse<Action>>('GET', `/api/health-safety/actions/${id}`),
     create: (data: Partial<Action>) =>
@@ -180,19 +194,32 @@ export class NexaraClient {
   // Webhooks
   webhooks = {
     list: (params?: { page?: number; isActive?: string }) =>
-      this.request<ApiResponse<Webhook[]>>('GET', `/api/workflows/webhooks?${this.toSearchParams(params)}`),
-    create: (data: { name: string; url: string; events: WebhookEventType[]; headers?: Record<string, string>; retryCount?: number; timeout?: number }) =>
-      this.request<ApiResponse<Webhook>>('POST', '/api/workflows/webhooks', data),
-    get: (id: string) =>
-      this.request<ApiResponse<Webhook>>('GET', `/api/workflows/webhooks/${id}`),
-    update: (id: string, data: Partial<{ name: string; url: string; events: WebhookEventType[]; isActive: boolean }>) =>
-      this.request<ApiResponse<Webhook>>('PUT', `/api/workflows/webhooks/${id}`, data),
+      this.request<ApiResponse<Webhook[]>>(
+        'GET',
+        `/api/workflows/webhooks?${this.toSearchParams(params)}`
+      ),
+    create: (data: {
+      name: string;
+      url: string;
+      events: WebhookEventType[];
+      headers?: Record<string, string>;
+      retryCount?: number;
+      timeout?: number;
+    }) => this.request<ApiResponse<Webhook>>('POST', '/api/workflows/webhooks', data),
+    get: (id: string) => this.request<ApiResponse<Webhook>>('GET', `/api/workflows/webhooks/${id}`),
+    update: (
+      id: string,
+      data: Partial<{ name: string; url: string; events: WebhookEventType[]; isActive: boolean }>
+    ) => this.request<ApiResponse<Webhook>>('PUT', `/api/workflows/webhooks/${id}`, data),
     delete: (id: string) =>
       this.request<ApiResponse<{ message: string }>>('DELETE', `/api/workflows/webhooks/${id}`),
     test: (id: string) =>
       this.request<ApiResponse<WebhookDelivery>>('POST', `/api/workflows/webhooks/${id}/test`),
     deliveries: (id: string, params?: { page?: number; event?: string; success?: string }) =>
-      this.request<ApiResponse<WebhookDelivery[]>>('GET', `/api/workflows/webhooks/${id}/deliveries?${this.toSearchParams(params)}`),
+      this.request<ApiResponse<WebhookDelivery[]>>(
+        'GET',
+        `/api/workflows/webhooks/${id}/deliveries?${this.toSearchParams(params)}`
+      ),
   };
 
   // AI Analysis
@@ -220,17 +247,28 @@ export class NexaraClient {
 // ── Fluent Compliance Builder ─────────────────────────────────
 
 export type ISOStandard =
-  | 'ISO_9001' | 'ISO_14001' | 'ISO_45001' | 'ISO_27001'
-  | 'ISO_22000' | 'ISO_50001' | 'ISO_42001' | 'ISO_37001'
-  | 'IATF_16949' | 'ISO_13485' | 'AS9100';
+  | 'ISO_9001'
+  | 'ISO_14001'
+  | 'ISO_45001'
+  | 'ISO_27001'
+  | 'ISO_22000'
+  | 'ISO_50001'
+  | 'ISO_42001'
+  | 'ISO_37001'
+  | 'IATF_16949'
+  | 'ISO_13485'
+  | 'AS9100';
 
 export interface CompliancePosture {
   overall: number;
-  standards: Record<string, {
-    score: number;
-    gaps: number;
-    lastAudit?: string;
-  }>;
+  standards: Record<
+    string,
+    {
+      score: number;
+      gaps: number;
+      lastAudit?: string;
+    }
+  >;
   riskLevel: 'low' | 'medium' | 'high' | 'critical';
   generatedAt: string;
 }
@@ -261,7 +299,7 @@ export class ComplianceBuilder {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this._apiKey}`,
+          Authorization: `Bearer ${this._apiKey}`,
         },
         body: JSON.stringify({ standards: this._standards }),
         signal: controller.signal,
@@ -269,7 +307,9 @@ export class ComplianceBuilder {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({ message: response.statusText }));
-        throw new Error(`Nexara API Error ${response.status}: ${error.message || response.statusText}`);
+        throw new Error(
+          `Nexara API Error ${response.status}: ${error.message || response.statusText}`
+        );
       }
 
       const data = await response.json();

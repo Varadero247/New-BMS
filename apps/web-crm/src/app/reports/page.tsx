@@ -26,7 +26,11 @@ interface SalesReport {
 }
 
 function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(amount);
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+  }).format(amount);
 }
 
 const tabs = ['Sales Dashboard', 'Pipeline Velocity', 'Win/Loss', 'Forecast'];
@@ -70,7 +74,7 @@ export default function ReportsPage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-3 gap-4">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="h-32 bg-gray-200 rounded" />
             ))}
           </div>
@@ -88,7 +92,9 @@ export default function ReportsPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
         )}
 
         {/* Tabs */}
@@ -119,8 +125,13 @@ export default function ReportsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Win Rate</p>
-                      <p className="text-2xl font-bold text-green-700">{(data?.winRate || 0).toFixed(1)}%</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{data?.dealsWon || 0} won / {(data?.dealsWon || 0) + (data?.dealsLost || 0)} total</p>
+                      <p className="text-2xl font-bold text-green-700">
+                        {(data?.winRate || 0).toFixed(1)}%
+                      </p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                        {data?.dealsWon || 0} won / {(data?.dealsWon || 0) + (data?.dealsLost || 0)}{' '}
+                        total
+                      </p>
                     </div>
                     <div className="p-3 rounded-full bg-green-50">
                       <Target className="h-6 w-6 text-green-500" />
@@ -133,8 +144,12 @@ export default function ReportsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Avg Deal Size</p>
-                      <p className="text-2xl font-bold text-violet-700">{formatCurrency(data?.avgDealSize || 0)}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Across all won deals</p>
+                      <p className="text-2xl font-bold text-violet-700">
+                        {formatCurrency(data?.avgDealSize || 0)}
+                      </p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                        Across all won deals
+                      </p>
                     </div>
                     <div className="p-3 rounded-full bg-violet-50">
                       <DollarSign className="h-6 w-6 text-violet-500" />
@@ -146,9 +161,15 @@ export default function ReportsPage() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Total Pipeline Value</p>
-                      <p className="text-2xl font-bold text-blue-700">{formatCurrency(data?.totalPipelineValue || 0)}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Open opportunities</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Total Pipeline Value
+                      </p>
+                      <p className="text-2xl font-bold text-blue-700">
+                        {formatCurrency(data?.totalPipelineValue || 0)}
+                      </p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                        Open opportunities
+                      </p>
                     </div>
                     <div className="p-3 rounded-full bg-blue-50">
                       <TrendingUp className="h-6 w-6 text-blue-500" />
@@ -163,7 +184,9 @@ export default function ReportsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Total Revenue</p>
-                      <p className="text-2xl font-bold text-emerald-700">{formatCurrency(data?.totalRevenue || 0)}</p>
+                      <p className="text-2xl font-bold text-emerald-700">
+                        {formatCurrency(data?.totalRevenue || 0)}
+                      </p>
                     </div>
                     <div className="p-3 rounded-full bg-emerald-50">
                       <BarChart3 className="h-6 w-6 text-emerald-500" />
@@ -176,7 +199,9 @@ export default function ReportsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Avg Days to Close</p>
-                      <p className="text-2xl font-bold text-amber-700">{data?.avgDaysToClose || 0} days</p>
+                      <p className="text-2xl font-bold text-amber-700">
+                        {data?.avgDaysToClose || 0} days
+                      </p>
                     </div>
                     <div className="p-3 rounded-full bg-amber-50">
                       <Target className="h-6 w-6 text-amber-500" />
@@ -199,18 +224,25 @@ export default function ReportsPage() {
                 <div className="space-y-4">
                   {data.pipelineVelocity.map((stage) => (
                     <div key={stage.stage} className="flex items-center gap-4">
-                      <div className="w-40 text-sm font-medium text-gray-700 dark:text-gray-300">{stage.stage}</div>
+                      <div className="w-40 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {stage.stage}
+                      </div>
                       <div className="flex-1">
                         <div className="bg-gray-200 rounded-full h-6 relative">
                           <div
                             className="bg-violet-500 rounded-full h-6 flex items-center justify-end pr-2"
-                            style={{ width: `${Math.min((stage.avgDays / 60) * 100, 100)}%`, minWidth: '40px' }}
+                            style={{
+                              width: `${Math.min((stage.avgDays / 60) * 100, 100)}%`,
+                              minWidth: '40px',
+                            }}
                           >
                             <span className="text-xs text-white font-medium">{stage.avgDays}d</span>
                           </div>
                         </div>
                       </div>
-                      <div className="w-20 text-sm text-gray-500 dark:text-gray-400 text-right">{stage.count} deals</div>
+                      <div className="w-20 text-sm text-gray-500 dark:text-gray-400 text-right">
+                        {stage.count} deals
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -236,7 +268,9 @@ export default function ReportsPage() {
                   <div>
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium text-green-700">Won</span>
-                      <span className="text-sm font-medium text-green-700">{data?.dealsWon || 0}</span>
+                      <span className="text-sm font-medium text-green-700">
+                        {data?.dealsWon || 0}
+                      </span>
                     </div>
                     <div className="bg-gray-200 rounded-full h-4">
                       <div
@@ -248,7 +282,9 @@ export default function ReportsPage() {
                   <div>
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium text-red-700">Lost</span>
-                      <span className="text-sm font-medium text-red-700">{data?.dealsLost || 0}</span>
+                      <span className="text-sm font-medium text-red-700">
+                        {data?.dealsLost || 0}
+                      </span>
                     </div>
                     <div className="bg-gray-200 rounded-full h-4">
                       <div
@@ -268,7 +304,9 @@ export default function ReportsPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center py-3 border-b">
                     <span className="text-sm text-gray-600">Win Rate</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{(data?.winRate || 0).toFixed(1)}%</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                      {(data?.winRate || 0).toFixed(1)}%
+                    </span>
                   </div>
                   <div className="flex justify-between items-center py-3 border-b">
                     <span className="text-sm text-gray-600">Total Deals Won</span>
@@ -280,11 +318,15 @@ export default function ReportsPage() {
                   </div>
                   <div className="flex justify-between items-center py-3 border-b">
                     <span className="text-sm text-gray-600">Avg Days to Close</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{data?.avgDaysToClose || 0} days</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                      {data?.avgDaysToClose || 0} days
+                    </span>
                   </div>
                   <div className="flex justify-between items-center py-3">
                     <span className="text-sm text-gray-600">Revenue from Won</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(data?.totalRevenue || 0)}</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                      {formatCurrency(data?.totalRevenue || 0)}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -304,22 +346,42 @@ export default function ReportsPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b">
-                        <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Month</th>
-                        <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Projected</th>
-                        <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actual</th>
-                        <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Variance</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                          Month
+                        </th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                          Projected
+                        </th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                          Actual
+                        </th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                          Variance
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {data.forecast.map((row) => {
                         const variance = row.actual - row.projected;
                         return (
-                          <tr key={row.month} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                            <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{row.month}</td>
-                            <td className="py-3 px-4 text-right text-gray-600">{formatCurrency(row.projected)}</td>
-                            <td className="py-3 px-4 text-right font-medium">{formatCurrency(row.actual)}</td>
-                            <td className={`py-3 px-4 text-right font-medium ${variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              {variance >= 0 ? '+' : ''}{formatCurrency(variance)}
+                          <tr
+                            key={row.month}
+                            className="border-b hover:bg-gray-50 dark:bg-gray-800"
+                          >
+                            <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                              {row.month}
+                            </td>
+                            <td className="py-3 px-4 text-right text-gray-600">
+                              {formatCurrency(row.projected)}
+                            </td>
+                            <td className="py-3 px-4 text-right font-medium">
+                              {formatCurrency(row.actual)}
+                            </td>
+                            <td
+                              className={`py-3 px-4 text-right font-medium ${variance >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                            >
+                              {variance >= 0 ? '+' : ''}
+                              {formatCurrency(variance)}
                             </td>
                           </tr>
                         );

@@ -128,17 +128,17 @@ describe('File Validators', () => {
     });
 
     it('should reject Windows executables', () => {
-      const exeBuffer = Buffer.from([0x4D, 0x5A, 0x90, 0x00]); // MZ
+      const exeBuffer = Buffer.from([0x4d, 0x5a, 0x90, 0x00]); // MZ
       expect(validateFileContent(exeBuffer).valid).toBe(false);
     });
 
     it('should reject Linux executables', () => {
-      const elfBuffer = Buffer.from([0x7F, 0x45, 0x4C, 0x46]); // ELF
+      const elfBuffer = Buffer.from([0x7f, 0x45, 0x4c, 0x46]); // ELF
       expect(validateFileContent(elfBuffer).valid).toBe(false);
     });
 
     it('should reject shell scripts', () => {
-      const shBuffer = Buffer.from([0x23, 0x21, 0x2F, 0x62]); // #!/b
+      const shBuffer = Buffer.from([0x23, 0x21, 0x2f, 0x62]); // #!/b
       expect(validateFileContent(shBuffer).valid).toBe(false);
     });
 
@@ -191,7 +191,7 @@ describe('File Validators', () => {
         originalName: 'document.pdf',
         mimeType: 'application/pdf',
         size: 1024,
-        buffer: Buffer.from([0x4D, 0x5A, 0x90, 0x00]), // MZ header
+        buffer: Buffer.from([0x4d, 0x5a, 0x90, 0x00]), // MZ header
       };
       expect(validateFile(file).valid).toBe(false);
     });

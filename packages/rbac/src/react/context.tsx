@@ -1,6 +1,13 @@
 'use client';
 
-import React, { createContext, useContext, useMemo, useState, useEffect, type ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  useEffect,
+  type ReactNode,
+} from 'react';
 import type { ResolvedPermissions, ImsModule } from '../types';
 import { PermissionLevel } from '../types';
 import { resolvePermissions, mapLegacyRole } from '../permissions';
@@ -45,14 +52,17 @@ export function RBACProvider({ children, roles: propRoles }: RBACProviderProps) 
     setLoading(false);
   }, [propRoles]);
 
-  const value = useMemo<RBACContextValue>(() => ({
-    permissions,
-    loading,
-    hasPermission: (module: ImsModule, level: PermissionLevel) => {
-      if (!permissions) return false;
-      return (permissions.modules[module] ?? PermissionLevel.NONE) >= level;
-    },
-  }), [permissions, loading]);
+  const value = useMemo<RBACContextValue>(
+    () => ({
+      permissions,
+      loading,
+      hasPermission: (module: ImsModule, level: PermissionLevel) => {
+        if (!permissions) return false;
+        return (permissions.modules[module] ?? PermissionLevel.NONE) >= level;
+      },
+    }),
+    [permissions, loading]
+  );
 
   return React.createElement(RBACContext.Provider, { value }, children);
 }

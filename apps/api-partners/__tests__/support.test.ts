@@ -24,10 +24,15 @@ import { portalPrisma } from '../src/prisma-portal';
 
 const app = express();
 app.use(express.json());
-app.use((req: any, _res: any, next: any) => { req.partner = { id: 'partner-1' }; next(); });
+app.use((req: any, _res: any, next: any) => {
+  req.partner = { id: 'partner-1' };
+  next();
+});
 app.use('/api/support', supportRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockTicket = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -40,7 +45,16 @@ const mockTicket = {
   resolvedAt: null,
   createdAt: new Date(),
   updatedAt: new Date(),
-  messages: [{ id: 'msg-1', ticketId: 'ticket-1', senderId: 'partner-1', senderType: 'PARTNER', body: 'I cannot connect', createdAt: new Date() }],
+  messages: [
+    {
+      id: 'msg-1',
+      ticketId: 'ticket-1',
+      senderId: 'partner-1',
+      senderType: 'PARTNER',
+      body: 'I cannot connect',
+      createdAt: new Date(),
+    },
+  ],
 };
 
 describe('GET /api/support', () => {
@@ -76,25 +90,19 @@ describe('POST /api/support', () => {
   });
 
   it('returns 400 for missing subject', async () => {
-    const res = await request(app)
-      .post('/api/support')
-      .send({ description: 'Details' });
+    const res = await request(app).post('/api/support').send({ description: 'Details' });
     expect(res.status).toBe(400);
   });
 
   it('returns 400 for missing description', async () => {
-    const res = await request(app)
-      .post('/api/support')
-      .send({ subject: 'Help' });
+    const res = await request(app).post('/api/support').send({ subject: 'Help' });
     expect(res.status).toBe(400);
   });
 
   it('uses default MEDIUM priority when not specified', async () => {
     (portalPrisma.mktPartnerSupportTicket.create as jest.Mock).mockResolvedValue(mockTicket);
 
-    await request(app)
-      .post('/api/support')
-      .send({ subject: 'Help', description: 'Details' });
+    await request(app).post('/api/support').send({ subject: 'Help', description: 'Details' });
 
     const createCall = (portalPrisma.mktPartnerSupportTicket.create as jest.Mock).mock.calls[0][0];
     expect(createCall.data.priority).toBe('MEDIUM');
@@ -169,7 +177,12 @@ describe('POST /api/support/:id/messages', () => {
       status: 'WAITING_ON_PARTNER',
     });
     (portalPrisma.mktTicketMessage.create as jest.Mock).mockResolvedValue({
-      id: 'msg-2', ticketId: 'ticket-1', senderId: 'partner-1', senderType: 'PARTNER', body: 'Reply', createdAt: new Date(),
+      id: 'msg-2',
+      ticketId: 'ticket-1',
+      senderId: 'partner-1',
+      senderType: 'PARTNER',
+      body: 'Reply',
+      createdAt: new Date(),
     });
     (portalPrisma.mktPartnerSupportTicket.update as jest.Mock).mockResolvedValue({});
 

@@ -2,7 +2,7 @@
 
 ## Executive Overview
 
-**Project Name**: IMS - Nexara   
+**Project Name**: IMS - Nexara  
 **Version**: 1.0.0  
 **Architecture**: Microservices Monorepo  
 **Purpose**: Enterprise-grade ISO compliance management system covering ISO 45001 (Health & Safety), ISO 14001 (Environmental), and ISO 9001 (Quality)  
@@ -20,7 +20,7 @@
 ims-monorepo/
 ├── apps/                    # 21 Applications (9 APIs + 9 Web + 1 Mobile)
 │   ├── API Services (9)
-│   ├── Web Applications (9) 
+│   ├── Web Applications (9)
 │   └── Mobile App (1)
 ├── packages/                # 16 Shared Libraries
 ├── scripts/                 # Automation & DevOps Scripts
@@ -32,37 +32,37 @@ ims-monorepo/
 
 #### Backend API Services (9 Services)
 
-| Service | Port | Purpose | Key Features |
-|---------|------|---------|--------------|
-| **api-gateway** | 4000 | Central API router | Authentication, JWT, rate limiting, request proxying |
-| **api-health-safety** | 4001 | ISO 45001 | Risk register, incidents, legal compliance, OHS objectives, CAPA |
-| **api-environment** | 4002 | ISO 14001 | Environmental aspects, legal requirements tracking |
-| **api-quality** | 4003 | ISO 9001 | NCRs, CAPAs, audits, document control, processes |
-| **api-ai-analysis** | 4004 | AI Integration | OpenAI/Anthropic/Grok for analysis + H&S AI routes in web-health-safety |
-| **api-inventory** | 4005 | Stock Management | Products, warehouses, stock transactions |
-| **api-hr** | 4006 | Human Resources | Employees, attendance, leave, recruitment, training, performance, documents (40+ endpoints) |
-| **api-payroll** | 4007 | Payroll Processing | Payroll runs, salary, benefits, loans, expenses, tax (35+ endpoints) |
-| **api-workflows** | 4008 | Process Automation | Approvals, task management, workflow engine |
+| Service               | Port | Purpose            | Key Features                                                                                |
+| --------------------- | ---- | ------------------ | ------------------------------------------------------------------------------------------- |
+| **api-gateway**       | 4000 | Central API router | Authentication, JWT, rate limiting, request proxying                                        |
+| **api-health-safety** | 4001 | ISO 45001          | Risk register, incidents, legal compliance, OHS objectives, CAPA                            |
+| **api-environment**   | 4002 | ISO 14001          | Environmental aspects, legal requirements tracking                                          |
+| **api-quality**       | 4003 | ISO 9001           | NCRs, CAPAs, audits, document control, processes                                            |
+| **api-ai-analysis**   | 4004 | AI Integration     | OpenAI/Anthropic/Grok for analysis + H&S AI routes in web-health-safety                     |
+| **api-inventory**     | 4005 | Stock Management   | Products, warehouses, stock transactions                                                    |
+| **api-hr**            | 4006 | Human Resources    | Employees, attendance, leave, recruitment, training, performance, documents (40+ endpoints) |
+| **api-payroll**       | 4007 | Payroll Processing | Payroll runs, salary, benefits, loans, expenses, tax (35+ endpoints)                        |
+| **api-workflows**     | 4008 | Process Automation | Approvals, task management, workflow engine                                                 |
 
 #### Frontend Web Applications (9 Applications)
 
-| Application | Port | Purpose |
-|-------------|------|---------|
-| **web-dashboard** | 3000 | Main dashboard with analytics & KPIs |
-| **web-health-safety** | 3001 | Safety management interface |
-| **web-environment** | 3002 | Environmental management UI |
-| **web-quality** | 3003 | Quality management system |
-| **web-settings** | 3004 | System configuration & admin |
-| **web-inventory** | 3005 | Inventory management interface |
-| **web-hr** | 3006 | HR management dashboard |
-| **web-payroll** | 3007 | Payroll management UI |
-| **web-workflows** | 3008 | Workflow designer & monitoring |
+| Application           | Port | Purpose                              |
+| --------------------- | ---- | ------------------------------------ |
+| **web-dashboard**     | 3000 | Main dashboard with analytics & KPIs |
+| **web-health-safety** | 3001 | Safety management interface          |
+| **web-environment**   | 3002 | Environmental management UI          |
+| **web-quality**       | 3003 | Quality management system            |
+| **web-settings**      | 3004 | System configuration & admin         |
+| **web-inventory**     | 3005 | Inventory management interface       |
+| **web-hr**            | 3006 | HR management dashboard              |
+| **web-payroll**       | 3007 | Payroll management UI                |
+| **web-workflows**     | 3008 | Workflow designer & monitoring       |
 
 #### Mobile Application
 
-| Application | Platform | Technology |
-|-------------|----------|------------|
-| **mobile** | iOS/Android | Capacitor (cross-platform) |
+| Application | Platform    | Technology                 |
+| ----------- | ----------- | -------------------------- |
+| **mobile**  | iOS/Android | Capacitor (cross-platform) |
 
 ---
 
@@ -70,34 +70,34 @@ ims-monorepo/
 
 ### Core Infrastructure Packages
 
-| Package | Purpose | Key Features |
-|---------|---------|--------------|
-| **@ims/database** | Data layer | 7,554-line Prisma schema, 94 database tables, client generation |
-| **@ims/auth** | Authentication | JWT utilities, token validation, middleware |
-| **@ims/monitoring** | Observability | Winston logging, Prometheus metrics, health checks |
-| **@ims/secrets** | Security | HashiCorp Vault integration, secret management |
-| **@ims/service-auth** | Service-to-service auth | API key management, inter-service security |
+| Package               | Purpose                 | Key Features                                                    |
+| --------------------- | ----------------------- | --------------------------------------------------------------- |
+| **@ims/database**     | Data layer              | 7,554-line Prisma schema, 94 database tables, client generation |
+| **@ims/auth**         | Authentication          | JWT utilities, token validation, middleware                     |
+| **@ims/monitoring**   | Observability           | Winston logging, Prometheus metrics, health checks              |
+| **@ims/secrets**      | Security                | HashiCorp Vault integration, secret management                  |
+| **@ims/service-auth** | Service-to-service auth | API key management, inter-service security                      |
 
 ### Business Logic Packages
 
-| Package | Purpose | Features |
-|---------|---------|----------|
+| Package               | Purpose          | Features                                          |
+| --------------------- | ---------------- | ------------------------------------------------- |
 | **@ims/calculations** | ISO calculations | LTIFR, TRIR, DPMO, Sigma, risk scoring algorithms |
-| **@ims/validation** | Input validation | Zod schemas for data validation |
-| **@ims/resilience** | Fault tolerance | Circuit breakers, retry logic, timeout handling |
-| **@ims/audit** | Audit trail | Comprehensive activity logging system |
+| **@ims/validation**   | Input validation | Zod schemas for data validation                   |
+| **@ims/resilience**   | Fault tolerance  | Circuit breakers, retry logic, timeout handling   |
+| **@ims/audit**        | Audit trail      | Comprehensive activity logging system             |
 
 ### UI & Developer Experience
 
-| Package | Purpose | Features |
-|---------|---------|----------|
-| **@ims/ui** | Component library | Reusable React components (Button, Card, Badge, etc.) |
-| **@ims/charts** | Data visualization | ComplianceGauge, RiskMatrix, trend charts |
-| **@ims/types** | Type definitions | Shared TypeScript interfaces and types |
-| **@ims/shared** | Utilities | Common helper functions across services |
-| **@ims/testing** | Test utilities | Jest configuration, test helpers |
-| **@ims/email** | Email service | Email templates and sending infrastructure |
-| **@ims/file-upload** | File handling | Multi-format file upload and processing |
+| Package              | Purpose            | Features                                              |
+| -------------------- | ------------------ | ----------------------------------------------------- |
+| **@ims/ui**          | Component library  | Reusable React components (Button, Card, Badge, etc.) |
+| **@ims/charts**      | Data visualization | ComplianceGauge, RiskMatrix, trend charts             |
+| **@ims/types**       | Type definitions   | Shared TypeScript interfaces and types                |
+| **@ims/shared**      | Utilities          | Common helper functions across services               |
+| **@ims/testing**     | Test utilities     | Jest configuration, test helpers                      |
+| **@ims/email**       | Email service      | Email templates and sending infrastructure            |
+| **@ims/file-upload** | File handling      | Multi-format file upload and processing               |
 
 ---
 
@@ -141,6 +141,7 @@ ims-monorepo/
 ### Current State (Monolithic)
 
 Single PostgreSQL database with unified schema:
+
 - **Database Name**: `ims`
 - **Tables**: 94 tables covering all domains
 - **Technology**: PostgreSQL 16+ with Prisma ORM
@@ -149,6 +150,7 @@ Single PostgreSQL database with unified schema:
 ### Future State (Database Per Service)
 
 Migration path prepared for microservices scaling:
+
 - `ims_core` - Users, sessions, audit logs
 - `ims_hr` - Employee data
 - `ims_payroll` - Payroll records
@@ -164,12 +166,14 @@ Migration path prepared for microservices scaling:
 ### Key Database Models
 
 #### Core Models (Authentication & Audit)
+
 - User (authentication, roles, permissions)
 - Session (active user sessions)
 - AuditLog (system-wide activity tracking)
 - ApiKey (service-to-service authentication)
 
 #### Quality Management (quality.prisma) — 15 API route modules
+
 - NonConformance (NCR with 7 types, 5 severities, 6 status states, auto ref# NC-YYMM-XXXX)
 - NCAction (corrective/preventive/improvement, 6 statuses, auto ref# ACT-YYMM-XXXX)
 - CAPA (full 8D methodology: D1-D8 phases, team, containment, root causes, corrective actions, effectiveness)
@@ -188,6 +192,7 @@ Migration path prepared for microservices scaling:
 - FiveWhyAnalysis, FishboneAnalysis (root cause analysis tools)
 
 #### Health & Safety (ISO 45001)
+
 - Risk (risk register with 5x5 L×S matrix, auto ref# HS-XXX, AI-generated controls)
 - Incident (reporting with RIDDOR auto-detection, auto investigation dates, AI root cause analysis)
 - LegalRequirement (compliance register with AI assessment, auto ref# LR-XXX, 8 categories)
@@ -198,6 +203,7 @@ Migration path prepared for microservices scaling:
 - 11 enums: LegalCategory, ComplianceStatus, LegalStatus, ObjectiveCategory, ObjectiveStatus, CapaType, CapaSource, CapaPriority, CapaStatus, CapaActionType, CapaActionStatus
 
 #### Environmental (environment.prisma)
+
 - Aspect (environmental aspects with significance scoring: scale × frequency × legal impact)
 - Impact (specific impacts per aspect: pollution, resource depletion, climate change, etc.)
 - EnvironmentalIncident (5 incident types, 6 status states, auto ref# ENV-YYMMDD-XXXX)
@@ -208,6 +214,7 @@ Migration path prepared for microservices scaling:
 - EnvironmentalMetric (monthly KPIs: energy, water, waste, CO2 emissions, recycling rates)
 
 #### HR Management (hr.prisma)
+
 - Employee (master data with department, position, manager relationships)
 - Department (hierarchical with parent/children)
 - Position (job positions linked to departments)
@@ -221,6 +228,7 @@ Migration path prepared for microservices scaling:
 - Qualification, AssetAssignment
 
 #### Payroll (payroll.prisma)
+
 - PayrollRun (lifecycle: created → calculated → approved)
 - Payslip (generated per employee per run)
 - PayslipItem (earnings/deductions line items)
@@ -231,6 +239,7 @@ Migration path prepared for microservices scaling:
 - TaxFiling, TaxBracket (tax management)
 
 #### Inventory (inventory.prisma)
+
 - ProductCategory (hierarchical with parent/children)
 - Supplier (contact, rating, payment terms, status)
 - Product (SKU/barcode, pricing, reorder points, serial/lot tracking, optimistic locking)
@@ -245,6 +254,7 @@ Migration path prepared for microservices scaling:
 - GoodsReceiptItem (accepted/rejected quantities, quality status)
 
 #### Workflows (workflows.prisma) — 15 models
+
 - WorkflowDefinition (versioning, trigger types: manual/automatic/scheduled/event/API)
 - WorkflowInstance (5 priority levels, 8 statuses, SLA tracking)
 - WorkflowStep (11 step types, assignee types: user/role/department/manager/dynamic)
@@ -295,6 +305,7 @@ Dashboard, Non-conformances, Actions, Processes, CAPA, Audits, Investigations, D
 **5 Implemented Modules** (each with full CRUD API, AI integration, and frontend):
 
 **Risk Register** (`/risks`):
+
 - 5x5 Likelihood × Severity matrix with auto risk scoring
 - Auto reference numbers (HS-001, HS-002, etc.)
 - AI-generated Hierarchy of Controls (Elimination → PPE)
@@ -302,6 +313,7 @@ Dashboard, Non-conformances, Actions, Processes, CAPA, Audits, Investigations, D
 - Auto review dates (HIGH=30d, MEDIUM=90d, LOW=180d)
 
 **Incident Register** (`/incidents`):
+
 - Multi-section form: Details, Persons Involved, AI Analysis, Regulatory
 - Auto RIDDOR detection (Critical/Catastrophic/Major → reportable)
 - Auto investigation due dates (CRITICAL=24hrs, MAJOR=3days, MODERATE=7days)
@@ -309,6 +321,7 @@ Dashboard, Non-conformances, Actions, Processes, CAPA, Audits, Investigations, D
 - Severity color badges, search, status/severity/type filters
 
 **Legal Register** (`/legal`):
+
 - Compliance tracking across 8 categories (Primary Legislation → Voluntary)
 - AI compliance assessment (obligations, gaps, required actions, penalties)
 - Auto `lastReviewedAt` timestamp on compliance status change
@@ -316,6 +329,7 @@ Dashboard, Non-conformances, Actions, Processes, CAPA, Audits, Investigations, D
 - Compliance status colors (Compliant=green, Partial=yellow, Non-Compliant=red)
 
 **OHS Objectives** (`/objectives`):
+
 - SMART objective management with nested milestones
 - AI-assisted objective generation (KPIs, resources, milestones)
 - Auto progress recalculation from milestone completion
@@ -323,6 +337,7 @@ Dashboard, Non-conformances, Actions, Processes, CAPA, Audits, Investigations, D
 - Auto reference numbers (OBJ-001, OBJ-002, etc.)
 
 **CAPA Management** (`/actions`):
+
 - Corrective/Preventive/Improvement actions with nested action items
 - AI root cause analysis with corrective and preventive action suggestions
 - Auto target dates from priority (CRITICAL=7d, HIGH=14d, MEDIUM=30d, LOW=60d)
@@ -330,11 +345,13 @@ Dashboard, Non-conformances, Actions, Processes, CAPA, Audits, Investigations, D
 - Auto reference numbers (CAPA-001, CAPA-002, etc.)
 
 **H&S Dashboard** (`/` — main page):
+
 - Real-time stats from all 5 modules + metrics endpoint
 - Legal compliance percentage, OHS objectives progress, CAPA overdue count
 - Recent incidents with RIDDOR badges and severity colors
 
 **Safety Metrics**:
+
 - LTIFR (Lost Time Injury Frequency Rate)
 - TRIR (Total Recordable Incident Rate)
 - Severity Rate
@@ -361,6 +378,7 @@ Dashboard (compliance gauge, environmental indicators), Aspects & Impacts (signi
 **8 API Route Modules** (40+ endpoints):
 
 **Employees** (`/api/employees`):
+
 - Full CRUD with pagination, search, department/status/manager filtering
 - Organization chart endpoint (`/org-chart`)
 - Employee statistics (`/stats`) — counts by status, department, type, salary data
@@ -368,17 +386,20 @@ Dashboard (compliance gauge, environmental indicators), Aspects & Impacts (signi
 - Soft delete (marks as TERMINATED)
 
 **Attendance** (`/api/attendance`):
+
 - Clock-in/clock-out with automatic late minute calculation
 - Attendance summary with 7-day trends
 - Manual corrections for missed punches
 - Shift management (create, list all shifts)
 
 **Departments** (`/api/departments`):
+
 - Hierarchical tree structure with parent/child departments
 - Position management (`/positions/all`, create position)
 - Soft delete with employee count validation (prevents deleting populated departments)
 
 **Leave Management** (`/api/leave`):
+
 - Leave types configuration (create, list)
 - Leave request workflow: submit → approve/reject
 - Leave balance tracking per employee
@@ -386,18 +407,21 @@ Dashboard (compliance gauge, environmental indicators), Aspects & Impacts (signi
 - Balance validation on request creation
 
 **Performance** (`/api/performance`):
+
 - Performance review cycles (create, list)
 - Individual reviews with ratings and assessments
 - Goal management with progress tracking
 - Goal progress updates with history
 
 **Recruitment** (`/api/recruitment`):
+
 - Job postings with filtering by status/department
 - Applicant tracking with stage progression
 - Interview scheduling and evaluation
 - Recruitment statistics and funnel metrics
 
 **Training** (`/api/training`):
+
 - Course management with session scheduling
 - Employee enrollment with capacity management
 - Completion tracking with scoring
@@ -405,6 +429,7 @@ Dashboard (compliance gauge, environmental indicators), Aspects & Impacts (signi
 - Training statistics
 
 **Documents** (`/api/documents`):
+
 - Employee document upload and management
 - E-signature support (`/:id/sign`)
 - Expiry filtering for compliance
@@ -412,6 +437,7 @@ Dashboard (compliance gauge, environmental indicators), Aspects & Impacts (signi
 - Asset assignment and return tracking
 
 **Web Pages** (8 pages at port 3006):
+
 - Dashboard with employee, attendance, recruitment, and training stats
 - Employees, Departments, Attendance, Leave, Recruitment, Training pages
 - Login page with JWT authentication
@@ -421,40 +447,47 @@ Dashboard (compliance gauge, environmental indicators), Aspects & Impacts (signi
 **6 API Route Modules** (35+ endpoints):
 
 **Payroll Processing** (`/api/payroll`):
+
 - Payroll run lifecycle: create → calculate → approve
 - Automated payslip generation with detailed line items
 - Payslip listing and individual payslip with items breakdown
 - Payroll statistics and year filtering
 
 **Salary Management** (`/api/salary`):
+
 - Salary component types (create, list)
 - Employee salary records with component breakdown
 - Salary component updates
 
 **Benefits** (`/api/benefits`):
+
 - Benefit plan creation and management
 - Employee enrollment in benefit plans
 - Benefit termination with effective dates
 - Contribution tracking
 
 **Loans** (`/api/loans`):
+
 - Employee loan creation with repayment schedule generation
 - Loan approval workflow: create → approve → disburse
 - Automatic repayment schedule generation on approval
 - Individual repayment recording
 
 **Expenses** (`/api/expenses`):
+
 - Expense submission with approval workflow
 - Expense reports (group expenses into reports)
 - Approval/rejection/reimbursement tracking
 
 **Tax** (`/api/tax`):
+
 - Tax filing creation and submission
 - Tax payment recording
 - Tax bracket management (create, list)
 - Tax summary reporting
 
 **Web Pages** (7 pages at port 3007):
+
 - Dashboard with payroll stats and recent runs
 - Payroll, Salary, Benefits, Loans, Expenses, Tax pages
 - Login page with JWT authentication
@@ -503,6 +536,7 @@ Dashboard (instance stats, task stats), Templates, Instances, Tasks, Approvals, 
 | `/api/capa/analyse` | Root cause + action generation | Corrective actions, preventive actions, success criteria |
 
 **Central AI Service** (api-ai-analysis, port 4004):
+
 - `POST /api/analyse` — Multi-source analysis (risk, incident, aspect, nonconformance) against ISO 45001/14001/9001
 - `GET /api/analyses` — List analyses with pagination and filtering
 - `GET /api/analyses/:id` — Single analysis with user info and actions
@@ -515,6 +549,7 @@ Dashboard (instance stats, task stats), Templates, Instances, Tasks, Approvals, 
 - Extracts: root cause, suggested actions, compliance gaps, highlights
 
 **Supported AI Providers**:
+
 - Anthropic Claude (Sonnet 4.5 — primary, used for all H&S AI routes)
 - OpenAI (GPT-4 — configurable via settings)
 - Grok (xAI — configurable via settings)
@@ -524,6 +559,7 @@ Dashboard (instance stats, task stats), Templates, Instances, Tasks, Approvals, 
 **Central Entry Point**: Port 4000
 
 **Local Routes** (handled directly by gateway):
+
 - `POST /api/auth/login` — JWT auth with rate limiting (5/15min), account lockout (5 failures = 30min)
 - `POST /api/auth/register` — User registration with rate limiting (3/hour)
 - `POST /api/auth/logout`, `GET /api/auth/me`, `POST /api/auth/refresh`
@@ -540,6 +576,7 @@ Helmet (CSP, HSTS) → CORS → Cookie Parser → Correlation ID → Metrics →
 ### 10. Settings & Dashboard
 
 **Settings** (web-settings, port 3004, 5 pages):
+
 - Overview dashboard (users, sessions, AI analyses, system status)
 - User management (list, search, invite)
 - Roles & permissions matrix (Admin, Manager, User, Viewer)
@@ -547,6 +584,7 @@ Helmet (CSP, HSTS) → CORS → Cookie Parser → Correlation ID → Metrics →
 - System settings (site name, timezone, date format, notifications, session timeout, password policy, database backup)
 
 **Main Dashboard** (web-dashboard, port 3000):
+
 - 4 ISO compliance gauges (H&S, Environmental, Quality, Overall)
 - Stats cards: Active Risks, Open Incidents, Overdue Actions, AI Insights
 - Top 5 risks and overdue CAPA tables
@@ -563,6 +601,7 @@ Helmet (CSP, HSTS) → CORS → Cookie Parser → Correlation ID → Metrics →
 **Central Entry Point**: Port 4000
 
 **Gateway Responsibilities**:
+
 1. **Authentication & Authorization** (JWT validation, role-based access)
 2. **CSRF Protection** (double-submit cookie pattern)
 3. **Rate Limiting** (configurable per endpoint)
@@ -576,23 +615,24 @@ Helmet (CSP, HSTS) → CORS → Cookie Parser → Correlation ID → Metrics →
 
 ### API Routing Table
 
-| Route Pattern | Target Service | Purpose |
-|---------------|---------------|----------|
-| `/api/auth/*` | Gateway (local) | Authentication endpoints |
-| `/api/users/*` | Gateway (local) | User management |
-| `/api/dashboard/*` | Gateway (local) | Dashboard data |
+| Route Pattern          | Target Service         | Purpose                                                    |
+| ---------------------- | ---------------------- | ---------------------------------------------------------- |
+| `/api/auth/*`          | Gateway (local)        | Authentication endpoints                                   |
+| `/api/users/*`         | Gateway (local)        | User management                                            |
+| `/api/dashboard/*`     | Gateway (local)        | Dashboard data                                             |
 | `/api/health-safety/*` | api-health-safety:4001 | H&S operations (risks, incidents, legal, objectives, capa) |
-| `/api/environment/*` | api-environment:4002 | Environmental operations |
-| `/api/quality/*` | api-quality:4003 | Quality operations |
-| `/api/ai/*` | api-ai-analysis:4004 | AI analysis |
-| `/api/inventory/*` | api-inventory:4005 | Inventory operations |
-| `/api/hr/*` | api-hr:4006 | HR operations |
-| `/api/payroll/*` | api-payroll:4007 | Payroll operations |
-| `/api/workflows/*` | api-workflows:4008 | Workflow operations |
+| `/api/environment/*`   | api-environment:4002   | Environmental operations                                   |
+| `/api/quality/*`       | api-quality:4003       | Quality operations                                         |
+| `/api/ai/*`            | api-ai-analysis:4004   | AI analysis                                                |
+| `/api/inventory/*`     | api-inventory:4005     | Inventory operations                                       |
+| `/api/hr/*`            | api-hr:4006            | HR operations                                              |
+| `/api/payroll/*`       | api-payroll:4007       | Payroll operations                                         |
+| `/api/workflows/*`     | api-workflows:4008     | Workflow operations                                        |
 
 ### Standard API Response Format
 
 **Success Response**:
+
 ```json
 {
   "success": true,
@@ -605,6 +645,7 @@ Helmet (CSP, HSTS) → CORS → Cookie Parser → Correlation ID → Metrics →
 ```
 
 **Error Response**:
+
 ```json
 {
   "success": false,
@@ -619,6 +660,7 @@ Helmet (CSP, HSTS) → CORS → Cookie Parser → Correlation ID → Metrics →
 ### RESTful Conventions
 
 All APIs follow consistent patterns:
+
 - `GET /api/{resource}` - List all (with pagination)
 - `GET /api/{resource}/:id` - Get single item
 - `POST /api/{resource}` - Create new
@@ -637,6 +679,7 @@ All APIs follow consistent patterns:
 **Log Levels**: error, warn, info, http, verbose, debug
 
 **Log Destinations**:
+
 - Console (with colors in development)
 - File rotation: `{service}-error.log`, `{service}-combined.log`
 - Centralized log aggregation ready (ELK stack compatible)
@@ -646,6 +689,7 @@ All APIs follow consistent patterns:
 **Technology**: Prometheus (prom-client)
 
 **Exposed Metrics**:
+
 - `http_request_duration_seconds` - Request latency histogram
 - `http_requests_total` - Total request counter
 - `http_requests_active` - Active requests gauge
@@ -659,6 +703,7 @@ All APIs follow consistent patterns:
 **Health Check Endpoint**: `GET /health`
 
 **Response Format**:
+
 ```json
 {
   "status": "healthy",
@@ -678,6 +723,7 @@ All APIs follow consistent patterns:
 ```
 
 **Status Values**:
+
 - `healthy` - All checks pass
 - `degraded` - Non-critical issues (e.g., high memory)
 - `unhealthy` - Critical failures (returns HTTP 503)
@@ -685,6 +731,7 @@ All APIs follow consistent patterns:
 ### Correlation IDs
 
 **Header**: `x-correlation-id`
+
 - Auto-generated UUID v4 if not provided
 - Propagated across all service calls
 - Included in all log entries
@@ -697,12 +744,14 @@ All APIs follow consistent patterns:
 ### Authentication & Authorization
 
 **Method**: JWT (JSON Web Tokens)
+
 - **Algorithm**: HS256
 - **Token Expiration**: 24 hours
 - **Payload**: `{ userId, email, role }`
 - **Storage**: localStorage (client-side)
 
 **User Roles**:
+
 - Admin (full access)
 - Manager (departmental access)
 - Auditor (read-only access)
@@ -711,6 +760,7 @@ All APIs follow consistent patterns:
 ### Security Measures Implemented
 
 ✅ **Currently Active**:
+
 - JWT authentication on all protected routes
 - Password hashing with bcrypt (10 rounds)
 - CORS configuration (restrictive)
@@ -723,6 +773,7 @@ All APIs follow consistent patterns:
 - Password reset email functionality
 
 ⚠️ **Requires Configuration for Production**:
+
 - Change default JWT secret
 - Enable HTTPS/TLS
 - Add file upload security scanning
@@ -731,6 +782,7 @@ All APIs follow consistent patterns:
 ### Service-to-Service Authentication
 
 **Method**: API Keys
+
 - Service-specific API keys stored in HashiCorp Vault
 - Validated via `@ims/service-auth` package
 - Automatic key rotation supported
@@ -761,24 +813,25 @@ pnpm dev:health-safety      # H&S module
 
 ### Available NPM Scripts
 
-| Command | Purpose |
-|---------|---------|
-| `pnpm dev` | Start all 30+ processes concurrently |
-| `pnpm build` | Build all apps and packages |
-| `pnpm build:packages` | Build shared packages only |
-| `pnpm test` | Run Jest tests (12,321 across 578 suites) |
-| `pnpm lint` | Run ESLint across codebase |
-| `pnpm db:generate` | Generate Prisma client |
-| `pnpm db:push` | Push schema to database |
-| `pnpm db:migrate` | Run migrations |
-| `pnpm db:studio` | Open Prisma Studio (GUI) |
-| `pnpm clean` | Clean build artifacts |
+| Command               | Purpose                                   |
+| --------------------- | ----------------------------------------- |
+| `pnpm dev`            | Start all 30+ processes concurrently      |
+| `pnpm build`          | Build all apps and packages               |
+| `pnpm build:packages` | Build shared packages only                |
+| `pnpm test`           | Run Jest tests (12,321 across 578 suites) |
+| `pnpm lint`           | Run ESLint across codebase                |
+| `pnpm db:generate`    | Generate Prisma client                    |
+| `pnpm db:push`        | Push schema to database                   |
+| `pnpm db:migrate`     | Run migrations                            |
+| `pnpm db:studio`      | Open Prisma Studio (GUI)                  |
+| `pnpm clean`          | Clean build artifacts                     |
 
 ### Build System
 
 **Technology**: Turborepo
 
 **Features**:
+
 - Intelligent build caching
 - Parallel task execution
 - Remote caching support
@@ -786,6 +839,7 @@ pnpm dev:health-safety      # H&S module
 - Task orchestration
 
 **Build Order**:
+
 1. Shared packages (`@ims/*`)
 2. Backend APIs
 3. Frontend applications
@@ -808,6 +862,7 @@ Local Machine
 **Configuration**: `docker-compose.yml`
 
 **Services**:
+
 - PostgreSQL (persistent volume)
 - Redis (caching)
 - HashiCorp Vault (secrets)
@@ -817,6 +872,7 @@ Local Machine
 - Grafana (dashboards)
 
 **Commands**:
+
 ```bash
 docker-compose up -d              # Start all
 docker-compose logs -f            # View logs
@@ -829,6 +885,7 @@ docker-compose restart <service>  # Restart one
 **Location**: `/deploy/k8s/`
 
 **Resources Included**:
+
 - Deployments (all services)
 - Services (ClusterIP/LoadBalancer)
 - ConfigMaps (environment config)
@@ -838,6 +895,7 @@ docker-compose restart <service>  # Restart one
 - PersistentVolumeClaims (database storage)
 
 **Monitoring Stack**:
+
 - Prometheus (metrics collection)
 - Grafana (visualization)
 - Loki (log aggregation)
@@ -849,6 +907,7 @@ docker-compose restart <service>  # Restart one
 ### Current Test Coverage
 
 **Jest Unit Tests**: 12,321 tests across 578 suites (all passing)
+
 - `risks.api.test.ts` — 24 tests (CRUD, matrix, filters, validation, error handling)
 - `incidents.api.test.ts` — 27 tests (CRUD, auto RIDDOR, investigation dates, AI fields)
 - `legal.api.test.ts` — 15 tests (CRUD, auto ref#, compliance filters, AI fields)
@@ -857,6 +916,7 @@ docker-compose restart <service>  # Restart one
 - Package tests: `@ims/auth`, `@ims/resilience`, `@ims/secrets`
 
 **Integration Tests**: 70 tests via automated bash script (`scripts/test-hs-modules.sh`)
+
 - Incidents: 16 tests (CRUD, auto RIDDOR, search, filters)
 - Legal: 11 tests (CRUD, compliance, lastReviewedAt)
 - Objectives: 11 tests (CRUD, milestones, progress)
@@ -897,14 +957,14 @@ scripts/test-hs-modules.sh                  # Integration test suite
 
 ### Available Documentation Files
 
-| File | Size | Purpose |
-|------|------|---------|
-| `README.md` | 6KB | Quick start guide |
-| `SYSTEM-ARCHITECTURE.md` | 18KB | Complete architecture overview |
-| `DATABASE_ARCHITECTURE.md` | 10KB | Database design and migration |
-| `SECURITY.md` | 18KB | Security best practices |
-| `FINAL_SESSION_REPORT.md` | 16KB | Implementation status report |
-| `QUICK_REFERENCE.md` | 1KB | Common commands |
+| File                       | Size | Purpose                        |
+| -------------------------- | ---- | ------------------------------ |
+| `README.md`                | 6KB  | Quick start guide              |
+| `SYSTEM-ARCHITECTURE.md`   | 18KB | Complete architecture overview |
+| `DATABASE_ARCHITECTURE.md` | 10KB | Database design and migration  |
+| `SECURITY.md`              | 18KB | Security best practices        |
+| `FINAL_SESSION_REPORT.md`  | 16KB | Implementation status report   |
+| `QUICK_REFERENCE.md`       | 1KB  | Common commands                |
 
 ### Additional Resources
 
@@ -920,6 +980,7 @@ scripts/test-hs-modules.sh                  # Integration test suite
 ### Current Performance
 
 **Estimated Capacity** (single instance):
+
 - **Concurrent Users**: 100-500
 - **Requests/Second**: 1,000+ (gateway)
 - **Database Connections**: 10-20 per service
@@ -929,15 +990,18 @@ scripts/test-hs-modules.sh                  # Integration test suite
 ### Scaling Strategy
 
 **Horizontal Scaling**:
+
 - All services are stateless (except database)
 - Load balancer ready (Nginx/k8s)
 - Session data in Redis (distributed cache)
 
 **Vertical Scaling**:
+
 - PostgreSQL: Can handle 10,000+ concurrent connections
 - Node.js: Multi-core support via cluster mode
 
 **Database Scaling**:
+
 - Read replicas for high-read scenarios
 - Database sharding by tenant (multi-tenancy ready)
 - Connection pooling (Prisma)
@@ -948,18 +1012,19 @@ scripts/test-hs-modules.sh                  # Integration test suite
 
 ### Current Issues (As of Feb 10, 2026)
 
-| Issue | Severity | Status |
-|-------|----------|--------|
-| ~~Token auto-attachment in Next.js~~ | ~~Medium~~ | ✅ Resolved (CSRF double-submit cookie) |
-| ~~No login page UI~~ | ~~Low~~ | ✅ Resolved (login page built for all web apps) |
-| ~~Missing dashboard stats endpoints~~ | ~~Low~~ | ✅ Resolved (H&S dashboard fetches from 6 endpoints) |
-| Hardcoded service URLs in some places | Low | Workaround exists (env vars) |
-| Limited error tracking | Low | Planned (Sentry integration) |
-| Edit modals for H&S modules | Medium | Planned (reuse create modal with pre-populated data) |
+| Issue                                 | Severity   | Status                                               |
+| ------------------------------------- | ---------- | ---------------------------------------------------- |
+| ~~Token auto-attachment in Next.js~~  | ~~Medium~~ | ✅ Resolved (CSRF double-submit cookie)              |
+| ~~No login page UI~~                  | ~~Low~~    | ✅ Resolved (login page built for all web apps)      |
+| ~~Missing dashboard stats endpoints~~ | ~~Low~~    | ✅ Resolved (H&S dashboard fetches from 6 endpoints) |
+| Hardcoded service URLs in some places | Low        | Workaround exists (env vars)                         |
+| Limited error tracking                | Low        | Planned (Sentry integration)                         |
+| Edit modals for H&S modules           | Medium     | Planned (reuse create modal with pre-populated data) |
 
 ### Roadmap
 
 **Q1 2026**:
+
 - [ ] Complete all dashboard statistics endpoints
 - [ ] Build login page with "Remember Me"
 - [ ] Add comprehensive error tracking (Sentry)
@@ -967,6 +1032,7 @@ scripts/test-hs-modules.sh                  # Integration test suite
 - [ ] Add service discovery (Consul/etcd)
 
 **Q2 2026**:
+
 - [ ] Mobile app feature parity
 - [ ] Offline mode for mobile
 - [ ] Advanced reporting engine
@@ -974,6 +1040,7 @@ scripts/test-hs-modules.sh                  # Integration test suite
 - [ ] White-label customization
 
 **Q3 2026**:
+
 - [ ] AI-powered predictive analytics
 - [ ] Automated compliance reporting
 - [ ] Integration marketplace
@@ -981,6 +1048,7 @@ scripts/test-hs-modules.sh                  # Integration test suite
 - [ ] Advanced role-based permissions
 
 **Q4 2026**:
+
 - [ ] Multi-tenancy (SaaS mode)
 - [ ] Advanced analytics dashboard
 - [ ] Blockchain audit trail (immutable logs)
@@ -994,6 +1062,7 @@ scripts/test-hs-modules.sh                  # Integration test suite
 ### Problem Solved
 
 Organizations struggle with:
+
 - Manual ISO compliance tracking
 - Disconnected safety, quality, and environmental systems
 - Paper-based incident reporting
@@ -1003,6 +1072,7 @@ Organizations struggle with:
 ### Solution Provided
 
 A unified platform that:
+
 - Automates ISO compliance workflows
 - Provides real-time dashboards and KPIs
 - Enables mobile incident reporting
@@ -1012,6 +1082,7 @@ A unified platform that:
 ### Target Market
 
 **Industries**:
+
 - Manufacturing
 - Construction
 - Oil & Gas
@@ -1021,6 +1092,7 @@ A unified platform that:
 - Food & Beverage
 
 **Company Sizes**:
+
 - SME: 50-500 employees
 - Enterprise: 500-10,000 employees
 - Multi-site organizations
@@ -1042,6 +1114,7 @@ A unified platform that:
 ### Development Investment
 
 **Estimated Hours**: 2,000-3,000 hours
+
 - Architecture & Design: 200 hours
 - Backend Development: 800 hours
 - Frontend Development: 800 hours
@@ -1055,6 +1128,7 @@ A unified platform that:
 ### Operational Costs
 
 **Monthly Infrastructure** (AWS/Azure):
+
 - Database (PostgreSQL): $50-$200
 - Compute (containers): $100-$500
 - Load Balancer: $20-$50
@@ -1063,6 +1137,7 @@ A unified platform that:
 - **Total**: $240-$1,000/month
 
 **Scaling**:
+
 - 100 users: ~$300/month
 - 1,000 users: ~$1,500/month
 - 10,000 users: ~$8,000/month
@@ -1141,12 +1216,14 @@ curl -X POST http://localhost:4000/api/auth/login \
 ### System Requirements
 
 **Minimum**:
+
 - 4 CPU cores
 - 8 GB RAM
 - 50 GB storage
 - Ubuntu 20.04+ / macOS 12+ / Windows 11
 
 **Recommended (Production)**:
+
 - 8 CPU cores
 - 16 GB RAM
 - 200 GB SSD storage
@@ -1157,6 +1234,7 @@ curl -X POST http://localhost:4000/api/auth/login \
 ### Backup Strategy
 
 **Database**:
+
 ```bash
 # Automated daily backups
 pg_dump -U postgres ims > ims_backup_$(date +%Y%m%d).sql
@@ -1166,6 +1244,7 @@ psql -U postgres -d ims < ims_backup_20260207.sql
 ```
 
 **Application Files**:
+
 - Git version control
 - Docker image registry
 - Cloud storage backup (S3/Azure Blob)
@@ -1173,6 +1252,7 @@ psql -U postgres -d ims < ims_backup_20260207.sql
 ### Maintenance Windows
 
 Recommended maintenance schedule:
+
 - **Daily**: Automated backups
 - **Weekly**: Log rotation, temp file cleanup
 - **Monthly**: Dependency updates, security patches
@@ -1194,6 +1274,7 @@ Recommended maintenance schedule:
 ### Business Metrics
 
 **For Organizations Using IMS**:
+
 - 70% reduction in compliance documentation time
 - 50% faster incident investigation
 - 90% improvement in audit readiness
@@ -1207,6 +1288,7 @@ Recommended maintenance schedule:
 The IMS (Integrated Management System) is a **production-ready, enterprise-grade platform** for ISO compliance management. With its modern microservices architecture, comprehensive feature set, and scalable design, it represents a complete solution for organizations seeking to digitize their safety, environmental, and quality management systems.
 
 **Key Strengths**:
+
 - ✅ Comprehensive ISO coverage (45001, 14001, 9001)
 - ✅ Modern, maintainable codebase
 - ✅ Scalable microservices architecture

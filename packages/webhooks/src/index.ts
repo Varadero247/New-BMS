@@ -73,7 +73,7 @@ export const WEBHOOK_EVENTS = [
   'trial.expired',
 ] as const;
 
-export type WebhookEvent = typeof WEBHOOK_EVENTS[number];
+export type WebhookEvent = (typeof WEBHOOK_EVENTS)[number];
 
 // ─── In-Memory Stores ───────────────────────────────────────────────────────
 
@@ -113,7 +113,7 @@ export function createEndpoint(params: CreateEndpointParams): WebhookEndpoint {
 
 export function listEndpoints(orgId: string): WebhookEndpoint[] {
   return Array.from(endpointStore.values())
-    .filter(ep => ep.orgId === orgId)
+    .filter((ep) => ep.orgId === orgId)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
@@ -141,9 +141,14 @@ export function updateEndpoint(id: string, updates: UpdateEndpointParams): Webho
 
 // ─── Dispatch & Delivery ────────────────────────────────────────────────────
 
-export function dispatch(event: string, orgId: string, payload: Record<string, unknown>): WebhookDelivery[] {
-  const endpoints = Array.from(endpointStore.values())
-    .filter(ep => ep.orgId === orgId && ep.enabled && ep.events.includes(event));
+export function dispatch(
+  event: string,
+  orgId: string,
+  payload: Record<string, unknown>
+): WebhookDelivery[] {
+  const endpoints = Array.from(endpointStore.values()).filter(
+    (ep) => ep.orgId === orgId && ep.enabled && ep.events.includes(event)
+  );
 
   const deliveries: WebhookDelivery[] = [];
 
@@ -183,13 +188,13 @@ export function dispatch(event: string, orgId: string, payload: Record<string, u
 
 export function listDeliveries(endpointId: string, limit: number = 20): WebhookDelivery[] {
   return deliveryStore
-    .filter(d => d.endpointId === endpointId)
+    .filter((d) => d.endpointId === endpointId)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, limit);
 }
 
 export function getDelivery(id: string): WebhookDelivery | undefined {
-  return deliveryStore.find(d => d.id === id);
+  return deliveryStore.find((d) => d.id === id);
 }
 
 // ─── Reset (for testing) ────────────────────────────────────────────────────

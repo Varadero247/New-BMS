@@ -40,9 +40,10 @@ interface AIAnalysisResult {
 
 export function buildVariancePrompt(snapshot: SnapshotData, planTarget: PlanTargetData): string {
   const mrrVariance = Number(snapshot.mrr) - Number(planTarget.plannedMrr);
-  const mrrVariancePct = Number(planTarget.plannedMrr) > 0
-    ? ((mrrVariance / Number(planTarget.plannedMrr)) * 100).toFixed(1)
-    : '0.0';
+  const mrrVariancePct =
+    Number(planTarget.plannedMrr) > 0
+      ? ((mrrVariance / Number(planTarget.plannedMrr)) * 100).toFixed(1)
+      : '0.0';
 
   const custVariance = snapshot.customers - planTarget.plannedCustomers;
 
@@ -98,7 +99,10 @@ Rules:
 - summary should mention the most important variance and its likely cause`;
 }
 
-export async function runVarianceAnalysis(snapshot: SnapshotData, planTarget: PlanTargetData): Promise<AIAnalysisResult | null> {
+export async function runVarianceAnalysis(
+  snapshot: SnapshotData,
+  planTarget: PlanTargetData
+): Promise<AIAnalysisResult | null> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     logger.warn('ANTHROPIC_API_KEY not set, skipping AI variance analysis');
@@ -126,7 +130,7 @@ export async function runVarianceAnalysis(snapshot: SnapshotData, planTarget: Pl
       throw new Error(`Anthropic API error: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json() as Record<string, unknown>;
+    const data = (await response.json()) as Record<string, unknown>;
     const text: string = (data as any).content?.[0]?.text || '';
     const result = parseAIResponse(text);
 
@@ -141,7 +145,10 @@ export async function runVarianceAnalysis(snapshot: SnapshotData, planTarget: Pl
       },
     });
 
-    logger.info('AI variance analysis completed', { snapshotId: snapshot.id, trajectory: result.trajectory });
+    logger.info('AI variance analysis completed', {
+      snapshotId: snapshot.id,
+      trajectory: result.trajectory,
+    });
     return result;
   } catch (err) {
     logger.error('AI variance analysis failed', { error: String(err) });
@@ -161,7 +168,11 @@ export function parseAIResponse(text: string): AIAnalysisResult {
     const parsed = JSON.parse(jsonStr);
 
     // Validate structure
-    if (!parsed.summary || !Array.isArray(parsed.alerts) || !Array.isArray(parsed.recommendations)) {
+    if (
+      !parsed.summary ||
+      !Array.isArray(parsed.alerts) ||
+      !Array.isArray(parsed.recommendations)
+    ) {
       throw new Error('Invalid AI response structure');
     }
 
@@ -182,7 +193,10 @@ export function parseAIResponse(text: string): AIAnalysisResult {
       trajectory: parsed.trajectory,
     };
   } catch (err) {
-    logger.error('Failed to parse AI response', { text: text.substring(0, 200), error: String(err) });
+    logger.error('Failed to parse AI response', {
+      text: text.substring(0, 200),
+      error: String(err),
+    });
     return {
       summary: 'AI analysis unavailable — response could not be parsed.',
       alerts: [],

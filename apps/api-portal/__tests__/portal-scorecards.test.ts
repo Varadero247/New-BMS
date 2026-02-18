@@ -39,7 +39,12 @@ beforeEach(() => {
 describe('GET /api/portal/scorecards', () => {
   it('should list scorecards', async () => {
     const items = [
-      { id: '00000000-0000-0000-0000-000000000001', portalUserId: '00000000-0000-0000-0000-000000000001', period: '2026-Q1', overallScore: 85 },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        portalUserId: '00000000-0000-0000-0000-000000000001',
+        period: '2026-Q1',
+        overallScore: 85,
+      },
     ];
     (prisma as any).portalScorecard.findMany.mockResolvedValue(items);
     (prisma as any).portalScorecard.count.mockResolvedValue(1);
@@ -54,11 +59,15 @@ describe('GET /api/portal/scorecards', () => {
     (prisma as any).portalScorecard.findMany.mockResolvedValue([]);
     (prisma as any).portalScorecard.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/portal/scorecards?portalUserId=00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/portal/scorecards?portalUserId=00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(200);
     expect((prisma as any).portalScorecard.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ portalUserId: '00000000-0000-0000-0000-000000000001' }) })
+      expect.objectContaining({
+        where: expect.objectContaining({ portalUserId: '00000000-0000-0000-0000-000000000001' }),
+      })
     );
   });
 
@@ -92,12 +101,21 @@ describe('GET /api/portal/scorecards', () => {
 
 describe('POST /api/portal/scorecards', () => {
   it('should create a scorecard', async () => {
-    const scorecard = { id: '00000000-0000-0000-0000-000000000001', portalUserId: '00000000-0000-0000-0000-000000000001', period: '2026-Q1', overallScore: 85 };
+    const scorecard = {
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q1',
+      overallScore: 85,
+    };
     (prisma as any).portalScorecard.create.mockResolvedValue(scorecard);
 
-    const res = await request(app)
-      .post('/api/portal/scorecards')
-      .send({ portalUserId: '00000000-0000-0000-0000-000000000001', period: '2026-Q1', overallScore: 85, qualityScore: 90, deliveryScore: 80 });
+    const res = await request(app).post('/api/portal/scorecards').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q1',
+      overallScore: 85,
+      qualityScore: 90,
+      deliveryScore: 80,
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.data.overallScore).toBe(85);
@@ -112,17 +130,21 @@ describe('POST /api/portal/scorecards', () => {
   });
 
   it('should return 400 for score above 100', async () => {
-    const res = await request(app)
-      .post('/api/portal/scorecards')
-      .send({ portalUserId: '00000000-0000-0000-0000-000000000001', period: '2026-Q1', overallScore: 150 });
+    const res = await request(app).post('/api/portal/scorecards').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q1',
+      overallScore: 150,
+    });
 
     expect(res.status).toBe(400);
   });
 
   it('should return 400 for negative score', async () => {
-    const res = await request(app)
-      .post('/api/portal/scorecards')
-      .send({ portalUserId: '00000000-0000-0000-0000-000000000001', period: '2026-Q1', overallScore: -5 });
+    const res = await request(app).post('/api/portal/scorecards').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q1',
+      overallScore: -5,
+    });
 
     expect(res.status).toBe(400);
   });
@@ -130,9 +152,11 @@ describe('POST /api/portal/scorecards', () => {
   it('should handle server error on create', async () => {
     (prisma as any).portalScorecard.create.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app)
-      .post('/api/portal/scorecards')
-      .send({ portalUserId: '00000000-0000-0000-0000-000000000001', period: '2026-Q1', overallScore: 85 });
+    const res = await request(app).post('/api/portal/scorecards').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q1',
+      overallScore: 85,
+    });
 
     expect(res.status).toBe(500);
   });
@@ -140,9 +164,15 @@ describe('POST /api/portal/scorecards', () => {
 
 describe('GET /api/portal/scorecards/:id', () => {
   it('should return a scorecard', async () => {
-    (prisma as any).portalScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', period: '2026-Q1', overallScore: 85 });
+    (prisma as any).portalScorecard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q1',
+      overallScore: 85,
+    });
 
-    const res = await request(app).get('/api/portal/scorecards/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/portal/scorecards/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
@@ -151,7 +181,9 @@ describe('GET /api/portal/scorecards/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma as any).portalScorecard.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/portal/scorecards/00000000-0000-0000-0000-000000000099');
+    const res = await request(app).get(
+      '/api/portal/scorecards/00000000-0000-0000-0000-000000000099'
+    );
 
     expect(res.status).toBe(404);
   });
@@ -159,7 +191,9 @@ describe('GET /api/portal/scorecards/:id', () => {
   it('should handle server error on fetch', async () => {
     (prisma as any).portalScorecard.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/portal/scorecards/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/portal/scorecards/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(500);
   });

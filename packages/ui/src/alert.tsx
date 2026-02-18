@@ -14,7 +14,10 @@ export interface AlertProps {
   className?: string;
 }
 
-const variantConfig: Record<AlertVariant, { bg: string; border: string; text: string; icon: string }> = {
+const variantConfig: Record<
+  AlertVariant,
+  { bg: string; border: string; text: string; icon: string }
+> = {
   info: {
     bg: 'bg-blue-50 dark:bg-blue-900/20',
     border: 'border-blue-200 dark:border-blue-800',
@@ -41,7 +44,14 @@ const variantConfig: Record<AlertVariant, { bg: string; border: string; text: st
   },
 };
 
-export function Alert({ variant = 'info', title, children, dismissible = false, onDismiss, className }: AlertProps) {
+export function Alert({
+  variant = 'info',
+  title,
+  children,
+  dismissible = false,
+  onDismiss,
+  className,
+}: AlertProps) {
   const [dismissed, setDismissed] = useState(false);
   const config = variantConfig[variant];
 
@@ -57,7 +67,13 @@ export function Alert({ variant = 'info', title, children, dismissible = false, 
       role="alert"
       className={cn('flex gap-3 rounded-lg border p-4', config.bg, config.border, className)}
     >
-      <svg className={cn('h-5 w-5 flex-shrink-0 mt-0.5', config.text)} fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+      <svg
+        className={cn('h-5 w-5 flex-shrink-0 mt-0.5', config.text)}
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth="1.5"
+        stroke="currentColor"
+      >
         <path strokeLinecap="round" strokeLinejoin="round" d={config.icon} />
       </svg>
       <div className="flex-1 min-w-0">
@@ -71,7 +87,13 @@ export function Alert({ variant = 'info', title, children, dismissible = false, 
           className={cn('flex-shrink-0 opacity-60 hover:opacity-100', config.text)}
           aria-label="Dismiss alert"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="currentColor"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>

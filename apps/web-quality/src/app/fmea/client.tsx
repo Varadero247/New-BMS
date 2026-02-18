@@ -1,8 +1,36 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea, AIDisclosure } from '@ims/ui';
-import { Plus, FileSpreadsheet, Search, AlertOctagon, Clock, CheckCircle, Trash2, Brain, Loader2, RefreshCw, ChevronDown, ChevronUp, TrendingDown } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
+  AIDisclosure,
+} from '@ims/ui';
+import {
+  Plus,
+  FileSpreadsheet,
+  Search,
+  AlertOctagon,
+  Clock,
+  CheckCircle,
+  Trash2,
+  Brain,
+  Loader2,
+  RefreshCw,
+  ChevronDown,
+  ChevronUp,
+  TrendingDown,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -77,19 +105,9 @@ const FMEA_STATUSES = [
   'CLOSED',
 ] as const;
 
-const ROW_STATUSES = [
-  'OPEN',
-  'IN_PROGRESS',
-  'COMPLETED',
-  'VERIFIED',
-  'CLOSED',
-] as const;
+const ROW_STATUSES = ['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'CLOSED'] as const;
 
-const ACTION_PRIORITIES = [
-  'HIGH',
-  'MEDIUM',
-  'LOW',
-] as const;
+const ACTION_PRIORITIES = ['HIGH', 'MEDIUM', 'LOW'] as const;
 
 const typeLabels: Record<string, string> = {
   DFMEA: 'Design FMEA',
@@ -195,7 +213,11 @@ export default function FmeaClient() {
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
   // AI Analysis
-  const [aiAnalysis, setAiAnalysis] = useState<AiAnalysis>({ loading: false, result: null, error: null });
+  const [aiAnalysis, setAiAnalysis] = useState<AiAnalysis>({
+    loading: false,
+    result: null,
+    error: null,
+  });
 
   // -------------------------------------------------------------------------
   // Data Loading
@@ -273,12 +295,12 @@ export default function FmeaClient() {
   // -------------------------------------------------------------------------
 
   function addRow() {
-    setRows(prev => [...prev, createEmptyRow()]);
+    setRows((prev) => [...prev, createEmptyRow()]);
     setExpandedRow(rows.length);
   }
 
   function updateRow(index: number, field: keyof FmeaRow, value: string | number | boolean) {
-    setRows(prev => {
+    setRows((prev) => {
       const updated = [...prev];
       const row = { ...updated[index], [field]: value, _isDirty: true };
 
@@ -291,7 +313,11 @@ export default function FmeaClient() {
       }
 
       // Auto-calculate revised RPN
-      if (field === 'revisedSeverity' || field === 'revisedOccurrence' || field === 'revisedDetection') {
+      if (
+        field === 'revisedSeverity' ||
+        field === 'revisedOccurrence' ||
+        field === 'revisedDetection'
+      ) {
         const rs = field === 'revisedSeverity' ? Number(value) : Number(row.revisedSeverity);
         const ro = field === 'revisedOccurrence' ? Number(value) : Number(row.revisedOccurrence);
         const rd = field === 'revisedDetection' ? Number(value) : Number(row.revisedDetection);
@@ -340,7 +366,7 @@ export default function FmeaClient() {
       if (row._isNew || !row.id) {
         const response = await api.post(`/fmea/${selectedFmea.id}/rows`, payload);
         const savedRow = response.data.data;
-        setRows(prev => {
+        setRows((prev) => {
           const updated = [...prev];
           updated[index] = { ...savedRow, _isNew: false, _isDirty: false };
           return updated;
@@ -348,7 +374,7 @@ export default function FmeaClient() {
       } else {
         const response = await api.put(`/fmea/${selectedFmea.id}/rows/${row.id}`, payload);
         const savedRow = response.data.data;
-        setRows(prev => {
+        setRows((prev) => {
           const updated = [...prev];
           updated[index] = { ...savedRow, _isNew: false, _isDirty: false };
           return updated;
@@ -364,14 +390,14 @@ export default function FmeaClient() {
   async function deleteRow(index: number) {
     const row = rows[index];
     if (row._isNew || !row.id) {
-      setRows(prev => prev.filter((_, i) => i !== index));
+      setRows((prev) => prev.filter((_, i) => i !== index));
       if (expandedRow === index) setExpandedRow(null);
       return;
     }
     if (!selectedFmea) return;
     try {
       await api.delete(`/fmea/${selectedFmea.id}/rows/${row.id}`);
-      setRows(prev => prev.filter((_, i) => i !== index));
+      setRows((prev) => prev.filter((_, i) => i !== index));
       if (expandedRow === index) setExpandedRow(null);
     } catch (err) {
       console.error('Failed to delete row:', err);
@@ -391,7 +417,7 @@ export default function FmeaClient() {
         fmeaType: selectedFmea.fmeaType,
         title: selectedFmea.title,
         productProcess: selectedFmea.productProcess,
-        rows: rows.map(r => ({
+        rows: rows.map((r) => ({
           failureMode: r.failureMode,
           effectOfFailure: r.effectOfFailure,
           severity: r.severity,
@@ -404,10 +430,18 @@ export default function FmeaClient() {
           status: r.status,
         })),
       });
-      setAiAnalysis({ loading: false, result: response.data.data?.analysis || 'No analysis available.', error: null });
+      setAiAnalysis({
+        loading: false,
+        result: response.data.data?.analysis || 'No analysis available.',
+        error: null,
+      });
     } catch (err) {
       console.error('AI analysis failed:', err);
-      setAiAnalysis({ loading: false, result: null, error: 'AI analysis failed. Please try again.' });
+      setAiAnalysis({
+        loading: false,
+        result: null,
+        error: 'AI analysis failed. Please try again.',
+      });
     }
   }
 
@@ -416,33 +450,47 @@ export default function FmeaClient() {
   // -------------------------------------------------------------------------
 
   const filtered = fmeas
-    .filter(f => typeFilter === 'all' || f.fmeaType === typeFilter)
-    .filter(f => statusFilter === 'all' || f.status === statusFilter)
-    .filter(f =>
-      !searchQuery ||
-      f.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.referenceNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.productProcess?.toLowerCase().includes(searchQuery.toLowerCase())
+    .filter((f) => typeFilter === 'all' || f.fmeaType === typeFilter)
+    .filter((f) => statusFilter === 'all' || f.status === statusFilter)
+    .filter(
+      (f) =>
+        !searchQuery ||
+        f.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        f.referenceNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        f.productProcess?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-  const stats = useMemo(() => ({
-    total: fmeas.length,
-    active: fmeas.filter(f => f.status === 'IN_PROGRESS' || f.status === 'UNDER_REVIEW').length,
-    highRpn: fmeas.reduce((sum, f) => sum + (f.highRPNCount || 0), 0),
-    openActions: fmeas.reduce((sum, f) => sum + (f.openActions || 0), 0),
-  }), [fmeas]);
+  const stats = useMemo(
+    () => ({
+      total: fmeas.length,
+      active: fmeas.filter((f) => f.status === 'IN_PROGRESS' || f.status === 'UNDER_REVIEW').length,
+      highRpn: fmeas.reduce((sum, f) => sum + (f.highRPNCount || 0), 0),
+      openActions: fmeas.reduce((sum, f) => sum + (f.openActions || 0), 0),
+    }),
+    [fmeas]
+  );
 
   // Row summary (for detail view)
   const rowSummary = useMemo(() => {
-    const nonDeletedRows = rows.filter(r => !r._isDeleted);
+    const nonDeletedRows = rows.filter((r) => !r._isDeleted);
     const totalModes = nonDeletedRows.length;
-    const highRpn = nonDeletedRows.filter(r => r.rpn > 200).length;
-    const mediumRpn = nonDeletedRows.filter(r => r.rpn >= 80 && r.rpn <= 200).length;
-    const lowRpn = nonDeletedRows.filter(r => r.rpn < 80).length;
-    const openActs = nonDeletedRows.filter(r => r.status === 'OPEN' || r.status === 'IN_PROGRESS').length;
-    const avgInitialRpn = totalModes > 0 ? Math.round(nonDeletedRows.reduce((s, r) => s + r.rpn, 0) / totalModes) : 0;
-    const revisedRows = nonDeletedRows.filter(r => r.revisedRpn > 0 && (r.revisedSeverity > 1 || r.revisedOccurrence > 1 || r.revisedDetection > 1));
-    const avgRevisedRpn = revisedRows.length > 0 ? Math.round(revisedRows.reduce((s, r) => s + r.revisedRpn, 0) / revisedRows.length) : 0;
+    const highRpn = nonDeletedRows.filter((r) => r.rpn > 200).length;
+    const mediumRpn = nonDeletedRows.filter((r) => r.rpn >= 80 && r.rpn <= 200).length;
+    const lowRpn = nonDeletedRows.filter((r) => r.rpn < 80).length;
+    const openActs = nonDeletedRows.filter(
+      (r) => r.status === 'OPEN' || r.status === 'IN_PROGRESS'
+    ).length;
+    const avgInitialRpn =
+      totalModes > 0 ? Math.round(nonDeletedRows.reduce((s, r) => s + r.rpn, 0) / totalModes) : 0;
+    const revisedRows = nonDeletedRows.filter(
+      (r) =>
+        r.revisedRpn > 0 &&
+        (r.revisedSeverity > 1 || r.revisedOccurrence > 1 || r.revisedDetection > 1)
+    );
+    const avgRevisedRpn =
+      revisedRows.length > 0
+        ? Math.round(revisedRows.reduce((s, r) => s + r.revisedRpn, 0) / revisedRows.length)
+        : 0;
     return { totalModes, highRpn, mediumRpn, lowRpn, openActs, avgInitialRpn, avgRevisedRpn };
   }, [rows]);
 
@@ -458,7 +506,11 @@ export default function FmeaClient() {
   function formatDate(dateStr: string | undefined | null): string {
     if (!dateStr) return '-';
     try {
-      return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      return new Date(dateStr).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
     } catch {
       return '-';
     }
@@ -468,15 +520,25 @@ export default function FmeaClient() {
   // Number Input Helper
   // -------------------------------------------------------------------------
 
-  function NumberRating({ value, onChange, max = 10 }: { value: number; onChange: (v: number) => void; max?: number }) {
+  function NumberRating({
+    value,
+    onChange,
+    max = 10,
+  }: {
+    value: number;
+    onChange: (v: number) => void;
+    max?: number;
+  }) {
     return (
       <select
         value={value}
         onChange={(e) => onChange(parseInt(e.target.value))}
         className="w-14 h-8 text-center border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
       >
-        {Array.from({ length: max }, (_, i) => i + 1).map(n => (
-          <option key={n} value={n}>{n}</option>
+        {Array.from({ length: max }, (_, i) => i + 1).map((n) => (
+          <option key={n} value={n}>
+            {n}
+          </option>
         ))}
       </select>
     );
@@ -493,7 +555,9 @@ export default function FmeaClient() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">FMEA Management</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Failure Mode and Effects Analysis</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Failure Mode and Effects Analysis
+            </p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" onClick={loadFmeas} className="flex items-center gap-2">
@@ -562,7 +626,9 @@ export default function FmeaClient() {
               <AlertOctagon className="h-5 w-5" />
               <span>{error}</span>
             </div>
-            <Button variant="outline" size="sm" onClick={loadFmeas}>Retry</Button>
+            <Button variant="outline" size="sm" onClick={loadFmeas}>
+              Retry
+            </Button>
           </div>
         )}
 
@@ -571,12 +637,15 @@ export default function FmeaClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Search</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Search
+                </Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
-                    aria-label="Search by title, reference, product..." placeholder="Search by title, reference, product..."
+                    aria-label="Search by title, reference, product..."
+                    placeholder="Search by title, reference, product..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -584,20 +653,28 @@ export default function FmeaClient() {
                 </div>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">FMEA Type</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  FMEA Type
+                </Label>
                 <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
                   <option value="all">All Types</option>
-                  {FMEA_TYPES.map(t => (
-                    <option key={t} value={t}>{typeLabels[t] || t}</option>
+                  {FMEA_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {typeLabels[t] || t}
+                    </option>
                   ))}
                 </Select>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Status</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Status
+                </Label>
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">All Statuses</option>
-                  {FMEA_STATUSES.map(s => (
-                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                  {FMEA_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -618,7 +695,7 @@ export default function FmeaClient() {
           <CardContent>
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3, 4].map(i => (
+                {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="h-24 bg-gray-200 rounded" />
                 ))}
               </div>
@@ -634,23 +711,31 @@ export default function FmeaClient() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
                           {fmea.referenceNumber && (
-                            <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{fmea.referenceNumber}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                              {fmea.referenceNumber}
+                            </span>
                           )}
-                          <Badge className={typeColors[fmea.fmeaType] || 'bg-gray-100 dark:bg-gray-800'}>
+                          <Badge
+                            className={typeColors[fmea.fmeaType] || 'bg-gray-100 dark:bg-gray-800'}
+                          >
                             {typeLabels[fmea.fmeaType] || fmea.fmeaType}
                           </Badge>
-                          <Badge className={statusColors[fmea.status] || 'bg-gray-100 dark:bg-gray-800'}>
+                          <Badge
+                            className={statusColors[fmea.status] || 'bg-gray-100 dark:bg-gray-800'}
+                          >
                             {fmea.status?.replace(/_/g, ' ')}
                           </Badge>
                           {fmea.highRPNCount > 0 && (
-                            <Badge variant="destructive">
-                              {fmea.highRPNCount} High RPN
-                            </Badge>
+                            <Badge variant="destructive">{fmea.highRPNCount} High RPN</Badge>
                           )}
                         </div>
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{fmea.title}</h3>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                          {fmea.title}
+                        </h3>
                         <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 dark:text-gray-500">
-                          {fmea.productProcess && <span>Product/Process: {fmea.productProcess}</span>}
+                          {fmea.productProcess && (
+                            <span>Product/Process: {fmea.productProcess}</span>
+                          )}
                           <span>{fmea.totalFailureModes || 0} failure modes</span>
                           <span>{fmea.openActions || 0} open actions</span>
                         </div>
@@ -662,7 +747,9 @@ export default function FmeaClient() {
                         </div>
                         <div className="text-center">
                           <p className="text-xs text-gray-500 dark:text-gray-400">High RPN</p>
-                          <p className={`font-bold ${fmea.highRPNCount > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          <p
+                            className={`font-bold ${fmea.highRPNCount > 0 ? 'text-red-600' : 'text-green-600'}`}
+                          >
                             {fmea.highRPNCount || 0}
                           </p>
                         </div>
@@ -674,7 +761,9 @@ export default function FmeaClient() {
             ) : (
               <div className="text-center py-16">
                 <FileSpreadsheet className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No FMEAs found</h3>
+                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">
+                  No FMEAs found
+                </h3>
                 <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
                   {searchQuery || typeFilter !== 'all' || statusFilter !== 'all'
                     ? 'Try adjusting your filters or search query.'
@@ -695,23 +784,40 @@ export default function FmeaClient() {
       {/* ================================================================= */}
       {/* CREATE FMEA MODAL                                                 */}
       {/* ================================================================= */}
-      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="New FMEA" size="full">
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title="New FMEA"
+        size="full"
+      >
         <form onSubmit={handleCreateSubmit}>
           <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="fmea-type">FMEA Type *</Label>
-                <Select id="fmea-type" value={form.fmeaType} onChange={e => setForm({ ...form, fmeaType: e.target.value })}>
-                  {FMEA_TYPES.map(t => (
-                    <option key={t} value={t}>{typeLabels[t]}</option>
+                <Select
+                  id="fmea-type"
+                  value={form.fmeaType}
+                  onChange={(e) => setForm({ ...form, fmeaType: e.target.value })}
+                >
+                  {FMEA_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {typeLabels[t]}
+                    </option>
                   ))}
                 </Select>
               </div>
               <div>
                 <Label htmlFor="fmea-status">Status</Label>
-                <Select id="fmea-status" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
-                  {FMEA_STATUSES.map(s => (
-                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                <Select
+                  id="fmea-status"
+                  value={form.status}
+                  onChange={(e) => setForm({ ...form, status: e.target.value })}
+                >
+                  {FMEA_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -719,55 +825,104 @@ export default function FmeaClient() {
 
             <div>
               <Label htmlFor="fmea-title">Title *</Label>
-              <Input id="fmea-title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required placeholder="e.g. PFMEA - Assembly Line A" />
+              <Input
+                id="fmea-title"
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                required
+                placeholder="e.g. PFMEA - Assembly Line A"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="fmea-productProcess">Product / Process</Label>
-                <Input id="fmea-productProcess" value={form.productProcess} onChange={e => setForm({ ...form, productProcess: e.target.value })} placeholder="Product or process name" />
+                <Input
+                  id="fmea-productProcess"
+                  value={form.productProcess}
+                  onChange={(e) => setForm({ ...form, productProcess: e.target.value })}
+                  placeholder="Product or process name"
+                />
               </div>
               <div>
                 <Label htmlFor="fmea-partNumberRev">Part Number / Revision</Label>
-                <Input id="fmea-partNumberRev" value={form.partNumberRev} onChange={e => setForm({ ...form, partNumberRev: e.target.value })} placeholder="e.g. PN-001 Rev B" />
+                <Input
+                  id="fmea-partNumberRev"
+                  value={form.partNumberRev}
+                  onChange={(e) => setForm({ ...form, partNumberRev: e.target.value })}
+                  placeholder="e.g. PN-001 Rev B"
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="fmea-customer">Customer</Label>
-                <Input id="fmea-customer" value={form.customer} onChange={e => setForm({ ...form, customer: e.target.value })} />
+                <Input
+                  id="fmea-customer"
+                  value={form.customer}
+                  onChange={(e) => setForm({ ...form, customer: e.target.value })}
+                />
               </div>
               <div>
                 <Label htmlFor="fmea-linkedProcess">Linked Process</Label>
-                <Input id="fmea-linkedProcess" value={form.linkedProcess} onChange={e => setForm({ ...form, linkedProcess: e.target.value })} placeholder="Link to a QMS process" />
+                <Input
+                  id="fmea-linkedProcess"
+                  value={form.linkedProcess}
+                  onChange={(e) => setForm({ ...form, linkedProcess: e.target.value })}
+                  placeholder="Link to a QMS process"
+                />
               </div>
             </div>
 
             <div>
               <Label htmlFor="fmea-teamMembers">Team Members</Label>
-              <Textarea id="fmea-teamMembers" value={form.teamMembers} onChange={e => setForm({ ...form, teamMembers: e.target.value })} rows={2} placeholder="List team members (comma-separated)" />
+              <Textarea
+                id="fmea-teamMembers"
+                value={form.teamMembers}
+                onChange={(e) => setForm({ ...form, teamMembers: e.target.value })}
+                rows={2}
+                placeholder="List team members (comma-separated)"
+              />
             </div>
 
             <div>
               <Label htmlFor="fmea-scopeDescription">Scope Description</Label>
-              <Textarea id="fmea-scopeDescription" value={form.scopeDescription} onChange={e => setForm({ ...form, scopeDescription: e.target.value })} rows={3} placeholder="Describe the scope and boundaries of this FMEA" />
+              <Textarea
+                id="fmea-scopeDescription"
+                value={form.scopeDescription}
+                onChange={(e) => setForm({ ...form, scopeDescription: e.target.value })}
+                rows={3}
+                placeholder="Describe the scope and boundaries of this FMEA"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="fmea-dateInitiated">Date Initiated</Label>
-                <Input id="fmea-dateInitiated" type="date" value={form.dateInitiated} onChange={e => setForm({ ...form, dateInitiated: e.target.value })} />
+                <Input
+                  id="fmea-dateInitiated"
+                  type="date"
+                  value={form.dateInitiated}
+                  onChange={(e) => setForm({ ...form, dateInitiated: e.target.value })}
+                />
               </div>
               <div>
                 <Label htmlFor="fmea-nextReviewDate">Next Review Date</Label>
-                <Input id="fmea-nextReviewDate" type="date" value={form.nextReviewDate} onChange={e => setForm({ ...form, nextReviewDate: e.target.value })} />
+                <Input
+                  id="fmea-nextReviewDate"
+                  type="date"
+                  value={form.nextReviewDate}
+                  onChange={(e) => setForm({ ...form, nextReviewDate: e.target.value })}
+                />
               </div>
             </div>
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={submitting}>
               {submitting ? 'Creating...' : 'Create FMEA'}
             </Button>
@@ -778,7 +933,12 @@ export default function FmeaClient() {
       {/* ================================================================= */}
       {/* DETAIL / ANALYSIS MODAL                                           */}
       {/* ================================================================= */}
-      <Modal isOpen={showDetail} onClose={() => setShowDetail(false)} title={selectedFmea?.title || 'FMEA Detail'} size="full">
+      <Modal
+        isOpen={showDetail}
+        onClose={() => setShowDetail(false)}
+        title={selectedFmea?.title || 'FMEA Detail'}
+        size="full"
+      >
         {detailLoading ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
@@ -817,13 +977,21 @@ export default function FmeaClient() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       <div>
                         <p className="text-xs text-gray-500 dark:text-gray-400">FMEA Type</p>
-                        <Badge className={typeColors[selectedFmea.fmeaType] || 'bg-gray-100 dark:bg-gray-800'}>
+                        <Badge
+                          className={
+                            typeColors[selectedFmea.fmeaType] || 'bg-gray-100 dark:bg-gray-800'
+                          }
+                        >
                           {typeLabels[selectedFmea.fmeaType] || selectedFmea.fmeaType}
                         </Badge>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 dark:text-gray-400">Status</p>
-                        <Badge className={statusColors[selectedFmea.status] || 'bg-gray-100 dark:bg-gray-800'}>
+                        <Badge
+                          className={
+                            statusColors[selectedFmea.status] || 'bg-gray-100 dark:bg-gray-800'
+                          }
+                        >
                           {selectedFmea.status?.replace(/_/g, ' ')}
                         </Badge>
                       </div>
@@ -832,11 +1000,15 @@ export default function FmeaClient() {
                         <p className="text-sm font-mono">{selectedFmea.referenceNumber || '-'}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Product / Process</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Product / Process
+                        </p>
                         <p className="text-sm">{selectedFmea.productProcess || '-'}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Part Number / Revision</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Part Number / Revision
+                        </p>
                         <p className="text-sm">{selectedFmea.partNumberRev || '-'}</p>
                       </div>
                       <div>
@@ -864,8 +1036,12 @@ export default function FmeaClient() {
                     )}
                     {selectedFmea.scopeDescription && (
                       <div className="mt-3">
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Scope Description</p>
-                        <p className="text-sm mt-1 whitespace-pre-wrap">{selectedFmea.scopeDescription}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Scope Description
+                        </p>
+                        <p className="text-sm mt-1 whitespace-pre-wrap">
+                          {selectedFmea.scopeDescription}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -876,7 +1052,9 @@ export default function FmeaClient() {
               {activeTab === 'table' && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{rows.length} failure mode(s)</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {rows.length} failure mode(s)
+                    </p>
                     <Button onClick={addRow} className="flex items-center gap-2" size="sm">
                       <Plus className="h-4 w-4" />
                       Add Row
@@ -886,8 +1064,14 @@ export default function FmeaClient() {
                   {rows.length === 0 ? (
                     <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg">
                       <FileSpreadsheet className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                      <p className="text-gray-500 dark:text-gray-400 mb-4">No failure modes added yet</p>
-                      <Button onClick={addRow} variant="outline" className="flex items-center gap-2 mx-auto">
+                      <p className="text-gray-500 dark:text-gray-400 mb-4">
+                        No failure modes added yet
+                      </p>
+                      <Button
+                        onClick={addRow}
+                        variant="outline"
+                        className="flex items-center gap-2 mx-auto"
+                      >
                         <Plus className="h-4 w-4" />
                         Add First Row
                       </Button>
@@ -899,16 +1083,36 @@ export default function FmeaClient() {
                         <thead>
                           <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                             <th className="px-2 py-2 text-left font-medium text-gray-600 w-8">#</th>
-                            <th className="px-2 py-2 text-left font-medium text-gray-600 min-w-[120px]">Step / Item</th>
-                            <th className="px-2 py-2 text-left font-medium text-gray-600 min-w-[120px]">Failure Mode</th>
-                            <th className="px-2 py-2 text-left font-medium text-gray-600 min-w-[100px]">Effect</th>
-                            <th className="px-2 py-2 text-center font-medium text-gray-600 w-12">S</th>
-                            <th className="px-2 py-2 text-center font-medium text-gray-600 w-12">O</th>
-                            <th className="px-2 py-2 text-center font-medium text-gray-600 w-12">D</th>
-                            <th className="px-2 py-2 text-center font-medium text-gray-600 w-16">RPN</th>
-                            <th className="px-2 py-2 text-center font-medium text-gray-600 w-16">Priority</th>
-                            <th className="px-2 py-2 text-center font-medium text-gray-600 w-14">Status</th>
-                            <th className="px-2 py-2 text-center font-medium text-gray-600 w-20">Actions</th>
+                            <th className="px-2 py-2 text-left font-medium text-gray-600 min-w-[120px]">
+                              Step / Item
+                            </th>
+                            <th className="px-2 py-2 text-left font-medium text-gray-600 min-w-[120px]">
+                              Failure Mode
+                            </th>
+                            <th className="px-2 py-2 text-left font-medium text-gray-600 min-w-[100px]">
+                              Effect
+                            </th>
+                            <th className="px-2 py-2 text-center font-medium text-gray-600 w-12">
+                              S
+                            </th>
+                            <th className="px-2 py-2 text-center font-medium text-gray-600 w-12">
+                              O
+                            </th>
+                            <th className="px-2 py-2 text-center font-medium text-gray-600 w-12">
+                              D
+                            </th>
+                            <th className="px-2 py-2 text-center font-medium text-gray-600 w-16">
+                              RPN
+                            </th>
+                            <th className="px-2 py-2 text-center font-medium text-gray-600 w-16">
+                              Priority
+                            </th>
+                            <th className="px-2 py-2 text-center font-medium text-gray-600 w-14">
+                              Status
+                            </th>
+                            <th className="px-2 py-2 text-center font-medium text-gray-600 w-20">
+                              Actions
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
@@ -918,13 +1122,19 @@ export default function FmeaClient() {
                             return (
                               <React.Fragment key={row.id || `new-${index}`}>
                                 {/* Compact row */}
-                                <tr className={`border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 ${row._isDirty ? 'bg-yellow-50' : ''}`}>
-                                  <td className="px-2 py-2 text-gray-400 dark:text-gray-500">{index + 1}</td>
+                                <tr
+                                  className={`border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 ${row._isDirty ? 'bg-yellow-50' : ''}`}
+                                >
+                                  <td className="px-2 py-2 text-gray-400 dark:text-gray-500">
+                                    {index + 1}
+                                  </td>
                                   <td className="px-2 py-2">
                                     <input
                                       type="text"
                                       value={row.itemProcessStep}
-                                      onChange={(e) => updateRow(index, 'itemProcessStep', e.target.value)}
+                                      onChange={(e) =>
+                                        updateRow(index, 'itemProcessStep', e.target.value)
+                                      }
                                       className="w-full border border-gray-200 dark:border-gray-700 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                       placeholder="Process step"
                                     />
@@ -933,7 +1143,9 @@ export default function FmeaClient() {
                                     <input
                                       type="text"
                                       value={row.failureMode}
-                                      onChange={(e) => updateRow(index, 'failureMode', e.target.value)}
+                                      onChange={(e) =>
+                                        updateRow(index, 'failureMode', e.target.value)
+                                      }
                                       className="w-full border border-gray-200 dark:border-gray-700 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                       placeholder="Failure mode"
                                     />
@@ -942,31 +1154,44 @@ export default function FmeaClient() {
                                     <input
                                       type="text"
                                       value={row.effectOfFailure}
-                                      onChange={(e) => updateRow(index, 'effectOfFailure', e.target.value)}
+                                      onChange={(e) =>
+                                        updateRow(index, 'effectOfFailure', e.target.value)
+                                      }
                                       className="w-full border border-gray-200 dark:border-gray-700 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                       placeholder="Effect"
                                     />
                                   </td>
                                   <td className="px-2 py-2 text-center">
-                                    <NumberRating value={row.severity} onChange={(v) => updateRow(index, 'severity', v)} />
+                                    <NumberRating
+                                      value={row.severity}
+                                      onChange={(v) => updateRow(index, 'severity', v)}
+                                    />
                                   </td>
                                   <td className="px-2 py-2 text-center">
-                                    <NumberRating value={row.occurrence} onChange={(v) => updateRow(index, 'occurrence', v)} />
+                                    <NumberRating
+                                      value={row.occurrence}
+                                      onChange={(v) => updateRow(index, 'occurrence', v)}
+                                    />
                                   </td>
                                   <td className="px-2 py-2 text-center">
-                                    <NumberRating value={row.detection} onChange={(v) => updateRow(index, 'detection', v)} />
+                                    <NumberRating
+                                      value={row.detection}
+                                      onChange={(v) => updateRow(index, 'detection', v)}
+                                    />
                                   </td>
                                   <td className="px-2 py-2 text-center">
-                                    <Badge className={rpnColor(row.rpn)}>
-                                      {row.rpn}
-                                    </Badge>
+                                    <Badge className={rpnColor(row.rpn)}>{row.rpn}</Badge>
                                   </td>
                                   <td className="px-2 py-2 text-center">
-                                    <Badge className={
-                                      row.actionPriority === 'HIGH' ? 'bg-red-100 text-red-800' :
-                                      row.actionPriority === 'MEDIUM' ? 'bg-amber-100 text-amber-800' :
-                                      'bg-green-100 text-green-800'
-                                    }>
+                                    <Badge
+                                      className={
+                                        row.actionPriority === 'HIGH'
+                                          ? 'bg-red-100 text-red-800'
+                                          : row.actionPriority === 'MEDIUM'
+                                            ? 'bg-amber-100 text-amber-800'
+                                            : 'bg-green-100 text-green-800'
+                                      }
+                                    >
                                       {row.actionPriority}
                                     </Badge>
                                   </td>
@@ -976,8 +1201,10 @@ export default function FmeaClient() {
                                       onChange={(e) => updateRow(index, 'status', e.target.value)}
                                       className="text-xs border border-gray-200 dark:border-gray-700 rounded px-1 py-0.5"
                                     >
-                                      {ROW_STATUSES.map(s => (
-                                        <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                                      {ROW_STATUSES.map((s) => (
+                                        <option key={s} value={s}>
+                                          {s.replace(/_/g, ' ')}
+                                        </option>
                                       ))}
                                     </select>
                                   </td>
@@ -989,7 +1216,11 @@ export default function FmeaClient() {
                                         className="p-1 text-gray-400 dark:text-gray-500 hover:text-blue-600 transition-colors"
                                         title={isExpanded ? 'Collapse' : 'Expand'}
                                       >
-                                        {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                                        {isExpanded ? (
+                                          <ChevronUp className="h-3 w-3" />
+                                        ) : (
+                                          <ChevronDown className="h-3 w-3" />
+                                        )}
                                       </button>
                                       <button
                                         type="button"
@@ -998,7 +1229,11 @@ export default function FmeaClient() {
                                         className="p-1 text-gray-400 dark:text-gray-500 hover:text-green-600 transition-colors disabled:opacity-50"
                                         title="Save row"
                                       >
-                                        {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3" />}
+                                        {isSaving ? (
+                                          <Loader2 className="h-3 w-3 animate-spin" />
+                                        ) : (
+                                          <CheckCircle className="h-3 w-3" />
+                                        )}
                                       </button>
                                       <button
                                         type="button"
@@ -1018,20 +1253,32 @@ export default function FmeaClient() {
                                     <td colSpan={11} className="px-4 py-4">
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                          <label className="text-xs font-medium text-gray-600 block mb-1">Function / Requirement</label>
+                                          <label className="text-xs font-medium text-gray-600 block mb-1">
+                                            Function / Requirement
+                                          </label>
                                           <textarea
                                             value={row.functionRequirement}
-                                            onChange={(e) => updateRow(index, 'functionRequirement', e.target.value)}
+                                            onChange={(e) =>
+                                              updateRow(
+                                                index,
+                                                'functionRequirement',
+                                                e.target.value
+                                              )
+                                            }
                                             className="w-full border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                             rows={2}
                                             placeholder="Function or requirement being analysed"
                                           />
                                         </div>
                                         <div>
-                                          <label className="text-xs font-medium text-gray-600 block mb-1">Recommended Actions</label>
+                                          <label className="text-xs font-medium text-gray-600 block mb-1">
+                                            Recommended Actions
+                                          </label>
                                           <textarea
                                             value={row.recommendedActions}
-                                            onChange={(e) => updateRow(index, 'recommendedActions', e.target.value)}
+                                            onChange={(e) =>
+                                              updateRow(index, 'recommendedActions', e.target.value)
+                                            }
                                             className="w-full border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                             rows={2}
                                             placeholder="Recommended corrective/preventive actions"
@@ -1039,30 +1286,42 @@ export default function FmeaClient() {
                                         </div>
                                         <div className="grid grid-cols-2 gap-2">
                                           <div>
-                                            <label className="text-xs font-medium text-gray-600 block mb-1">Assigned To</label>
+                                            <label className="text-xs font-medium text-gray-600 block mb-1">
+                                              Assigned To
+                                            </label>
                                             <input
                                               type="text"
                                               value={row.assignedTo}
-                                              onChange={(e) => updateRow(index, 'assignedTo', e.target.value)}
+                                              onChange={(e) =>
+                                                updateRow(index, 'assignedTo', e.target.value)
+                                              }
                                               className="w-full border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                               placeholder="Assignee"
                                             />
                                           </div>
                                           <div>
-                                            <label className="text-xs font-medium text-gray-600 block mb-1">Due Date</label>
+                                            <label className="text-xs font-medium text-gray-600 block mb-1">
+                                              Due Date
+                                            </label>
                                             <input
                                               type="date"
                                               value={row.dueDate ? row.dueDate.split('T')[0] : ''}
-                                              onChange={(e) => updateRow(index, 'dueDate', e.target.value)}
+                                              onChange={(e) =>
+                                                updateRow(index, 'dueDate', e.target.value)
+                                              }
                                               className="w-full border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                             />
                                           </div>
                                         </div>
                                         <div>
-                                          <label className="text-xs font-medium text-gray-600 block mb-1">Actions Taken</label>
+                                          <label className="text-xs font-medium text-gray-600 block mb-1">
+                                            Actions Taken
+                                          </label>
                                           <textarea
                                             value={row.actionsTaken}
-                                            onChange={(e) => updateRow(index, 'actionsTaken', e.target.value)}
+                                            onChange={(e) =>
+                                              updateRow(index, 'actionsTaken', e.target.value)
+                                            }
                                             className="w-full border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                             rows={2}
                                             placeholder="Actions taken to date"
@@ -1077,29 +1336,57 @@ export default function FmeaClient() {
                                           </h4>
                                           <div className="flex items-center gap-4 flex-wrap">
                                             <div className="flex items-center gap-2">
-                                              <label className="text-xs text-gray-500 dark:text-gray-400">S:</label>
-                                              <NumberRating value={row.revisedSeverity} onChange={(v) => updateRow(index, 'revisedSeverity', v)} />
+                                              <label className="text-xs text-gray-500 dark:text-gray-400">
+                                                S:
+                                              </label>
+                                              <NumberRating
+                                                value={row.revisedSeverity}
+                                                onChange={(v) =>
+                                                  updateRow(index, 'revisedSeverity', v)
+                                                }
+                                              />
                                             </div>
                                             <div className="flex items-center gap-2">
-                                              <label className="text-xs text-gray-500 dark:text-gray-400">O:</label>
-                                              <NumberRating value={row.revisedOccurrence} onChange={(v) => updateRow(index, 'revisedOccurrence', v)} />
+                                              <label className="text-xs text-gray-500 dark:text-gray-400">
+                                                O:
+                                              </label>
+                                              <NumberRating
+                                                value={row.revisedOccurrence}
+                                                onChange={(v) =>
+                                                  updateRow(index, 'revisedOccurrence', v)
+                                                }
+                                              />
                                             </div>
                                             <div className="flex items-center gap-2">
-                                              <label className="text-xs text-gray-500 dark:text-gray-400">D:</label>
-                                              <NumberRating value={row.revisedDetection} onChange={(v) => updateRow(index, 'revisedDetection', v)} />
+                                              <label className="text-xs text-gray-500 dark:text-gray-400">
+                                                D:
+                                              </label>
+                                              <NumberRating
+                                                value={row.revisedDetection}
+                                                onChange={(v) =>
+                                                  updateRow(index, 'revisedDetection', v)
+                                                }
+                                              />
                                             </div>
                                             <div className="flex items-center gap-2">
-                                              <label className="text-xs text-gray-500 dark:text-gray-400">Revised RPN:</label>
+                                              <label className="text-xs text-gray-500 dark:text-gray-400">
+                                                Revised RPN:
+                                              </label>
                                               <Badge className={rpnColor(row.revisedRpn)}>
                                                 {row.revisedRpn}
                                               </Badge>
                                             </div>
-                                            {row.rpn > 0 && row.revisedRpn > 0 && row.revisedRpn < row.rpn && (
-                                              <span className="text-xs text-green-600 flex items-center gap-1">
-                                                <TrendingDown className="h-3 w-3" />
-                                                {Math.round(((row.rpn - row.revisedRpn) / row.rpn) * 100)}% reduction
-                                              </span>
-                                            )}
+                                            {row.rpn > 0 &&
+                                              row.revisedRpn > 0 &&
+                                              row.revisedRpn < row.rpn && (
+                                                <span className="text-xs text-green-600 flex items-center gap-1">
+                                                  <TrendingDown className="h-3 w-3" />
+                                                  {Math.round(
+                                                    ((row.rpn - row.revisedRpn) / row.rpn) * 100
+                                                  )}
+                                                  % reduction
+                                                </span>
+                                              )}
                                           </div>
                                         </div>
                                       </div>
@@ -1111,7 +1398,11 @@ export default function FmeaClient() {
                                           disabled={isSaving}
                                           className="flex items-center gap-2"
                                         >
-                                          {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3" />}
+                                          {isSaving ? (
+                                            <Loader2 className="h-3 w-3 animate-spin" />
+                                          ) : (
+                                            <CheckCircle className="h-3 w-3" />
+                                          )}
                                           Save Row
                                         </Button>
                                       </div>
@@ -1132,23 +1423,33 @@ export default function FmeaClient() {
               {activeTab === 'summary' && (
                 <div className="space-y-6">
                   <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">FMEA Summary</h3>
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+                      FMEA Summary
+                    </h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                       <div className="text-center">
                         <p className="text-3xl font-bold">{rowSummary.totalModes}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Failure Modes</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Total Failure Modes
+                        </p>
                       </div>
                       <div className="text-center">
                         <p className="text-3xl font-bold text-red-600">{rowSummary.highRpn}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">High RPN ({'>'}200)</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          High RPN ({'>'}200)
+                        </p>
                       </div>
                       <div className="text-center">
                         <p className="text-3xl font-bold text-amber-600">{rowSummary.mediumRpn}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Medium RPN (80-200)</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Medium RPN (80-200)
+                        </p>
                       </div>
                       <div className="text-center">
                         <p className="text-3xl font-bold text-green-600">{rowSummary.lowRpn}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Low RPN ({'<'}80)</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Low RPN ({'<'}80)
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -1157,24 +1458,39 @@ export default function FmeaClient() {
                     <Card>
                       <CardContent className="pt-6 text-center">
                         <p className="text-2xl font-bold text-amber-600">{rowSummary.openActs}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Open Actions</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Open Actions
+                        </p>
                       </CardContent>
                     </Card>
                     <Card>
                       <CardContent className="pt-6 text-center">
                         <p className="text-2xl font-bold">{rowSummary.avgInitialRpn}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Avg Initial RPN</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Avg Initial RPN
+                        </p>
                       </CardContent>
                     </Card>
                     <Card>
                       <CardContent className="pt-6 text-center">
-                        <p className="text-2xl font-bold text-green-600">{rowSummary.avgRevisedRpn}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Avg Revised RPN</p>
-                        {rowSummary.avgInitialRpn > 0 && rowSummary.avgRevisedRpn > 0 && rowSummary.avgRevisedRpn < rowSummary.avgInitialRpn && (
-                          <p className="text-xs text-green-600 mt-1">
-                            {Math.round(((rowSummary.avgInitialRpn - rowSummary.avgRevisedRpn) / rowSummary.avgInitialRpn) * 100)}% improvement
-                          </p>
-                        )}
+                        <p className="text-2xl font-bold text-green-600">
+                          {rowSummary.avgRevisedRpn}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Avg Revised RPN
+                        </p>
+                        {rowSummary.avgInitialRpn > 0 &&
+                          rowSummary.avgRevisedRpn > 0 &&
+                          rowSummary.avgRevisedRpn < rowSummary.avgInitialRpn && (
+                            <p className="text-xs text-green-600 mt-1">
+                              {Math.round(
+                                ((rowSummary.avgInitialRpn - rowSummary.avgRevisedRpn) /
+                                  rowSummary.avgInitialRpn) *
+                                  100
+                              )}
+                              % improvement
+                            </p>
+                          )}
                       </CardContent>
                     </Card>
                   </div>
@@ -1182,12 +1498,16 @@ export default function FmeaClient() {
                   {/* RPN Distribution Bar */}
                   {rowSummary.totalModes > 0 && (
                     <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">RPN Distribution</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                        RPN Distribution
+                      </h4>
                       <div className="flex h-6 rounded-full overflow-hidden">
                         {rowSummary.highRpn > 0 && (
                           <div
                             className="bg-red-500 flex items-center justify-center text-white text-xs"
-                            style={{ width: `${(rowSummary.highRpn / rowSummary.totalModes) * 100}%` }}
+                            style={{
+                              width: `${(rowSummary.highRpn / rowSummary.totalModes) * 100}%`,
+                            }}
                           >
                             {rowSummary.highRpn}
                           </div>
@@ -1195,7 +1515,9 @@ export default function FmeaClient() {
                         {rowSummary.mediumRpn > 0 && (
                           <div
                             className="bg-amber-400 flex items-center justify-center text-white text-xs"
-                            style={{ width: `${(rowSummary.mediumRpn / rowSummary.totalModes) * 100}%` }}
+                            style={{
+                              width: `${(rowSummary.mediumRpn / rowSummary.totalModes) * 100}%`,
+                            }}
                           >
                             {rowSummary.mediumRpn}
                           </div>
@@ -1203,16 +1525,24 @@ export default function FmeaClient() {
                         {rowSummary.lowRpn > 0 && (
                           <div
                             className="bg-green-500 flex items-center justify-center text-white text-xs"
-                            style={{ width: `${(rowSummary.lowRpn / rowSummary.totalModes) * 100}%` }}
+                            style={{
+                              width: `${(rowSummary.lowRpn / rowSummary.totalModes) * 100}%`,
+                            }}
                           >
                             {rowSummary.lowRpn}
                           </div>
                         )}
                       </div>
                       <div className="flex gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-500" /> High ({'>'}200)</span>
-                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-400" /> Medium (80-200)</span>
-                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-green-500" /> Low ({'<'}80)</span>
+                        <span className="flex items-center gap-1">
+                          <span className="h-2 w-2 rounded-full bg-red-500" /> High ({'>'}200)
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span className="h-2 w-2 rounded-full bg-amber-400" /> Medium (80-200)
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span className="h-2 w-2 rounded-full bg-green-500" /> Low ({'<'}80)
+                        </span>
                       </div>
                     </div>
                   )}
@@ -1251,13 +1581,21 @@ export default function FmeaClient() {
                     {aiAnalysis.loading && (
                       <div className="flex items-center gap-3 text-sm text-blue-600">
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        <span>AI is analysing failure modes, risk patterns, and generating recommendations...</span>
+                        <span>
+                          AI is analysing failure modes, risk patterns, and generating
+                          recommendations...
+                        </span>
                       </div>
                     )}
                     {aiAnalysis.result && (
                       <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap bg-white dark:bg-gray-900 rounded-lg p-4 mt-2">
                         {aiAnalysis.result}
-                        <AIDisclosure variant="inline" provider="claude" analysisType="FMEA Analysis" confidence={0.85} />
+                        <AIDisclosure
+                          variant="inline"
+                          provider="claude"
+                          analysisType="FMEA Analysis"
+                          confidence={0.85}
+                        />
                       </div>
                     )}
                     {aiAnalysis.error && (
@@ -1266,7 +1604,10 @@ export default function FmeaClient() {
                       </div>
                     )}
                     {!aiAnalysis.loading && !aiAnalysis.result && !aiAnalysis.error && (
-                      <p className="text-sm text-blue-600">Click &quot;Run Analysis&quot; to get AI-powered analysis of failure modes, detection strategies, and risk reduction recommendations.</p>
+                      <p className="text-sm text-blue-600">
+                        Click &quot;Run Analysis&quot; to get AI-powered analysis of failure modes,
+                        detection strategies, and risk reduction recommendations.
+                      </p>
                     )}
                   </div>
                 </div>
@@ -1275,7 +1616,9 @@ export default function FmeaClient() {
           </>
         ) : null}
         <ModalFooter>
-          <Button variant="outline" onClick={() => setShowDetail(false)}>Close</Button>
+          <Button variant="outline" onClick={() => setShowDetail(false)}>
+            Close
+          </Button>
         </ModalFooter>
       </Modal>
     </div>

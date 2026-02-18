@@ -96,9 +96,7 @@ describe('Roles Routes', () => {
   // ==========================================
   describe('GET /api/roles', () => {
     it('should return an array of roles', async () => {
-      const response = await request(app)
-        .get('/api')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -108,9 +106,7 @@ describe('Roles Routes', () => {
     });
 
     it('should return roles with correct shape', async () => {
-      const response = await request(app)
-        .get('/api')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api').set('Authorization', 'Bearer token');
 
       const role = response.body.data[0];
       expect(role).toHaveProperty('id');
@@ -123,9 +119,7 @@ describe('Roles Routes', () => {
     });
 
     it('should include permission details for each role', async () => {
-      const response = await request(app)
-        .get('/api')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api').set('Authorization', 'Bearer token');
 
       const superAdmin = response.body.data.find((r: any) => r.id === 'super-admin');
       expect(superAdmin).toBeDefined();
@@ -137,9 +131,7 @@ describe('Roles Routes', () => {
     });
 
     it('should return all expected role tiers', async () => {
-      const response = await request(app)
-        .get('/api')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api').set('Authorization', 'Bearer token');
 
       const roleIds = response.body.data.map((r: any) => r.id);
       // Check representative roles from each tier
@@ -153,9 +145,7 @@ describe('Roles Routes', () => {
     });
 
     it('should mark all built-in roles as system roles', async () => {
-      const response = await request(app)
-        .get('/api')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api').set('Authorization', 'Bearer token');
 
       response.body.data.forEach((role: any) => {
         expect(role.isSystem).toBe(true);
@@ -168,9 +158,7 @@ describe('Roles Routes', () => {
   // ==========================================
   describe('GET /api/modules', () => {
     it('should return list of all IMS modules', async () => {
-      const response = await request(app)
-        .get('/api/modules')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/modules').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -179,9 +167,7 @@ describe('Roles Routes', () => {
     });
 
     it('should return modules with id and formatted name', async () => {
-      const response = await request(app)
-        .get('/api/modules')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/modules').set('Authorization', 'Bearer token');
 
       const module = response.body.data[0];
       expect(module).toHaveProperty('id');
@@ -189,9 +175,7 @@ describe('Roles Routes', () => {
     });
 
     it('should include known modules', async () => {
-      const response = await request(app)
-        .get('/api/modules')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/modules').set('Authorization', 'Bearer token');
 
       const moduleIds = response.body.data.map((m: any) => m.id);
       expect(moduleIds).toContain('health-safety');
@@ -203,9 +187,7 @@ describe('Roles Routes', () => {
     });
 
     it('should format module names with title case', async () => {
-      const response = await request(app)
-        .get('/api/modules')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/modules').set('Authorization', 'Bearer token');
 
       const hsModule = response.body.data.find((m: any) => m.id === 'health-safety');
       expect(hsModule).toBeDefined();

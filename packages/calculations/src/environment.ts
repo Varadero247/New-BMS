@@ -5,8 +5,8 @@
 export type SignificanceLevel = 'NEGLIGIBLE' | 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL';
 
 export interface AspectSignificanceInput {
-  scale: number;       // Scale of impact (1-5)
-  frequency: number;   // Frequency of occurrence (1-5)
+  scale: number; // Scale of impact (1-5)
+  frequency: number; // Frequency of occurrence (1-5)
   legalImpact: number; // Legal compliance impact (1-5)
   reversibility?: number; // Reversibility of impact (1-5), optional
   stakeholderConcern?: number; // Stakeholder concern (1-5), optional
@@ -90,7 +90,9 @@ export function isSignificant(score: number, threshold: number = 27): boolean {
  * @param input - Aspect significance input parameters
  * @returns Complete significance output
  */
-export function calculateAspectSignificance(input: AspectSignificanceInput): AspectSignificanceOutput {
+export function calculateAspectSignificance(
+  input: AspectSignificanceInput
+): AspectSignificanceOutput {
   const score = calculateSignificance(input);
   const level = getSignificanceLevel(score);
   const significant = isSignificant(score);

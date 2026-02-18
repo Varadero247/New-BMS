@@ -2,14 +2,31 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
 } from '@ims/ui';
 import {
-  Plus, Search, Loader2, Filter,
-  FileText, Package, CheckCircle2, XCircle,
-  Clock, Clipboard, ArrowRight,
+  Plus,
+  Search,
+  Loader2,
+  Filter,
+  FileText,
+  Package,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Clipboard,
+  ArrowRight,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -85,17 +102,28 @@ const RECORD_TYPES = [
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getStatusBadgeVariant(status: string): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
+function getStatusBadgeVariant(
+  status: string
+): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
   switch (status) {
-    case 'DRAFT': return 'secondary';
-    case 'APPROVED': return 'success';
-    case 'SUPERSEDED': return 'warning';
-    case 'OBSOLETE': return 'danger';
-    case 'IN_PRODUCTION': return 'info';
-    case 'RELEASED': return 'success';
-    case 'REJECTED': return 'danger';
-    case 'ON_HOLD': return 'warning';
-    default: return 'outline';
+    case 'DRAFT':
+      return 'secondary';
+    case 'APPROVED':
+      return 'success';
+    case 'SUPERSEDED':
+      return 'warning';
+    case 'OBSOLETE':
+      return 'danger';
+    case 'IN_PRODUCTION':
+      return 'info';
+    case 'RELEASED':
+      return 'success';
+    case 'REJECTED':
+      return 'danger';
+    case 'ON_HOLD':
+      return 'warning';
+    default:
+      return 'outline';
   }
 }
 
@@ -225,108 +253,124 @@ export default function DeviceRecordsClient() {
   // DMR Handlers
   // ---------------------------------------------------------------------------
 
-  const handleCreateDmr = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post('/dmr', dmrForm);
-      setShowCreateDmrModal(false);
-      setDmrForm(emptyDmrForm);
-      fetchDmrs();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create DMR');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [dmrForm, fetchDmrs]);
+  const handleCreateDmr = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post('/dmr', dmrForm);
+        setShowCreateDmrModal(false);
+        setDmrForm(emptyDmrForm);
+        fetchDmrs();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create DMR');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [dmrForm, fetchDmrs]
+  );
 
-  const handleApproveDmr = useCallback(async (id: string) => {
-    setSubmitting(true);
-    try {
-      await api.post(`/dmr/${id}/approve`);
-      fetchDmrDetail(id);
-      fetchDmrs();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to approve DMR');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [fetchDmrDetail, fetchDmrs]);
+  const handleApproveDmr = useCallback(
+    async (id: string) => {
+      setSubmitting(true);
+      try {
+        await api.post(`/dmr/${id}/approve`);
+        fetchDmrDetail(id);
+        fetchDmrs();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to approve DMR');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [fetchDmrDetail, fetchDmrs]
+  );
 
   // ---------------------------------------------------------------------------
   // DHR Handlers
   // ---------------------------------------------------------------------------
 
-  const handleCreateDhr = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post('/dhr', {
-        ...dhrForm,
-        quantityManufactured: Number(dhrForm.quantityManufactured),
-      });
-      setShowCreateDhrModal(false);
-      setDhrForm(emptyDhrForm);
-      fetchDhrs();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create DHR');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [dhrForm, fetchDhrs]);
+  const handleCreateDhr = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post('/dhr', {
+          ...dhrForm,
+          quantityManufactured: Number(dhrForm.quantityManufactured),
+        });
+        setShowCreateDhrModal(false);
+        setDhrForm(emptyDhrForm);
+        fetchDhrs();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create DHR');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [dhrForm, fetchDhrs]
+  );
 
-  const handleAddRecord = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedDhr) return;
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post(`/dhr/${selectedDhr.id}/records`, recordForm);
-      setShowAddRecordModal(false);
-      setRecordForm(emptyRecordForm);
-      fetchDhrDetail(selectedDhr.id);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to add production record');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [selectedDhr, recordForm, fetchDhrDetail]);
+  const handleAddRecord = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!selectedDhr) return;
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post(`/dhr/${selectedDhr.id}/records`, recordForm);
+        setShowAddRecordModal(false);
+        setRecordForm(emptyRecordForm);
+        fetchDhrDetail(selectedDhr.id);
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to add production record');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [selectedDhr, recordForm, fetchDhrDetail]
+  );
 
-  const handleReleaseDhr = useCallback(async (id: string) => {
-    setSubmitting(true);
-    try {
-      await api.post(`/dhr/${id}/release`);
-      fetchDhrDetail(id);
-      fetchDhrs();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to release DHR');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [fetchDhrDetail, fetchDhrs]);
+  const handleReleaseDhr = useCallback(
+    async (id: string) => {
+      setSubmitting(true);
+      try {
+        await api.post(`/dhr/${id}/release`);
+        fetchDhrDetail(id);
+        fetchDhrs();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to release DHR');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [fetchDhrDetail, fetchDhrs]
+  );
 
   // ---------------------------------------------------------------------------
   // Filtered data
   // ---------------------------------------------------------------------------
 
   const filteredDmrs = useMemo(() => {
-    return dmrs.filter(d => {
+    return dmrs.filter((d) => {
       if (statusFilter !== 'all' && d.status !== statusFilter) return false;
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         if (
           !d.deviceName?.toLowerCase().includes(q) &&
           !d.referenceNumber?.toLowerCase().includes(q)
-        ) return false;
+        )
+          return false;
       }
       return true;
     });
   }, [dmrs, statusFilter, searchQuery]);
 
   const filteredDhrs = useMemo(() => {
-    return dhrs.filter(d => {
+    return dhrs.filter((d) => {
       if (statusFilter !== 'all' && d.status !== statusFilter) return false;
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
@@ -334,7 +378,8 @@ export default function DeviceRecordsClient() {
           !d.batchNumber?.toLowerCase().includes(q) &&
           !d.referenceNumber?.toLowerCase().includes(q) &&
           !d.dmrRef?.toLowerCase().includes(q)
-        ) return false;
+        )
+          return false;
       }
       return true;
     });
@@ -344,23 +389,29 @@ export default function DeviceRecordsClient() {
   // DMR Stats
   // ---------------------------------------------------------------------------
 
-  const dmrStats = useMemo(() => ({
-    total: dmrs.length,
-    draft: dmrs.filter(d => d.status === 'DRAFT').length,
-    approved: dmrs.filter(d => d.status === 'APPROVED').length,
-    superseded: dmrs.filter(d => d.status === 'SUPERSEDED').length,
-  }), [dmrs]);
+  const dmrStats = useMemo(
+    () => ({
+      total: dmrs.length,
+      draft: dmrs.filter((d) => d.status === 'DRAFT').length,
+      approved: dmrs.filter((d) => d.status === 'APPROVED').length,
+      superseded: dmrs.filter((d) => d.status === 'SUPERSEDED').length,
+    }),
+    [dmrs]
+  );
 
   // ---------------------------------------------------------------------------
   // DHR Stats
   // ---------------------------------------------------------------------------
 
-  const dhrStats = useMemo(() => ({
-    total: dhrs.length,
-    inProduction: dhrs.filter(d => d.status === 'IN_PRODUCTION').length,
-    released: dhrs.filter(d => d.status === 'RELEASED').length,
-    rejected: dhrs.filter(d => d.status === 'REJECTED').length,
-  }), [dhrs]);
+  const dhrStats = useMemo(
+    () => ({
+      total: dhrs.length,
+      inProduction: dhrs.filter((d) => d.status === 'IN_PRODUCTION').length,
+      released: dhrs.filter((d) => d.status === 'RELEASED').length,
+      rejected: dhrs.filter((d) => d.status === 'REJECTED').length,
+    }),
+    [dhrs]
+  );
 
   // ---------------------------------------------------------------------------
   // Loading spinner
@@ -383,13 +434,19 @@ export default function DeviceRecordsClient() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Device Records</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">DMR/DHR Management -- Device Master Records & Device History Records</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            DMR/DHR Management -- Device Master Records & Device History Records
+          </p>
         </div>
 
         {/* Tab Bar */}
         <div className="flex border-b border-gray-200 dark:border-gray-700 mb-8">
           <button
-            onClick={() => { setActiveTab('DMR'); setStatusFilter('all'); setSearchQuery(''); }}
+            onClick={() => {
+              setActiveTab('DMR');
+              setStatusFilter('all');
+              setSearchQuery('');
+            }}
             className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'DMR'
                 ? 'border-teal-500 text-teal-600'
@@ -402,7 +459,11 @@ export default function DeviceRecordsClient() {
             </div>
           </button>
           <button
-            onClick={() => { setActiveTab('DHR'); setStatusFilter('all'); setSearchQuery(''); }}
+            onClick={() => {
+              setActiveTab('DHR');
+              setStatusFilter('all');
+              setSearchQuery('');
+            }}
             className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'DHR'
                 ? 'border-teal-500 text-teal-600'
@@ -474,7 +535,8 @@ export default function DeviceRecordsClient() {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  aria-label="Search by device name or reference..." placeholder="Search by device name or reference..."
+                  aria-label="Search by device name or reference..."
+                  placeholder="Search by device name or reference..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -489,12 +551,18 @@ export default function DeviceRecordsClient() {
                 <Filter className="h-4 w-4" />
                 Filters
                 {statusFilter !== 'all' && (
-                  <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-teal-100 text-teal-700">Active</span>
+                  <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-teal-100 text-teal-700">
+                    Active
+                  </span>
                 )}
               </Button>
 
               <Button
-                onClick={() => { setDmrForm(emptyDmrForm); setError(''); setShowCreateDmrModal(true); }}
+                onClick={() => {
+                  setDmrForm(emptyDmrForm);
+                  setError('');
+                  setShowCreateDmrModal(true);
+                }}
                 className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
               >
                 <Plus className="h-4 w-4" />
@@ -512,8 +580,10 @@ export default function DeviceRecordsClient() {
                     className="w-40"
                   >
                     <option value="all">All Statuses</option>
-                    {DMR_STATUSES.map(s => (
-                      <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                    {DMR_STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {s.replace(/_/g, ' ')}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -536,19 +606,33 @@ export default function DeviceRecordsClient() {
             </div>
 
             {/* DMR Table */}
-            {loading ? <LoadingSpinner /> : filteredDmrs.length > 0 ? (
+            {loading ? (
+              <LoadingSpinner />
+            ) : filteredDmrs.length > 0 ? (
               <Card>
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Ref #</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Device Name</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Device Class</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Version</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Approved Date</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Ref #
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Device Name
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Device Class
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Status
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Version
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Approved Date
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -556,16 +640,31 @@ export default function DeviceRecordsClient() {
                           <tr
                             key={dmr.id}
                             className="hover:bg-gray-50 dark:bg-gray-800 transition-colors cursor-pointer"
-                            onClick={() => { fetchDmrDetail(dmr.id); setShowDmrDetailModal(true); }}
+                            onClick={() => {
+                              fetchDmrDetail(dmr.id);
+                              setShowDmrDetailModal(true);
+                            }}
                           >
                             <td className="px-6 py-4">
-                              <span className="text-sm font-mono text-gray-600">{dmr.referenceNumber || '--'}</span>
+                              <span className="text-sm font-mono text-gray-600">
+                                {dmr.referenceNumber || '--'}
+                              </span>
                             </td>
                             <td className="px-6 py-4">
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{dmr.deviceName}</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {dmr.deviceName}
+                              </p>
                             </td>
                             <td className="px-6 py-4">
-                              <Badge variant={dmr.deviceClass === 'III' ? 'danger' : dmr.deviceClass === 'II' ? 'warning' : 'info'}>
+                              <Badge
+                                variant={
+                                  dmr.deviceClass === 'III'
+                                    ? 'danger'
+                                    : dmr.deviceClass === 'II'
+                                      ? 'warning'
+                                      : 'info'
+                                }
+                              >
                                 Class {dmr.deviceClass}
                               </Badge>
                             </td>
@@ -575,10 +674,14 @@ export default function DeviceRecordsClient() {
                               </Badge>
                             </td>
                             <td className="px-6 py-4">
-                              <span className="text-sm text-gray-700 dark:text-gray-300">{dmr.currentVersion || '1.0'}</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
+                                {dmr.currentVersion || '1.0'}
+                              </span>
                             </td>
                             <td className="px-6 py-4">
-                              <span className="text-sm text-gray-700 dark:text-gray-300">{formatDate(dmr.approvedDate)}</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
+                                {formatDate(dmr.approvedDate)}
+                              </span>
                             </td>
                           </tr>
                         ))}
@@ -590,10 +693,18 @@ export default function DeviceRecordsClient() {
             ) : (
               <div className="text-center py-16">
                 <FileText className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No device master records found</h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-6">Create a DMR to define device specifications and manufacturing processes.</p>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  No device master records found
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">
+                  Create a DMR to define device specifications and manufacturing processes.
+                </p>
                 <Button
-                  onClick={() => { setDmrForm(emptyDmrForm); setError(''); setShowCreateDmrModal(true); }}
+                  onClick={() => {
+                    setDmrForm(emptyDmrForm);
+                    setError('');
+                    setShowCreateDmrModal(true);
+                  }}
                   className="bg-teal-600 hover:bg-teal-700"
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -662,7 +773,8 @@ export default function DeviceRecordsClient() {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  aria-label="Search by batch number, reference, or DMR..." placeholder="Search by batch number, reference, or DMR..."
+                  aria-label="Search by batch number, reference, or DMR..."
+                  placeholder="Search by batch number, reference, or DMR..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -677,12 +789,18 @@ export default function DeviceRecordsClient() {
                 <Filter className="h-4 w-4" />
                 Filters
                 {statusFilter !== 'all' && (
-                  <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-teal-100 text-teal-700">Active</span>
+                  <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-teal-100 text-teal-700">
+                    Active
+                  </span>
                 )}
               </Button>
 
               <Button
-                onClick={() => { setDhrForm(emptyDhrForm); setError(''); setShowCreateDhrModal(true); }}
+                onClick={() => {
+                  setDhrForm(emptyDhrForm);
+                  setError('');
+                  setShowCreateDhrModal(true);
+                }}
                 className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
               >
                 <Plus className="h-4 w-4" />
@@ -700,8 +818,10 @@ export default function DeviceRecordsClient() {
                     className="w-40"
                   >
                     <option value="all">All Statuses</option>
-                    {DHR_STATUSES.map(s => (
-                      <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                    {DHR_STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {s.replace(/_/g, ' ')}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -724,20 +844,36 @@ export default function DeviceRecordsClient() {
             </div>
 
             {/* DHR Table */}
-            {loading ? <LoadingSpinner /> : filteredDhrs.length > 0 ? (
+            {loading ? (
+              <LoadingSpinner />
+            ) : filteredDhrs.length > 0 ? (
               <Card>
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Ref #</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Batch Number</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">DMR Ref</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Mfg Date</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Qty Mfg</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Qty Released</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Ref #
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Batch Number
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            DMR Ref
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Mfg Date
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Qty Mfg
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Qty Released
+                          </th>
+                          <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                            Status
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -745,25 +881,40 @@ export default function DeviceRecordsClient() {
                           <tr
                             key={dhr.id}
                             className="hover:bg-gray-50 dark:bg-gray-800 transition-colors cursor-pointer"
-                            onClick={() => { fetchDhrDetail(dhr.id); setShowDhrDetailModal(true); }}
+                            onClick={() => {
+                              fetchDhrDetail(dhr.id);
+                              setShowDhrDetailModal(true);
+                            }}
                           >
                             <td className="px-6 py-4">
-                              <span className="text-sm font-mono text-gray-600">{dhr.referenceNumber || '--'}</span>
+                              <span className="text-sm font-mono text-gray-600">
+                                {dhr.referenceNumber || '--'}
+                              </span>
                             </td>
                             <td className="px-6 py-4">
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{dhr.batchNumber}</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {dhr.batchNumber}
+                              </p>
                             </td>
                             <td className="px-6 py-4">
-                              <span className="text-sm font-mono text-gray-600">{dhr.dmrRef || '--'}</span>
+                              <span className="text-sm font-mono text-gray-600">
+                                {dhr.dmrRef || '--'}
+                              </span>
                             </td>
                             <td className="px-6 py-4">
-                              <span className="text-sm text-gray-700 dark:text-gray-300">{formatDate(dhr.manufacturingDate)}</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
+                                {formatDate(dhr.manufacturingDate)}
+                              </span>
                             </td>
                             <td className="px-6 py-4">
-                              <span className="text-sm text-gray-700 dark:text-gray-300">{dhr.quantityManufactured}</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
+                                {dhr.quantityManufactured}
+                              </span>
                             </td>
                             <td className="px-6 py-4">
-                              <span className="text-sm text-gray-700 dark:text-gray-300">{dhr.quantityReleased}</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
+                                {dhr.quantityReleased}
+                              </span>
                             </td>
                             <td className="px-6 py-4">
                               <Badge variant={getStatusBadgeVariant(dhr.status)}>
@@ -780,10 +931,18 @@ export default function DeviceRecordsClient() {
             ) : (
               <div className="text-center py-16">
                 <Package className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No device history records found</h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-6">Create a DHR to track manufacturing batch records for a device.</p>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  No device history records found
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">
+                  Create a DHR to track manufacturing batch records for a device.
+                </p>
                 <Button
-                  onClick={() => { setDhrForm(emptyDhrForm); setError(''); setShowCreateDhrModal(true); }}
+                  onClick={() => {
+                    setDhrForm(emptyDhrForm);
+                    setError('');
+                    setShowCreateDhrModal(true);
+                  }}
                   className="bg-teal-600 hover:bg-teal-700"
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -807,11 +966,15 @@ export default function DeviceRecordsClient() {
         <form onSubmit={handleCreateDmr}>
           <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
             )}
 
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Device Identification</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+                Device Identification
+              </h3>
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="dmr-deviceName">Device Name *</Label>
@@ -830,9 +993,14 @@ export default function DeviceRecordsClient() {
                     value={dmrForm.deviceClass}
                     onChange={(e) => setDmrForm({ ...dmrForm, deviceClass: e.target.value })}
                   >
-                    {DEVICE_CLASSES.map(cls => (
+                    {DEVICE_CLASSES.map((cls) => (
                       <option key={cls} value={cls}>
-                        Class {cls} {cls === 'I' ? '(Low Risk)' : cls === 'II' ? '(Moderate Risk)' : '(High Risk)'}
+                        Class {cls}{' '}
+                        {cls === 'I'
+                          ? '(Low Risk)'
+                          : cls === 'II'
+                            ? '(Moderate Risk)'
+                            : '(High Risk)'}
                       </option>
                     ))}
                   </Select>
@@ -852,7 +1020,9 @@ export default function DeviceRecordsClient() {
             </div>
 
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Specifications & Processes</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+                Specifications & Processes
+              </h3>
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="dmr-specifications">Device Specifications</Label>
@@ -869,7 +1039,9 @@ export default function DeviceRecordsClient() {
                   <Textarea
                     id="dmr-productionProcesses"
                     value={dmrForm.productionProcesses}
-                    onChange={(e) => setDmrForm({ ...dmrForm, productionProcesses: e.target.value })}
+                    onChange={(e) =>
+                      setDmrForm({ ...dmrForm, productionProcesses: e.target.value })
+                    }
                     rows={3}
                     placeholder="Manufacturing steps, process parameters, equipment"
                   />
@@ -898,7 +1070,9 @@ export default function DeviceRecordsClient() {
             </div>
 
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Labelling & Packaging</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+                Labelling & Packaging
+              </h3>
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="dmr-labellingSpecs">Labelling Specifications</Label>
@@ -925,11 +1099,18 @@ export default function DeviceRecordsClient() {
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowCreateDmrModal(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setShowCreateDmrModal(false)}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={submitting}>
               {submitting ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating...</span>
-              ) : 'Create DMR'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                'Create DMR'
+              )}
             </Button>
           </ModalFooter>
         </form>
@@ -940,106 +1121,171 @@ export default function DeviceRecordsClient() {
       {/* ==================================================================== */}
       <Modal
         isOpen={showDmrDetailModal}
-        onClose={() => { setShowDmrDetailModal(false); setSelectedDmr(null); }}
+        onClose={() => {
+          setShowDmrDetailModal(false);
+          setSelectedDmr(null);
+        }}
         title={selectedDmr ? `DMR: ${selectedDmr.deviceName}` : 'DMR Details'}
         size="lg"
       >
         {selectedDmr ? (
           <div className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
             )}
 
             <div className="flex items-center gap-3 flex-wrap">
               <Badge variant={getStatusBadgeVariant(selectedDmr.status)}>
                 {selectedDmr.status?.replace(/_/g, ' ')}
               </Badge>
-              <Badge variant={selectedDmr.deviceClass === 'III' ? 'danger' : selectedDmr.deviceClass === 'II' ? 'warning' : 'info'}>
+              <Badge
+                variant={
+                  selectedDmr.deviceClass === 'III'
+                    ? 'danger'
+                    : selectedDmr.deviceClass === 'II'
+                      ? 'warning'
+                      : 'info'
+                }
+              >
                 Class {selectedDmr.deviceClass}
               </Badge>
-              <span className="text-sm font-mono text-gray-500 dark:text-gray-400">{selectedDmr.referenceNumber}</span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">v{selectedDmr.currentVersion || '1.0'}</span>
+              <span className="text-sm font-mono text-gray-500 dark:text-gray-400">
+                {selectedDmr.referenceNumber}
+              </span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                v{selectedDmr.currentVersion || '1.0'}
+              </span>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Device Name</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Device Name
+                </p>
                 <p className="text-sm text-gray-900 dark:text-gray-100">{selectedDmr.deviceName}</p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Approved Date</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100">{formatDate(selectedDmr.approvedDate)}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Approved Date
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100">
+                  {formatDate(selectedDmr.approvedDate)}
+                </p>
               </div>
             </div>
 
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Description</p>
-              <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedDmr.description || '--'}</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                Description
+              </p>
+              <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                {selectedDmr.description || '--'}
+              </p>
             </div>
 
             {selectedDmr.specifications && (
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Specifications</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedDmr.specifications}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Specifications
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                  {selectedDmr.specifications}
+                </p>
               </div>
             )}
 
             {selectedDmr.productionProcesses && (
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Production Processes</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedDmr.productionProcesses}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Production Processes
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                  {selectedDmr.productionProcesses}
+                </p>
               </div>
             )}
 
             {selectedDmr.qualityProcedures && (
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Quality Procedures</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedDmr.qualityProcedures}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Quality Procedures
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                  {selectedDmr.qualityProcedures}
+                </p>
               </div>
             )}
 
             {selectedDmr.acceptanceCriteria && (
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Acceptance Criteria</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedDmr.acceptanceCriteria}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Acceptance Criteria
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                  {selectedDmr.acceptanceCriteria}
+                </p>
               </div>
             )}
 
             {selectedDmr.labellingSpecs && (
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Labelling Specifications</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedDmr.labellingSpecs}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Labelling Specifications
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                  {selectedDmr.labellingSpecs}
+                </p>
               </div>
             )}
 
             {selectedDmr.packagingSpecs && (
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Packaging Specifications</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedDmr.packagingSpecs}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Packaging Specifications
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                  {selectedDmr.packagingSpecs}
+                </p>
               </div>
             )}
 
             {/* Linked DHRs */}
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Linked Device History Records</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">
+                Linked Device History Records
+              </h3>
               {selectedDmr.dhrs && selectedDmr.dhrs.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700">
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Ref #</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Batch</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Status</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Qty</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">
+                          Ref #
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">
+                          Batch
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">
+                          Status
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">
+                          Qty
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                       {selectedDmr.dhrs.map((dhr) => (
                         <tr key={dhr.id}>
-                          <td className="px-3 py-2 font-mono text-gray-600">{dhr.referenceNumber}</td>
+                          <td className="px-3 py-2 font-mono text-gray-600">
+                            {dhr.referenceNumber}
+                          </td>
                           <td className="px-3 py-2">{dhr.batchNumber}</td>
                           <td className="px-3 py-2">
-                            <Badge variant={getStatusBadgeVariant(dhr.status)}>{dhr.status?.replace(/_/g, ' ')}</Badge>
+                            <Badge variant={getStatusBadgeVariant(dhr.status)}>
+                              {dhr.status?.replace(/_/g, ' ')}
+                            </Badge>
                           </td>
                           <td className="px-3 py-2">{dhr.quantityManufactured}</td>
                         </tr>
@@ -1048,12 +1294,20 @@ export default function DeviceRecordsClient() {
                   </table>
                 </div>
               ) : (
-                <p className="text-sm text-gray-500 dark:text-gray-400">No DHRs linked to this DMR yet.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  No DHRs linked to this DMR yet.
+                </p>
               )}
             </div>
 
             <ModalFooter>
-              <Button variant="outline" onClick={() => { setShowDmrDetailModal(false); setSelectedDmr(null); }}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDmrDetailModal(false);
+                  setSelectedDmr(null);
+                }}
+              >
                 Close
               </Button>
               {selectedDmr.status === 'DRAFT' && (
@@ -1063,9 +1317,15 @@ export default function DeviceRecordsClient() {
                   className="bg-green-600 hover:bg-green-700"
                 >
                   {submitting ? (
-                    <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Approving...</span>
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Approving...
+                    </span>
                   ) : (
-                    <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4" />Approve DMR</span>
+                    <span className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Approve DMR
+                    </span>
                   )}
                 </Button>
               )}
@@ -1091,11 +1351,15 @@ export default function DeviceRecordsClient() {
         <form onSubmit={handleCreateDhr}>
           <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
             )}
 
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Batch Information</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+                Batch Information
+              </h3>
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="dhr-dmrId">Device Master Record *</Label>
@@ -1106,11 +1370,13 @@ export default function DeviceRecordsClient() {
                     required
                   >
                     <option value="">Select a DMR...</option>
-                    {dmrs.filter(d => d.status === 'APPROVED').map(d => (
-                      <option key={d.id} value={d.id}>
-                        {d.referenceNumber} -- {d.deviceName} (v{d.currentVersion || '1.0'})
-                      </option>
-                    ))}
+                    {dmrs
+                      .filter((d) => d.status === 'APPROVED')
+                      .map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.referenceNumber} -- {d.deviceName} (v{d.currentVersion || '1.0'})
+                        </option>
+                      ))}
                   </Select>
                 </div>
                 <div>
@@ -1140,7 +1406,12 @@ export default function DeviceRecordsClient() {
                     type="number"
                     min="1"
                     value={dhrForm.quantityManufactured || ''}
-                    onChange={(e) => setDhrForm({ ...dhrForm, quantityManufactured: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setDhrForm({
+                        ...dhrForm,
+                        quantityManufactured: parseInt(e.target.value) || 0,
+                      })
+                    }
                     required
                     placeholder="e.g. 500"
                   />
@@ -1150,11 +1421,18 @@ export default function DeviceRecordsClient() {
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowCreateDhrModal(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setShowCreateDhrModal(false)}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={submitting}>
               {submitting ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating...</span>
-              ) : 'Create DHR'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                'Create DHR'
+              )}
             </Button>
           </ModalFooter>
         </form>
@@ -1165,40 +1443,62 @@ export default function DeviceRecordsClient() {
       {/* ==================================================================== */}
       <Modal
         isOpen={showDhrDetailModal}
-        onClose={() => { setShowDhrDetailModal(false); setSelectedDhr(null); }}
+        onClose={() => {
+          setShowDhrDetailModal(false);
+          setSelectedDhr(null);
+        }}
         title={selectedDhr ? `DHR: ${selectedDhr.batchNumber}` : 'DHR Details'}
         size="lg"
       >
         {selectedDhr ? (
           <div className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
             )}
 
             <div className="flex items-center gap-3 flex-wrap">
               <Badge variant={getStatusBadgeVariant(selectedDhr.status)}>
                 {selectedDhr.status?.replace(/_/g, ' ')}
               </Badge>
-              <span className="text-sm font-mono text-gray-500 dark:text-gray-400">{selectedDhr.referenceNumber}</span>
+              <span className="text-sm font-mono text-gray-500 dark:text-gray-400">
+                {selectedDhr.referenceNumber}
+              </span>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Batch Number</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100">{selectedDhr.batchNumber}</p>
-              </div>
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">DMR Reference</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100 font-mono">{selectedDhr.dmrRef || '--'}</p>
-              </div>
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Manufacturing Date</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100">{formatDate(selectedDhr.manufacturingDate)}</p>
-              </div>
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Quantity</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Batch Number
+                </p>
                 <p className="text-sm text-gray-900 dark:text-gray-100">
-                  {selectedDhr.quantityManufactured} manufactured / {selectedDhr.quantityReleased} released
+                  {selectedDhr.batchNumber}
+                </p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  DMR Reference
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 font-mono">
+                  {selectedDhr.dmrRef || '--'}
+                </p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Manufacturing Date
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100">
+                  {formatDate(selectedDhr.manufacturingDate)}
+                </p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Quantity
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100">
+                  {selectedDhr.quantityManufactured} manufactured / {selectedDhr.quantityReleased}{' '}
+                  released
                 </p>
               </div>
             </div>
@@ -1206,10 +1506,16 @@ export default function DeviceRecordsClient() {
             {/* Production Records */}
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Production Records</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                  Production Records
+                </h3>
                 <Button
                   size="sm"
-                  onClick={() => { setRecordForm(emptyRecordForm); setError(''); setShowAddRecordModal(true); }}
+                  onClick={() => {
+                    setRecordForm(emptyRecordForm);
+                    setError('');
+                    setShowAddRecordModal(true);
+                  }}
                   className="bg-teal-600 hover:bg-teal-700"
                 >
                   <Plus className="h-3 w-3 mr-1" />
@@ -1221,11 +1527,21 @@ export default function DeviceRecordsClient() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700">
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Type</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Description</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Result</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Performed By</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">Date</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">
+                          Type
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">
+                          Description
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">
+                          Result
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">
+                          Performed By
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-3 py-2">
+                          Date
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -1234,22 +1550,38 @@ export default function DeviceRecordsClient() {
                           <td className="px-3 py-2">
                             <Badge variant="outline">{rec.recordType?.replace(/_/g, ' ')}</Badge>
                           </td>
-                          <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{rec.description}</td>
-                          <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{rec.result}</td>
-                          <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{rec.performedBy}</td>
-                          <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{formatDate(rec.performedDate)}</td>
+                          <td className="px-3 py-2 text-gray-700 dark:text-gray-300">
+                            {rec.description}
+                          </td>
+                          <td className="px-3 py-2 text-gray-700 dark:text-gray-300">
+                            {rec.result}
+                          </td>
+                          <td className="px-3 py-2 text-gray-700 dark:text-gray-300">
+                            {rec.performedBy}
+                          </td>
+                          <td className="px-3 py-2 text-gray-700 dark:text-gray-300">
+                            {formatDate(rec.performedDate)}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
               ) : (
-                <p className="text-sm text-gray-500 dark:text-gray-400">No production records yet.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  No production records yet.
+                </p>
               )}
             </div>
 
             <ModalFooter>
-              <Button variant="outline" onClick={() => { setShowDhrDetailModal(false); setSelectedDhr(null); }}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDhrDetailModal(false);
+                  setSelectedDhr(null);
+                }}
+              >
                 Close
               </Button>
               {selectedDhr.status === 'IN_PRODUCTION' && (
@@ -1259,9 +1591,15 @@ export default function DeviceRecordsClient() {
                   className="bg-green-600 hover:bg-green-700"
                 >
                   {submitting ? (
-                    <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Releasing...</span>
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Releasing...
+                    </span>
                   ) : (
-                    <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4" />Release DHR</span>
+                    <span className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Release DHR
+                    </span>
                   )}
                 </Button>
               )}
@@ -1287,7 +1625,9 @@ export default function DeviceRecordsClient() {
         <form onSubmit={handleAddRecord}>
           <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
             )}
 
             <div className="space-y-4">
@@ -1298,8 +1638,10 @@ export default function DeviceRecordsClient() {
                   value={recordForm.recordType}
                   onChange={(e) => setRecordForm({ ...recordForm, recordType: e.target.value })}
                 >
-                  {RECORD_TYPES.map(t => (
-                    <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
+                  {RECORD_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -1348,11 +1690,18 @@ export default function DeviceRecordsClient() {
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowAddRecordModal(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setShowAddRecordModal(false)}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={submitting}>
               {submitting ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Adding...</span>
-              ) : 'Add Record'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Adding...
+                </span>
+              ) : (
+                'Add Record'
+              )}
             </Button>
           </ModalFooter>
         </form>

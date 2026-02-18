@@ -2,16 +2,38 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
   AIDisclosure,
 } from '@ims/ui';
 import {
-  Plus, FileText, Search, Loader2, Sparkles,
-  AlertCircle, Clock, CheckCircle, Eye,
-  BookOpen, ClipboardCheck, File, FolderOpen,
-  Shield, ChevronDown, ChevronUp, Calendar,
+  Plus,
+  FileText,
+  Search,
+  Loader2,
+  Sparkles,
+  AlertCircle,
+  Clock,
+  CheckCircle,
+  Eye,
+  BookOpen,
+  ClipboardCheck,
+  File,
+  FolderOpen,
+  Shield,
+  ChevronDown,
+  ChevronUp,
+  Calendar,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -215,12 +237,12 @@ export default function DocumentsClient() {
   // ─── Helpers ──────────────────────────────────────────────────────
 
   const getStatusStyle = (status: string) => {
-    const s = DOCUMENT_STATUSES.find(ds => ds.value === status);
+    const s = DOCUMENT_STATUSES.find((ds) => ds.value === status);
     return s?.color || 'bg-gray-100 dark:bg-gray-800 text-gray-700';
   };
 
   const getDocTypeConfig = (type: string) => {
-    return DOCUMENT_TYPES.find(dt => dt.value === type) || DOCUMENT_TYPES[1];
+    return DOCUMENT_TYPES.find((dt) => dt.value === type) || DOCUMENT_TYPES[1];
   };
 
   const isExpiringSoon = (nextReviewDate: string): boolean => {
@@ -240,14 +262,16 @@ export default function DocumentsClient() {
 
   const counts = {
     total: documents.length,
-    active: documents.filter(d => d.status === 'ACTIVE' || d.status === 'APPROVED').length,
-    underReview: documents.filter(d => d.status === 'UNDER_REVIEW').length,
-    expiringSoon: documents.filter(d => isExpiringSoon(d.nextReviewDate) || isExpired(d.nextReviewDate)).length,
+    active: documents.filter((d) => d.status === 'ACTIVE' || d.status === 'APPROVED').length,
+    underReview: documents.filter((d) => d.status === 'UNDER_REVIEW').length,
+    expiringSoon: documents.filter(
+      (d) => isExpiringSoon(d.nextReviewDate) || isExpired(d.nextReviewDate)
+    ).length,
   };
 
   // ─── Filtering ────────────────────────────────────────────────────
 
-  const filteredDocs = documents.filter(d => {
+  const filteredDocs = documents.filter((d) => {
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       return (
@@ -271,7 +295,7 @@ export default function DocumentsClient() {
   }
 
   function updateForm(field: keyof DocumentForm, value: string | number) {
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -369,7 +393,9 @@ export default function DocumentsClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Document Control</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Document Control
+            </h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">
               Manage controlled documents, policies, procedures, and records
             </p>
@@ -430,7 +456,7 @@ export default function DocumentsClient() {
 
         {/* Filter Tabs */}
         <div className="flex gap-2 mb-4">
-          {FILTER_TABS.map(tab => (
+          {FILTER_TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
@@ -439,12 +465,12 @@ export default function DocumentsClient() {
                   ? tab.key === 'OBSOLETE'
                     ? 'bg-red-600 text-white'
                     : tab.key === 'UNDER_REVIEW'
-                    ? 'bg-yellow-500 text-white'
-                    : tab.key === 'ACTIVE'
-                    ? 'bg-green-600 text-white'
-                    : tab.key === 'EXTERNAL'
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-800 text-white'
+                      ? 'bg-yellow-500 text-white'
+                      : tab.key === 'ACTIVE'
+                        ? 'bg-green-600 text-white'
+                        : tab.key === 'EXTERNAL'
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-gray-800 text-white'
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
               }`}
             >
@@ -461,20 +487,23 @@ export default function DocumentsClient() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
-                  aria-label="Search by title, document number, author, ISO clause..." placeholder="Search by title, document number, author, ISO clause..."
+                  aria-label="Search by title, document number, author, ISO clause..."
+                  placeholder="Search by title, document number, author, ISO clause..."
                   value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <select
                 value={typeFilter}
-                onChange={e => setTypeFilter(e.target.value)}
+                onChange={(e) => setTypeFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Types</option>
-                {DOCUMENT_TYPES.map(t => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
+                {DOCUMENT_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
                 ))}
               </select>
             </div>
@@ -500,13 +529,13 @@ export default function DocumentsClient() {
           <CardContent>
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3, 4, 5].map(i => (
+                {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="h-24 bg-gray-100 dark:bg-gray-800 rounded-lg" />
                 ))}
               </div>
             ) : filteredDocs.length > 0 ? (
               <div className="space-y-4">
-                {filteredDocs.map(doc => {
+                {filteredDocs.map((doc) => {
                   const typeConfig = getDocTypeConfig(doc.documentType);
                   const IconComponent = typeConfig.icon;
                   const expiring = isExpiringSoon(doc.nextReviewDate);
@@ -518,8 +547,8 @@ export default function DocumentsClient() {
                         expired
                           ? 'border-red-300 bg-red-50 hover:border-red-400'
                           : expiring
-                          ? 'border-orange-300 bg-orange-50 hover:border-orange-400'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
+                            ? 'border-orange-300 bg-orange-50 hover:border-orange-400'
+                            : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
                       }`}
                     >
                       <div className="flex items-start justify-between">
@@ -532,10 +561,7 @@ export default function DocumentsClient() {
                               <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
                                 {doc.documentNumber}
                               </span>
-                              <Badge
-                                variant="outline"
-                                className="text-xs"
-                              >
+                              <Badge variant="outline" className="text-xs">
                                 {typeConfig.label}
                               </Badge>
                               {doc.version && (
@@ -543,23 +569,34 @@ export default function DocumentsClient() {
                                   v{doc.version}
                                 </span>
                               )}
-                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(doc.status)}`}>
-                                {DOCUMENT_STATUSES.find(s => s.value === doc.status)?.label || doc.status}
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(doc.status)}`}
+                              >
+                                {DOCUMENT_STATUSES.find((s) => s.value === doc.status)?.label ||
+                                  doc.status}
                               </span>
                               {expired && (
-                                <Badge variant="destructive" className="flex items-center gap-1 text-xs">
+                                <Badge
+                                  variant="destructive"
+                                  className="flex items-center gap-1 text-xs"
+                                >
                                   <AlertCircle className="h-3 w-3" />
                                   REVIEW OVERDUE
                                 </Badge>
                               )}
                               {expiring && !expired && (
-                                <Badge variant="warning" className="flex items-center gap-1 text-xs">
+                                <Badge
+                                  variant="warning"
+                                  className="flex items-center gap-1 text-xs"
+                                >
                                   <Clock className="h-3 w-3" />
                                   REVIEW DUE
                                 </Badge>
                               )}
                             </div>
-                            <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">{doc.title}</h3>
+                            <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                              {doc.title}
+                            </h3>
                             <div className="flex items-center gap-3 mt-1 text-xs text-gray-400 dark:text-gray-500">
                               {doc.isoClause && <span>ISO {doc.isoClause}</span>}
                               {doc.author && <span>Author: {doc.author}</span>}
@@ -569,15 +606,22 @@ export default function DocumentsClient() {
                         </div>
                         <div className="ml-4 text-right flex-shrink-0">
                           {doc.nextReviewDate && (
-                            <div className={`text-sm flex items-center gap-1 ${
-                              expired ? 'text-red-600 font-medium' :
-                              expiring ? 'text-orange-600' : 'text-gray-400'
-                            }`}>
+                            <div
+                              className={`text-sm flex items-center gap-1 ${
+                                expired
+                                  ? 'text-red-600 font-medium'
+                                  : expiring
+                                    ? 'text-orange-600'
+                                    : 'text-gray-400'
+                              }`}
+                            >
                               <Calendar className="h-4 w-4" />
                               {new Date(doc.nextReviewDate).toLocaleDateString()}
                             </div>
                           )}
-                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Next Review</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                            Next Review
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -611,7 +655,7 @@ export default function DocumentsClient() {
         <form onSubmit={handleSubmit}>
           {/* Section Tabs */}
           <div className="flex gap-1 mb-6 border-b overflow-x-auto">
-            {sections.map(s => (
+            {sections.map((s) => (
               <button
                 key={s.key}
                 type="button"
@@ -646,7 +690,7 @@ export default function DocumentsClient() {
                   <Input
                     id="doc-title"
                     value={form.title}
-                    onChange={e => updateForm('title', e.target.value)}
+                    onChange={(e) => updateForm('title', e.target.value)}
                     required
                     placeholder="Document title"
                   />
@@ -657,10 +701,12 @@ export default function DocumentsClient() {
                     <Select
                       id="doc-type"
                       value={form.documentType}
-                      onChange={e => updateForm('documentType', e.target.value)}
+                      onChange={(e) => updateForm('documentType', e.target.value)}
                     >
-                      {DOCUMENT_TYPES.map(t => (
-                        <option key={t.value} value={t.value}>{t.label}</option>
+                      {DOCUMENT_TYPES.map((t) => (
+                        <option key={t.value} value={t.value}>
+                          {t.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -669,7 +715,7 @@ export default function DocumentsClient() {
                     <Input
                       id="doc-isoClause"
                       value={form.isoClause}
-                      onChange={e => updateForm('isoClause', e.target.value)}
+                      onChange={(e) => updateForm('isoClause', e.target.value)}
                       placeholder="e.g., 7.5.1, 8.5.2"
                     />
                   </div>
@@ -680,7 +726,7 @@ export default function DocumentsClient() {
                     <Input
                       id="doc-linkedProcess"
                       value={form.linkedProcess}
-                      onChange={e => updateForm('linkedProcess', e.target.value)}
+                      onChange={(e) => updateForm('linkedProcess', e.target.value)}
                       placeholder="e.g., Quality Management, Purchasing"
                     />
                   </div>
@@ -689,7 +735,7 @@ export default function DocumentsClient() {
                     <Input
                       id="doc-version"
                       value={form.version}
-                      onChange={e => updateForm('version', e.target.value)}
+                      onChange={(e) => updateForm('version', e.target.value)}
                       placeholder="e.g., 1.0, 2.1"
                     />
                   </div>
@@ -700,10 +746,12 @@ export default function DocumentsClient() {
                     <Select
                       id="doc-status"
                       value={form.status}
-                      onChange={e => updateForm('status', e.target.value)}
+                      onChange={(e) => updateForm('status', e.target.value)}
                     >
-                      {DOCUMENT_STATUSES.map(s => (
-                        <option key={s.value} value={s.value}>{s.label}</option>
+                      {DOCUMENT_STATUSES.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          {s.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -712,10 +760,12 @@ export default function DocumentsClient() {
                     <Select
                       id="doc-language"
                       value={form.language}
-                      onChange={e => updateForm('language', e.target.value)}
+                      onChange={(e) => updateForm('language', e.target.value)}
                     >
-                      {LANGUAGES.map(l => (
-                        <option key={l.value} value={l.value}>{l.label}</option>
+                      {LANGUAGES.map((l) => (
+                        <option key={l.value} value={l.value}>
+                          {l.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -734,7 +784,7 @@ export default function DocumentsClient() {
                   <Textarea
                     id="doc-purpose"
                     value={form.purpose}
-                    onChange={e => updateForm('purpose', e.target.value)}
+                    onChange={(e) => updateForm('purpose', e.target.value)}
                     rows={3}
                     placeholder="Why this document exists and what it aims to achieve"
                   />
@@ -744,7 +794,7 @@ export default function DocumentsClient() {
                   <Textarea
                     id="doc-scope"
                     value={form.scope}
-                    onChange={e => updateForm('scope', e.target.value)}
+                    onChange={(e) => updateForm('scope', e.target.value)}
                     rows={2}
                     placeholder="What areas, processes, or personnel this document covers"
                   />
@@ -754,7 +804,7 @@ export default function DocumentsClient() {
                   <Textarea
                     id="doc-summary"
                     value={form.summary}
-                    onChange={e => updateForm('summary', e.target.value)}
+                    onChange={(e) => updateForm('summary', e.target.value)}
                     rows={4}
                     placeholder="Brief overview of the document content"
                   />
@@ -764,7 +814,7 @@ export default function DocumentsClient() {
                   <Textarea
                     id="doc-keyChanges"
                     value={form.keyChanges}
-                    onChange={e => updateForm('keyChanges', e.target.value)}
+                    onChange={(e) => updateForm('keyChanges', e.target.value)}
                     rows={3}
                     placeholder="List significant changes made in this revision"
                   />
@@ -784,7 +834,7 @@ export default function DocumentsClient() {
                     <Input
                       id="doc-author"
                       value={form.author}
-                      onChange={e => updateForm('author', e.target.value)}
+                      onChange={(e) => updateForm('author', e.target.value)}
                       placeholder="Document author name"
                     />
                   </div>
@@ -793,7 +843,7 @@ export default function DocumentsClient() {
                     <Input
                       id="doc-ownerCustodian"
                       value={form.ownerCustodian}
-                      onChange={e => updateForm('ownerCustodian', e.target.value)}
+                      onChange={(e) => updateForm('ownerCustodian', e.target.value)}
                       placeholder="Person or role responsible for this document"
                     />
                   </div>
@@ -804,7 +854,7 @@ export default function DocumentsClient() {
                     <Input
                       id="doc-reviewer"
                       value={form.reviewer}
-                      onChange={e => updateForm('reviewer', e.target.value)}
+                      onChange={(e) => updateForm('reviewer', e.target.value)}
                       placeholder="Person who reviewed this version"
                     />
                   </div>
@@ -813,7 +863,7 @@ export default function DocumentsClient() {
                     <Input
                       id="doc-approvedBy"
                       value={form.approvedBy}
-                      onChange={e => updateForm('approvedBy', e.target.value)}
+                      onChange={(e) => updateForm('approvedBy', e.target.value)}
                       placeholder="Approving authority"
                     />
                   </div>
@@ -825,7 +875,7 @@ export default function DocumentsClient() {
                       id="doc-issueDate"
                       type="date"
                       value={form.issueDate}
-                      onChange={e => updateForm('issueDate', e.target.value)}
+                      onChange={(e) => updateForm('issueDate', e.target.value)}
                     />
                   </div>
                   <div>
@@ -834,7 +884,7 @@ export default function DocumentsClient() {
                       id="doc-effectiveDate"
                       type="date"
                       value={form.effectiveDate}
-                      onChange={e => updateForm('effectiveDate', e.target.value)}
+                      onChange={(e) => updateForm('effectiveDate', e.target.value)}
                     />
                   </div>
                   <div>
@@ -843,7 +893,7 @@ export default function DocumentsClient() {
                       id="doc-nextReviewDate"
                       type="date"
                       value={form.nextReviewDate}
-                      onChange={e => updateForm('nextReviewDate', e.target.value)}
+                      onChange={(e) => updateForm('nextReviewDate', e.target.value)}
                     />
                   </div>
                 </div>
@@ -861,7 +911,7 @@ export default function DocumentsClient() {
                   <Textarea
                     id="doc-distributionList"
                     value={form.distributionList}
-                    onChange={e => updateForm('distributionList', e.target.value)}
+                    onChange={(e) => updateForm('distributionList', e.target.value)}
                     rows={3}
                     placeholder="List of roles, departments, or individuals who should receive this document"
                   />
@@ -872,10 +922,12 @@ export default function DocumentsClient() {
                     <Select
                       id="doc-accessLevel"
                       value={form.accessLevel}
-                      onChange={e => updateForm('accessLevel', e.target.value)}
+                      onChange={(e) => updateForm('accessLevel', e.target.value)}
                     >
-                      {ACCESS_LEVELS.map(l => (
-                        <option key={l.value} value={l.value}>{l.label}</option>
+                      {ACCESS_LEVELS.map((l) => (
+                        <option key={l.value} value={l.value}>
+                          {l.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -886,7 +938,9 @@ export default function DocumentsClient() {
                       type="number"
                       min={0}
                       value={form.controlledCopies}
-                      onChange={e => updateForm('controlledCopies', parseInt(e.target.value) || 0)}
+                      onChange={(e) =>
+                        updateForm('controlledCopies', parseInt(e.target.value) || 0)
+                      }
                       placeholder="Number of controlled copies"
                     />
                   </div>
@@ -896,7 +950,7 @@ export default function DocumentsClient() {
                   <Input
                     id="doc-locationUrl"
                     value={form.locationUrl}
-                    onChange={e => updateForm('locationUrl', e.target.value)}
+                    onChange={(e) => updateForm('locationUrl', e.target.value)}
                     placeholder="File path, SharePoint URL, or document management system link"
                   />
                 </div>
@@ -910,14 +964,15 @@ export default function DocumentsClient() {
                   E -- Related Documents
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Link this document to related procedures, forms, and records for cross-referencing.
+                  Link this document to related procedures, forms, and records for
+                  cross-referencing.
                 </p>
                 <div>
                   <Label htmlFor="doc-supersedes">Supersedes Document</Label>
                   <Input
                     id="doc-supersedes"
                     value={form.supersedesDocument}
-                    onChange={e => updateForm('supersedesDocument', e.target.value)}
+                    onChange={(e) => updateForm('supersedesDocument', e.target.value)}
                     placeholder="Document number or title of the previous version this replaces"
                   />
                 </div>
@@ -926,7 +981,7 @@ export default function DocumentsClient() {
                   <Textarea
                     id="doc-relatedProcedures"
                     value={form.relatedProcedures}
-                    onChange={e => updateForm('relatedProcedures', e.target.value)}
+                    onChange={(e) => updateForm('relatedProcedures', e.target.value)}
                     rows={2}
                     placeholder="List related procedures (comma-separated or one per line)"
                   />
@@ -936,7 +991,7 @@ export default function DocumentsClient() {
                   <Textarea
                     id="doc-relatedForms"
                     value={form.relatedForms}
-                    onChange={e => updateForm('relatedForms', e.target.value)}
+                    onChange={(e) => updateForm('relatedForms', e.target.value)}
                     rows={2}
                     placeholder="List related forms (comma-separated or one per line)"
                   />
@@ -946,7 +1001,7 @@ export default function DocumentsClient() {
                   <Textarea
                     id="doc-relatedRecords"
                     value={form.relatedRecords}
-                    onChange={e => updateForm('relatedRecords', e.target.value)}
+                    onChange={(e) => updateForm('relatedRecords', e.target.value)}
                     rows={2}
                     placeholder="List related records (comma-separated or one per line)"
                   />
@@ -984,30 +1039,40 @@ export default function DocumentsClient() {
                     </Button>
                   </div>
                   <p className="text-xs text-purple-600 mb-3">
-                    Fill in the document identity and content summary sections, then click to get
-                    an AI-powered review with completeness scoring, compliance notes, and improvement suggestions.
+                    Fill in the document identity and content summary sections, then click to get an
+                    AI-powered review with completeness scoring, compliance notes, and improvement
+                    suggestions.
                   </p>
 
                   {aiReview && (
                     <div className="space-y-3 mt-4">
                       <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Completeness Score</p>
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                          Completeness Score
+                        </p>
                         <div className="flex items-center gap-2">
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div
                               className={`h-2 rounded-full ${
-                                aiReview.completenessScore >= 80 ? 'bg-green-500' :
-                                aiReview.completenessScore >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                                aiReview.completenessScore >= 80
+                                  ? 'bg-green-500'
+                                  : aiReview.completenessScore >= 50
+                                    ? 'bg-yellow-500'
+                                    : 'bg-red-500'
                               }`}
                               style={{ width: `${aiReview.completenessScore}%` }}
                             />
                           </div>
-                          <span className="text-sm font-medium text-gray-800">{aiReview.completenessScore}%</span>
+                          <span className="text-sm font-medium text-gray-800">
+                            {aiReview.completenessScore}%
+                          </span>
                         </div>
                       </div>
                       {aiReview.complianceNotes && aiReview.complianceNotes.length > 0 && (
                         <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Compliance Notes</p>
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                            Compliance Notes
+                          </p>
                           <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
                             {aiReview.complianceNotes.map((note, idx) => (
                               <li key={idx}>{note}</li>
@@ -1015,23 +1080,30 @@ export default function DocumentsClient() {
                           </ul>
                         </div>
                       )}
-                      {aiReview.suggestedImprovements && aiReview.suggestedImprovements.length > 0 && (
-                        <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Suggested Improvements</p>
-                          <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
-                            {aiReview.suggestedImprovements.map((sug, idx) => (
-                              <li key={idx}>{sug}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                      {aiReview.suggestedImprovements &&
+                        aiReview.suggestedImprovements.length > 0 && (
+                          <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                              Suggested Improvements
+                            </p>
+                            <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
+                              {aiReview.suggestedImprovements.map((sug, idx) => (
+                                <li key={idx}>{sug}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">ISO Alignment</p>
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                          ISO Alignment
+                        </p>
                         <p className="text-sm text-gray-800">{aiReview.isoAlignmentNotes}</p>
                       </div>
                       {aiReview.riskAreas && aiReview.riskAreas.length > 0 && (
                         <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Risk Areas</p>
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                            Risk Areas
+                          </p>
                           <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
                             {aiReview.riskAreas.map((risk, idx) => (
                               <li key={idx}>{risk}</li>
@@ -1040,10 +1112,17 @@ export default function DocumentsClient() {
                         </div>
                       )}
                       <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Review Recommendation</p>
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                          Review Recommendation
+                        </p>
                         <p className="text-sm text-gray-800">{aiReview.reviewRecommendation}</p>
                       </div>
-                      <AIDisclosure variant="inline" provider="claude" analysisType="Document Analysis" confidence={0.85} />
+                      <AIDisclosure
+                        variant="inline"
+                        provider="claude"
+                        analysisType="Document Analysis"
+                        confidence={0.85}
+                      />
                     </div>
                   )}
                 </div>
@@ -1059,7 +1138,7 @@ export default function DocumentsClient() {
                     type="button"
                     variant="outline"
                     onClick={() => {
-                      const idx = sections.findIndex(s => s.key === activeSection);
+                      const idx = sections.findIndex((s) => s.key === activeSection);
                       if (idx > 0) setActiveSection(sections[idx - 1].key);
                     }}
                   >
@@ -1075,7 +1154,7 @@ export default function DocumentsClient() {
                   <Button
                     type="button"
                     onClick={() => {
-                      const idx = sections.findIndex(s => s.key === activeSection);
+                      const idx = sections.findIndex((s) => s.key === activeSection);
                       if (idx < sections.length - 1) setActiveSection(sections[idx + 1].key);
                     }}
                   >

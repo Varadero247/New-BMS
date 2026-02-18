@@ -17,7 +17,9 @@ declare global {
   }
 }
 
-function getUserFromRequest(req: Request): { id: string; role: string; roles?: string[] } | undefined {
+function getUserFromRequest(
+  req: Request
+): { id: string; role: string; roles?: string[] } | undefined {
   return (req as ImsRequest).user;
 }
 
@@ -30,9 +32,7 @@ export function attachPermissions() {
     }
 
     // Support multi-role (user.roles array) or fallback to legacy single role
-    const roleIds = user.roles && user.roles.length > 0
-      ? user.roles
-      : mapLegacyRole(user.role);
+    const roleIds = user.roles && user.roles.length > 0 ? user.roles : mapLegacyRole(user.role);
 
     req.permissions = resolvePermissions(roleIds);
     next();
@@ -53,9 +53,7 @@ export function requirePermission(module: ImsModule, level: PermissionLevel) {
 
     // Resolve permissions if not already attached
     if (!req.permissions) {
-      const roleIds = user.roles && user.roles.length > 0
-        ? user.roles
-        : mapLegacyRole(user.role);
+      const roleIds = user.roles && user.roles.length > 0 ? user.roles : mapLegacyRole(user.role);
       req.permissions = resolvePermissions(roleIds);
     }
 
@@ -89,7 +87,7 @@ export function requireOwnership(ownerField: string = 'createdBy') {
     // Users with FULL permission bypass ownership checks
     if (req.permissions) {
       const hasFullOnAny = Object.values(req.permissions.modules).some(
-        level => level >= PermissionLevel.FULL
+        (level) => level >= PermissionLevel.FULL
       );
       if (hasFullOnAny) {
         next();
@@ -100,7 +98,7 @@ export function requireOwnership(ownerField: string = 'createdBy') {
     // Users with APPROVE level bypass ownership checks
     if (req.permissions) {
       const hasApproveOnAny = Object.values(req.permissions.modules).some(
-        level => level >= PermissionLevel.APPROVE
+        (level) => level >= PermissionLevel.APPROVE
       );
       if (hasApproveOnAny) {
         next();

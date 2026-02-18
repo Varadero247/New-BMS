@@ -37,8 +37,8 @@ export default function TrainingPage() {
     }
   }
 
-  const upcomingTrainings = trainings.filter(t => t.status === 'SCHEDULED');
-  const completedTrainings = trainings.filter(t => t.status === 'COMPLETED');
+  const upcomingTrainings = trainings.filter((t) => t.status === 'SCHEDULED');
+  const completedTrainings = trainings.filter((t) => t.status === 'COMPLETED');
 
   return (
     <div className="p-8">
@@ -46,8 +46,12 @@ export default function TrainingPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Environmental Training</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Environmental awareness and competency training</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Environmental Training
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Environmental awareness and competency training
+            </p>
           </div>
           <Button className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
@@ -125,7 +129,7 @@ export default function TrainingPage() {
             <CardContent>
               {loading ? (
                 <div className="animate-pulse space-y-4">
-                  {[1, 2, 3].map(i => (
+                  {[1, 2, 3].map((i) => (
                     <div key={i} className="h-20 bg-gray-200 rounded" />
                   ))}
                 </div>
@@ -141,8 +145,12 @@ export default function TrainingPage() {
                           <div className="flex items-center gap-2 mb-1">
                             <Badge variant="default">{training.trainingType}</Badge>
                           </div>
-                          <h3 className="font-medium text-gray-900 dark:text-gray-100">{training.title}</h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{training.description}</p>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                            {training.title}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {training.description}
+                          </p>
                         </div>
                         <div className="text-sm text-right">
                           <p className="text-green-600 font-medium">
@@ -176,7 +184,7 @@ export default function TrainingPage() {
             <CardContent>
               {loading ? (
                 <div className="animate-pulse space-y-4">
-                  {[1, 2, 3].map(i => (
+                  {[1, 2, 3].map((i) => (
                     <div key={i} className="h-20 bg-gray-200 rounded" />
                   ))}
                 </div>
@@ -191,9 +199,13 @@ export default function TrainingPage() {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <Badge variant="secondary">{training.trainingType}</Badge>
-                            <Badge variant="outline" className="text-green-600">Completed</Badge>
+                            <Badge variant="outline" className="text-green-600">
+                              Completed
+                            </Badge>
                           </div>
-                          <h3 className="font-medium text-gray-900 dark:text-gray-100">{training.title}</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                            {training.title}
+                          </h3>
                         </div>
                         <div className="text-sm text-right">
                           <p className="text-gray-600">

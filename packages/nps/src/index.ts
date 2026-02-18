@@ -32,7 +32,12 @@ let nextId = 1;
 // Core API
 // ============================================
 
-export function submitResponse(userId: string, orgId: string, score: number, comment?: string): NpsResponse {
+export function submitResponse(
+  userId: string,
+  orgId: string,
+  score: number,
+  comment?: string
+): NpsResponse {
   const response: NpsResponse = {
     id: `nps_${String(nextId++).padStart(4, '0')}`,
     userId,
@@ -94,7 +99,11 @@ export function getAnalytics(orgId?: string): NpsAnalytics {
   };
 }
 
-export function listResponses(orgId?: string, limit = 50, offset = 0): { responses: NpsResponse[]; total: number } {
+export function listResponses(
+  orgId?: string,
+  limit = 50,
+  offset = 0
+): { responses: NpsResponse[]; total: number } {
   const filtered = orgId ? responses.filter((r) => r.orgId === orgId) : responses;
   const sorted = [...filtered].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()

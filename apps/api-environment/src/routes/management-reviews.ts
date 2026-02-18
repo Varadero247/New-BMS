@@ -61,34 +61,61 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     res.json({
       success: true,
-      data: { reviews, pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) } },
+      data: {
+        reviews,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          totalPages: Math.ceil(total / limitNum),
+        },
+      },
     });
   } catch (error) {
     logger.error('List management reviews error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list management reviews' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list management reviews' },
+    });
   }
 });
 
 // GET /:id - Get single review with actions
-router.get('/:id', checkOwnership(prisma.envManagementReview), async (req: AuthRequest, res: Response) => {
-  try {
-    const review = await prisma.envManagementReview.findUnique({
-      where: { id: req.params.id },
-      include: { actions: true },
-    });
-    if (!review) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
-    res.json({ success: true, data: review });
-  } catch (error) {
-    logger.error('Get management review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get management review' } });
+router.get(
+  '/:id',
+  checkOwnership(prisma.envManagementReview),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const review = await prisma.envManagementReview.findUnique({
+        where: { id: req.params.id },
+        include: { actions: true },
+      });
+      if (!review)
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Management review not found' },
+        });
+      res.json({ success: true, data: review });
+    } catch (error) {
+      logger.error('Get management review error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get management review' },
+      });
+    }
   }
-});
+);
 
 // POST / - Create management review
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      reviewDate: z.string().trim().min(1).max(2000).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      reviewDate: z
+        .string()
+        .trim()
+        .min(1)
+        .max(2000)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       chair: z.string().trim().min(1).max(200),
       attendees: z.array(z.string()).min(1),
       // ISO 14001 Clause 9.3 inputs (all optional)
@@ -134,123 +161,191 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: review });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create management review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create management review' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create management review' },
+    });
   }
 });
 
 // PUT /:id - Update management review
-router.put('/:id', checkOwnership(prisma.envManagementReview), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.envManagementReview.findUnique({ where: { id: req.params.id } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
+router.put(
+  '/:id',
+  checkOwnership(prisma.envManagementReview),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.envManagementReview.findUnique({
+        where: { id: req.params.id },
+      });
+      if (!existing)
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Management review not found' },
+        });
 
-    if (existing.status === 'APPROVED') {
-      return res.status(400).json({ success: false, error: { code: 'REVIEW_LOCKED', message: 'Cannot update an approved management review' } });
-    }
+      if (existing.status === 'APPROVED') {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'REVIEW_LOCKED',
+            message: 'Cannot update an approved management review',
+          },
+        });
+      }
 
-    const schema = z.object({
-      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      chair: z.string().optional(),
-      attendees: z.array(z.string()).optional(),
-      // Inputs
-      prevActionStatus: z.string().optional(),
-      changesInIssues: z.string().optional(),
-      objectivesProgress: z.string().optional(),
-      aspectsPerformance: z.string().optional(),
-      legalCompliance: z.string().optional(),
-      incidentSummary: z.string().optional(),
-      auditResults: z.string().optional(),
-      supplierPerformance: z.string().optional(),
-      // Outputs
-      continualImprovement: z.string().optional(),
-      resourceNeeds: z.string().optional(),
-      systemChanges: z.string().optional(),
-    });
+      const schema = z.object({
+        reviewDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        chair: z.string().optional(),
+        attendees: z.array(z.string()).optional(),
+        // Inputs
+        prevActionStatus: z.string().optional(),
+        changesInIssues: z.string().optional(),
+        objectivesProgress: z.string().optional(),
+        aspectsPerformance: z.string().optional(),
+        legalCompliance: z.string().optional(),
+        incidentSummary: z.string().optional(),
+        auditResults: z.string().optional(),
+        supplierPerformance: z.string().optional(),
+        // Outputs
+        continualImprovement: z.string().optional(),
+        resourceNeeds: z.string().optional(),
+        systemChanges: z.string().optional(),
+      });
 
-    const data = schema.parse(req.body);
+      const data = schema.parse(req.body);
 
-    const updateData: Record<string, unknown> = { ...data };
+      const updateData: Record<string, unknown> = { ...data };
 
-    // Convert date strings to Date objects
-    if (data.reviewDate && typeof data.reviewDate === 'string') updateData.reviewDate = new Date(data.reviewDate);
+      // Convert date strings to Date objects
+      if (data.reviewDate && typeof data.reviewDate === 'string')
+        updateData.reviewDate = new Date(data.reviewDate);
 
-    const review = await prisma.envManagementReview.update({
-      where: { id: req.params.id },
-      data: updateData,
-      include: { actions: true },
-    });
+      const review = await prisma.envManagementReview.update({
+        where: { id: req.params.id },
+        data: updateData,
+        include: { actions: true },
+      });
 
-    res.json({ success: true, data: review });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
-    }
-    logger.error('Update management review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update management review' } });
-  }
-});
-
-// POST /:id/complete - Lock and complete review
-router.post('/:id/complete', checkOwnership(prisma.envManagementReview), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.envManagementReview.findUnique({ where: { id: req.params.id } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
-
-    if (existing.status === 'COMPLETED' || existing.status === 'APPROVED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_COMPLETED', message: 'Management review is already completed or approved' } });
-    }
-
-    // Validate that all mandatory ISO 14001 Clause 9.3 inputs are filled
-    const mandatoryInputs = [
-      'prevActionStatus',
-      'changesInIssues',
-      'objectivesProgress',
-      'aspectsPerformance',
-      'legalCompliance',
-      'auditResults',
-    ] as const;
-
-    const missingFields = mandatoryInputs.filter(
-      (field) => !existing[field] || (existing[field] as string).trim() === ''
-    );
-
-    if (missingFields.length > 0) {
-      return res.status(400).json({
+      res.json({ success: true, data: review });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update management review error', { error: (error as Error).message });
+      res.status(500).json({
         success: false,
-        error: {
-          code: 'INCOMPLETE_REVIEW',
-          message: 'All mandatory input fields must be completed before finalising the review',
-          fields: missingFields,
-        },
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update management review' },
       });
     }
-
-    const review = await prisma.envManagementReview.update({
-      where: { id: req.params.id },
-      data: { status: 'COMPLETED', completedAt: new Date() } as any,
-      include: { actions: true },
-    });
-
-    res.json({ success: true, data: review });
-  } catch (error) {
-    logger.error('Complete management review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete management review' } });
   }
-});
+);
+
+// POST /:id/complete - Lock and complete review
+router.post(
+  '/:id/complete',
+  checkOwnership(prisma.envManagementReview),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.envManagementReview.findUnique({
+        where: { id: req.params.id },
+      });
+      if (!existing)
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Management review not found' },
+        });
+
+      if (existing.status === 'COMPLETED' || existing.status === 'APPROVED') {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'ALREADY_COMPLETED',
+            message: 'Management review is already completed or approved',
+          },
+        });
+      }
+
+      // Validate that all mandatory ISO 14001 Clause 9.3 inputs are filled
+      const mandatoryInputs = [
+        'prevActionStatus',
+        'changesInIssues',
+        'objectivesProgress',
+        'aspectsPerformance',
+        'legalCompliance',
+        'auditResults',
+      ] as const;
+
+      const missingFields = mandatoryInputs.filter(
+        (field) => !existing[field] || (existing[field] as string).trim() === ''
+      );
+
+      if (missingFields.length > 0) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'INCOMPLETE_REVIEW',
+            message: 'All mandatory input fields must be completed before finalising the review',
+            fields: missingFields,
+          },
+        });
+      }
+
+      const review = await prisma.envManagementReview.update({
+        where: { id: req.params.id },
+        data: { status: 'COMPLETED', completedAt: new Date() } as any,
+        include: { actions: true },
+      });
+
+      res.json({ success: true, data: review });
+    } catch (error) {
+      logger.error('Complete management review error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to complete management review' },
+      });
+    }
+  }
+);
 
 // POST /:id/actions - Add action to review
 router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
   try {
     const review = await prisma.envManagementReview.findUnique({ where: { id: req.params.id } });
-    if (!review) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
+    if (!review)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Management review not found' },
+      });
 
     const schema = z.object({
       action: z.string().trim().min(1).max(2000),
       owner: z.string().trim().min(1).max(200),
-      dueDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      dueDate: z
+        .string()
+        .trim()
+        .min(1)
+        .max(200)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       notes: z.string().optional(),
     });
 
@@ -269,10 +364,20 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: mrAction });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create management review action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create management review action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create management review action' },
+    });
   }
 });
 
@@ -282,12 +387,19 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
     const existing = await prisma.envMRAction.findFirst({
       where: { id: req.params.actionId, reviewId: req.params.id },
     });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review action not found' } });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Management review action not found' },
+      });
 
     const schema = z.object({
       action: z.string().optional(),
       owner: z.string().optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       status: z.string().optional(),
       completedAt: z.string().optional(),
       notes: z.string().optional(),
@@ -297,8 +409,10 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
     const updateData: Record<string, unknown> = { ...data };
 
     // Convert date strings to Date objects
-    if (data.dueDate && typeof data.dueDate === 'string') updateData.dueDate = new Date(data.dueDate);
-    if (data.completedAt && typeof data.completedAt === 'string') updateData.completedAt = new Date(data.completedAt);
+    if (data.dueDate && typeof data.dueDate === 'string')
+      updateData.dueDate = new Date(data.dueDate);
+    if (data.completedAt && typeof data.completedAt === 'string')
+      updateData.completedAt = new Date(data.completedAt);
 
     // Auto-set completedAt when status changes to COMPLETED
     if (data.status === 'COMPLETED' && existing.status !== 'COMPLETED' && !data.completedAt) {
@@ -313,29 +427,52 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
     res.json({ success: true, data: mrAction });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update management review action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update management review action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update management review action' },
+    });
   }
 });
 
 // DELETE /:id - Soft delete management review
-router.delete('/:id', checkOwnership(prisma.envManagementReview), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.envManagementReview.findUnique({ where: { id: req.params.id } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.envManagementReview),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.envManagementReview.findUnique({
+        where: { id: req.params.id },
+      });
+      if (!existing)
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Management review not found' },
+        });
 
-    await prisma.envManagementReview.update({
-      where: { id: req.params.id },
-      data: { deletedAt: new Date() },
-    });
+      await prisma.envManagementReview.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
 
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete management review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete management review' } });
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete management review error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete management review' },
+      });
+    }
   }
-});
+);
 
 export default router;

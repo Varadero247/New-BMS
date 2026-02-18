@@ -40,7 +40,9 @@ beforeEach(() => {
 
 describe('GET /api/job-notes', () => {
   it('should return job notes with pagination', async () => {
-    const notes = [{ id: '00000000-0000-0000-0000-000000000001', type: 'NOTE', content: 'Test note' }];
+    const notes = [
+      { id: '00000000-0000-0000-0000-000000000001', type: 'NOTE', content: 'Test note' },
+    ];
     (prisma as any).fsSvcJobNote.findMany.mockResolvedValue(notes);
     (prisma as any).fsSvcJobNote.count.mockResolvedValue(1);
 
@@ -80,15 +82,19 @@ describe('GET /api/job-notes', () => {
 
 describe('POST /api/job-notes', () => {
   it('should create a job note', async () => {
-    const created = { id: 'note-new', type: 'NOTE', content: 'New note', jobId: 'job-1', authorId: 'user-123' };
+    const created = {
+      id: 'note-new',
+      type: 'NOTE',
+      content: 'New note',
+      jobId: 'job-1',
+      authorId: 'user-123',
+    };
     (prisma as any).fsSvcJobNote.create.mockResolvedValue(created);
 
-    const res = await request(app)
-      .post('/api/job-notes')
-      .send({
-        jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        content: 'New note',
-      });
+    const res = await request(app).post('/api/job-notes').send({
+      jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      content: 'New note',
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -98,21 +104,17 @@ describe('POST /api/job-notes', () => {
     const created = { id: 'note-new', type: 'PHOTO', content: 'photo-url' };
     (prisma as any).fsSvcJobNote.create.mockResolvedValue(created);
 
-    const res = await request(app)
-      .post('/api/job-notes')
-      .send({
-        jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        type: 'PHOTO',
-        content: 'photo-url',
-      });
+    const res = await request(app).post('/api/job-notes').send({
+      jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      type: 'PHOTO',
+      content: 'photo-url',
+    });
 
     expect(res.status).toBe(201);
   });
 
   it('should reject invalid data', async () => {
-    const res = await request(app)
-      .post('/api/job-notes')
-      .send({ content: '' });
+    const res = await request(app).post('/api/job-notes').send({ content: '' });
 
     expect(res.status).toBe(400);
   });
@@ -120,7 +122,10 @@ describe('POST /api/job-notes', () => {
 
 describe('GET /api/job-notes/:id', () => {
   it('should return a job note', async () => {
-    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', content: 'Test' });
+    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      content: 'Test',
+    });
 
     const res = await request(app).get('/api/job-notes/00000000-0000-0000-0000-000000000001');
 
@@ -139,8 +144,13 @@ describe('GET /api/job-notes/:id', () => {
 
 describe('PUT /api/job-notes/:id', () => {
   it('should update a job note', async () => {
-    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcJobNote.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', content: 'Updated' });
+    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcJobNote.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      content: 'Updated',
+    });
 
     const res = await request(app)
       .put('/api/job-notes/00000000-0000-0000-0000-000000000001')
@@ -162,8 +172,13 @@ describe('PUT /api/job-notes/:id', () => {
 
 describe('DELETE /api/job-notes/:id', () => {
   it('should soft delete a job note', async () => {
-    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcJobNote.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcJobNote.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/job-notes/00000000-0000-0000-0000-000000000001');
 

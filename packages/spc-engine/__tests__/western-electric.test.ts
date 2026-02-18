@@ -29,7 +29,7 @@ describe('detectWesternElectricRules — comprehensive', () => {
     it('should detect point above UCL', () => {
       const chart = makeChart([10, 10, 10, 14, 10], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule1 = violations.filter(v => v.rule === 'RULE_1');
+      const rule1 = violations.filter((v) => v.rule === 'RULE_1');
       expect(rule1.length).toBe(1);
       expect(rule1[0].pointIndex).toBe(3);
     });
@@ -37,7 +37,7 @@ describe('detectWesternElectricRules — comprehensive', () => {
     it('should detect point below LCL', () => {
       const chart = makeChart([10, 10, 10, 6, 10], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule1 = violations.filter(v => v.rule === 'RULE_1');
+      const rule1 = violations.filter((v) => v.rule === 'RULE_1');
       expect(rule1.length).toBe(1);
       expect(rule1[0].pointIndex).toBe(3);
     });
@@ -45,21 +45,21 @@ describe('detectWesternElectricRules — comprehensive', () => {
     it('should detect multiple points beyond limits', () => {
       const chart = makeChart([14, 10, 6, 10, 14], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule1 = violations.filter(v => v.rule === 'RULE_1');
+      const rule1 = violations.filter((v) => v.rule === 'RULE_1');
       expect(rule1.length).toBe(3); // indices 0, 2, 4
     });
 
     it('should not trigger for points exactly at UCL', () => {
       const chart = makeChart([13, 10, 10], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule1 = violations.filter(v => v.rule === 'RULE_1');
+      const rule1 = violations.filter((v) => v.rule === 'RULE_1');
       expect(rule1).toHaveLength(0);
     });
 
     it('should not trigger for points exactly at LCL', () => {
       const chart = makeChart([7, 10, 10], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule1 = violations.filter(v => v.rule === 'RULE_1');
+      const rule1 = violations.filter((v) => v.rule === 'RULE_1');
       expect(rule1).toHaveLength(0);
     });
 
@@ -76,7 +76,7 @@ describe('detectWesternElectricRules — comprehensive', () => {
       // 2-sigma upper = 12
       const chart = makeChart([12.5, 10, 12.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule2 = violations.filter(v => v.rule === 'RULE_2');
+      const rule2 = violations.filter((v) => v.rule === 'RULE_2');
       expect(rule2.length).toBeGreaterThan(0);
     });
 
@@ -84,21 +84,21 @@ describe('detectWesternElectricRules — comprehensive', () => {
       // 2-sigma lower = 8
       const chart = makeChart([7.5, 10, 7.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule2 = violations.filter(v => v.rule === 'RULE_2');
+      const rule2 = violations.filter((v) => v.rule === 'RULE_2');
       expect(rule2.length).toBeGreaterThan(0);
     });
 
     it('should detect 3 of 3 above 2-sigma', () => {
       const chart = makeChart([12.5, 12.5, 12.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule2 = violations.filter(v => v.rule === 'RULE_2');
+      const rule2 = violations.filter((v) => v.rule === 'RULE_2');
       expect(rule2.length).toBeGreaterThan(0);
     });
 
     it('should not trigger when only 1 of 3 above 2-sigma', () => {
       const chart = makeChart([10, 10, 12.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule2 = violations.filter(v => v.rule === 'RULE_2');
+      const rule2 = violations.filter((v) => v.rule === 'RULE_2');
       expect(rule2).toHaveLength(0);
     });
 
@@ -106,14 +106,14 @@ describe('detectWesternElectricRules — comprehensive', () => {
       // One above 2-sigma upper, one below 2-sigma lower
       const chart = makeChart([12.5, 10, 7.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule2 = violations.filter(v => v.rule === 'RULE_2');
+      const rule2 = violations.filter((v) => v.rule === 'RULE_2');
       expect(rule2).toHaveLength(0);
     });
 
     it('should not trigger for fewer than 3 points', () => {
       const chart = makeChart([12.5, 12.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule2 = violations.filter(v => v.rule === 'RULE_2');
+      const rule2 = violations.filter((v) => v.rule === 'RULE_2');
       expect(rule2).toHaveLength(0);
     });
   });
@@ -123,7 +123,7 @@ describe('detectWesternElectricRules — comprehensive', () => {
       // 1-sigma upper = 11
       const chart = makeChart([11.5, 11.5, 10, 11.5, 11.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule3 = violations.filter(v => v.rule === 'RULE_3');
+      const rule3 = violations.filter((v) => v.rule === 'RULE_3');
       expect(rule3.length).toBeGreaterThan(0);
     });
 
@@ -131,28 +131,28 @@ describe('detectWesternElectricRules — comprehensive', () => {
       // 1-sigma lower = 9
       const chart = makeChart([8.5, 8.5, 10, 8.5, 8.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule3 = violations.filter(v => v.rule === 'RULE_3');
+      const rule3 = violations.filter((v) => v.rule === 'RULE_3');
       expect(rule3.length).toBeGreaterThan(0);
     });
 
     it('should detect 5 of 5 above 1-sigma', () => {
       const chart = makeChart([11.5, 11.5, 11.5, 11.5, 11.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule3 = violations.filter(v => v.rule === 'RULE_3');
+      const rule3 = violations.filter((v) => v.rule === 'RULE_3');
       expect(rule3.length).toBeGreaterThan(0);
     });
 
     it('should not trigger with only 3 of 5', () => {
       const chart = makeChart([11.5, 10, 10, 11.5, 11.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule3 = violations.filter(v => v.rule === 'RULE_3');
+      const rule3 = violations.filter((v) => v.rule === 'RULE_3');
       expect(rule3).toHaveLength(0);
     });
 
     it('should not trigger for fewer than 5 points', () => {
       const chart = makeChart([11.5, 11.5, 11.5, 11.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule3 = violations.filter(v => v.rule === 'RULE_3');
+      const rule3 = violations.filter((v) => v.rule === 'RULE_3');
       expect(rule3).toHaveLength(0);
     });
   });
@@ -161,42 +161,42 @@ describe('detectWesternElectricRules — comprehensive', () => {
     it('should detect 8 consecutive above CL', () => {
       const chart = makeChart([10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule4 = violations.filter(v => v.rule === 'RULE_4');
+      const rule4 = violations.filter((v) => v.rule === 'RULE_4');
       expect(rule4.length).toBeGreaterThan(0);
     });
 
     it('should detect 8 consecutive below CL', () => {
       const chart = makeChart([9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule4 = violations.filter(v => v.rule === 'RULE_4');
+      const rule4 = violations.filter((v) => v.rule === 'RULE_4');
       expect(rule4.length).toBeGreaterThan(0);
     });
 
     it('should detect continuing runs (9+ points)', () => {
       const chart = makeChart([10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule4 = violations.filter(v => v.rule === 'RULE_4');
+      const rule4 = violations.filter((v) => v.rule === 'RULE_4');
       expect(rule4.length).toBeGreaterThanOrEqual(2);
     });
 
     it('should not trigger with 7 consecutive on same side', () => {
       const chart = makeChart([10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule4 = violations.filter(v => v.rule === 'RULE_4');
+      const rule4 = violations.filter((v) => v.rule === 'RULE_4');
       expect(rule4).toHaveLength(0);
     });
 
     it('should not trigger when a point crosses center line', () => {
       const chart = makeChart([10.5, 10.5, 10.5, 10.5, 9.5, 10.5, 10.5, 10.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule4 = violations.filter(v => v.rule === 'RULE_4');
+      const rule4 = violations.filter((v) => v.rule === 'RULE_4');
       expect(rule4).toHaveLength(0);
     });
 
     it('should not trigger if a point equals the center line', () => {
       const chart = makeChart([10.5, 10.5, 10.5, 10, 10.5, 10.5, 10.5, 10.5], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule4 = violations.filter(v => v.rule === 'RULE_4');
+      const rule4 = violations.filter((v) => v.rule === 'RULE_4');
       expect(rule4).toHaveLength(0);
     });
   });
@@ -206,8 +206,8 @@ describe('detectWesternElectricRules — comprehensive', () => {
       // Point at index 2 = 14: above UCL (Rule 1) and also 2 of 3 above 2-sigma (Rule 2)
       const chart = makeChart([12.5, 10, 14], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rulesAt2 = violations.filter(v => v.pointIndex === 2);
-      const ruleNames = rulesAt2.map(v => v.rule);
+      const rulesAt2 = violations.filter((v) => v.pointIndex === 2);
+      const ruleNames = rulesAt2.map((v) => v.rule);
       expect(ruleNames).toContain('RULE_1');
       expect(ruleNames).toContain('RULE_2');
     });
@@ -215,7 +215,7 @@ describe('detectWesternElectricRules — comprehensive', () => {
     it('should return empty for perfectly stable process', () => {
       const chart = makeChart([10, 10.1, 9.9, 10.2, 9.8, 10.1, 9.9, 10.0], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      expect(violations.filter(v => v.rule === 'RULE_1')).toHaveLength(0);
+      expect(violations.filter((v) => v.rule === 'RULE_1')).toHaveLength(0);
     });
   });
 
@@ -229,7 +229,7 @@ describe('detectWesternElectricRules — comprehensive', () => {
     it('should handle single data point', () => {
       const chart = makeChart([10], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
-      const rule2_3_4 = violations.filter(v => v.rule !== 'RULE_1');
+      const rule2_3_4 = violations.filter((v) => v.rule !== 'RULE_1');
       expect(rule2_3_4).toHaveLength(0);
     });
 
@@ -237,7 +237,7 @@ describe('detectWesternElectricRules — comprehensive', () => {
       const chart = makeChart([10, 10, 10, 10, 10, 10, 10, 10], 10, 13, 7);
       const violations = detectWesternElectricRules(chart);
       // Points ON center line don't count as "above" or "below"
-      expect(violations.filter(v => v.rule === 'RULE_4')).toHaveLength(0);
+      expect(violations.filter((v) => v.rule === 'RULE_4')).toHaveLength(0);
     });
 
     it('should include violation descriptions', () => {

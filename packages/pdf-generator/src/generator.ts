@@ -1,4 +1,11 @@
-import { PDFTemplate, PDFOptions, PDFSection, InvoiceData, ReportData, EvidencePackData } from './types';
+import {
+  PDFTemplate,
+  PDFOptions,
+  PDFSection,
+  InvoiceData,
+  ReportData,
+  EvidencePackData,
+} from './types';
 import { invoiceTemplate, reportTemplate, evidencePackTemplate } from './templates';
 
 /**
@@ -49,7 +56,9 @@ function renderSection(section: PDFSection): string {
     case 'table':
       if (!section.headers || !section.rows) return '';
       const headerRow = section.headers.map((h) => `<th>${h}</th>`).join('');
-      const bodyRows = section.rows.map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join('')}</tr>`).join('');
+      const bodyRows = section.rows
+        .map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join('')}</tr>`)
+        .join('');
       return `<table><thead><tr>${headerRow}</tr></thead><tbody>${bodyRows}</tbody></table>`;
 
     case 'list':
@@ -63,7 +72,10 @@ function renderSection(section: PDFSection): string {
     case 'key-value':
       if (!section.pairs) return '';
       const kvRows = section.pairs
-        .map((p) => `<div class="kv-pair"><span class="kv-key">${p.key}:</span><span>${p.value}</span></div>`)
+        .map(
+          (p) =>
+            `<div class="kv-pair"><span class="kv-key">${p.key}:</span><span>${p.value}</span></div>`
+        )
         .join('');
       return `<div>${kvRows}</div>`;
 
@@ -95,7 +107,7 @@ function styleToString(style?: Record<string, string>): string {
 export function generatePDF(
   template: PDFTemplate,
   data: Record<string, any>,
-  options: PDFOptions = {},
+  options: PDFOptions = {}
 ): Buffer {
   const watermarkHtml = options.watermark
     ? `<div class="watermark">${options.watermark}</div>`

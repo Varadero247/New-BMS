@@ -67,8 +67,10 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Intended Use / Intended Purpose',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the medical purpose, target patient population, and clinical context of use.',
-        helpText: 'Per IEC 62366-1 and ISO 14971 — state the intended medical indication, patient population, user profile, and use environment.',
+        placeholder:
+          'Describe the medical purpose, target patient population, and clinical context of use.',
+        helpText:
+          'Per IEC 62366-1 and ISO 14971 — state the intended medical indication, patient population, user profile, and use environment.',
         validation: { minLength: 20, maxLength: 5000 },
         width: 'full',
       },
@@ -287,7 +289,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Primary Requirement Category',
         type: 'select',
         required: true,
-        helpText: 'Select the primary category for this requirement set. Individual requirements are categorized in the table below.',
+        helpText:
+          'Select the primary category for this requirement set. Individual requirements are categorized in the table below.',
         options: [
           { label: 'Performance Requirements', value: 'performance' },
           { label: 'Safety Requirements', value: 'safety' },
@@ -308,7 +311,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Requirements',
         type: 'table',
         required: true,
-        helpText: 'Each requirement must be verifiable and traceable to a source. Use unique IDs (e.g. REQ-001).',
+        helpText:
+          'Each requirement must be verifiable and traceable to a source. Use unique IDs (e.g. REQ-001).',
         columns: [
           {
             id: 'req_id',
@@ -378,14 +382,16 @@ export const medicalTemplates: TemplateDefinition[] = [
         type: 'text',
         required: true,
         placeholder: 'e.g. TM-2026-001',
-        helpText: 'Document number of the design traceability matrix that links inputs to outputs, V&V, and risk controls.',
+        helpText:
+          'Document number of the design traceability matrix that links inputs to outputs, V&V, and risk controls.',
         width: 'half',
       },
       {
         id: 'predecessor_docs',
         label: 'Predecessor / Source Documents',
         type: 'textarea',
-        placeholder: 'List user needs documents, clinical investigation reports, predicate device analysis, etc.',
+        placeholder:
+          'List user needs documents, clinical investigation reports, predicate device analysis, etc.',
         width: 'full',
       },
       {
@@ -587,8 +593,10 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Test Procedure',
         type: 'textarea',
         required: true,
-        placeholder: 'Step-by-step test instructions. Include environment conditions, setup, and measurement steps.',
-        helpText: 'Provide sufficient detail for a qualified technician to reproduce the test independently.',
+        placeholder:
+          'Step-by-step test instructions. Include environment conditions, setup, and measurement steps.',
+        helpText:
+          'Provide sufficient detail for a qualified technician to reproduce the test independently.',
         validation: { minLength: 50, maxLength: 10000 },
         width: 'full',
       },
@@ -611,8 +619,10 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Deviation Handling Procedure',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe how deviations from the protocol will be documented, assessed, and dispositioned.',
-        helpText: 'Include criteria for when a deviation requires protocol amendment vs. documentation only.',
+        placeholder:
+          'Describe how deviations from the protocol will be documented, assessed, and dispositioned.',
+        helpText:
+          'Include criteria for when a deviation requires protocol amendment vs. documentation only.',
         width: 'full',
       },
       {
@@ -695,7 +705,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         id: 'use_environment',
         label: 'Use Environment',
         type: 'textarea',
-        placeholder: 'Describe the physical and social environment where the device will be used (e.g. ICU, home, ambulance).',
+        placeholder:
+          'Describe the physical and social environment where the device will be used (e.g. ICU, home, ambulance).',
         width: 'full',
       },
       {
@@ -756,7 +767,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Task Analysis',
         type: 'table',
         required: true,
-        helpText: 'Hierarchical task analysis identifying potential use errors and their risk mitigation.',
+        helpText:
+          'Hierarchical task analysis identifying potential use errors and their risk mitigation.',
         columns: [
           {
             id: 'task',
@@ -813,7 +825,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Usability Test Results Summary',
         type: 'textarea',
         required: true,
-        placeholder: 'Summarize participant performance, task completion rates, use errors observed, close calls, and use difficulties.',
+        placeholder:
+          'Summarize participant performance, task completion rates, use errors observed, close calls, and use difficulties.',
         helpText: 'Reference the detailed summative evaluation report if applicable.',
         validation: { minLength: 50, maxLength: 10000 },
         width: 'full',
@@ -846,7 +859,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Residual Risk Assessment',
         type: 'textarea',
         required: true,
-        placeholder: 'Assess residual use-related risks after all mitigations. State whether residual risks are acceptable.',
+        placeholder:
+          'Assess residual use-related risks after all mitigations. State whether residual risks are acceptable.',
         width: 'full',
       },
       {
@@ -854,7 +868,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Conclusions',
         type: 'textarea',
         required: true,
-        placeholder: 'State whether the user interface is acceptable for the intended use and user groups, and list any outstanding actions.',
+        placeholder:
+          'State whether the user interface is acceptable for the intended use and user groups, and list any outstanding actions.',
         validation: { minLength: 20, maxLength: 5000 },
         width: 'full',
       },
@@ -1117,7 +1132,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Hazard Identification Table',
         type: 'table',
         required: true,
-        helpText: 'Systematic identification of hazards, hazardous situations, and potential harms per ISO 14971 clause 5.4.',
+        helpText:
+          'Systematic identification of hazards, hazardous situations, and potential harms per ISO 14971 clause 5.4.',
         columns: [
           {
             id: 'hazard',
@@ -1191,7 +1207,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Risk Control Measures',
         type: 'table',
         required: true,
-        helpText: 'Document risk controls in priority order: inherent safety by design, protective measures, information for safety.',
+        helpText:
+          'Document risk controls in priority order: inherent safety by design, protective measures, information for safety.',
         columns: [
           {
             id: 'hazard_ref',
@@ -1271,8 +1288,10 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Benefit-Risk Analysis',
         type: 'textarea',
         required: true,
-        placeholder: 'For each residual risk judged individually unacceptable, weigh the medical benefits against the residual risk per ISO 14971 clause 6.5.',
-        helpText: 'Document the rationale for accepting residual risks where benefits outweigh risks.',
+        placeholder:
+          'For each residual risk judged individually unacceptable, weigh the medical benefits against the residual risk per ISO 14971 clause 6.5.',
+        helpText:
+          'Document the rationale for accepting residual risks where benefits outweigh risks.',
         validation: { minLength: 50, maxLength: 10000 },
         width: 'full',
       },
@@ -1281,7 +1300,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Residual Risk Evaluation',
         type: 'textarea',
         required: true,
-        placeholder: 'Evaluate the overall residual risk considering all identified hazards and risk controls.',
+        placeholder:
+          'Evaluate the overall residual risk considering all identified hazards and risk controls.',
         width: 'full',
       },
       {
@@ -1289,10 +1309,14 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Overall Residual Risk Acceptability',
         type: 'select',
         required: true,
-        helpText: 'Per ISO 14971 clause 8 — determination that the overall residual risk is acceptable.',
+        helpText:
+          'Per ISO 14971 clause 8 — determination that the overall residual risk is acceptable.',
         options: [
           { label: 'Acceptable — all risks within acceptable region', value: 'acceptable' },
-          { label: 'Acceptable — benefits outweigh residual risks (ALARP)', value: 'acceptable_alarp' },
+          {
+            label: 'Acceptable — benefits outweigh residual risks (ALARP)',
+            value: 'acceptable_alarp',
+          },
           { label: 'Not Acceptable — further risk control required', value: 'not_acceptable' },
         ],
         width: 'full',
@@ -1363,7 +1387,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Process Step / Use Phase',
         type: 'text',
         required: true,
-        placeholder: 'e.g. Manufacturing — Soldering, Clinical Use — Insertion, Maintenance — Battery Replacement',
+        placeholder:
+          'e.g. Manufacturing — Soldering, Clinical Use — Insertion, Maintenance — Battery Replacement',
         helpText: 'Identify the specific process step, use phase, or component being analyzed.',
         width: 'full',
       },
@@ -1385,7 +1410,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Hazards',
         type: 'table',
         required: true,
-        helpText: 'Score severity (S), probability (P), and detectability (D) from 1 to 5. RPN = S x P x D. Risk Level: Low (1-20), Medium (21-50), High (51-80), Very High (81-125).',
+        helpText:
+          'Score severity (S), probability (P), and detectability (D) from 1 to 5. RPN = S x P x D. Risk Level: Low (1-20), Medium (21-50), High (51-80), Very High (81-125).',
         columns: [
           {
             id: 'hazard',
@@ -1593,7 +1619,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Complaint Description',
         type: 'textarea',
         required: true,
-        placeholder: 'Detailed description of the complaint, including what happened, the circumstances, and any patient injury or adverse event.',
+        placeholder:
+          'Detailed description of the complaint, including what happened, the circumstances, and any patient injury or adverse event.',
         validation: { minLength: 20, maxLength: 10000 },
         width: 'full',
       },
@@ -1622,8 +1649,10 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Investigation Findings',
         type: 'textarea',
         required: true,
-        placeholder: 'Document the investigation process, tests performed, evidence collected, and findings.',
-        helpText: 'Include references to any returned device evaluations, manufacturing records reviewed, and testing performed.',
+        placeholder:
+          'Document the investigation process, tests performed, evidence collected, and findings.',
+        helpText:
+          'Include references to any returned device evaluations, manufacturing records reviewed, and testing performed.',
         validation: { minLength: 50, maxLength: 20000 },
         width: 'full',
       },
@@ -1632,7 +1661,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Root Cause',
         type: 'textarea',
         required: true,
-        placeholder: 'Identified root cause(s) of the complaint. If no root cause identified, explain why.',
+        placeholder:
+          'Identified root cause(s) of the complaint. If no root cause identified, explain why.',
         width: 'full',
       },
       {
@@ -1640,7 +1670,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Risk Assessment',
         type: 'textarea',
         required: true,
-        placeholder: 'Assess the risk to patients/users considering severity and probability. Reference the risk management file.',
+        placeholder:
+          'Assess the risk to patients/users considering severity and probability. Reference the risk management file.',
         width: 'full',
       },
       {
@@ -1648,7 +1679,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'CAPA Reference',
         type: 'text',
         placeholder: 'e.g. CAPA-2026-005',
-        helpText: 'If a CAPA was initiated, provide the reference number. If no CAPA, document justification below.',
+        helpText:
+          'If a CAPA was initiated, provide the reference number. If no CAPA, document justification below.',
         width: 'half',
       },
       {
@@ -1668,14 +1700,16 @@ export const medicalTemplates: TemplateDefinition[] = [
         id: 'reportability_assessment',
         label: 'Meets MDR / Adverse Event Reporting Criteria',
         type: 'checkbox',
-        helpText: 'Check if this event meets the criteria for mandatory adverse event reporting under FDA MDR (21 CFR 803) or EU Vigilance (MDR Article 87).',
+        helpText:
+          'Check if this event meets the criteria for mandatory adverse event reporting under FDA MDR (21 CFR 803) or EU Vigilance (MDR Article 87).',
         width: 'half',
       },
       {
         id: 'regulatory_notification_needed',
         label: 'Regulatory Notification Required',
         type: 'checkbox',
-        helpText: 'Check if a regulatory authority notification (e.g. MedWatch, FSCA) must be submitted.',
+        helpText:
+          'Check if a regulatory authority notification (e.g. MedWatch, FSCA) must be submitted.',
         width: 'half',
       },
       {
@@ -1712,7 +1746,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Closure Summary',
         type: 'textarea',
         required: true,
-        placeholder: 'Summarize the outcome, actions taken, and rationale for closing the complaint.',
+        placeholder:
+          'Summarize the outcome, actions taken, and rationale for closing the complaint.',
         width: 'full',
       },
       {
@@ -1777,8 +1812,10 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Attendees',
         type: 'textarea',
         required: true,
-        placeholder: 'Name — Title\ne.g. Jane Smith — Quality Director\nJohn Doe — VP Regulatory Affairs',
-        helpText: 'Top management with executive responsibility must participate (ISO 13485 clause 5.1).',
+        placeholder:
+          'Name — Title\ne.g. Jane Smith — Quality Director\nJohn Doe — VP Regulatory Affairs',
+        helpText:
+          'Top management with executive responsibility must participate (ISO 13485 clause 5.1).',
         width: 'full',
       },
       {
@@ -1792,8 +1829,10 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Audit Results',
         type: 'textarea',
         required: true,
-        placeholder: 'Summary of internal and external audit findings, open nonconformities, and trends.',
-        helpText: 'Include both internal QMS audits and any regulatory or notified body audit findings.',
+        placeholder:
+          'Summary of internal and external audit findings, open nonconformities, and trends.',
+        helpText:
+          'Include both internal QMS audits and any regulatory or notified body audit findings.',
         width: 'full',
       },
       {
@@ -1801,8 +1840,10 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Customer Feedback (Including Complaints)',
         type: 'textarea',
         required: true,
-        placeholder: 'Summary of customer complaints, satisfaction surveys, field performance data, and feedback trends.',
-        helpText: 'Per clause 8.2.1 — feedback as input to risk management and product realization.',
+        placeholder:
+          'Summary of customer complaints, satisfaction surveys, field performance data, and feedback trends.',
+        helpText:
+          'Per clause 8.2.1 — feedback as input to risk management and product realization.',
         width: 'full',
       },
       {
@@ -1818,7 +1859,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Product Conformity',
         type: 'textarea',
         required: true,
-        placeholder: 'Product quality metrics: reject rates, NCRs, field failures, recalls, advisory notices.',
+        placeholder:
+          'Product quality metrics: reject rates, NCRs, field failures, recalls, advisory notices.',
         width: 'full',
       },
       {
@@ -1826,7 +1868,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Regulatory Changes',
         type: 'textarea',
         required: true,
-        placeholder: 'New or changed regulations, standards, or guidance affecting the QMS (e.g. MDR updates, FDA guidances).',
+        placeholder:
+          'New or changed regulations, standards, or guidance affecting the QMS (e.g. MDR updates, FDA guidances).',
         helpText: 'Per clause 5.6.2(e) — new or revised regulatory requirements.',
         width: 'full',
       },
@@ -1835,7 +1878,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Process Performance & Monitoring',
         type: 'textarea',
         required: true,
-        placeholder: 'Key process metrics: on-time delivery, supplier quality, production yields, process validation status.',
+        placeholder:
+          'Key process metrics: on-time delivery, supplier quality, production yields, process validation status.',
         width: 'full',
       },
       {
@@ -1843,7 +1887,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Status of Actions from Previous Reviews',
         type: 'textarea',
         required: true,
-        placeholder: 'Review and update status of actions assigned in the previous management review.',
+        placeholder:
+          'Review and update status of actions assigned in the previous management review.',
         width: 'full',
       },
       {
@@ -1903,7 +1948,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Resource Decisions',
         type: 'textarea',
         required: true,
-        placeholder: 'Decisions on resource allocation: personnel, equipment, training, infrastructure, budget.',
+        placeholder:
+          'Decisions on resource allocation: personnel, equipment, training, infrastructure, budget.',
         helpText: 'Per clause 5.6.3(b) — resources needed to maintain the QMS.',
         width: 'full',
       },
@@ -1911,7 +1957,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         id: 'system_changes',
         label: 'QMS Changes Required',
         type: 'textarea',
-        placeholder: 'Any changes to the quality management system, quality policy, or quality objectives.',
+        placeholder:
+          'Any changes to the quality management system, quality policy, or quality objectives.',
         width: 'full',
       },
       {
@@ -1925,7 +1972,8 @@ export const medicalTemplates: TemplateDefinition[] = [
         label: 'Next Review Date',
         type: 'date',
         required: true,
-        helpText: 'ISO 13485 requires management reviews at planned intervals (typically quarterly or semi-annually).',
+        helpText:
+          'ISO 13485 requires management reviews at planned intervals (typically quarterly or semi-annually).',
         width: 'half',
       },
       {

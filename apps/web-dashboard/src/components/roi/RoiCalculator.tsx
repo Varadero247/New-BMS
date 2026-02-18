@@ -25,8 +25,8 @@ export function RoiCalculator() {
           ROI Calculator
         </h1>
         <p className="mt-2 text-muted-foreground">
-          See how much time and money Nexara can save your organisation.
-          Adjust the inputs below — results update instantly.
+          See how much time and money Nexara can save your organisation. Adjust the inputs below —
+          results update instantly.
         </p>
       </div>
 

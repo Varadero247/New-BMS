@@ -33,7 +33,10 @@ router.get('/plans', scopeToUser, async (req: Request, res: Response) => {
     res.json({ success: true, data: plans });
   } catch (error) {
     logger.error('Error fetching benefit plans', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch plans' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch plans' },
+    });
   }
 });
 
@@ -44,9 +47,23 @@ router.post('/plans', async (req: Request, res: Response) => {
       code: z.string().trim().min(1).max(200),
       name: z.string().trim().min(1).max(200),
       description: z.string().optional(),
-      category: z.enum(['HEALTH_INSURANCE', 'LIFE_INSURANCE', 'DENTAL', 'VISION', 'RETIREMENT', 'PENSION', 'HSA', 'FSA', 'TRANSPORTATION', 'WELLNESS', 'OTHER']),
+      category: z.enum([
+        'HEALTH_INSURANCE',
+        'LIFE_INSURANCE',
+        'DENTAL',
+        'VISION',
+        'RETIREMENT',
+        'PENSION',
+        'HSA',
+        'FSA',
+        'TRANSPORTATION',
+        'WELLNESS',
+        'OTHER',
+      ]),
       provider: z.string().optional(),
-      coverageLevels: z.array(z.enum(['EMPLOYEE_ONLY', 'EMPLOYEE_SPOUSE', 'EMPLOYEE_CHILDREN', 'FAMILY'])),
+      coverageLevels: z.array(
+        z.enum(['EMPLOYEE_ONLY', 'EMPLOYEE_SPOUSE', 'EMPLOYEE_CHILDREN', 'FAMILY'])
+      ),
       dependentsCoverage: z.boolean().default(false),
       employeeContribution: z.number().optional(),
       employerContribution: z.number().optional(),
@@ -66,10 +83,15 @@ router.post('/plans', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: plan });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating plan', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create plan' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create plan' },
+    });
   }
 });
 
@@ -88,7 +110,10 @@ router.get('/employees/:employeeId', async (req: Request, res: Response) => {
     res.json({ success: true, data: benefits });
   } catch (error) {
     logger.error('Error fetching employee benefits', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch benefits' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch benefits' },
+    });
   }
 });
 
@@ -124,35 +149,51 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: benefit });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error enrolling employee', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to enroll employee' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to enroll employee' },
+    });
   }
 });
 
 // PUT /api/benefits/:id/terminate - Terminate benefit
-router.put('/:id/terminate', checkOwnership(prisma.employeeBenefit), async (req: Request, res: Response) => {
-  try {
-    const _schema = z.object({ terminationDate: z.string().trim().optional() });
-    const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
-    const { terminationDate } = _parsed.data;
+router.put(
+  '/:id/terminate',
+  checkOwnership(prisma.employeeBenefit),
+  async (req: Request, res: Response) => {
+    try {
+      const _schema = z.object({ terminationDate: z.string().trim().optional() });
+      const _parsed = _schema.safeParse(req.body);
+      if (!_parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+        });
+      const { terminationDate } = _parsed.data;
 
-    const benefit = await prisma.employeeBenefit.update({
-      where: { id: req.params.id },
-      data: {
-        status: 'TERMINATED',
-        terminationDate: new Date(terminationDate),
-        effectiveTo: new Date(terminationDate),
-      },
-    });
+      const benefit = await prisma.employeeBenefit.update({
+        where: { id: req.params.id },
+        data: {
+          status: 'TERMINATED',
+          terminationDate: new Date(terminationDate),
+          effectiveTo: new Date(terminationDate),
+        },
+      });
 
-    res.json({ success: true, data: benefit });
-  } catch (error) {
-    logger.error('Error terminating benefit', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to terminate benefit' } });
+      res.json({ success: true, data: benefit });
+    } catch (error) {
+      logger.error('Error terminating benefit', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to terminate benefit' },
+      });
+    }
   }
-});
+);
 
 export default router;

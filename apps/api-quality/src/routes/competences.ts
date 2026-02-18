@@ -30,8 +30,16 @@ const createSchema = z.object({
   status: z.enum(['COMPETENT', 'IN_TRAINING', 'NOT_COMPETENT', 'EXPIRED']).optional(),
   trainingCompleted: z.string().max(5000).optional().nullable(),
   certifications: z.string().max(2000).optional().nullable(),
-  assessmentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
-  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  assessmentDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
+  nextReviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   assessor: z.string().max(200).optional().nullable(),
   evidence: z.string().max(5000).optional().nullable(),
   gapAnalysis: z.string().max(5000).optional().nullable(),
@@ -69,10 +77,19 @@ router.get('/', async (req: Request, res: Response) => {
       prisma.qualCompetence.count({ where }),
     ]);
 
-    res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error: unknown) {
-    logger.error('Failed to list competences', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list competences' } });
+    logger.error('Failed to list competences', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list competences' },
+    });
   }
 });
 
@@ -81,7 +98,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -101,20 +125,36 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to create competence', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create competence' } });
+    logger.error('Failed to create competence', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create competence' },
+    });
   }
 });
 
 // GET /:id
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await prisma.qualCompetence.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Competence record not found' } });
+    const item = await prisma.qualCompetence.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!item)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Competence record not found' },
+      });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to get competence', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get competence' } });
+    logger.error('Failed to get competence', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get competence' },
+    });
   }
 });
 
@@ -123,11 +163,24 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.qualCompetence.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Competence record not found' } });
+    const existing = await prisma.qualCompetence.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Competence record not found' },
+      });
 
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.assessmentDate) data.assessmentDate = new Date(parsed.data.assessmentDate);
@@ -136,22 +189,41 @@ router.put('/:id', async (req: Request, res: Response) => {
     const item = await prisma.qualCompetence.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to update competence', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update competence' } });
+    logger.error('Failed to update competence', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update competence' },
+    });
   }
 });
 
 // DELETE /:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.qualCompetence.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Competence record not found' } });
+    const existing = await prisma.qualCompetence.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Competence record not found' },
+      });
 
-    await prisma.qualCompetence.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualCompetence.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete competence', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete competence' } });
+    logger.error('Failed to delete competence', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete competence' },
+    });
   }
 });
 

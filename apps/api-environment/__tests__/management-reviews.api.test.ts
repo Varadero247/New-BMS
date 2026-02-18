@@ -24,7 +24,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '20000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -112,7 +116,9 @@ describe('Environment Management Reviews API Routes', () => {
     });
 
     it('should support pagination parameters', async () => {
-      (mockPrisma.envManagementReview.findMany as jest.Mock).mockResolvedValueOnce([mockReviews[0]]);
+      (mockPrisma.envManagementReview.findMany as jest.Mock).mockResolvedValueOnce([
+        mockReviews[0],
+      ]);
       (mockPrisma.envManagementReview.count as jest.Mock).mockResolvedValueOnce(50);
 
       const response = await request(app)
@@ -185,7 +191,9 @@ describe('Environment Management Reviews API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.envManagementReview.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envManagementReview.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/management-reviews')
@@ -233,7 +241,9 @@ describe('Environment Management Reviews API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/management-reviews/00000000-0000-0000-0000-000000000001')
@@ -318,7 +328,9 @@ describe('Environment Management Reviews API Routes', () => {
 
     it('should handle database errors', async () => {
       (mockPrisma.envManagementReview.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.envManagementReview.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envManagementReview.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/management-reviews')
@@ -342,7 +354,9 @@ describe('Environment Management Reviews API Routes', () => {
     };
 
     it('should update review successfully', async () => {
-      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce(existingReview);
+      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce(
+        existingReview
+      );
       (mockPrisma.envManagementReview.update as jest.Mock).mockResolvedValueOnce({
         ...existingReview,
         chair: 'COO',
@@ -387,7 +401,9 @@ describe('Environment Management Reviews API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/management-reviews/00000000-0000-0000-0000-000000000001')
@@ -415,7 +431,9 @@ describe('Environment Management Reviews API Routes', () => {
     };
 
     it('should complete a review when all mandatory fields are filled', async () => {
-      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce(completeReview);
+      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce(
+        completeReview
+      );
       (mockPrisma.envManagementReview.update as jest.Mock).mockResolvedValueOnce({
         ...completeReview,
         status: 'COMPLETED',
@@ -488,7 +506,9 @@ describe('Environment Management Reviews API Routes', () => {
         prevActionStatus: null,
         changesInIssues: '',
       };
-      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce(incompleteReview);
+      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce(
+        incompleteReview
+      );
 
       const response = await request(app)
         .post('/api/management-reviews/00000000-0000-0000-0000-000000000001/complete')
@@ -502,8 +522,12 @@ describe('Environment Management Reviews API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce(completeReview);
-      (mockPrisma.envManagementReview.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce(
+        completeReview
+      );
+      (mockPrisma.envManagementReview.update as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/management-reviews/00000000-0000-0000-0000-000000000001/complete')
@@ -524,7 +548,9 @@ describe('Environment Management Reviews API Routes', () => {
     };
 
     it('should add an action to a review', async () => {
-      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '00000000-0000-0000-0000-000000000001',
+      });
       (mockPrisma.envMRAction.create as jest.Mock).mockResolvedValueOnce({
         id: '00000000-0000-0000-0000-000000000001',
         reviewId: 'mr-1',
@@ -557,7 +583,9 @@ describe('Environment Management Reviews API Routes', () => {
     });
 
     it('should return 400 for missing action field', async () => {
-      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '00000000-0000-0000-0000-000000000001',
+      });
 
       const response = await request(app)
         .post('/api/management-reviews/00000000-0000-0000-0000-000000000001/actions')
@@ -569,7 +597,9 @@ describe('Environment Management Reviews API Routes', () => {
     });
 
     it('should return 400 for missing owner', async () => {
-      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '00000000-0000-0000-0000-000000000001',
+      });
 
       const response = await request(app)
         .post('/api/management-reviews/00000000-0000-0000-0000-000000000001/actions')
@@ -581,7 +611,9 @@ describe('Environment Management Reviews API Routes', () => {
     });
 
     it('should return 400 for missing dueDate', async () => {
-      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '00000000-0000-0000-0000-000000000001',
+      });
 
       const response = await request(app)
         .post('/api/management-reviews/00000000-0000-0000-0000-000000000001/actions')
@@ -593,7 +625,9 @@ describe('Environment Management Reviews API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '00000000-0000-0000-0000-000000000001',
+      });
       (mockPrisma.envMRAction.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
@@ -625,7 +659,9 @@ describe('Environment Management Reviews API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/management-reviews/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/management-reviews/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ notes: 'In progress' });
 
@@ -638,7 +674,9 @@ describe('Environment Management Reviews API Routes', () => {
       (mockPrisma.envMRAction.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/management-reviews/00000000-0000-0000-0000-000000000001/actions/00000000-0000-4000-a000-ffffffffffff')
+        .put(
+          '/api/management-reviews/00000000-0000-0000-0000-000000000001/actions/00000000-0000-4000-a000-ffffffffffff'
+        )
         .set('Authorization', 'Bearer token')
         .send({ notes: 'Updated' });
 
@@ -655,7 +693,9 @@ describe('Environment Management Reviews API Routes', () => {
       });
 
       await request(app)
-        .put('/api/management-reviews/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/management-reviews/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED' });
 
@@ -677,7 +717,9 @@ describe('Environment Management Reviews API Routes', () => {
       });
 
       await request(app)
-        .put('/api/management-reviews/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/management-reviews/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED', completedAt: '2026-02-28' });
 
@@ -694,7 +736,9 @@ describe('Environment Management Reviews API Routes', () => {
       (mockPrisma.envMRAction.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/management-reviews/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/management-reviews/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ notes: 'Updated' });
 
@@ -706,8 +750,13 @@ describe('Environment Management Reviews API Routes', () => {
   // ─── DELETE /api/management-reviews/:id ───────────────────────────────────
   describe('DELETE /api/management-reviews/:id', () => {
     it('should soft-delete a management review', async () => {
-      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001' });
-      (mockPrisma.envManagementReview.update as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '00000000-0000-0000-0000-000000000001',
+      });
+      (mockPrisma.envManagementReview.update as jest.Mock).mockResolvedValueOnce({
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: new Date(),
+      });
 
       const response = await request(app)
         .delete('/api/management-reviews/00000000-0000-0000-0000-000000000001')
@@ -732,7 +781,9 @@ describe('Environment Management Reviews API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envManagementReview.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/management-reviews/00000000-0000-0000-0000-000000000001')

@@ -105,11 +105,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create work order error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create work order' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create work order' },
+    });
   }
 });
 
@@ -152,7 +159,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List work orders error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list work orders' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list work orders' },
+    });
   }
 });
 
@@ -165,13 +175,18 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!wo || wo.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
     res.json({ success: true, data: wo });
   } catch (error) {
     logger.error('Get work order error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get work order' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get work order' },
+    });
   }
 });
 
@@ -180,13 +195,18 @@ router.post('/:id/tasks', async (req: AuthRequest, res: Response) => {
   try {
     const wo = await prisma.workOrder.findUnique({ where: { id: req.params.id } });
     if (!wo || wo.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
     if (wo.status === 'RELEASED' || wo.status === 'CLOSED') {
       return res.status(400).json({
         success: false,
-        error: { code: 'INVALID_STATE', message: `Cannot add tasks when work order status is ${wo.status}` },
+        error: {
+          code: 'INVALID_STATE',
+          message: `Cannot add tasks when work order status is ${wo.status}`,
+        },
       });
     }
 
@@ -221,11 +241,18 @@ router.post('/:id/tasks', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Add task card error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add task card' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add task card' },
+    });
   }
 });
 
@@ -234,14 +261,18 @@ router.put('/:id/tasks/:tid/complete', async (req: AuthRequest, res: Response) =
   try {
     const wo = await prisma.workOrder.findUnique({ where: { id: req.params.id } });
     if (!wo || wo.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
     const task = await prisma.taskCard.findFirst({
       where: { id: req.params.tid, workOrderId: req.params.id },
     });
     if (!task) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Task card not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Task card not found' } });
     }
 
     if (task.status === 'COMPLETED') {
@@ -265,17 +296,28 @@ router.put('/:id/tasks/:tid/complete', async (req: AuthRequest, res: Response) =
       },
     });
 
-    logger.info('Task card completed', { workOrderId: req.params.id, taskId: req.params.tid, technicianId: data.technicianId });
+    logger.info('Task card completed', {
+      workOrderId: req.params.id,
+      taskId: req.params.tid,
+      technicianId: data.technicianId,
+    });
     res.json({ success: true, data: updatedTask });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Complete task card error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete task card' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete task card' },
+    });
   }
 });
 
@@ -288,13 +330,18 @@ router.post('/:id/inspect', async (req: AuthRequest, res: Response) => {
     });
 
     if (!wo || wo.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
     if (wo.status === 'RELEASED' || wo.status === 'CLOSED') {
       return res.status(400).json({
         success: false,
-        error: { code: 'INVALID_STATE', message: `Cannot inspect when work order status is ${wo.status}` },
+        error: {
+          code: 'INVALID_STATE',
+          message: `Cannot inspect when work order status is ${wo.status}`,
+        },
       });
     }
 
@@ -306,13 +353,15 @@ router.post('/:id/inspect', async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const incompleteTasks = wo.tasks.filter(t => t.status !== 'COMPLETED' && t.status !== 'DEFERRED');
+    const incompleteTasks = wo.tasks.filter(
+      (t) => t.status !== 'COMPLETED' && t.status !== 'DEFERRED'
+    );
     if (incompleteTasks.length > 0) {
       return res.status(400).json({
         success: false,
         error: {
           code: 'TASKS_INCOMPLETE',
-          message: `Cannot inspect. ${incompleteTasks.length} task(s) not completed: ${incompleteTasks.map(t => t.taskNumber).join(', ')}`,
+          message: `Cannot inspect. ${incompleteTasks.length} task(s) not completed: ${incompleteTasks.map((t) => t.taskNumber).join(', ')}`,
         },
       });
     }
@@ -326,11 +375,18 @@ router.post('/:id/inspect', async (req: AuthRequest, res: Response) => {
       },
     });
 
-    logger.info('Work order inspected', { id: req.params.id, refNumber: wo.refNumber, inspectedBy: updatedWo.inspectedBy });
+    logger.info('Work order inspected', {
+      id: req.params.id,
+      refNumber: wo.refNumber,
+      inspectedBy: updatedWo.inspectedBy,
+    });
     res.json({ success: true, data: updatedWo });
   } catch (error) {
     logger.error('Inspect work order error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to inspect work order' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to inspect work order' },
+    });
   }
 });
 
@@ -343,17 +399,21 @@ router.post('/:id/release', async (req: AuthRequest, res: Response) => {
     });
 
     if (!wo || wo.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
     // Validate all tasks are completed
-    const incompleteTasks = wo.tasks.filter(t => t.status !== 'COMPLETED' && t.status !== 'DEFERRED');
+    const incompleteTasks = wo.tasks.filter(
+      (t) => t.status !== 'COMPLETED' && t.status !== 'DEFERRED'
+    );
     if (incompleteTasks.length > 0) {
       return res.status(400).json({
         success: false,
         error: {
           code: 'TASKS_INCOMPLETE',
-          message: `Cannot release. ${incompleteTasks.length} task(s) not completed: ${incompleteTasks.map(t => t.taskNumber).join(', ')}`,
+          message: `Cannot release. ${incompleteTasks.length} task(s) not completed: ${incompleteTasks.map((t) => t.taskNumber).join(', ')}`,
         },
       });
     }
@@ -362,7 +422,10 @@ router.post('/:id/release', async (req: AuthRequest, res: Response) => {
     if (!wo.inspectedBy || !wo.inspectedDate) {
       return res.status(400).json({
         success: false,
-        error: { code: 'INSPECTION_REQUIRED', message: 'Quality inspection must be completed before airworthiness release' },
+        error: {
+          code: 'INSPECTION_REQUIRED',
+          message: 'Quality inspection must be completed before airworthiness release',
+        },
       });
     }
 
@@ -380,17 +443,29 @@ router.post('/:id/release', async (req: AuthRequest, res: Response) => {
       },
     });
 
-    logger.info('Work order released', { id: req.params.id, refNumber: wo.refNumber, releaseCertType: data.releaseCertType, releaseCertRef: data.releaseCertRef });
+    logger.info('Work order released', {
+      id: req.params.id,
+      refNumber: wo.refNumber,
+      releaseCertType: data.releaseCertType,
+      releaseCertRef: data.releaseCertRef,
+    });
     res.json({ success: true, data: updatedWo });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Release work order error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to release work order' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to release work order' },
+    });
   }
 });
 
@@ -399,13 +474,18 @@ router.post('/:id/defer', async (req: AuthRequest, res: Response) => {
   try {
     const wo = await prisma.workOrder.findUnique({ where: { id: req.params.id } });
     if (!wo || wo.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
     if (wo.status === 'RELEASED' || wo.status === 'CLOSED') {
       return res.status(400).json({
         success: false,
-        error: { code: 'INVALID_STATE', message: `Cannot defer when work order status is ${wo.status}` },
+        error: {
+          code: 'INVALID_STATE',
+          message: `Cannot defer when work order status is ${wo.status}`,
+        },
       });
     }
 
@@ -420,17 +500,28 @@ router.post('/:id/defer', async (req: AuthRequest, res: Response) => {
       },
     });
 
-    logger.info('Work order deferred', { id: req.params.id, refNumber: wo.refNumber, deferralRef: data.deferralRef });
+    logger.info('Work order deferred', {
+      id: req.params.id,
+      refNumber: wo.refNumber,
+      deferralRef: data.deferralRef,
+    });
     res.json({ success: true, data: updatedWo });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Defer work order error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to defer work order' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to defer work order' },
+    });
   }
 });
 
@@ -443,13 +534,18 @@ router.get('/:id/release-cert', async (req: AuthRequest, res: Response) => {
     });
 
     if (!wo || wo.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
     if (wo.status !== 'RELEASED') {
       return res.status(400).json({
         success: false,
-        error: { code: 'NOT_RELEASED', message: 'Release certificate is only available for released work orders' },
+        error: {
+          code: 'NOT_RELEASED',
+          message: 'Release certificate is only available for released work orders',
+        },
       });
     }
 
@@ -461,7 +557,7 @@ router.get('/:id/release-cert', async (req: AuthRequest, res: Response) => {
       aircraftType: wo.aircraftType,
       aircraftRegistration: wo.aircraftReg,
       description: wo.description,
-      tasksPerformed: wo.tasks.map(t => ({
+      tasksPerformed: wo.tasks.map((t) => ({
         taskNumber: t.taskNumber,
         description: t.description,
         zone: t.zone,
@@ -482,7 +578,10 @@ router.get('/:id/release-cert', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: certificate });
   } catch (error) {
     logger.error('Generate release cert error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate release certificate' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate release certificate' },
+    });
   }
 });
 

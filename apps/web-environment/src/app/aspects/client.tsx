@@ -16,15 +16,7 @@ import {
   Textarea,
   AIDisclosure,
 } from '@ims/ui';
-import {
-  Plus,
-  Leaf,
-  Loader2,
-  Search,
-  Sparkles,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
+import { Plus, Leaf, Loader2, Search, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -199,19 +191,23 @@ const SCORE_DESCRIPTORS = {
   },
   scoreExtent: {
     label: 'Extent / Scale',
-    tooltip: '1 = On-site only, 2 = Immediate vicinity, 3 = Local area, 4 = Regional, 5 = Transboundary',
+    tooltip:
+      '1 = On-site only, 2 = Immediate vicinity, 3 = Local area, 4 = Regional, 5 = Transboundary',
   },
   scoreReversibility: {
     label: 'Reversibility',
-    tooltip: '1 = Fully reversible, 2 = Largely reversible, 3 = Partially reversible, 4 = Mostly irreversible, 5 = Irreversible',
+    tooltip:
+      '1 = Fully reversible, 2 = Largely reversible, 3 = Partially reversible, 4 = Mostly irreversible, 5 = Irreversible',
   },
   scoreRegulatory: {
     label: 'Regulatory',
-    tooltip: '1 = No regulation, 2 = Guidance only, 3 = Consent / permit, 4 = Legal limit, 5 = Prosecutable offence',
+    tooltip:
+      '1 = No regulation, 2 = Guidance only, 3 = Consent / permit, 4 = Legal limit, 5 = Prosecutable offence',
   },
   scoreStakeholder: {
     label: 'Stakeholder',
-    tooltip: '1 = No concern, 2 = Minor concern, 3 = Moderate concern, 4 = High concern, 5 = Major public concern',
+    tooltip:
+      '1 = No concern, 2 = Minor concern, 3 = Moderate concern, 4 = High concern, 5 = Major public concern',
   },
 };
 
@@ -240,18 +236,12 @@ function getSignificanceLevel(score: number): 'SIGNIFICANT' | 'REVIEW' | 'NOT_SI
 function getSignificanceBadge(score: number) {
   const level = getSignificanceLevel(score);
   if (level === 'SIGNIFICANT') {
-    return (
-      <Badge className="bg-red-100 text-red-800 border-red-200">Significant</Badge>
-    );
+    return <Badge className="bg-red-100 text-red-800 border-red-200">Significant</Badge>;
   }
   if (level === 'REVIEW') {
-    return (
-      <Badge className="bg-amber-100 text-amber-800 border-amber-200">Review</Badge>
-    );
+    return <Badge className="bg-amber-100 text-amber-800 border-amber-200">Review</Badge>;
   }
-  return (
-    <Badge className="bg-green-100 text-green-800 border-green-200">Not Significant</Badge>
-  );
+  return <Badge className="bg-green-100 text-green-800 border-green-200">Not Significant</Badge>;
 }
 
 function getScoreColor(value: number): string {
@@ -401,18 +391,24 @@ export default function AspectsClient() {
           results.aiSignificanceJustification = data.scoring.rationale;
         }
         if (data.controls && Array.isArray(data.controls)) {
-          results.aiControlRecommendations = data.controls.map((c: string, i: number) => `${i + 1}. ${c}`).join('\n');
+          results.aiControlRecommendations = data.controls
+            .map((c: string, i: number) => `${i + 1}. ${c}`)
+            .join('\n');
         }
         if (data.legalReferences && Array.isArray(data.legalReferences)) {
           results.aiLegalObligations = data.legalReferences
-            .map((r: { regulation: string; section?: string; relevance: string }) =>
-              `${r.regulation}${r.section ? ` (${r.section})` : ''}: ${r.relevance}`)
+            .map(
+              (r: { regulation: string; section?: string; relevance: string }) =>
+                `${r.regulation}${r.section ? ` (${r.section})` : ''}: ${r.relevance}`
+            )
             .join('\n');
         }
         if (data.iso14001Clauses && Array.isArray(data.iso14001Clauses)) {
           results.aiImprovementOpportunities = data.iso14001Clauses
-            .map((c: { clause: string; title: string; relevance: string }) =>
-              `Clause ${c.clause} — ${c.title}: ${c.relevance}`)
+            .map(
+              (c: { clause: string; title: string; relevance: string }) =>
+                `Clause ${c.clause} — ${c.title}: ${c.relevance}`
+            )
             .join('\n');
         }
         if (data.scoring) {
@@ -496,7 +492,9 @@ export default function AspectsClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Environmental Aspects</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Environmental Aspects
+            </h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">
               ISO 14001 Clause 6.1.2 -- Aspects and Impacts Register
             </p>
@@ -578,7 +576,8 @@ export default function AspectsClient() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
-              aria-label="Search aspects..." placeholder="Search aspects..."
+              aria-label="Search aspects..."
+              placeholder="Search aspects..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -903,10 +902,7 @@ export default function AspectsClient() {
                   <Label>Environmental Media Affected</Label>
                   <div className="flex flex-wrap gap-3 mt-1">
                     {ENVIRONMENTAL_MEDIA.map((media) => (
-                      <label
-                        key={media.value}
-                        className="inline-flex items-center gap-1.5 text-sm"
-                      >
+                      <label key={media.value} className="inline-flex items-center gap-1.5 text-sm">
                         <input
                           type="checkbox"
                           checked={form.environmentalMedia.includes(media.value)}
@@ -929,57 +925,65 @@ export default function AspectsClient() {
                 C. Significance Scoring
               </h3>
               <div className="space-y-5">
-                {(
-                  Object.keys(SCORE_DESCRIPTORS) as Array<keyof typeof SCORE_DESCRIPTORS>
-                ).map((key) => {
-                  const desc = SCORE_DESCRIPTORS[key];
-                  const value = form[key as keyof AspectForm] as number;
-                  return (
-                    <div key={key}>
-                      <div className="flex items-center justify-between mb-1">
-                        <Label>
-                          {desc.label}{' '}
-                          {key === 'scoreSeverity' || key === 'scoreProbability' ? (
-                            <span className="text-xs text-gray-400 dark:text-gray-500">(x1.5 weighting)</span>
-                          ) : null}
-                        </Label>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{value}</span>
-                          <span
-                            className={`inline-block h-3 w-3 rounded-full ${getScoreColor(value)}`}
-                          />
+                {(Object.keys(SCORE_DESCRIPTORS) as Array<keyof typeof SCORE_DESCRIPTORS>).map(
+                  (key) => {
+                    const desc = SCORE_DESCRIPTORS[key];
+                    const value = form[key as keyof AspectForm] as number;
+                    return (
+                      <div key={key}>
+                        <div className="flex items-center justify-between mb-1">
+                          <Label>
+                            {desc.label}{' '}
+                            {key === 'scoreSeverity' || key === 'scoreProbability' ? (
+                              <span className="text-xs text-gray-400 dark:text-gray-500">
+                                (x1.5 weighting)
+                              </span>
+                            ) : null}
+                          </Label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                              {value}
+                            </span>
+                            <span
+                              className={`inline-block h-3 w-3 rounded-full ${getScoreColor(value)}`}
+                            />
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mb-1.5">
+                          {desc.tooltip}
+                        </p>
+                        <input
+                          type="range"
+                          min={1}
+                          max={5}
+                          step={1}
+                          value={value}
+                          onChange={(e) =>
+                            updateForm(key as keyof AspectForm, parseInt(e.target.value, 10))
+                          }
+                          className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-green-600 bg-gray-200"
+                        />
+                        <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                          <span>1</span>
+                          <span>2</span>
+                          <span>3</span>
+                          <span>4</span>
+                          <span>5</span>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mb-1.5">{desc.tooltip}</p>
-                      <input
-                        type="range"
-                        min={1}
-                        max={5}
-                        step={1}
-                        value={value}
-                        onChange={(e) =>
-                          updateForm(key as keyof AspectForm, parseInt(e.target.value, 10))
-                        }
-                        className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-green-600 bg-gray-200"
-                      />
-                      <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                        <span>1</span>
-                        <span>2</span>
-                        <span>3</span>
-                        <span>4</span>
-                        <span>5</span>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  }
+                )}
 
                 {/* Calculated score display */}
                 <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border">
                   <div>
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Calculated Significance Score</p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Calculated Significance Score
+                    </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      (Severity x 1.5) + (Probability x 1.5) + Duration + Extent + Reversibility
-                      + Regulatory + Stakeholder
+                      (Severity x 1.5) + (Probability x 1.5) + Duration + Extent + Reversibility +
+                      Regulatory + Stakeholder
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
@@ -1042,7 +1046,10 @@ export default function AspectsClient() {
                       min={0}
                       value={form.residualScore || ''}
                       onChange={(e) =>
-                        updateForm('residualScore', e.target.value ? parseInt(e.target.value, 10) : 0)
+                        updateForm(
+                          'residualScore',
+                          e.target.value ? parseInt(e.target.value, 10) : 0
+                        )
                       }
                     />
                   </div>
@@ -1152,7 +1159,12 @@ export default function AspectsClient() {
                 F. AI Analysis
               </h3>
 
-              <AIDisclosure variant="banner" provider="claude" analysisType="Significance Assessment" confidence={0.85} />
+              <AIDisclosure
+                variant="banner"
+                provider="claude"
+                analysisType="Significance Assessment"
+                confidence={0.85}
+              />
 
               <Button
                 type="button"
@@ -1197,7 +1209,9 @@ export default function AspectsClient() {
                       {aiSuggestedScores && (
                         <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                           <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-sm font-semibold text-green-800">Suggested Scores</h4>
+                            <h4 className="text-sm font-semibold text-green-800">
+                              Suggested Scores
+                            </h4>
                             <Button
                               type="button"
                               className="text-xs px-3 py-1 h-auto bg-green-600 hover:bg-green-700"
@@ -1216,7 +1230,10 @@ export default function AspectsClient() {
                               { key: 'scoreRegulatory', label: 'Reg' },
                               { key: 'scoreStakeholder', label: 'Sth' },
                             ].map(({ key, label }) => (
-                              <span key={key} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white dark:bg-gray-900 border border-green-200 text-green-700">
+                              <span
+                                key={key}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white dark:bg-gray-900 border border-green-200 text-green-700"
+                              >
                                 {label}: {aiSuggestedScores[key] || '-'}
                               </span>
                             ))}
@@ -1260,11 +1277,7 @@ export default function AspectsClient() {
           </div>
 
           <ModalFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowModal(false)}
-              disabled={submitting}
-            >
+            <Button variant="outline" onClick={() => setShowModal(false)} disabled={submitting}>
               Cancel
             </Button>
             <Button

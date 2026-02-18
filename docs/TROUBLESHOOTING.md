@@ -78,6 +78,7 @@ P2022
 **Cause:**
 
 The Prisma schema file was updated with new fields, but either:
+
 - The database was not synced (`db push` was not run), or
 - The Prisma client was not regenerated after the schema change.
 
@@ -212,8 +213,8 @@ Edit the affected package's `package.json` and remove `--dts` from the `dev` scr
 {
   "scripts": {
     "dev": "tsup src/index.ts --format esm,cjs --watch",
-    "build": "tsup src/index.ts --format esm,cjs --dts --clean"
-  }
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+  },
 }
 ```
 
@@ -297,13 +298,13 @@ INVENTORY_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:543
 
 Common service-specific env vars:
 
-| Service | Env Variable |
-|---|---|
+| Service           | Env Variable                 |
+| ----------------- | ---------------------------- |
 | api-health-safety | `HEALTH_SAFETY_DATABASE_URL` |
-| api-environment | `ENVIRONMENT_DATABASE_URL` |
-| api-inventory | `INVENTORY_DATABASE_URL` |
-| api-iso42001 | `ISO42001_DATABASE_URL` |
-| api-iso37001 | `ISO37001_DATABASE_URL` |
+| api-environment   | `ENVIRONMENT_DATABASE_URL`   |
+| api-inventory     | `INVENTORY_DATABASE_URL`     |
+| api-iso42001      | `ISO42001_DATABASE_URL`      |
+| api-iso37001      | `ISO37001_DATABASE_URL`      |
 
 All point to the same database (`ims` on port 5432).
 

@@ -21,9 +21,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemingProvider apiUrl={API_URL}>
-        {children}
-      </ThemingProvider>
+      <ThemingProvider apiUrl={API_URL}>{children}</ThemingProvider>
     </QueryClientProvider>
   );
 }

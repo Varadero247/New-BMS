@@ -29,15 +29,7 @@ const updateMaintenanceSchema = z.object({
 // Get all maintenance reports
 router.get('/', authenticate, async (req: AuthRequest, res, next) => {
   try {
-    const {
-      page = '1',
-      limit = '20',
-      status,
-      type,
-      priority,
-      deviceId,
-      buildingId,
-    } = req.query;
+    const { page = '1', limit = '20', status, type, priority, deviceId, buildingId } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
@@ -92,10 +84,7 @@ router.get('/', authenticate, async (req: AuthRequest, res, next) => {
         },
         skip,
         take: limitNum,
-        orderBy: [
-          { priority: 'desc' },
-          { createdAt: 'desc' },
-        ],
+        orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
       }),
       prisma.maintenanceReport.count({ where }),
     ]);
@@ -159,155 +148,170 @@ router.get('/:id', authenticate, async (req: AuthRequest, res, next) => {
 });
 
 // Create maintenance report
-router.post('/', authenticate, validate(createMaintenanceSchema), async (req: AuthRequest, res, next) => {
-  try {
-    const data = req.body;
+router.post(
+  '/',
+  authenticate,
+  validate(createMaintenanceSchema),
+  async (req: AuthRequest, res, next) => {
+    try {
+      const data = req.body;
 
-    // Verify device exists
-    const device = await prisma.device.findUnique({
-      where: { id: data.deviceId },
-    });
+      // Verify device exists
+      const device = await prisma.device.findUnique({
+        where: { id: data.deviceId },
+      });
 
-    if (!device) {
-      throw new AppError(404, 'NOT_FOUND', 'Device not found');
-    }
+      if (!device) {
+        throw new AppError(404, 'NOT_FOUND', 'Device not found');
+      }
 
-    const report = await prisma.maintenanceReport.create({
-      data: {
-        deviceId: data.deviceId,
-        reportedBy: req.user!.id,
-        type: data.type,
-        priority: data.priority,
-        title: data.title,
-        description: data.description,
-        scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : undefined,
-      },
-      include: {
-        device: {
-          select: {
-            id: true,
-            name: true,
-            type: true,
-            building: {
-              select: { id: true, name: true },
+      const report = await prisma.maintenanceReport.create({
+        data: {
+          deviceId: data.deviceId,
+          reportedBy: req.user!.id,
+          type: data.type,
+          priority: data.priority,
+          title: data.title,
+          description: data.description,
+          scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : undefined,
+        },
+        include: {
+          device: {
+            select: {
+              id: true,
+              name: true,
+              type: true,
+              building: {
+                select: { id: true, name: true },
+              },
             },
           },
-        },
-        reporter: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
+          reporter: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
           },
-        },
-      },
-    });
-
-    // Create alert for urgent/high priority maintenance
-    if (data.priority === 'URGENT' || data.priority === 'HIGH') {
-      await prisma.alert.create({
-        data: {
-          buildingId: device.buildingId,
-          deviceId: device.id,
-          type: 'MAINTENANCE',
-          severity: data.priority === 'URGENT' ? 'CRITICAL' : 'WARNING',
-          title: `Maintenance Required: ${data.title}`,
-          message: data.description,
-          data: { maintenanceReportId: report.id },
         },
       });
-    }
 
-    res.status(201).json({
-      success: true,
-      data: report,
-    });
-  } catch (error) {
-    next(error);
+      // Create alert for urgent/high priority maintenance
+      if (data.priority === 'URGENT' || data.priority === 'HIGH') {
+        await prisma.alert.create({
+          data: {
+            buildingId: device.buildingId,
+            deviceId: device.id,
+            type: 'MAINTENANCE',
+            severity: data.priority === 'URGENT' ? 'CRITICAL' : 'WARNING',
+            title: `Maintenance Required: ${data.title}`,
+            message: data.description,
+            data: { maintenanceReportId: report.id },
+          },
+        });
+      }
+
+      res.status(201).json({
+        success: true,
+        data: report,
+      });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // Update maintenance report
-router.patch('/:id', authenticate, validate(updateMaintenanceSchema), async (req: AuthRequest, res, next) => {
-  try {
-    const { id } = req.params;
-    const updates = req.body;
+router.patch(
+  '/:id',
+  authenticate,
+  validate(updateMaintenanceSchema),
+  async (req: AuthRequest, res, next) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
 
-    const existing = await prisma.maintenanceReport.findUnique({
-      where: { id },
-    });
+      const existing = await prisma.maintenanceReport.findUnique({
+        where: { id },
+      });
 
-    if (!existing) {
-      throw new AppError(404, 'NOT_FOUND', 'Maintenance report not found');
-    }
+      if (!existing) {
+        throw new AppError(404, 'NOT_FOUND', 'Maintenance report not found');
+      }
 
-    // Handle status transitions
-    if (updates.status === 'COMPLETED' && !updates.completedAt) {
-      updates.completedAt = new Date();
-    }
+      // Handle status transitions
+      if (updates.status === 'COMPLETED' && !updates.completedAt) {
+        updates.completedAt = new Date();
+      }
 
-    const report = await prisma.maintenanceReport.update({
-      where: { id },
-      data: {
-        ...updates,
-        scheduledAt: updates.scheduledAt ? new Date(updates.scheduledAt) : undefined,
-        completedAt: updates.completedAt ? new Date(updates.completedAt) : undefined,
-      },
-      include: {
-        device: {
-          select: {
-            id: true,
-            name: true,
-            type: true,
-            building: {
-              select: { id: true, name: true },
+      const report = await prisma.maintenanceReport.update({
+        where: { id },
+        data: {
+          ...updates,
+          scheduledAt: updates.scheduledAt ? new Date(updates.scheduledAt) : undefined,
+          completedAt: updates.completedAt ? new Date(updates.completedAt) : undefined,
+        },
+        include: {
+          device: {
+            select: {
+              id: true,
+              name: true,
+              type: true,
+              building: {
+                select: { id: true, name: true },
+              },
+            },
+          },
+          reporter: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
             },
           },
         },
-        reporter: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
-      },
-    });
+      });
 
-    res.json({
-      success: true,
-      data: report,
-    });
-  } catch (error) {
-    next(error);
+      res.json({
+        success: true,
+        data: report,
+      });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // Delete maintenance report
-router.delete('/:id', authenticate, requireRole(['ADMIN', 'MANAGER']), async (req: AuthRequest, res, next) => {
-  try {
-    const { id } = req.params;
+router.delete(
+  '/:id',
+  authenticate,
+  requireRole(['ADMIN', 'MANAGER']),
+  async (req: AuthRequest, res, next) => {
+    try {
+      const { id } = req.params;
 
-    const report = await prisma.maintenanceReport.findUnique({
-      where: { id },
-    });
+      const report = await prisma.maintenanceReport.findUnique({
+        where: { id },
+      });
 
-    if (!report) {
-      throw new AppError(404, 'NOT_FOUND', 'Maintenance report not found');
+      if (!report) {
+        throw new AppError(404, 'NOT_FOUND', 'Maintenance report not found');
+      }
+
+      await prisma.maintenanceReport.delete({
+        where: { id },
+      });
+
+      res.json({
+        success: true,
+        data: { message: 'Maintenance report deleted successfully' },
+      });
+    } catch (error) {
+      next(error);
     }
-
-    await prisma.maintenanceReport.delete({
-      where: { id },
-    });
-
-    res.json({
-      success: true,
-      data: { message: 'Maintenance report deleted successfully' },
-    });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 // Get maintenance statistics
 router.get('/stats/summary', authenticate, async (req: AuthRequest, res, next) => {
@@ -319,19 +323,14 @@ router.get('/stats/summary', authenticate, async (req: AuthRequest, res, next) =
       where.device = { buildingId };
     }
 
-    const [
-      total,
-      open,
-      inProgress,
-      completed,
-      urgent,
-      byType,
-    ] = await Promise.all([
+    const [total, open, inProgress, completed, urgent, byType] = await Promise.all([
       prisma.maintenanceReport.count({ where }),
       prisma.maintenanceReport.count({ where: { ...where, status: 'OPEN' } }),
       prisma.maintenanceReport.count({ where: { ...where, status: 'IN_PROGRESS' } }),
       prisma.maintenanceReport.count({ where: { ...where, status: 'COMPLETED' } }),
-      prisma.maintenanceReport.count({ where: { ...where, priority: 'URGENT', status: { not: 'COMPLETED' } } }),
+      prisma.maintenanceReport.count({
+        where: { ...where, priority: 'URGENT', status: { not: 'COMPLETED' } },
+      }),
       prisma.maintenanceReport.groupBy({
         by: ['type'],
         where,
@@ -347,10 +346,13 @@ router.get('/stats/summary', authenticate, async (req: AuthRequest, res, next) =
         inProgress,
         completed,
         urgent,
-        byType: byType.reduce((acc, curr) => {
-          acc[curr.type] = curr._count;
-          return acc;
-        }, {} as Record<string, number>),
+        byType: byType.reduce(
+          (acc, curr) => {
+            acc[curr.type] = curr._count;
+            return acc;
+          },
+          {} as Record<string, number>
+        ),
       },
     });
   } catch (error) {

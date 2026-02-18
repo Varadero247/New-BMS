@@ -156,10 +156,9 @@ describe('SessionCleanupJob', () => {
       job.start(60000);
 
       // Should log start message
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'Starting session cleanup job',
-        { intervalMs: 60000 }
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith('Starting session cleanup job', {
+        intervalMs: 60000,
+      });
 
       // Should have called deleteMany immediately (initial cleanup)
       expect(mockPrisma.session.deleteMany).toHaveBeenCalledTimes(1);
@@ -390,7 +389,9 @@ describe('createSessionCleanupJob', () => {
     // Verify the logger is used by starting the job
     jest.useFakeTimers();
     job.start(60000);
-    expect(mockLogger.info).toHaveBeenCalledWith('Starting session cleanup job', { intervalMs: 60000 });
+    expect(mockLogger.info).toHaveBeenCalledWith('Starting session cleanup job', {
+      intervalMs: 60000,
+    });
     job.stop();
     jest.useRealTimers();
   });

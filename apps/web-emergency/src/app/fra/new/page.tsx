@@ -21,19 +21,79 @@ import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
 const STEPS = [
-  { id: 1, title: 'Identify Fire Hazards', icon: Flame, description: 'Identify sources of ignition, fuel and oxygen' },
-  { id: 2, title: 'People at Risk', icon: Users, description: 'Identify all people who may be at risk' },
-  { id: 3, title: 'Evaluate & Control', icon: ShieldCheck, description: 'Evaluate risk and identify precautions' },
-  { id: 4, title: 'Record & Plan', icon: ClipboardList, description: 'Record findings and create action plan' },
-  { id: 5, title: 'Review & Sign-off', icon: Calendar, description: 'Schedule review and sign off the assessment' },
+  {
+    id: 1,
+    title: 'Identify Fire Hazards',
+    icon: Flame,
+    description: 'Identify sources of ignition, fuel and oxygen',
+  },
+  {
+    id: 2,
+    title: 'People at Risk',
+    icon: Users,
+    description: 'Identify all people who may be at risk',
+  },
+  {
+    id: 3,
+    title: 'Evaluate & Control',
+    icon: ShieldCheck,
+    description: 'Evaluate risk and identify precautions',
+  },
+  {
+    id: 4,
+    title: 'Record & Plan',
+    icon: ClipboardList,
+    description: 'Record findings and create action plan',
+  },
+  {
+    id: 5,
+    title: 'Review & Sign-off',
+    icon: Calendar,
+    description: 'Schedule review and sign off the assessment',
+  },
 ] as const;
 
-interface IgnitionSource { id: string; source: string; location: string; controlMeasure: string; }
-interface FuelSource { id: string; material: string; location: string; controlMeasure: string; }
-interface OxygenSource { id: string; source: string; location: string; controlMeasure: string; }
-interface PersonGroup { id: string; group: string; count: number; vulnerabilities: string; location: string; }
-interface Precaution { id: string; category: string; description: string; inPlace: boolean; adequacy: string; action: string; }
-interface ActionItem { id: string; finding: string; action: string; responsible: string; dueDate: string; priority: string; }
+interface IgnitionSource {
+  id: string;
+  source: string;
+  location: string;
+  controlMeasure: string;
+}
+interface FuelSource {
+  id: string;
+  material: string;
+  location: string;
+  controlMeasure: string;
+}
+interface OxygenSource {
+  id: string;
+  source: string;
+  location: string;
+  controlMeasure: string;
+}
+interface PersonGroup {
+  id: string;
+  group: string;
+  count: number;
+  vulnerabilities: string;
+  location: string;
+}
+interface Precaution {
+  id: string;
+  category: string;
+  description: string;
+  inPlace: boolean;
+  adequacy: string;
+  action: string;
+}
+interface ActionItem {
+  id: string;
+  finding: string;
+  action: string;
+  responsible: string;
+  dueDate: string;
+  priority: string;
+}
 
 interface FRAForm {
   premisesId: string;
@@ -114,18 +174,62 @@ export default function FRANewPage() {
     step2Notes: '',
     overallRiskRating: 'MEDIUM',
     precautions: [
-      { id: uid(), category: 'Detection & Warning', description: '', inPlace: false, adequacy: 'ADEQUATE', action: '' },
-      { id: uid(), category: 'Means of Escape', description: '', inPlace: false, adequacy: 'ADEQUATE', action: '' },
-      { id: uid(), category: 'Fire Fighting Equipment', description: '', inPlace: false, adequacy: 'ADEQUATE', action: '' },
-      { id: uid(), category: 'Emergency Lighting', description: '', inPlace: false, adequacy: 'ADEQUATE', action: '' },
-      { id: uid(), category: 'Fire Safety Signs', description: '', inPlace: false, adequacy: 'ADEQUATE', action: '' },
-      { id: uid(), category: 'Maintenance', description: '', inPlace: false, adequacy: 'ADEQUATE', action: '' },
+      {
+        id: uid(),
+        category: 'Detection & Warning',
+        description: '',
+        inPlace: false,
+        adequacy: 'ADEQUATE',
+        action: '',
+      },
+      {
+        id: uid(),
+        category: 'Means of Escape',
+        description: '',
+        inPlace: false,
+        adequacy: 'ADEQUATE',
+        action: '',
+      },
+      {
+        id: uid(),
+        category: 'Fire Fighting Equipment',
+        description: '',
+        inPlace: false,
+        adequacy: 'ADEQUATE',
+        action: '',
+      },
+      {
+        id: uid(),
+        category: 'Emergency Lighting',
+        description: '',
+        inPlace: false,
+        adequacy: 'ADEQUATE',
+        action: '',
+      },
+      {
+        id: uid(),
+        category: 'Fire Safety Signs',
+        description: '',
+        inPlace: false,
+        adequacy: 'ADEQUATE',
+        action: '',
+      },
+      {
+        id: uid(),
+        category: 'Maintenance',
+        description: '',
+        inPlace: false,
+        adequacy: 'ADEQUATE',
+        action: '',
+      },
     ],
     riskLikelihood: 3,
     riskSeverity: 3,
     step3Notes: '',
     findingsSummary: '',
-    actionItems: [{ id: uid(), finding: '', action: '', responsible: '', dueDate: '', priority: 'MEDIUM' }],
+    actionItems: [
+      { id: uid(), finding: '', action: '', responsible: '', dueDate: '', priority: 'MEDIUM' },
+    ],
     step4Notes: '',
     reviewInterval: '12',
     nextReviewDate: '',
@@ -136,11 +240,15 @@ export default function FRANewPage() {
   });
 
   useEffect(() => {
-    api.get('/premises').then((r) => setPremises(r.data.data || [])).catch(() => {});
+    api
+      .get('/premises')
+      .then((r) => setPremises(r.data.data || []))
+      .catch(() => {});
   }, []);
 
   // Auto-compute risk rating from matrix
-  const computedRisk = RISK_MATRIX[String(form.riskLikelihood)]?.[String(form.riskSeverity)] || 'MEDIUM';
+  const computedRisk =
+    RISK_MATRIX[String(form.riskLikelihood)]?.[String(form.riskSeverity)] || 'MEDIUM';
 
   useEffect(() => {
     setForm((f) => ({ ...f, overallRiskRating: computedRisk }));
@@ -151,18 +259,28 @@ export default function FRANewPage() {
     if (form.assessmentDate && form.reviewInterval) {
       const d = new Date(form.assessmentDate);
       d.setMonth(d.getMonth() + parseInt(form.reviewInterval));
-      setForm((f) => ({ ...f, nextReviewDate: d.toISOString().split('T')[0], reviewDate: d.toISOString().split('T')[0] }));
+      setForm((f) => ({
+        ...f,
+        nextReviewDate: d.toISOString().split('T')[0],
+        reviewDate: d.toISOString().split('T')[0],
+      }));
     }
   }, [form.assessmentDate, form.reviewInterval]);
 
   function canProceed(): boolean {
     switch (step) {
-      case 1: return form.premisesId !== '' && form.assessorName !== '';
-      case 2: return form.personGroups.length > 0;
-      case 3: return form.precautions.length > 0;
-      case 4: return form.findingsSummary !== '';
-      case 5: return form.signOffName !== '' && form.signOffDate !== '';
-      default: return true;
+      case 1:
+        return form.premisesId !== '' && form.assessorName !== '';
+      case 2:
+        return form.personGroups.length > 0;
+      case 3:
+        return form.precautions.length > 0;
+      case 4:
+        return form.findingsSummary !== '';
+      case 5:
+        return form.signOffName !== '' && form.signOffDate !== '';
+      default:
+        return true;
     }
   }
 
@@ -181,57 +299,105 @@ export default function FRANewPage() {
   }
 
   function addIgnitionSource() {
-    setForm((f) => ({ ...f, ignitionSources: [...f.ignitionSources, { id: uid(), source: '', location: '', controlMeasure: '' }] }));
+    setForm((f) => ({
+      ...f,
+      ignitionSources: [
+        ...f.ignitionSources,
+        { id: uid(), source: '', location: '', controlMeasure: '' },
+      ],
+    }));
   }
   function removeIgnitionSource(id: string) {
     setForm((f) => ({ ...f, ignitionSources: f.ignitionSources.filter((s) => s.id !== id) }));
   }
   function updateIgnitionSource(id: string, field: keyof IgnitionSource, val: string) {
-    setForm((f) => ({ ...f, ignitionSources: f.ignitionSources.map((s) => s.id === id ? { ...s, [field]: val } : s) }));
+    setForm((f) => ({
+      ...f,
+      ignitionSources: f.ignitionSources.map((s) => (s.id === id ? { ...s, [field]: val } : s)),
+    }));
   }
 
   function addFuelSource() {
-    setForm((f) => ({ ...f, fuelSources: [...f.fuelSources, { id: uid(), material: '', location: '', controlMeasure: '' }] }));
+    setForm((f) => ({
+      ...f,
+      fuelSources: [
+        ...f.fuelSources,
+        { id: uid(), material: '', location: '', controlMeasure: '' },
+      ],
+    }));
   }
   function removeFuelSource(id: string) {
     setForm((f) => ({ ...f, fuelSources: f.fuelSources.filter((s) => s.id !== id) }));
   }
   function updateFuelSource(id: string, field: keyof FuelSource, val: string) {
-    setForm((f) => ({ ...f, fuelSources: f.fuelSources.map((s) => s.id === id ? { ...s, [field]: val } : s) }));
+    setForm((f) => ({
+      ...f,
+      fuelSources: f.fuelSources.map((s) => (s.id === id ? { ...s, [field]: val } : s)),
+    }));
   }
 
   function addOxygenSource() {
-    setForm((f) => ({ ...f, oxygenSources: [...f.oxygenSources, { id: uid(), source: '', location: '', controlMeasure: '' }] }));
+    setForm((f) => ({
+      ...f,
+      oxygenSources: [
+        ...f.oxygenSources,
+        { id: uid(), source: '', location: '', controlMeasure: '' },
+      ],
+    }));
   }
   function removeOxygenSource(id: string) {
     setForm((f) => ({ ...f, oxygenSources: f.oxygenSources.filter((s) => s.id !== id) }));
   }
   function updateOxygenSource(id: string, field: keyof OxygenSource, val: string) {
-    setForm((f) => ({ ...f, oxygenSources: f.oxygenSources.map((s) => s.id === id ? { ...s, [field]: val } : s) }));
+    setForm((f) => ({
+      ...f,
+      oxygenSources: f.oxygenSources.map((s) => (s.id === id ? { ...s, [field]: val } : s)),
+    }));
   }
 
   function addPersonGroup() {
-    setForm((f) => ({ ...f, personGroups: [...f.personGroups, { id: uid(), group: '', count: 0, vulnerabilities: '', location: '' }] }));
+    setForm((f) => ({
+      ...f,
+      personGroups: [
+        ...f.personGroups,
+        { id: uid(), group: '', count: 0, vulnerabilities: '', location: '' },
+      ],
+    }));
   }
   function removePersonGroup(id: string) {
     setForm((f) => ({ ...f, personGroups: f.personGroups.filter((g) => g.id !== id) }));
   }
   function updatePersonGroup(id: string, field: keyof PersonGroup, val: any) {
-    setForm((f) => ({ ...f, personGroups: f.personGroups.map((g) => g.id === id ? { ...g, [field]: val } : g) }));
+    setForm((f) => ({
+      ...f,
+      personGroups: f.personGroups.map((g) => (g.id === id ? { ...g, [field]: val } : g)),
+    }));
   }
 
   function updatePrecaution(id: string, field: keyof Precaution, val: any) {
-    setForm((f) => ({ ...f, precautions: f.precautions.map((p) => p.id === id ? { ...p, [field]: val } : p) }));
+    setForm((f) => ({
+      ...f,
+      precautions: f.precautions.map((p) => (p.id === id ? { ...p, [field]: val } : p)),
+    }));
   }
 
   function addActionItem() {
-    setForm((f) => ({ ...f, actionItems: [...f.actionItems, { id: uid(), finding: '', action: '', responsible: '', dueDate: '', priority: 'MEDIUM' }] }));
+    setForm((f) => ({
+      ...f,
+      actionItems: [
+        ...f.actionItems,
+        { id: uid(), finding: '', action: '', responsible: '', dueDate: '', priority: 'MEDIUM' },
+      ],
+    }));
   }
   function removeActionItem(id: string) {
     setForm((f) => ({ ...f, actionItems: f.actionItems.filter((a) => a.id !== id) }));
   }
   function updateActionItem(id: string, field: keyof ActionItem, val: string) {
-    setForm((f) => ({ ...f, actionItems: f.actionItems.map((a) => a.id === id ? { ...a, [field]: val } : a) }));
+    setForm((f) => ({
+      ...f,
+      actionItems: f.actionItems.map((a) => (a.id === id ? { ...a, [field]: val } : a)),
+    }));
   }
 
   const currentStep = STEPS[step - 1];
@@ -267,8 +433,8 @@ export default function FRANewPage() {
                           isCompleted
                             ? 'text-white'
                             : isCurrent
-                            ? 'text-white'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                              ? 'text-white'
+                              : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
                         }`}
                         style={
                           isCompleted || isCurrent
@@ -331,7 +497,9 @@ export default function FRANewPage() {
                       >
                         <option value="">Select premises...</option>
                         {premises.map((p) => (
-                          <option key={p.id} value={p.id}>{p.name}</option>
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
                         ))}
                       </Select>
                     </div>
@@ -374,7 +542,10 @@ export default function FRANewPage() {
                     </div>
                     <div className="space-y-2">
                       {form.ignitionSources.map((src) => (
-                        <div key={src.id} className="grid grid-cols-3 gap-2 p-3 bg-orange-50 dark:bg-orange-900/10 rounded-lg">
+                        <div
+                          key={src.id}
+                          className="grid grid-cols-3 gap-2 p-3 bg-orange-50 dark:bg-orange-900/10 rounded-lg"
+                        >
                           <Input
                             value={src.source}
                             onChange={(e) => updateIgnitionSource(src.id, 'source', e.target.value)}
@@ -382,13 +553,17 @@ export default function FRANewPage() {
                           />
                           <Input
                             value={src.location}
-                            onChange={(e) => updateIgnitionSource(src.id, 'location', e.target.value)}
+                            onChange={(e) =>
+                              updateIgnitionSource(src.id, 'location', e.target.value)
+                            }
                             placeholder="Location"
                           />
                           <div className="flex gap-2">
                             <Input
                               value={src.controlMeasure}
-                              onChange={(e) => updateIgnitionSource(src.id, 'controlMeasure', e.target.value)}
+                              onChange={(e) =>
+                                updateIgnitionSource(src.id, 'controlMeasure', e.target.value)
+                              }
                               placeholder="Control measure"
                             />
                             <Button
@@ -417,7 +592,10 @@ export default function FRANewPage() {
                     </div>
                     <div className="space-y-2">
                       {form.fuelSources.map((src) => (
-                        <div key={src.id} className="grid grid-cols-3 gap-2 p-3 bg-amber-50 dark:bg-amber-900/10 rounded-lg">
+                        <div
+                          key={src.id}
+                          className="grid grid-cols-3 gap-2 p-3 bg-amber-50 dark:bg-amber-900/10 rounded-lg"
+                        >
                           <Input
                             value={src.material}
                             onChange={(e) => updateFuelSource(src.id, 'material', e.target.value)}
@@ -431,10 +609,17 @@ export default function FRANewPage() {
                           <div className="flex gap-2">
                             <Input
                               value={src.controlMeasure}
-                              onChange={(e) => updateFuelSource(src.id, 'controlMeasure', e.target.value)}
+                              onChange={(e) =>
+                                updateFuelSource(src.id, 'controlMeasure', e.target.value)
+                              }
                               placeholder="Control measure"
                             />
-                            <Button size="sm" variant="outline" onClick={() => removeFuelSource(src.id)} className="flex-shrink-0 text-red-500">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => removeFuelSource(src.id)}
+                              className="flex-shrink-0 text-red-500"
+                            >
                               <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
@@ -455,7 +640,10 @@ export default function FRANewPage() {
                     </div>
                     <div className="space-y-2">
                       {form.oxygenSources.map((src) => (
-                        <div key={src.id} className="grid grid-cols-3 gap-2 p-3 bg-blue-50 dark:bg-blue-900/10 rounded-lg">
+                        <div
+                          key={src.id}
+                          className="grid grid-cols-3 gap-2 p-3 bg-blue-50 dark:bg-blue-900/10 rounded-lg"
+                        >
                           <Input
                             value={src.source}
                             onChange={(e) => updateOxygenSource(src.id, 'source', e.target.value)}
@@ -469,10 +657,17 @@ export default function FRANewPage() {
                           <div className="flex gap-2">
                             <Input
                               value={src.controlMeasure}
-                              onChange={(e) => updateOxygenSource(src.id, 'controlMeasure', e.target.value)}
+                              onChange={(e) =>
+                                updateOxygenSource(src.id, 'controlMeasure', e.target.value)
+                              }
                               placeholder="Control measure"
                             />
-                            <Button size="sm" variant="outline" onClick={() => removeOxygenSource(src.id)} className="flex-shrink-0 text-red-500">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => removeOxygenSource(src.id)}
+                              className="flex-shrink-0 text-red-500"
+                            >
                               <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
@@ -503,14 +698,21 @@ export default function FRANewPage() {
                         type="number"
                         min={0}
                         value={form.estimatedOccupants}
-                        onChange={(e) => setForm((f) => ({ ...f, estimatedOccupants: parseInt(e.target.value) || 0 }))}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            estimatedOccupants: parseInt(e.target.value) || 0,
+                          }))
+                        }
                       />
                     </div>
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">Person Groups at Risk</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                        Person Groups at Risk
+                      </h3>
                       <Button size="sm" variant="outline" onClick={addPersonGroup}>
                         <Plus className="h-3 w-3 mr-1" /> Add Group
                       </Button>
@@ -533,14 +735,18 @@ export default function FRANewPage() {
                                 type="number"
                                 min={0}
                                 value={grp.count}
-                                onChange={(e) => updatePersonGroup(grp.id, 'count', parseInt(e.target.value) || 0)}
+                                onChange={(e) =>
+                                  updatePersonGroup(grp.id, 'count', parseInt(e.target.value) || 0)
+                                }
                               />
                             </div>
                             <div>
                               <Label>Location / Area</Label>
                               <Input
                                 value={grp.location}
-                                onChange={(e) => updatePersonGroup(grp.id, 'location', e.target.value)}
+                                onChange={(e) =>
+                                  updatePersonGroup(grp.id, 'location', e.target.value)
+                                }
                                 placeholder="Where are they located?"
                               />
                             </div>
@@ -548,12 +754,19 @@ export default function FRANewPage() {
                               <Label>Vulnerabilities</Label>
                               <Input
                                 value={grp.vulnerabilities}
-                                onChange={(e) => updatePersonGroup(grp.id, 'vulnerabilities', e.target.value)}
+                                onChange={(e) =>
+                                  updatePersonGroup(grp.id, 'vulnerabilities', e.target.value)
+                                }
                                 placeholder="Any special vulnerabilities?"
                               />
                             </div>
                           </div>
-                          <Button size="sm" variant="outline" onClick={() => removePersonGroup(grp.id)} className="text-red-500">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => removePersonGroup(grp.id)}
+                            className="text-red-500"
+                          >
                             <Trash2 className="h-3 w-3 mr-1" /> Remove Group
                           </Button>
                         </div>
@@ -565,7 +778,9 @@ export default function FRANewPage() {
                     <Label>Vulnerable Persons Summary</Label>
                     <Textarea
                       value={form.vulnerablePersons}
-                      onChange={(e) => setForm((f) => ({ ...f, vulnerablePersons: e.target.value }))}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, vulnerablePersons: e.target.value }))
+                      }
                       rows={3}
                       placeholder="Describe any vulnerable persons: mobility impairments, visual/hearing impairments, lone workers, etc."
                     />
@@ -586,7 +801,9 @@ export default function FRANewPage() {
                 <div className="space-y-6">
                   {/* 5x5 Risk Matrix */}
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Risk Matrix (5x5)</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                      Risk Matrix (5x5)
+                    </h3>
                     <div className="grid grid-cols-2 gap-6 mb-6">
                       <div>
                         <Label>Likelihood (1-5)</Label>
@@ -595,11 +812,17 @@ export default function FRANewPage() {
                           min={1}
                           max={5}
                           value={form.riskLikelihood}
-                          onChange={(e) => setForm((f) => ({ ...f, riskLikelihood: parseInt(e.target.value) }))}
+                          onChange={(e) =>
+                            setForm((f) => ({ ...f, riskLikelihood: parseInt(e.target.value) }))
+                          }
                           className="w-full mt-2"
                         />
                         <div className="flex justify-between text-xs text-gray-500 mt-1">
-                          <span>1 Rare</span><span>2 Unlikely</span><span>3 Possible</span><span>4 Likely</span><span>5 Almost Certain</span>
+                          <span>1 Rare</span>
+                          <span>2 Unlikely</span>
+                          <span>3 Possible</span>
+                          <span>4 Likely</span>
+                          <span>5 Almost Certain</span>
                         </div>
                         <p className="text-center mt-2 font-bold text-lg">{form.riskLikelihood}</p>
                       </div>
@@ -610,38 +833,66 @@ export default function FRANewPage() {
                           min={1}
                           max={5}
                           value={form.riskSeverity}
-                          onChange={(e) => setForm((f) => ({ ...f, riskSeverity: parseInt(e.target.value) }))}
+                          onChange={(e) =>
+                            setForm((f) => ({ ...f, riskSeverity: parseInt(e.target.value) }))
+                          }
                           className="w-full mt-2"
                         />
                         <div className="flex justify-between text-xs text-gray-500 mt-1">
-                          <span>1 Negligible</span><span>2 Minor</span><span>3 Moderate</span><span>4 Major</span><span>5 Catastrophic</span>
+                          <span>1 Negligible</span>
+                          <span>2 Minor</span>
+                          <span>3 Moderate</span>
+                          <span>4 Major</span>
+                          <span>5 Catastrophic</span>
                         </div>
                         <p className="text-center mt-2 font-bold text-lg">{form.riskSeverity}</p>
                       </div>
                     </div>
                     <div className="text-center p-4 rounded-xl">
                       <p className="text-sm text-gray-500 mb-1">Computed Overall Risk Rating</p>
-                      <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-bold text-lg"
-                        style={{ backgroundColor: computedRisk === 'LOW' ? '#10B981' : computedRisk === 'MEDIUM' ? '#F59E0B' : computedRisk === 'HIGH' ? '#F97316' : '#DC2626' }}>
+                      <div
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-bold text-lg"
+                        style={{
+                          backgroundColor:
+                            computedRisk === 'LOW'
+                              ? '#10B981'
+                              : computedRisk === 'MEDIUM'
+                                ? '#F59E0B'
+                                : computedRisk === 'HIGH'
+                                  ? '#F97316'
+                                  : '#DC2626',
+                        }}
+                      >
                         {computedRisk.replace(/_/g, ' ')}
                       </div>
-                      <p className="text-xs text-gray-400 mt-2">Likelihood {form.riskLikelihood} × Severity {form.riskSeverity}</p>
+                      <p className="text-xs text-gray-400 mt-2">
+                        Likelihood {form.riskLikelihood} × Severity {form.riskSeverity}
+                      </p>
                     </div>
                   </div>
 
                   {/* Precautions Table */}
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Fire Precautions</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                      Fire Precautions
+                    </h3>
                     <div className="space-y-3">
                       {form.precautions.map((prec) => (
-                        <div key={prec.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                        <div
+                          key={prec.id}
+                          className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                        >
                           <div className="flex items-center justify-between mb-3">
-                            <h4 className="font-medium text-gray-900 dark:text-gray-100">{prec.category}</h4>
+                            <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                              {prec.category}
+                            </h4>
                             <label className="flex items-center gap-2 cursor-pointer">
                               <input
                                 type="checkbox"
                                 checked={prec.inPlace}
-                                onChange={(e) => updatePrecaution(prec.id, 'inPlace', e.target.checked)}
+                                onChange={(e) =>
+                                  updatePrecaution(prec.id, 'inPlace', e.target.checked)
+                                }
                                 className="h-4 w-4 rounded"
                               />
                               <span className="text-sm">In place</span>
@@ -652,7 +903,9 @@ export default function FRANewPage() {
                               <Label>Description</Label>
                               <Input
                                 value={prec.description}
-                                onChange={(e) => updatePrecaution(prec.id, 'description', e.target.value)}
+                                onChange={(e) =>
+                                  updatePrecaution(prec.id, 'description', e.target.value)
+                                }
                                 placeholder="Describe current provision..."
                               />
                             </div>
@@ -660,7 +913,9 @@ export default function FRANewPage() {
                               <Label>Adequacy</Label>
                               <Select
                                 value={prec.adequacy}
-                                onChange={(e) => updatePrecaution(prec.id, 'adequacy', e.target.value)}
+                                onChange={(e) =>
+                                  updatePrecaution(prec.id, 'adequacy', e.target.value)
+                                }
                               >
                                 <option value="ADEQUATE">Adequate</option>
                                 <option value="IMPROVEMENT_NEEDED">Improvement Needed</option>
@@ -672,7 +927,9 @@ export default function FRANewPage() {
                               <Label>Action Required</Label>
                               <Input
                                 value={prec.action}
-                                onChange={(e) => updatePrecaution(prec.id, 'action', e.target.value)}
+                                onChange={(e) =>
+                                  updatePrecaution(prec.id, 'action', e.target.value)
+                                }
                                 placeholder="What action is needed?"
                               />
                             </div>
@@ -708,20 +965,27 @@ export default function FRANewPage() {
 
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">Action Plan</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                        Action Plan
+                      </h3>
                       <Button size="sm" variant="outline" onClick={addActionItem}>
                         <Plus className="h-3 w-3 mr-1" /> Add Action
                       </Button>
                     </div>
                     <div className="space-y-3">
                       {form.actionItems.map((item) => (
-                        <div key={item.id} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <div
+                          key={item.id}
+                          className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
+                        >
                           <div className="grid grid-cols-2 gap-3">
                             <div>
                               <Label>Finding / Issue</Label>
                               <Input
                                 value={item.finding}
-                                onChange={(e) => updateActionItem(item.id, 'finding', e.target.value)}
+                                onChange={(e) =>
+                                  updateActionItem(item.id, 'finding', e.target.value)
+                                }
                                 placeholder="Describe the finding..."
                               />
                             </div>
@@ -729,7 +993,9 @@ export default function FRANewPage() {
                               <Label>Action Required</Label>
                               <Input
                                 value={item.action}
-                                onChange={(e) => updateActionItem(item.id, 'action', e.target.value)}
+                                onChange={(e) =>
+                                  updateActionItem(item.id, 'action', e.target.value)
+                                }
                                 placeholder="What needs to be done?"
                               />
                             </div>
@@ -737,7 +1003,9 @@ export default function FRANewPage() {
                               <Label>Responsible Person</Label>
                               <Input
                                 value={item.responsible}
-                                onChange={(e) => updateActionItem(item.id, 'responsible', e.target.value)}
+                                onChange={(e) =>
+                                  updateActionItem(item.id, 'responsible', e.target.value)
+                                }
                                 placeholder="Who is responsible?"
                               />
                             </div>
@@ -746,14 +1014,18 @@ export default function FRANewPage() {
                               <Input
                                 type="date"
                                 value={item.dueDate}
-                                onChange={(e) => updateActionItem(item.id, 'dueDate', e.target.value)}
+                                onChange={(e) =>
+                                  updateActionItem(item.id, 'dueDate', e.target.value)
+                                }
                               />
                             </div>
                             <div>
                               <Label>Priority</Label>
                               <Select
                                 value={item.priority}
-                                onChange={(e) => updateActionItem(item.id, 'priority', e.target.value)}
+                                onChange={(e) =>
+                                  updateActionItem(item.id, 'priority', e.target.value)
+                                }
                               >
                                 <option value="LOW">Low</option>
                                 <option value="MEDIUM">Medium</option>
@@ -762,7 +1034,12 @@ export default function FRANewPage() {
                               </Select>
                             </div>
                           </div>
-                          <Button size="sm" variant="outline" onClick={() => removeActionItem(item.id)} className="mt-3 text-red-500">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => removeActionItem(item.id)}
+                            className="mt-3 text-red-500"
+                          >
                             <Trash2 className="h-3 w-3 mr-1" /> Remove
                           </Button>
                         </div>
@@ -802,7 +1079,13 @@ export default function FRANewPage() {
                       <Input
                         type="date"
                         value={form.nextReviewDate}
-                        onChange={(e) => setForm((f) => ({ ...f, nextReviewDate: e.target.value, reviewDate: e.target.value }))}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            nextReviewDate: e.target.value,
+                            reviewDate: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                   </div>
@@ -827,7 +1110,9 @@ export default function FRANewPage() {
                       <div>
                         <span className="text-gray-500">Assessment Date:</span>{' '}
                         <span className="font-medium">
-                          {form.assessmentDate ? new Date(form.assessmentDate).toLocaleDateString() : '-'}
+                          {form.assessmentDate
+                            ? new Date(form.assessmentDate).toLocaleDateString()
+                            : '-'}
                         </span>
                       </div>
                       <div>
@@ -836,9 +1121,13 @@ export default function FRANewPage() {
                           className="font-bold px-2 py-0.5 rounded text-white text-xs"
                           style={{
                             backgroundColor:
-                              form.overallRiskRating === 'LOW' ? '#10B981' :
-                              form.overallRiskRating === 'MEDIUM' ? '#F59E0B' :
-                              form.overallRiskRating === 'HIGH' ? '#F97316' : '#DC2626',
+                              form.overallRiskRating === 'LOW'
+                                ? '#10B981'
+                                : form.overallRiskRating === 'MEDIUM'
+                                  ? '#F59E0B'
+                                  : form.overallRiskRating === 'HIGH'
+                                    ? '#F97316'
+                                    : '#DC2626',
                           }}
                         >
                           {form.overallRiskRating.replace(/_/g, ' ')}
@@ -850,13 +1139,17 @@ export default function FRANewPage() {
                       </div>
                       <div>
                         <span className="text-gray-500">Action Items:</span>{' '}
-                        <span className="font-medium">{form.actionItems.filter((a) => a.finding).length}</span>
+                        <span className="font-medium">
+                          {form.actionItems.filter((a) => a.finding).length}
+                        </span>
                       </div>
                     </div>
                   </div>
 
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Sign-off</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                      Sign-off
+                    </h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label>Responsible Person Name *</Label>
@@ -887,7 +1180,9 @@ export default function FRANewPage() {
                       <Label>Additional Notes / Caveats</Label>
                       <Textarea
                         value={form.additionalNotes}
-                        onChange={(e) => setForm((f) => ({ ...f, additionalNotes: e.target.value }))}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, additionalNotes: e.target.value }))
+                        }
                         rows={3}
                       />
                     </div>
@@ -907,7 +1202,9 @@ export default function FRANewPage() {
               <ChevronLeft className="h-4 w-4 mr-1" />
               Previous
             </Button>
-            <span className="text-sm text-gray-500">Step {step} of {STEPS.length}</span>
+            <span className="text-sm text-gray-500">
+              Step {step} of {STEPS.length}
+            </span>
             {step < STEPS.length ? (
               <Button
                 onClick={() => setStep((s) => s + 1)}

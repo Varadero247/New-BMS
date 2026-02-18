@@ -130,9 +130,7 @@ describe('Quality Documents API Routes', () => {
       mockPrisma.qualDocument.findMany.mockResolvedValueOnce([]);
       mockPrisma.qualDocument.count.mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/documents?status=APPROVED')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/documents?status=APPROVED').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualDocument.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -164,9 +162,7 @@ describe('Quality Documents API Routes', () => {
       mockPrisma.qualDocument.findMany.mockResolvedValueOnce([]);
       mockPrisma.qualDocument.count.mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/documents?search=policy')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/documents?search=policy').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualDocument.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -181,9 +177,7 @@ describe('Quality Documents API Routes', () => {
       mockPrisma.qualDocument.findMany.mockResolvedValueOnce(mockDocuments);
       mockPrisma.qualDocument.count.mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/documents')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/documents').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualDocument.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -437,7 +431,9 @@ describe('Quality Documents API Routes', () => {
 
   describe('DELETE /api/documents/:id', () => {
     it('should delete document successfully', async () => {
-      mockPrisma.qualDocument.findUnique.mockResolvedValueOnce({ id: '1e000000-0000-4000-a000-000000000001' });
+      mockPrisma.qualDocument.findUnique.mockResolvedValueOnce({
+        id: '1e000000-0000-4000-a000-000000000001',
+      });
       mockPrisma.qualDocument.delete.mockResolvedValueOnce({});
 
       const response = await request(app)

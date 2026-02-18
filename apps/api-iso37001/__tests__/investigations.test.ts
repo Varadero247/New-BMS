@@ -96,7 +96,10 @@ describe('ISO 37001 Investigations API', () => {
   // =========================================================================
   describe('GET /api/investigations', () => {
     it('should return paginated list of investigations', async () => {
-      (mockPrisma.abInvestigation.findMany as jest.Mock).mockResolvedValueOnce([mockInvestigation, mockInvestigation2]);
+      (mockPrisma.abInvestigation.findMany as jest.Mock).mockResolvedValueOnce([
+        mockInvestigation,
+        mockInvestigation2,
+      ]);
       (mockPrisma.abInvestigation.count as jest.Mock).mockResolvedValueOnce(2);
 
       const res = await request(app).get('/api/investigations');
@@ -168,7 +171,9 @@ describe('ISO 37001 Investigations API', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             OR: expect.arrayContaining([
-              expect.objectContaining({ title: expect.objectContaining({ contains: 'facilitation' }) }),
+              expect.objectContaining({
+                title: expect.objectContaining({ contains: 'facilitation' }),
+              }),
             ]),
           }),
         })
@@ -186,7 +191,9 @@ describe('ISO 37001 Investigations API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.abInvestigation.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.abInvestigation.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
       (mockPrisma.abInvestigation.count as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/investigations');
@@ -235,10 +242,12 @@ describe('ISO 37001 Investigations API', () => {
     });
 
     it('should return 400 when allegationType is invalid', async () => {
-      const res = await request(app).post('/api/investigations').send({
-        ...validPayload,
-        allegationType: 'INVALID_TYPE',
-      });
+      const res = await request(app)
+        .post('/api/investigations')
+        .send({
+          ...validPayload,
+          allegationType: 'INVALID_TYPE',
+        });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -277,7 +286,9 @@ describe('ISO 37001 Investigations API', () => {
     it('should return an investigation by ID', async () => {
       (mockPrisma.abInvestigation.findFirst as jest.Mock).mockResolvedValueOnce(mockInvestigation);
 
-      const res = await request(app).get('/api/investigations/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).get(
+        '/api/investigations/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -287,7 +298,9 @@ describe('ISO 37001 Investigations API', () => {
     it('should return 404 when not found', async () => {
       (mockPrisma.abInvestigation.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/investigations/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).get(
+        '/api/investigations/00000000-0000-0000-0000-000000000099'
+      );
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -533,9 +546,14 @@ describe('ISO 37001 Investigations API', () => {
   describe('DELETE /api/investigations/:id', () => {
     it('should soft delete an investigation', async () => {
       (mockPrisma.abInvestigation.findFirst as jest.Mock).mockResolvedValueOnce(mockInvestigation);
-      (mockPrisma.abInvestigation.update as jest.Mock).mockResolvedValueOnce({ ...mockInvestigation, deletedAt: new Date() });
+      (mockPrisma.abInvestigation.update as jest.Mock).mockResolvedValueOnce({
+        ...mockInvestigation,
+        deletedAt: new Date(),
+      });
 
-      const res = await request(app).delete('/api/investigations/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/investigations/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -544,7 +562,9 @@ describe('ISO 37001 Investigations API', () => {
     it('should return 404 when not found for deletion', async () => {
       (mockPrisma.abInvestigation.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).delete('/api/investigations/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/investigations/00000000-0000-0000-0000-000000000099'
+      );
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);

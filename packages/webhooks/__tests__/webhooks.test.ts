@@ -124,7 +124,12 @@ describe('@ims/webhooks', () => {
 
   describe('getEndpoint', () => {
     it('should return endpoint by ID', () => {
-      const created = createEndpoint({ orgId: 'org-1', name: 'Test', url: 'https://x.com', events: ['ncr.created'] });
+      const created = createEndpoint({
+        orgId: 'org-1',
+        name: 'Test',
+        url: 'https://x.com',
+        events: ['ncr.created'],
+      });
       const found = getEndpoint(created.id);
       expect(found).toBeDefined();
       expect(found!.name).toBe('Test');
@@ -137,7 +142,12 @@ describe('@ims/webhooks', () => {
 
   describe('deleteEndpoint', () => {
     it('should delete an existing endpoint', () => {
-      const ep = createEndpoint({ orgId: 'org-1', name: 'Test', url: 'https://x.com', events: ['ncr.created'] });
+      const ep = createEndpoint({
+        orgId: 'org-1',
+        name: 'Test',
+        url: 'https://x.com',
+        events: ['ncr.created'],
+      });
       expect(deleteEndpoint(ep.id)).toBe(true);
       expect(getEndpoint(ep.id)).toBeUndefined();
     });
@@ -149,20 +159,37 @@ describe('@ims/webhooks', () => {
 
   describe('updateEndpoint', () => {
     it('should update name', () => {
-      const ep = createEndpoint({ orgId: 'org-1', name: 'Old', url: 'https://x.com', events: ['ncr.created'] });
+      const ep = createEndpoint({
+        orgId: 'org-1',
+        name: 'Old',
+        url: 'https://x.com',
+        events: ['ncr.created'],
+      });
       const updated = updateEndpoint(ep.id, { name: 'New' });
       expect(updated!.name).toBe('New');
     });
 
     it('should update enabled status', () => {
-      const ep = createEndpoint({ orgId: 'org-1', name: 'Test', url: 'https://x.com', events: ['ncr.created'] });
+      const ep = createEndpoint({
+        orgId: 'org-1',
+        name: 'Test',
+        url: 'https://x.com',
+        events: ['ncr.created'],
+      });
       const updated = updateEndpoint(ep.id, { enabled: false });
       expect(updated!.enabled).toBe(false);
     });
 
     it('should update events', () => {
-      const ep = createEndpoint({ orgId: 'org-1', name: 'Test', url: 'https://x.com', events: ['ncr.created'] });
-      const updated = updateEndpoint(ep.id, { events: ['ncr.created', 'capa.created', 'audit.complete'] });
+      const ep = createEndpoint({
+        orgId: 'org-1',
+        name: 'Test',
+        url: 'https://x.com',
+        events: ['ncr.created'],
+      });
+      const updated = updateEndpoint(ep.id, {
+        events: ['ncr.created', 'capa.created', 'audit.complete'],
+      });
       expect(updated!.events).toHaveLength(3);
     });
 
@@ -187,20 +214,35 @@ describe('@ims/webhooks', () => {
     });
 
     it('should not dispatch to disabled endpoints', () => {
-      const ep = createEndpoint({ orgId: 'org-1', name: 'Test', url: 'https://x.com', events: ['ncr.created'] });
+      const ep = createEndpoint({
+        orgId: 'org-1',
+        name: 'Test',
+        url: 'https://x.com',
+        events: ['ncr.created'],
+      });
       updateEndpoint(ep.id, { enabled: false });
       const deliveries = dispatch('ncr.created', 'org-1', { ncrId: '123' });
       expect(deliveries).toHaveLength(0);
     });
 
     it('should not dispatch for non-matching events', () => {
-      createEndpoint({ orgId: 'org-1', name: 'Test', url: 'https://x.com', events: ['capa.created'] });
+      createEndpoint({
+        orgId: 'org-1',
+        name: 'Test',
+        url: 'https://x.com',
+        events: ['capa.created'],
+      });
       const deliveries = dispatch('ncr.created', 'org-1', { ncrId: '123' });
       expect(deliveries).toHaveLength(0);
     });
 
     it('should update lastTriggeredAt on endpoint', () => {
-      const ep = createEndpoint({ orgId: 'org-1', name: 'Test', url: 'https://x.com', events: ['ncr.created'] });
+      const ep = createEndpoint({
+        orgId: 'org-1',
+        name: 'Test',
+        url: 'https://x.com',
+        events: ['ncr.created'],
+      });
       expect(ep.lastTriggeredAt).toBeNull();
       dispatch('ncr.created', 'org-1', { ncrId: '123' });
       const updated = getEndpoint(ep.id);
@@ -210,7 +252,12 @@ describe('@ims/webhooks', () => {
 
   describe('listDeliveries', () => {
     it('should return deliveries for an endpoint', () => {
-      const ep = createEndpoint({ orgId: 'org-1', name: 'Test', url: 'https://x.com', events: ['ncr.created'] });
+      const ep = createEndpoint({
+        orgId: 'org-1',
+        name: 'Test',
+        url: 'https://x.com',
+        events: ['ncr.created'],
+      });
       dispatch('ncr.created', 'org-1', { ncrId: '1' });
       dispatch('ncr.created', 'org-1', { ncrId: '2' });
       const dels = listDeliveries(ep.id);
@@ -218,7 +265,12 @@ describe('@ims/webhooks', () => {
     });
 
     it('should respect limit', () => {
-      const ep = createEndpoint({ orgId: 'org-1', name: 'Test', url: 'https://x.com', events: ['ncr.created'] });
+      const ep = createEndpoint({
+        orgId: 'org-1',
+        name: 'Test',
+        url: 'https://x.com',
+        events: ['ncr.created'],
+      });
       for (let i = 0; i < 5; i++) {
         dispatch('ncr.created', 'org-1', { ncrId: `${i}` });
       }
@@ -229,7 +281,12 @@ describe('@ims/webhooks', () => {
 
   describe('getDelivery', () => {
     it('should return a specific delivery', () => {
-      const ep = createEndpoint({ orgId: 'org-1', name: 'Test', url: 'https://x.com', events: ['ncr.created'] });
+      const ep = createEndpoint({
+        orgId: 'org-1',
+        name: 'Test',
+        url: 'https://x.com',
+        events: ['ncr.created'],
+      });
       const deliveries = dispatch('ncr.created', 'org-1', { ncrId: '123' });
       const found = getDelivery(deliveries[0].id);
       expect(found).toBeDefined();

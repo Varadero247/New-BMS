@@ -25,7 +25,12 @@ interface ControlChartProps {
 }
 
 // Western Electric Rules for detecting out-of-control conditions
-function detectRuleViolations(data: number[], ucl: number, lcl: number, mean: number): Map<number, string[]> {
+function detectRuleViolations(
+  data: number[],
+  ucl: number,
+  lcl: number,
+  mean: number
+): Map<number, string[]> {
   const violations = new Map<number, string[]>();
   const sigma = (ucl - mean) / 3;
   const zone1Upper = mean + sigma;
@@ -49,7 +54,7 @@ function detectRuleViolations(data: number[], ucl: number, lcl: number, mean: nu
     // Rule 2: 9 points in a row on same side of center
     if (i >= 8) {
       const last9 = data.slice(i - 8, i + 1);
-      if (last9.every(v => v > mean) || last9.every(v => v < mean)) {
+      if (last9.every((v) => v > mean) || last9.every((v) => v < mean)) {
         addViolation(i, 'Rule 2: 9 points same side');
       }
     }
@@ -57,10 +62,11 @@ function detectRuleViolations(data: number[], ucl: number, lcl: number, mean: nu
     // Rule 3: 6 points in a row, all increasing or decreasing
     if (i >= 5) {
       const last6 = data.slice(i - 5, i + 1);
-      let increasing = true, decreasing = true;
+      let increasing = true,
+        decreasing = true;
       for (let j = 1; j < last6.length; j++) {
-        if (last6[j] <= last6[j-1]) increasing = false;
-        if (last6[j] >= last6[j-1]) decreasing = false;
+        if (last6[j] <= last6[j - 1]) increasing = false;
+        if (last6[j] >= last6[j - 1]) decreasing = false;
       }
       if (increasing || decreasing) {
         addViolation(i, 'Rule 3: 6 points trend');
@@ -72,8 +78,8 @@ function detectRuleViolations(data: number[], ucl: number, lcl: number, mean: nu
       const last14 = data.slice(i - 13, i + 1);
       let alternating = true;
       for (let j = 2; j < last14.length; j++) {
-        const prevDir = last14[j-1] > last14[j-2] ? 1 : -1;
-        const currDir = last14[j] > last14[j-1] ? 1 : -1;
+        const prevDir = last14[j - 1] > last14[j - 2] ? 1 : -1;
+        const currDir = last14[j] > last14[j - 1] ? 1 : -1;
         if (prevDir === currDir) {
           alternating = false;
           break;
@@ -87,8 +93,8 @@ function detectRuleViolations(data: number[], ucl: number, lcl: number, mean: nu
     // Rule 5: 2 of 3 points beyond 2 sigma (same side)
     if (i >= 2) {
       const last3 = data.slice(i - 2, i + 1);
-      const above2Sigma = last3.filter(v => v > zone2Upper).length;
-      const below2Sigma = last3.filter(v => v < zone2Lower).length;
+      const above2Sigma = last3.filter((v) => v > zone2Upper).length;
+      const below2Sigma = last3.filter((v) => v < zone2Lower).length;
       if (above2Sigma >= 2 || below2Sigma >= 2) {
         addViolation(i, 'Rule 5: 2/3 beyond 2σ');
       }
@@ -113,7 +119,7 @@ export function ControlChart({
   const chartInstance = useRef<Chart | null>(null);
 
   const { mean, stdDev, ucl, lcl, violations } = useMemo(() => {
-    const values = data.map(d => d.value);
+    const values = data.map((d) => d.value);
     const mean = values.reduce((a, b) => a + b, 0) / values.length;
     const stdDev = Math.sqrt(
       values.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / values.length
@@ -122,7 +128,9 @@ export function ControlChart({
     const ucl = customUcl ?? mean + 3 * stdDev;
     const lcl = customLcl ?? mean - 3 * stdDev;
 
-    const violations = showRules ? detectRuleViolations(values, ucl, lcl, customTarget ?? mean) : new Map();
+    const violations = showRules
+      ? detectRuleViolations(values, ucl, lcl, customTarget ?? mean)
+      : new Map();
 
     return { mean, stdDev, ucl, lcl, violations };
   }, [data, customUcl, customLcl, customTarget, showRules]);
@@ -137,10 +145,10 @@ export function ControlChart({
     const ctx = chartRef.current.getContext('2d');
     if (!ctx) return;
 
-    const labels = data.map(d =>
+    const labels = data.map((d) =>
       typeof d.date === 'string' ? d.date : d.date.toLocaleDateString()
     );
-    const values = data.map(d => d.value);
+    const values = data.map((d) => d.value);
 
     // Determine point colors based on violations
     const pointColors = values.map((_, i) => {
@@ -334,7 +342,9 @@ export function ControlChart({
           <p className="text-xs text-gray-600">Std Dev (σ)</p>
         </div>
         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
-          <p className={`text-lg font-bold ${outOfControlCount > 0 ? 'text-red-600' : 'text-green-600'}`}>
+          <p
+            className={`text-lg font-bold ${outOfControlCount > 0 ? 'text-red-600' : 'text-green-600'}`}
+          >
             {outOfControlCount}
           </p>
           <p className="text-xs text-gray-600">Out of Control</p>
@@ -349,19 +359,25 @@ export function ControlChart({
       {cp !== null && (
         <div className="mt-4 grid grid-cols-3 gap-4">
           <div className="bg-blue-50 rounded-lg p-3 text-center">
-            <p className={`text-lg font-bold ${cp >= 1.33 ? 'text-green-600' : cp >= 1 ? 'text-yellow-600' : 'text-red-600'}`}>
+            <p
+              className={`text-lg font-bold ${cp >= 1.33 ? 'text-green-600' : cp >= 1 ? 'text-yellow-600' : 'text-red-600'}`}
+            >
               {cp.toFixed(3)}
             </p>
             <p className="text-xs text-gray-600">Cp</p>
           </div>
           <div className="bg-blue-50 rounded-lg p-3 text-center">
-            <p className={`text-lg font-bold ${cpk! >= 1.33 ? 'text-green-600' : cpk! >= 1 ? 'text-yellow-600' : 'text-red-600'}`}>
+            <p
+              className={`text-lg font-bold ${cpk! >= 1.33 ? 'text-green-600' : cpk! >= 1 ? 'text-yellow-600' : 'text-red-600'}`}
+            >
               {cpk!.toFixed(3)}
             </p>
             <p className="text-xs text-gray-600">Cpk</p>
           </div>
           <div className="bg-blue-50 rounded-lg p-3 text-center">
-            <p className={`text-lg font-bold ${ppk! >= 1.33 ? 'text-green-600' : ppk! >= 1 ? 'text-yellow-600' : 'text-red-600'}`}>
+            <p
+              className={`text-lg font-bold ${ppk! >= 1.33 ? 'text-green-600' : ppk! >= 1 ? 'text-yellow-600' : 'text-red-600'}`}
+            >
               {ppk!.toFixed(3)}
             </p>
             <p className="text-xs text-gray-600">Ppk</p>

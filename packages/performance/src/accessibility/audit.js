@@ -360,8 +360,12 @@ async function runAudit(urls, options = {}) {
   console.log('Audit Summary:');
   console.log('-'.repeat(70));
   console.log();
-  console.log(`  ${'Application'.padEnd(22)} ${'Violations'.padEnd(14)} ${'Passes'.padEnd(10)} ${'Status'}`);
-  console.log(`  ${''.padEnd(22, '-')} ${''.padEnd(14, '-')} ${''.padEnd(10, '-')} ${''.padEnd(8, '-')}`);
+  console.log(
+    `  ${'Application'.padEnd(22)} ${'Violations'.padEnd(14)} ${'Passes'.padEnd(10)} ${'Status'}`
+  );
+  console.log(
+    `  ${''.padEnd(22, '-')} ${''.padEnd(14, '-')} ${''.padEnd(10, '-')} ${''.padEnd(8, '-')}`
+  );
 
   let totalViolations = 0;
   for (const report of reports) {

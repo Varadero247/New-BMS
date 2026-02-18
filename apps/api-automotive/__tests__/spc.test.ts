@@ -186,7 +186,7 @@ const mockDataPoint3 = {
 const mockOocDataPoint = {
   id: 'dp-ooc-001',
   chartId: '20000000-0000-4000-a000-000000000001',
-  value: 25.10,
+  value: 25.1,
   timestamp: new Date('2026-02-01T14:00:00Z'),
   subgroup: 4,
   defectives: null,
@@ -216,9 +216,15 @@ const mockComputedChartWithOOC = {
   ...mockComputedChart,
   dataPoints: [
     { value: 25.01, timestamp: new Date(), index: 0, outOfControl: false, violationRules: [] },
-    { value: 25.10, timestamp: new Date(), index: 1, outOfControl: true, violationRules: ['Rule 1'] },
+    {
+      value: 25.1,
+      timestamp: new Date(),
+      index: 1,
+      outOfControl: true,
+      violationRules: ['Rule 1'],
+    },
   ],
-  outOfControl: [{ index: 1, value: 25.10, rules: ['Rule 1'] }],
+  outOfControl: [{ index: 1, value: 25.1, rules: ['Rule 1'] }],
 };
 
 const mockIMRComputedChart = {
@@ -509,7 +515,9 @@ describe('Automotive SPC API Routes', () => {
 
     it('should handle database errors during creation', async () => {
       (mockPrisma.spcChart.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.spcChart.create as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.spcChart.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
       const response = await request(app)
         .post('/api/spc')
@@ -531,9 +539,7 @@ describe('Automotive SPC API Routes', () => {
       (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValueOnce([mockChart, mockChartIMR]);
       (mockPrisma.spcChart.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/spc')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/spc').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -589,9 +595,7 @@ describe('Automotive SPC API Routes', () => {
       (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValueOnce([mockChart]);
       (mockPrisma.spcChart.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/spc?status=ACTIVE')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/spc?status=ACTIVE').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.spcChart.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -607,9 +611,7 @@ describe('Automotive SPC API Routes', () => {
       (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValueOnce([mockChart]);
       (mockPrisma.spcChart.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/spc?partNumber=BA-2026')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/spc?partNumber=BA-2026').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.spcChart.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -625,9 +627,7 @@ describe('Automotive SPC API Routes', () => {
       (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValueOnce([mockChart]);
       (mockPrisma.spcChart.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/spc?chartType=XBAR_R')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/spc?chartType=XBAR_R').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.spcChart.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -643,9 +643,7 @@ describe('Automotive SPC API Routes', () => {
       (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValueOnce([mockChart]);
       (mockPrisma.spcChart.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/spc?search=bore')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/spc?search=bore').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.spcChart.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -680,9 +678,7 @@ describe('Automotive SPC API Routes', () => {
       (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.spcChart.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/spc')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/spc').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.spcChart.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -692,11 +688,11 @@ describe('Automotive SPC API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.spcChart.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.spcChart.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
-      const response = await request(app)
-        .get('/api/spc')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/spc').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -778,9 +774,7 @@ describe('Automotive SPC API Routes', () => {
     it('should query only active charts with OOC data points', async () => {
       (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/spc/alerts')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/spc/alerts').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.spcChart.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1007,9 +1001,7 @@ describe('Automotive SPC API Routes', () => {
         dataPoints: [],
       });
 
-      await request(app)
-        .get(`/api/spc/${mockChart.id}`)
-        .set('Authorization', 'Bearer token');
+      await request(app).get(`/api/spc/${mockChart.id}`).set('Authorization', 'Bearer token');
 
       expect(mockPrisma.spcChart.findUnique).toHaveBeenCalledWith({
         where: { id: mockChart.id },
@@ -1373,16 +1365,8 @@ describe('Automotive SPC API Routes', () => {
       expect(data.statusCpk).toBe('CAPABLE');
       expect(data.statusPpk).toBe('MARGINAL');
 
-      expect(mockCalculateCpk).toHaveBeenCalledWith(
-        [25.01, 25.02, 24.99],
-        25.05,
-        24.95
-      );
-      expect(mockCalculatePpk).toHaveBeenCalledWith(
-        [25.01, 25.02, 24.99],
-        25.05,
-        24.95
-      );
+      expect(mockCalculateCpk).toHaveBeenCalledWith([25.01, 25.02, 24.99], 25.05, 24.95);
+      expect(mockCalculatePpk).toHaveBeenCalledWith([25.01, 25.02, 24.99], 25.05, 24.95);
     });
 
     it('should return 404 when chart is not found', async () => {
@@ -1461,7 +1445,9 @@ describe('Automotive SPC API Routes', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('INSUFFICIENT_DATA');
-      expect(response.body.error.message).toBe('Need at least 2 data points for capability analysis');
+      expect(response.body.error.message).toBe(
+        'Need at least 2 data points for capability analysis'
+      );
     });
 
     it('should return 400 when no data points exist', async () => {
@@ -1490,7 +1476,7 @@ describe('Automotive SPC API Routes', () => {
         status: 'INCAPABLE',
       });
       mockCalculatePpk.mockReturnValueOnce({
-        pp: 0.80,
+        pp: 0.8,
         ppk: 0.65,
         sigma: 0.042,
         mean: 25.015,
@@ -1508,13 +1494,24 @@ describe('Automotive SPC API Routes', () => {
 
     it('should query data points ordered by timestamp ascending', async () => {
       (mockPrisma.spcChart.findUnique as jest.Mock).mockResolvedValueOnce(mockChart);
-      (mockPrisma.spcDataPoint.findMany as jest.Mock).mockResolvedValueOnce([mockDataPoint1, mockDataPoint2]);
+      (mockPrisma.spcDataPoint.findMany as jest.Mock).mockResolvedValueOnce([
+        mockDataPoint1,
+        mockDataPoint2,
+      ]);
 
       mockCalculateCpk.mockReturnValueOnce({
-        cp: 1.5, cpk: 1.4, sigma: 0.02, mean: 25.0, status: 'MARGINAL',
+        cp: 1.5,
+        cpk: 1.4,
+        sigma: 0.02,
+        mean: 25.0,
+        status: 'MARGINAL',
       });
       mockCalculatePpk.mockReturnValueOnce({
-        pp: 1.4, ppk: 1.3, sigma: 0.021, mean: 25.0, status: 'INCAPABLE',
+        pp: 1.4,
+        ppk: 1.3,
+        sigma: 0.021,
+        mean: 25.0,
+        status: 'INCAPABLE',
       });
 
       await request(app)

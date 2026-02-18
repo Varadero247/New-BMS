@@ -27,7 +27,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/expansion', expansionRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 // ===================================================================
 // GET /api/expansion/triggers
@@ -35,9 +37,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/expansion/triggers', () => {
   it('returns recent trigger events', async () => {
-    const triggers = [
-      { id: 'log-1', template: 'expansion_user_limit', email: 'admin@co.com' },
-    ];
+    const triggers = [{ id: 'log-1', template: 'expansion_user_limit', email: 'admin@co.com' }];
     (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue(triggers);
 
     const res = await request(app).get('/api/expansion/triggers');

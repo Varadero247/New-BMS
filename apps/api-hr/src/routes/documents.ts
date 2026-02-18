@@ -16,7 +16,14 @@ router.param('employeeId', validateIdParam('employeeId'));
 // GET /api/documents - Get employee documents
 router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
-    const { employeeId, documentType, status, expiringWithin, page = '1', limit = '20' } = req.query;
+    const {
+      employeeId,
+      documentType,
+      status,
+      expiringWithin,
+      page = '1',
+      limit = '20',
+    } = req.query;
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
@@ -53,7 +60,10 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching documents', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch documents' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch documents' },
+    });
   }
 });
 
@@ -63,18 +73,31 @@ router.get('/:id', checkOwnership(prisma.employeeDocument), async (req: Request,
     const document = await prisma.employeeDocument.findUnique({
       where: { id: req.params.id },
       include: {
-        employee: { select: { id: true, firstName: true, lastName: true, employeeNumber: true, departmentId: true } },
+        employee: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            employeeNumber: true,
+            departmentId: true,
+          },
+        },
       },
     });
 
     if (!document) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
     }
 
     res.json({ success: true, data: document });
   } catch (error) {
     logger.error('Error fetching document', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch document' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch document' },
+    });
   }
 });
 
@@ -84,9 +107,22 @@ router.post('/', async (req: Request, res: Response) => {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
       documentType: z.enum([
-        'CONTRACT', 'OFFER_LETTER', 'NDA', 'POLICY_ACKNOWLEDGMENT', 'ID_PROOF', 'ADDRESS_PROOF',
-        'EDUCATION_CERTIFICATE', 'EXPERIENCE_LETTER', 'BACKGROUND_CHECK', 'MEDICAL_CERTIFICATE',
-        'TAX_FORM', 'BANK_DETAILS', 'PERFORMANCE_LETTER', 'WARNING_LETTER', 'TERMINATION_LETTER', 'OTHER'
+        'CONTRACT',
+        'OFFER_LETTER',
+        'NDA',
+        'POLICY_ACKNOWLEDGMENT',
+        'ID_PROOF',
+        'ADDRESS_PROOF',
+        'EDUCATION_CERTIFICATE',
+        'EXPERIENCE_LETTER',
+        'BACKGROUND_CHECK',
+        'MEDICAL_CERTIFICATE',
+        'TAX_FORM',
+        'BANK_DETAILS',
+        'PERFORMANCE_LETTER',
+        'WARNING_LETTER',
+        'TERMINATION_LETTER',
+        'OTHER',
       ]),
       title: z.string().trim().min(1).max(200),
       description: z.string().optional(),
@@ -94,8 +130,14 @@ router.post('/', async (req: Request, res: Response) => {
       fileUrl: z.string().trim().url(),
       fileSize: z.number().nonnegative().optional(),
       mimeType: z.string().optional(),
-      issueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      issueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      expiryDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       issuingAuthority: z.string().optional(),
       documentNumber: z.string().optional(),
       requiresSignature: z.boolean().default(false),
@@ -119,10 +161,15 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: document });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating document', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create document' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create document' },
+    });
   }
 });
 
@@ -132,8 +179,13 @@ router.put('/:id', checkOwnership(prisma.employeeDocument), async (req: Request,
     const schema = z.object({
       title: z.string().optional(),
       description: z.string().optional(),
-      status: z.enum(['ACTIVE', 'EXPIRED', 'PENDING_VERIFICATION', 'VERIFIED', 'REJECTED', 'ARCHIVED']).optional(),
-      expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      status: z
+        .enum(['ACTIVE', 'EXPIRED', 'PENDING_VERIFICATION', 'VERIFIED', 'REJECTED', 'ARCHIVED'])
+        .optional(),
+      expiryDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       verifiedById: z.string().optional(),
     });
 
@@ -151,10 +203,15 @@ router.put('/:id', checkOwnership(prisma.employeeDocument), async (req: Request,
     res.json({ success: true, data: document });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error updating document', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update document' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update document' },
+    });
   }
 });
 
@@ -163,7 +220,11 @@ router.post('/:id/sign', async (req: Request, res: Response) => {
   try {
     const _schema = z.object({ signatureUrl: z.string().trim().url() });
     const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    if (!_parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+      });
     const { signatureUrl } = _parsed.data;
 
     const document = await prisma.employeeDocument.update({
@@ -177,24 +238,34 @@ router.post('/:id/sign', async (req: Request, res: Response) => {
     res.json({ success: true, data: document });
   } catch (error) {
     logger.error('Error signing document', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to sign document' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to sign document' },
+    });
   }
 });
 
 // DELETE /api/documents/:id - Archive document
-router.delete('/:id', checkOwnership(prisma.employeeDocument), async (req: Request, res: Response) => {
-  try {
-    await prisma.employeeDocument.update({
-      where: { id: req.params.id },
-      data: { status: 'ARCHIVED' },
-    });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.employeeDocument),
+  async (req: Request, res: Response) => {
+    try {
+      await prisma.employeeDocument.update({
+        where: { id: req.params.id },
+        data: { status: 'ARCHIVED' },
+      });
 
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Error archiving document', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to archive document' } });
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Error archiving document', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to archive document' },
+      });
+    }
   }
-});
+);
 
 // Employee qualifications
 // GET /api/documents/qualifications/:employeeId
@@ -203,12 +274,16 @@ router.get('/qualifications/:employeeId', async (req: Request, res: Response) =>
     const qualifications = await prisma.employeeQualification.findMany({
       where: { employeeId: req.params.employeeId, deletedAt: null } as any,
       orderBy: { endDate: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: qualifications });
   } catch (error) {
     logger.error('Error fetching qualifications', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch qualifications' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch qualifications' },
+    });
   }
 });
 
@@ -217,13 +292,29 @@ router.post('/qualifications', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
-      qualificationType: z.enum(['HIGH_SCHOOL', 'ASSOCIATE', 'BACHELOR', 'MASTER', 'DOCTORATE', 'DIPLOMA', 'CERTIFICATE', 'PROFESSIONAL', 'OTHER']),
+      qualificationType: z.enum([
+        'HIGH_SCHOOL',
+        'ASSOCIATE',
+        'BACHELOR',
+        'MASTER',
+        'DOCTORATE',
+        'DIPLOMA',
+        'CERTIFICATE',
+        'PROFESSIONAL',
+        'OTHER',
+      ]),
       institution: z.string(),
       degree: z.string().optional(),
       fieldOfStudy: z.string().optional(),
       grade: z.string().optional(),
-      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      startDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      endDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       isOngoing: z.boolean().default(false),
       documentUrl: z.string().trim().url('Invalid URL').optional(),
       notes: z.string().optional(),
@@ -242,10 +333,15 @@ router.post('/qualifications', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: qualification });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating qualification', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create qualification' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create qualification' },
+    });
   }
 });
 
@@ -256,12 +352,16 @@ router.get('/assets/:employeeId', async (req: Request, res: Response) => {
     const assets = await prisma.employeeAsset.findMany({
       where: { employeeId: req.params.employeeId, deletedAt: null } as any,
       orderBy: { assignedDate: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: assets });
   } catch (error) {
     logger.error('Error fetching assets', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch assets' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch assets' },
+    });
   }
 });
 
@@ -271,13 +371,28 @@ router.post('/assets', async (req: Request, res: Response) => {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
       assetTag: z.string(),
-      assetType: z.enum(['LAPTOP', 'DESKTOP', 'MOBILE', 'TABLET', 'MONITOR', 'KEYBOARD', 'MOUSE', 'HEADSET', 'ID_CARD', 'ACCESS_CARD', 'PARKING_PASS', 'FURNITURE', 'VEHICLE', 'OTHER']),
+      assetType: z.enum([
+        'LAPTOP',
+        'DESKTOP',
+        'MOBILE',
+        'TABLET',
+        'MONITOR',
+        'KEYBOARD',
+        'MOUSE',
+        'HEADSET',
+        'ID_CARD',
+        'ACCESS_CARD',
+        'PARKING_PASS',
+        'FURNITURE',
+        'VEHICLE',
+        'OTHER',
+      ]),
       name: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       serialNumber: z.string().optional(),
       model: z.string().optional(),
       manufacturer: z.string().optional(),
-      assignedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      assignedDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       purchaseValue: z.number().optional(),
       condition: z.enum(['NEW', 'GOOD', 'FAIR', 'POOR', 'DAMAGED', 'LOST']).default('GOOD'),
       notes: z.string().optional(),
@@ -296,19 +411,31 @@ router.post('/assets', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: asset });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error assigning asset', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to assign asset' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to assign asset' },
+    });
   }
 });
 
 // PUT /api/documents/assets/:id/return - Return asset
 router.put('/assets/:id/return', async (req: Request, res: Response) => {
   try {
-    const _schema = z.object({ returnCondition: z.string().trim().optional(), notes: z.string().trim().optional() });
+    const _schema = z.object({
+      returnCondition: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
+    });
     const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    if (!_parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+      });
     const { returnCondition, notes } = _parsed.data;
 
     const asset = await prisma.employeeAsset.update({
@@ -323,7 +450,10 @@ router.put('/assets/:id/return', async (req: Request, res: Response) => {
     res.json({ success: true, data: asset });
   } catch (error) {
     logger.error('Error returning asset', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to return asset' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to return asset' },
+    });
   }
 });
 

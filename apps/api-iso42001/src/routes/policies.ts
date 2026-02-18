@@ -45,8 +45,16 @@ const policyCreateSchema = z.object({
   ]),
   summary: z.string().max(2000).optional().nullable(),
   scope: z.string().max(2000).optional().nullable(),
-  effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
-  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  effectiveDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
+  reviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   owner: z.string().max(200).optional().nullable(),
   department: z.string().max(200).optional().nullable(),
   version: z.string().max(50).optional().default('1.0'),
@@ -56,25 +64,35 @@ const policyCreateSchema = z.object({
 const policyUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
   content: z.string().min(1).max(50000).optional(),
-  policyType: z.enum([
-    'AI_GOVERNANCE',
-    'DATA_MANAGEMENT',
-    'ETHICS',
-    'RISK_MANAGEMENT',
-    'TRANSPARENCY',
-    'HUMAN_OVERSIGHT',
-    'SECURITY',
-    'PRIVACY',
-    'FAIRNESS',
-    'ACCOUNTABILITY',
-    'INCIDENT_RESPONSE',
-    'THIRD_PARTY',
-    'OTHER',
-  ]).optional(),
+  policyType: z
+    .enum([
+      'AI_GOVERNANCE',
+      'DATA_MANAGEMENT',
+      'ETHICS',
+      'RISK_MANAGEMENT',
+      'TRANSPARENCY',
+      'HUMAN_OVERSIGHT',
+      'SECURITY',
+      'PRIVACY',
+      'FAIRNESS',
+      'ACCOUNTABILITY',
+      'INCIDENT_RESPONSE',
+      'THIRD_PARTY',
+      'OTHER',
+    ])
+    .optional(),
   summary: z.string().max(2000).optional().nullable(),
   scope: z.string().max(2000).optional().nullable(),
-  effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
-  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  effectiveDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
+  reviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   owner: z.string().max(200).optional().nullable(),
   department: z.string().max(200).optional().nullable(),
   version: z.string().max(50).optional(),
@@ -138,8 +156,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list policies', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list policies' } });
+    logger.error('Failed to list policies', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list policies' },
+    });
   }
 });
 
@@ -148,7 +171,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = policyCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -176,8 +206,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('AI policy created', { policyId: policy.id, reference });
     res.status(201).json({ success: true, data: policy });
   } catch (error: unknown) {
-    logger.error('Failed to create policy', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create policy' } });
+    logger.error('Failed to create policy', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create policy' },
+    });
   }
 });
 
@@ -188,11 +223,16 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 
     const existing = await prisma.aiPolicy.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
     }
 
     if (existing.status === 'APPROVED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_APPROVED', message: 'Policy is already approved' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'ALREADY_APPROVED', message: 'Policy is already approved' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -210,8 +250,14 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     logger.info('AI policy approved', { policyId: id });
     res.json({ success: true, data: policy });
   } catch (error: unknown) {
-    logger.error('Failed to approve policy', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve policy' } });
+    logger.error('Failed to approve policy', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve policy' },
+    });
   }
 });
 
@@ -227,13 +273,20 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!policy) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
     }
 
     res.json({ success: true, data: policy });
   } catch (error: unknown) {
-    logger.error('Failed to get policy', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get policy' } });
+    logger.error('Failed to get policy', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get policy' } });
   }
 });
 
@@ -244,12 +297,21 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = policyUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const existing = await prisma.aiPolicy.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -257,12 +319,18 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       where: { id },
       data: {
         ...parsed.data,
-        effectiveDate: parsed.data.effectiveDate !== undefined
-          ? (parsed.data.effectiveDate ? new Date(parsed.data.effectiveDate) : null)
-          : undefined,
-        reviewDate: parsed.data.reviewDate !== undefined
-          ? (parsed.data.reviewDate ? new Date(parsed.data.reviewDate) : null)
-          : undefined,
+        effectiveDate:
+          parsed.data.effectiveDate !== undefined
+            ? parsed.data.effectiveDate
+              ? new Date(parsed.data.effectiveDate)
+              : null
+            : undefined,
+        reviewDate:
+          parsed.data.reviewDate !== undefined
+            ? parsed.data.reviewDate
+              ? new Date(parsed.data.reviewDate)
+              : null
+            : undefined,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
       } as any,
@@ -271,8 +339,14 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     logger.info('AI policy updated', { policyId: id });
     res.json({ success: true, data: policy });
   } catch (error: unknown) {
-    logger.error('Failed to update policy', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update policy' } });
+    logger.error('Failed to update policy', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update policy' },
+    });
   }
 });
 
@@ -284,7 +358,9 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.aiPolicy.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -299,8 +375,14 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     logger.info('AI policy soft-deleted', { policyId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete policy', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete policy' } });
+    logger.error('Failed to delete policy', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete policy' },
+    });
   }
 });
 

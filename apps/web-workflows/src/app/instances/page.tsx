@@ -209,8 +209,12 @@ export default function InstancesPage() {
                     <div className="flex items-center space-x-3">
                       {getStatusIcon(instance.status)}
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">{instance.title}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{instance.instanceNumber}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          {instance.title}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {instance.instanceNumber}
+                        </p>
                       </div>
                     </div>
                   </td>
@@ -218,7 +222,9 @@ export default function InstancesPage() {
                     {instance.definition?.name || 'N/A'}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getPriorityBadge(instance.priority)}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getPriorityBadge(instance.priority)}`}
+                    >
                       {instance.priority}
                     </span>
                   </td>
@@ -229,7 +235,9 @@ export default function InstancesPage() {
                     {instance._count.tasks}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(instance.status)}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(instance.status)}`}
+                    >
                       {instance.status}
                     </span>
                   </td>

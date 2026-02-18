@@ -81,34 +81,52 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List management reviews error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list management reviews' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list management reviews' },
+    });
   }
 });
 
 // GET /api/management-reviews/:id - Get single management review
-router.get('/:id', checkOwnership(prisma.hSManagementReview), async (req: AuthRequest, res: Response) => {
-  try {
-    const review = await prisma.hSManagementReview.findUnique({
-      where: { id: req.params.id },
-      include: { actions: true },
-    });
+router.get(
+  '/:id',
+  checkOwnership(prisma.hSManagementReview),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const review = await prisma.hSManagementReview.findUnique({
+        where: { id: req.params.id },
+        include: { actions: true },
+      });
 
-    if (!review || (review as any).deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
+      if (!review || (review as any).deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Management review not found' },
+        });
+      }
+
+      res.json({ success: true, data: review });
+    } catch (error) {
+      logger.error('Get management review error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get management review' },
+      });
     }
-
-    res.json({ success: true, data: review });
-  } catch (error) {
-    logger.error('Get management review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get management review' } });
   }
-});
+);
 
 // POST /api/management-reviews - Create management review
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      reviewDate: z.string().trim().min(1).max(2000).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      reviewDate: z
+        .string()
+        .trim()
+        .min(1)
+        .max(2000)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       chair: z.string().trim().min(1).max(200),
       attendees: z.array(z.string()).min(1),
       // ISO 45001 Clause 9.3 mandatory inputs (all optional at creation)
@@ -158,98 +176,152 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: review });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create management review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create management review' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create management review' },
+    });
   }
 });
 
 // PUT /api/management-reviews/:id - Update management review
-router.put('/:id', checkOwnership(prisma.hSManagementReview), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
-    if (!existing || (existing as any).deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
+router.put(
+  '/:id',
+  checkOwnership(prisma.hSManagementReview),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
+      if (!existing || (existing as any).deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Management review not found' },
+        });
+      }
+
+      const schema = z.object({
+        reviewDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        chair: z.string().trim().min(1).max(200).optional(),
+        attendees: z.array(z.string()).optional(),
+        status: z.enum(REVIEW_STATUSES).optional(),
+        prevActionStatus: z.string().optional(),
+        ohsObjectivesProgress: z.string().optional(),
+        legalComplianceStatus: z.string().optional(),
+        incidentStatistics: z.string().optional(),
+        riskOpportunityReview: z.string().optional(),
+        auditResults: z.string().optional(),
+        workerParticipation: z.string().optional(),
+        externalCommunications: z.string().optional(),
+        changesInIssues: z.string().optional(),
+        continualImprovement: z.string().optional(),
+        resourceNeeds: z.string().optional(),
+        systemChanges: z.string().optional(),
+      });
+
+      const data = schema.parse(req.body);
+
+      const updateData: Record<string, unknown> = { ...data };
+      if (data.reviewDate) updateData.reviewDate = new Date(data.reviewDate);
+
+      const review = await prisma.hSManagementReview.update({
+        where: { id: req.params.id },
+        data: updateData,
+        include: { actions: true },
+      });
+
+      res.json({ success: true, data: review });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update management review error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update management review' },
+      });
     }
-
-    const schema = z.object({
-      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      chair: z.string().trim().min(1).max(200).optional(),
-      attendees: z.array(z.string()).optional(),
-      status: z.enum(REVIEW_STATUSES).optional(),
-      prevActionStatus: z.string().optional(),
-      ohsObjectivesProgress: z.string().optional(),
-      legalComplianceStatus: z.string().optional(),
-      incidentStatistics: z.string().optional(),
-      riskOpportunityReview: z.string().optional(),
-      auditResults: z.string().optional(),
-      workerParticipation: z.string().optional(),
-      externalCommunications: z.string().optional(),
-      changesInIssues: z.string().optional(),
-      continualImprovement: z.string().optional(),
-      resourceNeeds: z.string().optional(),
-      systemChanges: z.string().optional(),
-    });
-
-    const data = schema.parse(req.body);
-
-    const updateData: Record<string, unknown> = { ...data };
-    if (data.reviewDate) updateData.reviewDate = new Date(data.reviewDate);
-
-    const review = await prisma.hSManagementReview.update({
-      where: { id: req.params.id },
-      data: updateData,
-      include: { actions: true },
-    });
-
-    res.json({ success: true, data: review });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
-    }
-    logger.error('Update management review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update management review' } });
   }
-});
+);
 
 // POST /api/management-reviews/:id/complete - Lock and complete review
-router.post('/:id/complete', checkOwnership(prisma.hSManagementReview), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
-    if (!existing || (existing as any).deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
+router.post(
+  '/:id/complete',
+  checkOwnership(prisma.hSManagementReview),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
+      if (!existing || (existing as any).deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Management review not found' },
+        });
+      }
+
+      if (existing.status === 'COMPLETED' || existing.status === 'APPROVED') {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'ALREADY_COMPLETED',
+            message: 'Review is already completed or approved',
+          },
+        });
+      }
+
+      const review = await prisma.hSManagementReview.update({
+        where: { id: req.params.id },
+        data: { status: 'COMPLETED' },
+        include: { actions: true },
+      });
+
+      res.json({ success: true, data: review });
+    } catch (error) {
+      logger.error('Complete management review error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to complete management review' },
+      });
     }
-
-    if (existing.status === 'COMPLETED' || existing.status === 'APPROVED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_COMPLETED', message: 'Review is already completed or approved' } });
-    }
-
-    const review = await prisma.hSManagementReview.update({
-      where: { id: req.params.id },
-      data: { status: 'COMPLETED' },
-      include: { actions: true },
-    });
-
-    res.json({ success: true, data: review });
-  } catch (error) {
-    logger.error('Complete management review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete management review' } });
   }
-});
+);
 
 // POST /api/management-reviews/:id/actions - Add action to review
 router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
   try {
     const review = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
     if (!review || (review as any).deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Management review not found' },
+      });
     }
 
     const schema = z.object({
       action: z.string().trim().min(1).max(2000),
       owner: z.string().trim().min(1).max(200),
-      dueDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      dueDate: z
+        .string()
+        .trim()
+        .min(1)
+        .max(200)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
     });
 
     const data = schema.parse(req.body);
@@ -268,10 +340,20 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: mrAction });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Add management review action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add management review action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add management review action' },
+    });
   }
 });
 
@@ -280,13 +362,19 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
   try {
     const action = await prisma.hSMRAction.findUnique({ where: { id: req.params.actionId } });
     if (!action || action.reviewId !== req.params.id) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review action not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Management review action not found' },
+      });
     }
 
     const schema = z.object({
       action: z.string().trim().min(1).max(2000).optional(),
       owner: z.string().trim().min(1).max(200).optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       status: z.enum(MR_ACTION_STATUSES).optional(),
     });
 
@@ -306,31 +394,51 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
     res.json({ success: true, data: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update management review action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update management review action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update management review action' },
+    });
   }
 });
 
 // DELETE /api/management-reviews/:id - Soft delete management review
-router.delete('/:id', checkOwnership(prisma.hSManagementReview), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.hSManagementReview),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Management review not found' },
+        });
+      }
+
+      await prisma.hSManagementReview.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete management review error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete management review' },
+      });
     }
-
-    await prisma.hSManagementReview.update({
-      where: { id: req.params.id },
-      data: { deletedAt: new Date() },
-    });
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete management review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete management review' } });
   }
-});
+);
 
 export default router;

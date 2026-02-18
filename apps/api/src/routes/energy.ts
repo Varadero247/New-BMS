@@ -38,7 +38,8 @@ router.get('/stats', authenticate, async (req: AuthRequest, res, next) => {
     const readings = await prisma.energyReading.findMany({
       where,
       orderBy: { timestamp: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Calculate stats
     const totalConsumption = readings.reduce((sum, r) => sum + r.value, 0);
@@ -53,7 +54,8 @@ router.get('/stats', authenticate, async (req: AuthRequest, res, next) => {
         ...where,
         timestamp: { gte: prevStartDate, lt: startDate },
       },
-      take: 1000});
+      take: 1000,
+    });
 
     const prevTotal = prevReadings.reduce((sum, r) => sum + r.value, 0);
     const percentChange = prevTotal > 0 ? ((totalConsumption - prevTotal) / prevTotal) * 100 : 0;
@@ -129,7 +131,8 @@ router.get('/by-building', authenticate, async (req: AuthRequest, res, next) => 
     const buildings = await prisma.building.findMany({
       where: { id: { in: readings.map((r) => r.buildingId) } },
       select: { id: true, name: true },
-      take: 1000});
+      take: 1000,
+    });
 
     const data = readings.map((r) => ({
       building: buildings.find((b) => b.id === r.buildingId),

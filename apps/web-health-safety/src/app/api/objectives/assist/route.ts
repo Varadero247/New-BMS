@@ -56,7 +56,9 @@ Rules:
     category ? `Category: ${category}` : '',
     department ? `Department: ${department}` : '',
     targetDate ? `Target Date: ${targetDate}` : '',
-  ].filter(Boolean).join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {

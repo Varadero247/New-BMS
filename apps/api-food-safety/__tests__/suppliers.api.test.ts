@@ -38,7 +38,9 @@ beforeEach(() => {
 
 describe('GET /api/suppliers', () => {
   it('should return suppliers with pagination', async () => {
-    (prisma as any).fsSupplier.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', name: 'Supplier A' }]);
+    (prisma as any).fsSupplier.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Supplier A' },
+    ]);
     (prisma as any).fsSupplier.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/suppliers');
@@ -77,11 +79,17 @@ describe('GET /api/suppliers', () => {
 
 describe('POST /api/suppliers', () => {
   it('should create a supplier with auto-generated code', async () => {
-    const created = { id: '00000000-0000-0000-0000-000000000001', name: 'Supplier A', code: 'FS-SUP-1234', category: 'RAW_MATERIAL' };
+    const created = {
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Supplier A',
+      code: 'FS-SUP-1234',
+      category: 'RAW_MATERIAL',
+    };
     (prisma as any).fsSupplier.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/suppliers').send({
-      name: 'Supplier A', category: 'RAW_MATERIAL',
+      name: 'Supplier A',
+      category: 'RAW_MATERIAL',
     });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -96,7 +104,8 @@ describe('POST /api/suppliers', () => {
     (prisma as any).fsSupplier.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/suppliers').send({
-      name: 'Supplier A', category: 'RAW_MATERIAL',
+      name: 'Supplier A',
+      category: 'RAW_MATERIAL',
     });
     expect(res.status).toBe(500);
   });
@@ -104,7 +113,10 @@ describe('POST /api/suppliers', () => {
 
 describe('GET /api/suppliers/:id', () => {
   it('should return a supplier by id', async () => {
-    (prisma as any).fsSupplier.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Supplier A' });
+    (prisma as any).fsSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Supplier A',
+    });
 
     const res = await request(app).get('/api/suppliers/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
@@ -121,10 +133,17 @@ describe('GET /api/suppliers/:id', () => {
 
 describe('PUT /api/suppliers/:id', () => {
   it('should update a supplier', async () => {
-    (prisma as any).fsSupplier.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    (prisma as any).fsSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Updated',
+    });
 
-    const res = await request(app).put('/api/suppliers/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
+    const res = await request(app)
+      .put('/api/suppliers/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -132,15 +151,21 @@ describe('PUT /api/suppliers/:id', () => {
   it('should return 404 for non-existent supplier', async () => {
     (prisma as any).fsSupplier.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/suppliers/00000000-0000-0000-0000-000000000099').send({ name: 'Test' });
+    const res = await request(app)
+      .put('/api/suppliers/00000000-0000-0000-0000-000000000099')
+      .send({ name: 'Test' });
     expect(res.status).toBe(404);
   });
 });
 
 describe('DELETE /api/suppliers/:id', () => {
   it('should soft delete a supplier', async () => {
-    (prisma as any).fsSupplier.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
 
     const res = await request(app).delete('/api/suppliers/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
@@ -157,7 +182,13 @@ describe('DELETE /api/suppliers/:id', () => {
 
 describe('GET /api/suppliers/due-audit', () => {
   it('should return suppliers due for audit', async () => {
-    const suppliers = [{ id: '00000000-0000-0000-0000-000000000001', name: 'Supplier A', nextAuditDate: '2026-02-20' }];
+    const suppliers = [
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        name: 'Supplier A',
+        nextAuditDate: '2026-02-20',
+      },
+    ];
     (prisma as any).fsSupplier.findMany.mockResolvedValue(suppliers);
 
     const res = await request(app).get('/api/suppliers/due-audit');

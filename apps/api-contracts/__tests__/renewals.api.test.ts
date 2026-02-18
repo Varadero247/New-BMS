@@ -5,13 +5,24 @@ jest.mock('../src/prisma', () => ({
   prisma: { contContract: { findMany: jest.fn() } },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/renewals';
 import { prisma } from '../src/prisma';
-const app = express(); app.use(express.json()); app.use('/api/renewals', router);
-beforeEach(() => { jest.clearAllMocks(); });
+const app = express();
+app.use(express.json());
+app.use('/api/renewals', router);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('GET /api/renewals', () => {
   it('should return contracts with upcoming renewals within 30 days', async () => {

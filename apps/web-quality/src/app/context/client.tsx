@@ -118,7 +118,9 @@ const impactColors: Record<ImpactLevel, string> = {
 
 function ImpactBadge({ level }: { level: ImpactLevel }) {
   return (
-    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${impactColors[level]}`}>
+    <span
+      className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${impactColors[level]}`}
+    >
       {level}
     </span>
   );
@@ -140,7 +142,9 @@ const trendColors: Record<Trend, string> = {
 
 function TrendBadge({ trend }: { trend: Trend }) {
   return (
-    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium ${trendColors[trend]}`}>
+    <span
+      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium ${trendColors[trend]}`}
+    >
       {trendIcons[trend]}
       {trend}
     </span>
@@ -207,23 +211,39 @@ interface SwotQuadrantProps {
   onChangeText: (key: SwotKey, id: string, text: string) => void;
 }
 
-function SwotQuadrant({ config, items, onAdd, onDelete, onChangeImpact, onChangeText }: SwotQuadrantProps) {
+function SwotQuadrant({
+  config,
+  items,
+  onAdd,
+  onDelete,
+  onChangeImpact,
+  onChangeText,
+}: SwotQuadrantProps) {
   return (
-    <div className={`rounded-xl border-2 p-4 flex flex-col gap-3 min-h-[260px] ${config.bg} ${config.border}`}>
+    <div
+      className={`rounded-xl border-2 p-4 flex flex-col gap-3 min-h-[260px] ${config.bg} ${config.border}`}
+    >
       {/* Header */}
       <div className={`flex items-center gap-2 font-semibold text-base ${config.titleColor}`}>
         {config.icon}
         <span>{config.label}</span>
-        <span className="ml-auto text-xs font-normal opacity-60">{items.length} item{items.length !== 1 ? 's' : ''}</span>
+        <span className="ml-auto text-xs font-normal opacity-60">
+          {items.length} item{items.length !== 1 ? 's' : ''}
+        </span>
       </div>
 
       {/* Items */}
       <div className="flex-1 space-y-2">
         {items.length === 0 && (
-          <p className="text-xs text-muted-foreground italic py-2">No items yet. Click "+ Add" to begin.</p>
+          <p className="text-xs text-muted-foreground italic py-2">
+            No items yet. Click "+ Add" to begin.
+          </p>
         )}
         {items.map((item) => (
-          <div key={item.id} className="group bg-card border border-border rounded-lg p-2.5 shadow-sm">
+          <div
+            key={item.id}
+            className="group bg-card border border-border rounded-lg p-2.5 shadow-sm"
+          >
             <div className="flex items-start gap-2">
               <textarea
                 className="flex-1 text-sm bg-transparent text-foreground resize-none outline-none leading-snug min-h-[40px]"
@@ -291,7 +311,8 @@ const pestleSections: PestleSectionConfig[] = [
     accentBg: 'bg-purple-50 dark:bg-purple-900/10',
     accentBorder: 'border-purple-200 dark:border-purple-800',
     accentText: 'text-purple-800 dark:text-purple-300',
-    description: 'Government policies, political stability, trade regulations, tax policies, labour laws.',
+    description:
+      'Government policies, political stability, trade regulations, tax policies, labour laws.',
   },
   {
     key: 'economic',
@@ -309,7 +330,8 @@ const pestleSections: PestleSectionConfig[] = [
     accentBg: 'bg-blue-50 dark:bg-blue-900/10',
     accentBorder: 'border-blue-200 dark:border-blue-800',
     accentText: 'text-blue-800 dark:text-blue-300',
-    description: 'Demographics, lifestyle trends, cultural attitudes, workforce availability, social norms.',
+    description:
+      'Demographics, lifestyle trends, cultural attitudes, workforce availability, social norms.',
   },
   {
     key: 'technological',
@@ -327,7 +349,8 @@ const pestleSections: PestleSectionConfig[] = [
     accentBg: 'bg-red-50 dark:bg-red-900/10',
     accentBorder: 'border-red-200 dark:border-red-800',
     accentText: 'text-red-800 dark:text-red-300',
-    description: 'Legislation, standards, compliance requirements, intellectual property, health & safety law.',
+    description:
+      'Legislation, standards, compliance requirements, intellectual property, health & safety law.',
   },
   {
     key: 'environmental',
@@ -336,7 +359,8 @@ const pestleSections: PestleSectionConfig[] = [
     accentBg: 'bg-teal-50 dark:bg-teal-900/10',
     accentBorder: 'border-teal-200 dark:border-teal-800',
     accentText: 'text-teal-800 dark:text-teal-300',
-    description: 'Climate change, sustainability, environmental regulations, waste management, carbon footprint.',
+    description:
+      'Climate change, sustainability, environmental regulations, waste management, carbon footprint.',
   },
 ];
 
@@ -393,7 +417,9 @@ function PestlePanel({
 
           {/* Description textarea */}
           <div>
-            <label className="block text-xs font-medium text-foreground mb-1">Description / Notes</label>
+            <label className="block text-xs font-medium text-foreground mb-1">
+              Description / Notes
+            </label>
             <textarea
               className="w-full text-sm border border-border rounded-lg px-3 py-2 bg-card text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-brand-500"
               rows={3}
@@ -406,7 +432,9 @@ function PestlePanel({
           {/* Impact + Trend */}
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="block text-xs font-medium text-foreground mb-1">Impact Rating</label>
+              <label className="block text-xs font-medium text-foreground mb-1">
+                Impact Rating
+              </label>
               <select
                 value={data.impact}
                 onChange={(e) => onChange(config.key, { impact: e.target.value as ImpactLevel })}
@@ -433,10 +461,14 @@ function PestlePanel({
 
           {/* Specific factors */}
           <div>
-            <label className="block text-xs font-medium text-foreground mb-2">Specific Factors</label>
+            <label className="block text-xs font-medium text-foreground mb-2">
+              Specific Factors
+            </label>
             <div className="space-y-2">
               {data.factors.length === 0 && (
-                <p className="text-xs text-muted-foreground italic">No specific factors listed yet.</p>
+                <p className="text-xs text-muted-foreground italic">
+                  No specific factors listed yet.
+                </p>
               )}
               {data.factors.map((factor, idx) => (
                 <div key={idx} className="flex items-center gap-2">
@@ -620,8 +652,14 @@ export default function ContextPage() {
 
   // ── Derived stats ─────────────────────────────────────────────────────
   const totalSwotItems =
-    swot.strengths.length + swot.weaknesses.length + swot.opportunities.length + swot.threats.length;
-  const totalPestleFactors = pestleSections.reduce((acc, s) => acc + pestle[s.key].factors.length, 0);
+    swot.strengths.length +
+    swot.weaknesses.length +
+    swot.opportunities.length +
+    swot.threats.length;
+  const totalPestleFactors = pestleSections.reduce(
+    (acc, s) => acc + pestle[s.key].factors.length,
+    0
+  );
   const highImpactCount = [
     ...swot.strengths,
     ...swot.weaknesses,
@@ -722,7 +760,9 @@ export default function ContextPage() {
             <ImpactBadge level="HIGH" />
             <ImpactBadge level="MEDIUM" />
             <ImpactBadge level="LOW" />
-            <span className="ml-4 italic">Click on item text to edit inline. Hover to reveal delete button.</span>
+            <span className="ml-4 italic">
+              Click on item text to edit inline. Hover to reveal delete button.
+            </span>
           </div>
 
           {/* 2×2 Grid */}

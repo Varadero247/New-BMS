@@ -19,7 +19,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const { projectId, page = '1', limit = '50' } = req.query;
 
     if (!projectId) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' },
+      });
     }
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -45,7 +48,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List documents error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list documents' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list documents' },
+    });
   }
 });
 
@@ -53,7 +59,15 @@ const createDocumentSchema = z.object({
   projectId: z.string().trim().min(1).max(200),
   documentCode: z.string().trim().min(1).max(200),
   documentTitle: z.string().trim().min(1).max(200),
-  documentType: z.enum(['CHARTER', 'PLAN', 'REPORT', 'SPECIFICATION', 'DESIGN', 'DRAWING', 'CONTRACT']),
+  documentType: z.enum([
+    'CHARTER',
+    'PLAN',
+    'REPORT',
+    'SPECIFICATION',
+    'DESIGN',
+    'DRAWING',
+    'CONTRACT',
+  ]),
   documentCategory: z.string().optional(),
   version: z.string().optional(),
   fileUrl: z.string().trim().url('Invalid URL').optional(),
@@ -64,10 +78,12 @@ const createDocumentSchema = z.object({
   accessLevel: z.string().optional(),
   status: z.string().optional(),
 });
-const updateDocumentSchema = createDocumentSchema.extend({
-  reviewedAt: z.string().optional(),
-  approvedAt: z.string().optional(),
-}).partial();
+const updateDocumentSchema = createDocumentSchema
+  .extend({
+    reviewedAt: z.string().optional(),
+    approvedAt: z.string().optional(),
+  })
+  .partial();
 
 // POST /api/documents - Create document
 router.post('/', async (req: AuthRequest, res: Response) => {
@@ -96,55 +112,86 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: document });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
     logger.error('Create document error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create document' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create document' },
+    });
   }
 });
 
 // PUT /api/documents/:id - Update document
-router.put('/:id', checkOwnership(prisma.projectDocument), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectDocument.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
+router.put(
+  '/:id',
+  checkOwnership(prisma.projectDocument),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectDocument.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
+      }
+
+      const parsed = updateDocumentSchema.safeParse(req.body);
+      if (!parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+        });
+      const data = parsed.data;
+      const updateData = { ...data, updatedBy: req.user?.id } as Record<string, unknown>;
+
+      if (data.reviewedAt) updateData.reviewedAt = new Date(data.reviewedAt);
+      if (data.approvedAt) updateData.approvedAt = new Date(data.approvedAt);
+
+      const document = await prisma.projectDocument.update({
+        where: { id: req.params.id },
+        data: updateData,
+      });
+
+      res.json({ success: true, data: document });
+    } catch (error) {
+      logger.error('Update document error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update document' },
+      });
     }
-
-    const parsed = updateDocumentSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const data = parsed.data;
-    const updateData = { ...data, updatedBy: req.user?.id } as Record<string, unknown>;
-
-    if (data.reviewedAt) updateData.reviewedAt = new Date(data.reviewedAt);
-    if (data.approvedAt) updateData.approvedAt = new Date(data.approvedAt);
-
-    const document = await prisma.projectDocument.update({
-      where: { id: req.params.id },
-      data: updateData,
-    });
-
-    res.json({ success: true, data: document });
-  } catch (error) {
-    logger.error('Update document error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update document' } });
   }
-});
+);
 
 // DELETE /api/documents/:id - Delete document
-router.delete('/:id', checkOwnership(prisma.projectDocument), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectDocument.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
-    }
+router.delete(
+  '/:id',
+  checkOwnership(prisma.projectDocument),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectDocument.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
+      }
 
-    await prisma.projectDocument.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete document error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete document' } });
+      await prisma.projectDocument.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id },
+      });
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete document error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete document' },
+      });
+    }
   }
-});
+);
 
 export default router;

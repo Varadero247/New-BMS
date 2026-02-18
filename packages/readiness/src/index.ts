@@ -47,18 +47,66 @@ function scoreToGrade(score: number): 'A' | 'B' | 'C' | 'D' | 'F' {
 
 const STANDARD_BLOCKERS: Record<string, ReadinessBlocker[]> = {
   'ISO 9001:2015': [
-    { description: '2 open non-conformances from last audit', severity: 'critical', module: 'quality', url: '/quality/non-conformances', deduction: 15 },
-    { description: '1 overdue CAPA action (due 2026-01-20)', severity: 'major', module: 'quality', url: '/quality/capa', deduction: 8 },
-    { description: 'Management review minutes not uploaded for Q4 2025', severity: 'minor', module: 'quality', url: '/quality/management-reviews', deduction: 3 },
+    {
+      description: '2 open non-conformances from last audit',
+      severity: 'critical',
+      module: 'quality',
+      url: '/quality/non-conformances',
+      deduction: 15,
+    },
+    {
+      description: '1 overdue CAPA action (due 2026-01-20)',
+      severity: 'major',
+      module: 'quality',
+      url: '/quality/capa',
+      deduction: 8,
+    },
+    {
+      description: 'Management review minutes not uploaded for Q4 2025',
+      severity: 'minor',
+      module: 'quality',
+      url: '/quality/management-reviews',
+      deduction: 3,
+    },
   ],
   'ISO 14001:2015': [
-    { description: 'Environmental aspects register incomplete — 4 aspects unscored', severity: 'major', module: 'environment', url: '/environment/aspects', deduction: 10 },
-    { description: 'Legal compliance evaluation overdue by 30 days', severity: 'critical', module: 'environment', url: '/environment/legal', deduction: 12 },
+    {
+      description: 'Environmental aspects register incomplete — 4 aspects unscored',
+      severity: 'major',
+      module: 'environment',
+      url: '/environment/aspects',
+      deduction: 10,
+    },
+    {
+      description: 'Legal compliance evaluation overdue by 30 days',
+      severity: 'critical',
+      module: 'environment',
+      url: '/environment/legal',
+      deduction: 12,
+    },
   ],
   'ISO 45001:2018': [
-    { description: '3 hazard assessments past review date', severity: 'major', module: 'health-safety', url: '/health-safety/risks', deduction: 10 },
-    { description: 'Worker consultation records missing for January 2026', severity: 'minor', module: 'health-safety', url: '/health-safety/consultations', deduction: 5 },
-    { description: 'Emergency drill not conducted this quarter', severity: 'major', module: 'health-safety', url: '/health-safety/drills', deduction: 8 },
+    {
+      description: '3 hazard assessments past review date',
+      severity: 'major',
+      module: 'health-safety',
+      url: '/health-safety/risks',
+      deduction: 10,
+    },
+    {
+      description: 'Worker consultation records missing for January 2026',
+      severity: 'minor',
+      module: 'health-safety',
+      url: '/health-safety/consultations',
+      deduction: 5,
+    },
+    {
+      description: 'Emergency drill not conducted this quarter',
+      severity: 'major',
+      module: 'health-safety',
+      url: '/health-safety/drills',
+      deduction: 8,
+    },
   ],
 };
 
@@ -157,7 +205,10 @@ export function createCertificate(data: Omit<IsoCertificate, 'id'>): IsoCertific
   return cert;
 }
 
-export function updateCertificate(id: string, data: Partial<IsoCertificate>): IsoCertificate | null {
+export function updateCertificate(
+  id: string,
+  data: Partial<IsoCertificate>
+): IsoCertificate | null {
   const existing = certificateStore.get(id);
   if (!existing) return null;
 

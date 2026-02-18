@@ -3,13 +3,26 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    chemCoshh: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    chemCoshh: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
     chemRegister: { findFirst: jest.fn() },
   },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/coshh';
 import { prisma } from '../src/prisma';
@@ -18,7 +31,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/coshh', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockChemical = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -54,7 +69,13 @@ const mockCoshh = {
   recordRetentionYears: null,
   deletedAt: null,
   createdAt: new Date().toISOString(),
-  chemical: { id: '00000000-0000-0000-0000-000000000001', productName: 'Acetone', casNumber: '67-64-1', signalWord: 'DANGER', pictograms: [] },
+  chemical: {
+    id: '00000000-0000-0000-0000-000000000001',
+    productName: 'Acetone',
+    casNumber: '67-64-1',
+    signalWord: 'DANGER',
+    pictograms: [],
+  },
 };
 
 const validCoshhBody = {
@@ -202,7 +223,10 @@ describe('POST /api/coshh', () => {
   it('should auto-generate reference number', async () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
     (prisma as any).chemCoshh.count.mockResolvedValue(5);
-    (prisma as any).chemCoshh.create.mockResolvedValue({ ...mockCoshh, referenceNumber: 'COSHH-2026-0006' });
+    (prisma as any).chemCoshh.create.mockResolvedValue({
+      ...mockCoshh,
+      referenceNumber: 'COSHH-2026-0006',
+    });
 
     const res = await request(app).post('/api/coshh').send(validCoshhBody);
     expect(res.status).toBe(201);
@@ -218,12 +242,18 @@ describe('POST /api/coshh', () => {
   it('should auto-set healthSurveillanceReq and recordRetentionYears=40 for CMR chemicals', async () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(mockCmrChemical);
     (prisma as any).chemCoshh.count.mockResolvedValue(0);
-    (prisma as any).chemCoshh.create.mockResolvedValue({ ...mockCoshh, healthSurveillanceReq: true, recordRetentionYears: 40 });
-
-    const res = await request(app).post('/api/coshh').send({
-      ...validCoshhBody,
-      chemicalId: '00000000-0000-0000-0000-000000000002',
+    (prisma as any).chemCoshh.create.mockResolvedValue({
+      ...mockCoshh,
+      healthSurveillanceReq: true,
+      recordRetentionYears: 40,
     });
+
+    const res = await request(app)
+      .post('/api/coshh')
+      .send({
+        ...validCoshhBody,
+        chemicalId: '00000000-0000-0000-0000-000000000002',
+      });
     expect(res.status).toBe(201);
     expect((prisma as any).chemCoshh.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -254,10 +284,12 @@ describe('POST /api/coshh', () => {
   it('should return 404 when chemical does not exist', async () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/coshh').send({
-      ...validCoshhBody,
-      chemicalId: '00000000-0000-0000-0000-000000000099',
-    });
+    const res = await request(app)
+      .post('/api/coshh')
+      .send({
+        ...validCoshhBody,
+        chemicalId: '00000000-0000-0000-0000-000000000099',
+      });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -265,10 +297,12 @@ describe('POST /api/coshh', () => {
   });
 
   it('should return 400 when inherentLikelihood is out of range', async () => {
-    const res = await request(app).post('/api/coshh').send({
-      ...validCoshhBody,
-      inherentLikelihood: 6,
-    });
+    const res = await request(app)
+      .post('/api/coshh')
+      .send({
+        ...validCoshhBody,
+        inherentLikelihood: 6,
+      });
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -289,7 +323,10 @@ describe('POST /api/coshh', () => {
 describe('PUT /api/coshh/:id', () => {
   it('should update an existing COSHH assessment', async () => {
     (prisma as any).chemCoshh.findFirst.mockResolvedValue(mockCoshh);
-    (prisma as any).chemCoshh.update.mockResolvedValue({ ...mockCoshh, activityDescription: 'Updated activity' });
+    (prisma as any).chemCoshh.update.mockResolvedValue({
+      ...mockCoshh,
+      activityDescription: 'Updated activity',
+    });
 
     const res = await request(app).put('/api/coshh/00000000-0000-0000-0000-000000000020').send({
       activityDescription: 'Updated activity',
@@ -301,7 +338,13 @@ describe('PUT /api/coshh/:id', () => {
 
   it('should recalculate risk scores when likelihood and severity are updated', async () => {
     (prisma as any).chemCoshh.findFirst.mockResolvedValue(mockCoshh);
-    (prisma as any).chemCoshh.update.mockResolvedValue({ ...mockCoshh, inherentRiskScore: 25, inherentRiskLevel: 'UNACCEPTABLE', residualRiskScore: 20, residualRiskLevel: 'UNACCEPTABLE' });
+    (prisma as any).chemCoshh.update.mockResolvedValue({
+      ...mockCoshh,
+      inherentRiskScore: 25,
+      inherentRiskLevel: 'UNACCEPTABLE',
+      residualRiskScore: 20,
+      residualRiskLevel: 'UNACCEPTABLE',
+    });
 
     const res = await request(app).put('/api/coshh/00000000-0000-0000-0000-000000000020').send({
       inherentLikelihood: 5,
@@ -349,12 +392,18 @@ describe('PUT /api/coshh/:id', () => {
 describe('POST /api/coshh/:id/sign-off', () => {
   it('should allow assessor sign-off', async () => {
     (prisma as any).chemCoshh.findFirst.mockResolvedValue(mockCoshh);
-    (prisma as any).chemCoshh.update.mockResolvedValue({ ...mockCoshh, assessorName: 'John Doe', assessorSignedAt: new Date().toISOString() });
-
-    const res = await request(app).post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off').send({
-      role: 'assessor',
-      name: 'John Doe',
+    (prisma as any).chemCoshh.update.mockResolvedValue({
+      ...mockCoshh,
+      assessorName: 'John Doe',
+      assessorSignedAt: new Date().toISOString(),
     });
+
+    const res = await request(app)
+      .post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off')
+      .send({
+        role: 'assessor',
+        name: 'John Doe',
+      });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect((prisma as any).chemCoshh.update).toHaveBeenCalledWith(
@@ -369,12 +418,18 @@ describe('POST /api/coshh/:id/sign-off', () => {
 
   it('should allow supervisor sign-off', async () => {
     (prisma as any).chemCoshh.findFirst.mockResolvedValue(mockCoshh);
-    (prisma as any).chemCoshh.update.mockResolvedValue({ ...mockCoshh, supervisorName: 'Jane Smith', supervisorSignedAt: new Date().toISOString() });
-
-    const res = await request(app).post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off').send({
-      role: 'supervisor',
-      name: 'Jane Smith',
+    (prisma as any).chemCoshh.update.mockResolvedValue({
+      ...mockCoshh,
+      supervisorName: 'Jane Smith',
+      supervisorSignedAt: new Date().toISOString(),
     });
+
+    const res = await request(app)
+      .post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off')
+      .send({
+        role: 'supervisor',
+        name: 'Jane Smith',
+      });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect((prisma as any).chemCoshh.update).toHaveBeenCalledWith(
@@ -388,18 +443,22 @@ describe('POST /api/coshh/:id/sign-off', () => {
   });
 
   it('should return 400 when role is missing', async () => {
-    const res = await request(app).post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off').send({
-      name: 'John Doe',
-    });
+    const res = await request(app)
+      .post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off')
+      .send({
+        name: 'John Doe',
+      });
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 
   it('should return 400 when name is missing', async () => {
-    const res = await request(app).post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off').send({
-      role: 'assessor',
-    });
+    const res = await request(app)
+      .post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off')
+      .send({
+        role: 'assessor',
+      });
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -408,10 +467,12 @@ describe('POST /api/coshh/:id/sign-off', () => {
   it('should return 400 for invalid role', async () => {
     (prisma as any).chemCoshh.findFirst.mockResolvedValue(mockCoshh);
 
-    const res = await request(app).post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off').send({
-      role: 'manager',
-      name: 'Bob',
-    });
+    const res = await request(app)
+      .post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off')
+      .send({
+        role: 'manager',
+        name: 'Bob',
+      });
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -421,10 +482,12 @@ describe('POST /api/coshh/:id/sign-off', () => {
   it('should return 404 when assessment not found', async () => {
     (prisma as any).chemCoshh.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/coshh/00000000-0000-0000-0000-000000000099/sign-off').send({
-      role: 'assessor',
-      name: 'John Doe',
-    });
+    const res = await request(app)
+      .post('/api/coshh/00000000-0000-0000-0000-000000000099/sign-off')
+      .send({
+        role: 'assessor',
+        name: 'John Doe',
+      });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -434,10 +497,12 @@ describe('POST /api/coshh/:id/sign-off', () => {
     (prisma as any).chemCoshh.findFirst.mockResolvedValue(mockCoshh);
     (prisma as any).chemCoshh.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off').send({
-      role: 'assessor',
-      name: 'John Doe',
-    });
+    const res = await request(app)
+      .post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off')
+      .send({
+        role: 'assessor',
+        name: 'John Doe',
+      });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

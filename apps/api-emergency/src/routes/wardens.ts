@@ -9,7 +9,20 @@ const router = Router();
 router.param('id', validateIdParam());
 const logger = createLogger('emergency-wardens');
 
-const icsRoleEnum = z.enum(['INCIDENT_COMMANDER', 'DEPUTY_INCIDENT_COMMANDER', 'SAFETY_OFFICER', 'LIAISON_OFFICER', 'PUBLIC_INFORMATION_OFFICER', 'OPERATIONS_SECTION_CHIEF', 'PLANNING_SECTION_CHIEF', 'LOGISTICS_SECTION_CHIEF', 'FINANCE_ADMIN_SECTION_CHIEF', 'FIRE_WARDEN', 'FIRST_AIDER', 'ASSEMBLY_POINT_WARDEN']);
+const icsRoleEnum = z.enum([
+  'INCIDENT_COMMANDER',
+  'DEPUTY_INCIDENT_COMMANDER',
+  'SAFETY_OFFICER',
+  'LIAISON_OFFICER',
+  'PUBLIC_INFORMATION_OFFICER',
+  'OPERATIONS_SECTION_CHIEF',
+  'PLANNING_SECTION_CHIEF',
+  'LOGISTICS_SECTION_CHIEF',
+  'FINANCE_ADMIN_SECTION_CHIEF',
+  'FIRE_WARDEN',
+  'FIRST_AIDER',
+  'ASSEMBLY_POINT_WARDEN',
+]);
 
 const createWardenSchema = z.object({
   name: z.string().min(1, 'name is required'),
@@ -19,8 +32,14 @@ const createWardenSchema = z.object({
   icsRole: icsRoleEnum,
   areaResponsible: z.string().optional(),
   trainingProvider: z.string().optional(),
-  trainingDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  trainingExpiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  trainingDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  trainingExpiryDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   certificateRef: z.string().optional(),
   trainingCurrent: z.boolean().optional(),
   deputyName: z.string().optional(),
@@ -37,9 +56,16 @@ router.get('/training-expiring', authenticate, async (_req: Request, res: Respon
       where: { isActive: true, trainingExpiryDate: { lt: sixtyDaysFromNow } },
       include: { premises: { select: { name: true } } },
       orderBy: { trainingExpiryDate: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch expiring wardens', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch expiring training' } }); }
+  } catch (error: unknown) {
+    logger.error('Failed to fetch expiring wardens', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch expiring training' },
+    });
+  }
 });
 
 // GET /api/wardens/premises/:id — all wardens for premises
@@ -48,16 +74,27 @@ router.get('/premises/:id', authenticate, async (req: Request, res: Response) =>
     const data = await prisma.femFireWarden.findMany({
       where: { premisesId: req.params.id },
       orderBy: { name: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch wardens', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch wardens' } }); }
+  } catch (error: unknown) {
+    logger.error('Failed to fetch wardens', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch wardens' },
+    });
+  }
 });
 
 // POST /api/wardens/premises/:id — add warden
 router.post('/premises/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createWardenSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const { trainingDate, trainingExpiryDate, ...rest } = parsed.data;
     const data = await prisma.femFireWarden.create({
       data: {
@@ -68,22 +105,48 @@ router.post('/premises/:id', authenticate, async (req: Request, res: Response) =
       },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create warden', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create warden' } }); }
+  } catch (error: unknown) {
+    logger.error('Failed to create warden', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create warden' },
+    });
+  }
 });
 
 // PUT /api/wardens/:id — update warden
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateWardenSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = ((req as any).user as any)?.orgId || 'default'; const existing = await prisma.femFireWarden.findFirst({ where: { id: req.params.id, premises: { organisationId: orgId } } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Warden not found' } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
+    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const existing = await prisma.femFireWarden.findFirst({
+      where: { id: req.params.id, premises: { organisationId: orgId } },
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Warden not found' } });
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.trainingDate) updateData.trainingDate = new Date(parsed.data.trainingDate);
-    if (parsed.data.trainingExpiryDate) updateData.trainingExpiryDate = new Date(parsed.data.trainingExpiryDate);
-    const data = await prisma.femFireWarden.update({ where: { id: req.params.id }, data: updateData });
+    if (parsed.data.trainingExpiryDate)
+      updateData.trainingExpiryDate = new Date(parsed.data.trainingExpiryDate);
+    const data = await prisma.femFireWarden.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update warden', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update warden' } }); }
+  } catch (error: unknown) {
+    logger.error('Failed to update warden', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update warden' },
+    });
+  }
 });
 
 export default router;

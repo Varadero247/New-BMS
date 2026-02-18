@@ -46,11 +46,19 @@ const updateSchema = z.object({
   partNumber: z.string().optional(),
   partName: z.string().optional(),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
-  status: z.enum([
-    'D1_TEAM_FORMATION', 'D2_PROBLEM_DESCRIPTION', 'D3_INTERIM_CONTAINMENT',
-    'D4_ROOT_CAUSE', 'D5_CORRECTIVE_ACTIONS', 'D6_IMPLEMENTATION',
-    'D7_PREVENTION', 'D8_CLOSURE', 'CLOSED',
-  ]).optional(),
+  status: z
+    .enum([
+      'D1_TEAM_FORMATION',
+      'D2_PROBLEM_DESCRIPTION',
+      'D3_INTERIM_CONTAINMENT',
+      'D4_ROOT_CAUSE',
+      'D5_CORRECTIVE_ACTIONS',
+      'D6_IMPLEMENTATION',
+      'D7_PREVENTION',
+      'D8_CLOSURE',
+      'CLOSED',
+    ])
+    .optional(),
   teamLeader: z.string().optional(),
   teamMembers: z.array(z.string()).optional(),
   // D2
@@ -61,7 +69,10 @@ const updateSchema = z.object({
   whereOccurred: z.string().optional(),
   // D3
   containmentAction: z.string().optional(),
-  containmentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  containmentDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   containmentOwner: z.string().optional(),
   // D4
   rootCause: z.string().optional(),
@@ -71,14 +82,20 @@ const updateSchema = z.object({
   correctiveActions: z.array(z.unknown()).optional(),
   // D6
   implementationPlan: z.string().optional(),
-  implementationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  implementationDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   // D7
   preventiveActions: z.array(z.unknown()).optional(),
   systemsUpdated: z.string().optional(),
   // D8
   teamRecognition: z.string().optional(),
   lessonsLearned: z.string().optional(),
-  closedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  closedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   closedBy: z.string().optional(),
 });
 
@@ -121,7 +138,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List 8D reports error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list 8D reports' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list 8D reports' },
+    });
   }
 });
 
@@ -150,13 +170,16 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
       data: {
         total,
         openCritical,
-        byStatus: byStatus.map(s => ({ status: s.status, count: s._count.id })),
-        bySeverity: bySeverity.map(s => ({ severity: s.severity, count: s._count.id })),
+        byStatus: byStatus.map((s) => ({ status: s.status, count: s._count.id })),
+        bySeverity: bySeverity.map((s) => ({ severity: s.severity, count: s._count.id })),
       },
     });
   } catch (error) {
     logger.error('8D stats error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get 8D stats' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get 8D stats' },
+    });
   }
 });
 
@@ -165,12 +188,17 @@ router.get('/:id', checkOwnership(prisma.eightDReport), async (req: AuthRequest,
   try {
     const report = await prisma.eightDReport.findUnique({ where: { id: req.params.id } });
     if (!report || report.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: '8D report not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: '8D report not found' } });
     }
     res.json({ success: true, data: report });
   } catch (error) {
     logger.error('Get 8D report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get 8D report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get 8D report' },
+    });
   }
 });
 
@@ -199,10 +227,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: report });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create 8D report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create 8D report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create 8D report' },
+    });
   }
 });
 
@@ -211,7 +249,9 @@ router.put('/:id', checkOwnership(prisma.eightDReport), async (req: AuthRequest,
   try {
     const existing = await prisma.eightDReport.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: '8D report not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: '8D report not found' } });
     }
 
     const data = updateSchema.parse(req.body);
@@ -231,31 +271,50 @@ router.put('/:id', checkOwnership(prisma.eightDReport), async (req: AuthRequest,
     res.json({ success: true, data: report });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update 8D report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update 8D report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update 8D report' },
+    });
   }
 });
 
 // DELETE /:id - Soft delete 8D report
-router.delete('/:id', checkOwnership(prisma.eightDReport), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.eightDReport.findUnique({ where: { id: req.params.id } });
-    if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: '8D report not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.eightDReport),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.eightDReport.findUnique({ where: { id: req.params.id } });
+      if (!existing || existing.deletedAt) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: '8D report not found' } });
+      }
+
+      await prisma.eightDReport.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete 8D report error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete 8D report' },
+      });
     }
-
-    await prisma.eightDReport.update({
-      where: { id: req.params.id },
-      data: { deletedAt: new Date() },
-    });
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete 8D report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete 8D report' } });
   }
-});
+);
 
 export default router;

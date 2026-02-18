@@ -87,7 +87,13 @@ export function NotificationCentre({
         aria-haspopup="true"
       >
         {/* Bell SVG */}
-        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <svg
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.8}
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -143,12 +149,7 @@ export function NotificationCentre({
                     onClick={() => handleItemClick(n)}
                   >
                     {/* Type dot */}
-                    <span
-                      className={cn(
-                        'mt-1.5 h-2 w-2 rounded-full shrink-0',
-                        typeDot[n.type]
-                      )}
-                    />
+                    <span className={cn('mt-1.5 h-2 w-2 rounded-full shrink-0', typeDot[n.type])} />
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
@@ -164,14 +165,28 @@ export function NotificationCentre({
                             className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
                             aria-label="Dismiss notification"
                           >
-                            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            <svg
+                              className="h-3.5 w-3.5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
                             </svg>
                           </button>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.message}</p>
-                      <p className="text-[10px] text-muted-foreground/70 mt-1">{timeAgo(n.createdAt)}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                        {n.message}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground/70 mt-1">
+                        {timeAgo(n.createdAt)}
+                      </p>
                     </div>
                   </li>
                 ))}

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate , type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
@@ -49,7 +49,10 @@ router.post('/', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -65,8 +68,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Contact created', { contactId: contact.id });
     return res.status(201).json({ success: true, data: contact });
   } catch (error: unknown) {
-    logger.error('Failed to create contact', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create contact' } });
+    logger.error('Failed to create contact', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create contact' },
+    });
   }
 });
 
@@ -124,8 +132,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list contacts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list contacts' } });
+    logger.error('Failed to list contacts', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list contacts' },
+    });
   }
 });
 
@@ -137,13 +150,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!contact) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
     }
 
     return res.json({ success: true, data: contact });
   } catch (error: unknown) {
-    logger.error('Failed to get contact', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get contact' } });
+    logger.error('Failed to get contact', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get contact' },
+    });
   }
 });
 
@@ -154,7 +174,10 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -163,7 +186,9 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
     }
 
     const contact = await prisma.crmContact.update({
@@ -177,8 +202,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Contact updated', { contactId: contact.id });
     return res.json({ success: true, data: contact });
   } catch (error: unknown) {
-    logger.error('Failed to update contact', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update contact' } });
+    logger.error('Failed to update contact', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update contact' },
+    });
   }
 });
 
@@ -190,7 +220,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
     }
 
     await prisma.crmContact.update({
@@ -201,8 +233,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Contact soft deleted', { contactId: req.params.id });
     return res.json({ success: true, data: { message: 'Contact deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete contact', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete contact' } });
+    logger.error('Failed to delete contact', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete contact' },
+    });
   }
 });
 
@@ -213,7 +250,10 @@ router.post('/:id/activities', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -222,7 +262,9 @@ router.post('/:id/activities', async (req: Request, res: Response) => {
     });
 
     if (!contact) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
     }
 
     const activity = await prisma.crmActivity.create({
@@ -238,8 +280,13 @@ router.post('/:id/activities', async (req: Request, res: Response) => {
     logger.info('Activity logged', { activityId: activity.id, contactId: req.params.id });
     return res.status(201).json({ success: true, data: activity });
   } catch (error: unknown) {
-    logger.error('Failed to log activity', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log activity' } });
+    logger.error('Failed to log activity', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to log activity' },
+    });
   }
 });
 
@@ -251,7 +298,9 @@ router.get('/:id/activities', async (req: Request, res: Response) => {
     });
 
     if (!contact) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } });
     }
 
     const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
@@ -279,8 +328,13 @@ router.get('/:id/activities', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list activities', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list activities' } });
+    logger.error('Failed to list activities', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list activities' },
+    });
   }
 });
 

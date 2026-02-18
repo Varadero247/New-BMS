@@ -43,17 +43,47 @@ export default function Nav({ onOpenLogin }: NavProps) {
             aria-label="Nexara home"
           >
             <svg width="28" height="28" viewBox="0 0 80 80" fill="none" aria-hidden="true">
-              <path d="M 40 16 A 24 24 0 1 1 19.5 57.2" stroke="url(#navG)" strokeWidth="2" strokeDasharray="5 3.5" strokeLinecap="round" opacity="0.55"/>
-              <path d="M 40 26 A 14 14 0 1 1 26.9 50.9" stroke="url(#navG)" strokeWidth="2.5" strokeLinecap="round" opacity="0.8"/>
-              <circle cx="40" cy="40" r="5.5" fill="url(#navG)"/>
-              <circle cx="40" cy="40" r="2.5" fill="white" opacity="0.92"/>
+              <path
+                d="M 40 16 A 24 24 0 1 1 19.5 57.2"
+                stroke="url(#navG)"
+                strokeWidth="2"
+                strokeDasharray="5 3.5"
+                strokeLinecap="round"
+                opacity="0.55"
+              />
+              <path
+                d="M 40 26 A 14 14 0 1 1 26.9 50.9"
+                stroke="url(#navG)"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                opacity="0.8"
+              />
+              <circle cx="40" cy="40" r="5.5" fill="url(#navG)" />
+              <circle cx="40" cy="40" r="2.5" fill="white" opacity="0.92" />
               <defs>
-                <linearGradient id="navG" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#3B78F5"/><stop offset="60%" stopColor="#5B94FF"/><stop offset="100%" stopColor="#00C4A8"/>
+                <linearGradient
+                  id="navG"
+                  x1="0"
+                  y1="0"
+                  x2="80"
+                  y2="80"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop offset="0%" stopColor="#3B78F5" />
+                  <stop offset="60%" stopColor="#5B94FF" />
+                  <stop offset="100%" stopColor="#00C4A8" />
                 </linearGradient>
               </defs>
             </svg>
-            <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--white, #EDF3FC)' }} className="text-lg leading-none">
+            <span
+              style={{
+                fontFamily: "'Syne', sans-serif",
+                fontWeight: 800,
+                letterSpacing: '-0.03em',
+                color: 'var(--white, #EDF3FC)',
+              }}
+              className="text-lg leading-none"
+            >
               nexara
             </span>
           </Link>
@@ -83,7 +113,13 @@ export default function Nav({ onOpenLogin }: NavProps) {
               type="button"
               onClick={onOpenLogin}
               className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-all duration-150"
-              style={{ background: 'var(--g-brand)', fontFamily: "'Syne', sans-serif", fontWeight: 700, border: 'none', cursor: 'pointer' }}
+              style={{
+                background: 'var(--g-brand)',
+                fontFamily: "'Syne', sans-serif",
+                fontWeight: 700,
+                border: 'none',
+                cursor: 'pointer',
+              }}
             >
               Sign in &rarr;
             </button>
@@ -136,7 +172,14 @@ export default function Nav({ onOpenLogin }: NavProps) {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t px-4 py-4 flex flex-col gap-2" style={{ borderColor: 'var(--border, #1E2E48)', background: 'rgba(8,11,18,0.95)', backdropFilter: 'blur(16px)' }}>
+        <div
+          className="md:hidden border-t px-4 py-4 flex flex-col gap-2"
+          style={{
+            borderColor: 'var(--border, #1E2E48)',
+            background: 'rgba(8,11,18,0.95)',
+            backdropFilter: 'blur(16px)',
+          }}
+        >
           {NAV_LINKS.map((link) => (
             <Link
               key={link.label}
@@ -158,8 +201,17 @@ export default function Nav({ onOpenLogin }: NavProps) {
             <button
               type="button"
               className="px-4 py-2.5 text-sm font-medium text-center text-white rounded-lg transition-colors"
-              style={{ background: 'var(--g-brand)', fontFamily: "'Syne', sans-serif", fontWeight: 700, border: 'none', cursor: 'pointer' }}
-              onClick={() => { setMobileOpen(false); onOpenLogin?.(); }}
+              style={{
+                background: 'var(--g-brand)',
+                fontFamily: "'Syne', sans-serif",
+                fontWeight: 700,
+                border: 'none',
+                cursor: 'pointer',
+              }}
+              onClick={() => {
+                setMobileOpen(false);
+                onOpenLogin?.();
+              }}
             >
               Sign in →
             </button>

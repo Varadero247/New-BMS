@@ -34,7 +34,8 @@ export const WithLabel: Story = {
 
 export const WithValue: Story = {
   args: {
-    defaultValue: 'This is a pre-filled textarea with some content. It spans multiple lines to demonstrate the component behaviour.',
+    defaultValue:
+      'This is a pre-filled textarea with some content. It spans multiple lines to demonstrate the component behaviour.',
     rows: 4,
   },
 };
@@ -64,7 +65,9 @@ export const WithError: Story = {
         defaultValue="x"
         rows={3}
       />
-      <p style={{ fontSize: '0.75rem', color: '#DC2626' }}>Description must be at least 20 characters.</p>
+      <p style={{ fontSize: '0.75rem', color: '#DC2626' }}>
+        Description must be at least 20 characters.
+      </p>
     </div>
   ),
 };

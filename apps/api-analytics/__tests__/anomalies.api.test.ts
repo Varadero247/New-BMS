@@ -28,7 +28,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/anomalies', anomaliesRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('Anomalies Routes', () => {
   describe('GET /api/anomalies/kpis', () => {
@@ -86,9 +88,7 @@ describe('Anomalies Routes', () => {
     });
 
     it('rejects missing reason', async () => {
-      const res = await request(app)
-        .put('/api/anomalies/anom-001/dismiss')
-        .send({});
+      const res = await request(app).put('/api/anomalies/anom-001/dismiss').send({});
       expect(res.status).toBe(400);
     });
 

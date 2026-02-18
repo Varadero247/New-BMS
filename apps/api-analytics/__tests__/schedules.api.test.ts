@@ -44,7 +44,12 @@ beforeEach(() => {
 describe('GET /api/schedules', () => {
   it('should return a list of schedules with pagination', async () => {
     const schedules = [
-      { id: '00000000-0000-0000-0000-000000000001', name: 'Daily Report', type: 'REPORT', isActive: true },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        name: 'Daily Report',
+        type: 'REPORT',
+        isActive: true,
+      },
       { id: 'sch-2', name: 'Weekly Export', type: 'EXPORT', isActive: true },
     ];
     (prisma as any).analyticsSchedule.findMany.mockResolvedValue(schedules);
@@ -96,11 +101,20 @@ describe('GET /api/schedules', () => {
 // ===================================================================
 describe('POST /api/schedules', () => {
   it('should create a new schedule', async () => {
-    const created = { id: 'sch-new', name: 'New Schedule', type: 'REPORT', cronExpression: '0 8 * * *', isActive: true };
+    const created = {
+      id: 'sch-new',
+      name: 'New Schedule',
+      type: 'REPORT',
+      cronExpression: '0 8 * * *',
+      isActive: true,
+    };
     (prisma as any).analyticsSchedule.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/schedules').send({
-      name: 'New Schedule', type: 'REPORT', referenceId: '550e8400-e29b-41d4-a716-446655440000', cronExpression: '0 8 * * *',
+      name: 'New Schedule',
+      type: 'REPORT',
+      referenceId: '550e8400-e29b-41d4-a716-446655440000',
+      cronExpression: '0 8 * * *',
     });
 
     expect(res.status).toBe(201);
@@ -120,7 +134,10 @@ describe('POST /api/schedules', () => {
 // ===================================================================
 describe('GET /api/schedules/:id', () => {
   it('should return a schedule by ID', async () => {
-    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Test' });
+    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Test',
+    });
 
     const res = await request(app).get('/api/schedules/00000000-0000-0000-0000-000000000001');
 
@@ -142,10 +159,17 @@ describe('GET /api/schedules/:id', () => {
 // ===================================================================
 describe('PUT /api/schedules/:id', () => {
   it('should update a schedule', async () => {
-    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).analyticsSchedule.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).analyticsSchedule.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Updated',
+    });
 
-    const res = await request(app).put('/api/schedules/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
+    const res = await request(app)
+      .put('/api/schedules/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.name).toBe('Updated');
@@ -154,7 +178,9 @@ describe('PUT /api/schedules/:id', () => {
   it('should return 404 for non-existent schedule', async () => {
     (prisma as any).analyticsSchedule.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/schedules/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
+    const res = await request(app)
+      .put('/api/schedules/00000000-0000-0000-0000-000000000099')
+      .send({ name: 'Updated' });
 
     expect(res.status).toBe(404);
   });
@@ -165,8 +191,13 @@ describe('PUT /api/schedules/:id', () => {
 // ===================================================================
 describe('DELETE /api/schedules/:id', () => {
   it('should soft delete a schedule', async () => {
-    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).analyticsSchedule.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).analyticsSchedule.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/schedules/00000000-0000-0000-0000-000000000001');
 
@@ -188,20 +219,36 @@ describe('DELETE /api/schedules/:id', () => {
 // ===================================================================
 describe('PUT /api/schedules/:id/toggle', () => {
   it('should toggle schedule from active to inactive', async () => {
-    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', isActive: true });
-    (prisma as any).analyticsSchedule.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', isActive: false });
+    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      isActive: true,
+    });
+    (prisma as any).analyticsSchedule.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      isActive: false,
+    });
 
-    const res = await request(app).put('/api/schedules/00000000-0000-0000-0000-000000000001/toggle');
+    const res = await request(app).put(
+      '/api/schedules/00000000-0000-0000-0000-000000000001/toggle'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.isActive).toBe(false);
   });
 
   it('should toggle schedule from inactive to active', async () => {
-    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', isActive: false });
-    (prisma as any).analyticsSchedule.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', isActive: true });
+    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      isActive: false,
+    });
+    (prisma as any).analyticsSchedule.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      isActive: true,
+    });
 
-    const res = await request(app).put('/api/schedules/00000000-0000-0000-0000-000000000001/toggle');
+    const res = await request(app).put(
+      '/api/schedules/00000000-0000-0000-0000-000000000001/toggle'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.isActive).toBe(true);
@@ -210,7 +257,9 @@ describe('PUT /api/schedules/:id/toggle', () => {
   it('should return 404 for non-existent schedule', async () => {
     (prisma as any).analyticsSchedule.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/schedules/00000000-0000-0000-0000-000000000099/toggle');
+    const res = await request(app).put(
+      '/api/schedules/00000000-0000-0000-0000-000000000099/toggle'
+    );
 
     expect(res.status).toBe(404);
   });

@@ -111,8 +111,12 @@ export default function TemplatesClient() {
       case 'section':
         return (
           <div key={field.name} className="col-span-2 mt-4 mb-2">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b pb-2">{field.label}</h3>
-            {field.description && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{field.description}</p>}
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b pb-2">
+              {field.label}
+            </h3>
+            {field.description && (
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{field.description}</p>
+            )}
           </div>
         );
       case 'textarea':
@@ -143,7 +147,9 @@ export default function TemplatesClient() {
             >
               <option value="">Select...</option>
               {field.options?.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           </div>
@@ -187,7 +193,10 @@ export default function TemplatesClient() {
               checked={formData[field.name] || false}
               onChange={(e) => setFormData({ ...formData, [field.name]: e.target.checked })}
             />
-            <label htmlFor={field.name} className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor={field.name}
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               {field.label} {field.required && <span className="text-red-500">*</span>}
             </label>
           </div>
@@ -237,7 +246,9 @@ export default function TemplatesClient() {
         <div className="flex items-center gap-3">
           <FileText className="h-8 w-8 text-lime-600" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Inventory Templates</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              Inventory Templates
+            </h1>
             <p className="text-lime-600 mt-1">Stock management and goods receipt templates</p>
           </div>
         </div>
@@ -251,7 +262,8 @@ export default function TemplatesClient() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
-                aria-label="Search templates..." placeholder="Search templates..."
+                aria-label="Search templates..."
+                placeholder="Search templates..."
                 className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 text-sm focus:border-lime-500 focus:ring-1 focus:ring-lime-500"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -279,7 +291,9 @@ export default function TemplatesClient() {
         <Card>
           <CardContent className="p-12 text-center">
             <FileText className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600" />
-            <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">No templates found</h3>
+            <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">
+              No templates found
+            </h3>
             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               {search || categoryFilter
                 ? 'Try adjusting your search or filter criteria.'
@@ -296,12 +310,12 @@ export default function TemplatesClient() {
                   <Badge className="bg-lime-50 text-lime-600 text-xs font-mono">
                     {template.code}
                   </Badge>
-                  <Badge className={getCategoryColor(template.category)}>
-                    {template.category}
-                  </Badge>
+                  <Badge className={getCategoryColor(template.category)}>{template.category}</Badge>
                 </div>
 
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{template.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  {template.name}
+                </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4">
                   {template.description || 'No description available'}
                 </p>
@@ -358,8 +372,12 @@ export default function TemplatesClient() {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <Badge className="bg-lime-50 text-lime-600 font-mono">{selectedTemplate.code}</Badge>
-              <Badge className={getCategoryColor(selectedTemplate.category)}>{selectedTemplate.category}</Badge>
-              <span className="text-sm text-gray-500 dark:text-gray-400">v{selectedTemplate.version}</span>
+              <Badge className={getCategoryColor(selectedTemplate.category)}>
+                {selectedTemplate.category}
+              </Badge>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                v{selectedTemplate.version}
+              </span>
             </div>
 
             {selectedTemplate.description && (
@@ -367,35 +385,52 @@ export default function TemplatesClient() {
             )}
 
             <div>
-              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Field Definitions</h4>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                Field Definitions
+              </h4>
               {selectedTemplate.fieldDefinitions?.length > 0 ? (
                 <ul className="space-y-2">
                   {selectedTemplate.fieldDefinitions.map((field, idx) => (
-                    <li key={idx} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <li
+                      key={idx}
+                      className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{field.label}</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {field.label}
+                          </span>
                           <Badge className="text-xs bg-gray-200 text-gray-600">{field.type}</Badge>
-                          {field.required && <Badge className="text-xs bg-red-100 text-red-600">Required</Badge>}
+                          {field.required && (
+                            <Badge className="text-xs bg-red-100 text-red-600">Required</Badge>
+                          )}
                         </div>
                         {field.description && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{field.description}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {field.description}
+                          </p>
                         )}
                         {field.options && field.options.length > 0 && (
-                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Options: {field.options.join(', ')}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                            Options: {field.options.join(', ')}
+                          </p>
                         )}
                       </div>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-gray-500 dark:text-gray-400">No field definitions available.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  No field definitions available.
+                </p>
               )}
             </div>
           </div>
         )}
         <ModalFooter>
-          <Button variant="outline" onClick={() => setSelectedTemplate(null)}>Close</Button>
+          <Button variant="outline" onClick={() => setSelectedTemplate(null)}>
+            Close
+          </Button>
           <Button
             className="bg-lime-600 hover:bg-lime-700 text-white"
             onClick={() => {
@@ -410,20 +445,33 @@ export default function TemplatesClient() {
       {/* Use Template Modal */}
       <Modal
         isOpen={showUseModal}
-        onClose={() => { setShowUseModal(false); setSelectedTemplate(null); setFormData({}); }}
+        onClose={() => {
+          setShowUseModal(false);
+          setSelectedTemplate(null);
+          setFormData({});
+        }}
         title={`Use Template: ${selectedTemplate?.name || ''}`}
         size="lg"
       >
         {selectedTemplate && (
           <div className="space-y-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400">Fill in the fields below to create a document from this template.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Fill in the fields below to create a document from this template.
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {selectedTemplate.fieldDefinitions?.map((field) => renderFieldInput(field))}
             </div>
           </div>
         )}
         <ModalFooter>
-          <Button variant="outline" onClick={() => { setShowUseModal(false); setSelectedTemplate(null); setFormData({}); }}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setShowUseModal(false);
+              setSelectedTemplate(null);
+              setFormData({});
+            }}
+          >
             Cancel
           </Button>
           <Button className="bg-lime-600 hover:bg-lime-700 text-white" onClick={handleSubmitUse}>

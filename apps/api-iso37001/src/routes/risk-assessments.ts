@@ -69,35 +69,43 @@ const riskAssessmentCreateSchema = z.object({
   country: z.string().max(100).optional(),
   existingControls: z.string().max(5000).optional(),
   owner: z.string().max(200).optional(),
-  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  reviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   notes: z.string().max(2000).optional(),
 });
 
 const riskAssessmentUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
   description: z.string().max(5000).optional(),
-  category: z.enum([
-    'BRIBERY_OF_PUBLIC_OFFICIALS',
-    'COMMERCIAL_BRIBERY',
-    'FACILITATION_PAYMENTS',
-    'GIFTS_HOSPITALITY',
-    'POLITICAL_CONTRIBUTIONS',
-    'CHARITABLE_DONATIONS',
-    'THIRD_PARTY_RISKS',
-    'PROCUREMENT',
-    'SALES_MARKETING',
-    'MERGERS_ACQUISITIONS',
-    'JOINT_VENTURES',
-    'CUSTOMS_CLEARANCE',
-    'OTHER',
-  ]).optional(),
+  category: z
+    .enum([
+      'BRIBERY_OF_PUBLIC_OFFICIALS',
+      'COMMERCIAL_BRIBERY',
+      'FACILITATION_PAYMENTS',
+      'GIFTS_HOSPITALITY',
+      'POLITICAL_CONTRIBUTIONS',
+      'CHARITABLE_DONATIONS',
+      'THIRD_PARTY_RISKS',
+      'PROCUREMENT',
+      'SALES_MARKETING',
+      'MERGERS_ACQUISITIONS',
+      'JOINT_VENTURES',
+      'CUSTOMS_CLEARANCE',
+      'OTHER',
+    ])
+    .optional(),
   businessFunction: z.string().trim().min(1).max(200).optional(),
   likelihood: z.number().int().min(1).max(5).optional(),
   impact: z.number().int().min(1).max(5).optional(),
   country: z.string().max(100).optional(),
   existingControls: z.string().max(5000).optional(),
   owner: z.string().max(200).optional(),
-  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  reviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   notes: z.string().max(2000).optional(),
 });
 
@@ -107,7 +115,10 @@ const mitigateSchema = z.object({
   residualImpact: z.number().int().min(1).max(5),
   controlsAdded: z.string().max(5000).optional(),
   mitigationOwner: z.string().max(200).optional(),
-  targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  targetDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
 });
 
 // ---------------------------------------------------------------------------
@@ -168,8 +179,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list risk assessments', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list risk assessments' } });
+    logger.error('Failed to list risk assessments', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list risk assessments' },
+    });
   }
 });
 
@@ -199,11 +215,21 @@ router.post('/', async (req: Request, res: Response) => {
       } as any,
     });
 
-    logger.info('Risk assessment created', { id: assessment.id, referenceNumber, riskScore, riskLevel });
+    logger.info('Risk assessment created', {
+      id: assessment.id,
+      referenceNumber,
+      riskScore,
+      riskLevel,
+    });
     res.status(201).json({ success: true, data: assessment });
   } catch (error: unknown) {
-    logger.error('Failed to create risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create risk assessment' } });
+    logger.error('Failed to create risk assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create risk assessment' },
+    });
   }
 });
 
@@ -217,13 +243,21 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!assessment) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Risk assessment not found' },
+      });
     }
 
     res.json({ success: true, data: assessment });
   } catch (error: unknown) {
-    logger.error('Failed to get risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk assessment' } });
+    logger.error('Failed to get risk assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk assessment' },
+    });
   }
 });
 
@@ -241,7 +275,10 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Risk assessment not found' },
+      });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -265,8 +302,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Risk assessment updated', { id: assessment.id, riskScore, riskLevel });
     res.json({ success: true, data: assessment });
   } catch (error: unknown) {
-    logger.error('Failed to update risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update risk assessment' } });
+    logger.error('Failed to update risk assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update risk assessment' },
+    });
   }
 });
 
@@ -282,12 +324,18 @@ router.put('/:id/mitigate', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Risk assessment not found' },
+      });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
 
-    const residualRiskScore = calculateRiskScore(parsed.data.residualLikelihood, parsed.data.residualImpact);
+    const residualRiskScore = calculateRiskScore(
+      parsed.data.residualLikelihood,
+      parsed.data.residualImpact
+    );
     const residualRiskLevel = determineRiskLevel(residualRiskScore);
 
     const assessment = await prisma.abRiskAssessment.update({
@@ -313,8 +361,13 @@ router.put('/:id/mitigate', async (req: Request, res: Response) => {
     });
     res.json({ success: true, data: assessment });
   } catch (error: unknown) {
-    logger.error('Failed to mitigate risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to mitigate risk assessment' } });
+    logger.error('Failed to mitigate risk assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to mitigate risk assessment' },
+    });
   }
 });
 
@@ -325,7 +378,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Risk assessment not found' },
+      });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -341,8 +397,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Risk assessment deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Risk assessment deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete risk assessment' } });
+    logger.error('Failed to delete risk assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete risk assessment' },
+    });
   }
 });
 

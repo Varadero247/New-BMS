@@ -16,14 +16,28 @@ router.param('id', validateIdParam());
 
 const alertCreateSchema = z.object({
   meterId: z.string().trim().uuid().optional().nullable(),
-  type: z.enum(['OVERCONSUMPTION', 'ANOMALY', 'THRESHOLD_BREACH', 'EQUIPMENT_FAULT', 'BILLING_DISCREPANCY']),
+  type: z.enum([
+    'OVERCONSUMPTION',
+    'ANOMALY',
+    'THRESHOLD_BREACH',
+    'EQUIPMENT_FAULT',
+    'BILLING_DISCREPANCY',
+  ]),
   severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional().default('MEDIUM'),
   message: z.string().trim().min(1).max(1000),
   details: z.any().optional().nullable(),
 });
 
 const alertUpdateSchema = z.object({
-  type: z.enum(['OVERCONSUMPTION', 'ANOMALY', 'THRESHOLD_BREACH', 'EQUIPMENT_FAULT', 'BILLING_DISCREPANCY']).optional(),
+  type: z
+    .enum([
+      'OVERCONSUMPTION',
+      'ANOMALY',
+      'THRESHOLD_BREACH',
+      'EQUIPMENT_FAULT',
+      'BILLING_DISCREPANCY',
+    ])
+    .optional(),
   severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   message: z.string().trim().min(1).max(1000).optional(),
   details: z.any().optional().nullable(),
@@ -80,8 +94,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list alerts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list alerts' } });
+    logger.error('Failed to list alerts', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list alerts' },
+    });
   }
 });
 
@@ -93,7 +112,11 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = alertCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -101,9 +124,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Validate meter if provided
     if (data.meterId) {
-      const meter = await prisma.energyMeter.findFirst({ where: { id: data.meterId, deletedAt: null } as any });
+      const meter = await prisma.energyMeter.findFirst({
+        where: { id: data.meterId, deletedAt: null } as any,
+      });
       if (!meter) {
-        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
       }
     }
 
@@ -124,8 +151,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Alert created', { alertId: alert.id, type: data.type, severity: data.severity });
     res.status(201).json({ success: true, data: alert });
   } catch (error: unknown) {
-    logger.error('Failed to create alert', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create alert' } });
+    logger.error('Failed to create alert', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create alert' },
+    });
   }
 });
 
@@ -145,13 +177,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!alert) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     res.json({ success: true, data: alert });
   } catch (error: unknown) {
-    logger.error('Failed to get alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get alert' } });
+    logger.error('Failed to get alert', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get alert' } });
   }
 });
 
@@ -164,12 +203,18 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = alertUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     const alert = await prisma.energyAlert.update({
@@ -180,8 +225,14 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Alert updated', { alertId: id });
     res.json({ success: true, data: alert });
   } catch (error: unknown) {
-    logger.error('Failed to update alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update alert' } });
+    logger.error('Failed to update alert', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update alert' },
+    });
   }
 });
 
@@ -195,7 +246,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     await prisma.energyAlert.update({
@@ -206,8 +259,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Alert soft-deleted', { alertId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete alert' } });
+    logger.error('Failed to delete alert', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete alert' },
+    });
   }
 });
 
@@ -222,11 +281,16 @@ router.put('/:id/acknowledge', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     if (existing.acknowledged) {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Alert is already acknowledged' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Alert is already acknowledged' },
+      });
     }
 
     const alert = await prisma.energyAlert.update({
@@ -241,8 +305,14 @@ router.put('/:id/acknowledge', async (req: Request, res: Response) => {
     logger.info('Alert acknowledged', { alertId: id });
     res.json({ success: true, data: alert });
   } catch (error: unknown) {
-    logger.error('Failed to acknowledge alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to acknowledge alert' } });
+    logger.error('Failed to acknowledge alert', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to acknowledge alert' },
+    });
   }
 });
 
@@ -256,11 +326,16 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     if (existing.resolvedAt) {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Alert is already resolved' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Alert is already resolved' },
+      });
     }
 
     const alert = await prisma.energyAlert.update({
@@ -269,15 +344,21 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
         resolvedAt: new Date(),
         acknowledged: true,
         acknowledgedAt: existing.acknowledgedAt || new Date(),
-        acknowledgedBy: existing.acknowledgedBy || ((req as AuthRequest).user?.id || 'system'),
+        acknowledgedBy: existing.acknowledgedBy || (req as AuthRequest).user?.id || 'system',
       },
     });
 
     logger.info('Alert resolved', { alertId: id });
     res.json({ success: true, data: alert });
   } catch (error: unknown) {
-    logger.error('Failed to resolve alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to resolve alert' } });
+    logger.error('Failed to resolve alert', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to resolve alert' },
+    });
   }
 });
 

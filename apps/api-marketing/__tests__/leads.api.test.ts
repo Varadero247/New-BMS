@@ -23,7 +23,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/leads', leadsRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 // ===================================================================
 // POST /api/leads/capture
@@ -31,7 +33,12 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('POST /api/leads/capture', () => {
   it('creates a lead with valid data', async () => {
-    const mockLead = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', name: 'Test', source: 'DIRECT' };
+    const mockLead = {
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'test@test.com',
+      name: 'Test',
+      source: 'DIRECT',
+    };
     (prisma.mktLead.create as jest.Mock).mockResolvedValue(mockLead);
 
     const res = await request(app)
@@ -61,9 +68,21 @@ describe('POST /api/leads/capture', () => {
   });
 
   it('accepts all valid sources', async () => {
-    const sources = ['ROI_CALCULATOR', 'CHATBOT', 'LANDING_PAGE', 'PARTNER_REFERRAL', 'ORGANIC_SEARCH', 'PAID_ADS', 'DIRECT', 'LINKEDIN'];
+    const sources = [
+      'ROI_CALCULATOR',
+      'CHATBOT',
+      'LANDING_PAGE',
+      'PARTNER_REFERRAL',
+      'ORGANIC_SEARCH',
+      'PAID_ADS',
+      'DIRECT',
+      'LINKEDIN',
+    ];
     for (const source of sources) {
-      (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', source });
+      (prisma.mktLead.create as jest.Mock).mockResolvedValue({
+        id: '00000000-0000-0000-0000-000000000001',
+        source,
+      });
       const res = await request(app)
         .post('/api/leads/capture')
         .send({ email: 'test@test.com', name: 'Test', source });
@@ -88,7 +107,9 @@ describe('POST /api/leads/capture', () => {
 
 describe('GET /api/leads', () => {
   it('returns paginated leads', async () => {
-    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001' },
+    ]);
     (prisma.mktLead.count as jest.Mock).mockResolvedValue(1);
 
     const res = await request(app).get('/api/leads');
@@ -127,7 +148,10 @@ describe('GET /api/leads', () => {
 
 describe('GET /api/leads/:id', () => {
   it('returns a lead by ID', async () => {
-    (prisma.mktLead.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com' });
+    (prisma.mktLead.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'test@test.com',
+    });
 
     const res = await request(app).get('/api/leads/00000000-0000-0000-0000-000000000001');
 

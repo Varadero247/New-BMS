@@ -94,7 +94,9 @@ app.use('/api/materiality', materialityRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
-  res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Endpoint not found' } });
+  res
+    .status(404)
+    .json({ success: false, error: { code: 'NOT_FOUND', message: 'Endpoint not found' } });
 });
 
 // Error handler
@@ -119,7 +121,9 @@ const gracefulShutdown = async (signal: string) => {
     await prisma.$disconnect();
     process.exit(0);
   });
-  setTimeout(() => { process.exit(1); }, 10000);
+  setTimeout(() => {
+    process.exit(1);
+  }, 10000);
 };
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));

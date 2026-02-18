@@ -20,7 +20,10 @@ router.get('/', async (_req: Request, res: Response) => {
     res.json({ success: true, data: { checks } });
   } catch (err) {
     logger.error('Failed to list uptime checks', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list uptime checks' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list uptime checks' },
+    });
   }
 });
 
@@ -53,7 +56,10 @@ router.get('/:id/history', async (req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Failed to list uptime incidents', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list uptime incidents' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list uptime incidents' },
+    });
   }
 });
 
@@ -65,7 +71,9 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const check = await prisma.uptimeCheck.findUnique({ where: { id } });
     if (!check) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Uptime check not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Uptime check not found' } });
     }
 
     const recentIncidents = await prisma.uptimeIncident.findMany({
@@ -77,7 +85,10 @@ router.get('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { check, recentIncidents } });
   } catch (err) {
     logger.error('Failed to get uptime check', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get uptime check' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get uptime check' },
+    });
   }
 });
 

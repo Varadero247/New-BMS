@@ -3,8 +3,19 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    cmmsVendor: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
-    cmmsServiceContract: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn() },
+    cmmsVendor: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+    cmmsServiceContract: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
   },
   Prisma: { Decimal: jest.fn((v: any) => v) },
 }));
@@ -156,14 +167,18 @@ describe('Vendors Routes', () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
       prisma.cmmsVendor.update.mockResolvedValue({ ...mockVendor, name: 'Updated' });
 
-      const res = await request(app).put('/api/vendors/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
+      const res = await request(app)
+        .put('/api/vendors/00000000-0000-0000-0000-000000000001')
+        .send({ name: 'Updated' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent vendor', async () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/vendors/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
+      const res = await request(app)
+        .put('/api/vendors/00000000-0000-0000-0000-000000000099')
+        .send({ name: 'Updated' });
       expect(res.status).toBe(404);
     });
   });
@@ -191,7 +206,9 @@ describe('Vendors Routes', () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
       prisma.cmmsServiceContract.findMany.mockResolvedValue([mockContract]);
 
-      const res = await request(app).get('/api/vendors/00000000-0000-0000-0000-000000000001/contracts');
+      const res = await request(app).get(
+        '/api/vendors/00000000-0000-0000-0000-000000000001/contracts'
+      );
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(1);
     });
@@ -199,7 +216,9 @@ describe('Vendors Routes', () => {
     it('should return 404 for non-existent vendor', async () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/vendors/00000000-0000-0000-0000-000000000099/contracts');
+      const res = await request(app).get(
+        '/api/vendors/00000000-0000-0000-0000-000000000099/contracts'
+      );
       expect(res.status).toBe(404);
     });
   });
@@ -209,31 +228,37 @@ describe('Vendors Routes', () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
       prisma.cmmsServiceContract.create.mockResolvedValue(mockContract);
 
-      const res = await request(app).post('/api/vendors/00000000-0000-0000-0000-000000000001/contracts').send({
-        contractNumber: 'SC-001',
-        title: 'Annual HVAC Maintenance',
-        startDate: '2026-01-01',
-        endDate: '2026-12-31',
-        type: 'FULL_SERVICE',
-      });
+      const res = await request(app)
+        .post('/api/vendors/00000000-0000-0000-0000-000000000001/contracts')
+        .send({
+          contractNumber: 'SC-001',
+          title: 'Annual HVAC Maintenance',
+          startDate: '2026-01-01',
+          endDate: '2026-12-31',
+          type: 'FULL_SERVICE',
+        });
       expect(res.status).toBe(201);
     });
 
     it('should return 404 for non-existent vendor', async () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).post('/api/vendors/00000000-0000-0000-0000-000000000099/contracts').send({
-        contractNumber: 'SC-001',
-        title: 'Test',
-        startDate: '2026-01-01',
-        endDate: '2026-12-31',
-        type: 'FULL_SERVICE',
-      });
+      const res = await request(app)
+        .post('/api/vendors/00000000-0000-0000-0000-000000000099/contracts')
+        .send({
+          contractNumber: 'SC-001',
+          title: 'Test',
+          startDate: '2026-01-01',
+          endDate: '2026-12-31',
+          type: 'FULL_SERVICE',
+        });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for invalid contract data', async () => {
-      const res = await request(app).post('/api/vendors/00000000-0000-0000-0000-000000000001/contracts').send({});
+      const res = await request(app)
+        .post('/api/vendors/00000000-0000-0000-0000-000000000001/contracts')
+        .send({});
       expect(res.status).toBe(400);
     });
   });
@@ -243,14 +268,18 @@ describe('Vendors Routes', () => {
       prisma.cmmsServiceContract.findFirst.mockResolvedValue(mockContract);
       prisma.cmmsServiceContract.update.mockResolvedValue({ ...mockContract, title: 'Updated' });
 
-      const res = await request(app).put('/api/contracts/contracts/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
+      const res = await request(app)
+        .put('/api/contracts/contracts/00000000-0000-0000-0000-000000000001')
+        .send({ title: 'Updated' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent contract', async () => {
       prisma.cmmsServiceContract.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/contracts/contracts/00000000-0000-0000-0000-000000000099').send({ title: 'Updated' });
+      const res = await request(app)
+        .put('/api/contracts/contracts/00000000-0000-0000-0000-000000000099')
+        .send({ title: 'Updated' });
       expect(res.status).toBe(404);
     });
   });

@@ -3,8 +3,16 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@ims/ui';
 import {
-  Target, Settings, Edit2, CheckCircle, AlertTriangle, ShieldAlert,
-  TrendingUp, ChevronDown, ChevronUp, RefreshCw,
+  Target,
+  Settings,
+  Edit2,
+  CheckCircle,
+  AlertTriangle,
+  ShieldAlert,
+  TrendingUp,
+  ChevronDown,
+  ChevronUp,
+  RefreshCw,
 } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
@@ -55,23 +63,48 @@ const APPETITE_DOTS: Record<AppetiteLevel, string> = {
 };
 
 const ALL_CATEGORIES = [
-  'STRATEGIC', 'OPERATIONAL', 'FINANCIAL', 'COMPLIANCE', 'REPUTATIONAL',
-  'ENVIRONMENTAL', 'HEALTH_SAFETY', 'INFORMATION_SECURITY', 'QUALITY',
-  'SUPPLY_CHAIN', 'TECHNOLOGY_CYBER', 'PEOPLE_HR', 'EXTERNAL_GEOPOLITICAL',
-  'PROJECT_PROGRAMME', 'OTHER',
+  'STRATEGIC',
+  'OPERATIONAL',
+  'FINANCIAL',
+  'COMPLIANCE',
+  'REPUTATIONAL',
+  'ENVIRONMENTAL',
+  'HEALTH_SAFETY',
+  'INFORMATION_SECURITY',
+  'QUALITY',
+  'SUPPLY_CHAIN',
+  'TECHNOLOGY_CYBER',
+  'PEOPLE_HR',
+  'EXTERNAL_GEOPOLITICAL',
+  'PROJECT_PROGRAMME',
+  'OTHER',
 ];
 
 function formatCategory(cat: string) {
-  return cat.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  return cat
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function formatAppetite(level: AppetiteLevel) {
-  return level.replace(/_APPETITE/, '').replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  return level
+    .replace(/_APPETITE/, '')
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function ScoreBar({ value, max = 25 }: { value: number; max?: number }) {
   const pct = Math.min((value / max) * 100, 100);
-  const color = pct >= 60 ? 'bg-red-500' : pct >= 40 ? 'bg-orange-400' : pct >= 20 ? 'bg-yellow-400' : 'bg-green-400';
+  const color =
+    pct >= 60
+      ? 'bg-red-500'
+      : pct >= 40
+        ? 'bg-orange-400'
+        : pct >= 20
+          ? 'bg-yellow-400'
+          : 'bg-green-400';
   return (
     <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
       <div className={`h-1.5 rounded-full ${color}`} style={{ width: `${pct}%` }} />
@@ -99,7 +132,10 @@ function EditModal({ stmt, onClose, onSave }: EditModalProps) {
   const [error, setError] = useState('');
 
   async function handleSave() {
-    if (!form.statement) { setError('Statement is required'); return; }
+    if (!form.statement) {
+      setError('Statement is required');
+      return;
+    }
     setSaving(true);
     setError('');
     try {
@@ -111,7 +147,9 @@ function EditModal({ stmt, onClose, onSave }: EditModalProps) {
         escalationThreshold: Number(form.escalationThreshold),
         maximumTolerableScore: Number(form.maximumTolerableScore),
         approvedBy: form.approvedBy || undefined,
-        reviewDate: form.reviewDate ? new Date(form.reviewDate).toISOString() : new Date().toISOString(),
+        reviewDate: form.reviewDate
+          ? new Date(form.reviewDate).toISOString()
+          : new Date().toISOString(),
       });
       onSave();
       onClose();
@@ -129,7 +167,10 @@ function EditModal({ stmt, onClose, onSave }: EditModalProps) {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Edit Appetite — {formatCategory(stmt.category)}
           </h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          >
             <ChevronUp className="h-5 w-5" />
           </button>
         </div>
@@ -138,10 +179,16 @@ function EditModal({ stmt, onClose, onSave }: EditModalProps) {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Appetite Level</label>
-            <select value={form.appetiteLevel}
-              onChange={e => setForm(p => ({ ...p, appetiteLevel: e.target.value as AppetiteLevel }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Appetite Level
+            </label>
+            <select
+              value={form.appetiteLevel}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, appetiteLevel: e.target.value as AppetiteLevel }))
+              }
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
               <option value="VERY_LOW">Very Low</option>
               <option value="LOW">Low</option>
               <option value="MODERATE_APPETITE">Moderate</option>
@@ -151,53 +198,103 @@ function EditModal({ stmt, onClose, onSave }: EditModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Statement *</label>
-            <textarea value={form.statement} onChange={e => setForm(p => ({ ...p, statement: e.target.value }))} rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 resize-none" />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Statement *
+            </label>
+            <textarea
+              value={form.statement}
+              onChange={(e) => setForm((p) => ({ ...p, statement: e.target.value }))}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+            />
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Acceptable Score</label>
-              <input type="number" min={1} max={25} value={form.acceptableResidualScore}
-                onChange={e => setForm(p => ({ ...p, acceptableResidualScore: Number(e.target.value) }))}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500" />
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Acceptable Score
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={25}
+                value={form.acceptableResidualScore}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, acceptableResidualScore: Number(e.target.value) }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Escalation Threshold</label>
-              <input type="number" min={1} max={25} value={form.escalationThreshold}
-                onChange={e => setForm(p => ({ ...p, escalationThreshold: Number(e.target.value) }))}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500" />
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Escalation Threshold
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={25}
+                value={form.escalationThreshold}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, escalationThreshold: Number(e.target.value) }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Max Tolerable</label>
-              <input type="number" min={1} max={25} value={form.maximumTolerableScore}
-                onChange={e => setForm(p => ({ ...p, maximumTolerableScore: Number(e.target.value) }))}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500" />
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Max Tolerable
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={25}
+                value={form.maximumTolerableScore}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, maximumTolerableScore: Number(e.target.value) }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Approved By</label>
-              <input type="text" value={form.approvedBy} onChange={e => setForm(p => ({ ...p, approvedBy: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500" />
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Approved By
+              </label>
+              <input
+                type="text"
+                value={form.approvedBy}
+                onChange={(e) => setForm((p) => ({ ...p, approvedBy: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Review Date</label>
-              <input type="date" value={form.reviewDate} onChange={e => setForm(p => ({ ...p, reviewDate: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500" />
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Review Date
+              </label>
+              <input
+                type="date"
+                value={form.reviewDate}
+                onChange={(e) => setForm((p) => ({ ...p, reviewDate: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
             </div>
           </div>
         </div>
 
         <div className="flex gap-3 mt-6 justify-end">
-          <button onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
             Cancel
           </button>
-          <button onClick={handleSave} disabled={saving}
-            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+          >
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
@@ -225,27 +322,36 @@ export default function AppetitePage() {
       setStatements(appRes.data.data || []);
       setFramework(fwRes.data.data || null);
     } catch (e: unknown) {
-      setError(e.response?.status === 401 ? 'Session expired. Please log in.' : 'Failed to load appetite data.');
+      setError(
+        e.response?.status === 401
+          ? 'Session expired. Please log in.'
+          : 'Failed to load appetite data.'
+      );
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    loadData();
+  }, []);
 
   // Build merged list: defined statements + placeholder cards for any missing categories
-  const stmtByCategory = Object.fromEntries(statements.map(s => [s.category, s]));
-  const allCards = ALL_CATEGORIES.map(cat => stmtByCategory[cat] || {
-    id: '',
-    category: cat,
-    appetiteLevel: 'MODERATE_APPETITE' as AppetiteLevel,
-    statement: 'No appetite statement defined for this category.',
-    acceptableResidualScore: 8,
-    escalationThreshold: 12,
-    maximumTolerableScore: 16,
-    reviewDate: '',
-    approvedBy: '',
-  });
+  const stmtByCategory = Object.fromEntries(statements.map((s) => [s.category, s]));
+  const allCards = ALL_CATEGORIES.map(
+    (cat) =>
+      stmtByCategory[cat] || {
+        id: '',
+        category: cat,
+        appetiteLevel: 'MODERATE_APPETITE' as AppetiteLevel,
+        statement: 'No appetite statement defined for this category.',
+        acceptableResidualScore: 8,
+        escalationThreshold: 12,
+        maximumTolerableScore: 16,
+        reviewDate: '',
+        approvedBy: '',
+      }
+  );
 
   return (
     <div className="flex min-h-screen">
@@ -254,11 +360,17 @@ export default function AppetitePage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Risk Appetite Framework</h1>
-              <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 31000 — risk tolerance thresholds by category</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                Risk Appetite Framework
+              </h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">
+                ISO 31000 — risk tolerance thresholds by category
+              </p>
             </div>
-            <button onClick={loadData}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+            <button
+              onClick={loadData}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
               <RefreshCw className="h-4 w-4" />
               Refresh
             </button>
@@ -283,47 +395,73 @@ export default function AppetitePage() {
           <Card className="mb-6">
             <CardContent className="p-0">
               <button
-                onClick={() => setShowFrameworkPanel(p => !p)}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-xl">
+                onClick={() => setShowFrameworkPanel((p) => !p)}
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-xl"
+              >
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
                     <Settings className="h-5 w-5 text-red-600 dark:text-red-400" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 dark:text-gray-100">Organisation Risk Framework Settings</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Overall appetite, committee and maturity configuration</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">
+                      Organisation Risk Framework Settings
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Overall appetite, committee and maturity configuration
+                    </p>
                   </div>
                 </div>
-                {showFrameworkPanel ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
+                {showFrameworkPanel ? (
+                  <ChevronUp className="h-5 w-5 text-gray-400" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                )}
               </button>
 
               {showFrameworkPanel && (
                 <div className="px-4 pb-4 border-t border-gray-100 dark:border-gray-800 pt-4">
                   {loading ? (
                     <div className="animate-pulse grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {[...Array(4)].map((_, i) => <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded" />)}
+                      {[...Array(4)].map((_, i) => (
+                        <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded" />
+                      ))}
                     </div>
                   ) : framework ? (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">Overall Appetite</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
+                          Overall Appetite
+                        </p>
                         <p className="mt-1 font-semibold text-gray-900 dark:text-gray-100">
-                          {framework.overallRiskAppetite ? formatAppetite(framework.overallRiskAppetite) : '—'}
+                          {framework.overallRiskAppetite
+                            ? formatAppetite(framework.overallRiskAppetite)
+                            : '—'}
                         </p>
                         {framework.overallRiskAppetite && (
-                          <span className={`mt-1 inline-block w-2 h-2 rounded-full ${APPETITE_DOTS[framework.overallRiskAppetite]}`} />
+                          <span
+                            className={`mt-1 inline-block w-2 h-2 rounded-full ${APPETITE_DOTS[framework.overallRiskAppetite]}`}
+                          />
                         )}
                       </div>
                       <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">Risk Committee</p>
-                        <p className="mt-1 font-semibold text-gray-900 dark:text-gray-100 truncate">
-                          {framework.riskCommitteeName || (framework.riskCommitteeExists ? 'Active' : 'None')}
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
+                          Risk Committee
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{framework.riskCommitteeMeetingFreq || '—'}</p>
+                        <p className="mt-1 font-semibold text-gray-900 dark:text-gray-100 truncate">
+                          {framework.riskCommitteeName ||
+                            (framework.riskCommitteeExists ? 'Active' : 'None')}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {framework.riskCommitteeMeetingFreq || '—'}
+                        </p>
                       </div>
                       <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">Maturity Level</p>
-                        <p className="mt-1 font-semibold text-gray-900 dark:text-gray-100">{framework.maturityLevel || '—'}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
+                          Maturity Level
+                        </p>
+                        <p className="mt-1 font-semibold text-gray-900 dark:text-gray-100">
+                          {framework.maturityLevel || '—'}
+                        </p>
                         {framework.maturityAssessedDate && (
                           <p className="text-xs text-gray-500 dark:text-gray-400">
                             Assessed {new Date(framework.maturityAssessedDate).toLocaleDateString()}
@@ -331,17 +469,24 @@ export default function AppetitePage() {
                         )}
                       </div>
                       <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">Framework</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
+                          Framework
+                        </p>
                         <p className="mt-1 font-semibold text-gray-900 dark:text-gray-100">
                           v{framework.frameworkVersion || '1.0'}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{framework.policyRef || '—'}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {framework.policyRef || '—'}
+                        </p>
                       </div>
                     </div>
                   ) : (
                     <div className="flex items-center gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                       <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 shrink-0" />
-                      <p className="text-sm text-yellow-700 dark:text-yellow-300">No framework configuration found. Use the Risk Framework settings to configure your organisation's risk management parameters.</p>
+                      <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                        No framework configuration found. Use the Risk Framework settings to
+                        configure your organisation's risk management parameters.
+                      </p>
                     </div>
                   )}
                 </div>
@@ -352,13 +497,15 @@ export default function AppetitePage() {
           {/* Summary Row */}
           {!loading && statements.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-              {(Object.keys(APPETITE_COLORS) as AppetiteLevel[]).map(level => {
-                const count = statements.filter(s => s.appetiteLevel === level).length;
+              {(Object.keys(APPETITE_COLORS) as AppetiteLevel[]).map((level) => {
+                const count = statements.filter((s) => s.appetiteLevel === level).length;
                 return (
                   <Card key={level} className="text-center">
                     <CardContent className="pt-4 pb-3">
                       <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{count}</p>
-                      <span className={`mt-1 inline-block px-2 py-0.5 rounded-full text-xs font-medium ${APPETITE_COLORS[level]}`}>
+                      <span
+                        className={`mt-1 inline-block px-2 py-0.5 rounded-full text-xs font-medium ${APPETITE_COLORS[level]}`}
+                      >
                         {formatAppetite(level)}
                       </span>
                     </CardContent>
@@ -372,12 +519,15 @@ export default function AppetitePage() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="animate-pulse h-48 bg-gray-200 dark:bg-gray-700 rounded-xl" />
+                <div
+                  key={i}
+                  className="animate-pulse h-48 bg-gray-200 dark:bg-gray-700 rounded-xl"
+                />
               ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {allCards.map(stmt => (
+              {allCards.map((stmt) => (
                 <Card key={stmt.category} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between mb-3">
@@ -391,12 +541,15 @@ export default function AppetitePage() {
                       </div>
                       <button
                         onClick={() => setEditingStmt(stmt.id ? stmt : { ...stmt, id: '' })}
-                        className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                        className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      >
                         <Edit2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
 
-                    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold mb-3 ${APPETITE_COLORS[stmt.appetiteLevel]}`}>
+                    <span
+                      className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold mb-3 ${APPETITE_COLORS[stmt.appetiteLevel]}`}
+                    >
                       {formatAppetite(stmt.appetiteLevel)}
                     </span>
 
@@ -408,14 +561,18 @@ export default function AppetitePage() {
                       <div>
                         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                           <span>Acceptable score</span>
-                          <span className="font-medium text-gray-700 dark:text-gray-300">{stmt.acceptableResidualScore}/25</span>
+                          <span className="font-medium text-gray-700 dark:text-gray-300">
+                            {stmt.acceptableResidualScore}/25
+                          </span>
                         </div>
                         <ScoreBar value={stmt.acceptableResidualScore} />
                       </div>
                       <div>
                         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                           <span>Escalation threshold</span>
-                          <span className="font-medium text-gray-700 dark:text-gray-300">{stmt.escalationThreshold}/25</span>
+                          <span className="font-medium text-gray-700 dark:text-gray-300">
+                            {stmt.escalationThreshold}/25
+                          </span>
                         </div>
                         <ScoreBar value={stmt.escalationThreshold} />
                       </div>

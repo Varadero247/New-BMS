@@ -43,7 +43,10 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching expenses', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch expenses' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch expenses' },
+    });
   }
 });
 
@@ -58,13 +61,18 @@ router.get('/:id', checkOwnership(prisma.expense), async (req: Request, res: Res
     });
 
     if (!expense) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Expense not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Expense not found' } });
     }
 
     res.json({ success: true, data: expense });
   } catch (error) {
     logger.error('Error fetching expense', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch expense' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch expense' },
+    });
   }
 });
 
@@ -73,13 +81,25 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
-      category: z.enum(['TRAVEL', 'MEALS', 'ACCOMMODATION', 'TRANSPORTATION', 'OFFICE_SUPPLIES', 'SOFTWARE', 'HARDWARE', 'TRAINING', 'COMMUNICATION', 'CLIENT_ENTERTAINMENT', 'MISCELLANEOUS']),
+      category: z.enum([
+        'TRAVEL',
+        'MEALS',
+        'ACCOMMODATION',
+        'TRANSPORTATION',
+        'OFFICE_SUPPLIES',
+        'SOFTWARE',
+        'HARDWARE',
+        'TRAINING',
+        'COMMUNICATION',
+        'CLIENT_ENTERTAINMENT',
+        'MISCELLANEOUS',
+      ]),
       subcategory: z.string().optional(),
       description: z.string().trim().min(1).max(2000),
       merchant: z.string().optional(),
       amount: z.number().positive(),
       currency: z.string().length(3).default('USD'),
-      expenseDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      expenseDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       receiptUrls: z.array(z.string()).default([]),
       projectCode: z.string().optional(),
       costCenter: z.string().optional(),
@@ -108,19 +128,31 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: expense });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating expense', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create expense' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create expense' },
+    });
   }
 });
 
 // PUT /api/expenses/:id/approve - Approve expense
 router.put('/:id/approve', checkOwnership(prisma.expense), async (req: Request, res: Response) => {
   try {
-    const _schema = z.object({ approvedById: z.string().trim().optional(), approvalNotes: z.string().trim().optional() });
+    const _schema = z.object({
+      approvedById: z.string().trim().optional(),
+      approvalNotes: z.string().trim().optional(),
+    });
     const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    if (!_parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+      });
     const { approvedById, approvalNotes } = _parsed.data;
 
     const expense = await prisma.expense.update({
@@ -137,16 +169,26 @@ router.put('/:id/approve', checkOwnership(prisma.expense), async (req: Request, 
     res.json({ success: true, data: expense });
   } catch (error) {
     logger.error('Error approving expense', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve expense' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve expense' },
+    });
   }
 });
 
 // PUT /api/expenses/:id/reject - Reject expense
 router.put('/:id/reject', checkOwnership(prisma.expense), async (req: Request, res: Response) => {
   try {
-    const _schema = z.object({ approvedById: z.string().trim().optional(), approvalNotes: z.string().trim().optional() });
+    const _schema = z.object({
+      approvedById: z.string().trim().optional(),
+      approvalNotes: z.string().trim().optional(),
+    });
     const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    if (!_parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+      });
     const { approvedById, approvalNotes } = _parsed.data;
 
     const expense = await prisma.expense.update({
@@ -163,34 +205,48 @@ router.put('/:id/reject', checkOwnership(prisma.expense), async (req: Request, r
     res.json({ success: true, data: expense });
   } catch (error) {
     logger.error('Error rejecting expense', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reject expense' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to reject expense' },
+    });
   }
 });
 
 // PUT /api/expenses/:id/reimburse - Mark as reimbursed
-router.put('/:id/reimburse', checkOwnership(prisma.expense), async (req: Request, res: Response) => {
-  try {
-    const _schema = z.object({ paymentMethod: z.string().trim().optional() });
-    const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
-    const { paymentMethod } = _parsed.data;
+router.put(
+  '/:id/reimburse',
+  checkOwnership(prisma.expense),
+  async (req: Request, res: Response) => {
+    try {
+      const _schema = z.object({ paymentMethod: z.string().trim().optional() });
+      const _parsed = _schema.safeParse(req.body);
+      if (!_parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+        });
+      const { paymentMethod } = _parsed.data;
 
-    const expense = await prisma.expense.update({
-      where: { id: req.params.id },
-      data: {
-        status: 'REIMBURSED',
-        reimbursementStatus: 'COMPLETED',
-        reimbursedAt: new Date(),
-        reimbursementMethod: paymentMethod,
-      },
-    });
+      const expense = await prisma.expense.update({
+        where: { id: req.params.id },
+        data: {
+          status: 'REIMBURSED',
+          reimbursementStatus: 'COMPLETED',
+          reimbursedAt: new Date(),
+          reimbursementMethod: paymentMethod,
+        },
+      });
 
-    res.json({ success: true, data: expense });
-  } catch (error) {
-    logger.error('Error reimbursing expense', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reimburse expense' } });
+      res.json({ success: true, data: expense });
+    } catch (error) {
+      logger.error('Error reimbursing expense', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to reimburse expense' },
+      });
+    }
   }
-});
+);
 
 // Expense reports
 // GET /api/expenses/reports - Get expense reports
@@ -214,7 +270,10 @@ router.get('/reports/all', async (req: Request, res: Response) => {
     res.json({ success: true, data: reports });
   } catch (error) {
     logger.error('Error fetching expense reports', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch reports' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch reports' },
+    });
   }
 });
 
@@ -225,8 +284,16 @@ router.post('/reports', async (req: Request, res: Response) => {
       employeeId: z.string(),
       title: z.string().trim().min(1).max(200),
       description: z.string().optional(),
-      periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-      periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      periodStart: z
+        .string()
+        .trim()
+        .min(1)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      periodEnd: z
+        .string()
+        .trim()
+        .min(1)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       expenseIds: z.array(z.string().trim().uuid()).default([]),
     });
 
@@ -268,10 +335,15 @@ router.post('/reports', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: report });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating report', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create report' },
+    });
   }
 });
 

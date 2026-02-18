@@ -54,7 +54,7 @@ export class OfflineSyncEngine {
   }
 
   async processQueue(): Promise<void> {
-    const pending = this.queue.filter(i => i.status === 'pending' || i.status === 'failed');
+    const pending = this.queue.filter((i) => i.status === 'pending' || i.status === 'failed');
 
     for (const item of pending) {
       if (item.retryCount >= item.maxRetries) {
@@ -68,7 +68,7 @@ export class OfflineSyncEngine {
           method: item.method,
           headers: {
             'Content-Type': 'application/json',
-            ...(this.authToken ? { 'Authorization': `Bearer ${this.authToken}` } : {}),
+            ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
           },
           body: JSON.stringify(item.body),
         });
@@ -91,10 +91,10 @@ export class OfflineSyncEngine {
   }
 
   getPendingCount(): number {
-    return this.queue.filter(i => i.status === 'pending' || i.status === 'failed').length;
+    return this.queue.filter((i) => i.status === 'pending' || i.status === 'failed').length;
   }
 
   clearSynced(): void {
-    this.queue = this.queue.filter(i => i.status !== 'synced');
+    this.queue = this.queue.filter((i) => i.status !== 'synced');
   }
 }

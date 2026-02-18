@@ -18,12 +18,23 @@ router.post('/:id/generate', authenticate, async (req: Request, res: Response) =
   try {
     const parsed = generateAgendaSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.errors[0]?.message || 'Invalid input',
+        },
+      });
     }
 
     const orgId = ((req as any).user as any)?.orgId || 'default';
-    const review = await prisma.mgmtReview.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
-    if (!review) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Review not found' } });
+    const review = await prisma.mgmtReview.findFirst({
+      where: { id: req.params.id, orgId, deletedAt: null } as any,
+    });
+    if (!review)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Review not found' } });
 
     const reviewRecord = review as any;
     const customItems: string[] = parsed.data.customItems ?? [];
@@ -55,11 +66,19 @@ router.post('/:id/generate', authenticate, async (req: Request, res: Response) =
       generatedAt: new Date().toISOString(),
     };
 
-    await prisma.mgmtReview.update({ where: { id: req.params.id }, data: { aiGeneratedAgenda: JSON.stringify(agenda) } });
+    await prisma.mgmtReview.update({
+      where: { id: req.params.id },
+      data: { aiGeneratedAgenda: JSON.stringify(agenda) },
+    });
     res.json({ success: true, data: agenda });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate resource' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate resource' },
+    });
   }
 });
 

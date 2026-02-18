@@ -105,7 +105,14 @@ const mockFAI2 = {
   part2Status: 'IN_PROGRESS',
   part3Status: 'NOT_STARTED',
   part1Data: JSON.stringify([
-    { charNumber: 1, charName: 'Length', nominal: '100mm', tolerance: '0.1mm', actual: '100.05mm', pass: true },
+    {
+      charNumber: 1,
+      charName: 'Length',
+      nominal: '100mm',
+      tolerance: '0.1mm',
+      actual: '100.05mm',
+      pass: true,
+    },
   ]),
   part2Data: JSON.stringify([
     { docType: 'Drawing', docNumber: 'DWG-001', revision: 'A', available: true },
@@ -134,9 +141,30 @@ const validCreatePayload = {
 
 const validPart1Payload = {
   characteristics: [
-    { charNumber: 1, charName: 'Length', nominal: '100mm', tolerance: '0.1mm', actual: '100.05mm', pass: true },
-    { charNumber: 2, charName: 'Width', nominal: '50mm', tolerance: '0.05mm', actual: '50.02mm', pass: true },
-    { charNumber: 3, charName: 'Hole Diameter', nominal: '10mm', tolerance: '0.02mm', actual: '10.01mm', pass: true },
+    {
+      charNumber: 1,
+      charName: 'Length',
+      nominal: '100mm',
+      tolerance: '0.1mm',
+      actual: '100.05mm',
+      pass: true,
+    },
+    {
+      charNumber: 2,
+      charName: 'Width',
+      nominal: '50mm',
+      tolerance: '0.05mm',
+      actual: '50.02mm',
+      pass: true,
+    },
+    {
+      charNumber: 3,
+      charName: 'Hole Diameter',
+      nominal: '10mm',
+      tolerance: '0.02mm',
+      actual: '10.01mm',
+      pass: true,
+    },
   ],
 };
 
@@ -150,8 +178,20 @@ const validPart2Payload = {
 
 const validPart3Payload = {
   testResults: [
-    { testName: 'Tensile Strength', testMethod: 'ASTM E8', requirement: '>= 480 MPa', result: '495 MPa', pass: true },
-    { testName: 'Hardness Test', testMethod: 'Rockwell B', requirement: '78-87 HRB', result: '82 HRB', pass: true },
+    {
+      testName: 'Tensile Strength',
+      testMethod: 'ASTM E8',
+      requirement: '>= 480 MPa',
+      result: '495 MPa',
+      pass: true,
+    },
+    {
+      testName: 'Hardness Test',
+      testMethod: 'Rockwell B',
+      requirement: '78-87 HRB',
+      result: '82 HRB',
+      pass: true,
+    },
   ],
 };
 
@@ -167,14 +207,34 @@ const mockFAIAllCompleted = {
   part2Status: 'COMPLETED',
   part3Status: 'COMPLETED',
   part1Data: JSON.stringify([
-    { charNumber: 1, charName: 'Length', nominal: '100mm', tolerance: '0.1mm', actual: '100.05mm', pass: true },
-    { charNumber: 2, charName: 'Width', nominal: '50mm', tolerance: '0.05mm', actual: '50.02mm', pass: true },
+    {
+      charNumber: 1,
+      charName: 'Length',
+      nominal: '100mm',
+      tolerance: '0.1mm',
+      actual: '100.05mm',
+      pass: true,
+    },
+    {
+      charNumber: 2,
+      charName: 'Width',
+      nominal: '50mm',
+      tolerance: '0.05mm',
+      actual: '50.02mm',
+      pass: true,
+    },
   ]),
   part2Data: JSON.stringify([
     { docType: 'Drawing', docNumber: 'DWG-001', revision: 'A', available: true },
   ]),
   part3Data: JSON.stringify([
-    { testName: 'Tensile', testMethod: 'ASTM E8', requirement: '>= 480 MPa', result: '495 MPa', pass: true },
+    {
+      testName: 'Tensile',
+      testMethod: 'ASTM E8',
+      requirement: '>= 480 MPa',
+      result: '495 MPa',
+      pass: true,
+    },
   ]),
 };
 
@@ -182,8 +242,22 @@ const mockFAIAllCompleted = {
 const mockFAIWithFailingChar = {
   ...mockFAIAllCompleted,
   part1Data: JSON.stringify([
-    { charNumber: 1, charName: 'Length', nominal: '100mm', tolerance: '0.1mm', actual: '100.05mm', pass: true },
-    { charNumber: 2, charName: 'Width', nominal: '50mm', tolerance: '0.05mm', actual: '50.20mm', pass: false },
+    {
+      charNumber: 1,
+      charName: 'Length',
+      nominal: '100mm',
+      tolerance: '0.1mm',
+      actual: '100.05mm',
+      pass: true,
+    },
+    {
+      charNumber: 2,
+      charName: 'Width',
+      nominal: '50mm',
+      tolerance: '0.05mm',
+      actual: '50.20mm',
+      pass: false,
+    },
   ]),
 };
 
@@ -191,8 +265,20 @@ const mockFAIWithFailingChar = {
 const mockFAIWithFailingTest = {
   ...mockFAIAllCompleted,
   part3Data: JSON.stringify([
-    { testName: 'Tensile', testMethod: 'ASTM E8', requirement: '>= 480 MPa', result: '495 MPa', pass: true },
-    { testName: 'Fatigue', testMethod: 'ASTM E466', requirement: '> 10^6 cycles', result: '5x10^5 cycles', pass: false },
+    {
+      testName: 'Tensile',
+      testMethod: 'ASTM E8',
+      requirement: '>= 480 MPa',
+      result: '495 MPa',
+      pass: true,
+    },
+    {
+      testName: 'Fatigue',
+      testMethod: 'ASTM E466',
+      requirement: '> 10^6 cycles',
+      result: '5x10^5 cycles',
+      pass: false,
+    },
   ]),
 };
 
@@ -287,10 +373,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
         faiType: 'FULL',
       });
 
-      await request(app)
-        .post('/api/fai')
-        .set('Authorization', 'Bearer token')
-        .send(payloadNoType);
+      await request(app).post('/api/fai').set('Authorization', 'Bearer token').send(payloadNoType);
 
       expect(mockPrisma.firstArticleInspection.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -399,7 +482,9 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
 
     it('should handle database errors during creation', async () => {
       (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.firstArticleInspection.create as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.firstArticleInspection.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
       const response = await request(app)
         .post('/api/fai')
@@ -417,12 +502,13 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
   // ==========================================
   describe('GET /api/fai', () => {
     it('should return a list of FAIs with default pagination', async () => {
-      (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockResolvedValueOnce([mockFAI, mockFAI2]);
+      (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockResolvedValueOnce([
+        mockFAI,
+        mockFAI2,
+      ]);
       (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/fai')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/fai').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -478,9 +564,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/fai?status=IN_PROGRESS')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/fai?status=IN_PROGRESS').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.firstArticleInspection.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -496,9 +580,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/fai?faiType=PARTIAL')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/fai?faiType=PARTIAL').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.firstArticleInspection.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -514,9 +596,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockResolvedValueOnce([mockFAI]);
       (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/fai?partNumber=ws-2026')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/fai?partNumber=ws-2026').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.firstArticleInspection.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -532,9 +612,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockResolvedValueOnce([mockFAI]);
       (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/fai?search=wing')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/fai?search=wing').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.firstArticleInspection.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -555,9 +633,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/fai')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/fai').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.firstArticleInspection.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -572,9 +648,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/fai')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/fai').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.firstArticleInspection.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -584,11 +658,11 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
-      const response = await request(app)
-        .get('/api/fai')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/fai').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -680,7 +754,9 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/fai/00000000-0000-0000-0000-000000000001')
@@ -773,8 +849,22 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     it('should determine part1Status as NOT_STARTED when no actual values filled', async () => {
       const emptyCharacteristics = {
         characteristics: [
-          { charNumber: 1, charName: 'Length', nominal: '100mm', tolerance: '0.1mm', actual: '', pass: false },
-          { charNumber: 2, charName: 'Width', nominal: '50mm', tolerance: '0.05mm', actual: '  ', pass: false },
+          {
+            charNumber: 1,
+            charName: 'Length',
+            nominal: '100mm',
+            tolerance: '0.1mm',
+            actual: '',
+            pass: false,
+          },
+          {
+            charNumber: 2,
+            charName: 'Width',
+            nominal: '50mm',
+            tolerance: '0.05mm',
+            actual: '  ',
+            pass: false,
+          },
         ],
       };
 
@@ -800,8 +890,22 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     it('should determine part1Status as IN_PROGRESS when some actual values filled', async () => {
       const partialCharacteristics = {
         characteristics: [
-          { charNumber: 1, charName: 'Length', nominal: '100mm', tolerance: '0.1mm', actual: '100.05mm', pass: true },
-          { charNumber: 2, charName: 'Width', nominal: '50mm', tolerance: '0.05mm', actual: '', pass: false },
+          {
+            charNumber: 1,
+            charName: 'Length',
+            nominal: '100mm',
+            tolerance: '0.1mm',
+            actual: '100.05mm',
+            pass: true,
+          },
+          {
+            charNumber: 2,
+            charName: 'Width',
+            nominal: '50mm',
+            tolerance: '0.05mm',
+            actual: '',
+            pass: false,
+          },
         ],
       };
 
@@ -928,7 +1032,14 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
         .set('Authorization', 'Bearer token')
         .send({
           characteristics: [
-            { charNumber: -1, charName: 'Length', nominal: '100mm', tolerance: '0.1mm', actual: '100.05mm', pass: true },
+            {
+              charNumber: -1,
+              charName: 'Length',
+              nominal: '100mm',
+              tolerance: '0.1mm',
+              actual: '100.05mm',
+              pass: true,
+            },
           ],
         });
 
@@ -949,7 +1060,9 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/fai/00000000-0000-0000-0000-000000000001/part1')
@@ -1117,9 +1230,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
         .put('/api/fai/00000000-0000-0000-0000-000000000001/part2')
         .set('Authorization', 'Bearer token')
         .send({
-          documents: [
-            { docNumber: 'DWG-001', revision: 'A', available: true },
-          ],
+          documents: [{ docNumber: 'DWG-001', revision: 'A', available: true }],
         });
 
       expect(response.status).toBe(400);
@@ -1139,7 +1250,9 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/fai/00000000-0000-0000-0000-000000000001/part2')
@@ -1186,8 +1299,20 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     it('should determine part3Status as IN_PROGRESS when some results not filled', async () => {
       const partialResults = {
         testResults: [
-          { testName: 'Tensile', testMethod: 'ASTM E8', requirement: '>= 480 MPa', result: '495 MPa', pass: true },
-          { testName: 'Hardness', testMethod: 'Rockwell B', requirement: '78-87 HRB', result: '', pass: false },
+          {
+            testName: 'Tensile',
+            testMethod: 'ASTM E8',
+            requirement: '>= 480 MPa',
+            result: '495 MPa',
+            pass: true,
+          },
+          {
+            testName: 'Hardness',
+            testMethod: 'Rockwell B',
+            requirement: '78-87 HRB',
+            result: '',
+            pass: false,
+          },
         ],
       };
 
@@ -1213,8 +1338,20 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     it('should determine part3Status as NOT_STARTED when no results filled', async () => {
       const emptyResults = {
         testResults: [
-          { testName: 'Tensile', testMethod: 'ASTM E8', requirement: '>= 480 MPa', result: '', pass: false },
-          { testName: 'Hardness', testMethod: 'Rockwell B', requirement: '78-87 HRB', result: '  ', pass: false },
+          {
+            testName: 'Tensile',
+            testMethod: 'ASTM E8',
+            requirement: '>= 480 MPa',
+            result: '',
+            pass: false,
+          },
+          {
+            testName: 'Hardness',
+            testMethod: 'Rockwell B',
+            requirement: '78-87 HRB',
+            result: '  ',
+            pass: false,
+          },
         ],
       };
 
@@ -1329,7 +1466,9 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/fai/00000000-0000-0000-0000-000000000001/part3')
@@ -1346,7 +1485,9 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
   // ==========================================
   describe('POST /api/fai/:id/approve', () => {
     it('should approve an FAI when all parts are completed and all pass', async () => {
-      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAIAllCompleted);
+      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockFAIAllCompleted
+      );
       (mockPrisma.firstArticleInspection.update as jest.Mock).mockResolvedValueOnce({
         ...mockFAIAllCompleted,
         status: 'APPROVED',
@@ -1464,7 +1605,9 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     });
 
     it('should return 400 when Part 1 has failing characteristics', async () => {
-      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAIWithFailingChar);
+      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockFAIWithFailingChar
+      );
 
       const response = await request(app)
         .post('/api/fai/00000000-0000-0000-0000-000000000001/approve')
@@ -1477,7 +1620,9 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     });
 
     it('should return 400 when Part 3 has failing test results', async () => {
-      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAIWithFailingTest);
+      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockFAIWithFailingTest
+      );
 
       const response = await request(app)
         .post('/api/fai/00000000-0000-0000-0000-000000000001/approve')
@@ -1505,7 +1650,9 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/fai/00000000-0000-0000-0000-000000000001/approve')
@@ -1645,7 +1792,9 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/fai/00000000-0000-0000-0000-000000000001/partial')

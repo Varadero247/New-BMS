@@ -25,10 +25,22 @@ const createCertSchema = z.object({
   scope: z.string().min(1, 'Scope is required'),
   certificationBody: z.string().min(1, 'Certification body is required'),
   certificateNumber: z.string().min(1, 'Certificate number is required'),
-  issueDate: z.string().min(1, 'Issue date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  expiryDate: z.string().min(1, 'Expiry date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  lastSurveillanceDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  nextSurveillanceDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  issueDate: z
+    .string()
+    .min(1, 'Issue date is required')
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  expiryDate: z
+    .string()
+    .min(1, 'Expiry date is required')
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  lastSurveillanceDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  nextSurveillanceDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   status: z.enum(['ACTIVE', 'SUSPENDED', 'WITHDRAWN', 'EXPIRED', 'IN_RENEWAL']).default('ACTIVE'),
 });
 
@@ -37,10 +49,22 @@ const updateCertSchema = z.object({
   scope: z.string().trim().min(1).max(2000).optional(),
   certificationBody: z.string().min(1).optional(),
   certificateNumber: z.string().trim().min(1).max(200).optional(),
-  issueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  lastSurveillanceDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  nextSurveillanceDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  issueDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  expiryDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  lastSurveillanceDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  nextSurveillanceDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   status: z.enum(['ACTIVE', 'SUSPENDED', 'WITHDRAWN', 'EXPIRED', 'IN_RENEWAL']).optional(),
 });
 
@@ -51,8 +75,14 @@ function serializeCert(cert: IsoCertificate) {
     ...cert,
     issueDate: cert.issueDate instanceof Date ? cert.issueDate.toISOString() : cert.issueDate,
     expiryDate: cert.expiryDate instanceof Date ? cert.expiryDate.toISOString() : cert.expiryDate,
-    lastSurveillanceDate: cert.lastSurveillanceDate instanceof Date ? cert.lastSurveillanceDate.toISOString() : cert.lastSurveillanceDate || null,
-    nextSurveillanceDate: cert.nextSurveillanceDate instanceof Date ? cert.nextSurveillanceDate.toISOString() : cert.nextSurveillanceDate || null,
+    lastSurveillanceDate:
+      cert.lastSurveillanceDate instanceof Date
+        ? cert.lastSurveillanceDate.toISOString()
+        : cert.lastSurveillanceDate || null,
+    nextSurveillanceDate:
+      cert.nextSurveillanceDate instanceof Date
+        ? cert.nextSurveillanceDate.toISOString()
+        : cert.nextSurveillanceDate || null,
   };
 }
 
@@ -81,7 +111,9 @@ router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
       meta: { total: data.length },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list certifications', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list certifications', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list certifications' },
@@ -115,16 +147,26 @@ router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
       certificateNumber: data.certificateNumber,
       issueDate: new Date(data.issueDate),
       expiryDate: new Date(data.expiryDate),
-      lastSurveillanceDate: data.lastSurveillanceDate ? new Date(data.lastSurveillanceDate) : undefined,
-      nextSurveillanceDate: data.nextSurveillanceDate ? new Date(data.nextSurveillanceDate) : undefined,
+      lastSurveillanceDate: data.lastSurveillanceDate
+        ? new Date(data.lastSurveillanceDate)
+        : undefined,
+      nextSurveillanceDate: data.nextSurveillanceDate
+        ? new Date(data.nextSurveillanceDate)
+        : undefined,
       status: data.status,
     });
 
-    logger.info('Certificate created', { id: cert.id, standard: cert.standard, createdBy: req.user!.id });
+    logger.info('Certificate created', {
+      id: cert.id,
+      standard: cert.standard,
+      createdBy: req.user!.id,
+    });
 
     res.status(201).json({ success: true, data: serializeCert(cert) });
   } catch (error: unknown) {
-    logger.error('Failed to create certification', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to create certification', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create certification' },
@@ -157,8 +199,10 @@ router.put('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
     if (data.certificateNumber) updateData.certificateNumber = data.certificateNumber;
     if (data.issueDate) updateData.issueDate = new Date(data.issueDate);
     if (data.expiryDate) updateData.expiryDate = new Date(data.expiryDate);
-    if (data.lastSurveillanceDate) updateData.lastSurveillanceDate = new Date(data.lastSurveillanceDate);
-    if (data.nextSurveillanceDate) updateData.nextSurveillanceDate = new Date(data.nextSurveillanceDate);
+    if (data.lastSurveillanceDate)
+      updateData.lastSurveillanceDate = new Date(data.lastSurveillanceDate);
+    if (data.nextSurveillanceDate)
+      updateData.nextSurveillanceDate = new Date(data.nextSurveillanceDate);
     if (data.status) updateData.status = data.status;
 
     const cert = updateCertificate(id, updateData);
@@ -173,7 +217,9 @@ router.put('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: serializeCert(cert) });
   } catch (error: unknown) {
-    logger.error('Failed to update certification', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to update certification', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to update certification' },
@@ -198,7 +244,9 @@ router.delete('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) =>
 
     res.json({ success: true, data: { deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete certification', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to delete certification', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to delete certification' },
@@ -234,7 +282,9 @@ router.get('/:id/readiness', requireRole('ADMIN'), (req: AuthRequest, res: Respo
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get readiness score', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get readiness score', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get readiness score' },

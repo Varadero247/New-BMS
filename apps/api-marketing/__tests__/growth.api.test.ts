@@ -46,7 +46,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/growth', growthRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('GET /api/growth/metrics', () => {
   it('returns aggregated metrics', async () => {

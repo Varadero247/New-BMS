@@ -21,16 +21,47 @@ const createTemplateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional(),
   module: z.enum([
-    'HEALTH_SAFETY', 'ENVIRONMENT', 'QUALITY', 'AUTOMOTIVE', 'MEDICAL',
-    'AEROSPACE', 'HR', 'PAYROLL', 'WORKFLOWS', 'PROJECT_MANAGEMENT', 'INVENTORY',
-    'CRM', 'FINANCE', 'INFOSEC', 'ISO37001', 'ISO42001',
-    'ESG', 'CMMS', 'FOOD_SAFETY', 'ENERGY', 'FIELD_SERVICE', 'ANALYTICS',
+    'HEALTH_SAFETY',
+    'ENVIRONMENT',
+    'QUALITY',
+    'AUTOMOTIVE',
+    'MEDICAL',
+    'AEROSPACE',
+    'HR',
+    'PAYROLL',
+    'WORKFLOWS',
+    'PROJECT_MANAGEMENT',
+    'INVENTORY',
+    'CRM',
+    'FINANCE',
+    'INFOSEC',
+    'ISO37001',
+    'ISO42001',
+    'ESG',
+    'CMMS',
+    'FOOD_SAFETY',
+    'ENERGY',
+    'FIELD_SERVICE',
+    'ANALYTICS',
   ]),
   category: z.enum([
-    'RISK_ASSESSMENT', 'INCIDENT_INVESTIGATION', 'AUDIT', 'MANAGEMENT_REVIEW',
-    'CAPA', 'COMPLIANCE', 'INSPECTION', 'TRAINING', 'DESIGN_DEVELOPMENT',
-    'PROCESS_CONTROL', 'SUPPLIER', 'CUSTOMER', 'REGULATORY', 'PLANNING',
-    'REPORTING', 'GENERAL', 'CERTIFICATION',
+    'RISK_ASSESSMENT',
+    'INCIDENT_INVESTIGATION',
+    'AUDIT',
+    'MANAGEMENT_REVIEW',
+    'CAPA',
+    'COMPLIANCE',
+    'INSPECTION',
+    'TRAINING',
+    'DESIGN_DEVELOPMENT',
+    'PROCESS_CONTROL',
+    'SUPPLIER',
+    'CUSTOMER',
+    'REGULATORY',
+    'PLANNING',
+    'REPORTING',
+    'GENERAL',
+    'CERTIFICATION',
   ]),
   tags: z.array(z.string()).optional().default([]),
   fields: z.array(z.any()).min(1, 'At least one field is required'),
@@ -41,12 +72,27 @@ const createTemplateSchema = z.object({
 const updateTemplateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
-  category: z.enum([
-    'RISK_ASSESSMENT', 'INCIDENT_INVESTIGATION', 'AUDIT', 'MANAGEMENT_REVIEW',
-    'CAPA', 'COMPLIANCE', 'INSPECTION', 'TRAINING', 'DESIGN_DEVELOPMENT',
-    'PROCESS_CONTROL', 'SUPPLIER', 'CUSTOMER', 'REGULATORY', 'PLANNING',
-    'REPORTING', 'GENERAL', 'CERTIFICATION',
-  ]).optional(),
+  category: z
+    .enum([
+      'RISK_ASSESSMENT',
+      'INCIDENT_INVESTIGATION',
+      'AUDIT',
+      'MANAGEMENT_REVIEW',
+      'CAPA',
+      'COMPLIANCE',
+      'INSPECTION',
+      'TRAINING',
+      'DESIGN_DEVELOPMENT',
+      'PROCESS_CONTROL',
+      'SUPPLIER',
+      'CUSTOMER',
+      'REGULATORY',
+      'PLANNING',
+      'REPORTING',
+      'GENERAL',
+      'CERTIFICATION',
+    ])
+    .optional(),
   tags: z.array(z.string()).optional(),
   fields: z.array(z.any()).optional(),
   defaultContent: z.record(z.any()).optional().nullable(),
@@ -101,8 +147,14 @@ async function generateCode(module: string): Promise<string> {
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const {
-      module, category, status, search,
-      page = '1', limit = '20', sortBy = 'createdAt', sortOrder = 'desc',
+      module,
+      category,
+      status,
+      search,
+      page = '1',
+      limit = '20',
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
     } = req.query as Record<string, string>;
 
     const where: Record<string, unknown> = { deletedAt: null };
@@ -118,7 +170,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       ];
     }
 
-    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
     const take = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
 
     const [templates, total] = await Promise.all([
@@ -149,11 +202,21 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     res.json({
       success: true,
       data: templates,
-      pagination: { page: Math.max(1, parseInt(page, 10) || 1), limit: take, total, totalPages: Math.ceil(total / take) },
+      pagination: {
+        page: Math.max(1, parseInt(page, 10) || 1),
+        limit: take,
+        total,
+        totalPages: Math.ceil(total / take),
+      },
     });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+    });
   }
 });
 
@@ -190,16 +253,27 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
     res.json({
       success: true,
       data: {
-        byModule: byModule.map((g: Record<string, unknown>) => ({ module: g.module, count: g._count })),
-        byCategory: byCategory.map((g: Record<string, unknown>) => ({ category: g.category, count: g._count })),
+        byModule: byModule.map((g: Record<string, unknown>) => ({
+          module: g.module,
+          count: g._count,
+        })),
+        byCategory: byCategory.map((g: Record<string, unknown>) => ({
+          category: g.category,
+          count: g._count,
+        })),
         topUsed,
         total: totals._count,
         totalUsages: totals._sum?.usageCount ?? 0,
       },
     });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+    });
   }
 });
 
@@ -227,15 +301,25 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
       orderBy: { usageCount: 'desc' },
       take: Math.min(50, parseInt(limit, 10) || 20),
       select: {
-        id: true, code: true, name: true, description: true,
-        module: true, category: true, usageCount: true,
+        id: true,
+        code: true,
+        name: true,
+        description: true,
+        module: true,
+        category: true,
+        usageCount: true,
       },
     });
 
     res.json({ success: true, data: templates });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+    });
   }
 });
 
@@ -249,12 +333,19 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!template) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
     }
     res.json({ success: true, data: template });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+    });
   }
 });
 
@@ -289,8 +380,13 @@ router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: 
 
     res.status(201).json({ success: true, data: template });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+    });
   }
 });
 
@@ -304,7 +400,9 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
     }
 
     const parsed = updateTemplateSchema.safeParse(req.body);
@@ -334,8 +432,13 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
 
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+    });
   }
 });
 
@@ -349,12 +452,20 @@ router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, 
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
     }
 
     // Only ADMIN can delete built-in templates
     if (existing.isBuiltIn && req.user!.role !== 'ADMIN') {
-      return res.status(403).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Only administrators can delete built-in templates' } });
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'Only administrators can delete built-in templates',
+        },
+      });
     }
 
     await (prisma as any).template.update({
@@ -364,8 +475,13 @@ router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, 
 
     res.json({ success: true, data: { message: 'Template deleted' } });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+    });
   }
 });
 
@@ -373,42 +489,54 @@ router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, 
 // POST /api/v1/templates/:id/clone — Clone template
 // ---------------------------------------------------------------------------
 
-router.post('/:id/clone', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: Response) => {
-  try {
-    const original = await (prisma as any).template.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
-    });
-    if (!original) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
+router.post(
+  '/:id/clone',
+  requireRole('MANAGER', 'ADMIN'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const original = await (prisma as any).template.findFirst({
+        where: { id: req.params.id, deletedAt: null } as any,
+      });
+      if (!original) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
+      }
+
+      const code = await generateCode(original.module);
+      const nameBody = z.object({ name: z.string().max(300).optional() }).safeParse(req.body);
+      const cloneName =
+        (nameBody.success ? nameBody.data.name : undefined) || `${original.name} (Copy)`;
+
+      const cloned = await (prisma as any).template.create({
+        data: {
+          code,
+          name: cloneName,
+          description: original.description,
+          module: original.module,
+          category: original.category,
+          status: 'DRAFT',
+          tags: original.tags,
+          fields: original.fields,
+          defaultContent: original.defaultContent,
+          isBuiltIn: false,
+          usageCount: 0,
+          createdBy: req.user!.id,
+        },
+      });
+
+      res.status(201).json({ success: true, data: cloned });
+    } catch (error: unknown) {
+      logger.error('Request failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+      });
     }
-
-    const code = await generateCode(original.module);
-    const nameBody = z.object({ name: z.string().max(300).optional() }).safeParse(req.body);
-    const cloneName = (nameBody.success ? nameBody.data.name : undefined) || `${original.name} (Copy)`;
-
-    const cloned = await (prisma as any).template.create({
-      data: {
-        code,
-        name: cloneName,
-        description: original.description,
-        module: original.module,
-        category: original.category,
-        status: 'DRAFT',
-        tags: original.tags,
-        fields: original.fields,
-        defaultContent: original.defaultContent,
-        isBuiltIn: false,
-        usageCount: 0,
-        createdBy: req.user!.id,
-      },
-    });
-
-    res.status(201).json({ success: true, data: cloned });
-  } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
   }
-});
+);
 
 // ---------------------------------------------------------------------------
 // POST /api/v1/templates/:id/use — Create TemplateInstance
@@ -420,7 +548,9 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!template) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
     }
 
     const parsed = useTemplateSchema.safeParse(req.body);
@@ -448,8 +578,13 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
 
     res.status(201).json({ success: true, data: instance });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+    });
   }
 });
 
@@ -464,18 +599,26 @@ router.get('/:id/versions', async (req: AuthRequest, res: Response) => {
       select: { id: true },
     });
     if (!template) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
     }
 
     const versions = await (prisma as any).templateVersion.findMany({
       where: { templateId: req.params.id },
       orderBy: { version: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: versions });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+    });
   }
 });
 
@@ -490,20 +633,27 @@ router.post(
     try {
       const versionNum = parseInt(req.params.version, 10);
       if (isNaN(versionNum)) {
-        return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid version number' } });
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: 'Invalid version number' },
+        });
       }
       const templateVersion = await (prisma as any).templateVersion.findFirst({
         where: { templateId: req.params.id, version: versionNum },
       });
       if (!templateVersion) {
-        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Version not found' } });
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Version not found' } });
       }
 
       const current = await (prisma as any).template.findFirst({
         where: { id: req.params.id, deletedAt: null } as any,
       });
       if (!current) {
-        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
       }
 
       // Snapshot current state before restoring
@@ -529,10 +679,15 @@ router.post(
 
       res.json({ success: true, data: restored });
     } catch (error: unknown) {
-      logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-      res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
+      logger.error('Request failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+      });
     }
-  },
+  }
 );
 
 // ---------------------------------------------------------------------------
@@ -545,7 +700,9 @@ router.get('/:id/export', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!template) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
     }
 
     const format = (req.query.format as string) === 'json' ? 'json' : 'html';
@@ -576,14 +733,19 @@ router.get('/:id/export', async (req: AuthRequest, res: Response) => {
         description: template.description,
         fields: template.fields as any,
       },
-      undefined,
+      undefined
     );
     res.setHeader('Content-Type', 'text/html');
     res.setHeader('Content-Disposition', `attachment; filename="${slug}.html"`);
     res.send(html);
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+    });
   }
 });
 

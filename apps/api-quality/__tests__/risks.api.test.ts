@@ -80,9 +80,7 @@ describe('Quality Risks API Routes', () => {
       (mockPrisma.qualRisk.findMany as jest.Mock).mockResolvedValueOnce(mockRisks);
       (mockPrisma.qualRisk.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/risks')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/risks').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -113,9 +111,7 @@ describe('Quality Risks API Routes', () => {
       (mockPrisma.qualRisk.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualRisk.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/risks?riskLevel=HIGH')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/risks?riskLevel=HIGH').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualRisk.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -130,9 +126,7 @@ describe('Quality Risks API Routes', () => {
       (mockPrisma.qualRisk.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualRisk.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/risks?status=OPEN')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/risks?status=OPEN').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualRisk.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -147,9 +141,7 @@ describe('Quality Risks API Routes', () => {
       (mockPrisma.qualRisk.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualRisk.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/risks?process=OPERATIONS')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/risks?process=OPERATIONS').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualRisk.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -164,9 +156,7 @@ describe('Quality Risks API Routes', () => {
       (mockPrisma.qualRisk.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualRisk.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/risks?search=equipment')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/risks?search=equipment').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualRisk.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -181,9 +171,7 @@ describe('Quality Risks API Routes', () => {
       (mockPrisma.qualRisk.findMany as jest.Mock).mockResolvedValueOnce(mockRisks);
       (mockPrisma.qualRisk.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/risks')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/risks').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualRisk.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -195,9 +183,7 @@ describe('Quality Risks API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.qualRisk.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/risks')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/risks').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -482,7 +468,9 @@ describe('Quality Risks API Routes', () => {
 
   describe('DELETE /api/risks/:id', () => {
     it('should delete a risk successfully', async () => {
-      (mockPrisma.qualRisk.findUnique as jest.Mock).mockResolvedValueOnce({ id: '10000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualRisk.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '10000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualRisk.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)

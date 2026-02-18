@@ -37,7 +37,12 @@ export const WithGroups: Story = {
       { id: 'dashboard', label: 'Dashboard', href: '/dashboard' },
       { id: 'incidents', label: 'Incidents', href: '/incidents', group: 'Safety' },
       { id: 'hazards', label: 'Hazards', href: '/hazards', group: 'Safety' },
-      { id: 'risk-assessments', label: 'Risk Assessments', href: '/risk-assessments', group: 'Safety' },
+      {
+        id: 'risk-assessments',
+        label: 'Risk Assessments',
+        href: '/risk-assessments',
+        group: 'Safety',
+      },
       { id: 'work-orders', label: 'Work Orders', href: '/work-orders', group: 'Maintenance' },
       { id: 'alerts', label: 'Alerts', href: '/alerts', group: 'Maintenance' },
     ],

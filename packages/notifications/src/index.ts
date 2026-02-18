@@ -14,8 +14,4 @@ export type {
   EscalationAction,
   Channel,
 } from './types';
-export type {
-  WSNotification,
-  WSNotificationType,
-  WSNotificationSeverity,
-} from './websocket';
+export type { WSNotification, WSNotificationType, WSNotificationSeverity } from './websocket';

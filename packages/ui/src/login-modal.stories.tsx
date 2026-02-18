@@ -44,11 +44,7 @@ export const StagingEnv: Story = {
     return (
       <div>
         <Button onClick={() => setOpen(true)}>Login (Staging)</Button>
-        <LoginModal
-          isOpen={open}
-          onClose={() => setOpen(false)}
-          defaultEnv="staging"
-        />
+        <LoginModal isOpen={open} onClose={() => setOpen(false)} defaultEnv="staging" />
       </div>
     );
   },
@@ -60,11 +56,7 @@ export const ProductionEnv: Story = {
     return (
       <div>
         <Button onClick={() => setOpen(true)}>Login (Production)</Button>
-        <LoginModal
-          isOpen={open}
-          onClose={() => setOpen(false)}
-          defaultEnv="production"
-        />
+        <LoginModal isOpen={open} onClose={() => setOpen(false)} defaultEnv="production" />
       </div>
     );
   },

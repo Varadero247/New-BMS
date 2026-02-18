@@ -87,9 +87,7 @@ describe('Project Issues API Routes', () => {
     });
 
     it('should return 400 without projectId', async () => {
-      const response = await request(app)
-        .get('/api/issues')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/issues').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -250,7 +248,9 @@ describe('Project Issues API Routes', () => {
     });
 
     it('should handle database errors on update', async () => {
-      (mockPrisma.projectIssue.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.projectIssue.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/issues/22000000-0000-4000-a000-000000000001')
@@ -319,7 +319,9 @@ describe('Project Issues API Routes', () => {
     });
 
     it('should handle database errors on resolve', async () => {
-      (mockPrisma.projectIssue.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.projectIssue.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/issues/22000000-0000-4000-a000-000000000001/resolve')
@@ -333,7 +335,9 @@ describe('Project Issues API Routes', () => {
 
   describe('DELETE /api/issues/:id', () => {
     it('should delete issue successfully', async () => {
-      (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce({ id: '22000000-0000-4000-a000-000000000001' });
+      (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '22000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.projectIssue.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
@@ -359,7 +363,9 @@ describe('Project Issues API Routes', () => {
     });
 
     it('should handle database errors on delete', async () => {
-      (mockPrisma.projectIssue.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.projectIssue.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/issues/22000000-0000-4000-a000-000000000001')

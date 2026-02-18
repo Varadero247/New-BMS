@@ -9,10 +9,7 @@ export {
 } from './types';
 
 // Service
-export {
-  AuditService,
-  createAuditService,
-} from './service';
+export { AuditService, createAuditService } from './service';
 
 // Enhanced Service (21 CFR Part 11)
 export {

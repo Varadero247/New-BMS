@@ -65,9 +65,7 @@ describe('Health & Safety Legal Requirements API', () => {
       (mockPrisma.legalRequirement.findMany as jest.Mock).mockResolvedValueOnce(mockRequirements);
       (mockPrisma.legalRequirement.count as jest.Mock).mockResolvedValueOnce(1);
 
-      const response = await request(app)
-        .get('/api/legal')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/legal').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -94,9 +92,7 @@ describe('Health & Safety Legal Requirements API', () => {
       (mockPrisma.legalRequirement.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.legalRequirement.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/legal?category=ACOP')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/legal?category=ACOP').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.legalRequirement.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -109,9 +105,7 @@ describe('Health & Safety Legal Requirements API', () => {
       (mockPrisma.legalRequirement.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.legalRequirement.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/legal?search=COSHH')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/legal?search=COSHH').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.legalRequirement.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -125,11 +119,11 @@ describe('Health & Safety Legal Requirements API', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.legalRequirement.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.legalRequirement.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
-      const response = await request(app)
-        .get('/api/legal')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/legal').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -280,7 +274,9 @@ describe('Health & Safety Legal Requirements API', () => {
 
     it('should handle database errors', async () => {
       (mockPrisma.legalRequirement.findFirst as jest.Mock).mockResolvedValueOnce(null);
-      (mockPrisma.legalRequirement.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.legalRequirement.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/legal')
@@ -366,7 +362,9 @@ describe('Health & Safety Legal Requirements API', () => {
 
   describe('DELETE /api/legal/:id', () => {
     it('should delete requirement', async () => {
-      (mockPrisma.legalRequirement.findUnique as jest.Mock).mockResolvedValueOnce({ id: '14000000-0000-4000-a000-000000000001' });
+      (mockPrisma.legalRequirement.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '14000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.legalRequirement.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)

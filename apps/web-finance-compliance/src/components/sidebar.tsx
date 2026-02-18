@@ -32,9 +32,7 @@ const navGroups: NavGroup[] = [
   {
     label: 'Overview',
     defaultOpen: true,
-    items: [
-      { label: 'Dashboard', href: '/', icon: <LayoutDashboard className="h-5 w-5" /> },
-    ],
+    items: [{ label: 'Dashboard', href: '/', icon: <LayoutDashboard className="h-5 w-5" /> }],
   },
   {
     label: 'Compliance',
@@ -48,7 +46,11 @@ const navGroups: NavGroup[] = [
     label: 'Tax',
     defaultOpen: true,
     items: [
-      { label: 'HMRC Calendar', href: '/hmrc-calendar', icon: <CalendarClock className="h-5 w-5" /> },
+      {
+        label: 'HMRC Calendar',
+        href: '/hmrc-calendar',
+        icon: <CalendarClock className="h-5 w-5" />,
+      },
       { label: 'IR35', href: '/ir35', icon: <FileCheck2 className="h-5 w-5" /> },
     ],
   },
@@ -73,11 +75,7 @@ function NavGroupSection({ group }: { group: NavGroup }) {
         }`}
       >
         {group.label}
-        {open ? (
-          <ChevronDown className="h-3.5 w-3.5" />
-        ) : (
-          <ChevronRight className="h-3.5 w-3.5" />
-        )}
+        {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
       </button>
       {open && (
         <div className="mt-0.5 space-y-0.5">

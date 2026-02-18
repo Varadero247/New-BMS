@@ -77,7 +77,9 @@ describe('parseAIResponse', () => {
     const json = JSON.stringify({
       summary: 'Month 3 performance is on track.',
       alerts: ['Pipeline needs attention'],
-      recommendations: [{ metric: 'MRR', current: 1500, suggested: 2000, rationale: 'Growth trend' }],
+      recommendations: [
+        { metric: 'MRR', current: 1500, suggested: 2000, rationale: 'Growth trend' },
+      ],
       trajectory: 'ON_TRACK',
     });
 
@@ -89,7 +91,8 @@ describe('parseAIResponse', () => {
   });
 
   it('handles JSON in markdown code blocks', () => {
-    const text = '```json\n{"summary":"Test","alerts":[],"recommendations":[],"trajectory":"AHEAD"}\n```';
+    const text =
+      '```json\n{"summary":"Test","alerts":[],"recommendations":[],"trajectory":"AHEAD"}\n```';
     const result = parseAIResponse(text);
     expect(result.summary).toBe('Test');
     expect(result.trajectory).toBe('AHEAD');
@@ -125,8 +128,32 @@ describe('runVarianceAnalysis', () => {
     delete process.env.ANTHROPIC_API_KEY;
 
     const result = await runVarianceAnalysis(
-      { id: 'snap-1', month: '2026-05', monthNumber: 3, mrr: 1500, arr: 18000, customers: 5, newCustomers: 3, churnedCustomers: 0, mrrGrowthPct: 200, revenueChurnPct: 0, pipelineValue: 25000, wonDeals: 2, winRate: 40, newLeads: 15, activeTrials: 3, trialConversionPct: 66.7, avgHealthScore: 85 },
-      { plannedMrr: 1500, plannedCustomers: 5, plannedNewCustomers: 3, plannedChurnPct: 0, plannedArpu: 300 }
+      {
+        id: 'snap-1',
+        month: '2026-05',
+        monthNumber: 3,
+        mrr: 1500,
+        arr: 18000,
+        customers: 5,
+        newCustomers: 3,
+        churnedCustomers: 0,
+        mrrGrowthPct: 200,
+        revenueChurnPct: 0,
+        pipelineValue: 25000,
+        wonDeals: 2,
+        winRate: 40,
+        newLeads: 15,
+        activeTrials: 3,
+        trialConversionPct: 66.7,
+        avgHealthScore: 85,
+      },
+      {
+        plannedMrr: 1500,
+        plannedCustomers: 5,
+        plannedNewCustomers: 3,
+        plannedChurnPct: 0,
+        plannedArpu: 300,
+      }
     );
     expect(result).toBeNull();
     expect(prisma.monthlySnapshot.update).not.toHaveBeenCalled();
@@ -138,22 +165,53 @@ describe('runVarianceAnalysis', () => {
     // Mock global fetch
     const mockFetch = jest.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        content: [{ text: JSON.stringify({
-          summary: 'AI test',
-          alerts: ['alert1'],
-          recommendations: [{ metric: 'MRR', current: 1500, suggested: 2000, rationale: 'test' }],
-          trajectory: 'ON_TRACK',
-        })}],
-      }),
+      json: () =>
+        Promise.resolve({
+          content: [
+            {
+              text: JSON.stringify({
+                summary: 'AI test',
+                alerts: ['alert1'],
+                recommendations: [
+                  { metric: 'MRR', current: 1500, suggested: 2000, rationale: 'test' },
+                ],
+                trajectory: 'ON_TRACK',
+              }),
+            },
+          ],
+        }),
     });
     global.fetch = mockFetch;
 
     (prisma.monthlySnapshot.update as jest.Mock).mockResolvedValue({});
 
     const result = await runVarianceAnalysis(
-      { id: 'snap-1', month: '2026-05', monthNumber: 3, mrr: 1500, arr: 18000, customers: 5, newCustomers: 3, churnedCustomers: 0, mrrGrowthPct: 200, revenueChurnPct: 0, pipelineValue: 25000, wonDeals: 2, winRate: 40, newLeads: 15, activeTrials: 3, trialConversionPct: 66.7, avgHealthScore: 85 },
-      { plannedMrr: 1500, plannedCustomers: 5, plannedNewCustomers: 3, plannedChurnPct: 0, plannedArpu: 300 }
+      {
+        id: 'snap-1',
+        month: '2026-05',
+        monthNumber: 3,
+        mrr: 1500,
+        arr: 18000,
+        customers: 5,
+        newCustomers: 3,
+        churnedCustomers: 0,
+        mrrGrowthPct: 200,
+        revenueChurnPct: 0,
+        pipelineValue: 25000,
+        wonDeals: 2,
+        winRate: 40,
+        newLeads: 15,
+        activeTrials: 3,
+        trialConversionPct: 66.7,
+        avgHealthScore: 85,
+      },
+      {
+        plannedMrr: 1500,
+        plannedCustomers: 5,
+        plannedNewCustomers: 3,
+        plannedChurnPct: 0,
+        plannedArpu: 300,
+      }
     );
 
     expect(result).not.toBeNull();
@@ -169,12 +227,38 @@ describe('runVarianceAnalysis', () => {
 
   it('throws on API error', async () => {
     process.env.ANTHROPIC_API_KEY = 'test-key';
-    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, statusText: 'Internal Error' });
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({ ok: false, status: 500, statusText: 'Internal Error' });
 
     await expect(
       runVarianceAnalysis(
-        { id: 'snap-1', month: '2026-05', monthNumber: 3, mrr: 1500, arr: 18000, customers: 5, newCustomers: 3, churnedCustomers: 0, mrrGrowthPct: 200, revenueChurnPct: 0, pipelineValue: 25000, wonDeals: 2, winRate: 40, newLeads: 15, activeTrials: 3, trialConversionPct: 66.7, avgHealthScore: 85 },
-        { plannedMrr: 1500, plannedCustomers: 5, plannedNewCustomers: 3, plannedChurnPct: 0, plannedArpu: 300 }
+        {
+          id: 'snap-1',
+          month: '2026-05',
+          monthNumber: 3,
+          mrr: 1500,
+          arr: 18000,
+          customers: 5,
+          newCustomers: 3,
+          churnedCustomers: 0,
+          mrrGrowthPct: 200,
+          revenueChurnPct: 0,
+          pipelineValue: 25000,
+          wonDeals: 2,
+          winRate: 40,
+          newLeads: 15,
+          activeTrials: 3,
+          trialConversionPct: 66.7,
+          avgHealthScore: 85,
+        },
+        {
+          plannedMrr: 1500,
+          plannedCustomers: 5,
+          plannedNewCustomers: 3,
+          plannedChurnPct: 0,
+          plannedArpu: 300,
+        }
       )
     ).rejects.toThrow('Anthropic API error');
 

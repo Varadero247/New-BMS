@@ -24,7 +24,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -51,8 +55,20 @@ beforeEach(() => {
 describe('GET /api/tax/rates', () => {
   it('should return a list of tax rates', async () => {
     const rates = [
-      { id: 'f8000000-0000-4000-a000-000000000001', name: 'Standard VAT', code: 'VAT20', rate: 20, jurisdiction: 'UK_VAT' },
-      { id: 'f8000000-0000-4000-a000-000000000002', name: 'Reduced VAT', code: 'VAT5', rate: 5, jurisdiction: 'UK_VAT' },
+      {
+        id: 'f8000000-0000-4000-a000-000000000001',
+        name: 'Standard VAT',
+        code: 'VAT20',
+        rate: 20,
+        jurisdiction: 'UK_VAT',
+      },
+      {
+        id: 'f8000000-0000-4000-a000-000000000002',
+        name: 'Reduced VAT',
+        code: 'VAT5',
+        rate: 5,
+        jurisdiction: 'UK_VAT',
+      },
     ];
     (prisma as any).finTaxRate.findMany.mockResolvedValue(rates);
 
@@ -140,9 +156,15 @@ describe('POST /api/tax/rates', () => {
 
   it('should unset other defaults when isDefault is true', async () => {
     (prisma as any).finTaxRate.updateMany.mockResolvedValue({ count: 1 });
-    (prisma as any).finTaxRate.create.mockResolvedValue({ id: 'tr-new', ...validRate, isDefault: true });
+    (prisma as any).finTaxRate.create.mockResolvedValue({
+      id: 'tr-new',
+      ...validRate,
+      isDefault: true,
+    });
 
-    const res = await request(app).post('/api/tax/rates').send({ ...validRate, isDefault: true });
+    const res = await request(app)
+      .post('/api/tax/rates')
+      .send({ ...validRate, isDefault: true });
 
     expect(res.status).toBe(201);
     expect((prisma as any).finTaxRate.updateMany).toHaveBeenCalledWith(
@@ -171,7 +193,9 @@ describe('POST /api/tax/rates', () => {
   });
 
   it('should return 400 for invalid rate above 100', async () => {
-    const res = await request(app).post('/api/tax/rates').send({ ...validRate, rate: 150 });
+    const res = await request(app)
+      .post('/api/tax/rates')
+      .send({ ...validRate, rate: 150 });
 
     expect(res.status).toBe(400);
   });
@@ -179,10 +203,19 @@ describe('POST /api/tax/rates', () => {
 
 describe('PUT /api/tax/rates/:id', () => {
   it('should update a tax rate', async () => {
-    (prisma as any).finTaxRate.findUnique.mockResolvedValue({ id: 'f8000000-0000-4000-a000-000000000001', name: 'Old Name' });
-    (prisma as any).finTaxRate.update.mockResolvedValue({ id: 'f8000000-0000-4000-a000-000000000001', name: 'Updated VAT', rate: 21 });
+    (prisma as any).finTaxRate.findUnique.mockResolvedValue({
+      id: 'f8000000-0000-4000-a000-000000000001',
+      name: 'Old Name',
+    });
+    (prisma as any).finTaxRate.update.mockResolvedValue({
+      id: 'f8000000-0000-4000-a000-000000000001',
+      name: 'Updated VAT',
+      rate: 21,
+    });
 
-    const res = await request(app).put('/api/tax/rates/f8000000-0000-4000-a000-000000000001').send({ name: 'Updated VAT', rate: 21 });
+    const res = await request(app)
+      .put('/api/tax/rates/f8000000-0000-4000-a000-000000000001')
+      .send({ name: 'Updated VAT', rate: 21 });
 
     expect(res.status).toBe(200);
     expect(res.body.data.name).toBe('Updated VAT');
@@ -191,15 +224,21 @@ describe('PUT /api/tax/rates/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finTaxRate.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/tax/rates/00000000-0000-0000-0000-000000000099').send({ name: 'Test' });
+    const res = await request(app)
+      .put('/api/tax/rates/00000000-0000-0000-0000-000000000099')
+      .send({ name: 'Test' });
 
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for validation error', async () => {
-    (prisma as any).finTaxRate.findUnique.mockResolvedValue({ id: 'f8000000-0000-4000-a000-000000000001' });
+    (prisma as any).finTaxRate.findUnique.mockResolvedValue({
+      id: 'f8000000-0000-4000-a000-000000000001',
+    });
 
-    const res = await request(app).put('/api/tax/rates/f8000000-0000-4000-a000-000000000001').send({ rate: 200 });
+    const res = await request(app)
+      .put('/api/tax/rates/f8000000-0000-4000-a000-000000000001')
+      .send({ rate: 200 });
 
     expect(res.status).toBe(400);
   });
@@ -207,8 +246,13 @@ describe('PUT /api/tax/rates/:id', () => {
 
 describe('DELETE /api/tax/rates/:id', () => {
   it('should soft delete a tax rate', async () => {
-    (prisma as any).finTaxRate.findUnique.mockResolvedValue({ id: 'f8000000-0000-4000-a000-000000000001', name: 'VAT' });
-    (prisma as any).finTaxRate.update.mockResolvedValue({ id: 'f8000000-0000-4000-a000-000000000001' });
+    (prisma as any).finTaxRate.findUnique.mockResolvedValue({
+      id: 'f8000000-0000-4000-a000-000000000001',
+      name: 'VAT',
+    });
+    (prisma as any).finTaxRate.update.mockResolvedValue({
+      id: 'f8000000-0000-4000-a000-000000000001',
+    });
 
     const res = await request(app).delete('/api/tax/rates/f8000000-0000-4000-a000-000000000001');
 
@@ -232,7 +276,18 @@ describe('DELETE /api/tax/rates/:id', () => {
 describe('GET /api/tax/returns', () => {
   it('should return a list of tax returns', async () => {
     const returns = [
-      { id: 'f8100000-0000-4000-a000-000000000001', reference: 'FIN-TAX-2601-1000', status: 'DRAFT', taxRate: { id: 'f8000000-0000-4000-a000-000000000001', name: 'VAT', code: 'VAT20', rate: 20, jurisdiction: 'UK_VAT' } },
+      {
+        id: 'f8100000-0000-4000-a000-000000000001',
+        reference: 'FIN-TAX-2601-1000',
+        status: 'DRAFT',
+        taxRate: {
+          id: 'f8000000-0000-4000-a000-000000000001',
+          name: 'VAT',
+          code: 'VAT20',
+          rate: 20,
+          jurisdiction: 'UK_VAT',
+        },
+      },
     ];
     (prisma as any).finTaxReturn.findMany.mockResolvedValue(returns);
     (prisma as any).finTaxReturn.count.mockResolvedValue(1);
@@ -257,7 +312,9 @@ describe('GET /api/tax/returns', () => {
     (prisma as any).finTaxReturn.findMany.mockResolvedValue([]);
     (prisma as any).finTaxReturn.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/tax/returns?taxRateId=f8000000-0000-4000-a000-000000000001');
+    const res = await request(app).get(
+      '/api/tax/returns?taxRateId=f8000000-0000-4000-a000-000000000001'
+    );
 
     expect(res.status).toBe(200);
   });
@@ -318,7 +375,10 @@ describe('POST /api/tax/returns', () => {
   };
 
   it('should create a tax return', async () => {
-    (prisma as any).finTaxRate.findUnique.mockResolvedValue({ id: validReturn.taxRateId, name: 'VAT' });
+    (prisma as any).finTaxRate.findUnique.mockResolvedValue({
+      id: validReturn.taxRateId,
+      name: 'VAT',
+    });
     (prisma as any).finTaxReturn.create.mockResolvedValue({
       id: 'ret-new',
       reference: 'FIN-TAX-2601-5678',
@@ -364,10 +424,12 @@ describe('PUT /api/tax/returns/:id', () => {
       taxRate: { id: 'f8000000-0000-4000-a000-000000000001', name: 'VAT' },
     });
 
-    const res = await request(app).put('/api/tax/returns/00000000-0000-0000-0000-000000000001').send({
-      salesTax: 5000,
-      purchaseTax: 2000,
-    });
+    const res = await request(app)
+      .put('/api/tax/returns/00000000-0000-0000-0000-000000000001')
+      .send({
+        salesTax: 5000,
+        purchaseTax: 2000,
+      });
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('CALCULATED');
@@ -376,7 +438,9 @@ describe('PUT /api/tax/returns/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finTaxReturn.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/tax/returns/00000000-0000-0000-0000-000000000099').send({ salesTax: 1000 });
+    const res = await request(app)
+      .put('/api/tax/returns/00000000-0000-0000-0000-000000000099')
+      .send({ salesTax: 1000 });
 
     expect(res.status).toBe(404);
   });
@@ -387,7 +451,9 @@ describe('PUT /api/tax/returns/:id', () => {
       status: 'SUBMITTED',
     });
 
-    const res = await request(app).put('/api/tax/returns/00000000-0000-0000-0000-000000000001').send({ salesTax: 1000 });
+    const res = await request(app)
+      .put('/api/tax/returns/00000000-0000-0000-0000-000000000001')
+      .send({ salesTax: 1000 });
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INVALID_STATUS');
@@ -399,7 +465,9 @@ describe('PUT /api/tax/returns/:id', () => {
       status: 'ACCEPTED',
     });
 
-    const res = await request(app).put('/api/tax/returns/00000000-0000-0000-0000-000000000001').send({ salesTax: 1000 });
+    const res = await request(app)
+      .put('/api/tax/returns/00000000-0000-0000-0000-000000000001')
+      .send({ salesTax: 1000 });
 
     expect(res.status).toBe(400);
   });
@@ -417,7 +485,9 @@ describe('POST /api/tax/returns/:id/submit', () => {
       taxRate: { id: 'f8000000-0000-4000-a000-000000000001', name: 'VAT' },
     });
 
-    const res = await request(app).post('/api/tax/returns/00000000-0000-0000-0000-000000000001/submit');
+    const res = await request(app).post(
+      '/api/tax/returns/00000000-0000-0000-0000-000000000001/submit'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('SUBMITTED');
@@ -426,7 +496,9 @@ describe('POST /api/tax/returns/:id/submit', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finTaxReturn.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/tax/returns/00000000-0000-0000-0000-000000000099/submit');
+    const res = await request(app).post(
+      '/api/tax/returns/00000000-0000-0000-0000-000000000099/submit'
+    );
 
     expect(res.status).toBe(404);
   });
@@ -437,7 +509,9 @@ describe('POST /api/tax/returns/:id/submit', () => {
       status: 'DRAFT',
     });
 
-    const res = await request(app).post('/api/tax/returns/00000000-0000-0000-0000-000000000001/submit');
+    const res = await request(app).post(
+      '/api/tax/returns/00000000-0000-0000-0000-000000000001/submit'
+    );
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INVALID_STATUS');
@@ -449,7 +523,9 @@ describe('POST /api/tax/returns/:id/submit', () => {
       status: 'SUBMITTED',
     });
 
-    const res = await request(app).post('/api/tax/returns/00000000-0000-0000-0000-000000000001/submit');
+    const res = await request(app).post(
+      '/api/tax/returns/00000000-0000-0000-0000-000000000001/submit'
+    );
 
     expect(res.status).toBe(400);
   });
@@ -462,8 +538,22 @@ describe('POST /api/tax/returns/:id/submit', () => {
 describe('GET /api/tax/report', () => {
   it('should return a tax summary report', async () => {
     const returns = [
-      { id: 'f8100000-0000-4000-a000-000000000001', status: 'SUBMITTED', salesTax: 5000, purchaseTax: 2000, netTax: 3000, taxRate: { name: 'VAT', code: 'VAT20', rate: 20, jurisdiction: 'UK_VAT' } },
-      { id: 'f8100000-0000-4000-a000-000000000002', status: 'DRAFT', salesTax: 3000, purchaseTax: 1000, netTax: 2000, taxRate: { name: 'VAT', code: 'VAT20', rate: 20, jurisdiction: 'UK_VAT' } },
+      {
+        id: 'f8100000-0000-4000-a000-000000000001',
+        status: 'SUBMITTED',
+        salesTax: 5000,
+        purchaseTax: 2000,
+        netTax: 3000,
+        taxRate: { name: 'VAT', code: 'VAT20', rate: 20, jurisdiction: 'UK_VAT' },
+      },
+      {
+        id: 'f8100000-0000-4000-a000-000000000002',
+        status: 'DRAFT',
+        salesTax: 3000,
+        purchaseTax: 1000,
+        netTax: 2000,
+        taxRate: { name: 'VAT', code: 'VAT20', rate: 20, jurisdiction: 'UK_VAT' },
+      },
     ];
     (prisma as any).finTaxReturn.findMany.mockResolvedValue(returns);
 
@@ -489,7 +579,9 @@ describe('GET /api/tax/report', () => {
   it('should filter by date range', async () => {
     (prisma as any).finTaxReturn.findMany.mockResolvedValue([]);
 
-    const res = await request(app).get('/api/tax/report?periodStart=2026-01-01&periodEnd=2026-03-31');
+    const res = await request(app).get(
+      '/api/tax/report?periodStart=2026-01-01&periodEnd=2026-03-31'
+    );
 
     expect(res.status).toBe(200);
   });

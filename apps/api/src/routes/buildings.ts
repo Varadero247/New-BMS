@@ -29,9 +29,18 @@ const createZoneSchema = z.object({
   name: z.string().trim().min(1).max(200),
   floor: z.number().int().positive().default(1),
   type: z.enum([
-    'OFFICE', 'CONFERENCE', 'LOBBY', 'HALLWAY', 'RESTROOM',
-    'KITCHEN', 'SERVER_ROOM', 'STORAGE', 'PARKING', 'MECHANICAL',
-    'OUTDOOR', 'OTHER'
+    'OFFICE',
+    'CONFERENCE',
+    'LOBBY',
+    'HALLWAY',
+    'RESTROOM',
+    'KITCHEN',
+    'SERVER_ROOM',
+    'STORAGE',
+    'PARKING',
+    'MECHANICAL',
+    'OUTDOOR',
+    'OTHER',
   ]),
   area: z.number().positive().optional(),
   capacity: z.number().int().positive().optional(),
@@ -170,28 +179,23 @@ router.put(
 );
 
 // Delete building
-router.delete(
-  '/:id',
-  authenticate,
-  requireRole('ADMIN'),
-  async (req: AuthRequest, res, next) => {
-    try {
-      const { id } = req.params;
+router.delete('/:id', authenticate, requireRole('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
 
-      await prisma.building.update({
-        where: { id },
-        data: { isActive: false },
-      });
+    await prisma.building.update({
+      where: { id },
+      data: { isActive: false },
+    });
 
-      res.json({
-        success: true,
-        data: { message: 'Building deleted successfully' },
-      });
-    } catch (error) {
-      next(error);
-    }
+    res.json({
+      success: true,
+      data: { message: 'Building deleted successfully' },
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 // List zones for a building
 router.get('/:id/zones', authenticate, async (req: AuthRequest, res, next) => {
@@ -204,7 +208,8 @@ router.get('/:id/zones', authenticate, async (req: AuthRequest, res, next) => {
         _count: { select: { devices: true } },
       },
       orderBy: [{ floor: 'asc' }, { name: 'asc' }],
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({
       success: true,

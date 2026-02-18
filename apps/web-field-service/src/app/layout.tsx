@@ -6,8 +6,16 @@ import { ThemeSwitch } from '@ims/ui';
 import { ThemingProvider } from '@ims/theming';
 
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-body' });
-const syne = Syne({ subsets: ['latin'], variable: '--font-display', weight: ['400', '600', '700', '800'] });
-const dmMono = DM_Mono({ subsets: ['latin'], variable: '--font-mono', weight: ['300', '400', '500'] });
+const syne = Syne({
+  subsets: ['latin'],
+  variable: '--font-display',
+  weight: ['400', '600', '700', '800'],
+});
+const dmMono = DM_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  weight: ['300', '400', '500'],
+});
 
 export const metadata: Metadata = {
   title: 'Field Service — Nexara IMS',
@@ -17,7 +25,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme="dark" className="dark" suppressHydrationWarning style={{ backgroundColor: '#080B12' }}>
+    <html
+      lang="en"
+      data-theme="dark"
+      className="dark"
+      suppressHydrationWarning
+      style={{ backgroundColor: '#080B12' }}
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -25,8 +39,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className={`${dmSans.variable} ${syne.variable} ${dmMono.variable} font-body antialiased`}>
-        <I18nProvider><ThemingProvider apiUrl={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}>{children}</ThemingProvider></I18nProvider>
+      <body
+        className={`${dmSans.variable} ${syne.variable} ${dmMono.variable} font-body antialiased`}
+      >
+        <I18nProvider>
+          <ThemingProvider apiUrl={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}>
+            {children}
+          </ThemingProvider>
+        </I18nProvider>
         <ThemeSwitch />
       </body>
     </html>

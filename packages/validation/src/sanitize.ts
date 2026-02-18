@@ -63,12 +63,34 @@ function getSqlInjectionPatterns(): RegExp[] {
 
 // Default safe tags for HTML content
 const DEFAULT_ALLOWED_TAGS = [
-  'p', 'br', 'b', 'i', 'u', 'strong', 'em',
-  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'ul', 'ol', 'li',
-  'a', 'blockquote', 'code', 'pre',
-  'table', 'thead', 'tbody', 'tr', 'th', 'td',
-  'div', 'span',
+  'p',
+  'br',
+  'b',
+  'i',
+  'u',
+  'strong',
+  'em',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'ul',
+  'ol',
+  'li',
+  'a',
+  'blockquote',
+  'code',
+  'pre',
+  'table',
+  'thead',
+  'tbody',
+  'tr',
+  'th',
+  'td',
+  'div',
+  'span',
 ];
 
 // Default safe attributes
@@ -98,10 +120,7 @@ function stripHtmlTags(input: string): string {
  * Sanitize a plain text string
  * Removes XSS vectors and normalizes the string
  */
-export function sanitizeString(
-  input: unknown,
-  options: SanitizeStringOptions = {}
-): string {
+export function sanitizeString(input: unknown, options: SanitizeStringOptions = {}): string {
   const {
     maxLength = 1000,
     trim = true,
@@ -155,14 +174,8 @@ export function sanitizeString(
  * Sanitize HTML content allowing specific safe tags
  * Used for rich text input like descriptions
  */
-export function sanitizeHtml(
-  input: unknown,
-  options: SanitizeHtmlOptions = {}
-): string {
-  const {
-    allowedTags = DEFAULT_ALLOWED_TAGS,
-    allowedAttributes = DEFAULT_ALLOWED_ATTRS,
-  } = options;
+export function sanitizeHtml(input: unknown, options: SanitizeHtmlOptions = {}): string {
+  const { allowedTags = DEFAULT_ALLOWED_TAGS, allowedAttributes = DEFAULT_ALLOWED_ATTRS } = options;
 
   if (input === null || input === undefined) {
     return '';
@@ -257,14 +270,14 @@ export function sanitizeUrl(input: unknown): string {
  * Check if string contains potential XSS attack patterns
  */
 export function containsXss(input: string): boolean {
-  return getXssPatterns().some(pattern => pattern.test(input));
+  return getXssPatterns().some((pattern) => pattern.test(input));
 }
 
 /**
  * Check if string contains potential SQL injection patterns
  */
 export function containsSqlInjection(input: string): boolean {
-  return getSqlInjectionPatterns().some(pattern => pattern.test(input));
+  return getSqlInjectionPatterns().some((pattern) => pattern.test(input));
 }
 
 /**

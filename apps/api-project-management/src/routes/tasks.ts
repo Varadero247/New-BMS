@@ -20,7 +20,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const { projectId, status, page = '1', limit = '100' } = req.query;
 
     if (!projectId) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' },
+      });
     }
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -47,7 +50,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List tasks error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list tasks' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list tasks' } });
   }
 });
 
@@ -83,12 +88,16 @@ router.get('/gantt/:projectId', async (req: AuthRequest, res: Response) => {
         assignedToId: true,
         priority: true,
       },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: tasks });
   } catch (error) {
     logger.error('Gantt data error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get Gantt data' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get Gantt data' },
+    });
   }
 });
 
@@ -105,13 +114,17 @@ router.get('/:id', checkOwnership(prisma.projectTask), async (req: AuthRequest, 
     });
 
     if (!task) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Task not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Task not found' } });
     }
 
     res.json({ success: true, data: task });
   } catch (error) {
     logger.error('Get task error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get task' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get task' } });
   }
 });
 
@@ -126,8 +139,14 @@ const createTaskSchema = z.object({
   taskType: z.enum(['TASK', 'MILESTONE', 'PHASE', 'DELIVERABLE']).optional(),
   assignedToId: z.string().optional(),
   assignedDepartment: z.string().optional(),
-  plannedStartDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  plannedEndDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  plannedStartDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  plannedEndDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   plannedDuration: z.number().nonnegative().optional(),
   plannedEffort: z.number().optional(),
   predecessorIds: z.string().optional(),
@@ -140,17 +159,19 @@ const createTaskSchema = z.object({
   tags: z.string().optional(),
   status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'BLOCKED', 'CANCELLED']).optional(),
 });
-const updateTaskSchema = createTaskSchema.extend({
-  actualStartDate: z.string().optional(),
-  actualEndDate: z.string().optional(),
-  baselineStartDate: z.string().optional(),
-  baselineEndDate: z.string().optional(),
-  progressPercentage: z.number().min(0).max(100).optional(),
-  actualDuration: z.number().nonnegative().optional(),
-  actualEffort: z.number().nonnegative().optional(),
-  actualCost: z.number().nonnegative().optional(),
-  slack: z.number().optional(),
-}).partial();
+const updateTaskSchema = createTaskSchema
+  .extend({
+    actualStartDate: z.string().optional(),
+    actualEndDate: z.string().optional(),
+    baselineStartDate: z.string().optional(),
+    baselineEndDate: z.string().optional(),
+    progressPercentage: z.number().min(0).max(100).optional(),
+    actualDuration: z.number().nonnegative().optional(),
+    actualEffort: z.number().nonnegative().optional(),
+    actualCost: z.number().nonnegative().optional(),
+    slack: z.number().optional(),
+  })
+  .partial();
 
 // POST /api/tasks - Create task
 router.post('/', async (req: AuthRequest, res: Response) => {
@@ -188,10 +209,16 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: task });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
     logger.error('Create task error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create task' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create task' },
+    });
   }
 });
 
@@ -200,11 +227,17 @@ router.put('/:id', checkOwnership(prisma.projectTask), async (req: AuthRequest, 
   try {
     const existing = await prisma.projectTask.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Task not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Task not found' } });
     }
 
     const parsed = updateTaskSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const data = parsed.data;
     const updateData = { ...data } as Record<string, unknown>;
 
@@ -217,7 +250,11 @@ router.put('/:id', checkOwnership(prisma.projectTask), async (req: AuthRequest, 
     if (data.baselineEndDate) updateData.baselineEndDate = new Date(data.baselineEndDate);
 
     // Auto-set actual start date when status changes to IN_PROGRESS
-    if (data.status === 'IN_PROGRESS' && existing.status === 'NOT_STARTED' && !existing.actualStartDate) {
+    if (
+      data.status === 'IN_PROGRESS' &&
+      existing.status === 'NOT_STARTED' &&
+      !existing.actualStartDate
+    ) {
       updateData.actualStartDate = new Date();
     }
 
@@ -235,24 +272,39 @@ router.put('/:id', checkOwnership(prisma.projectTask), async (req: AuthRequest, 
     res.json({ success: true, data: task });
   } catch (error) {
     logger.error('Update task error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update task' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update task' },
+    });
   }
 });
 
 // DELETE /api/tasks/:id - Delete task
-router.delete('/:id', checkOwnership(prisma.projectTask), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectTask.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Task not found' } });
-    }
+router.delete(
+  '/:id',
+  checkOwnership(prisma.projectTask),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectTask.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Task not found' } });
+      }
 
-    await prisma.projectTask.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete task error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete task' } });
+      await prisma.projectTask.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete task error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete task' },
+      });
+    }
   }
-});
+);
 
 export default router;

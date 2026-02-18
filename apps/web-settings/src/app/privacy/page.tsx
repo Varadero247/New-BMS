@@ -47,7 +47,9 @@ export default function PrivacyPage() {
       const res = await fetch(`${API_URL}/api/admin/privacy/dsar`, { headers: getHeaders() });
       const data = await res.json();
       if (data.success) setRequests(data.data);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   useEffect(() => {
@@ -69,12 +71,14 @@ export default function PrivacyPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setRequests(prev => [data.data, ...prev]);
+        setRequests((prev) => [data.data, ...prev]);
         setShowCreate(false);
         setFormEmail('');
         setFormNotes('');
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   };
 
   const handleProcess = async (id: string) => {
@@ -86,9 +90,11 @@ export default function PrivacyPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setRequests(prev => prev.map(r => r.id === id ? data.data : r));
+        setRequests((prev) => prev.map((r) => (r.id === id ? data.data : r)));
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     setProcessing(null);
   };
 
@@ -126,19 +132,19 @@ export default function PrivacyPage() {
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
           <p className="text-sm text-yellow-600 dark:text-yellow-400">Pending</p>
           <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">
-            {requests.filter(r => r.status === 'PENDING').length}
+            {requests.filter((r) => r.status === 'PENDING').length}
           </p>
         </div>
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
           <p className="text-sm text-blue-600 dark:text-blue-400">In Progress</p>
           <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-            {requests.filter(r => r.status === 'IN_PROGRESS').length}
+            {requests.filter((r) => r.status === 'IN_PROGRESS').length}
           </p>
         </div>
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
           <p className="text-sm text-green-600 dark:text-green-400">Complete</p>
           <p className="text-2xl font-bold text-green-700 dark:text-green-300">
-            {requests.filter(r => r.status === 'COMPLETE').length}
+            {requests.filter((r) => r.status === 'COMPLETE').length}
           </p>
         </div>
       </div>
@@ -146,11 +152,15 @@ export default function PrivacyPage() {
       {/* Create Form */}
       {showCreate && (
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">New DSAR Request</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            New DSAR Request
+          </h2>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Request Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Request Type
+              </label>
               <select
                 value={formType}
                 onChange={(e) => setFormType(e.target.value as 'EXPORT' | 'ERASURE')}
@@ -161,7 +171,9 @@ export default function PrivacyPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subject Email</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Subject Email
+              </label>
               <input
                 type="email"
                 value={formEmail}
@@ -173,7 +185,9 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes (optional)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Notes (optional)
+            </label>
             <textarea
               value={formNotes}
               onChange={(e) => setFormNotes(e.target.value)}
@@ -199,36 +213,60 @@ export default function PrivacyPage() {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Subject Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Created</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Completed</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Type
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Subject Email
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Created
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Completed
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {requests.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                <td
+                  colSpan={6}
+                  className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400"
+                >
                   No DSAR requests yet. Create one to get started.
                 </td>
               </tr>
             ) : (
               requests.map((r) => (
-                <tr key={r.id} className="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800/50">
+                <tr
+                  key={r.id}
+                  className="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800/50"
+                >
                   <td className="px-6 py-4">
-                    <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
-                      r.type === 'EXPORT'
-                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                        : 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400'
-                    }`}>
+                    <span
+                      className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
+                        r.type === 'EXPORT'
+                          ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                          : 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400'
+                      }`}
+                    >
                       {r.type}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{r.subjectEmail}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+                    {r.subjectEmail}
+                  </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[r.status]}`}>
+                    <span
+                      className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[r.status]}`}
+                    >
                       {r.status.replace('_', ' ')}
                     </span>
                   </td>

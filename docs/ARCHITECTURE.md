@@ -68,10 +68,10 @@ New-BMS/
 
 ```json
 {
-  "build":  { "dependsOn": ["^build"] },
-  "dev":    { "cache": false, "persistent": true, "dependsOn": ["^build"] },
-  "test":   { "dependsOn": ["^build"] },
-  "lint":   { "dependsOn": ["^build"] }
+  "build": { "dependsOn": ["^build"] },
+  "dev": { "cache": false, "persistent": true, "dependsOn": ["^build"] },
+  "test": { "dependsOn": ["^build"] },
+  "lint": { "dependsOn": ["^build"] }
 }
 ```
 
@@ -115,6 +115,7 @@ Client                    Gateway (:4000)              PostgreSQL
 ## Gateway Proxy Routing
 
 All traffic enters through the gateway on port 4000. Routes handled locally:
+
 - `/api/auth/*`, `/api/users/*`, `/api/dashboard/*`, `/api/notifications/*`
 - `/api/organisations/*`, `/api/compliance/*`, `/api/roles/*`
 - `/api/activity/*`, `/api/presence/*`, `/api/feature-flags/*`
@@ -122,38 +123,39 @@ All traffic enters through the gateway on port 4000. Routes handled locally:
 
 Proxied routes:
 
-| Path | Target | Port |
-|------|--------|------|
-| `/api/health-safety/*` | api-health-safety | 4001 |
-| `/api/environment/*` | api-environment | 4002 |
-| `/api/quality/*` | api-quality | 4003 |
-| `/api/ai/*` | api-ai-analysis | 4004 |
-| `/api/inventory/*` | api-inventory | 4005 |
-| `/api/hr/*` | api-hr | 4006 |
-| `/api/payroll/*` | api-payroll | 4007 |
-| `/api/workflows/*` | api-workflows | 4008 |
+| Path                        | Target                 | Port |
+| --------------------------- | ---------------------- | ---- |
+| `/api/health-safety/*`      | api-health-safety      | 4001 |
+| `/api/environment/*`        | api-environment        | 4002 |
+| `/api/quality/*`            | api-quality            | 4003 |
+| `/api/ai/*`                 | api-ai-analysis        | 4004 |
+| `/api/inventory/*`          | api-inventory          | 4005 |
+| `/api/hr/*`                 | api-hr                 | 4006 |
+| `/api/payroll/*`            | api-payroll            | 4007 |
+| `/api/workflows/*`          | api-workflows          | 4008 |
 | `/api/project-management/*` | api-project-management | 4009 |
-| `/api/automotive/*` | api-automotive | 4010 |
-| `/api/medical/*` | api-medical | 4011 |
-| `/api/aerospace/*` | api-aerospace | 4012 |
-| `/api/finance/*` | api-finance | 4013 |
-| `/api/crm/*` | api-crm | 4014 |
-| `/api/infosec/*` | api-infosec | 4015 |
-| `/api/esg/*` | api-esg | 4016 |
-| `/api/cmms/*` | api-cmms | 4017 |
-| `/api/portal/*` | api-portal | 4018 |
-| `/api/food-safety/*` | api-food-safety | 4019 |
-| `/api/energy/*` | api-energy | 4020 |
-| `/api/analytics/*` | api-analytics | 4021 |
-| `/api/field-service/*` | api-field-service | 4022 |
-| `/api/iso42001/*` | api-iso42001 | 4023 |
-| `/api/iso37001/*` | api-iso37001 | 4024 |
-| `/api/marketing/*` | api-marketing | 4025 |
-| `/api/partners/*` | api-partners | 4026 |
+| `/api/automotive/*`         | api-automotive         | 4010 |
+| `/api/medical/*`            | api-medical            | 4011 |
+| `/api/aerospace/*`          | api-aerospace          | 4012 |
+| `/api/finance/*`            | api-finance            | 4013 |
+| `/api/crm/*`                | api-crm                | 4014 |
+| `/api/infosec/*`            | api-infosec            | 4015 |
+| `/api/esg/*`                | api-esg                | 4016 |
+| `/api/cmms/*`               | api-cmms               | 4017 |
+| `/api/portal/*`             | api-portal             | 4018 |
+| `/api/food-safety/*`        | api-food-safety        | 4019 |
+| `/api/energy/*`             | api-energy             | 4020 |
+| `/api/analytics/*`          | api-analytics          | 4021 |
+| `/api/field-service/*`      | api-field-service      | 4022 |
+| `/api/iso42001/*`           | api-iso42001           | 4023 |
+| `/api/iso37001/*`           | api-iso37001           | 4024 |
+| `/api/marketing/*`          | api-marketing          | 4025 |
+| `/api/partners/*`           | api-partners           | 4026 |
 
 All routes also available under `/api/v1/` prefix.
 
 **Proxy behaviour:**
+
 - Path rewriting strips the service prefix (`/api/health-safety/risks` → `/api/risks`)
 - `onProxyReq` re-serializes `req.body` to prevent POST/PUT hanging
 - `X-Service-Token` header injected for inter-service auth
@@ -204,15 +206,16 @@ Layer 6     [apps: api-*, web-*]
 Redis-backed (`ims-redis:6379`):
 
 | Limiter | Window | Max Requests |
-|---------|--------|-------------|
-| Auth | 15 min | 5 |
-| API | 15 min | 100 |
+| ------- | ------ | ------------ |
+| Auth    | 15 min | 5            |
+| API     | 15 min | 100          |
 
 Rate limits persist across gateway restarts (stored in Redis).
 
 ## RBAC Model
 
 `@ims/rbac` provides role-based access control:
+
 - 39 roles across 17 modules with 7 permission levels
 - `attachPermissions()` middleware on every API route
 - Permission levels: `none`, `view`, `create`, `edit`, `delete`, `approve`, `admin`

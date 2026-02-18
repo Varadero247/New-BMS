@@ -11,7 +11,7 @@ import { Notification, EscalationRule, EscalationAction } from './types';
 export function checkEscalation(
   notification: Notification,
   hoursElapsed: number,
-  rules: EscalationRule[],
+  rules: EscalationRule[]
 ): EscalationAction | null {
   if (!rules || rules.length === 0) return null;
   if (notification.status === 'READ') return null;
@@ -40,10 +40,7 @@ export function checkEscalation(
  * @param managerId - ID of the manager to escalate to
  * @returns Array of escalation rules
  */
-export function getDefaultEscalationRules(
-  priority: string,
-  managerId: string,
-): EscalationRule[] {
+export function getDefaultEscalationRules(priority: string, managerId: string): EscalationRule[] {
   switch (priority) {
     case 'CRITICAL':
       return [

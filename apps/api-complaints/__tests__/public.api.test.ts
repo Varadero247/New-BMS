@@ -5,18 +5,32 @@ jest.mock('../src/prisma', () => ({
   prisma: { compComplaint: { count: jest.fn(), create: jest.fn() } },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/public';
 import { prisma } from '../src/prisma';
-const app = express(); app.use(express.json()); app.use('/api/public', router);
-beforeEach(() => { jest.clearAllMocks(); });
+const app = express();
+app.use(express.json());
+app.use('/api/public', router);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('POST /api/public/submit', () => {
   it('should submit a complaint and return reference number', async () => {
     (prisma as any).compComplaint.count.mockResolvedValue(5);
-    (prisma as any).compComplaint.create.mockResolvedValue({ id: '1', referenceNumber: 'CMP-2026-0006' });
+    (prisma as any).compComplaint.create.mockResolvedValue({
+      id: '1',
+      referenceNumber: 'CMP-2026-0006',
+    });
     const res = await request(app).post('/api/public/submit').send({
       title: 'My Complaint',
       description: 'Something went wrong',
@@ -60,7 +74,10 @@ describe('POST /api/public/submit', () => {
 
   it('should use provided orgId', async () => {
     (prisma as any).compComplaint.count.mockResolvedValue(0);
-    (prisma as any).compComplaint.create.mockResolvedValue({ id: '2', referenceNumber: 'CMP-2026-0001' });
+    (prisma as any).compComplaint.create.mockResolvedValue({
+      id: '2',
+      referenceNumber: 'CMP-2026-0001',
+    });
     const res = await request(app).post('/api/public/submit').send({
       title: 'Org-specific complaint',
       orgId: '00000000-0000-4000-a000-000000000099',

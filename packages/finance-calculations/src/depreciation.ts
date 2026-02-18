@@ -68,7 +68,7 @@ export function unitsOfProduction(
   cost: number,
   salvage: number,
   totalUnits: number,
-  unitsThisPeriod: number,
+  unitsThisPeriod: number
 ): number {
   if (totalUnits <= 0) throw new Error('Total units must be greater than 0');
   if (unitsThisPeriod < 0) throw new Error('Units this period must be non-negative');

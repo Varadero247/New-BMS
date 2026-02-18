@@ -12,7 +12,10 @@ jest.mock('@ims/monitoring', () => ({
 }));
 
 jest.mock('@ims/auth', () => ({
-  authenticate: (_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', email: 'a@b.com' }; next(); },
+  authenticate: (_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', email: 'a@b.com' };
+    next();
+  },
 }));
 
 import { runCashFlowForecastJob } from '../src/jobs/cashflow-forecast.job';
@@ -78,7 +81,8 @@ describe('runCashFlowForecastJob', () => {
     await runCashFlowForecastJob();
 
     const firstCreate = (prisma.cashFlowForecast.create as jest.Mock).mock.calls[0][0];
-    const expected = firstCreate.data.openingBalance + firstCreate.data.inflows - firstCreate.data.outflows;
+    const expected =
+      firstCreate.data.openingBalance + firstCreate.data.inflows - firstCreate.data.outflows;
     expect(firstCreate.data.closingBalance).toBeCloseTo(expected, 2);
   });
 
@@ -109,14 +113,18 @@ describe('runCashFlowForecastJob', () => {
     expect(prisma.cashFlowForecast.deleteMany).toHaveBeenCalled();
     expect(prisma.cashFlowForecast.create).toHaveBeenCalled();
     // deleteMany is called first (order verified by mock call sequence)
-    const deleteMockOrder = (prisma.cashFlowForecast.deleteMany as jest.Mock).mock.invocationCallOrder[0];
-    const createMockOrder = (prisma.cashFlowForecast.create as jest.Mock).mock.invocationCallOrder[0];
+    const deleteMockOrder = (prisma.cashFlowForecast.deleteMany as jest.Mock).mock
+      .invocationCallOrder[0];
+    const createMockOrder = (prisma.cashFlowForecast.create as jest.Mock).mock
+      .invocationCallOrder[0];
     expect(deleteMockOrder).toBeLessThan(createMockOrder);
   });
 
   it('uses snapshot MRR for revenue estimate', async () => {
     (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue(null);
-    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 8660, monthNumber: 5 }]);
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { mrr: 8660, monthNumber: 5 },
+    ]);
     (prisma.plannedExpense.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.cashFlowForecast.deleteMany as jest.Mock).mockResolvedValue({ count: 0 });
     (prisma.cashFlowForecast.create as jest.Mock).mockResolvedValue({ id: 'cf-7' });

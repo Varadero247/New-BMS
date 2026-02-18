@@ -70,7 +70,9 @@ router.get('/baselines', scopeToUser, async (req: AuthRequest, res: Response) =>
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
-        include: { items: { select: { id: true, partNumber: true, nomenclature: true, status: true } } },
+        include: {
+          items: { select: { id: true, partNumber: true, nomenclature: true, status: true } },
+        },
       }),
       prisma.configBaseline.count({ where }),
     ]);
@@ -82,7 +84,10 @@ router.get('/baselines', scopeToUser, async (req: AuthRequest, res: Response) =>
     });
   } catch (error) {
     logger.error('List baselines error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list baselines' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list baselines' },
+    });
   }
 });
 
@@ -95,13 +100,18 @@ router.get('/baselines/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!baseline || baseline.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     res.json({ success: true, data: baseline });
   } catch (error) {
     logger.error('Get baseline error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get baseline' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get baseline' },
+    });
   }
 });
 
@@ -113,7 +123,10 @@ router.post('/baselines', async (req: AuthRequest, res: Response) => {
       description: z.string().min(1, 'Description is required'),
       program: z.string().optional(),
       status: z.enum(['DRAFT', 'APPROVED', 'ACTIVE', 'SUPERSEDED', 'ARCHIVED']).optional(),
-      effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      effectiveDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const data = schema.parse(req.body);
@@ -136,11 +149,18 @@ router.post('/baselines', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create baseline error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create baseline' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create baseline' },
+    });
   }
 });
 
@@ -149,7 +169,9 @@ router.put('/baselines/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.configBaseline.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     const schema = z.object({
@@ -157,9 +179,15 @@ router.put('/baselines/:id', async (req: AuthRequest, res: Response) => {
       description: z.string().optional(),
       program: z.string().optional(),
       status: z.enum(['DRAFT', 'APPROVED', 'ACTIVE', 'SUPERSEDED', 'ARCHIVED']).optional(),
-      effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      effectiveDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       approvedBy: z.string().optional(),
-      approvedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      approvedDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const data = schema.parse(req.body);
@@ -178,11 +206,18 @@ router.put('/baselines/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update baseline error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update baseline' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update baseline' },
+    });
   }
 });
 
@@ -191,7 +226,9 @@ router.delete('/baselines/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.configBaseline.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     await prisma.configBaseline.update({
@@ -202,7 +239,10 @@ router.delete('/baselines/:id', async (req: AuthRequest, res: Response) => {
     res.status(204).send();
   } catch (error) {
     logger.error('Delete baseline error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete baseline' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete baseline' },
+    });
   }
 });
 
@@ -218,7 +258,15 @@ router.post('/items', async (req: AuthRequest, res: Response) => {
       partNumber: z.string().min(1, 'Part number is required'),
       nomenclature: z.string().min(1, 'Nomenclature is required'),
       revision: z.string().min(1, 'Revision is required'),
-      category: z.enum(['HARDWARE', 'SOFTWARE', 'FIRMWARE', 'DOCUMENT', 'TOOL', 'TEST_EQUIPMENT', 'MATERIAL']),
+      category: z.enum([
+        'HARDWARE',
+        'SOFTWARE',
+        'FIRMWARE',
+        'DOCUMENT',
+        'TOOL',
+        'TEST_EQUIPMENT',
+        'MATERIAL',
+      ]),
       serialNumber: z.string().optional(),
       lotNumber: z.string().optional(),
       status: z.enum(['CURRENT', 'SUPERSEDED', 'OBSOLETE', 'PENDING_CHANGE']).optional(),
@@ -233,7 +281,9 @@ router.post('/items', async (req: AuthRequest, res: Response) => {
     // Verify baseline exists
     const baseline = await prisma.configBaseline.findUnique({ where: { id: data.baselineId } });
     if (!baseline || baseline.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     const item = await prisma.configItem.create({
@@ -258,11 +308,18 @@ router.post('/items', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create config item error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create configuration item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create configuration item' },
+    });
   }
 });
 
@@ -271,14 +328,27 @@ router.put('/items/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.configItem.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Configuration item not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Configuration item not found' },
+      });
     }
 
     const schema = z.object({
       partNumber: z.string().trim().min(1).max(200).optional(),
       nomenclature: z.string().trim().min(1).max(200).optional(),
       revision: z.string().trim().min(1).max(200).optional(),
-      category: z.enum(['HARDWARE', 'SOFTWARE', 'FIRMWARE', 'DOCUMENT', 'TOOL', 'TEST_EQUIPMENT', 'MATERIAL']).optional(),
+      category: z
+        .enum([
+          'HARDWARE',
+          'SOFTWARE',
+          'FIRMWARE',
+          'DOCUMENT',
+          'TOOL',
+          'TEST_EQUIPMENT',
+          'MATERIAL',
+        ])
+        .optional(),
       serialNumber: z.string().optional(),
       lotNumber: z.string().optional(),
       status: z.enum(['CURRENT', 'SUPERSEDED', 'OBSOLETE', 'PENDING_CHANGE']).optional(),
@@ -300,11 +370,18 @@ router.put('/items/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update config item error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update configuration item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update configuration item' },
+    });
   }
 });
 
@@ -347,11 +424,18 @@ router.post('/changes', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create ECP error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create engineering change proposal' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create engineering change proposal' },
+    });
   }
 });
 
@@ -392,20 +476,34 @@ router.get('/changes', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List ECPs error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list engineering change proposals' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list engineering change proposals' },
+    });
   }
 });
 
 // PUT /changes/:id/approve - CCB approval
 router.put('/changes/:id/approve', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.engineeringChangeProposal.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.engineeringChangeProposal.findUnique({
+      where: { id: req.params.id },
+    });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Engineering change proposal not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Engineering change proposal not found' },
+      });
     }
 
     const schema = z.object({
-      ccbDecision: z.enum(['APPROVE', 'APPROVE_WITH_CONDITIONS', 'REJECT', 'DEFER', 'MORE_INFO_NEEDED']),
+      ccbDecision: z.enum([
+        'APPROVE',
+        'APPROVE_WITH_CONDITIONS',
+        'REJECT',
+        'DEFER',
+        'MORE_INFO_NEEDED',
+      ]),
       ccbMembers: z.array(z.string()).min(1, 'At least one CCB member is required'),
       ccbNotes: z.string().optional(),
     });
@@ -446,11 +544,18 @@ router.put('/changes/:id/approve', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Approve ECP error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve engineering change proposal' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve engineering change proposal' },
+    });
   }
 });
 
@@ -464,7 +569,10 @@ router.post('/audits/fca', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       title: z.string().min(1, 'Title is required'),
       baselineId: z.string().min(1, 'Baseline ID is required'),
-      auditDate: z.string().min(1, 'Audit date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      auditDate: z
+        .string()
+        .min(1, 'Audit date is required')
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       auditors: z.array(z.string()).min(1, 'At least one auditor is required'),
       notes: z.string().optional(),
     });
@@ -475,7 +583,9 @@ router.post('/audits/fca', async (req: AuthRequest, res: Response) => {
     // Verify baseline exists
     const baseline = await prisma.configBaseline.findUnique({ where: { id: data.baselineId } });
     if (!baseline || baseline.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     const audit = await prisma.configAudit.create({
@@ -496,11 +606,17 @@ router.post('/audits/fca', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create FCA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create FCA' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create FCA' } });
   }
 });
 
@@ -510,7 +626,10 @@ router.post('/audits/pca', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       title: z.string().min(1, 'Title is required'),
       baselineId: z.string().min(1, 'Baseline ID is required'),
-      auditDate: z.string().min(1, 'Audit date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      auditDate: z
+        .string()
+        .min(1, 'Audit date is required')
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       auditors: z.array(z.string()).min(1, 'At least one auditor is required'),
       notes: z.string().optional(),
     });
@@ -521,7 +640,9 @@ router.post('/audits/pca', async (req: AuthRequest, res: Response) => {
     // Verify baseline exists
     const baseline = await prisma.configBaseline.findUnique({ where: { id: data.baselineId } });
     if (!baseline || baseline.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     const audit = await prisma.configAudit.create({
@@ -542,11 +663,17 @@ router.post('/audits/pca', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create PCA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create PCA' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create PCA' } });
   }
 });
 
@@ -586,7 +713,10 @@ router.get('/audits', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List audits error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list configuration audits' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list configuration audits' },
+    });
   }
 });
 
@@ -637,14 +767,30 @@ router.get('/status-accounting', async (req: AuthRequest, res: Response) => {
       prisma.configItem.count({ where: { deletedAt: null, status: 'SUPERSEDED' } as any }),
       prisma.configItem.count({ where: { deletedAt: null, status: 'OBSOLETE' } as any }),
       prisma.engineeringChangeProposal.count({ where: { deletedAt: null } as any }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'PROPOSED' } as any }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'UNDER_REVIEW' } as any }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'CCB_APPROVED' } as any }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'CCB_REJECTED' } as any }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'IMPLEMENTING' } as any }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'IMPLEMENTED' } as any }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'VERIFIED' } as any }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'CLOSED' } as any }),
+      prisma.engineeringChangeProposal.count({
+        where: { deletedAt: null, status: 'PROPOSED' } as any,
+      }),
+      prisma.engineeringChangeProposal.count({
+        where: { deletedAt: null, status: 'UNDER_REVIEW' } as any,
+      }),
+      prisma.engineeringChangeProposal.count({
+        where: { deletedAt: null, status: 'CCB_APPROVED' } as any,
+      }),
+      prisma.engineeringChangeProposal.count({
+        where: { deletedAt: null, status: 'CCB_REJECTED' } as any,
+      }),
+      prisma.engineeringChangeProposal.count({
+        where: { deletedAt: null, status: 'IMPLEMENTING' } as any,
+      }),
+      prisma.engineeringChangeProposal.count({
+        where: { deletedAt: null, status: 'IMPLEMENTED' } as any,
+      }),
+      prisma.engineeringChangeProposal.count({
+        where: { deletedAt: null, status: 'VERIFIED' } as any,
+      }),
+      prisma.engineeringChangeProposal.count({
+        where: { deletedAt: null, status: 'CLOSED' } as any,
+      }),
       prisma.configAudit.count({ where: { deletedAt: null } as any }),
       prisma.configAudit.count({ where: { deletedAt: null, status: 'PLANNED' } as any }),
       prisma.configAudit.count({ where: { deletedAt: null, status: 'COMPLETED' } as any }),
@@ -710,7 +856,10 @@ router.get('/status-accounting', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: report });
   } catch (error) {
     logger.error('Status accounting error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate status accounting report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate status accounting report' },
+    });
   }
 });
 

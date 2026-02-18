@@ -71,7 +71,12 @@ export default function TemplatesClient() {
     setLoading(true);
     try {
       const response = await gateway.get('/templates', {
-        params: { module: MODULE_FILTER, search: search || undefined, category: categoryFilter || undefined, limit: 50 },
+        params: {
+          module: MODULE_FILTER,
+          search: search || undefined,
+          category: categoryFilter || undefined,
+          limit: 50,
+        },
       });
       const data = response.data.data;
       setTemplates(Array.isArray(data) ? data : []);
@@ -129,14 +134,23 @@ export default function TemplatesClient() {
   const renderFieldInput = (field: FieldDefinition) => {
     switch (field.type) {
       case 'section':
-        return <h3 key={field.name} className="text-lg font-semibold text-gray-800 mt-4 mb-2 border-b pb-1">{field.label}</h3>;
+        return (
+          <h3
+            key={field.name}
+            className="text-lg font-semibold text-gray-800 mt-4 mb-2 border-b pb-1"
+          >
+            {field.label}
+          </h3>
+        );
       case 'textarea':
         return (
           <div key={field.name} className="mb-3">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {field.label} {field.required && <span className="text-red-500">*</span>}
             </label>
-            {field.description && <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{field.description}</p>}
+            {field.description && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{field.description}</p>
+            )}
             <textarea
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-teal-500 focus:border-teal-500"
               rows={3}
@@ -152,7 +166,9 @@ export default function TemplatesClient() {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {field.label} {field.required && <span className="text-red-500">*</span>}
             </label>
-            {field.description && <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{field.description}</p>}
+            {field.description && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{field.description}</p>
+            )}
             <select
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-teal-500 focus:border-teal-500"
               value={formData[field.name] || ''}
@@ -160,7 +176,9 @@ export default function TemplatesClient() {
             >
               <option value="">-- Select --</option>
               {field.options?.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           </div>
@@ -171,7 +189,9 @@ export default function TemplatesClient() {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {field.label} {field.required && <span className="text-red-500">*</span>}
             </label>
-            {field.description && <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{field.description}</p>}
+            {field.description && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{field.description}</p>
+            )}
             <input
               type="number"
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-teal-500 focus:border-teal-500"
@@ -187,7 +207,9 @@ export default function TemplatesClient() {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {field.label} {field.required && <span className="text-red-500">*</span>}
             </label>
-            {field.description && <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{field.description}</p>}
+            {field.description && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{field.description}</p>
+            )}
             <input
               type="date"
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-teal-500 focus:border-teal-500"
@@ -216,7 +238,9 @@ export default function TemplatesClient() {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {field.label} {field.required && <span className="text-red-500">*</span>}
             </label>
-            {field.description && <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{field.description}</p>}
+            {field.description && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{field.description}</p>
+            )}
             <input
               type="text"
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-teal-500 focus:border-teal-500"
@@ -247,7 +271,8 @@ export default function TemplatesClient() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
-            aria-label="Search templates..." placeholder="Search templates..."
+            aria-label="Search templates..."
+            placeholder="Search templates..."
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-teal-500 focus:border-teal-500"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -259,7 +284,9 @@ export default function TemplatesClient() {
           onChange={(e) => setCategoryFilter(e.target.value)}
         >
           {CATEGORIES.map((c) => (
-            <option key={c.value} value={c.value}>{c.label}</option>
+            <option key={c.value} value={c.value}>
+              {c.label}
+            </option>
           ))}
         </select>
       </div>
@@ -277,7 +304,9 @@ export default function TemplatesClient() {
         <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <FileText className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto" />
           <p className="text-gray-500 dark:text-gray-400 mt-3">No templates found.</p>
-          <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Try adjusting your search or category filter.</p>
+          <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">
+            Try adjusting your search or category filter.
+          </p>
         </div>
       )}
 
@@ -289,20 +318,33 @@ export default function TemplatesClient() {
               <CardContent className="p-5">
                 <div className="flex items-start justify-between mb-2">
                   <Badge className="bg-teal-100 text-teal-700 text-xs">{template.code}</Badge>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">v{template.version}</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                    v{template.version}
+                  </span>
                 </div>
 
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{template.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">{template.description}</p>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                  {template.name}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
+                  {template.description}
+                </p>
 
                 <div className="flex items-center gap-2 mb-4">
-                  <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600 text-xs">{template.category}</Badge>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">Used {template.usageCount} times</span>
+                  <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600 text-xs">
+                    {template.category}
+                  </Badge>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                    Used {template.usageCount} times
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-2 border-t pt-3">
                   <button
-                    onClick={() => { setSelectedTemplate(template); setShowUseModal(false); }}
+                    onClick={() => {
+                      setSelectedTemplate(template);
+                      setShowUseModal(false);
+                    }}
                     className="flex items-center gap-1 text-xs text-gray-600 hover:text-teal-600 transition-colors"
                     title="Preview"
                   >
@@ -347,8 +389,12 @@ export default function TemplatesClient() {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <Badge className="bg-teal-100 text-teal-700">{selectedTemplate.code}</Badge>
-              <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600">{selectedTemplate.category}</Badge>
-              <span className="text-sm text-gray-400 dark:text-gray-500">Version {selectedTemplate.version}</span>
+              <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600">
+                {selectedTemplate.category}
+              </Badge>
+              <span className="text-sm text-gray-400 dark:text-gray-500">
+                Version {selectedTemplate.version}
+              </span>
             </div>
 
             <p className="text-sm text-gray-600">{selectedTemplate.description}</p>
@@ -362,7 +408,9 @@ export default function TemplatesClient() {
                       <span className="font-semibold text-gray-800 mt-2">{field.label}</span>
                     ) : (
                       <>
-                        <span className="inline-block bg-teal-50 text-teal-600 text-xs px-2 py-0.5 rounded font-mono">{field.type}</span>
+                        <span className="inline-block bg-teal-50 text-teal-600 text-xs px-2 py-0.5 rounded font-mono">
+                          {field.type}
+                        </span>
                         <span className="text-gray-700 dark:text-gray-300">{field.label}</span>
                         {field.required && <span className="text-red-500 text-xs">(required)</span>}
                       </>
@@ -374,8 +422,13 @@ export default function TemplatesClient() {
           </div>
         )}
         <ModalFooter>
-          <Button variant="outline" onClick={() => setSelectedTemplate(null)}>Close</Button>
-          <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={() => selectedTemplate && handleOpenUse(selectedTemplate)}>
+          <Button variant="outline" onClick={() => setSelectedTemplate(null)}>
+            Close
+          </Button>
+          <Button
+            className="bg-teal-600 hover:bg-teal-700 text-white"
+            onClick={() => selectedTemplate && handleOpenUse(selectedTemplate)}
+          >
             Use Template
           </Button>
         </ModalFooter>
@@ -384,18 +437,31 @@ export default function TemplatesClient() {
       {/* Use Template Modal */}
       <Modal
         isOpen={showUseModal && !!selectedTemplate}
-        onClose={() => { setShowUseModal(false); setSelectedTemplate(null); setFormData({}); }}
+        onClose={() => {
+          setShowUseModal(false);
+          setSelectedTemplate(null);
+          setFormData({});
+        }}
         title={selectedTemplate ? `Use: ${selectedTemplate.name}` : 'Use Template'}
         size="lg"
       >
         {selectedTemplate && (
           <div className="max-h-[60vh] overflow-y-auto pr-1">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Fill in the fields below to create a record from this template.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              Fill in the fields below to create a record from this template.
+            </p>
             {selectedTemplate.fieldDefinitions?.map((field) => renderFieldInput(field))}
           </div>
         )}
         <ModalFooter>
-          <Button variant="outline" onClick={() => { setShowUseModal(false); setSelectedTemplate(null); setFormData({}); }}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setShowUseModal(false);
+              setSelectedTemplate(null);
+              setFormData({});
+            }}
+          >
             Cancel
           </Button>
           <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={handleSubmitUse}>

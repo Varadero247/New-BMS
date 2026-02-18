@@ -19,7 +19,11 @@ const auditCreateSchema = z.object({
   type: z.enum(['INTERNAL', 'EXTERNAL', 'REGULATORY', 'CERTIFICATION', 'SUPPLIER']),
   auditor: z.string().trim().min(1).max(200),
   scope: z.string().max(2000).optional().nullable(),
-  scheduledDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  scheduledDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   score: z.number().min(0).max(100).optional().nullable(),
   findings: z.any().optional().nullable(),
   certificate: z.string().max(500).optional().nullable(),
@@ -35,7 +39,12 @@ const auditUpdateSchema = z.object({
   type: z.enum(['INTERNAL', 'EXTERNAL', 'REGULATORY', 'CERTIFICATION', 'SUPPLIER']).optional(),
   auditor: z.string().trim().min(1).max(200).optional(),
   scope: z.string().max(2000).optional().nullable(),
-  scheduledDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  scheduledDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional(),
   status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
   score: z.number().min(0).max(100).optional().nullable(),
   findings: z.any().optional().nullable(),
@@ -76,8 +85,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing audits', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list audits' } });
+    logger.error('Error listing audits', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list audits' },
+    });
   }
 });
 
@@ -88,7 +102,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = auditCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -105,8 +122,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Audit created', { id: audit.id });
     res.status(201).json({ success: true, data: audit });
   } catch (error: unknown) {
-    logger.error('Error creating audit', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit' } });
+    logger.error('Error creating audit', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit' },
+    });
   }
 });
 
@@ -120,13 +142,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!audit) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
     res.json({ success: true, data: audit });
   } catch (error: unknown) {
-    logger.error('Error fetching audit', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch audit' } });
+    logger.error('Error fetching audit', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch audit' },
+    });
   }
 });
 
@@ -136,16 +165,23 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const RESERVED = new Set(['complete']);
-    if (RESERVED.has(req.params.id)) return (undefined as any);
+    if (RESERVED.has(req.params.id)) return undefined as any;
 
-    const existing = await prisma.fsAudit.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsAudit.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
     const parsed = auditUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -160,8 +196,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Audit updated', { id: audit.id });
     res.json({ success: true, data: audit });
   } catch (error: unknown) {
-    logger.error('Error updating audit', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update audit' } });
+    logger.error('Error updating audit', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update audit' },
+    });
   }
 });
 
@@ -170,9 +211,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsAudit.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsAudit.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
     await prisma.fsAudit.update({
@@ -183,8 +228,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Audit deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Audit deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting audit', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete audit' } });
+    logger.error('Error deleting audit', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete audit' },
+    });
   }
 });
 
@@ -193,18 +243,31 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsAudit.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsAudit.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
     if (existing.status === 'COMPLETED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_COMPLETED', message: 'Audit is already completed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'ALREADY_COMPLETED', message: 'Audit is already completed' },
+      });
     }
 
     const completeParsed = auditCompleteSchema.safeParse(req.body);
     if (!completeParsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: completeParsed.error.errors[0]?.message || 'Invalid completion data' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: completeParsed.error.errors[0]?.message || 'Invalid completion data',
+        },
+      });
     }
     const { score, findings } = completeParsed.data;
 
@@ -221,8 +284,13 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     logger.info('Audit completed', { id: audit.id });
     res.json({ success: true, data: audit });
   } catch (error: unknown) {
-    logger.error('Error completing audit', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete audit' } });
+    logger.error('Error completing audit', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete audit' },
+    });
   }
 });
 

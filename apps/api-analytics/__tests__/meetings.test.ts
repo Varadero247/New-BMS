@@ -111,13 +111,15 @@ describe('POST /api/meetings', () => {
   it('creates a new meeting', async () => {
     (prisma.meetingNote.create as jest.Mock).mockResolvedValue(sampleMeeting);
 
-    const res = await request(app).post('/api/meetings').send({
-      title: 'Weekly Standup',
-      type: 'TEAM',
-      date: '2026-02-15',
-      attendees: ['Alice', 'Bob'],
-      summary: 'Discussed sprint progress',
-    });
+    const res = await request(app)
+      .post('/api/meetings')
+      .send({
+        title: 'Weekly Standup',
+        type: 'TEAM',
+        date: '2026-02-15',
+        attendees: ['Alice', 'Bob'],
+        summary: 'Discussed sprint progress',
+      });
     expect(res.status).toBe(201);
     expect(res.body.data.title).toBe('Weekly Standup');
   });
@@ -134,9 +136,14 @@ describe('POST /api/meetings', () => {
 describe('PATCH /api/meetings/:id', () => {
   it('updates a meeting', async () => {
     (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(sampleMeeting);
-    (prisma.meetingNote.update as jest.Mock).mockResolvedValue({ ...sampleMeeting, summary: 'Updated summary' });
+    (prisma.meetingNote.update as jest.Mock).mockResolvedValue({
+      ...sampleMeeting,
+      summary: 'Updated summary',
+    });
 
-    const res = await request(app).patch('/api/meetings/00000000-0000-0000-0000-000000000001').send({ summary: 'Updated summary' });
+    const res = await request(app)
+      .patch('/api/meetings/00000000-0000-0000-0000-000000000001')
+      .send({ summary: 'Updated summary' });
     expect(res.status).toBe(200);
     expect(res.body.data.summary).toBe('Updated summary');
   });
@@ -176,7 +183,9 @@ describe('PATCH /api/meetings/:id/actions/:actionIndex', () => {
       ],
     });
 
-    const res = await request(app).patch('/api/meetings/00000000-0000-0000-0000-000000000001/actions/0');
+    const res = await request(app).patch(
+      '/api/meetings/00000000-0000-0000-0000-000000000001/actions/0'
+    );
     expect(res.status).toBe(200);
     expect(prisma.meetingNote.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -191,7 +200,9 @@ describe('PATCH /api/meetings/:id/actions/:actionIndex', () => {
 
   it('returns 400 for invalid action index', async () => {
     (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(sampleMeeting);
-    const res = await request(app).patch('/api/meetings/00000000-0000-0000-0000-000000000001/actions/99');
+    const res = await request(app).patch(
+      '/api/meetings/00000000-0000-0000-0000-000000000001/actions/99'
+    );
     expect(res.status).toBe(400);
   });
 });

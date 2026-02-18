@@ -67,9 +67,8 @@ function clearDraft(templateId: string): void {
 function addToQueue(templateId: string, data: Record<string, unknown>): void {
   try {
     const raw = localStorage.getItem(QUEUE_KEY);
-    const queue: Array<{ templateId: string; data: Record<string, unknown>; queuedAt: string }> = raw
-      ? JSON.parse(raw)
-      : [];
+    const queue: Array<{ templateId: string; data: Record<string, unknown>; queuedAt: string }> =
+      raw ? JSON.parse(raw) : [];
     queue.push({ templateId, data, queuedAt: new Date().toISOString() });
     localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
   } catch {
@@ -119,7 +118,11 @@ export function OfflineInspectionForm({
       try {
         const raw = localStorage.getItem(QUEUE_KEY);
         if (!raw) return;
-        const queue = JSON.parse(raw) as Array<{ templateId: string; data: Record<string, unknown>; queuedAt: string }>;
+        const queue = JSON.parse(raw) as Array<{
+          templateId: string;
+          data: Record<string, unknown>;
+          queuedAt: string;
+        }>;
         if (queue.length === 0) return;
 
         const remaining: typeof queue = [];
@@ -183,7 +186,8 @@ export function OfflineInspectionForm({
     if (q.type === 'checkbox') return val === true;
     return true;
   }).length;
-  const progressPct = totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
+  const progressPct =
+    totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
 
   const requiredQuestions = allQuestions.filter((q) => q.required);
   const allRequiredAnswered = requiredQuestions.every((q) => {
@@ -220,7 +224,9 @@ export function OfflineInspectionForm({
           setSubmitSuccess(true);
           setResponses({});
         } else {
-          setSubmitError(err instanceof Error ? err.message : 'Submission failed. Please try again.');
+          setSubmitError(
+            err instanceof Error ? err.message : 'Submission failed. Please try again.'
+          );
         }
       } finally {
         setSubmitting(false);
@@ -233,9 +239,20 @@ export function OfflineInspectionForm({
 
   if (submitSuccess) {
     return (
-      <div className={cn('flex flex-col items-center justify-center py-16 px-4 text-center', className)}>
+      <div
+        className={cn(
+          'flex flex-col items-center justify-center py-16 px-4 text-center',
+          className
+        )}
+      >
         <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center mb-4">
-          <svg className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg
+            className="h-6 w-6 text-green-600 dark:text-green-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
@@ -259,26 +276,60 @@ export function OfflineInspectionForm({
         <div className="flex items-center gap-1.5">
           {syncStatus === 'saved' && (
             <>
-              <svg className="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+              <svg
+                className="h-4 w-4 text-green-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"
+                />
               </svg>
               <span className="text-xs text-green-600 dark:text-green-400 font-medium">Saved</span>
             </>
           )}
           {syncStatus === 'saving' && (
             <>
-              <svg className="h-4 w-4 text-yellow-500 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              <svg
+                className="h-4 w-4 text-yellow-500 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
               </svg>
-              <span className="text-xs text-yellow-600 dark:text-yellow-400 font-medium">Saving...</span>
+              <span className="text-xs text-yellow-600 dark:text-yellow-400 font-medium">
+                Saving...
+              </span>
             </>
           )}
           {syncStatus === 'offline' && (
             <>
-              <svg className="h-4 w-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3" />
+              <svg
+                className="h-4 w-4 text-orange-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3"
+                />
               </svg>
-              <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">Saved locally</span>
+              <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">
+                Saved locally
+              </span>
             </>
           )}
         </div>
@@ -287,7 +338,9 @@ export function OfflineInspectionForm({
       {/* Progress bar */}
       <div className="space-y-1">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>{answeredQuestions} of {totalQuestions} questions answered</span>
+          <span>
+            {answeredQuestions} of {totalQuestions} questions answered
+          </span>
           <span>{progressPct}%</span>
         </div>
         <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -434,9 +487,23 @@ export function OfflineInspectionForm({
                       'border border-border bg-card text-foreground hover:bg-muted transition-colors'
                     )}
                   >
-                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <svg
+                      className="h-3.5 w-3.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
                     </svg>
                     Attach Photo
                   </label>
@@ -490,14 +557,30 @@ export function OfflineInspectionForm({
       >
         {submitting ? (
           <>
-            <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            <svg
+              className="h-4 w-4 animate-spin"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
             </svg>
             Submitting...
           </>
         ) : (
           <>
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
             {isOnline ? 'Submit Inspection' : 'Save for Later'}

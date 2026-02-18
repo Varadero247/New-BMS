@@ -21,7 +21,9 @@ router.get('/stats', authenticate, async (req, res, next) => {
       iso9001: complianceScores.find((s) => s.standard === 'ISO_9001')?.overallScore || 0,
       overall: 0,
     };
-    compliance.overall = Math.round((compliance.iso45001 + compliance.iso14001 + compliance.iso9001) / 3);
+    compliance.overall = Math.round(
+      (compliance.iso45001 + compliance.iso14001 + compliance.iso9001) / 3
+    );
 
     // Get risk statistics
     const [totalRisks, highRisks, criticalRisks, risksByStandard] = await Promise.all([
@@ -36,15 +38,16 @@ router.get('/stats', authenticate, async (req, res, next) => {
     ]);
 
     // Get incident statistics
-    const [totalIncidents, openIncidents, thisMonthIncidents, incidentsByStandard] = await Promise.all([
-      prisma.incident.count(),
-      prisma.incident.count({ where: { status: { not: 'CLOSED' } } }),
-      prisma.incident.count({ where: { dateOccurred: { gte: startOfMonth } } }),
-      prisma.incident.groupBy({
-        by: ['standard'],
-        _count: { id: true },
-      }),
-    ]);
+    const [totalIncidents, openIncidents, thisMonthIncidents, incidentsByStandard] =
+      await Promise.all([
+        prisma.incident.count(),
+        prisma.incident.count({ where: { status: { not: 'CLOSED' } } }),
+        prisma.incident.count({ where: { dateOccurred: { gte: startOfMonth } } }),
+        prisma.incident.groupBy({
+          by: ['standard'],
+          _count: { id: true },
+        }),
+      ]);
 
     // Get action statistics
     const [totalActions, openActions, overdueActions, dueThisWeek] = await Promise.all([
@@ -164,24 +167,27 @@ router.get('/compliance', authenticate, async (req, res, next) => {
       });
     }
 
-    const result = scores.reduce((acc, score) => {
-      acc[score.standard] = {
-        overallScore: score.overallScore,
-        details: {
-          riskScore: score.riskScore,
-          incidentScore: score.incidentScore,
-          legalScore: score.legalScore,
-          objectiveScore: score.objectiveScore,
-          actionScore: score.actionScore,
-          trainingScore: score.trainingScore,
-          documentScore: score.documentScore,
-        },
-        totalItems: score.totalItems,
-        compliantItems: score.compliantItems,
-        calculatedAt: score.calculatedAt,
-      };
-      return acc;
-    }, {} as Record<string, any>);
+    const result = scores.reduce(
+      (acc, score) => {
+        acc[score.standard] = {
+          overallScore: score.overallScore,
+          details: {
+            riskScore: score.riskScore,
+            incidentScore: score.incidentScore,
+            legalScore: score.legalScore,
+            objectiveScore: score.objectiveScore,
+            actionScore: score.actionScore,
+            trainingScore: score.trainingScore,
+            documentScore: score.documentScore,
+          },
+          totalItems: score.totalItems,
+          compliantItems: score.compliantItems,
+          calculatedAt: score.calculatedAt,
+        };
+        return acc;
+      },
+      {} as Record<string, any>
+    );
 
     res.json({ success: true, data: result });
   } catch (error) {
@@ -220,7 +226,9 @@ router.get('/summary/:standard', authenticate, async (req, res, next) => {
       prisma.incident.count({ where: { standard: standard as any } }),
       prisma.incident.count({ where: { standard: standard as any, status: { not: 'CLOSED' } } }),
       prisma.action.count({ where: { standard: standard as any } }),
-      prisma.action.count({ where: { standard: standard as any, status: { in: ['OPEN', 'IN_PROGRESS'] } } }),
+      prisma.action.count({
+        where: { standard: standard as any, status: { in: ['OPEN', 'IN_PROGRESS'] } },
+      }),
       prisma.action.count({
         where: {
           standard: standard as any,
@@ -230,7 +238,10 @@ router.get('/summary/:standard', authenticate, async (req, res, next) => {
       }),
       prisma.legalRequirement.count({ where: { standard: standard as any } }),
       prisma.legalRequirement.count({
-        where: { standard: standard as any, complianceStatus: { in: ['COMPLIANT', 'NOT_APPLICABLE'] } },
+        where: {
+          standard: standard as any,
+          complianceStatus: { in: ['COMPLIANT', 'NOT_APPLICABLE'] },
+        },
       }),
       prisma.objective.count({ where: { standard: standard as any } }),
       prisma.objective.count({ where: { standard: standard as any, status: 'ACHIEVED' } }),
@@ -281,7 +292,8 @@ router.get('/summary/:standard', authenticate, async (req, res, next) => {
           incidents: {
             total: incidents,
             open: openIncidents,
-            closureRate: incidents > 0 ? Math.round(((incidents - openIncidents) / incidents) * 100) : 100,
+            closureRate:
+              incidents > 0 ? Math.round(((incidents - openIncidents) / incidents) * 100) : 100,
           },
           actions: {
             total: actions,
@@ -291,12 +303,14 @@ router.get('/summary/:standard', authenticate, async (req, res, next) => {
           legal: {
             total: legalRequirements,
             compliant: compliantLegal,
-            complianceRate: legalRequirements > 0 ? Math.round((compliantLegal / legalRequirements) * 100) : 100,
+            complianceRate:
+              legalRequirements > 0 ? Math.round((compliantLegal / legalRequirements) * 100) : 100,
           },
           objectives: {
             total: objectives,
             achieved: achievedObjectives,
-            achievementRate: objectives > 0 ? Math.round((achievedObjectives / objectives) * 100) : 100,
+            achievementRate:
+              objectives > 0 ? Math.round((achievedObjectives / objectives) * 100) : 100,
           },
         },
         recentIncidents,

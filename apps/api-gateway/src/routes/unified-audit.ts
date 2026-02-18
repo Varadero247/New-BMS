@@ -44,7 +44,9 @@ router.get('/standards', async (_req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data });
   } catch (error) {
-    logger.error('Failed to list standards', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to list standards', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list standards' },
@@ -72,7 +74,9 @@ router.get('/standards/:standard/checklist', async (req: AuthRequest, res: Respo
 
     res.json({ success: true, data: checklist });
   } catch (error) {
-    logger.error('Failed to get checklist', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to get checklist', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get checklist' },
@@ -127,7 +131,9 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
         },
       });
     }
-    logger.error('Failed to create audit plan', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to create audit plan', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit plan' },
@@ -191,7 +197,9 @@ router.get('/plans', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Failed to list audit plans', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to list audit plans', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list audit plans' },
@@ -216,7 +224,9 @@ router.get('/plans/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: plan });
   } catch (error) {
-    logger.error('Failed to get audit plan', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to get audit plan', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit plan' },
@@ -228,11 +238,27 @@ router.get('/plans/:id', async (req: AuthRequest, res: Response) => {
 // PATCH /plans/:id/clauses/:clause - Update clause status
 // ---------------------------------------------------------------------------
 const VALID_STATUSES: AuditClauseStatus['status'][] = [
-  'NOT_STARTED', 'IN_PROGRESS', 'CONFORMING', 'MINOR_NC', 'MAJOR_NC', 'OBSERVATION', 'NOT_APPLICABLE',
+  'NOT_STARTED',
+  'IN_PROGRESS',
+  'CONFORMING',
+  'MINOR_NC',
+  'MAJOR_NC',
+  'OBSERVATION',
+  'NOT_APPLICABLE',
 ];
 
 const updateClauseSchema = z.object({
-  status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'CONFORMING', 'MINOR_NC', 'MAJOR_NC', 'OBSERVATION', 'NOT_APPLICABLE']).optional(),
+  status: z
+    .enum([
+      'NOT_STARTED',
+      'IN_PROGRESS',
+      'CONFORMING',
+      'MINOR_NC',
+      'MAJOR_NC',
+      'OBSERVATION',
+      'NOT_APPLICABLE',
+    ])
+    .optional(),
   findings: z.array(z.string()).optional(),
   objectiveEvidence: z.array(z.string()).optional(),
   auditorNotes: z.string().optional(),
@@ -299,7 +325,9 @@ router.patch('/plans/:id/clauses/:clause', async (req: AuthRequest, res: Respons
         },
       });
     }
-    logger.error('Failed to update audit clause', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to update audit clause', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to update audit clause' },
@@ -336,7 +364,9 @@ router.get('/plans/:id/score', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Failed to get audit score', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to get audit score', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit score' },
@@ -380,7 +410,9 @@ router.get('/plans/:id/gaps', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Failed to get audit gaps', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to get audit gaps', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit gaps' },
@@ -412,11 +444,14 @@ router.get('/plans/:id/report', async (req: AuthRequest, res: Response) => {
     // Determine overall recommendation
     let recommendation: string;
     if (score.majorNCs > 0) {
-      recommendation = 'NOT RECOMMENDED - Major non-conformities must be resolved before certification/continued compliance';
+      recommendation =
+        'NOT RECOMMENDED - Major non-conformities must be resolved before certification/continued compliance';
     } else if (score.minorNCs > 3) {
-      recommendation = 'CONDITIONAL - Multiple minor non-conformities require corrective action within 90 days';
+      recommendation =
+        'CONDITIONAL - Multiple minor non-conformities require corrective action within 90 days';
     } else if (score.minorNCs > 0) {
-      recommendation = 'CONDITIONAL - Minor non-conformities require corrective action within 90 days';
+      recommendation =
+        'CONDITIONAL - Minor non-conformities require corrective action within 90 days';
     } else if (gaps.length > 0) {
       recommendation = 'INCOMPLETE - Mandatory clauses have not been fully assessed';
     } else {
@@ -498,7 +533,9 @@ router.get('/plans/:id/report', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: report });
   } catch (error) {
-    logger.error('Failed to generate audit report', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to generate audit report', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to generate audit report' },

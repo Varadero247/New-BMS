@@ -51,13 +51,13 @@ const testData = new SharedArray('endpoints', function () {
 // k6 options
 export const options = {
   stages: [
-    { duration: '30s', target: 50 },   // Ramp up to 50 VUs over 30s
-    { duration: '2m', target: 50 },    // Hold 50 VUs for 2 minutes
-    { duration: '30s', target: 0 },    // Ramp down over 30s
+    { duration: '30s', target: 50 }, // Ramp up to 50 VUs over 30s
+    { duration: '2m', target: 50 }, // Hold 50 VUs for 2 minutes
+    { duration: '30s', target: 0 }, // Ramp down over 30s
   ],
   thresholds: {
-    http_req_duration: ['p(95)<200'],   // p95 response time < 200ms
-    http_req_failed: ['rate<0.01'],     // Error rate < 1%
+    http_req_duration: ['p(95)<200'], // p95 response time < 200ms
+    http_req_failed: ['rate<0.01'], // Error rate < 1%
     errors: ['rate<0.01'],
   },
   tags: {
@@ -297,6 +297,8 @@ export default function (data) {
 export function teardown(data) {
   console.log('API Gateway load test completed.');
   if (!data.token) {
-    console.warn('WARNING: Tests ran without authentication. Results may not reflect production behavior.');
+    console.warn(
+      'WARNING: Tests ran without authentication. Results may not reflect production behavior.'
+    );
   }
 }

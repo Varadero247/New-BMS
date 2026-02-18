@@ -62,10 +62,7 @@ describe('Security Headers Middleware', () => {
 
       additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockRes.setHeader).not.toHaveBeenCalledWith(
-        'Cache-Control',
-        expect.any(String)
-      );
+      expect(mockRes.setHeader).not.toHaveBeenCalledWith('Cache-Control', expect.any(String));
     });
 
     it('should set X-Content-Type-Options', () => {

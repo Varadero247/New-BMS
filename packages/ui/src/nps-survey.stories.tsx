@@ -23,8 +23,16 @@ export const Default: Story = {
             Survey dismissed. Result: {result || 'No submission'}
           </p>
           <button
-            onClick={() => { setVisible(true); setResult(''); }}
-            style={{ padding: '8px 16px', border: '1px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer' }}
+            onClick={() => {
+              setVisible(true);
+              setResult('');
+            }}
+            style={{
+              padding: '8px 16px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              cursor: 'pointer',
+            }}
           >
             Show Again
           </button>

@@ -11,7 +11,10 @@ import { cn } from './utils';
 export type AnnotationTool = 'rectangle' | 'circle' | 'arrow' | 'freehand' | 'text';
 export type AnnotationColor = '#ef4444' | '#eab308' | '#22c55e' | '#ffffff';
 
-interface Point { x: number; y: number }
+interface Point {
+  x: number;
+  y: number;
+}
 
 interface Annotation {
   id: string;
@@ -92,9 +95,15 @@ function drawAnnotation(ctx: CanvasRenderingContext2D, a: Annotation) {
       // arrowhead
       ctx.beginPath();
       ctx.moveTo(to.x, to.y);
-      ctx.lineTo(to.x - headLen * Math.cos(angle - Math.PI / 6), to.y - headLen * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(
+        to.x - headLen * Math.cos(angle - Math.PI / 6),
+        to.y - headLen * Math.sin(angle - Math.PI / 6)
+      );
       ctx.moveTo(to.x, to.y);
-      ctx.lineTo(to.x - headLen * Math.cos(angle + Math.PI / 6), to.y - headLen * Math.sin(angle + Math.PI / 6));
+      ctx.lineTo(
+        to.x - headLen * Math.cos(angle + Math.PI / 6),
+        to.y - headLen * Math.sin(angle + Math.PI / 6)
+      );
       ctx.stroke();
       break;
     }
@@ -119,7 +128,7 @@ function drawAnnotation(ctx: CanvasRenderingContext2D, a: Annotation) {
         a.points[0].x - padding,
         a.points[0].y - 16 - padding,
         metrics.width + padding * 2,
-        20 + padding * 2,
+        20 + padding * 2
       );
       ctx.fillStyle = a.color;
       ctx.fillText(a.text, a.points[0].x, a.points[0].y);
@@ -190,36 +199,42 @@ export function PhotoAnnotation({ imageSrc, onSave, onCancel, className }: Photo
     };
   }, []);
 
-  const handlePointerDown = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
-    const pt = getPoint(e);
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLCanvasElement>) => {
+      const pt = getPoint(e);
 
-    if (currentTool === 'text') {
-      setTextPosition(pt);
-      return;
-    }
+      if (currentTool === 'text') {
+        setTextPosition(pt);
+        return;
+      }
 
-    const newAnnotation: Annotation = {
-      id: `a-${Date.now()}`,
-      tool: currentTool,
-      color: currentColor,
-      points: [pt],
-    };
-    setCurrentAnnotation(newAnnotation);
-    setIsDrawing(true);
-    (e.target as HTMLCanvasElement).setPointerCapture(e.pointerId);
-  }, [currentTool, currentColor, getPoint]);
+      const newAnnotation: Annotation = {
+        id: `a-${Date.now()}`,
+        tool: currentTool,
+        color: currentColor,
+        points: [pt],
+      };
+      setCurrentAnnotation(newAnnotation);
+      setIsDrawing(true);
+      (e.target as HTMLCanvasElement).setPointerCapture(e.pointerId);
+    },
+    [currentTool, currentColor, getPoint]
+  );
 
-  const handlePointerMove = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !currentAnnotation) return;
-    const pt = getPoint(e);
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLCanvasElement>) => {
+      if (!isDrawing || !currentAnnotation) return;
+      const pt = getPoint(e);
 
-    if (currentAnnotation.tool === 'freehand') {
-      setCurrentAnnotation(prev => prev ? { ...prev, points: [...prev.points, pt] } : null);
-    } else {
-      // For rectangle/circle/arrow, update the second point
-      setCurrentAnnotation(prev => prev ? { ...prev, points: [prev.points[0], pt] } : null);
-    }
-  }, [isDrawing, currentAnnotation, getPoint]);
+      if (currentAnnotation.tool === 'freehand') {
+        setCurrentAnnotation((prev) => (prev ? { ...prev, points: [...prev.points, pt] } : null));
+      } else {
+        // For rectangle/circle/arrow, update the second point
+        setCurrentAnnotation((prev) => (prev ? { ...prev, points: [prev.points[0], pt] } : null));
+      }
+    },
+    [isDrawing, currentAnnotation, getPoint]
+  );
 
   const handlePointerUp = useCallback(() => {
     if (!isDrawing || !currentAnnotation) return;
@@ -227,7 +242,7 @@ export function PhotoAnnotation({ imageSrc, onSave, onCancel, className }: Photo
 
     // Only add if there's meaningful content
     if (currentAnnotation.points.length >= 2) {
-      setAnnotations(prev => [...prev, currentAnnotation]);
+      setAnnotations((prev) => [...prev, currentAnnotation]);
     }
     setCurrentAnnotation(null);
   }, [isDrawing, currentAnnotation]);
@@ -245,13 +260,13 @@ export function PhotoAnnotation({ imageSrc, onSave, onCancel, className }: Photo
       points: [textPosition],
       text: textInput.trim(),
     };
-    setAnnotations(prev => [...prev, annotation]);
+    setAnnotations((prev) => [...prev, annotation]);
     setTextPosition(null);
     setTextInput('');
   }, [textPosition, textInput, currentColor]);
 
   const handleUndo = useCallback(() => {
-    setAnnotations(prev => prev.slice(0, -1));
+    setAnnotations((prev) => prev.slice(0, -1));
   }, []);
 
   const handleClear = useCallback(() => {
@@ -275,7 +290,7 @@ export function PhotoAnnotation({ imageSrc, onSave, onCancel, className }: Photo
 
   const btnBase = cn(
     'inline-flex items-center justify-center h-9 px-3 rounded-lg text-sm font-medium',
-    'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+    'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
   );
 
   return (
@@ -284,7 +299,7 @@ export function PhotoAnnotation({ imageSrc, onSave, onCancel, className }: Photo
       <div className="flex flex-wrap items-center gap-2">
         {/* Tool selection */}
         <div className="flex items-center gap-1 border border-border rounded-lg p-1">
-          {TOOLS.map(t => (
+          {TOOLS.map((t) => (
             <button
               key={t.value}
               type="button"
@@ -294,7 +309,7 @@ export function PhotoAnnotation({ imageSrc, onSave, onCancel, className }: Photo
                 'h-8 w-8 rounded-md flex items-center justify-center text-sm transition-colors',
                 currentTool === t.value
                   ? 'bg-brand-600 text-white dark:bg-brand-500'
-                  : 'text-foreground hover:bg-muted',
+                  : 'text-foreground hover:bg-muted'
               )}
             >
               {t.icon}
@@ -304,7 +319,7 @@ export function PhotoAnnotation({ imageSrc, onSave, onCancel, className }: Photo
 
         {/* Color selection */}
         <div className="flex items-center gap-1 border border-border rounded-lg p-1">
-          {COLORS.map(c => (
+          {COLORS.map((c) => (
             <button
               key={c.value}
               type="button"
@@ -312,7 +327,7 @@ export function PhotoAnnotation({ imageSrc, onSave, onCancel, className }: Photo
               title={c.label}
               className={cn(
                 'h-8 w-8 rounded-md flex items-center justify-center transition-all',
-                currentColor === c.value ? 'ring-2 ring-brand-500 ring-offset-1' : '',
+                currentColor === c.value ? 'ring-2 ring-brand-500 ring-offset-1' : ''
               )}
             >
               <span
@@ -325,12 +340,26 @@ export function PhotoAnnotation({ imageSrc, onSave, onCancel, className }: Photo
 
         {/* Actions */}
         <div className="flex items-center gap-1 ml-auto">
-          <button type="button" onClick={handleUndo} disabled={annotations.length === 0}
-            className={cn(btnBase, 'border border-border bg-card text-foreground hover:bg-muted disabled:opacity-40')}>
+          <button
+            type="button"
+            onClick={handleUndo}
+            disabled={annotations.length === 0}
+            className={cn(
+              btnBase,
+              'border border-border bg-card text-foreground hover:bg-muted disabled:opacity-40'
+            )}
+          >
             Undo
           </button>
-          <button type="button" onClick={handleClear} disabled={annotations.length === 0}
-            className={cn(btnBase, 'border border-border bg-card text-foreground hover:bg-muted disabled:opacity-40')}>
+          <button
+            type="button"
+            onClick={handleClear}
+            disabled={annotations.length === 0}
+            className={cn(
+              btnBase,
+              'border border-border bg-card text-foreground hover:bg-muted disabled:opacity-40'
+            )}
+          >
             Clear
           </button>
         </div>
@@ -354,28 +383,62 @@ export function PhotoAnnotation({ imageSrc, onSave, onCancel, className }: Photo
 
         {/* Text input overlay */}
         {textPosition && (
-          <div className="absolute inset-0 flex items-start justify-start" style={{ pointerEvents: 'none' }}>
-            <div className="absolute bg-card border border-border rounded-lg p-2 shadow-lg" style={{ pointerEvents: 'auto', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
-              <label className="block text-xs font-medium text-foreground mb-1">Add label text</label>
+          <div
+            className="absolute inset-0 flex items-start justify-start"
+            style={{ pointerEvents: 'none' }}
+          >
+            <div
+              className="absolute bg-card border border-border rounded-lg p-2 shadow-lg"
+              style={{
+                pointerEvents: 'auto',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+              }}
+            >
+              <label className="block text-xs font-medium text-foreground mb-1">
+                Add label text
+              </label>
               <input
                 type="text"
                 autoFocus
                 value={textInput}
-                onChange={e => setTextInput(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') handleTextSubmit(); if (e.key === 'Escape') { setTextPosition(null); setTextInput(''); } }}
+                onChange={(e) => setTextInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleTextSubmit();
+                  if (e.key === 'Escape') {
+                    setTextPosition(null);
+                    setTextInput('');
+                  }
+                }}
                 placeholder="Type label..."
                 className={cn(
                   'w-48 rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground',
-                  'placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-brand-500',
+                  'placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-brand-500'
                 )}
               />
               <div className="flex items-center gap-1 mt-1.5">
-                <button type="button" onClick={handleTextSubmit}
-                  className={cn(btnBase, 'h-7 px-2 text-xs bg-brand-600 text-white hover:bg-brand-700')}>
+                <button
+                  type="button"
+                  onClick={handleTextSubmit}
+                  className={cn(
+                    btnBase,
+                    'h-7 px-2 text-xs bg-brand-600 text-white hover:bg-brand-700'
+                  )}
+                >
                   Add
                 </button>
-                <button type="button" onClick={() => { setTextPosition(null); setTextInput(''); }}
-                  className={cn(btnBase, 'h-7 px-2 text-xs border border-border bg-card text-foreground hover:bg-muted')}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTextPosition(null);
+                    setTextInput('');
+                  }}
+                  className={cn(
+                    btnBase,
+                    'h-7 px-2 text-xs border border-border bg-card text-foreground hover:bg-muted'
+                  )}
+                >
                   Cancel
                 </button>
               </div>
@@ -391,12 +454,21 @@ export function PhotoAnnotation({ imageSrc, onSave, onCancel, className }: Photo
 
       {/* Save / Cancel */}
       <div className="flex items-center justify-end gap-2">
-        <button type="button" onClick={onCancel}
-          className={cn(btnBase, 'border border-border bg-card text-foreground hover:bg-muted')}>
+        <button
+          type="button"
+          onClick={onCancel}
+          className={cn(btnBase, 'border border-border bg-card text-foreground hover:bg-muted')}
+        >
           Cancel
         </button>
-        <button type="button" onClick={handleSave}
-          className={cn(btnBase, 'bg-brand-600 text-white hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400')}>
+        <button
+          type="button"
+          onClick={handleSave}
+          className={cn(
+            btnBase,
+            'bg-brand-600 text-white hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400'
+          )}
+        >
           Save Annotated Photo
         </button>
       </div>

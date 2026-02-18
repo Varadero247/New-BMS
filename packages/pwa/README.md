@@ -59,9 +59,9 @@ await queue.add({
 
 ## Components
 
-| Component | Description |
-|-----------|-------------|
-| `InstallBanner` | Prompts user to install PWA |
-| `useCamera()` | Camera access hook |
-| `useGeolocation()` | GPS location hook |
-| `generateManifest()` | Creates web app manifest |
+| Component            | Description                 |
+| -------------------- | --------------------------- |
+| `InstallBanner`      | Prompts user to install PWA |
+| `useCamera()`        | Camera access hook          |
+| `useGeolocation()`   | GPS location hook           |
+| `generateManifest()` | Creates web app manifest    |

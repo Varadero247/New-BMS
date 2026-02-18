@@ -40,7 +40,12 @@ beforeEach(() => {
 describe('GET /api/portal/notifications', () => {
   it('should list notifications', async () => {
     const items = [
-      { id: '00000000-0000-0000-0000-000000000001', title: 'Order shipped', type: 'ORDER_UPDATE', isRead: false },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        title: 'Order shipped',
+        type: 'ORDER_UPDATE',
+        isRead: false,
+      },
       { id: 'n-2', title: 'New document', type: 'DOCUMENT_SHARED', isRead: true },
     ];
     (prisma as any).portalNotification.findMany.mockResolvedValue(items);
@@ -116,11 +121,17 @@ describe('PUT /api/portal/notifications/read-all', () => {
 
 describe('PUT /api/portal/notifications/:id/read', () => {
   it('should mark a notification as read', async () => {
-    const notification = { id: '00000000-0000-0000-0000-000000000001', portalUserId: 'user-123', isRead: false };
+    const notification = {
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      isRead: false,
+    };
     (prisma as any).portalNotification.findFirst.mockResolvedValue(notification);
     (prisma as any).portalNotification.update.mockResolvedValue({ ...notification, isRead: true });
 
-    const res = await request(app).put('/api/portal/notifications/00000000-0000-0000-0000-000000000001/read');
+    const res = await request(app).put(
+      '/api/portal/notifications/00000000-0000-0000-0000-000000000001/read'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.isRead).toBe(true);
@@ -129,7 +140,9 @@ describe('PUT /api/portal/notifications/:id/read', () => {
   it('should return 404 if notification not found', async () => {
     (prisma as any).portalNotification.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/portal/notifications/00000000-0000-0000-0000-000000000099/read');
+    const res = await request(app).put(
+      '/api/portal/notifications/00000000-0000-0000-0000-000000000099/read'
+    );
 
     expect(res.status).toBe(404);
   });

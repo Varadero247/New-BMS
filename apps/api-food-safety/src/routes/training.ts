@@ -19,28 +19,57 @@ const trainingCreateSchema = z.object({
   description: z.string().max(2000).optional().nullable(),
   type: z.enum(['INDUCTION', 'REFRESHER', 'HACCP', 'GMP', 'HYGIENE', 'ALLERGEN', 'FOOD_DEFENSE']),
   trainer: z.string().max(200).optional().nullable(),
-  scheduledDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  scheduledDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   attendees: z.any().optional().nullable(),
   certificate: z.string().max(500).optional().nullable(),
-  validUntil: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  validUntil: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
 });
 
 const trainingCompleteSchema = z.object({
   attendees: z.any().optional().nullable(),
   certificate: z.string().max(500).optional().nullable(),
-  validUntil: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  validUntil: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
 });
 
 const trainingUpdateSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
-  type: z.enum(['INDUCTION', 'REFRESHER', 'HACCP', 'GMP', 'HYGIENE', 'ALLERGEN', 'FOOD_DEFENSE']).optional(),
+  type: z
+    .enum(['INDUCTION', 'REFRESHER', 'HACCP', 'GMP', 'HYGIENE', 'ALLERGEN', 'FOOD_DEFENSE'])
+    .optional(),
   trainer: z.string().max(200).optional().nullable(),
-  scheduledDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  scheduledDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional(),
   status: z.enum(['PLANNED', 'COMPLETED', 'CANCELLED']).optional(),
   attendees: z.any().optional().nullable(),
   certificate: z.string().max(500).optional().nullable(),
-  validUntil: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  validUntil: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
 });
 
 // ---------------------------------------------------------------------------
@@ -77,8 +106,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing training records', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list training records' } });
+    logger.error('Error listing training records', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list training records' },
+    });
   }
 });
 
@@ -89,7 +123,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = trainingCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -107,8 +144,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Training record created', { id: training.id });
     res.status(201).json({ success: true, data: training });
   } catch (error: unknown) {
-    logger.error('Error creating training record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create training record' } });
+    logger.error('Error creating training record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create training record' },
+    });
   }
 });
 
@@ -122,13 +164,21 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!training) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Training record not found' },
+      });
     }
 
     res.json({ success: true, data: training });
   } catch (error: unknown) {
-    logger.error('Error fetching training record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch training record' } });
+    logger.error('Error fetching training record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch training record' },
+    });
   }
 });
 
@@ -138,16 +188,24 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const RESERVED = new Set(['complete']);
-    if (RESERVED.has(req.params.id)) return (undefined as any);
+    if (RESERVED.has(req.params.id)) return undefined as any;
 
-    const existing = await prisma.fsTraining.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsTraining.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Training record not found' },
+      });
     }
 
     const parsed = trainingUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -163,8 +221,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Training record updated', { id: training.id });
     res.json({ success: true, data: training });
   } catch (error: unknown) {
-    logger.error('Error updating training record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update training record' } });
+    logger.error('Error updating training record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update training record' },
+    });
   }
 });
 
@@ -173,9 +236,14 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsTraining.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsTraining.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Training record not found' },
+      });
     }
 
     await prisma.fsTraining.update({
@@ -186,8 +254,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Training record deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Training record deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting training record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete training record' } });
+    logger.error('Error deleting training record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete training record' },
+    });
   }
 });
 
@@ -196,18 +269,32 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsTraining.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsTraining.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Training record not found' },
+      });
     }
 
     if (existing.status === 'COMPLETED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_COMPLETED', message: 'Training is already completed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'ALREADY_COMPLETED', message: 'Training is already completed' },
+      });
     }
 
     const completeParsed = trainingCompleteSchema.safeParse(req.body);
     if (!completeParsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: completeParsed.error.errors[0]?.message || 'Invalid completion data' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: completeParsed.error.errors[0]?.message || 'Invalid completion data',
+        },
+      });
     }
     const { attendees, certificate, validUntil } = completeParsed.data;
 
@@ -225,8 +312,13 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     logger.info('Training completed', { id: training.id });
     res.json({ success: true, data: training });
   } catch (error: unknown) {
-    logger.error('Error completing training', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete training' } });
+    logger.error('Error completing training', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete training' },
+    });
   }
 });
 

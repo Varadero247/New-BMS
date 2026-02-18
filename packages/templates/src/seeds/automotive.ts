@@ -86,7 +86,13 @@ export const automotiveTemplates: TemplateDefinition[] = [
             ],
             width: 'half',
           },
-          { id: 'milestone', label: 'Milestone / Deliverable', type: 'text', required: true, width: 'full' },
+          {
+            id: 'milestone',
+            label: 'Milestone / Deliverable',
+            type: 'text',
+            required: true,
+            width: 'full',
+          },
           { id: 'plannedDate', label: 'Planned Date', type: 'date', required: true, width: 'half' },
           { id: 'actualDate', label: 'Actual Date', type: 'date', width: 'half' },
           {
@@ -267,13 +273,26 @@ export const automotiveTemplates: TemplateDefinition[] = [
         helpText: 'List all open issues that may impact the gate decision.',
         columns: [
           { id: 'issueRef', label: 'Issue #', type: 'text', required: true, width: 'third' },
-          { id: 'issueDescription', label: 'Description', type: 'textarea', required: true, width: 'full' },
-          { id: 'issueSeverity', label: 'Severity', type: 'select', options: [
-            { label: 'Low', value: 'low' },
-            { label: 'Medium', value: 'medium' },
-            { label: 'High', value: 'high' },
-            { label: 'Critical', value: 'critical' },
-          ], required: true, width: 'third' },
+          {
+            id: 'issueDescription',
+            label: 'Description',
+            type: 'textarea',
+            required: true,
+            width: 'full',
+          },
+          {
+            id: 'issueSeverity',
+            label: 'Severity',
+            type: 'select',
+            options: [
+              { label: 'Low', value: 'low' },
+              { label: 'Medium', value: 'medium' },
+              { label: 'High', value: 'high' },
+              { label: 'Critical', value: 'critical' },
+            ],
+            required: true,
+            width: 'third',
+          },
           { id: 'issueOwner', label: 'Owner', type: 'text', required: true, width: 'half' },
           { id: 'issueDueDate', label: 'Due Date', type: 'date', required: true, width: 'half' },
         ],
@@ -600,11 +619,44 @@ export const automotiveTemplates: TemplateDefinition[] = [
         required: true,
         helpText: 'Record actual measurements against specifications for each characteristic.',
         columns: [
-          { id: 'charNumber', label: 'Char #', type: 'text', required: true, width: 'third', placeholder: 'e.g. 1.1' },
-          { id: 'characteristic', label: 'Characteristic', type: 'text', required: true, width: 'full' },
-          { id: 'specification', label: 'Specification', type: 'text', required: true, width: 'half', placeholder: 'e.g. 25.0 +/- 0.1 mm' },
-          { id: 'actual', label: 'Actual Measurement', type: 'text', required: true, width: 'half', placeholder: 'e.g. 25.02 mm' },
-          { id: 'deviation', label: 'Deviation', type: 'text', width: 'third', placeholder: 'e.g. +0.02' },
+          {
+            id: 'charNumber',
+            label: 'Char #',
+            type: 'text',
+            required: true,
+            width: 'third',
+            placeholder: 'e.g. 1.1',
+          },
+          {
+            id: 'characteristic',
+            label: 'Characteristic',
+            type: 'text',
+            required: true,
+            width: 'full',
+          },
+          {
+            id: 'specification',
+            label: 'Specification',
+            type: 'text',
+            required: true,
+            width: 'half',
+            placeholder: 'e.g. 25.0 +/- 0.1 mm',
+          },
+          {
+            id: 'actual',
+            label: 'Actual Measurement',
+            type: 'text',
+            required: true,
+            width: 'half',
+            placeholder: 'e.g. 25.02 mm',
+          },
+          {
+            id: 'deviation',
+            label: 'Deviation',
+            type: 'text',
+            width: 'third',
+            placeholder: 'e.g. +0.02',
+          },
           {
             id: 'passFail',
             label: 'Result',
@@ -633,7 +685,13 @@ export const automotiveTemplates: TemplateDefinition[] = [
         helpText: 'List all measurement instruments used with calibration status.',
         columns: [
           { id: 'instrument', label: 'Instrument', type: 'text', required: true, width: 'half' },
-          { id: 'instrumentId', label: 'ID / Serial #', type: 'text', required: true, width: 'half' },
+          {
+            id: 'instrumentId',
+            label: 'ID / Serial #',
+            type: 'text',
+            required: true,
+            width: 'half',
+          },
           { id: 'calDate', label: 'Calibration Date', type: 'date', width: 'half' },
           { id: 'calDue', label: 'Calibration Due', type: 'date', width: 'half' },
         ],
@@ -721,9 +779,22 @@ export const automotiveTemplates: TemplateDefinition[] = [
         helpText: 'Record all material and performance test results.',
         columns: [
           { id: 'testName', label: 'Test', type: 'text', required: true, width: 'half' },
-          { id: 'specification', label: 'Specification', type: 'text', required: true, width: 'half', placeholder: 'e.g. Tensile Strength 370-500 MPa' },
+          {
+            id: 'specification',
+            label: 'Specification',
+            type: 'text',
+            required: true,
+            width: 'half',
+            placeholder: 'e.g. Tensile Strength 370-500 MPa',
+          },
           { id: 'actual', label: 'Actual Result', type: 'text', required: true, width: 'half' },
-          { id: 'unit', label: 'Unit', type: 'text', width: 'third', placeholder: 'e.g. MPa, HRC, %' },
+          {
+            id: 'unit',
+            label: 'Unit',
+            type: 'text',
+            width: 'third',
+            placeholder: 'e.g. MPa, HRC, %',
+          },
           {
             id: 'passFail',
             label: 'Pass / Fail',
@@ -867,7 +938,8 @@ export const automotiveTemplates: TemplateDefinition[] = [
         label: 'Control Plan Items',
         type: 'table',
         required: true,
-        helpText: 'Define controls for each process step including inspection methods and reaction plans.',
+        helpText:
+          'Define controls for each process step including inspection methods and reaction plans.',
         columns: [
           {
             id: 'processStep',
@@ -1207,8 +1279,10 @@ export const automotiveTemplates: TemplateDefinition[] = [
         id: 'actionsIfNotCapable',
         label: 'Actions if Not Capable',
         type: 'textarea',
-        placeholder: 'If Cpk < 1.33, describe improvement actions, 100% inspection plan, or sorting...',
-        helpText: 'Required actions if capability does not meet the minimum requirement (typically Cpk >= 1.33 for existing, >= 1.67 for new processes).',
+        placeholder:
+          'If Cpk < 1.33, describe improvement actions, 100% inspection plan, or sorting...',
+        helpText:
+          'Required actions if capability does not meet the minimum requirement (typically Cpk >= 1.33 for existing, >= 1.67 for new processes).',
         width: 'full',
       },
     ],
@@ -1293,7 +1367,13 @@ export const automotiveTemplates: TemplateDefinition[] = [
         required: true,
         helpText: 'List all operators participating in the study (typically 3).',
         columns: [
-          { id: 'operatorName', label: 'Operator Name', type: 'text', required: true, width: 'half' },
+          {
+            id: 'operatorName',
+            label: 'Operator Name',
+            type: 'text',
+            required: true,
+            width: 'half',
+          },
           { id: 'operatorId', label: 'Employee ID', type: 'text', width: 'half' },
           { id: 'operatorShift', label: 'Shift', type: 'text', width: 'third' },
         ],
@@ -1315,7 +1395,13 @@ export const automotiveTemplates: TemplateDefinition[] = [
           { id: 'partId', label: 'Part #', type: 'number', required: true, width: 'third' },
           { id: 'operator', label: 'Operator', type: 'text', required: true, width: 'half' },
           { id: 'trial', label: 'Trial #', type: 'number', required: true, width: 'third' },
-          { id: 'measurement', label: 'Measurement', type: 'number', required: true, width: 'half' },
+          {
+            id: 'measurement',
+            label: 'Measurement',
+            type: 'number',
+            required: true,
+            width: 'half',
+          },
         ],
         width: 'full',
       },
@@ -1354,7 +1440,8 @@ export const automotiveTemplates: TemplateDefinition[] = [
         id: 'ndc',
         label: 'Number of Distinct Categories (ndc)',
         type: 'number',
-        helpText: 'Number of distinct categories the measurement system can discriminate. Must be >= 5.',
+        helpText:
+          'Number of distinct categories the measurement system can discriminate. Must be >= 5.',
         width: 'third',
       },
       {
@@ -1375,7 +1462,8 @@ export const automotiveTemplates: TemplateDefinition[] = [
         label: 'Actions Required',
         type: 'textarea',
         placeholder: 'For marginal or unacceptable results, describe improvement actions...',
-        helpText: 'Corrective actions if the measurement system does not meet acceptability criteria.',
+        helpText:
+          'Corrective actions if the measurement system does not meet acceptability criteria.',
         width: 'full',
       },
     ],
@@ -1493,7 +1581,13 @@ export const automotiveTemplates: TemplateDefinition[] = [
         columns: [
           { id: 'ncRef', label: 'NC #', type: 'text', required: true, width: 'third' },
           { id: 'ncCategory', label: 'Category', type: 'text', required: true, width: 'half' },
-          { id: 'ncDescription', label: 'Description', type: 'textarea', required: true, width: 'full' },
+          {
+            id: 'ncDescription',
+            label: 'Description',
+            type: 'textarea',
+            required: true,
+            width: 'full',
+          },
           { id: 'ncContainment', label: 'Immediate Containment', type: 'textarea', width: 'full' },
         ],
         width: 'full',
@@ -1560,7 +1654,8 @@ export const automotiveTemplates: TemplateDefinition[] = [
         label: 'Quality Performance Metrics',
         type: 'textarea',
         required: true,
-        placeholder: 'PPM rates, scrap rates, first-pass yield, rework costs, internal reject trends...',
+        placeholder:
+          'PPM rates, scrap rates, first-pass yield, rework costs, internal reject trends...',
         helpText: 'Review of internal quality performance indicators and trends.',
         width: 'full',
       },
@@ -1575,8 +1670,10 @@ export const automotiveTemplates: TemplateDefinition[] = [
         label: 'Customer Satisfaction & Scorecards',
         type: 'textarea',
         required: true,
-        placeholder: 'Customer scorecards, rating trends, complaints, special status notifications...',
-        helpText: 'Review of customer satisfaction data including OEM scorecards and any special status.',
+        placeholder:
+          'Customer scorecards, rating trends, complaints, special status notifications...',
+        helpText:
+          'Review of customer satisfaction data including OEM scorecards and any special status.',
         width: 'full',
       },
       {
@@ -1591,7 +1688,8 @@ export const automotiveTemplates: TemplateDefinition[] = [
         type: 'textarea',
         required: true,
         placeholder: 'Warranty claim volumes, costs, Pareto analysis, 0-km vs field failures...',
-        helpText: 'Analysis of warranty claims including trends and costs. IATF 16949 specific requirement.',
+        helpText:
+          'Analysis of warranty claims including trends and costs. IATF 16949 specific requirement.',
         width: 'full',
       },
       {
@@ -1654,7 +1752,13 @@ export const automotiveTemplates: TemplateDefinition[] = [
         columns: [
           { id: 'actionNumber', label: '#', type: 'number', width: 'third' },
           { id: 'actionArea', label: 'Area', type: 'text', required: true, width: 'half' },
-          { id: 'actionDescription', label: 'Action', type: 'textarea', required: true, width: 'full' },
+          {
+            id: 'actionDescription',
+            label: 'Action',
+            type: 'textarea',
+            required: true,
+            width: 'full',
+          },
           { id: 'actionOwner', label: 'Owner', type: 'text', required: true, width: 'half' },
           { id: 'actionDeadline', label: 'Deadline', type: 'date', required: true, width: 'half' },
         ],

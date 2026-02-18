@@ -20,7 +20,12 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN', tenantId: 'tenant-1' };
+    req.user = {
+      id: '20000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+      tenantId: 'tenant-1',
+    };
     next();
   }),
 }));
@@ -73,17 +78,35 @@ describe('Environment Life Cycle Assessment API Routes', () => {
       status: 'DRAFT',
       createdBy: '20000000-0000-4000-a000-000000000123',
       stages: [
-        { id: 's1', stageName: 'DISTRIBUTION', assessmentId: '30000000-0000-4000-a000-000000000001' },
-        { id: 's2', stageName: 'END_OF_LIFE', assessmentId: '30000000-0000-4000-a000-000000000001' },
-        { id: 's3', stageName: 'MANUFACTURING', assessmentId: '30000000-0000-4000-a000-000000000001' },
-        { id: 's4', stageName: 'RAW_MATERIAL_EXTRACTION', assessmentId: '30000000-0000-4000-a000-000000000001' },
+        {
+          id: 's1',
+          stageName: 'DISTRIBUTION',
+          assessmentId: '30000000-0000-4000-a000-000000000001',
+        },
+        {
+          id: 's2',
+          stageName: 'END_OF_LIFE',
+          assessmentId: '30000000-0000-4000-a000-000000000001',
+        },
+        {
+          id: 's3',
+          stageName: 'MANUFACTURING',
+          assessmentId: '30000000-0000-4000-a000-000000000001',
+        },
+        {
+          id: 's4',
+          stageName: 'RAW_MATERIAL_EXTRACTION',
+          assessmentId: '30000000-0000-4000-a000-000000000001',
+        },
         { id: 's5', stageName: 'USE', assessmentId: '30000000-0000-4000-a000-000000000001' },
       ],
     };
 
     it('should create an assessment with auto-created stages', async () => {
       (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.lifeCycleAssessment.create as jest.Mock).mockResolvedValueOnce(mockCreatedAssessment);
+      (mockPrisma.lifeCycleAssessment.create as jest.Mock).mockResolvedValueOnce(
+        mockCreatedAssessment
+      );
 
       const response = await request(app)
         .post('/api/lifecycle/assessments')
@@ -98,7 +121,9 @@ describe('Environment Life Cycle Assessment API Routes', () => {
 
     it('should create all 5 LCA stages on assessment creation', async () => {
       (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.lifeCycleAssessment.create as jest.Mock).mockResolvedValueOnce(mockCreatedAssessment);
+      (mockPrisma.lifeCycleAssessment.create as jest.Mock).mockResolvedValueOnce(
+        mockCreatedAssessment
+      );
 
       await request(app)
         .post('/api/lifecycle/assessments')
@@ -212,7 +237,9 @@ describe('Environment Life Cycle Assessment API Routes', () => {
 
     it('should handle database errors on create', async () => {
       (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.lifeCycleAssessment.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.lifeCycleAssessment.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/lifecycle/assessments')
@@ -267,7 +294,9 @@ describe('Environment Life Cycle Assessment API Routes', () => {
     });
 
     it('should support pagination parameters', async () => {
-      (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValueOnce([mockAssessments[0]]);
+      (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValueOnce([
+        mockAssessments[0],
+      ]);
       (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValueOnce(30);
 
       const response = await request(app)
@@ -323,9 +352,7 @@ describe('Environment Life Cycle Assessment API Routes', () => {
       (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValueOnce(mockAssessments);
       (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/lifecycle/assessments')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/lifecycle/assessments').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.lifeCycleAssessment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -338,9 +365,7 @@ describe('Environment Life Cycle Assessment API Routes', () => {
       (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValueOnce(mockAssessments);
       (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/lifecycle/assessments')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/lifecycle/assessments').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.lifeCycleAssessment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -355,9 +380,7 @@ describe('Environment Life Cycle Assessment API Routes', () => {
       (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/lifecycle/assessments')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/lifecycle/assessments').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.lifeCycleAssessment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -369,7 +392,9 @@ describe('Environment Life Cycle Assessment API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/lifecycle/assessments')
@@ -400,7 +425,9 @@ describe('Environment Life Cycle Assessment API Routes', () => {
     };
 
     it('should return single assessment with stages', async () => {
-      (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce(mockAssessment);
+      (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockAssessment
+      );
 
       const response = await request(app)
         .get('/api/lifecycle/assessments/40000000-0000-4000-a000-000000000001')
@@ -425,7 +452,9 @@ describe('Environment Life Cycle Assessment API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/lifecycle/assessments/40000000-0000-4000-a000-000000000001')
@@ -475,7 +504,9 @@ describe('Environment Life Cycle Assessment API Routes', () => {
     });
 
     it('should upsert with correct compound key', async () => {
-      (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({ id: assessmentId });
+      (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: assessmentId,
+      });
       (mockPrisma.lifeCycleStage.upsert as jest.Mock).mockResolvedValueOnce({
         id: 'stage-1',
         assessmentId,
@@ -501,11 +532,19 @@ describe('Environment Life Cycle Assessment API Routes', () => {
     });
 
     it('should accept all valid stage names', async () => {
-      const validStages = ['RAW_MATERIAL_EXTRACTION', 'MANUFACTURING', 'DISTRIBUTION', 'USE', 'END_OF_LIFE'];
+      const validStages = [
+        'RAW_MATERIAL_EXTRACTION',
+        'MANUFACTURING',
+        'DISTRIBUTION',
+        'USE',
+        'END_OF_LIFE',
+      ];
 
       for (const stageName of validStages) {
         jest.clearAllMocks();
-        (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({ id: assessmentId });
+        (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({
+          id: assessmentId,
+        });
         (mockPrisma.lifeCycleStage.upsert as jest.Mock).mockResolvedValueOnce({
           id: `stage-${stageName}`,
           assessmentId,
@@ -547,7 +586,9 @@ describe('Environment Life Cycle Assessment API Routes', () => {
     });
 
     it('should return 400 for severity below 1', async () => {
-      (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({ id: assessmentId });
+      (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: assessmentId,
+      });
 
       const response = await request(app)
         .put(`/api/lifecycle/assessments/${assessmentId}/stages/MANUFACTURING`)
@@ -559,7 +600,9 @@ describe('Environment Life Cycle Assessment API Routes', () => {
     });
 
     it('should return 400 for severity above 5', async () => {
-      (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({ id: assessmentId });
+      (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: assessmentId,
+      });
 
       const response = await request(app)
         .put(`/api/lifecycle/assessments/${assessmentId}/stages/MANUFACTURING`)
@@ -571,7 +614,9 @@ describe('Environment Life Cycle Assessment API Routes', () => {
     });
 
     it('should allow partial stage updates', async () => {
-      (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({ id: assessmentId });
+      (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: assessmentId,
+      });
       (mockPrisma.lifeCycleStage.upsert as jest.Mock).mockResolvedValueOnce({
         id: 'stage-1',
         assessmentId,
@@ -589,7 +634,9 @@ describe('Environment Life Cycle Assessment API Routes', () => {
     });
 
     it('should handle database errors on stage upsert', async () => {
-      (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({ id: assessmentId });
+      (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: assessmentId,
+      });
       (mockPrisma.lifeCycleStage.upsert as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)

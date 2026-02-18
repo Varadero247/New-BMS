@@ -152,7 +152,9 @@ describe('PUT /api/water/:id', () => {
     (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(mockWater);
     (prisma.esgWater.update as jest.Mock).mockResolvedValue({ ...mockWater, quantity: 12000 });
 
-    const res = await request(app).put('/api/water/00000000-0000-0000-0000-000000000001').send({ quantity: 12000 });
+    const res = await request(app)
+      .put('/api/water/00000000-0000-0000-0000-000000000001')
+      .send({ quantity: 12000 });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -160,12 +162,16 @@ describe('PUT /api/water/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/water/00000000-0000-0000-0000-000000000099').send({ quantity: 12000 });
+    const res = await request(app)
+      .put('/api/water/00000000-0000-0000-0000-000000000099')
+      .send({ quantity: 12000 });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid data', async () => {
-    const res = await request(app).put('/api/water/00000000-0000-0000-0000-000000000001').send({ usageType: 'INVALID' });
+    const res = await request(app)
+      .put('/api/water/00000000-0000-0000-0000-000000000001')
+      .send({ usageType: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
@@ -173,7 +179,10 @@ describe('PUT /api/water/:id', () => {
 describe('DELETE /api/water/:id', () => {
   it('should soft delete a water record', async () => {
     (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(mockWater);
-    (prisma.esgWater.update as jest.Mock).mockResolvedValue({ ...mockWater, deletedAt: new Date() });
+    (prisma.esgWater.update as jest.Mock).mockResolvedValue({
+      ...mockWater,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/water/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);

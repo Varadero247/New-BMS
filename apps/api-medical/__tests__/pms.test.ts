@@ -145,9 +145,7 @@ describe('PMS Routes', () => {
     });
 
     it('should return 400 when deviceName is missing', async () => {
-      const res = await request(app)
-        .post('/api/pms/plans')
-        .send({ deviceClass: 'CLASS_III' });
+      const res = await request(app).post('/api/pms/plans').send({ deviceClass: 'CLASS_III' });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -155,9 +153,7 @@ describe('PMS Routes', () => {
     });
 
     it('should return 400 when deviceName is empty string', async () => {
-      const res = await request(app)
-        .post('/api/pms/plans')
-        .send({ deviceName: '' });
+      const res = await request(app).post('/api/pms/plans').send({ deviceName: '' });
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -338,15 +334,13 @@ describe('PMS Routes', () => {
       (mockPrisma.pmsReport.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.pmsReport.create as jest.Mock).mockResolvedValue(mockReport);
 
-      const res = await request(app)
-        .post('/api/pms/reports/psur')
-        .send({
-          planId: mockPlan.id,
-          periodStart: '2025-01-01',
-          periodEnd: '2025-12-31',
-          complaintCount: 12,
-          mdrCount: 2,
-        });
+      const res = await request(app).post('/api/pms/reports/psur').send({
+        planId: mockPlan.id,
+        periodStart: '2025-01-01',
+        periodEnd: '2025-12-31',
+        complaintCount: 12,
+        mdrCount: 2,
+      });
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -365,13 +359,11 @@ describe('PMS Routes', () => {
     it('should return 404 when plan not found', async () => {
       (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app)
-        .post('/api/pms/reports/psur')
-        .send({
-          planId: 'nonexistent-plan',
-          periodStart: '2025-01-01',
-          periodEnd: '2025-12-31',
-        });
+      const res = await request(app).post('/api/pms/reports/psur').send({
+        planId: 'nonexistent-plan',
+        periodStart: '2025-01-01',
+        periodEnd: '2025-12-31',
+      });
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -400,14 +392,12 @@ describe('PMS Routes', () => {
         refNumber: 'PMCF-2602-0001',
       });
 
-      const res = await request(app)
-        .post('/api/pms/reports/pmcf')
-        .send({
-          planId: mockPlan.id,
-          periodStart: '2025-01-01',
-          periodEnd: '2025-12-31',
-          adverseEvents: 5,
-        });
+      const res = await request(app).post('/api/pms/reports/pmcf').send({
+        planId: mockPlan.id,
+        periodStart: '2025-01-01',
+        periodEnd: '2025-12-31',
+        adverseEvents: 5,
+      });
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -417,13 +407,11 @@ describe('PMS Routes', () => {
     it('should return 404 when plan not found for PMCF', async () => {
       (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app)
-        .post('/api/pms/reports/pmcf')
-        .send({
-          planId: 'nonexistent-plan',
-          periodStart: '2025-01-01',
-          periodEnd: '2025-12-31',
-        });
+      const res = await request(app).post('/api/pms/reports/pmcf').send({
+        planId: 'nonexistent-plan',
+        periodStart: '2025-01-01',
+        periodEnd: '2025-12-31',
+      });
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -437,7 +425,7 @@ describe('PMS Routes', () => {
     it('should return PMS dashboard overview', async () => {
       (mockPrisma.pmsPlan.count as jest.Mock)
         .mockResolvedValueOnce(10) // totalPlans
-        .mockResolvedValueOnce(5)  // activePlans
+        .mockResolvedValueOnce(5) // activePlans
         .mockResolvedValueOnce(2); // overdueReviews
       (mockPrisma.pmsReport.count as jest.Mock).mockResolvedValue(3); // pendingReports
 

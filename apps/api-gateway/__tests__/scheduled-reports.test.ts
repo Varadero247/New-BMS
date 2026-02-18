@@ -25,13 +25,23 @@ jest.mock('@ims/monitoring', () => ({
 }));
 
 const mockCreateSchedule = jest.fn().mockReturnValue({
-  id: '00000000-0000-0000-0000-000000000001', name: 'Weekly Quality Summary', reportType: 'quality_objectives', schedule: '0 8 * * 1',
+  id: '00000000-0000-0000-0000-000000000001',
+  name: 'Weekly Quality Summary',
+  reportType: 'quality_objectives',
+  schedule: '0 8 * * 1',
 });
 const mockListSchedules = jest.fn().mockReturnValue([]);
-const mockGetSchedule = jest.fn().mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Weekly Quality Summary' });
-const mockUpdateSchedule = jest.fn().mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+const mockGetSchedule = jest
+  .fn()
+  .mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Weekly Quality Summary' });
+const mockUpdateSchedule = jest
+  .fn()
+  .mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
 const mockDeleteSchedule = jest.fn().mockReturnValue(true);
-const mockRunScheduleNow = jest.fn().mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', lastRunAt: new Date().toISOString() });
+const mockRunScheduleNow = jest.fn().mockReturnValue({
+  id: '00000000-0000-0000-0000-000000000001',
+  lastRunAt: new Date().toISOString(),
+});
 
 jest.mock('@ims/scheduled-reports', () => ({
   createSchedule: (...args: any[]) => mockCreateSchedule(...args),
@@ -41,8 +51,16 @@ jest.mock('@ims/scheduled-reports', () => ({
   deleteSchedule: (...args: any[]) => mockDeleteSchedule(...args),
   runScheduleNow: (...args: any[]) => mockRunScheduleNow(...args),
   REPORT_TYPES: [
-    { value: 'quality_objectives', label: 'Quality Objectives Report', description: 'Progress against quality objectives' },
-    { value: 'open_actions', label: 'Open Actions Summary', description: 'Summary of open corrective actions' },
+    {
+      value: 'quality_objectives',
+      label: 'Quality Objectives Report',
+      description: 'Progress against quality objectives',
+    },
+    {
+      value: 'open_actions',
+      label: 'Open Actions Summary',
+      description: 'Summary of open corrective actions',
+    },
   ],
 }));
 
@@ -99,13 +117,17 @@ describe('Scheduled Reports Routes', () => {
 
   describe('GET /api/admin/reports/schedules/:id', () => {
     it('returns a schedule', async () => {
-      const res = await request(app).get('/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).get(
+        '/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
     });
 
     it('returns 404 for non-existent', async () => {
       mockGetSchedule.mockReturnValueOnce(undefined);
-      const res = await request(app).get('/api/admin/reports/schedules/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).get(
+        '/api/admin/reports/schedules/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
     });
   });
@@ -121,14 +143,18 @@ describe('Scheduled Reports Routes', () => {
 
   describe('DELETE /api/admin/reports/schedules/:id', () => {
     it('deletes a schedule', async () => {
-      const res = await request(app).delete('/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
     });
   });
 
   describe('POST /api/admin/reports/schedules/:id/run', () => {
     it('triggers manual run', async () => {
-      const res = await request(app).post('/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001/run');
+      const res = await request(app).post(
+        '/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001/run'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });

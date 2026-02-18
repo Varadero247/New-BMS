@@ -39,8 +39,23 @@ interface ChemicalOption {
 }
 
 const EXPOSURE_ROUTES = ['Inhalation', 'Skin Absorption', 'Ingestion', 'Eye Contact', 'Injection'];
-const CONTROL_HIERARCHY = ['Elimination', 'Substitution', 'Engineering Controls', 'Administrative Controls', 'PPE'];
-const PPE_OPTIONS = ['Safety Goggles', 'Face Shield', 'Chemical Gloves', 'Protective Clothing', 'Respirator', 'Fume Hood', 'Safety Boots', 'Apron'];
+const CONTROL_HIERARCHY = [
+  'Elimination',
+  'Substitution',
+  'Engineering Controls',
+  'Administrative Controls',
+  'PPE',
+];
+const PPE_OPTIONS = [
+  'Safety Goggles',
+  'Face Shield',
+  'Chemical Gloves',
+  'Protective Clothing',
+  'Respirator',
+  'Fume Hood',
+  'Safety Boots',
+  'Apron',
+];
 
 export default function NewCoshhPage() {
   const router = useRouter();
@@ -121,7 +136,8 @@ export default function NewCoshhPage() {
     if (step === 1) return form.personsExposed && form.exposureRoutes.length > 0;
     if (step === 2) return form.inherentSeverity > 0 && form.inherentLikelihood > 0;
     if (step === 3) return form.controls.length > 0;
-    if (step === 4) return form.residualSeverity > 0 && form.residualLikelihood > 0 && form.reviewDate;
+    if (step === 4)
+      return form.residualSeverity > 0 && form.residualLikelihood > 0 && form.reviewDate;
     return true;
   };
 
@@ -145,45 +161,58 @@ export default function NewCoshhPage() {
           <div className="grid grid-cols-6 gap-1">
             <div />
             {LIKELIHOOD_LABELS.map((label, i) => (
-              <div key={label} className="text-center text-[10px] text-gray-500 dark:text-gray-400 font-medium pb-1">
+              <div
+                key={label}
+                className="text-center text-[10px] text-gray-500 dark:text-gray-400 font-medium pb-1"
+              >
                 {label}
               </div>
             ))}
-            {RISK_LABELS.slice().reverse().map((sevLabel, ri) => {
-              const severity = 5 - ri;
-              return (
-                <div key={sevLabel} className="contents">
-                  <div className="text-right text-[10px] text-gray-500 dark:text-gray-400 font-medium pr-2 flex items-center justify-end">
-                    {sevLabel}
+            {RISK_LABELS.slice()
+              .reverse()
+              .map((sevLabel, ri) => {
+                const severity = 5 - ri;
+                return (
+                  <div key={sevLabel} className="contents">
+                    <div className="text-right text-[10px] text-gray-500 dark:text-gray-400 font-medium pr-2 flex items-center justify-end">
+                      {sevLabel}
+                    </div>
+                    {[1, 2, 3, 4, 5].map((likelihood) => {
+                      const score = severity * likelihood;
+                      const isSelected =
+                        selectedSeverity === severity && selectedLikelihood === likelihood;
+                      return (
+                        <button
+                          key={`${severity}-${likelihood}`}
+                          type="button"
+                          onClick={() => onSelect(severity, likelihood)}
+                          className={`h-10 rounded text-xs font-bold transition-all ${getRiskColor(score)} ${
+                            isSelected
+                              ? 'ring-2 ring-offset-2 ring-gray-900 dark:ring-white scale-110'
+                              : 'hover:scale-105 opacity-80 hover:opacity-100'
+                          }`}
+                        >
+                          {score}
+                        </button>
+                      );
+                    })}
                   </div>
-                  {[1, 2, 3, 4, 5].map((likelihood) => {
-                    const score = severity * likelihood;
-                    const isSelected = selectedSeverity === severity && selectedLikelihood === likelihood;
-                    return (
-                      <button
-                        key={`${severity}-${likelihood}`}
-                        type="button"
-                        onClick={() => onSelect(severity, likelihood)}
-                        className={`h-10 rounded text-xs font-bold transition-all ${getRiskColor(score)} ${
-                          isSelected ? 'ring-2 ring-offset-2 ring-gray-900 dark:ring-white scale-110' : 'hover:scale-105 opacity-80 hover:opacity-100'
-                        }`}
-                      >
-                        {score}
-                      </button>
-                    );
-                  })}
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
-          <div className="text-center text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">Likelihood</div>
+          <div className="text-center text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">
+            Likelihood
+          </div>
         </div>
       </div>
       {selectedSeverity > 0 && selectedLikelihood > 0 && (
         <div className="mt-3 flex items-center gap-2">
           <span className="text-sm text-gray-700 dark:text-gray-300">Risk Score:</span>
-          <span className={`text-sm font-bold px-3 py-1 rounded ${getRiskColor(selectedSeverity * selectedLikelihood)}`}>
-            {selectedSeverity * selectedLikelihood} - {getRiskLevel(selectedSeverity * selectedLikelihood).replace('_', ' ')}
+          <span
+            className={`text-sm font-bold px-3 py-1 rounded ${getRiskColor(selectedSeverity * selectedLikelihood)}`}
+          >
+            {selectedSeverity * selectedLikelihood} -{' '}
+            {getRiskLevel(selectedSeverity * selectedLikelihood).replace('_', ' ')}
           </span>
         </div>
       )}
@@ -202,7 +231,9 @@ export default function NewCoshhPage() {
             <ArrowLeft className="h-4 w-4" /> Back to COSHH Assessments
           </button>
 
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">New COSHH Assessment</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            New COSHH Assessment
+          </h1>
 
           <div className="flex items-center gap-2 mb-8">
             {STEPS.map((s, i) => (
@@ -212,13 +243,15 @@ export default function NewCoshhPage() {
                     i < step
                       ? 'bg-green-600 text-white'
                       : i === step
-                      ? 'bg-red-600 text-white'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                        ? 'bg-red-600 text-white'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                   }`}
                 >
                   {i < step ? <Check className="h-4 w-4" /> : i + 1}
                 </div>
-                <span className={`text-xs font-medium hidden md:inline ${i === step ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                <span
+                  className={`text-xs font-medium hidden md:inline ${i === step ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}
+                >
                   {s}
                 </span>
                 {i < STEPS.length - 1 && <div className="w-8 h-px bg-gray-300 dark:bg-gray-600" />}
@@ -236,9 +269,13 @@ export default function NewCoshhPage() {
             <CardContent className="p-6">
               {step === 0 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Step 1: Chemical & Activity</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Step 1: Chemical & Activity
+                  </h2>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Chemical *</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Chemical *
+                    </label>
                     <select
                       value={form.chemicalId}
                       onChange={(e) => setForm({ ...form, chemicalId: e.target.value })}
@@ -253,7 +290,9 @@ export default function NewCoshhPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Activity / Task *</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Activity / Task *
+                    </label>
                     <input
                       type="text"
                       value={form.activity}
@@ -264,7 +303,9 @@ export default function NewCoshhPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location *</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Location *
+                      </label>
                       <input
                         type="text"
                         value={form.location}
@@ -274,7 +315,9 @@ export default function NewCoshhPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Department
+                      </label>
                       <input
                         type="text"
                         value={form.department}
@@ -289,10 +332,14 @@ export default function NewCoshhPage() {
 
               {step === 1 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Step 2: Exposure Details</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Step 2: Exposure Details
+                  </h2>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Persons Exposed *</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Persons Exposed *
+                      </label>
                       <input
                         type="text"
                         value={form.personsExposed}
@@ -302,7 +349,9 @@ export default function NewCoshhPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity Used</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Quantity Used
+                      </label>
                       <input
                         type="text"
                         value={form.quantity}
@@ -314,7 +363,9 @@ export default function NewCoshhPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Frequency</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Frequency
+                      </label>
                       <select
                         value={form.frequency}
                         onChange={(e) => setForm({ ...form, frequency: e.target.value })}
@@ -327,7 +378,9 @@ export default function NewCoshhPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duration per Use</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Duration per Use
+                      </label>
                       <input
                         type="text"
                         value={form.duration}
@@ -338,7 +391,9 @@ export default function NewCoshhPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Routes of Exposure *</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Routes of Exposure *
+                    </label>
                     <div className="flex flex-wrap gap-2">
                       {EXPOSURE_ROUTES.map((route) => (
                         <button
@@ -361,15 +416,22 @@ export default function NewCoshhPage() {
 
               {step === 2 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Step 3: Inherent Risk Assessment</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Step 3: Inherent Risk Assessment
+                  </h2>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Assess the risk WITHOUT any controls in place. Click a cell in the matrix to select the risk score.
+                    Assess the risk WITHOUT any controls in place. Click a cell in the matrix to
+                    select the risk score.
                   </p>
                   <RiskMatrix
                     selectedSeverity={form.inherentSeverity}
                     selectedLikelihood={form.inherentLikelihood}
                     onSelect={(severity, likelihood) =>
-                      setForm({ ...form, inherentSeverity: severity, inherentLikelihood: likelihood })
+                      setForm({
+                        ...form,
+                        inherentSeverity: severity,
+                        inherentLikelihood: likelihood,
+                      })
                     }
                   />
                 </div>
@@ -377,12 +439,16 @@ export default function NewCoshhPage() {
 
               {step === 3 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Step 4: Controls & PPE</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Step 4: Controls & PPE
+                  </h2>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Select controls in order of the hierarchy of controls (most effective first).
                   </p>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hierarchy of Controls *</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Hierarchy of Controls *
+                    </label>
                     <div className="space-y-2">
                       {CONTROL_HIERARCHY.map((control, i) => (
                         <button
@@ -395,19 +461,27 @@ export default function NewCoshhPage() {
                               : 'bg-gray-50 border-gray-300 text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                           }`}
                         >
-                          <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
-                            form.controls.includes(control) ? 'bg-red-600 text-white' : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
-                          }`}>
+                          <span
+                            className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                              form.controls.includes(control)
+                                ? 'bg-red-600 text-white'
+                                : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                            }`}
+                          >
                             {i + 1}
                           </span>
                           {control}
-                          {form.controls.includes(control) && <Check className="h-4 w-4 ml-auto text-red-600 dark:text-red-400" />}
+                          {form.controls.includes(control) && (
+                            <Check className="h-4 w-4 ml-auto text-red-600 dark:text-red-400" />
+                          )}
                         </button>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Control Details</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Control Details
+                    </label>
                     <textarea
                       value={form.controlDetails}
                       onChange={(e) => setForm({ ...form, controlDetails: e.target.value })}
@@ -417,7 +491,9 @@ export default function NewCoshhPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">PPE Required</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      PPE Required
+                    </label>
                     <div className="flex flex-wrap gap-2">
                       {PPE_OPTIONS.map((ppe) => (
                         <button
@@ -436,7 +512,9 @@ export default function NewCoshhPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Emergency Procedures</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Emergency Procedures
+                    </label>
                     <textarea
                       value={form.emergencyProcedures}
                       onChange={(e) => setForm({ ...form, emergencyProcedures: e.target.value })}
@@ -450,25 +528,35 @@ export default function NewCoshhPage() {
 
               {step === 4 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Step 5: Residual Risk & Review</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Step 5: Residual Risk & Review
+                  </h2>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Assess the risk WITH all controls in place. This should be lower than the inherent risk.
+                    Assess the risk WITH all controls in place. This should be lower than the
+                    inherent risk.
                   </p>
                   <RiskMatrix
                     selectedSeverity={form.residualSeverity}
                     selectedLikelihood={form.residualLikelihood}
                     onSelect={(severity, likelihood) =>
-                      setForm({ ...form, residualSeverity: severity, residualLikelihood: likelihood })
+                      setForm({
+                        ...form,
+                        residualSeverity: severity,
+                        residualLikelihood: likelihood,
+                      })
                     }
                   />
                   {residualScore > 0 && inherentScore > 0 && residualScore >= inherentScore && (
                     <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-amber-700 dark:text-amber-300 text-sm">
-                      Residual risk should be lower than the inherent risk score ({inherentScore}). Consider reviewing your controls.
+                      Residual risk should be lower than the inherent risk score ({inherentScore}).
+                      Consider reviewing your controls.
                     </div>
                   )}
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Review Date *</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Review Date *
+                      </label>
                       <input
                         type="date"
                         value={form.reviewDate}
@@ -477,7 +565,9 @@ export default function NewCoshhPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Assessor Name</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Assessor Name
+                      </label>
                       <input
                         type="text"
                         value={form.assessorName}
@@ -488,7 +578,9 @@ export default function NewCoshhPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Approver Name</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Approver Name
+                    </label>
                     <input
                       type="text"
                       value={form.approverName}

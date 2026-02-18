@@ -9,17 +9,23 @@ const intercomWebhookSchema = z.object({
     id: z.string().optional(),
     subject: z.string().optional(),
     body: z.string().optional(),
-    item: z.object({
-      id: z.string().optional(),
-      subject: z.string().optional(),
-      body: z.string().optional(),
-      customer: z.object({
+    item: z
+      .object({
+        id: z.string().optional(),
+        subject: z.string().optional(),
+        body: z.string().optional(),
+        customer: z
+          .object({
+            email: z.string().optional(),
+          })
+          .optional(),
+      })
+      .optional(),
+    customer: z
+      .object({
         email: z.string().optional(),
-      }).optional(),
-    }).optional(),
-    customer: z.object({
-      email: z.string().optional(),
-    }).optional(),
+      })
+      .optional(),
   }),
 });
 
@@ -29,22 +35,49 @@ const router: Router = Router();
 // ---------------------------------------------------------------------------
 // AI Classification (mock) — categorise by keywords
 // ---------------------------------------------------------------------------
-function classifyTicket(text: string): { category: 'BUG' | 'FEATURE_REQUEST' | 'BILLING' | 'ONBOARDING' | 'GENERAL'; priority: 'P1_CRITICAL' | 'P2_HIGH' | 'P3_MEDIUM' } {
+function classifyTicket(text: string): {
+  category: 'BUG' | 'FEATURE_REQUEST' | 'BILLING' | 'ONBOARDING' | 'GENERAL';
+  priority: 'P1_CRITICAL' | 'P2_HIGH' | 'P3_MEDIUM';
+} {
   const lower = (text || '').toLowerCase();
 
   let category: 'BUG' | 'FEATURE_REQUEST' | 'BILLING' | 'ONBOARDING' | 'GENERAL' = 'GENERAL';
-  if (lower.includes('bug') || lower.includes('error') || lower.includes('broken') || lower.includes('crash')) {
+  if (
+    lower.includes('bug') ||
+    lower.includes('error') ||
+    lower.includes('broken') ||
+    lower.includes('crash')
+  ) {
     category = 'BUG';
-  } else if (lower.includes('feature') || lower.includes('request') || lower.includes('wish') || lower.includes('suggestion')) {
+  } else if (
+    lower.includes('feature') ||
+    lower.includes('request') ||
+    lower.includes('wish') ||
+    lower.includes('suggestion')
+  ) {
     category = 'FEATURE_REQUEST';
-  } else if (lower.includes('bill') || lower.includes('invoice') || lower.includes('charge') || lower.includes('payment')) {
+  } else if (
+    lower.includes('bill') ||
+    lower.includes('invoice') ||
+    lower.includes('charge') ||
+    lower.includes('payment')
+  ) {
     category = 'BILLING';
-  } else if (lower.includes('onboard') || lower.includes('setup') || lower.includes('getting started')) {
+  } else if (
+    lower.includes('onboard') ||
+    lower.includes('setup') ||
+    lower.includes('getting started')
+  ) {
     category = 'ONBOARDING';
   }
 
   let priority: 'P1_CRITICAL' | 'P2_HIGH' | 'P3_MEDIUM' = 'P3_MEDIUM';
-  if (lower.includes('urgent') || lower.includes('critical') || lower.includes('down') || lower.includes('outage')) {
+  if (
+    lower.includes('urgent') ||
+    lower.includes('critical') ||
+    lower.includes('down') ||
+    lower.includes('outage')
+  ) {
     priority = 'P1_CRITICAL';
   } else if (lower.includes('asap') || lower.includes('important') || lower.includes('blocker')) {
     priority = 'P2_HIGH';
@@ -60,7 +93,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = intercomWebhookSchema.safeParse(req.body || {});
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { topic, data } = parsed.data;
@@ -68,7 +104,8 @@ router.post('/', async (req: Request, res: Response) => {
     const conversationId = data.item?.id || data.id || `ic-${Date.now()}`;
     const subject = data.item?.subject || data.subject || 'No subject';
     const body = data.item?.body || data.body || '';
-    const customerEmail = data.item?.customer?.email || data.customer?.email || 'unknown@webhook.io';
+    const customerEmail =
+      data.item?.customer?.email || data.customer?.email || 'unknown@webhook.io';
 
     const combinedText = `${subject} ${body}`;
     const { category, priority } = classifyTicket(combinedText);
@@ -80,7 +117,11 @@ router.post('/', async (req: Request, res: Response) => {
         customerEmail,
         category,
         priority,
-        aiClassification: { topic: topic || 'conversation.created', body, classifiedAt: new Date().toISOString() },
+        aiClassification: {
+          topic: topic || 'conversation.created',
+          body,
+          classifiedAt: new Date().toISOString(),
+        },
       },
     });
 
@@ -89,7 +130,10 @@ router.post('/', async (req: Request, res: Response) => {
     res.json({ success: true, data: { ticket } });
   } catch (err) {
     logger.error('Failed to process Intercom webhook', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to process webhook' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to process webhook' },
+    });
   }
 });
 

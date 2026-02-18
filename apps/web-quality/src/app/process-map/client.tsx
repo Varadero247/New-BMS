@@ -1,15 +1,20 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent, Button, Modal, ModalFooter, Input, Label, Select } from '@ims/ui';
 import {
-  Card, CardContent,
-  Button, Modal, ModalFooter,
-  Input, Label, Select,
-} from '@ims/ui';
-import {
-  Plus, Workflow, Search, Trash2, Pencil,
-  LayoutGrid, List, X, ChevronRight,
-  Settings2, Target, Layers,
+  Plus,
+  Workflow,
+  Search,
+  Trash2,
+  Pencil,
+  LayoutGrid,
+  List,
+  X,
+  ChevronRight,
+  Settings2,
+  Target,
+  Layers,
 } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -146,7 +151,9 @@ function TurtleBox({
   };
 
   return (
-    <div className={`rounded-xl border-2 p-4 ${colorClass} ${borderClass} flex flex-col gap-2 min-h-[140px]`}>
+    <div
+      className={`rounded-xl border-2 p-4 ${colorClass} ${borderClass} flex flex-col gap-2 min-h-[140px]`}
+    >
       <div>
         <p className={`text-xs font-bold uppercase tracking-wider ${titleColorClass}`}>{title}</p>
         <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
@@ -180,7 +187,12 @@ function TurtleBox({
           type="text"
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addItem(); } }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              addItem();
+            }
+          }}
           placeholder="Add item..."
           className="flex-1 text-xs px-2 py-1 rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-brand-500"
         />
@@ -226,12 +238,19 @@ export default function ProcessMapClient() {
 
   const persist = useCallback((next: Process[]) => {
     setProcesses(next);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* empty */ }
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      /* empty */
+    }
   }, []);
 
   // Filtered list
   const filtered = processes.filter((p) => {
-    const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.owner.toLowerCase().includes(search.toLowerCase());
+    const matchSearch =
+      !search ||
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.owner.toLowerCase().includes(search.toLowerCase());
     const matchCat = !filterCategory || p.category === filterCategory;
     const matchStatus = !filterStatus || p.status === filterStatus;
     return matchSearch && matchCat && matchStatus;
@@ -248,14 +267,25 @@ export default function ProcessMapClient() {
 
   const openEdit = (p: Process) => {
     setEditingId(p.id);
-    setForm({ name: p.name, owner: p.owner, category: p.category, status: p.status, inputs: [...p.inputs], outputs: [...p.outputs], equipment: [...p.equipment], competence: [...p.competence], procedures: [...p.procedures], kpis: [...p.kpis] });
+    setForm({
+      name: p.name,
+      owner: p.owner,
+      category: p.category,
+      status: p.status,
+      inputs: [...p.inputs],
+      outputs: [...p.outputs],
+      equipment: [...p.equipment],
+      competence: [...p.competence],
+      procedures: [...p.procedures],
+      kpis: [...p.kpis],
+    });
     setModalOpen(true);
   };
 
   const handleSave = () => {
     if (!form.name.trim() || !form.owner.trim()) return;
     if (editingId) {
-      persist(processes.map((p) => p.id === editingId ? { ...form, id: editingId } : p));
+      persist(processes.map((p) => (p.id === editingId ? { ...form, id: editingId } : p)));
     } else {
       const newProc: Process = { ...form, id: `proc-${Date.now()}` };
       persist([...processes, newProc]);
@@ -271,7 +301,10 @@ export default function ProcessMapClient() {
   };
 
   // Update turtle diagram items for selected process
-  const updateTurtleField = (field: keyof Omit<Process, 'id' | 'name' | 'owner' | 'category' | 'status'>, items: string[]) => {
+  const updateTurtleField = (
+    field: keyof Omit<Process, 'id' | 'name' | 'owner' | 'category' | 'status'>,
+    items: string[]
+  ) => {
     if (!selectedProcess) return;
     const updated = processes.map((p) =>
       p.id === selectedProcess.id ? { ...p, [field]: items } : p
@@ -325,11 +358,41 @@ export default function ProcessMapClient() {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {[
-          { label: 'Total', value: stats.total, icon: Workflow, bg: 'bg-blue-50 dark:bg-blue-900/20', iconColor: 'text-blue-600 dark:text-blue-400' },
-          { label: 'Active', value: stats.active, icon: Target, bg: 'bg-green-50 dark:bg-green-900/20', iconColor: 'text-green-600 dark:text-green-400' },
-          { label: 'Core', value: stats.core, icon: Layers, bg: 'bg-blue-50 dark:bg-blue-900/20', iconColor: 'text-blue-600 dark:text-blue-400' },
-          { label: 'Support', value: stats.support, icon: Settings2, bg: 'bg-green-50 dark:bg-green-900/20', iconColor: 'text-green-600 dark:text-green-400' },
-          { label: 'Management', value: stats.management, icon: Workflow, bg: 'bg-purple-50 dark:bg-purple-900/20', iconColor: 'text-purple-600 dark:text-purple-400' },
+          {
+            label: 'Total',
+            value: stats.total,
+            icon: Workflow,
+            bg: 'bg-blue-50 dark:bg-blue-900/20',
+            iconColor: 'text-blue-600 dark:text-blue-400',
+          },
+          {
+            label: 'Active',
+            value: stats.active,
+            icon: Target,
+            bg: 'bg-green-50 dark:bg-green-900/20',
+            iconColor: 'text-green-600 dark:text-green-400',
+          },
+          {
+            label: 'Core',
+            value: stats.core,
+            icon: Layers,
+            bg: 'bg-blue-50 dark:bg-blue-900/20',
+            iconColor: 'text-blue-600 dark:text-blue-400',
+          },
+          {
+            label: 'Support',
+            value: stats.support,
+            icon: Settings2,
+            bg: 'bg-green-50 dark:bg-green-900/20',
+            iconColor: 'text-green-600 dark:text-green-400',
+          },
+          {
+            label: 'Management',
+            value: stats.management,
+            icon: Workflow,
+            bg: 'bg-purple-50 dark:bg-purple-900/20',
+            iconColor: 'text-purple-600 dark:text-purple-400',
+          },
         ].map(({ label, value, icon: Icon, bg, iconColor }) => (
           <Card key={label}>
             <CardContent className="p-4">
@@ -357,7 +420,8 @@ export default function ProcessMapClient() {
                 <div className="relative flex-1 min-w-[180px]">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    aria-label="Search processes or owner..." placeholder="Search processes or owner..."
+                    aria-label="Search processes or owner..."
+                    placeholder="Search processes or owner..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="pl-9"
@@ -365,11 +429,19 @@ export default function ProcessMapClient() {
                 </div>
                 <Select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
                   <option value="">All Categories</option>
-                  {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                  {CATEGORIES.map((c) => (
+                    <option key={c.value} value={c.value}>
+                      {c.label}
+                    </option>
+                  ))}
                 </Select>
                 <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
                   <option value="">All Statuses</option>
-                  {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                  {STATUSES.map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
                 </Select>
               </div>
             </CardContent>
@@ -384,23 +456,35 @@ export default function ProcessMapClient() {
                     <Workflow className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-30" />
                     <h3 className="text-lg font-medium text-foreground mb-2">No Processes Found</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      {processes.length === 0 ? 'Add your first process to get started.' : 'Try adjusting your filters.'}
+                      {processes.length === 0
+                        ? 'Add your first process to get started.'
+                        : 'Try adjusting your filters.'}
                     </p>
                     {processes.length === 0 && (
-                      <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" /> Add Process</Button>
+                      <Button onClick={openCreate}>
+                        <Plus className="h-4 w-4 mr-2" /> Add Process
+                      </Button>
                     )}
                   </div>
                 ) : (
                   <table className="w-full text-sm">
                     <thead className="bg-muted/50 border-b border-border">
                       <tr>
-                        <th className="text-left p-3 font-semibold text-foreground">Process Name</th>
+                        <th className="text-left p-3 font-semibold text-foreground">
+                          Process Name
+                        </th>
                         <th className="text-left p-3 font-semibold text-foreground">Owner</th>
                         <th className="text-left p-3 font-semibold text-foreground">Category</th>
                         <th className="text-left p-3 font-semibold text-foreground">Status</th>
-                        <th className="text-left p-3 font-semibold text-foreground hidden lg:table-cell">Inputs</th>
-                        <th className="text-left p-3 font-semibold text-foreground hidden lg:table-cell">Outputs</th>
-                        <th className="text-left p-3 font-semibold text-foreground hidden xl:table-cell">KPIs</th>
+                        <th className="text-left p-3 font-semibold text-foreground hidden lg:table-cell">
+                          Inputs
+                        </th>
+                        <th className="text-left p-3 font-semibold text-foreground hidden lg:table-cell">
+                          Outputs
+                        </th>
+                        <th className="text-left p-3 font-semibold text-foreground hidden xl:table-cell">
+                          KPIs
+                        </th>
                         <th className="text-right p-3 font-semibold text-foreground">Actions</th>
                       </tr>
                     </thead>
@@ -410,33 +494,44 @@ export default function ProcessMapClient() {
                           <td className="p-3 font-medium text-foreground">{p.name}</td>
                           <td className="p-3 text-muted-foreground">{p.owner}</td>
                           <td className="p-3">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_STYLES[p.category]}`}>
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_STYLES[p.category]}`}
+                            >
                               {CATEGORIES.find((c) => c.value === p.category)?.label}
                             </span>
                           </td>
                           <td className="p-3">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[p.status]}`}>
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[p.status]}`}
+                            >
                               {STATUSES.find((s) => s.value === p.status)?.label}
                             </span>
                           </td>
                           <td className="p-3 hidden lg:table-cell">
                             <span className="text-xs text-muted-foreground line-clamp-1">
-                              {p.inputs.slice(0, 2).join(', ')}{p.inputs.length > 2 ? ` +${p.inputs.length - 2}` : ''}
+                              {p.inputs.slice(0, 2).join(', ')}
+                              {p.inputs.length > 2 ? ` +${p.inputs.length - 2}` : ''}
                             </span>
                           </td>
                           <td className="p-3 hidden lg:table-cell">
                             <span className="text-xs text-muted-foreground line-clamp-1">
-                              {p.outputs.slice(0, 2).join(', ')}{p.outputs.length > 2 ? ` +${p.outputs.length - 2}` : ''}
+                              {p.outputs.slice(0, 2).join(', ')}
+                              {p.outputs.length > 2 ? ` +${p.outputs.length - 2}` : ''}
                             </span>
                           </td>
                           <td className="p-3 hidden xl:table-cell">
-                            <span className="text-xs text-muted-foreground">{p.kpis.length} KPI{p.kpis.length !== 1 ? 's' : ''}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {p.kpis.length} KPI{p.kpis.length !== 1 ? 's' : ''}
+                            </span>
                           </td>
                           <td className="p-3">
                             <div className="flex items-center justify-end gap-1">
                               <button
                                 type="button"
-                                onClick={() => { setSelectedId(p.id); setView('turtle'); }}
+                                onClick={() => {
+                                  setSelectedId(p.id);
+                                  setView('turtle');
+                                }}
                                 className="p-1.5 rounded-md text-muted-foreground hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors"
                                 title="View Turtle Diagram"
                               >
@@ -478,7 +573,9 @@ export default function ProcessMapClient() {
           <Card>
             <CardContent className="p-4">
               <div className="flex flex-wrap gap-3 items-center">
-                <Label className="text-sm font-medium text-foreground shrink-0">Select Process:</Label>
+                <Label className="text-sm font-medium text-foreground shrink-0">
+                  Select Process:
+                </Label>
                 <Select
                   value={selectedProcess?.id ?? ''}
                   onChange={(e) => setSelectedId(e.target.value)}
@@ -486,18 +583,26 @@ export default function ProcessMapClient() {
                 >
                   {processes.length === 0 && <option value="">No processes — add one first</option>}
                   {processes.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
                   ))}
                 </Select>
                 {selectedProcess && (
                   <div className="flex items-center gap-2">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_STYLES[selectedProcess.category]}`}>
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_STYLES[selectedProcess.category]}`}
+                    >
                       {CATEGORIES.find((c) => c.value === selectedProcess.category)?.label}
                     </span>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[selectedProcess.status]}`}>
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[selectedProcess.status]}`}
+                    >
                       {STATUSES.find((s) => s.value === selectedProcess.status)?.label}
                     </span>
-                    <span className="text-xs text-muted-foreground">Owner: {selectedProcess.owner}</span>
+                    <span className="text-xs text-muted-foreground">
+                      Owner: {selectedProcess.owner}
+                    </span>
                   </div>
                 )}
               </div>
@@ -556,13 +661,21 @@ export default function ProcessMapClient() {
                         <div className="h-10 w-10 bg-brand-600 rounded-full flex items-center justify-center mx-auto mb-3">
                           <Workflow className="h-5 w-5 text-white" />
                         </div>
-                        <p className="text-sm font-bold text-brand-900 dark:text-brand-100 leading-tight">{selectedProcess.name}</p>
-                        <p className="text-xs text-brand-600 dark:text-brand-400 mt-2">{selectedProcess.owner}</p>
+                        <p className="text-sm font-bold text-brand-900 dark:text-brand-100 leading-tight">
+                          {selectedProcess.name}
+                        </p>
+                        <p className="text-xs text-brand-600 dark:text-brand-400 mt-2">
+                          {selectedProcess.owner}
+                        </p>
                         <div className="mt-3 flex flex-col gap-1 items-center">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_STYLES[selectedProcess.category]}`}>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_STYLES[selectedProcess.category]}`}
+                          >
                             {CATEGORIES.find((c) => c.value === selectedProcess.category)?.label}
                           </span>
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[selectedProcess.status]}`}>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[selectedProcess.status]}`}
+                          >
                             {STATUSES.find((s) => s.value === selectedProcess.status)?.label}
                           </span>
                         </div>
@@ -615,7 +728,12 @@ export default function ProcessMapClient() {
                   <Button variant="outline" size="sm" onClick={() => openEdit(selectedProcess)}>
                     <Pencil className="h-3.5 w-3.5 mr-1.5" /> Edit Process
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleDelete(selectedProcess.id)} className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300 dark:border-red-800">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDelete(selectedProcess.id)}
+                    className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300 dark:border-red-800"
+                  >
                     <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Delete
                   </Button>
                 </div>
@@ -626,8 +744,12 @@ export default function ProcessMapClient() {
               <CardContent className="p-12 text-center">
                 <Workflow className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-30" />
                 <h3 className="text-lg font-medium text-foreground mb-2">No Process Selected</h3>
-                <p className="text-sm text-muted-foreground mb-4">Add a process first, then select it to view its Turtle Diagram.</p>
-                <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" /> Add Process</Button>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Add a process first, then select it to view its Turtle Diagram.
+                </p>
+                <Button onClick={openCreate}>
+                  <Plus className="h-4 w-4 mr-2" /> Add Process
+                </Button>
               </CardContent>
             </Card>
           )}
@@ -666,14 +788,32 @@ export default function ProcessMapClient() {
               </div>
               <div>
                 <Label>Category *</Label>
-                <Select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as Process['category'] })}>
-                  {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                <Select
+                  value={form.category}
+                  onChange={(e) =>
+                    setForm({ ...form, category: e.target.value as Process['category'] })
+                  }
+                >
+                  {CATEGORIES.map((c) => (
+                    <option key={c.value} value={c.value}>
+                      {c.label}
+                    </option>
+                  ))}
                 </Select>
               </div>
               <div>
                 <Label>Status</Label>
-                <Select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as Process['status'] })}>
-                  {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                <Select
+                  value={form.status}
+                  onChange={(e) =>
+                    setForm({ ...form, status: e.target.value as Process['status'] })
+                  }
+                >
+                  {STATUSES.map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
                 </Select>
               </div>
             </div>
@@ -682,11 +822,31 @@ export default function ProcessMapClient() {
           {/* Turtle fields — quick text entry in modal */}
           {(
             [
-              { field: 'inputs' as const, label: 'Inputs', placeholder: 'Customer order, raw materials...' },
-              { field: 'outputs' as const, label: 'Outputs', placeholder: 'Finished goods, delivery note...' },
-              { field: 'equipment' as const, label: 'Equipment / Infrastructure', placeholder: 'CNC machine, ERP system...' },
-              { field: 'competence' as const, label: 'Competence / Training', placeholder: 'ISO 9001 awareness, engineering degree...' },
-              { field: 'procedures' as const, label: 'Procedures / Methods', placeholder: 'QP-001 Production Control...' },
+              {
+                field: 'inputs' as const,
+                label: 'Inputs',
+                placeholder: 'Customer order, raw materials...',
+              },
+              {
+                field: 'outputs' as const,
+                label: 'Outputs',
+                placeholder: 'Finished goods, delivery note...',
+              },
+              {
+                field: 'equipment' as const,
+                label: 'Equipment / Infrastructure',
+                placeholder: 'CNC machine, ERP system...',
+              },
+              {
+                field: 'competence' as const,
+                label: 'Competence / Training',
+                placeholder: 'ISO 9001 awareness, engineering degree...',
+              },
+              {
+                field: 'procedures' as const,
+                label: 'Procedures / Methods',
+                placeholder: 'QP-001 Production Control...',
+              },
               { field: 'kpis' as const, label: 'KPIs', placeholder: 'On-time delivery ≥ 95%...' },
             ] as const
           ).map(({ field, label, placeholder }) => (
@@ -700,11 +860,10 @@ export default function ProcessMapClient() {
           ))}
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
-          <Button
-            onClick={handleSave}
-            disabled={!form.name.trim() || !form.owner.trim()}
-          >
+          <Button variant="outline" onClick={() => setModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={!form.name.trim() || !form.owner.trim()}>
             {editingId ? 'Update Process' : 'Create Process'}
           </Button>
         </ModalFooter>
@@ -741,9 +900,7 @@ function ModalFieldList({
     <div>
       <Label>{label}</Label>
       <div className="mt-1 rounded-lg border border-border bg-muted/20 p-3 space-y-1.5">
-        {items.length === 0 && (
-          <p className="text-xs text-muted-foreground italic">No items yet</p>
-        )}
+        {items.length === 0 && <p className="text-xs text-muted-foreground italic">No items yet</p>}
         {items.map((item, idx) => (
           <div key={idx} className="flex items-center justify-between gap-2 text-sm">
             <span className="flex items-center gap-1.5 text-foreground">
@@ -764,7 +921,12 @@ function ModalFieldList({
             type="text"
             value={newItem}
             onChange={(e) => setNewItem(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                add();
+              }
+            }}
             placeholder={placeholder}
             className="flex-1 text-sm px-2 py-1 rounded border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-brand-500"
           />

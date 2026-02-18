@@ -19,7 +19,7 @@ export default function TabBar() {
             to={tab.to}
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-full h-full ${
-                isActive ? (tab.color || 'text-primary-600') : 'text-gray-400'
+                isActive ? tab.color || 'text-primary-600' : 'text-gray-400'
               }`
             }
           >

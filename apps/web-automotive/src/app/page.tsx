@@ -45,11 +45,15 @@ export default function AutomotiveDashboard() {
       setStats({
         apqpProjects: {
           total: projects.length,
-          active: projects.filter((p: Record<string, unknown>) => p.status === 'IN_PROGRESS' || p.status === 'ACTIVE').length,
+          active: projects.filter(
+            (p: Record<string, unknown>) => p.status === 'IN_PROGRESS' || p.status === 'ACTIVE'
+          ).length,
         },
         ppapSubmissions: {
           total: ppap.length,
-          pending: ppap.filter((s: Record<string, unknown>) => s.status === 'PENDING' || s.status === 'SUBMITTED').length,
+          pending: ppap.filter(
+            (s: Record<string, unknown>) => s.status === 'PENDING' || s.status === 'SUBMITTED'
+          ).length,
         },
         open8dReports: 0,
         spcAlerts: 0,
@@ -78,7 +82,7 @@ export default function AutomotiveDashboard() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
@@ -92,14 +96,27 @@ export default function AutomotiveDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Automotive Dashboard</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">IATF 16949 Automotive Quality Management System</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Automotive Dashboard
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            IATF 16949 Automotive Quality Management System
+          </p>
         </div>
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
             <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-            <button onClick={() => { setError(''); setLoading(true); loadStats(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+            <button
+              onClick={() => {
+                setError('');
+                setLoading(true);
+                loadStats();
+              }}
+              className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0"
+            >
+              Retry
+            </button>
           </div>
         )}
 
@@ -110,7 +127,9 @@ export default function AutomotiveDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active APQP Projects</p>
-                  <p className="text-3xl font-bold text-orange-600">{stats?.apqpProjects.active || 0}</p>
+                  <p className="text-3xl font-bold text-orange-600">
+                    {stats?.apqpProjects.active || 0}
+                  </p>
                 </div>
                 <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-full">
                   <FolderKanban className="h-6 w-6 text-orange-600" />
@@ -127,7 +146,9 @@ export default function AutomotiveDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">PPAP Submissions</p>
-                  <p className="text-3xl font-bold text-amber-600">{stats?.ppapSubmissions.pending || 0}</p>
+                  <p className="text-3xl font-bold text-amber-600">
+                    {stats?.ppapSubmissions.pending || 0}
+                  </p>
                 </div>
                 <div className="p-3 bg-amber-100 dark:bg-amber-900 rounded-full">
                   <FileCheck className="h-6 w-6 text-amber-600" />
@@ -182,7 +203,9 @@ export default function AutomotiveDashboard() {
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">APQP Phase Completion</p>
                   <p className="text-2xl font-bold">--</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Avg across active projects</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
+                    Avg across active projects
+                  </p>
                 </div>
                 <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-full">
                   <TrendingUp className="h-6 w-6 text-orange-600" />
@@ -210,7 +233,9 @@ export default function AutomotiveDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">SPC Monitored Processes</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    SPC Monitored Processes
+                  </p>
                   <p className="text-2xl font-bold">--</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">Control charts active</p>
                 </div>
@@ -236,26 +261,40 @@ export default function AutomotiveDashboard() {
               {stats?.recentProjects && stats.recentProjects.length > 0 ? (
                 <div className="space-y-3">
                   {stats.recentProjects.map((project: Record<string, unknown>) => (
-                    <div key={project.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div
+                      key={project.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
                       <div className="flex-1">
                         <p className="font-medium text-sm">{project.name}</p>
                         <div className="flex items-center gap-2 mt-1">
                           {project.referenceNumber && (
-                            <span className="text-xs text-gray-500 dark:text-gray-400">{project.referenceNumber}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {project.referenceNumber}
+                            </span>
                           )}
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            project.currentPhase === 5 ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
-                            project.currentPhase >= 3 ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
-                            'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300'
-                          }`}>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              project.currentPhase === 5
+                                ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                                : project.currentPhase >= 3
+                                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                                  : 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300'
+                            }`}
+                          >
                             Phase {project.currentPhase || 1}
                           </span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            project.status === 'COMPLETED' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
-                            project.status === 'IN_PROGRESS' || project.status === 'ACTIVE' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
-                            project.status === 'ON_HOLD' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' :
-                            'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-                          }`}>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              project.status === 'COMPLETED'
+                                ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                                : project.status === 'IN_PROGRESS' || project.status === 'ACTIVE'
+                                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                                  : project.status === 'ON_HOLD'
+                                    ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
+                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                            }`}
+                          >
                             {project.status?.replace(/_/g, ' ')}
                           </span>
                         </div>
@@ -270,7 +309,9 @@ export default function AutomotiveDashboard() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No APQP projects yet</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                  No APQP projects yet
+                </p>
               )}
             </CardContent>
           </Card>
@@ -287,24 +328,40 @@ export default function AutomotiveDashboard() {
               {stats?.recentPpap && stats.recentPpap.length > 0 ? (
                 <div className="space-y-3">
                   {stats.recentPpap.map((submission: Record<string, unknown>) => (
-                    <div key={submission.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div
+                      key={submission.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
                       <div className="flex-1">
-                        <p className="font-medium text-sm">{submission.partName || submission.title}</p>
+                        <p className="font-medium text-sm">
+                          {submission.partName || submission.title}
+                        </p>
                         <div className="flex items-center gap-2 mt-1">
                           {submission.referenceNumber && (
-                            <span className="text-xs text-gray-500 dark:text-gray-400">{submission.referenceNumber}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {submission.referenceNumber}
+                            </span>
                           )}
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            submission.level ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-                          }`}>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              submission.level
+                                ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                            }`}
+                          >
                             Level {submission.level || '-'}
                           </span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            submission.status === 'APPROVED' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
-                            submission.status === 'REJECTED' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                            submission.status === 'SUBMITTED' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
-                            'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
-                          }`}>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              submission.status === 'APPROVED'
+                                ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                                : submission.status === 'REJECTED'
+                                  ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                                  : submission.status === 'SUBMITTED'
+                                    ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                                    : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
+                            }`}
+                          >
                             {submission.status?.replace(/_/g, ' ')}
                           </span>
                         </div>
@@ -318,7 +375,9 @@ export default function AutomotiveDashboard() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No PPAP submissions yet</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                  No PPAP submissions yet
+                </p>
               )}
             </CardContent>
           </Card>
@@ -332,30 +391,55 @@ export default function AutomotiveDashboard() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <a href="/apqp" className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors text-center">
+                <a
+                  href="/apqp"
+                  className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors text-center"
+                >
                   <FolderKanban className="h-8 w-8 text-orange-500 mx-auto mb-2" />
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">APQP</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Advanced Product Quality Planning</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Advanced Product Quality Planning
+                  </p>
                 </a>
-                <a href="/ppap" className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors text-center">
+                <a
+                  href="/ppap"
+                  className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors text-center"
+                >
                   <FileCheck className="h-8 w-8 text-amber-500 mx-auto mb-2" />
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">PPAP</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Production Part Approval Process</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Production Part Approval Process
+                  </p>
                 </a>
-                <a href="/fmea" className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors text-center">
+                <a
+                  href="/fmea"
+                  className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors text-center"
+                >
                   <AlertTriangle className="h-8 w-8 text-red-500 mx-auto mb-2" />
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">FMEA</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Failure Mode & Effects Analysis</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Failure Mode & Effects Analysis
+                  </p>
                 </a>
-                <a href="/msa" className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors text-center">
+                <a
+                  href="/msa"
+                  className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors text-center"
+                >
                   <BarChart3 className="h-8 w-8 text-blue-500 mx-auto mb-2" />
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">MSA</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Measurement Systems Analysis</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Measurement Systems Analysis
+                  </p>
                 </a>
-                <a href="/spc" className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors text-center">
+                <a
+                  href="/spc"
+                  className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors text-center"
+                >
                   <LineChart className="h-8 w-8 text-green-500 mx-auto mb-2" />
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">SPC</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Statistical Process Control</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Statistical Process Control
+                  </p>
                 </a>
               </div>
             </CardContent>

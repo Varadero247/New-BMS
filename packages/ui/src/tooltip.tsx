@@ -18,7 +18,13 @@ const placementStyles = {
   right: 'left-full top-1/2 -translate-y-1/2 ml-2',
 };
 
-export function Tooltip({ content, children, placement = 'top', delay = 200, className }: TooltipProps) {
+export function Tooltip({
+  content,
+  children,
+  placement = 'top',
+  delay = 200,
+  className,
+}: TooltipProps) {
   const [visible, setVisible] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -32,7 +38,13 @@ export function Tooltip({ content, children, placement = 'top', delay = 200, cla
   }, []);
 
   return (
-    <div className="relative inline-flex" onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
+    <div
+      className="relative inline-flex"
+      onMouseEnter={show}
+      onMouseLeave={hide}
+      onFocus={show}
+      onBlur={hide}
+    >
       {children}
       {visible && (
         <div

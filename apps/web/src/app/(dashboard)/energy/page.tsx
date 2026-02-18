@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 
 const energyStats = [
   {
-    title: 'Today\'s Usage',
+    title: "Today's Usage",
     value: '2,847 kWh',
     change: '-12%',
     trend: 'down',
@@ -77,9 +77,7 @@ export default function EnergyPage() {
                 ) : (
                   <TrendingUp className="w-3 h-3 text-green-500" />
                 )}
-                <span className={stat.trend === 'down' ? 'text-green-500' : ''}>
-                  {stat.change}
-                </span>{' '}
+                <span className={stat.trend === 'down' ? 'text-green-500' : ''}>{stat.change}</span>{' '}
                 vs last period
               </p>
             </CardContent>
@@ -130,8 +128,8 @@ export default function EnergyPage() {
                           height > 70
                             ? 'bg-red-500'
                             : height > 40
-                            ? 'bg-yellow-500'
-                            : 'bg-green-500'
+                              ? 'bg-yellow-500'
+                              : 'bg-green-500'
                         }`}
                         style={{ height: `${height}px` }}
                       />

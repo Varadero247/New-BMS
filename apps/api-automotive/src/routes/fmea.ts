@@ -53,7 +53,10 @@ const studyUpdateSchema = z.object({
   preparedBy: z.string().optional(),
   reviewedBy: z.string().optional(),
   approvedBy: z.string().optional(),
-  approvedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  approvedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   scope: z.string().optional(),
   assumptions: z.string().optional(),
 });
@@ -71,7 +74,10 @@ const itemCreateSchema = z.object({
   detection: z.number().int().min(1).max(10),
   recommendedAction: z.string().optional(),
   responsibility: z.string().optional(),
-  targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  targetDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
 });
 
 const itemUpdateSchema = itemCreateSchema.partial().extend({
@@ -124,7 +130,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List FMEA studies error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list FMEA studies' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list FMEA studies' },
+    });
   }
 });
 
@@ -139,13 +148,18 @@ router.get('/:id', checkOwnership(prisma.fmeaStudy), async (req: AuthRequest, re
     });
 
     if (!study || study.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA study not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA study not found' } });
     }
 
     res.json({ success: true, data: study });
   } catch (error) {
     logger.error('Get FMEA study error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get FMEA study' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get FMEA study' },
+    });
   }
 });
 
@@ -176,10 +190,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: study });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create FMEA study error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create FMEA study' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create FMEA study' },
+    });
   }
 });
 
@@ -188,7 +212,9 @@ router.put('/:id', checkOwnership(prisma.fmeaStudy), async (req: AuthRequest, re
   try {
     const existing = await prisma.fmeaStudy.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA study not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA study not found' } });
     }
 
     const data = studyUpdateSchema.parse(req.body);
@@ -203,10 +229,20 @@ router.put('/:id', checkOwnership(prisma.fmeaStudy), async (req: AuthRequest, re
     res.json({ success: true, data: study });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update FMEA study error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update FMEA study' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update FMEA study' },
+    });
   }
 });
 
@@ -215,7 +251,9 @@ router.delete('/:id', checkOwnership(prisma.fmeaStudy), async (req: AuthRequest,
   try {
     const existing = await prisma.fmeaStudy.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA study not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA study not found' } });
     }
 
     await prisma.fmeaStudy.update({
@@ -226,7 +264,10 @@ router.delete('/:id', checkOwnership(prisma.fmeaStudy), async (req: AuthRequest,
     res.status(204).send();
   } catch (error) {
     logger.error('Delete FMEA study error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete FMEA study' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete FMEA study' },
+    });
   }
 });
 
@@ -235,7 +276,9 @@ router.post('/:id/items', async (req: AuthRequest, res: Response) => {
   try {
     const study = await prisma.fmeaStudy.findUnique({ where: { id: req.params.id } });
     if (!study || study.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA study not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA study not found' } });
     }
 
     const data = itemCreateSchema.parse(req.body);
@@ -264,10 +307,20 @@ router.post('/:id/items', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: item });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Add FMEA item error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add FMEA item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add FMEA item' },
+    });
   }
 });
 
@@ -278,12 +331,16 @@ router.put('/:id/items/:itemId', async (req: AuthRequest, res: Response) => {
 
     const study = await prisma.fmeaStudy.findUnique({ where: { id } });
     if (!study || study.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA study not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA study not found' } });
     }
 
     const item = await prisma.fmeaItem.findUnique({ where: { id: itemId } });
     if (!item || item.studyId !== id) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA item not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA item not found' } });
     }
 
     const data = itemUpdateSchema.parse(req.body);
@@ -300,7 +357,11 @@ router.put('/:id/items/:itemId', async (req: AuthRequest, res: Response) => {
     }
 
     // Calculate post-action RPN if after values provided
-    if (data.severityAfter !== undefined || data.occurrenceAfter !== undefined || data.detectionAfter !== undefined) {
+    if (
+      data.severityAfter !== undefined ||
+      data.occurrenceAfter !== undefined ||
+      data.detectionAfter !== undefined
+    ) {
       const sa = data.severityAfter ?? item.severityAfter ?? newSeverity;
       const oa = data.occurrenceAfter ?? item.occurrenceAfter ?? newOccurrence;
       const da = data.detectionAfter ?? item.detectionAfter ?? newDetection;
@@ -315,10 +376,20 @@ router.put('/:id/items/:itemId', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update FMEA item error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update FMEA item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update FMEA item' },
+    });
   }
 });
 
@@ -329,7 +400,9 @@ router.delete('/:id/items/:itemId', async (req: AuthRequest, res: Response) => {
 
     const item = await prisma.fmeaItem.findUnique({ where: { id: itemId } });
     if (!item || item.studyId !== id) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA item not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA item not found' } });
     }
 
     await prisma.fmeaItem.delete({ where: { id: itemId } });
@@ -337,7 +410,10 @@ router.delete('/:id/items/:itemId', async (req: AuthRequest, res: Response) => {
     res.status(204).send();
   } catch (error) {
     logger.error('Delete FMEA item error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete FMEA item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete FMEA item' },
+    });
   }
 });
 

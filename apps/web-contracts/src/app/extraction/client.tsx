@@ -1,10 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Card, CardContent, Button, Badge,
-  Label, Textarea,
-} from '@ims/ui';
+import { Card, CardContent, Button, Badge, Label, Textarea } from '@ims/ui';
 import { Sparkles, Loader2, FileText, Calendar, DollarSign, Tag } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -45,7 +42,9 @@ export default function ExtractionClient() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">AI Extraction</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Extract key information from contract text using AI</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Extract key information from contract text using AI
+            </p>
           </div>
         </div>
 
@@ -54,10 +53,12 @@ export default function ExtractionClient() {
             <Card>
               <CardContent className="p-6">
                 <Label className="text-base font-semibold">Contract Text</Label>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Paste contract text below to extract parties, dates, values, and key terms</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                  Paste contract text below to extract parties, dates, values, and key terms
+                </p>
                 <Textarea
                   value={text}
-                  onChange={e => setText(e.target.value)}
+                  onChange={(e) => setText(e.target.value)}
                   rows={16}
                   placeholder="Paste your contract text here...
 
@@ -66,9 +67,25 @@ This Agreement is entered into on January 15, 2026 between Acme Corporation (the
                   className="mt-2"
                 />
                 <div className="flex justify-between items-center mt-4">
-                  <span className="text-xs text-gray-400 dark:text-gray-500">{text.length} characters</span>
-                  <Button onClick={handleAnalyze} disabled={loading || !text.trim()} className="flex items-center gap-2">
-                    {loading ? <><Loader2 className="h-4 w-4 animate-spin" />Analyzing...</> : <><Sparkles className="h-4 w-4" />Analyze Text</>}
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                    {text.length} characters
+                  </span>
+                  <Button
+                    onClick={handleAnalyze}
+                    disabled={loading || !text.trim()}
+                    className="flex items-center gap-2"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4" />
+                        Analyze Text
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardContent>
@@ -77,7 +94,9 @@ This Agreement is entered into on January 15, 2026 between Acme Corporation (the
 
           <div className="space-y-4">
             {error && (
-              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">{error}</div>
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
+                {error}
+              </div>
             )}
 
             {result ? (
@@ -91,11 +110,15 @@ This Agreement is entered into on January 15, 2026 between Acme Corporation (the
                     {result.extracted.parties.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
                         {result.extracted.parties.map((p, i) => (
-                          <Badge key={i} variant="outline" className="text-sm">{p}</Badge>
+                          <Badge key={i} variant="outline" className="text-sm">
+                            {p}
+                          </Badge>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-400 dark:text-gray-500 italic">No parties detected</p>
+                      <p className="text-sm text-gray-400 dark:text-gray-500 italic">
+                        No parties detected
+                      </p>
                     )}
                   </CardContent>
                 </Card>
@@ -109,11 +132,19 @@ This Agreement is entered into on January 15, 2026 between Acme Corporation (the
                     {result.extracted.dates.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
                         {result.extracted.dates.map((d, i) => (
-                          <Badge key={i} variant="outline" className="text-sm bg-blue-50 dark:bg-blue-900/20">{d}</Badge>
+                          <Badge
+                            key={i}
+                            variant="outline"
+                            className="text-sm bg-blue-50 dark:bg-blue-900/20"
+                          >
+                            {d}
+                          </Badge>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-400 dark:text-gray-500 italic">No dates detected</p>
+                      <p className="text-sm text-gray-400 dark:text-gray-500 italic">
+                        No dates detected
+                      </p>
                     )}
                   </CardContent>
                 </Card>
@@ -127,11 +158,19 @@ This Agreement is entered into on January 15, 2026 between Acme Corporation (the
                     {result.extracted.values.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
                         {result.extracted.values.map((v, i) => (
-                          <Badge key={i} variant="outline" className="text-sm bg-green-50 dark:bg-green-900/20">{v}</Badge>
+                          <Badge
+                            key={i}
+                            variant="outline"
+                            className="text-sm bg-green-50 dark:bg-green-900/20"
+                          >
+                            {v}
+                          </Badge>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-400 dark:text-gray-500 italic">No values detected</p>
+                      <p className="text-sm text-gray-400 dark:text-gray-500 italic">
+                        No values detected
+                      </p>
                     )}
                   </CardContent>
                 </Card>
@@ -145,11 +184,19 @@ This Agreement is entered into on January 15, 2026 between Acme Corporation (the
                     {result.extracted.keyTerms.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
                         {result.extracted.keyTerms.map((t, i) => (
-                          <Badge key={i} variant="outline" className="text-sm bg-amber-50 dark:bg-amber-900/20">{t}</Badge>
+                          <Badge
+                            key={i}
+                            variant="outline"
+                            className="text-sm bg-amber-50 dark:bg-amber-900/20"
+                          >
+                            {t}
+                          </Badge>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-400 dark:text-gray-500 italic">No key terms detected</p>
+                      <p className="text-sm text-gray-400 dark:text-gray-500 italic">
+                        No key terms detected
+                      </p>
                     )}
                   </CardContent>
                 </Card>
@@ -159,21 +206,29 @@ This Agreement is entered into on January 15, 2026 between Acme Corporation (the
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <Sparkles className="h-4 w-4 text-violet-600" />
-                        <span className="text-sm font-medium text-violet-700 dark:text-violet-300">AI Note</span>
+                        <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
+                          AI Note
+                        </span>
                       </div>
                       <p className="text-sm text-gray-600 dark:text-gray-400">{result.aiNote}</p>
                     </CardContent>
                   </Card>
                 )}
               </>
-            ) : !loading && (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <Sparkles className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-500 dark:text-gray-400">Paste contract text and click "Analyze Text" to extract key information</p>
-                  <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">The AI will identify parties, dates, monetary values, and key terms</p>
-                </CardContent>
-              </Card>
+            ) : (
+              !loading && (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <Sparkles className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                    <p className="text-gray-500 dark:text-gray-400">
+                      Paste contract text and click "Analyze Text" to extract key information
+                    </p>
+                    <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
+                      The AI will identify parties, dates, monetary values, and key terms
+                    </p>
+                  </CardContent>
+                </Card>
+              )
             )}
           </div>
         </div>

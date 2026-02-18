@@ -18,14 +18,23 @@ export interface TabsProps {
   className?: string;
 }
 
-export function Tabs({ defaultValue, value: controlledValue, onValueChange, children, className }: TabsProps) {
+export function Tabs({
+  defaultValue,
+  value: controlledValue,
+  onValueChange,
+  children,
+  className,
+}: TabsProps) {
   const [internalValue, setInternalValue] = useState(defaultValue);
   const value = controlledValue ?? internalValue;
 
-  const handleChange = useCallback((v: string) => {
-    if (controlledValue === undefined) setInternalValue(v);
-    onValueChange?.(v);
-  }, [controlledValue, onValueChange]);
+  const handleChange = useCallback(
+    (v: string) => {
+      if (controlledValue === undefined) setInternalValue(v);
+      onValueChange?.(v);
+    },
+    [controlledValue, onValueChange]
+  );
 
   return (
     <TabsContext.Provider value={{ value, onValueChange: handleChange }}>

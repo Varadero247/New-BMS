@@ -30,7 +30,12 @@ jest.mock('@ims/database', () => {
 
 jest.mock('@ims/auth', () => ({
   authenticate: (req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'admin@ims.local', role: 'ADMIN', organisationId: '00000000-0000-0000-0000-000000000099' };
+    req.user = {
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'admin@ims.local',
+      role: 'ADMIN',
+      organisationId: '00000000-0000-0000-0000-000000000099',
+    };
     next();
   },
   requireRole: () => (_req: any, _res: any, next: any) => next(),
@@ -149,12 +154,17 @@ describe('Marketplace Routes', () => {
     it('should return 404 for non-existent plugin', async () => {
       (prisma as any).mktPlugin.findUnique.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/marketplace/plugins/00000000-0000-0000-0000-000000000999');
+      const res = await request(app).get(
+        '/api/marketplace/plugins/00000000-0000-0000-0000-000000000999'
+      );
       expect(res.status).toBe(404);
     });
 
     it('should return 404 for soft-deleted plugin', async () => {
-      (prisma as any).mktPlugin.findUnique.mockResolvedValue({ ...mockPlugin, deletedAt: new Date() });
+      (prisma as any).mktPlugin.findUnique.mockResolvedValue({
+        ...mockPlugin,
+        deletedAt: new Date(),
+      });
 
       const res = await request(app).get(`/api/marketplace/plugins/${mockPlugin.id}`);
       expect(res.status).toBe(404);
@@ -166,15 +176,13 @@ describe('Marketplace Routes', () => {
       (prisma as any).mktPlugin.findUnique.mockResolvedValue(null);
       (prisma as any).mktPlugin.create.mockResolvedValue(mockPlugin);
 
-      const res = await request(app)
-        .post('/api/marketplace/plugins')
-        .send({
-          name: 'Slack Integration',
-          slug: 'slack-integration',
-          description: 'Send IMS notifications to Slack',
-          author: 'IMS Team',
-          category: 'COMMUNICATION',
-        });
+      const res = await request(app).post('/api/marketplace/plugins').send({
+        name: 'Slack Integration',
+        slug: 'slack-integration',
+        description: 'Send IMS notifications to Slack',
+        author: 'IMS Team',
+        category: 'COMMUNICATION',
+      });
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -184,39 +192,33 @@ describe('Marketplace Routes', () => {
     it('should reject duplicate slug', async () => {
       (prisma as any).mktPlugin.findUnique.mockResolvedValue(mockPlugin);
 
-      const res = await request(app)
-        .post('/api/marketplace/plugins')
-        .send({
-          name: 'Slack Integration',
-          slug: 'slack-integration',
-          description: 'Duplicate',
-          author: 'IMS Team',
-          category: 'COMMUNICATION',
-        });
+      const res = await request(app).post('/api/marketplace/plugins').send({
+        name: 'Slack Integration',
+        slug: 'slack-integration',
+        description: 'Duplicate',
+        author: 'IMS Team',
+        category: 'COMMUNICATION',
+      });
 
       expect(res.status).toBe(409);
       expect(res.body.error.code).toBe('CONFLICT');
     });
 
     it('should validate required fields', async () => {
-      const res = await request(app)
-        .post('/api/marketplace/plugins')
-        .send({ name: 'Test' });
+      const res = await request(app).post('/api/marketplace/plugins').send({ name: 'Test' });
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
     });
 
     it('should validate slug format', async () => {
-      const res = await request(app)
-        .post('/api/marketplace/plugins')
-        .send({
-          name: 'Test',
-          slug: 'INVALID SLUG!',
-          description: 'Test',
-          author: 'Test',
-          category: 'OTHER',
-        });
+      const res = await request(app).post('/api/marketplace/plugins').send({
+        name: 'Test',
+        slug: 'INVALID SLUG!',
+        description: 'Test',
+        author: 'Test',
+        category: 'OTHER',
+      });
 
       expect(res.status).toBe(400);
     });
@@ -314,8 +316,7 @@ describe('Marketplace Routes', () => {
     it('should uninstall plugin', async () => {
       (prisma as any).mktPluginInstall.update.mockResolvedValue({ status: 'UNINSTALLED' });
 
-      const res = await request(app)
-        .delete(`/api/marketplace/plugins/${mockPlugin.id}/install`);
+      const res = await request(app).delete(`/api/marketplace/plugins/${mockPlugin.id}/install`);
 
       expect(res.status).toBe(200);
       expect(res.body.data.message).toBe('Plugin uninstalled');
@@ -355,9 +356,7 @@ describe('Marketplace Routes', () => {
 
   describe('GET /api/marketplace/stats', () => {
     it('should return marketplace statistics', async () => {
-      (prisma as any).mktPlugin.count
-        .mockResolvedValueOnce(50)
-        .mockResolvedValueOnce(35);
+      (prisma as any).mktPlugin.count.mockResolvedValueOnce(50).mockResolvedValueOnce(35);
       (prisma as any).mktPluginInstall.count.mockResolvedValue(200);
       (prisma as any).mktPlugin.aggregate.mockResolvedValue({ _sum: { downloads: 5000 } });
 

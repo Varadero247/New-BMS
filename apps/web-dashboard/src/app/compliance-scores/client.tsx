@@ -40,18 +40,52 @@ interface ComplianceData {
 // ---------------------------------------------------------------------------
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; border: string; light: string }> = {
-  GREEN: { bg: 'bg-green-500', text: 'text-green-700', border: 'border-green-200', light: 'bg-green-50' },
-  AMBER: { bg: 'bg-amber-500', text: 'text-amber-700', border: 'border-amber-200', light: 'bg-amber-50' },
+  GREEN: {
+    bg: 'bg-green-500',
+    text: 'text-green-700',
+    border: 'border-green-200',
+    light: 'bg-green-50',
+  },
+  AMBER: {
+    bg: 'bg-amber-500',
+    text: 'text-amber-700',
+    border: 'border-amber-200',
+    light: 'bg-amber-50',
+  },
   RED: { bg: 'bg-red-500', text: 'text-red-700', border: 'border-red-200', light: 'bg-red-50' },
 };
 
 const STANDARD_COLORS: Record<string, { gradient: string; icon: string; badge: string }> = {
-  ISO_9001: { gradient: 'from-blue-500 to-blue-600', icon: 'text-blue-600', badge: 'bg-blue-100 text-blue-800' },
-  ISO_45001: { gradient: 'from-red-500 to-red-600', icon: 'text-red-600', badge: 'bg-red-100 text-red-800' },
-  ISO_14001: { gradient: 'from-green-500 to-green-600', icon: 'text-green-600', badge: 'bg-green-100 text-green-800' },
-  IATF_16949: { gradient: 'from-purple-500 to-purple-600', icon: 'text-purple-600', badge: 'bg-purple-100 text-purple-800' },
-  ISO_13485: { gradient: 'from-teal-500 to-teal-600', icon: 'text-teal-600', badge: 'bg-teal-100 text-teal-800' },
-  AS9100D: { gradient: 'from-indigo-500 to-indigo-600', icon: 'text-indigo-600', badge: 'bg-indigo-100 text-indigo-800' },
+  ISO_9001: {
+    gradient: 'from-blue-500 to-blue-600',
+    icon: 'text-blue-600',
+    badge: 'bg-blue-100 text-blue-800',
+  },
+  ISO_45001: {
+    gradient: 'from-red-500 to-red-600',
+    icon: 'text-red-600',
+    badge: 'bg-red-100 text-red-800',
+  },
+  ISO_14001: {
+    gradient: 'from-green-500 to-green-600',
+    icon: 'text-green-600',
+    badge: 'bg-green-100 text-green-800',
+  },
+  IATF_16949: {
+    gradient: 'from-purple-500 to-purple-600',
+    icon: 'text-purple-600',
+    badge: 'bg-purple-100 text-purple-800',
+  },
+  ISO_13485: {
+    gradient: 'from-teal-500 to-teal-600',
+    icon: 'text-teal-600',
+    badge: 'bg-teal-100 text-teal-800',
+  },
+  AS9100D: {
+    gradient: 'from-indigo-500 to-indigo-600',
+    icon: 'text-indigo-600',
+    badge: 'bg-indigo-100 text-indigo-800',
+  },
 };
 
 function StatusIcon({ status, size = 'h-5 w-5' }: { status: string; size?: string }) {
@@ -64,8 +98,12 @@ function TrafficLight({ status }: { status: string }) {
   return (
     <div className="flex gap-1.5 items-center">
       <div className={`w-3 h-3 rounded-full ${status === 'RED' ? 'bg-red-500' : 'bg-red-200'}`} />
-      <div className={`w-3 h-3 rounded-full ${status === 'AMBER' ? 'bg-amber-500' : 'bg-amber-200'}`} />
-      <div className={`w-3 h-3 rounded-full ${status === 'GREEN' ? 'bg-green-500' : 'bg-green-200'}`} />
+      <div
+        className={`w-3 h-3 rounded-full ${status === 'AMBER' ? 'bg-amber-500' : 'bg-amber-200'}`}
+      />
+      <div
+        className={`w-3 h-3 rounded-full ${status === 'GREEN' ? 'bg-green-500' : 'bg-green-200'}`}
+      />
     </div>
   );
 }
@@ -74,7 +112,17 @@ function TrafficLight({ status }: { status: string }) {
 // Gauge Component
 // ---------------------------------------------------------------------------
 
-function ComplianceGaugeWidget({ score, status, label, size = 'lg' }: { score: number; status: string; label: string; size?: 'sm' | 'md' | 'lg' }) {
+function ComplianceGaugeWidget({
+  score,
+  status,
+  label,
+  size = 'lg',
+}: {
+  score: number;
+  status: string;
+  label: string;
+  size?: 'sm' | 'md' | 'lg';
+}) {
   const sizeMap = { sm: 100, md: 140, lg: 200 };
   const dimension = sizeMap[size];
   const strokeWidth = size === 'lg' ? 12 : size === 'md' ? 10 : 8;
@@ -113,7 +161,9 @@ function ComplianceGaugeWidget({ score, status, label, size = 'lg' }: { score: n
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className={`${fontSize} font-bold`} style={{ color: statusColor }}>{score.toFixed(1)}%</span>
+          <span className={`${fontSize} font-bold`} style={{ color: statusColor }}>
+            {score.toFixed(1)}%
+          </span>
           <TrafficLight status={status} />
         </div>
       </div>
@@ -127,7 +177,8 @@ function ComplianceGaugeWidget({ score, status, label, size = 'lg' }: { score: n
 // ---------------------------------------------------------------------------
 
 function FactorBar({ factor }: { factor: FactorScore }) {
-  const barColor = factor.score >= 85 ? 'bg-green-500' : factor.score >= 70 ? 'bg-amber-500' : 'bg-red-500';
+  const barColor =
+    factor.score >= 85 ? 'bg-green-500' : factor.score >= 70 ? 'bg-amber-500' : 'bg-red-500';
 
   return (
     <div className="space-y-1">
@@ -141,7 +192,9 @@ function FactorBar({ factor }: { factor: FactorScore }) {
           style={{ width: `${Math.min(100, factor.score)}%` }}
         />
       </div>
-      <p className="text-xs text-gray-400 dark:text-gray-500">Weight: {(factor.weight * 100).toFixed(0)}%</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500">
+        Weight: {(factor.weight * 100).toFixed(0)}%
+      </p>
     </div>
   );
 }
@@ -180,9 +233,9 @@ export default function ComplianceScoresPage() {
   };
 
   // Count by status
-  const greenCount = data?.standards.filter(s => s.status === 'GREEN').length || 0;
-  const amberCount = data?.standards.filter(s => s.status === 'AMBER').length || 0;
-  const redCount = data?.standards.filter(s => s.status === 'RED').length || 0;
+  const greenCount = data?.standards.filter((s) => s.status === 'GREEN').length || 0;
+  const amberCount = data?.standards.filter((s) => s.status === 'AMBER').length || 0;
+  const redCount = data?.standards.filter((s) => s.status === 'RED').length || 0;
 
   if (loading) {
     return (
@@ -193,7 +246,7 @@ export default function ComplianceScoresPage() {
             <div className="h-8 bg-gray-200 rounded w-1/3" />
             <div className="h-64 bg-gray-200 rounded" />
             <div className="grid grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map(i => (
+              {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="h-48 bg-gray-200 rounded" />
               ))}
             </div>
@@ -212,8 +265,12 @@ export default function ComplianceScoresPage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Multi-Standard Compliance</h1>
-              <p className="text-gray-500 dark:text-gray-400 mt-1">Live compliance scores across all IMS standards</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                Multi-Standard Compliance
+              </h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">
+                Live compliance scores across all IMS standards
+              </p>
             </div>
             {data?.generatedAt && (
               <p className="text-xs text-gray-400 dark:text-gray-500">
@@ -249,7 +306,8 @@ export default function ComplianceScoresPage() {
                           IMS Health Summary
                         </h2>
                         <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
-                          Weighted compliance across {data.standards.length} active management system standards
+                          Weighted compliance across {data.standards.length} active management
+                          system standards
                         </p>
                       </div>
                       <div className="grid grid-cols-3 gap-4">
@@ -290,7 +348,7 @@ export default function ComplianceScoresPage() {
                   Standard Compliance Scores
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {data.standards.map(standard => {
+                  {data.standards.map((standard) => {
                     const colors = STANDARD_COLORS[standard.code] || STANDARD_COLORS.ISO_9001;
                     const statusStyle = STATUS_STYLES[standard.status];
 
@@ -307,8 +365,12 @@ export default function ComplianceScoresPage() {
                                 <StatusIcon status={standard.status} size="h-5 w-5" />
                               </div>
                               <div>
-                                <CardTitle className="text-sm font-semibold">{standard.label}</CardTitle>
-                                <Badge className={colors.badge}>{standard.code.replace(/_/g, ' ')}</Badge>
+                                <CardTitle className="text-sm font-semibold">
+                                  {standard.label}
+                                </CardTitle>
+                                <Badge className={colors.badge}>
+                                  {standard.code.replace(/_/g, ' ')}
+                                </Badge>
                               </div>
                             </div>
                             <TrafficLight status={standard.status} />
@@ -326,11 +388,19 @@ export default function ComplianceScoresPage() {
 
                           {/* Mini factor bars */}
                           <div className="space-y-2">
-                            {standard.factors.map(factor => {
-                              const barColor = factor.score >= 85 ? 'bg-green-400' : factor.score >= 70 ? 'bg-amber-400' : 'bg-red-400';
+                            {standard.factors.map((factor) => {
+                              const barColor =
+                                factor.score >= 85
+                                  ? 'bg-green-400'
+                                  : factor.score >= 70
+                                    ? 'bg-amber-400'
+                                    : 'bg-red-400';
                               return (
                                 <div key={factor.name} className="flex items-center gap-2">
-                                  <span className="text-xs text-gray-500 dark:text-gray-400 w-28 truncate" title={factor.label}>
+                                  <span
+                                    className="text-xs text-gray-500 dark:text-gray-400 w-28 truncate"
+                                    title={factor.label}
+                                  >
                                     {factor.label.split(' ').slice(0, 3).join(' ')}
                                   </span>
                                   <div className="flex-1 bg-gray-200 rounded-full h-1.5">
@@ -339,7 +409,9 @@ export default function ComplianceScoresPage() {
                                       style={{ width: `${Math.min(100, factor.score)}%` }}
                                     />
                                   </div>
-                                  <span className="text-xs font-medium w-10 text-right">{factor.score.toFixed(0)}%</span>
+                                  <span className="text-xs font-medium w-10 text-right">
+                                    {factor.score.toFixed(0)}%
+                                  </span>
                                 </div>
                               );
                             })}
@@ -383,7 +455,11 @@ export default function ComplianceScoresPage() {
       <Modal
         isOpen={showDetail}
         onClose={() => setShowDetail(false)}
-        title={selectedStandard ? `${selectedStandard.label} -- Compliance Breakdown` : 'Standard Details'}
+        title={
+          selectedStandard
+            ? `${selectedStandard.label} -- Compliance Breakdown`
+            : 'Standard Details'
+        }
         size="lg"
       >
         {selectedStandard && (
@@ -401,14 +477,21 @@ export default function ComplianceScoresPage() {
               <div className="text-right">
                 <div className="flex items-center gap-2 justify-end mb-2">
                   <StatusIcon status={selectedStandard.status} size="h-6 w-6" />
-                  <span className={`text-lg font-bold ${STATUS_STYLES[selectedStandard.status].text}`}>
+                  <span
+                    className={`text-lg font-bold ${STATUS_STYLES[selectedStandard.status].text}`}
+                  >
                     {selectedStandard.status}
                   </span>
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Standard Weight: {(selectedStandard.weight * 100).toFixed(0)}%
                 </p>
-                <Badge className={STANDARD_COLORS[selectedStandard.code]?.badge || 'bg-gray-100 dark:bg-gray-800 text-gray-800'}>
+                <Badge
+                  className={
+                    STANDARD_COLORS[selectedStandard.code]?.badge ||
+                    'bg-gray-100 dark:bg-gray-800 text-gray-800'
+                  }
+                >
                   {selectedStandard.code.replace(/_/g, ' ')}
                 </Badge>
               </div>
@@ -421,7 +504,7 @@ export default function ComplianceScoresPage() {
                 Factor Breakdown
               </h3>
               <div className="space-y-4">
-                {selectedStandard.factors.map(factor => (
+                {selectedStandard.factors.map((factor) => (
                   <FactorBar key={factor.name} factor={factor} />
                 ))}
               </div>
@@ -429,7 +512,9 @@ export default function ComplianceScoresPage() {
 
             {/* Thresholds */}
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Threshold Definitions</h4>
+              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+                Threshold Definitions
+              </h4>
               <div className="grid grid-cols-3 gap-3 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -448,23 +533,31 @@ export default function ComplianceScoresPage() {
 
             {/* Recommendations */}
             <div>
-              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Areas for Improvement</h4>
+              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+                Areas for Improvement
+              </h4>
               <div className="space-y-2">
                 {selectedStandard.factors
-                  .filter(f => f.score < 85)
+                  .filter((f) => f.score < 85)
                   .sort((a, b) => a.score - b.score)
-                  .map(factor => (
-                    <div key={factor.name} className="flex items-center gap-3 p-2 bg-amber-50 rounded border border-amber-100">
+                  .map((factor) => (
+                    <div
+                      key={factor.name}
+                      className="flex items-center gap-3 p-2 bg-amber-50 rounded border border-amber-100"
+                    >
                       <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0" />
                       <span className="text-sm text-amber-800">
-                        <strong>{factor.label}</strong> is at {factor.score.toFixed(1)}% (target: 85%+)
+                        <strong>{factor.label}</strong> is at {factor.score.toFixed(1)}% (target:
+                        85%+)
                       </span>
                     </div>
                   ))}
-                {selectedStandard.factors.filter(f => f.score < 85).length === 0 && (
+                {selectedStandard.factors.filter((f) => f.score < 85).length === 0 && (
                   <div className="flex items-center gap-3 p-2 bg-green-50 rounded border border-green-100">
                     <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                    <span className="text-sm text-green-800">All factors are meeting the GREEN threshold. Excellent performance.</span>
+                    <span className="text-sm text-green-800">
+                      All factors are meeting the GREEN threshold. Excellent performance.
+                    </span>
                   </div>
                 )}
               </div>

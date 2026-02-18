@@ -26,15 +26,25 @@ async function generateRefNumber(): Promise<string> {
 
 const createSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  auditType: z.enum(['INTERNAL', 'EXTERNAL', 'SUPPLIER', 'REGULATORY', 'CERTIFICATION', 'SURVEILLANCE']).default('INTERNAL'),
+  auditType: z
+    .enum(['INTERNAL', 'EXTERNAL', 'SUPPLIER', 'REGULATORY', 'CERTIFICATION', 'SURVEILLANCE'])
+    .default('INTERNAL'),
   scope: z.string().trim().min(1).max(2000),
   isoClause: z.string().max(200).optional().nullable(),
   department: z.string().max(200).optional().nullable(),
   leadAuditor: z.string().trim().min(1).max(200),
   auditTeam: z.string().max(2000).optional().nullable(),
   auditee: z.string().max(200).optional().nullable(),
-  scheduledDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
-  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  scheduledDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
+  dueDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   objectives: z.string().max(2000).optional().nullable(),
   criteria: z.string().max(2000).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
@@ -44,8 +54,16 @@ const updateSchema = createSchema.partial().extend({
   status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
   findings: z.string().max(10000).optional().nullable(),
   conclusions: z.string().max(5000).optional().nullable(),
-  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
-  nextAuditDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  completedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
+  nextAuditDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
 });
 
 // GET / — List audits
@@ -72,10 +90,19 @@ router.get('/', async (req: Request, res: Response) => {
       prisma.qualAudit.count({ where }),
     ]);
 
-    res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error: unknown) {
-    logger.error('Failed to list audits', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list audits' } });
+    logger.error('Failed to list audits', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list audits' },
+    });
   }
 });
 
@@ -84,7 +111,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -104,20 +138,34 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to create audit', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit' } });
+    logger.error('Failed to create audit', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit' },
+    });
   }
 });
 
 // GET /:id — Get audit by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await prisma.qualAudit.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+    const item = await prisma.qualAudit.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!item)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to get audit', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit' } });
+    logger.error('Failed to get audit', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit' } });
   }
 });
 
@@ -126,37 +174,69 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.qualAudit.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+    const existing = await prisma.qualAudit.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.scheduledDate) data.scheduledDate = new Date(parsed.data.scheduledDate);
     if (parsed.data.dueDate) data.dueDate = new Date(parsed.data.dueDate);
-    if ((parsed.data as any).completedDate) data.completedDate = new Date((parsed.data as any).completedDate);
-    if ((parsed.data as any).nextAuditDate) data.nextAuditDate = new Date((parsed.data as any).nextAuditDate);
+    if ((parsed.data as any).completedDate)
+      data.completedDate = new Date((parsed.data as any).completedDate);
+    if ((parsed.data as any).nextAuditDate)
+      data.nextAuditDate = new Date((parsed.data as any).nextAuditDate);
 
     const item = await prisma.qualAudit.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to update audit', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update audit' } });
+    logger.error('Failed to update audit', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update audit' },
+    });
   }
 });
 
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.qualAudit.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
+    const existing = await prisma.qualAudit.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
 
-    await prisma.qualAudit.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualAudit.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete audit', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete audit' } });
+    logger.error('Failed to delete audit', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete audit' },
+    });
   }
 });
 

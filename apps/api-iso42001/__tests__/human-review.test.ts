@@ -132,15 +132,13 @@ describe('Human Review Routes', () => {
     it('should create a human review', async () => {
       (prisma.aiHumanReview.create as jest.Mock).mockResolvedValue(mockReview);
 
-      const res = await request(app)
-        .post('/api/human-review')
-        .send({
-          systemId: 'sys-1',
-          title: 'Loan Approval Decision',
-          aiDecision: 'APPROVE',
-          aiConfidence: 0.92,
-          aiReasoning: 'Meets all criteria',
-        });
+      const res = await request(app).post('/api/human-review').send({
+        systemId: 'sys-1',
+        title: 'Loan Approval Decision',
+        aiDecision: 'APPROVE',
+        aiConfidence: 0.92,
+        aiReasoning: 'Meets all criteria',
+      });
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -157,22 +155,18 @@ describe('Human Review Routes', () => {
     });
 
     it('should reject missing required fields', async () => {
-      const res = await request(app)
-        .post('/api/human-review')
-        .send({ systemId: 'sys-1' });
+      const res = await request(app).post('/api/human-review').send({ systemId: 'sys-1' });
 
       expect(res.status).toBe(400);
     });
 
     it('should reject invalid confidence', async () => {
-      const res = await request(app)
-        .post('/api/human-review')
-        .send({
-          systemId: 'sys-1',
-          title: 'Test',
-          aiDecision: 'APPROVE',
-          aiConfidence: 1.5,
-        });
+      const res = await request(app).post('/api/human-review').send({
+        systemId: 'sys-1',
+        title: 'Test',
+        aiDecision: 'APPROVE',
+        aiConfidence: 1.5,
+      });
 
       expect(res.status).toBe(400);
     });
@@ -180,13 +174,11 @@ describe('Human Review Routes', () => {
     it('should handle errors', async () => {
       (prisma.aiHumanReview.create as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app)
-        .post('/api/human-review')
-        .send({
-          systemId: 'sys-1',
-          title: 'Test',
-          aiDecision: 'APPROVE',
-        });
+      const res = await request(app).post('/api/human-review').send({
+        systemId: 'sys-1',
+        title: 'Test',
+        aiDecision: 'APPROVE',
+      });
 
       expect(res.status).toBe(500);
     });
@@ -349,7 +341,9 @@ describe('Human Review Routes', () => {
         deletedAt: new Date(),
       });
 
-      const res = await request(app).delete('/api/human-review/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/human-review/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.data.deleted).toBe(true);
     });
@@ -357,14 +351,18 @@ describe('Human Review Routes', () => {
     it('should return 404 for missing review', async () => {
       (prisma.aiHumanReview.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/human-review/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/human-review/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
     });
 
     it('should handle errors', async () => {
       (prisma.aiHumanReview.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/human-review/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/human-review/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(500);
     });
   });

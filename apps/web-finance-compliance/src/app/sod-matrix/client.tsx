@@ -1,14 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  Plus,
-  Search,
-  Grid3X3,
-  AlertTriangle,
-  ToggleLeft,
-  ToggleRight,
-} from 'lucide-react';
+import { Plus, Search, Grid3X3, AlertTriangle, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Modal } from '@ims/ui';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
@@ -126,8 +119,8 @@ export default function SodMatrixClient() {
       activeFilter === ''
         ? true
         : activeFilter === 'active'
-        ? item.isActive !== false
-        : item.isActive === false;
+          ? item.isActive !== false
+          : item.isActive === false;
     return matchSearch && matchActive;
   });
 
@@ -161,9 +154,7 @@ export default function SodMatrixClient() {
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4">
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Rules</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {items.length}
-              </p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{items.length}</p>
             </div>
             <div className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4">
               <p className="text-sm text-emerald-600 dark:text-emerald-400">Active Conflicts</p>
@@ -173,9 +164,7 @@ export default function SodMatrixClient() {
             </div>
             <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
               <p className="text-sm text-gray-500 dark:text-gray-400">Mitigated / Inactive</p>
-              <p className="text-2xl font-bold text-gray-700 dark:text-gray-300">
-                {inactiveCount}
-              </p>
+              <p className="text-2xl font-bold text-gray-700 dark:text-gray-300">{inactiveCount}</p>
             </div>
           </div>
 
@@ -277,9 +266,7 @@ export default function SodMatrixClient() {
                       <td className="px-4 py-3 text-center">
                         <AlertTriangle
                           className={`h-4 w-4 mx-auto ${
-                            item.isActive !== false
-                              ? 'text-red-500'
-                              : 'text-gray-400'
+                            item.isActive !== false ? 'text-red-500' : 'text-gray-400'
                           }`}
                         />
                       </td>
@@ -320,12 +307,7 @@ export default function SodMatrixClient() {
       </main>
 
       {/* Create Modal */}
-      <Modal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="New SoD Rule"
-        size="lg"
-      >
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="New SoD Rule" size="lg">
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -370,9 +352,7 @@ export default function SodMatrixClient() {
             </label>
             <select
               value={form.conflictType}
-              onChange={(e) =>
-                setForm({ ...form, conflictType: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, conflictType: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
             >
               <option value="">Select conflict type</option>
@@ -390,9 +370,7 @@ export default function SodMatrixClient() {
             </label>
             <textarea
               value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
               placeholder="Why do these roles conflict?"
@@ -405,9 +383,7 @@ export default function SodMatrixClient() {
             </label>
             <textarea
               value={form.mitigatingControl}
-              onChange={(e) =>
-                setForm({ ...form, mitigatingControl: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, mitigatingControl: e.target.value })}
               rows={2}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500"
               placeholder="Describe the compensating control, if any..."
@@ -419,16 +395,12 @@ export default function SodMatrixClient() {
               <input
                 type="checkbox"
                 checked={form.isActive}
-                onChange={(e) =>
-                  setForm({ ...form, isActive: e.target.checked })
-                }
+                onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-500 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-600"></div>
             </label>
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              Active conflict rule
-            </span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Active conflict rule</span>
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">

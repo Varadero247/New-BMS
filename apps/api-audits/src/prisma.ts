@@ -1,5 +1,11 @@
 import { PrismaClient, Prisma } from '@ims/database/audits';
 export { Prisma };
-declare global { var auditsPrisma: InstanceType<typeof PrismaClient> | undefined; }
-export const prisma = global.auditsPrisma || new PrismaClient({ log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'] });
-if (process.env.NODE_ENV !== 'production') { global.auditsPrisma = prisma; }
+declare global {
+  var auditsPrisma: InstanceType<typeof PrismaClient> | undefined;
+}
+export const prisma =
+  global.auditsPrisma ||
+  new PrismaClient({ log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'] });
+if (process.env.NODE_ENV !== 'production') {
+  global.auditsPrisma = prisma;
+}

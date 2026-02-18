@@ -68,19 +68,36 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'section_aspects',
         label: 'Aspects & Impacts Identification',
         type: 'section',
-        helpText: 'Identify each environmental aspect, the associated activity, and the resulting environmental impact.',
+        helpText:
+          'Identify each environmental aspect, the associated activity, and the resulting environmental impact.',
       },
       {
         id: 'aspects_table',
         label: 'Aspect & Impact Register',
         type: 'table',
         required: true,
-        helpText: 'One row per aspect. Score each criterion 1-5 and the system will calculate significance.',
+        helpText:
+          'One row per aspect. Score each criterion 1-5 and the system will calculate significance.',
         columns: [
           { id: 'aspect_ref', label: 'Ref', type: 'text', placeholder: 'ASP-001' },
-          { id: 'activity', label: 'Activity / Process', type: 'text', placeholder: 'e.g. Parts washing' },
-          { id: 'aspect', label: 'Environmental Aspect', type: 'text', placeholder: 'e.g. Use of solvent-based cleaner' },
-          { id: 'impact', label: 'Environmental Impact', type: 'text', placeholder: 'e.g. Groundwater contamination' },
+          {
+            id: 'activity',
+            label: 'Activity / Process',
+            type: 'text',
+            placeholder: 'e.g. Parts washing',
+          },
+          {
+            id: 'aspect',
+            label: 'Environmental Aspect',
+            type: 'text',
+            placeholder: 'e.g. Use of solvent-based cleaner',
+          },
+          {
+            id: 'impact',
+            label: 'Environmental Impact',
+            type: 'text',
+            placeholder: 'e.g. Groundwater contamination',
+          },
           {
             id: 'condition',
             label: 'Condition',
@@ -115,7 +132,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'section_scoring',
         label: 'Significance Scoring',
         type: 'section',
-        helpText: 'Score each criterion from 1 (low) to 5 (high). Total >= 15 indicates a significant aspect.',
+        helpText:
+          'Score each criterion from 1 (low) to 5 (high). Total >= 15 indicates a significant aspect.',
       },
       {
         id: 'severity',
@@ -215,7 +233,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Stakeholder Concern',
         type: 'select',
         required: true,
-        helpText: 'Level of interest or concern from stakeholders (community, regulators, customers).',
+        helpText:
+          'Level of interest or concern from stakeholders (community, regulators, customers).',
         options: [
           { label: '1 — No known concern', value: '1' },
           { label: '2 — Minimal concern', value: '2' },
@@ -231,7 +250,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Total Significance Score',
         type: 'number',
         required: true,
-        helpText: 'Auto-calculated: severity*1.5 + probability*1.5 + duration + extent + reversibility + regulatory + stakeholder. Significant if >= 15.',
+        helpText:
+          'Auto-calculated: severity*1.5 + probability*1.5 + duration + extent + reversibility + regulatory + stakeholder. Significant if >= 15.',
         validation: { min: 0, max: 50 },
         width: 'half',
         section: 'section_scoring',
@@ -260,7 +280,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'controls',
         label: 'Control Measures',
         type: 'textarea',
-        placeholder: 'Describe operational controls, procedures, monitoring, and responsible persons.',
+        placeholder:
+          'Describe operational controls, procedures, monitoring, and responsible persons.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_controls',
@@ -347,8 +368,10 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Project Description',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the project scope, objectives, timeline, and any new processes, chemicals, or equipment being introduced.',
-        helpText: 'Include enough detail for reviewers to understand potential environmental interactions.',
+        placeholder:
+          'Describe the project scope, objectives, timeline, and any new processes, chemicals, or equipment being introduced.',
+        helpText:
+          'Include enough detail for reviewers to understand potential environmental interactions.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_project',
@@ -390,7 +413,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Baseline Description',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe existing environmental conditions: land use, water features, habitats, air quality, noise levels, and any existing contamination.',
+        placeholder:
+          'Describe existing environmental conditions: land use, water features, habitats, air quality, noise levels, and any existing contamination.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_baseline',
@@ -399,7 +423,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'sensitive_receptors',
         label: 'Sensitive Receptors',
         type: 'textarea',
-        placeholder: 'Identify any nearby sensitive receptors: residential areas, schools, hospitals, water courses, protected habitats, heritage sites.',
+        placeholder:
+          'Identify any nearby sensitive receptors: residential areas, schools, hospitals, water courses, protected habitats, heritage sites.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_baseline',
@@ -438,7 +463,12 @@ export const environmentTemplates: TemplateDefinition[] = [
               { label: 'Raw Material Use', value: 'materials' },
             ],
           },
-          { id: 'potential_impact', label: 'Potential Impact', type: 'text', placeholder: 'Describe the potential impact' },
+          {
+            id: 'potential_impact',
+            label: 'Potential Impact',
+            type: 'text',
+            placeholder: 'Describe the potential impact',
+          },
           {
             id: 'significance',
             label: 'Significance',
@@ -489,8 +519,10 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Mitigation Plan',
         type: 'textarea',
         required: true,
-        placeholder: 'For each significant impact, describe the mitigation hierarchy: avoid > minimise > restore > offset. Include responsibilities and timescales.',
-        helpText: 'Follow the mitigation hierarchy and reference specific operational controls or procedures.',
+        placeholder:
+          'For each significant impact, describe the mitigation hierarchy: avoid > minimise > restore > offset. Include responsibilities and timescales.',
+        helpText:
+          'Follow the mitigation hierarchy and reference specific operational controls or procedures.',
         validation: { maxLength: 5000 },
         width: 'full',
         section: 'section_mitigation',
@@ -501,14 +533,16 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'section_monitoring',
         label: 'Monitoring Plan',
         type: 'section',
-        helpText: 'Define how environmental impacts will be monitored during and after the project.',
+        helpText:
+          'Define how environmental impacts will be monitored during and after the project.',
       },
       {
         id: 'monitoring_plan',
         label: 'Monitoring Requirements',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe monitoring parameters, frequency, methods, locations, responsibilities, and trigger levels / action thresholds.',
+        placeholder:
+          'Describe monitoring parameters, frequency, methods, locations, responsibilities, and trigger levels / action thresholds.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_monitoring',
@@ -726,7 +760,12 @@ export const environmentTemplates: TemplateDefinition[] = [
         required: true,
         helpText: 'Add one row per waste stream.',
         columns: [
-          { id: 'waste_type', label: 'Waste Type', type: 'text', placeholder: 'e.g. General waste' },
+          {
+            id: 'waste_type',
+            label: 'Waste Type',
+            type: 'text',
+            placeholder: 'e.g. General waste',
+          },
           {
             id: 'classification',
             label: 'Classification',
@@ -759,7 +798,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'recycling_rate',
         label: 'Recycling / Diversion Rate (%)',
         type: 'number',
-        helpText: 'Percentage of waste diverted from landfill (recycled + composted + energy recovery).',
+        helpText:
+          'Percentage of waste diverted from landfill (recycled + composted + energy recovery).',
         validation: { min: 0, max: 100 },
         width: 'half',
         section: 'section_waste',
@@ -848,7 +888,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'compliance_notes',
         label: 'Compliance Notes',
         type: 'textarea',
-        placeholder: 'Note any compliance issues, regulatory visits, or enforcement actions this period.',
+        placeholder:
+          'Note any compliance issues, regulatory visits, or enforcement actions this period.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_compliance',
@@ -865,7 +906,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Trends & Analysis',
         type: 'textarea',
         required: true,
-        placeholder: 'Compare this period to previous months and same period last year. Highlight improving and deteriorating trends, explain variances, and note any exceptional circumstances.',
+        placeholder:
+          'Compare this period to previous months and same period last year. Highlight improving and deteriorating trends, explain variances, and note any exceptional circumstances.',
         helpText: 'Reference specific KPIs and explain any significant changes.',
         validation: { maxLength: 3000 },
         width: 'full',
@@ -946,10 +988,16 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Waste Streams',
         type: 'table',
         required: true,
-        helpText: 'Add one row per waste stream. Include the EWC code, source, and estimated volume.',
+        helpText:
+          'Add one row per waste stream. Include the EWC code, source, and estimated volume.',
         columns: [
           { id: 'stream_ref', label: 'Ref', type: 'text', placeholder: 'WS-01' },
-          { id: 'waste_description', label: 'Waste Description', type: 'text', placeholder: 'e.g. Spent cutting oil' },
+          {
+            id: 'waste_description',
+            label: 'Waste Description',
+            type: 'text',
+            placeholder: 'e.g. Spent cutting oil',
+          },
           { id: 'ewc_code', label: 'EWC Code', type: 'text', placeholder: '12 01 07*' },
           {
             id: 'classification',
@@ -961,8 +1009,18 @@ export const environmentTemplates: TemplateDefinition[] = [
               { label: 'Inert', value: 'inert' },
             ],
           },
-          { id: 'source', label: 'Source / Process', type: 'text', placeholder: 'e.g. CNC machining' },
-          { id: 'estimated_volume', label: 'Est. Volume (per month)', type: 'text', placeholder: 'e.g. 200 litres' },
+          {
+            id: 'source',
+            label: 'Source / Process',
+            type: 'text',
+            placeholder: 'e.g. CNC machining',
+          },
+          {
+            id: 'estimated_volume',
+            label: 'Est. Volume (per month)',
+            type: 'text',
+            placeholder: 'e.g. 200 litres',
+          },
         ],
         section: 'section_streams',
       },
@@ -979,8 +1037,10 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Storage Arrangements',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe storage containers, locations, labelling, segregation, bunding/containment, and security measures for each waste stream.',
-        helpText: 'Hazardous waste must be stored in suitable, labelled containers with secondary containment.',
+        placeholder:
+          'Describe storage containers, locations, labelling, segregation, bunding/containment, and security measures for each waste stream.',
+        helpText:
+          'Hazardous waste must be stored in suitable, labelled containers with secondary containment.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_storage',
@@ -1004,8 +1064,10 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Disposal Methods Summary',
         type: 'textarea',
         required: true,
-        placeholder: 'For each waste stream, describe the disposal or treatment method: recycling, recovery, incineration, landfill, etc. Reference the waste hierarchy.',
-        helpText: 'Apply the waste hierarchy: Prevention > Reuse > Recycling > Recovery > Disposal.',
+        placeholder:
+          'For each waste stream, describe the disposal or treatment method: recycling, recovery, incineration, landfill, etc. Reference the waste hierarchy.',
+        helpText:
+          'Apply the waste hierarchy: Prevention > Reuse > Recycling > Recovery > Disposal.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_disposal',
@@ -1023,13 +1085,29 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Waste Contractors',
         type: 'table',
         required: true,
-        helpText: 'Record details of each waste contractor. Verify carrier licence and site permit before use.',
+        helpText:
+          'Record details of each waste contractor. Verify carrier licence and site permit before use.',
         columns: [
           { id: 'contractor_name', label: 'Contractor Name', type: 'text' },
-          { id: 'carrier_licence', label: 'Carrier Licence Number', type: 'text', placeholder: 'e.g. CBDU12345' },
+          {
+            id: 'carrier_licence',
+            label: 'Carrier Licence Number',
+            type: 'text',
+            placeholder: 'e.g. CBDU12345',
+          },
           { id: 'licence_expiry', label: 'Licence Expiry', type: 'date' },
-          { id: 'waste_types_handled', label: 'Waste Types Handled', type: 'text', placeholder: 'e.g. Hazardous liquids' },
-          { id: 'disposal_facility', label: 'Disposal Facility', type: 'text', placeholder: 'Site name and permit no.' },
+          {
+            id: 'waste_types_handled',
+            label: 'Waste Types Handled',
+            type: 'text',
+            placeholder: 'e.g. Hazardous liquids',
+          },
+          {
+            id: 'disposal_facility',
+            label: 'Disposal Facility',
+            type: 'text',
+            placeholder: 'Site name and permit no.',
+          },
           { id: 'contact', label: 'Contact Details', type: 'text' },
         ],
         section: 'section_contractors',
@@ -1046,7 +1124,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Applicable Regulations',
         type: 'textarea',
         required: true,
-        placeholder: 'List all applicable waste regulations, permit conditions, and consents (e.g. Environmental Permitting Regulations, Duty of Care, Hazardous Waste Regulations).',
+        placeholder:
+          'List all applicable waste regulations, permit conditions, and consents (e.g. Environmental Permitting Regulations, Duty of Care, Hazardous Waste Regulations).',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_regulatory',
@@ -1070,7 +1149,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'minimisation_targets',
         label: 'Targets',
         type: 'textarea',
-        placeholder: 'State waste minimisation and recycling targets (e.g. reduce landfill waste by 10% year-on-year, achieve 90% recycling rate).',
+        placeholder:
+          'State waste minimisation and recycling targets (e.g. reduce landfill waste by 10% year-on-year, achieve 90% recycling rate).',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_targets',
@@ -1133,7 +1213,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Audit Scope',
         type: 'textarea',
         required: true,
-        placeholder: 'e.g. ISO 14001 Clauses 4-10 covering all manufacturing processes at Main Site',
+        placeholder:
+          'e.g. ISO 14001 Clauses 4-10 covering all manufacturing processes at Main Site',
         helpText: 'Define the scope including clauses, processes, departments, and sites covered.',
         validation: { maxLength: 1000 },
         width: 'full',
@@ -1195,10 +1276,16 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Audit Findings by Clause',
         type: 'table',
         required: true,
-        helpText: 'One row per clause or sub-clause assessed. Reference the specific ISO 14001 clause number.',
+        helpText:
+          'One row per clause or sub-clause assessed. Reference the specific ISO 14001 clause number.',
         columns: [
           { id: 'clause_ref', label: 'Clause', type: 'text', placeholder: 'e.g. 6.1.2' },
-          { id: 'requirement', label: 'Requirement Summary', type: 'text', placeholder: 'e.g. Environmental aspects' },
+          {
+            id: 'requirement',
+            label: 'Requirement Summary',
+            type: 'text',
+            placeholder: 'e.g. Environmental aspects',
+          },
           {
             id: 'conformity',
             label: 'Conformity',
@@ -1212,8 +1299,18 @@ export const environmentTemplates: TemplateDefinition[] = [
               { label: 'Not Applicable', value: 'na' },
             ],
           },
-          { id: 'evidence', label: 'Objective Evidence', type: 'text', placeholder: 'Records, interviews, observations' },
-          { id: 'finding', label: 'Finding / Notes', type: 'text', placeholder: 'Details of conformity or non-conformity' },
+          {
+            id: 'evidence',
+            label: 'Objective Evidence',
+            type: 'text',
+            placeholder: 'Records, interviews, observations',
+          },
+          {
+            id: 'finding',
+            label: 'Finding / Notes',
+            type: 'text',
+            placeholder: 'Details of conformity or non-conformity',
+          },
         ],
         section: 'section_clauses',
       },
@@ -1229,7 +1326,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'ncrs_table',
         label: 'NCR Register',
         type: 'table',
-        helpText: 'One row per non-conformity. Assign corrective actions with responsible persons and dates.',
+        helpText:
+          'One row per non-conformity. Assign corrective actions with responsible persons and dates.',
         columns: [
           { id: 'ncr_ref', label: 'NCR Ref', type: 'text', placeholder: 'NCR-ENV-001' },
           {
@@ -1243,7 +1341,12 @@ export const environmentTemplates: TemplateDefinition[] = [
           },
           { id: 'clause_ref', label: 'Clause', type: 'text', placeholder: '6.1.2' },
           { id: 'ncr_description', label: 'Description of Non-Conformity', type: 'text' },
-          { id: 'root_cause', label: 'Root Cause', type: 'text', placeholder: 'Identified root cause' },
+          {
+            id: 'root_cause',
+            label: 'Root Cause',
+            type: 'text',
+            placeholder: 'Identified root cause',
+          },
           { id: 'corrective_action', label: 'Corrective Action Required', type: 'text' },
           { id: 'responsible', label: 'Responsible Person', type: 'text' },
           { id: 'due_date', label: 'Due Date', type: 'date' },
@@ -1261,8 +1364,10 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'opportunities',
         label: 'Opportunities for Improvement (OFI)',
         type: 'textarea',
-        placeholder: 'List any opportunities to enhance the EMS, even where requirements are being met.',
-        helpText: 'OFIs are not non-conformities but represent areas where environmental performance could be improved.',
+        placeholder:
+          'List any opportunities to enhance the EMS, even where requirements are being met.',
+        helpText:
+          'OFIs are not non-conformities but represent areas where environmental performance could be improved.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_ofi',
@@ -1279,7 +1384,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Audit Conclusion',
         type: 'textarea',
         required: true,
-        placeholder: 'Summarise the overall audit findings, number of NCs, and opinion on EMS effectiveness and conformity to ISO 14001:2015.',
+        placeholder:
+          'Summarise the overall audit findings, number of NCs, and opinion on EMS effectiveness and conformity to ISO 14001:2015.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_conclusion',
@@ -1351,7 +1457,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Evaluation Scope',
         type: 'textarea',
         required: true,
-        placeholder: 'Define the scope of this compliance evaluation: which regulations, permits, and obligations are being assessed.',
+        placeholder:
+          'Define the scope of this compliance evaluation: which regulations, permits, and obligations are being assessed.',
         validation: { maxLength: 1500 },
         width: 'full',
         section: 'section_header',
@@ -1420,7 +1527,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Evidence of Compliance',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the objective evidence reviewed to determine compliance status (e.g. monitoring records, permits, procedures, training records).',
+        placeholder:
+          'Describe the objective evidence reviewed to determine compliance status (e.g. monitoring records, permits, procedures, training records).',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_register',
@@ -1438,7 +1546,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'corrective_actions_needed',
         label: 'Corrective Actions Required',
         type: 'textarea',
-        placeholder: 'Describe any corrective or preventive actions required to address gaps or achieve full compliance.',
+        placeholder:
+          'Describe any corrective or preventive actions required to address gaps or achieve full compliance.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_register',
@@ -1493,7 +1602,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Next Evaluation Date',
         type: 'date',
         required: true,
-        helpText: 'Compliance evaluations should be conducted at least annually or when significant changes occur.',
+        helpText:
+          'Compliance evaluations should be conducted at least annually or when significant changes occur.',
         width: 'half',
         section: 'section_summary',
       },
@@ -1516,7 +1626,13 @@ export const environmentTemplates: TemplateDefinition[] = [
       'Structured management review agenda and minutes for the Environmental Management System, aligned with ISO 14001:2015 Clause 9.3. Covers all required inputs (policy, objectives, audit results, compliance, environmental performance) and outputs (decisions, actions, resource needs).',
     module: 'ENVIRONMENT',
     category: 'MANAGEMENT_REVIEW',
-    tags: ['management review', 'ISO 14001', 'clause 9.3', 'continual improvement', 'top management'],
+    tags: [
+      'management review',
+      'ISO 14001',
+      'clause 9.3',
+      'continual improvement',
+      'top management',
+    ],
     isoClause: '9.3',
     fields: [
       // ── Section: Meeting Details ──
@@ -1567,14 +1683,16 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'section_input_policy',
         label: 'Input: Environmental Policy & Strategic Direction',
         type: 'section',
-        helpText: 'ISO 14001 Clause 9.3 — Suitability of the environmental policy and alignment with strategic direction.',
+        helpText:
+          'ISO 14001 Clause 9.3 — Suitability of the environmental policy and alignment with strategic direction.',
       },
       {
         id: 'policy_review',
         label: 'Environmental Policy Review',
         type: 'textarea',
         required: true,
-        placeholder: 'Review the continuing suitability of the environmental policy. Does it still reflect the organisation\'s context, scope, and commitment to protection of the environment?',
+        placeholder:
+          "Review the continuing suitability of the environmental policy. Does it still reflect the organisation's context, scope, and commitment to protection of the environment?",
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_input_policy',
@@ -1592,7 +1710,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Objectives Progress',
         type: 'textarea',
         required: true,
-        placeholder: 'Review each environmental objective. Report on KPI achievement, percentage complete, and any objectives at risk.',
+        placeholder:
+          'Review each environmental objective. Report on KPI achievement, percentage complete, and any objectives at risk.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_input_objectives',
@@ -1619,7 +1738,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Internal Audit Results Summary',
         type: 'textarea',
         required: true,
-        placeholder: 'Summarise key audit findings, number of NCs (minor/major), trends, and closure rates.',
+        placeholder:
+          'Summarise key audit findings, number of NCs (minor/major), trends, and closure rates.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_input_audit',
@@ -1636,7 +1756,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Compliance Evaluation Summary',
         type: 'textarea',
         required: true,
-        placeholder: 'Summarise the results of compliance evaluations. Note any breaches, enforcement actions, new legislation, or permit changes.',
+        placeholder:
+          'Summarise the results of compliance evaluations. Note any breaches, enforcement actions, new legislation, or permit changes.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_input_compliance',
@@ -1654,7 +1775,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Environmental Performance Summary',
         type: 'textarea',
         required: true,
-        placeholder: 'Present key environmental KPIs: energy use, water use, waste generation, emissions, spills. Show trends against targets and prior periods.',
+        placeholder:
+          'Present key environmental KPIs: energy use, water use, waste generation, emissions, spills. Show trends against targets and prior periods.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_input_performance',
@@ -1663,7 +1785,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'significant_incidents',
         label: 'Significant Environmental Incidents',
         type: 'textarea',
-        placeholder: 'Detail any significant environmental incidents, spills, or complaints since the last review.',
+        placeholder:
+          'Detail any significant environmental incidents, spills, or complaints since the last review.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_input_performance',
@@ -1679,7 +1802,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'changes_issues',
         label: 'Changes in Context',
         type: 'textarea',
-        placeholder: 'Note any changes in external issues (legislation, market, climate), internal issues (processes, products, structure), or stakeholder expectations.',
+        placeholder:
+          'Note any changes in external issues (legislation, market, climate), internal issues (processes, products, structure), or stakeholder expectations.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_input_changes',
@@ -1697,12 +1821,18 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Decisions Made',
         type: 'table',
         required: true,
-        helpText: 'Record strategic decisions, changes to policy, new objectives, and resource allocations.',
+        helpText:
+          'Record strategic decisions, changes to policy, new objectives, and resource allocations.',
         columns: [
           { id: 'decision_ref', label: 'Ref', type: 'text', placeholder: 'D-01' },
           { id: 'decision', label: 'Decision / Direction', type: 'text' },
           { id: 'rationale', label: 'Rationale', type: 'text' },
-          { id: 'resources', label: 'Resources Required', type: 'text', placeholder: 'Budget, personnel' },
+          {
+            id: 'resources',
+            label: 'Resources Required',
+            type: 'text',
+            placeholder: 'Budget, personnel',
+          },
           { id: 'owner', label: 'Owner', type: 'text' },
         ],
         section: 'section_output_decisions',
@@ -1758,7 +1888,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'resource_needs',
         label: 'Resource Requirements',
         type: 'textarea',
-        placeholder: 'Describe any additional resources (budget, personnel, training, equipment, technology) needed to improve the EMS.',
+        placeholder:
+          'Describe any additional resources (budget, personnel, training, equipment, technology) needed to improve the EMS.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_resources',
@@ -1845,7 +1976,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Review Date',
         type: 'date',
         required: true,
-        helpText: 'Emergency plans must be reviewed at least annually and after any drill or actual emergency.',
+        helpText:
+          'Emergency plans must be reviewed at least annually and after any drill or actual emergency.',
         width: 'half',
         section: 'section_header',
       },
@@ -1881,7 +2013,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Scenario Description',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the emergency scenario in detail: what substance, what quantity, where it could occur, and what environmental receptors are at risk.',
+        placeholder:
+          'Describe the emergency scenario in detail: what substance, what quantity, where it could occur, and what environmental receptors are at risk.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_scenario',
@@ -1891,7 +2024,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Potential Environmental Impact',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the worst-case environmental impact if this scenario occurs without intervention (e.g. contamination of nearby watercourse, soil contamination over X area).',
+        placeholder:
+          'Describe the worst-case environmental impact if this scenario occurs without intervention (e.g. contamination of nearby watercourse, soil contamination over X area).',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_scenario',
@@ -1909,8 +2043,10 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Immediate Response Actions',
         type: 'textarea',
         required: true,
-        placeholder: 'List the immediate actions in chronological order: 1. Raise alarm, 2. Isolate source, 3. Deploy spill kit, 4. Contain spread, 5. Notify environmental coordinator...',
-        helpText: 'These must be concise and actionable — responders may refer to this under pressure.',
+        placeholder:
+          'List the immediate actions in chronological order: 1. Raise alarm, 2. Isolate source, 3. Deploy spill kit, 4. Contain spread, 5. Notify environmental coordinator...',
+        helpText:
+          'These must be concise and actionable — responders may refer to this under pressure.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_response',
@@ -1920,7 +2056,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Containment & Clean-up Procedures',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe detailed containment and remediation steps: materials to use, waste disposal, decontamination, sampling requirements.',
+        placeholder:
+          'Describe detailed containment and remediation steps: materials to use, waste disposal, decontamination, sampling requirements.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_response',
@@ -1939,9 +2076,19 @@ export const environmentTemplates: TemplateDefinition[] = [
         required: true,
         helpText: 'Define who does what during an environmental emergency.',
         columns: [
-          { id: 'role', label: 'Role', type: 'text', placeholder: 'e.g. Environmental Coordinator' },
+          {
+            id: 'role',
+            label: 'Role',
+            type: 'text',
+            placeholder: 'e.g. Environmental Coordinator',
+          },
           { id: 'name', label: 'Named Person', type: 'text' },
-          { id: 'responsibilities', label: 'Key Responsibilities', type: 'text', placeholder: 'e.g. Co-ordinate response, notify regulators' },
+          {
+            id: 'responsibilities',
+            label: 'Key Responsibilities',
+            type: 'text',
+            placeholder: 'e.g. Co-ordinate response, notify regulators',
+          },
           { id: 'contact_phone', label: 'Contact Phone', type: 'tel' },
           { id: 'backup_name', label: 'Backup / Deputy', type: 'text' },
         ],
@@ -1959,7 +2106,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Emergency Equipment Required',
         type: 'textarea',
         required: true,
-        placeholder: 'List all equipment needed for this scenario: spill kits (type, quantity, location), PPE, absorbent materials, drain covers, pumps, containers, sampling equipment.',
+        placeholder:
+          'List all equipment needed for this scenario: spill kits (type, quantity, location), PPE, absorbent materials, drain covers, pumps, containers, sampling equipment.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_equipment',
@@ -1968,7 +2116,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'equipment_locations',
         label: 'Equipment Locations',
         type: 'textarea',
-        placeholder: 'Describe where emergency equipment is stored. Attach a site map if available.',
+        placeholder:
+          'Describe where emergency equipment is stored. Attach a site map if available.',
         validation: { maxLength: 1000 },
         width: 'full',
         section: 'section_equipment',
@@ -1977,7 +2126,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         id: 'site_map',
         label: 'Site Map / Layout',
         type: 'file',
-        helpText: 'Attach a site map showing emergency equipment locations, drains, water courses, and muster points.',
+        helpText:
+          'Attach a site map showing emergency equipment locations, drains, water courses, and muster points.',
         section: 'section_equipment',
       },
 
@@ -1993,7 +2143,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Internal Notification Procedure',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the internal notification chain: who to call first, escalation triggers, and how to communicate with employees.',
+        placeholder:
+          'Describe the internal notification chain: who to call first, escalation triggers, and how to communicate with employees.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_communication',
@@ -2003,8 +2154,10 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'External Notification Requirements',
         type: 'textarea',
         required: true,
-        placeholder: 'List regulatory bodies and external parties that must be notified: Environment Agency (EA), local authority, water company, emergency services, neighbours.',
-        helpText: 'Include notification triggers (e.g. any release reaching a water course) and timescales.',
+        placeholder:
+          'List regulatory bodies and external parties that must be notified: Environment Agency (EA), local authority, water company, emergency services, neighbours.',
+        helpText:
+          'Include notification triggers (e.g. any release reaching a water course) and timescales.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_communication',
@@ -2211,7 +2364,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Scenario Description',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the simulated emergency scenario: what was the assumed incident, its scale, and what response was expected.',
+        placeholder:
+          'Describe the simulated emergency scenario: what was the assumed incident, its scale, and what response was expected.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_scenario',
@@ -2221,7 +2375,8 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Drill Objectives',
         type: 'textarea',
         required: true,
-        placeholder: 'What specific aspects of the emergency plan were being tested? e.g. Response time, containment procedures, communication chain, equipment adequacy.',
+        placeholder:
+          'What specific aspects of the emergency plan were being tested? e.g. Response time, containment procedures, communication chain, equipment adequacy.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_scenario',
@@ -2242,7 +2397,12 @@ export const environmentTemplates: TemplateDefinition[] = [
         columns: [
           { id: 'name', label: 'Name', type: 'text' },
           { id: 'role', label: 'Job Title', type: 'text' },
-          { id: 'drill_role', label: 'Role in Drill', type: 'text', placeholder: 'e.g. First responder, observer, coordinator' },
+          {
+            id: 'drill_role',
+            label: 'Role in Drill',
+            type: 'text',
+            placeholder: 'e.g. First responder, observer, coordinator',
+          },
           { id: 'department', label: 'Department', type: 'text' },
         ],
         section: 'section_participants',
@@ -2268,12 +2428,18 @@ export const environmentTemplates: TemplateDefinition[] = [
         label: 'Timeline of Events',
         type: 'table',
         required: true,
-        helpText: 'Record each significant event or action during the drill with the time it occurred.',
+        helpText:
+          'Record each significant event or action during the drill with the time it occurred.',
         columns: [
           { id: 'time', label: 'Time', type: 'text', placeholder: 'HH:MM' },
           { id: 'event', label: 'Event / Action', type: 'text', placeholder: 'e.g. Alarm raised' },
           { id: 'by_whom', label: 'By Whom', type: 'text' },
-          { id: 'comments', label: 'Comments', type: 'text', placeholder: 'Observations or issues' },
+          {
+            id: 'comments',
+            label: 'Comments',
+            type: 'text',
+            placeholder: 'Observations or issues',
+          },
         ],
         section: 'section_timeline',
       },
@@ -2330,9 +2496,18 @@ export const environmentTemplates: TemplateDefinition[] = [
         type: 'select',
         required: true,
         options: [
-          { label: 'Satisfactory — Plan effective, minor improvements only', value: 'satisfactory' },
-          { label: 'Adequate — Plan generally effective but improvements needed', value: 'adequate' },
-          { label: 'Unsatisfactory — Significant deficiencies identified', value: 'unsatisfactory' },
+          {
+            label: 'Satisfactory — Plan effective, minor improvements only',
+            value: 'satisfactory',
+          },
+          {
+            label: 'Adequate — Plan generally effective but improvements needed',
+            value: 'adequate',
+          },
+          {
+            label: 'Unsatisfactory — Significant deficiencies identified',
+            value: 'unsatisfactory',
+          },
         ],
         width: 'full',
         section: 'section_evaluation',

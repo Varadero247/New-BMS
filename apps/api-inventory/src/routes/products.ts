@@ -25,7 +25,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
       status,
       categoryId,
       supplierId,
-      lowStock
+      lowStock,
     } = req.query;
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -64,22 +64,26 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     // If lowStock filter is applied, include inventory totals
     let productsWithStock = products;
     if (lowStock === 'true') {
-      const productIds = products.map(p => p.id);
+      const productIds = products.map((p) => p.id);
       const inventoryTotals = await prisma.inventory.groupBy({
         by: ['productId'],
         where: { productId: { in: productIds } },
         _sum: { quantityOnHand: true },
       });
 
-      const stockMap = new Map(inventoryTotals.map(i => [i.productId, i._sum.quantityOnHand || 0]));
+      const stockMap = new Map(
+        inventoryTotals.map((i) => [i.productId, i._sum.quantityOnHand || 0])
+      );
 
-      productsWithStock = products.filter(p => {
-        const totalStock = stockMap.get(p.id) || 0;
-        return totalStock <= p.reorderPoint;
-      }).map(p => ({
-        ...p,
-        totalStock: stockMap.get(p.id) || 0,
-      }));
+      productsWithStock = products
+        .filter((p) => {
+          const totalStock = stockMap.get(p.id) || 0;
+          return totalStock <= p.reorderPoint;
+        })
+        .map((p) => ({
+          ...p,
+          totalStock: stockMap.get(p.id) || 0,
+        }));
     }
 
     res.json({
@@ -89,7 +93,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List products error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list products' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list products' },
+    });
   }
 });
 
@@ -104,26 +111,34 @@ router.get('/low-stock', async (req: AuthRequest, res: Response) => {
           select: { quantityOnHand: true, warehouseId: true },
         },
       },
-      take: 1000});
+      take: 1000,
+    });
 
-    const lowStockProducts = products.filter(product => {
-      const totalStock = product.inventoryItems.reduce((sum, inv) => sum + inv.quantityOnHand, 0);
-      return totalStock <= product.reorderPoint;
-    }).map(product => ({
-      id: product.id,
-      sku: product.sku,
-      name: product.name,
-      category: product.category,
-      reorderPoint: product.reorderPoint,
-      reorderQuantity: product.reorderQuantity,
-      totalStock: product.inventoryItems.reduce((sum, inv) => sum + inv.quantityOnHand, 0),
-      deficit: product.reorderPoint - product.inventoryItems.reduce((sum, inv) => sum + inv.quantityOnHand, 0),
-    }));
+    const lowStockProducts = products
+      .filter((product) => {
+        const totalStock = product.inventoryItems.reduce((sum, inv) => sum + inv.quantityOnHand, 0);
+        return totalStock <= product.reorderPoint;
+      })
+      .map((product) => ({
+        id: product.id,
+        sku: product.sku,
+        name: product.name,
+        category: product.category,
+        reorderPoint: product.reorderPoint,
+        reorderQuantity: product.reorderQuantity,
+        totalStock: product.inventoryItems.reduce((sum, inv) => sum + inv.quantityOnHand, 0),
+        deficit:
+          product.reorderPoint -
+          product.inventoryItems.reduce((sum, inv) => sum + inv.quantityOnHand, 0),
+      }));
 
     res.json({ success: true, data: lowStockProducts });
   } catch (error) {
     logger.error('Low stock error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get low stock products' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get low stock products' },
+    });
   }
 });
 
@@ -132,16 +147,16 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
   try {
     const { q } = req.query;
     if (!q) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Search query required' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Search query required' },
+      });
     }
 
     const product = await prisma.product.findFirst({
       where: {
         deletedAt: null,
-        OR: [
-          { sku: q as string } as any,
-          { barcode: q as string },
-        ],
+        OR: [{ sku: q as string } as any, { barcode: q as string }],
       },
       include: {
         category: true,
@@ -153,13 +168,18 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
     });
 
     if (!product) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
     }
 
     res.json({ success: true, data: product });
   } catch (error) {
     logger.error('Search product error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to search product' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to search product' },
+    });
   }
 });
 
@@ -178,13 +198,18 @@ router.get('/:id', checkOwnership(prisma.product), async (req: AuthRequest, res:
     });
 
     if (!product) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
     }
 
     res.json({ success: true, data: product });
   } catch (error) {
     logger.error('Get product error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get product' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get product' },
+    });
   }
 });
 
@@ -223,14 +248,19 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     // Check for duplicate SKU
     const existingSku = await prisma.product.findUnique({ where: { sku: data.sku } });
     if (existingSku) {
-      return res.status(400).json({ success: false, error: { code: 'DUPLICATE_SKU', message: 'SKU already exists' } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'DUPLICATE_SKU', message: 'SKU already exists' } });
     }
 
     // Check for duplicate barcode if provided
     if (data.barcode) {
       const existingBarcode = await prisma.product.findUnique({ where: { barcode: data.barcode } });
       if (existingBarcode) {
-        return res.status(400).json({ success: false, error: { code: 'DUPLICATE_BARCODE', message: 'Barcode already exists' } });
+        return res.status(400).json({
+          success: false,
+          error: { code: 'DUPLICATE_BARCODE', message: 'Barcode already exists' },
+        });
       }
     }
 
@@ -251,10 +281,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: product });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create product error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create product' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create product' },
+    });
   }
 });
 
@@ -263,7 +303,9 @@ router.patch('/:id', checkOwnership(prisma.product), async (req: AuthRequest, re
   try {
     const existing = await prisma.product.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
     }
 
     const schema = z.object({
@@ -301,7 +343,10 @@ router.patch('/:id', checkOwnership(prisma.product), async (req: AuthRequest, re
     if (data.version !== undefined && data.version !== existing.version) {
       return res.status(409).json({
         success: false,
-        error: { code: 'CONFLICT', message: 'Product has been modified by another user. Please refresh and try again.' }
+        error: {
+          code: 'CONFLICT',
+          message: 'Product has been modified by another user. Please refresh and try again.',
+        },
       });
     }
 
@@ -309,7 +354,10 @@ router.patch('/:id', checkOwnership(prisma.product), async (req: AuthRequest, re
     if (data.sku && data.sku !== existing.sku) {
       const existingSku = await prisma.product.findUnique({ where: { sku: data.sku } });
       if (existingSku) {
-        return res.status(400).json({ success: false, error: { code: 'DUPLICATE_SKU', message: 'SKU already exists' } });
+        return res.status(400).json({
+          success: false,
+          error: { code: 'DUPLICATE_SKU', message: 'SKU already exists' },
+        });
       }
     }
 
@@ -317,7 +365,10 @@ router.patch('/:id', checkOwnership(prisma.product), async (req: AuthRequest, re
     if (data.barcode && data.barcode !== existing.barcode) {
       const existingBarcode = await prisma.product.findUnique({ where: { barcode: data.barcode } });
       if (existingBarcode) {
-        return res.status(400).json({ success: false, error: { code: 'DUPLICATE_BARCODE', message: 'Barcode already exists' } });
+        return res.status(400).json({
+          success: false,
+          error: { code: 'DUPLICATE_BARCODE', message: 'Barcode already exists' },
+        });
       }
     }
 
@@ -339,10 +390,20 @@ router.patch('/:id', checkOwnership(prisma.product), async (req: AuthRequest, re
     res.json({ success: true, data: product });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update product error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update product' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update product' },
+    });
   }
 });
 
@@ -355,24 +416,36 @@ router.delete('/:id', checkOwnership(prisma.product), async (req: AuthRequest, r
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
     }
 
     // Check if product has inventory
-    const hasInventory = existing.inventoryItems.some(inv => inv.quantityOnHand > 0);
+    const hasInventory = existing.inventoryItems.some((inv) => inv.quantityOnHand > 0);
     if (hasInventory) {
       return res.status(400).json({
         success: false,
-        error: { code: 'HAS_INVENTORY', message: 'Cannot delete product with existing inventory. Set status to DISCONTINUED instead.' }
+        error: {
+          code: 'HAS_INVENTORY',
+          message:
+            'Cannot delete product with existing inventory. Set status to DISCONTINUED instead.',
+        },
       });
     }
 
-    await prisma.product.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
+    await prisma.product.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id },
+    });
 
     res.status(204).send();
   } catch (error) {
     logger.error('Delete product error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete product' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete product' },
+    });
   }
 });
 

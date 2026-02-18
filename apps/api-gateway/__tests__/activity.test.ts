@@ -71,32 +71,26 @@ describe('Activity Routes', () => {
 
   describe('POST /api/activity', () => {
     it('logs a new activity entry', async () => {
-      const res = await request(app)
-        .post('/api/activity')
-        .send({
-          recordType: 'ncr',
-          recordId: 'r1',
-          action: 'created',
-        });
+      const res = await request(app).post('/api/activity').send({
+        recordType: 'ncr',
+        recordId: 'r1',
+        action: 'created',
+      });
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
     });
 
     it('rejects invalid action', async () => {
-      const res = await request(app)
-        .post('/api/activity')
-        .send({
-          recordType: 'ncr',
-          recordId: 'r1',
-          action: 'invalid_action',
-        });
+      const res = await request(app).post('/api/activity').send({
+        recordType: 'ncr',
+        recordId: 'r1',
+        action: 'invalid_action',
+      });
       expect(res.status).toBe(400);
     });
 
     it('rejects missing required fields', async () => {
-      const res = await request(app)
-        .post('/api/activity')
-        .send({ recordType: 'ncr' });
+      const res = await request(app).post('/api/activity').send({ recordType: 'ncr' });
       expect(res.status).toBe(400);
     });
   });

@@ -21,7 +21,7 @@ export function getLuminance(hex: string): number {
   const rgb = hexToRgb(hex);
   if (!rgb) return 0;
 
-  const [r, g, b] = [rgb.r, rgb.g, rgb.b].map(c => {
+  const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((c) => {
     const s = c / 255;
     return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
   });
@@ -37,23 +37,33 @@ export function getContrastRatio(hex1: string, hex2: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-export function meetsWCAGAA(foreground: string, background: string, isLargeText: boolean = false): boolean {
+export function meetsWCAGAA(
+  foreground: string,
+  background: string,
+  isLargeText: boolean = false
+): boolean {
   const ratio = getContrastRatio(foreground, background);
   return isLargeText ? ratio >= 3 : ratio >= 4.5;
 }
 
-export function meetsWCAGAAA(foreground: string, background: string, isLargeText: boolean = false): boolean {
+export function meetsWCAGAAA(
+  foreground: string,
+  background: string,
+  isLargeText: boolean = false
+): boolean {
   const ratio = getContrastRatio(foreground, background);
   return isLargeText ? ratio >= 4.5 : ratio >= 7;
 }
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16),
-  } : null;
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : null;
 }
 
 // ARIA Live Region helpers
@@ -61,17 +71,24 @@ export type AriaLiveRegion = 'polite' | 'assertive' | 'off';
 
 export function getAriaLiveProps(type: 'status' | 'alert' | 'log') {
   switch (type) {
-    case 'alert': return { 'aria-live': 'assertive' as const, role: 'alert' };
-    case 'status': return { 'aria-live': 'polite' as const, role: 'status' };
-    case 'log': return { 'aria-live': 'polite' as const, role: 'log' };
+    case 'alert':
+      return { 'aria-live': 'assertive' as const, role: 'alert' };
+    case 'status':
+      return { 'aria-live': 'polite' as const, role: 'status' };
+    case 'log':
+      return { 'aria-live': 'polite' as const, role: 'log' };
   }
 }
 
 // Keyboard navigation helpers
 export const FOCUSABLE_SELECTOR = [
-  'a[href]', 'button:not([disabled])', 'input:not([disabled])',
-  'select:not([disabled])', 'textarea:not([disabled])',
-  '[tabindex]:not([tabindex="-1"])', '[contenteditable]',
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+  '[contenteditable]',
 ].join(', ');
 
 export function trapFocus(container: HTMLElement) {

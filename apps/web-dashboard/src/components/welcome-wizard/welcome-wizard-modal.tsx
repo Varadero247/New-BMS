@@ -37,7 +37,9 @@ export function WelcomeWizardModal({
         <div className="w-52 shrink-0 border-r border-[var(--border,#334155)] p-4 flex flex-col gap-1 bg-[var(--deep,#0f172a)]">
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="h-4 w-4 text-[var(--blue-mid,#3b82f6)]" />
-            <span className="text-sm font-semibold text-[var(--white,#f8fafc)]">Discovery Guide</span>
+            <span className="text-sm font-semibold text-[var(--white,#f8fafc)]">
+              Discovery Guide
+            </span>
           </div>
           {WIZARD_STEPS.map((s, i) => {
             const Icon = s.icon;
@@ -51,12 +53,16 @@ export function WelcomeWizardModal({
                   isActive
                     ? 'bg-[var(--surface,#1e293b)] border border-[var(--blue-mid,#3b82f6)]'
                     : isVisited
-                    ? 'hover:bg-[var(--surface,#1e293b)] opacity-70'
-                    : 'hover:bg-[var(--surface,#1e293b)] opacity-50'
+                      ? 'hover:bg-[var(--surface,#1e293b)] opacity-70'
+                      : 'hover:bg-[var(--surface,#1e293b)] opacity-50'
                 }`}
               >
-                <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-[var(--blue-mid,#3b82f6)]' : 'text-[var(--steel,#94a3b8)]'}`} />
-                <span className={`text-xs font-medium truncate ${isActive ? 'text-[var(--white,#f8fafc)]' : 'text-[var(--steel,#94a3b8)]'}`}>
+                <Icon
+                  className={`h-4 w-4 shrink-0 ${isActive ? 'text-[var(--blue-mid,#3b82f6)]' : 'text-[var(--steel,#94a3b8)]'}`}
+                />
+                <span
+                  className={`text-xs font-medium truncate ${isActive ? 'text-[var(--white,#f8fafc)]' : 'text-[var(--steel,#94a3b8)]'}`}
+                >
                   {s.title}
                 </span>
               </button>

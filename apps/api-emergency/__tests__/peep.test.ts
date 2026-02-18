@@ -32,7 +32,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/peep', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockPeep = prisma.femPeep as any;
 
@@ -174,7 +176,11 @@ describe('POST /api/peep/premises/:id', () => {
   });
 
   it('creates PEEP with visual impairment mobility level', async () => {
-    const visualPeep = { ...fakePeep, mobilityLevel: 'VISUAL_IMPAIRMENT', communicationNeeds: 'Large print materials' };
+    const visualPeep = {
+      ...fakePeep,
+      mobilityLevel: 'VISUAL_IMPAIRMENT',
+      communicationNeeds: 'Large print materials',
+    };
     mockPeep.create.mockResolvedValue(visualPeep);
 
     const res = await request(app).post(`/api/peep/premises/${PREMISES_ID}`).send({
@@ -197,16 +203,18 @@ describe('POST /api/peep/premises/:id', () => {
     };
     mockPeep.create.mockResolvedValue(fullPeep);
 
-    const res = await request(app).post(`/api/peep/premises/${PREMISES_ID}`).send({
-      ...validCreateBody,
-      requiresAssistance: true,
-      assistantsRequired: 2,
-      refugeAreaRequired: true,
-      refugeLocation: 'Floor 2 Refuge',
-      medicalConditionSummary: 'MS diagnosed 2020',
-      medicationOnPerson: true,
-      specialEquipment: 'Power wheelchair',
-    });
+    const res = await request(app)
+      .post(`/api/peep/premises/${PREMISES_ID}`)
+      .send({
+        ...validCreateBody,
+        requiresAssistance: true,
+        assistantsRequired: 2,
+        refugeAreaRequired: true,
+        refugeLocation: 'Floor 2 Refuge',
+        medicalConditionSummary: 'MS diagnosed 2020',
+        medicationOnPerson: true,
+        specialEquipment: 'Power wheelchair',
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.data.medicationOnPerson).toBe(true);

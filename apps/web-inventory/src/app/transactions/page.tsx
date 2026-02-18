@@ -1,8 +1,30 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@ims/ui';
-import { History, Search, Filter, Download, ArrowUp, ArrowDown, ArrowRightLeft } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Input,
+  Badge,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '@ims/ui';
+import {
+  History,
+  Search,
+  Filter,
+  Download,
+  ArrowUp,
+  ArrowDown,
+  ArrowRightLeft,
+} from 'lucide-react';
 import { inventoryApi } from '@/lib/api';
 
 interface Transaction {
@@ -86,10 +108,16 @@ export default function TransactionsPage() {
       EXPIRED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
       INITIAL: 'bg-sky-100 text-sky-700',
     };
-    return <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>{type.replace('_', ' ')}</span>;
+    return (
+      <span
+        className={`px-2 py-1 rounded-full text-xs font-medium ${colors[type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+      >
+        {type.replace('_', ' ')}
+      </span>
+    );
   };
 
-  const filteredTransactions = transactions.filter(t => {
+  const filteredTransactions = transactions.filter((t) => {
     if (!search) return true;
     const searchLower = search.toLowerCase();
     return (
@@ -100,9 +128,17 @@ export default function TransactionsPage() {
   });
 
   const transactionTypes = [
-    'RECEIPT', 'ISSUE', 'ADJUSTMENT_IN', 'ADJUSTMENT_OUT',
-    'TRANSFER_IN', 'TRANSFER_OUT', 'CYCLE_COUNT', 'RETURN',
-    'DAMAGE', 'EXPIRED', 'INITIAL'
+    'RECEIPT',
+    'ISSUE',
+    'ADJUSTMENT_IN',
+    'ADJUSTMENT_OUT',
+    'TRANSFER_IN',
+    'TRANSFER_OUT',
+    'CYCLE_COUNT',
+    'RETURN',
+    'DAMAGE',
+    'EXPIRED',
+    'INITIAL',
   ];
 
   return (
@@ -111,8 +147,12 @@ export default function TransactionsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Transaction History</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Complete audit trail of inventory movements</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Transaction History
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Complete audit trail of inventory movements
+            </p>
           </div>
           <Button variant="outline">
             <Download className="h-4 w-4 mr-2" />
@@ -127,7 +167,8 @@ export default function TransactionsPage() {
               <div className="flex-1 min-w-[200px] relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  aria-label="Search by reference, SKU, or product..." placeholder="Search by reference, SKU, or product..."
+                  aria-label="Search by reference, SKU, or product..."
+                  placeholder="Search by reference, SKU, or product..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-10"
@@ -142,8 +183,10 @@ export default function TransactionsPage() {
                 className="px-4 py-2 border rounded-lg bg-white dark:bg-gray-900"
               >
                 <option value="">All Types</option>
-                {transactionTypes.map(type => (
-                  <option key={type} value={type}>{type.replace('_', ' ')}</option>
+                {transactionTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type.replace('_', ' ')}
+                  </option>
                 ))}
               </select>
               <Input
@@ -158,11 +201,14 @@ export default function TransactionsPage() {
                 onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
                 className="w-40"
               />
-              <Button variant="outline" onClick={() => {
-                setTransactionType('');
-                setDateRange({ start: '', end: '' });
-                setSearch('');
-              }}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setTransactionType('');
+                  setDateRange({ start: '', end: '' });
+                  setSearch('');
+                }}
+              >
                 Clear Filters
               </Button>
             </div>
@@ -180,7 +226,7 @@ export default function TransactionsPage() {
           <CardContent>
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3, 4, 5].map(i => (
+                {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="h-12 bg-gray-200 rounded" />
                 ))}
               </div>
@@ -224,14 +270,18 @@ export default function TransactionsPage() {
                         <TableCell>
                           <div>
                             <p className="font-medium">{txn.product.name}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{txn.product.sku}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {txn.product.sku}
+                            </p>
                           </div>
                         </TableCell>
                         <TableCell>
                           {txn.transactionType.includes('TRANSFER') ? (
                             <div className="text-sm">
                               <p>{txn.fromWarehouse?.name || '-'}</p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">→ {txn.warehouse?.name || '-'}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                → {txn.warehouse?.name || '-'}
+                              </p>
                             </div>
                           ) : (
                             <span>{txn.warehouse?.name || '-'}</span>
@@ -240,10 +290,17 @@ export default function TransactionsPage() {
                         <TableCell className="text-right font-mono">
                           {txn.quantityBefore.toLocaleString()}
                         </TableCell>
-                        <TableCell className={`text-right font-mono font-semibold ${
-                          txn.quantityChange > 0 ? 'text-green-600' : txn.quantityChange < 0 ? 'text-red-600' : ''
-                        }`}>
-                          {txn.quantityChange > 0 ? '+' : ''}{txn.quantityChange.toLocaleString()}
+                        <TableCell
+                          className={`text-right font-mono font-semibold ${
+                            txn.quantityChange > 0
+                              ? 'text-green-600'
+                              : txn.quantityChange < 0
+                                ? 'text-red-600'
+                                : ''
+                          }`}
+                        >
+                          {txn.quantityChange > 0 ? '+' : ''}
+                          {txn.quantityChange.toLocaleString()}
                         </TableCell>
                         <TableCell className="text-right font-mono">
                           {txn.quantityAfter.toLocaleString()}

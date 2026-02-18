@@ -53,8 +53,14 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
       recoveryActions: z.string().optional(),
       reviewSchedule: z.string().optional(),
       status: z.enum(['DRAFT', 'ACTIVE', 'UNDER_REVIEW', 'ARCHIVED']).optional(),
-      lastReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      lastReviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      nextReviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const data = schema.parse(req.body);
@@ -82,10 +88,20 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: plan });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create emergency plan error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create emergency plan' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create emergency plan' },
+    });
   }
 });
 
@@ -125,7 +141,10 @@ router.get('/plans', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List emergency plans error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list emergency plans' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list emergency plans' },
+    });
   }
 });
 
@@ -139,8 +158,14 @@ const planUpdateSchema = z.object({
   responsiblePerson: z.string().optional(),
   status: z.string().optional(),
   priority: z.string().optional(),
-  lastReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  lastReviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  nextReviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   responseTeam: z.array(z.string()).optional(),
   procedures: z.string().optional(),
   communicationPlan: z.string().optional(),
@@ -151,32 +176,52 @@ const planUpdateSchema = z.object({
   notes: z.string().optional(),
 });
 
-router.put('/plans/:id', checkOwnership(prisma.envEmergencyPlan as any), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.envEmergencyPlan.findUnique({ where: { id: req.params.id } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Emergency plan not found' } });
+router.put(
+  '/plans/:id',
+  checkOwnership(prisma.envEmergencyPlan as any),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.envEmergencyPlan.findUnique({ where: { id: req.params.id } });
+      if (!existing)
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Emergency plan not found' },
+        });
 
-    const parsed = planUpdateSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: parsed.error.errors.map(e => e.path.join('.')) } });
+      const parsed = planUpdateSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: parsed.error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      const data: Record<string, unknown> = { ...parsed.data };
+
+      // Convert date strings to Date objects
+      if (data.lastReviewDate && typeof data.lastReviewDate === 'string')
+        data.lastReviewDate = new Date(data.lastReviewDate as string);
+      if (data.nextReviewDate && typeof data.nextReviewDate === 'string')
+        data.nextReviewDate = new Date(data.nextReviewDate as string);
+
+      const plan = await prisma.envEmergencyPlan.update({
+        where: { id: req.params.id },
+        data,
+      });
+
+      res.json({ success: true, data: plan });
+    } catch (error) {
+      logger.error('Update emergency plan error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update emergency plan' },
+      });
     }
-    const data: Record<string, unknown> = { ...parsed.data };
-
-    // Convert date strings to Date objects
-    if (data.lastReviewDate && typeof data.lastReviewDate === 'string') data.lastReviewDate = new Date(data.lastReviewDate as string);
-    if (data.nextReviewDate && typeof data.nextReviewDate === 'string') data.nextReviewDate = new Date(data.nextReviewDate as string);
-
-    const plan = await prisma.envEmergencyPlan.update({
-      where: { id: req.params.id },
-      data,
-    });
-
-    res.json({ success: true, data: plan });
-  } catch (error) {
-    logger.error('Update emergency plan error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update emergency plan' } });
   }
-});
+);
 
 // ============================================
 // EMERGENCY DRILLS
@@ -187,7 +232,12 @@ router.post('/drills', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       planId: z.string().trim().min(1).max(200),
-      drillDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      drillDate: z
+        .string()
+        .trim()
+        .min(1)
+        .max(200)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       drillType: z.enum(['TABLETOP', 'FUNCTIONAL', 'FULL_SCALE']),
       participants: z.array(z.string()).min(1),
       scenario: z.string().optional(),
@@ -201,7 +251,11 @@ router.post('/drills', async (req: AuthRequest, res: Response) => {
 
     // Verify the plan exists
     const plan = await prisma.envEmergencyPlan.findUnique({ where: { id: data.planId } });
-    if (!plan) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Emergency plan not found' } });
+    if (!plan)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Emergency plan not found' },
+      });
 
     const drill = await prisma.envEmergencyDrill.create({
       data: {
@@ -220,10 +274,20 @@ router.post('/drills', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: drill });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create drill error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create drill' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create drill' },
+    });
   }
 });
 
@@ -265,7 +329,10 @@ router.get('/drills', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List drills error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list drills' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list drills' },
+    });
   }
 });
 
@@ -279,7 +346,12 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
       description: z.string().trim().min(1).max(2000),
-      incidentDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      incidentDate: z
+        .string()
+        .trim()
+        .min(1)
+        .max(200)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       location: z.string().optional(),
       environmentalImpact: z.string().optional(),
       containmentActions: z.string().optional(),
@@ -294,7 +366,11 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
     // Verify linked plan exists if provided
     if (data.linkedPlanId) {
       const plan = await prisma.envEmergencyPlan.findUnique({ where: { id: data.linkedPlanId } });
-      if (!plan) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Linked emergency plan not found' } });
+      if (!plan)
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Linked emergency plan not found' },
+        });
     }
 
     const incident = await prisma.envEmergencyIncident.create({
@@ -316,10 +392,20 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: incident });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create emergency incident error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create emergency incident' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create emergency incident' },
+    });
   }
 });
 
@@ -360,9 +446,8 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
     ]);
 
     // Drill compliance: at least 1 drill per active plan per year
-    const drillCompliance = activePlans > 0
-      ? Math.min(100, Math.round((drillsLast12Months / activePlans) * 100))
-      : 100;
+    const drillCompliance =
+      activePlans > 0 ? Math.min(100, Math.round((drillsLast12Months / activePlans) * 100)) : 100;
 
     res.json({
       success: true,
@@ -373,13 +458,16 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
         drillCompliance,
         openIncidents,
         totalIncidents,
-        plansByStatus: plansByStatus.map(g => ({ status: g.status, count: g._count.id })),
-        drillsByOutcome: drillsByOutcome.map(g => ({ outcome: g.outcome, count: g._count.id })),
+        plansByStatus: plansByStatus.map((g) => ({ status: g.status, count: g._count.id })),
+        drillsByOutcome: drillsByOutcome.map((g) => ({ outcome: g.outcome, count: g._count.id })),
       },
     });
   } catch (error) {
     logger.error('Emergency dashboard error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to load emergency dashboard' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to load emergency dashboard' },
+    });
   }
 });
 

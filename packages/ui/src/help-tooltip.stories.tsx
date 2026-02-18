@@ -23,7 +23,8 @@ export const Default: Story = {
 
 export const WithISOReference: Story = {
   args: {
-    content: 'Document control ensures all documents are reviewed, approved, and distributed correctly.',
+    content:
+      'Document control ensures all documents are reviewed, approved, and distributed correctly.',
     isoRef: 'ISO 9001:2015 Clause 7.5',
   },
 };

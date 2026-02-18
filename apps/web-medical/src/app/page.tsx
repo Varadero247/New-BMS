@@ -38,10 +38,14 @@ export default function MedicalDashboard() {
       const designs = designRes.data.data || [];
 
       setStats({
-        activeDesignProjects: designs.filter((d: any) => d.status === 'ACTIVE' || d.status === 'IN_PROGRESS').length,
+        activeDesignProjects: designs.filter(
+          (d: any) => d.status === 'ACTIVE' || d.status === 'IN_PROGRESS'
+        ).length,
         openDhfRecords: designs.length,
         pendingVerifications: designs.filter((d: any) => d.currentStage === 'Verification').length,
-        riskAssessments: designs.filter((d: any) => d.currentStage === 'Review' || d.currentStage === 'Validation').length,
+        riskAssessments: designs.filter(
+          (d: any) => d.currentStage === 'Review' || d.currentStage === 'Validation'
+        ).length,
         designControls: designs,
       });
     } catch (error) {
@@ -65,7 +69,7 @@ export default function MedicalDashboard() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
@@ -75,7 +79,7 @@ export default function MedicalDashboard() {
   }
 
   // Calculate stage pipeline counts
-  const stageCounts = DESIGN_STAGES.map(stage => ({
+  const stageCounts = DESIGN_STAGES.map((stage) => ({
     stage,
     count: stats?.designControls.filter((d: any) => d.currentStage === stage).length || 0,
   }));
@@ -85,14 +89,27 @@ export default function MedicalDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Medical Device Dashboard</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 13485 Medical Device Quality Management System</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Medical Device Dashboard
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            ISO 13485 Medical Device Quality Management System
+          </p>
         </div>
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
             <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-            <button onClick={() => { setError(''); setLoading(true); loadStats(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+            <button
+              onClick={() => {
+                setError('');
+                setLoading(true);
+                loadStats();
+              }}
+              className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0"
+            >
+              Retry
+            </button>
           </div>
         )}
 
@@ -137,7 +154,9 @@ export default function MedicalDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Pending Verifications</p>
-                  <p className="text-2xl font-bold text-amber-600">{stats?.pendingVerifications || 0}</p>
+                  <p className="text-2xl font-bold text-amber-600">
+                    {stats?.pendingVerifications || 0}
+                  </p>
                 </div>
                 <div className="p-3 bg-amber-100 dark:bg-amber-900 rounded-full">
                   <CheckSquare className="h-6 w-6 text-amber-600" />
@@ -187,10 +206,14 @@ export default function MedicalDashboard() {
                           : 'bg-gray-50 dark:bg-gray-800 border-2 border-gray-200'
                       }`}
                     >
-                      <p className={`text-2xl font-bold ${item.count > 0 ? 'text-teal-700' : 'text-gray-400'}`}>
+                      <p
+                        className={`text-2xl font-bold ${item.count > 0 ? 'text-teal-700' : 'text-gray-400'}`}
+                      >
                         {item.count}
                       </p>
-                      <p className={`text-xs mt-1 font-medium ${item.count > 0 ? 'text-teal-600' : 'text-gray-400'}`}>
+                      <p
+                        className={`text-xs mt-1 font-medium ${item.count > 0 ? 'text-teal-600' : 'text-gray-400'}`}
+                      >
                         {item.stage}
                       </p>
                     </div>
@@ -202,7 +225,8 @@ export default function MedicalDashboard() {
               ))}
             </div>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-4 text-center">
-              ISO 13485 Design Control Stages: Planning &rarr; Input &rarr; Output &rarr; Review &rarr; Verification &rarr; Validation &rarr; Transfer to Production
+              ISO 13485 Design Control Stages: Planning &rarr; Input &rarr; Output &rarr; Review
+              &rarr; Verification &rarr; Validation &rarr; Transfer to Production
             </p>
           </CardContent>
         </Card>
@@ -220,25 +244,36 @@ export default function MedicalDashboard() {
               {stats?.designControls && stats.designControls.length > 0 ? (
                 <div className="space-y-3">
                   {stats.designControls.slice(0, 5).map((dc: any) => (
-                    <div key={dc.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div
+                      key={dc.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
                       <div className="flex-1">
                         <p className="font-medium text-sm">{dc.name}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">{dc.referenceNumber}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            dc.currentStage === 'Verification' || dc.currentStage === 'Validation'
-                              ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300'
-                              : dc.currentStage === 'Transfer'
-                              ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
-                              : 'bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300'
-                          }`}>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {dc.referenceNumber}
+                          </span>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              dc.currentStage === 'Verification' || dc.currentStage === 'Validation'
+                                ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300'
+                                : dc.currentStage === 'Transfer'
+                                  ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                                  : 'bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300'
+                            }`}
+                          >
                             {dc.currentStage}
                           </span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            dc.deviceClass === 'III' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                            dc.deviceClass === 'II' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
-                            'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                          }`}>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              dc.deviceClass === 'III'
+                                ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                                : dc.deviceClass === 'II'
+                                  ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300'
+                                  : 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                            }`}
+                          >
                             Class {dc.deviceClass}
                           </span>
                         </div>
@@ -250,7 +285,9 @@ export default function MedicalDashboard() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No design projects recorded yet</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                  No design projects recorded yet
+                </p>
               )}
             </CardContent>
           </Card>
@@ -266,9 +303,12 @@ export default function MedicalDashboard() {
             <CardContent>
               <div className="space-y-3">
                 <div className="p-3 bg-teal-50 dark:bg-teal-900/30 rounded-lg border border-teal-200 dark:border-teal-800">
-                  <p className="font-medium text-sm text-teal-900">Clause 7.3 - Design and Development</p>
+                  <p className="font-medium text-sm text-teal-900">
+                    Clause 7.3 - Design and Development
+                  </p>
                   <p className="text-xs text-teal-600 mt-1">
-                    Planning, inputs, outputs, review, verification, validation, transfer, changes, and DHF
+                    Planning, inputs, outputs, review, verification, validation, transfer, changes,
+                    and DHF
                   </p>
                 </div>
                 <div className="p-3 bg-cyan-50 dark:bg-cyan-900/30 rounded-lg border border-cyan-200 dark:border-cyan-800">
@@ -278,7 +318,9 @@ export default function MedicalDashboard() {
                   </p>
                 </div>
                 <div className="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800">
-                  <p className="font-medium text-sm text-amber-900">Clause 8.2.2 - Complaint Handling</p>
+                  <p className="font-medium text-sm text-amber-900">
+                    Clause 8.2.2 - Complaint Handling
+                  </p>
                   <p className="text-xs text-amber-600 mt-1">
                     Customer feedback, complaint investigation, regulatory reporting
                   </p>
@@ -292,7 +334,8 @@ export default function MedicalDashboard() {
                 <div className="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg border border-purple-200 dark:border-purple-800">
                   <p className="font-medium text-sm text-purple-900">Clause 8.5 - CAPA</p>
                   <p className="text-xs text-purple-600 mt-1">
-                    Corrective and preventive action, root cause analysis, effectiveness verification
+                    Corrective and preventive action, root cause analysis, effectiveness
+                    verification
                   </p>
                 </div>
               </div>

@@ -37,10 +37,15 @@ import { prisma } from '../src/prisma';
 
 const app = express();
 app.use(express.json());
-app.use((req: any, _res: any, next: any) => { req.user = { id: 'admin-1' }; next(); });
+app.use((req: any, _res: any, next: any) => {
+  req.user = { id: 'admin-1' };
+  next();
+});
 app.use('/api/prospects', prospectRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('POST /api/prospects/research', () => {
   it('creates prospect research with valid data', async () => {
@@ -65,22 +70,22 @@ describe('POST /api/prospects/research', () => {
 
   it('handles Companies House API failure gracefully', async () => {
     (global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
-    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
 
-    const res = await request(app)
-      .post('/api/prospects/research')
-      .send({ companyName: 'TechCo' });
+    const res = await request(app).post('/api/prospects/research').send({ companyName: 'TechCo' });
 
     expect(res.status).toBe(201);
   });
 
   it('handles AI generation failure gracefully', async () => {
     (global.fetch as jest.Mock).mockResolvedValue({ ok: false });
-    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
 
-    const res = await request(app)
-      .post('/api/prospects/research')
-      .send({ companyName: 'TechCo' });
+    const res = await request(app).post('/api/prospects/research').send({ companyName: 'TechCo' });
 
     expect(res.status).toBe(201);
   });
@@ -88,7 +93,9 @@ describe('POST /api/prospects/research', () => {
 
 describe('GET /api/prospects', () => {
   it('returns prospect research list', async () => {
-    (prisma.mktProspectResearch.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
+    (prisma.mktProspectResearch.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001' },
+    ]);
 
     const res = await request(app).get('/api/prospects');
 
@@ -101,15 +108,22 @@ describe('POST /api/prospects/:id/save-to-hubspot', () => {
   it('returns 404 for non-existent prospect', async () => {
     (prisma.mktProspectResearch.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).post('/api/prospects/00000000-0000-0000-0000-000000000099/save-to-hubspot');
+    const res = await request(app).post(
+      '/api/prospects/00000000-0000-0000-0000-000000000099/save-to-hubspot'
+    );
 
     expect(res.status).toBe(404);
   });
 
   it('attempts to push to HubSpot', async () => {
-    (prisma.mktProspectResearch.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', companyName: 'TechCo' });
+    (prisma.mktProspectResearch.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      companyName: 'TechCo',
+    });
 
-    const res = await request(app).post('/api/prospects/00000000-0000-0000-0000-000000000001/save-to-hubspot');
+    const res = await request(app).post(
+      '/api/prospects/00000000-0000-0000-0000-000000000001/save-to-hubspot'
+    );
 
     expect(res.status).toBe(200);
   });

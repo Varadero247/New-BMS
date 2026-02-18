@@ -49,7 +49,13 @@ beforeEach(() => {
 describe('GET /api/portal/users', () => {
   it('should list portal users with pagination', async () => {
     const users = [
-      { id: '00000000-0000-0000-0000-000000000001', email: 'cust@test.com', name: 'Customer', portalType: 'CUSTOMER', status: 'ACTIVE' },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        email: 'cust@test.com',
+        name: 'Customer',
+        portalType: 'CUSTOMER',
+        status: 'ACTIVE',
+      },
     ];
     (prisma as any).portalUser.findMany.mockResolvedValue(users);
     (prisma as any).portalUser.count.mockResolvedValue(1);
@@ -94,31 +100,52 @@ describe('GET /api/portal/users', () => {
 describe('POST /api/portal/users', () => {
   it('should create a portal user', async () => {
     (prisma as any).portalUser.findFirst.mockResolvedValue(null);
-    const user = { id: '00000000-0000-0000-0000-000000000001', email: 'new@test.com', name: 'New User', portalType: 'CUSTOMER', role: 'CUSTOMER_USER', status: 'PENDING' };
+    const user = {
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'new@test.com',
+      name: 'New User',
+      portalType: 'CUSTOMER',
+      role: 'CUSTOMER_USER',
+      status: 'PENDING',
+    };
     (prisma as any).portalUser.create.mockResolvedValue(user);
 
-    const res = await request(app)
-      .post('/api/portal/users')
-      .send({ email: 'new@test.com', name: 'New User', company: 'Acme', role: 'CUSTOMER_USER', portalType: 'CUSTOMER' });
+    const res = await request(app).post('/api/portal/users').send({
+      email: 'new@test.com',
+      name: 'New User',
+      company: 'Acme',
+      role: 'CUSTOMER_USER',
+      portalType: 'CUSTOMER',
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.data.email).toBe('new@test.com');
   });
 
   it('should return 409 for duplicate email', async () => {
-    (prisma as any).portalUser.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).portalUser.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
 
-    const res = await request(app)
-      .post('/api/portal/users')
-      .send({ email: 'existing@test.com', name: 'User', company: 'Acme', role: 'CUSTOMER_USER', portalType: 'CUSTOMER' });
+    const res = await request(app).post('/api/portal/users').send({
+      email: 'existing@test.com',
+      name: 'User',
+      company: 'Acme',
+      role: 'CUSTOMER_USER',
+      portalType: 'CUSTOMER',
+    });
 
     expect(res.status).toBe(409);
   });
 
   it('should return 400 for invalid role', async () => {
-    const res = await request(app)
-      .post('/api/portal/users')
-      .send({ email: 'new@test.com', name: 'User', company: 'Acme', role: 'INVALID', portalType: 'CUSTOMER' });
+    const res = await request(app).post('/api/portal/users').send({
+      email: 'new@test.com',
+      name: 'User',
+      company: 'Acme',
+      role: 'INVALID',
+      portalType: 'CUSTOMER',
+    });
 
     expect(res.status).toBe(400);
   });
@@ -129,9 +156,13 @@ describe('POST /api/portal/users/invite', () => {
     const invitation = { id: 'inv-1', email: 'invite@test.com', token: 'mock-uuid-token' };
     (prisma as any).portalInvitation.create.mockResolvedValue(invitation);
 
-    const res = await request(app)
-      .post('/api/portal/users/invite')
-      .send({ email: 'invite@test.com', name: 'Invitee', company: 'Acme', role: 'SUPPLIER_USER', portalType: 'SUPPLIER' });
+    const res = await request(app).post('/api/portal/users/invite').send({
+      email: 'invite@test.com',
+      name: 'Invitee',
+      company: 'Acme',
+      role: 'SUPPLIER_USER',
+      portalType: 'SUPPLIER',
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.data.token).toBe('mock-uuid-token');
@@ -140,7 +171,11 @@ describe('POST /api/portal/users/invite', () => {
 
 describe('GET /api/portal/users/:id', () => {
   it('should return a user', async () => {
-    const user = { id: '00000000-0000-0000-0000-000000000001', email: 'user@test.com', name: 'User' };
+    const user = {
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'user@test.com',
+      name: 'User',
+    };
     (prisma as any).portalUser.findFirst.mockResolvedValue(user);
 
     const res = await request(app).get('/api/portal/users/00000000-0000-0000-0000-000000000001');
@@ -160,8 +195,13 @@ describe('GET /api/portal/users/:id', () => {
 
 describe('PUT /api/portal/users/:id', () => {
   it('should update a user', async () => {
-    (prisma as any).portalUser.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).portalUser.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    (prisma as any).portalUser.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).portalUser.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Updated',
+    });
 
     const res = await request(app)
       .put('/api/portal/users/00000000-0000-0000-0000-000000000001')
@@ -184,8 +224,13 @@ describe('PUT /api/portal/users/:id', () => {
 
 describe('DELETE /api/portal/users/:id', () => {
   it('should deactivate a user', async () => {
-    (prisma as any).portalUser.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).portalUser.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'INACTIVE' });
+    (prisma as any).portalUser.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).portalUser.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'INACTIVE',
+    });
 
     const res = await request(app).delete('/api/portal/users/00000000-0000-0000-0000-000000000001');
 

@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
 import {
   Users,
   Building2,
-  
   DollarSign,
   TrendingUp,
   Target,
@@ -77,7 +76,7 @@ export default function CRMDashboard() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
@@ -155,13 +154,24 @@ export default function CRMDashboard() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">CRM Dashboard</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Customer relationship overview and key metrics</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Customer relationship overview and key metrics
+          </p>
         </div>
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
             <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-            <button onClick={() => { setError(''); setLoading(true); loadDashboardData(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+            <button
+              onClick={() => {
+                setError('');
+                setLoading(true);
+                loadDashboardData();
+              }}
+              className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0"
+            >
+              Retry
+            </button>
           </div>
         )}
 
@@ -177,7 +187,9 @@ export default function CRMDashboard() {
                       <div>
                         <p className="text-sm text-gray-500 dark:text-gray-400">{card.title}</p>
                         <p className={`text-2xl font-bold ${card.valueColor}`}>{card.value}</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{card.subtitle}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                          {card.subtitle}
+                        </p>
                       </div>
                       <div className={`p-3 rounded-full ${card.bgColor}`}>
                         <Icon className={`h-6 w-6 ${card.iconColor}`} />
@@ -202,28 +214,36 @@ export default function CRMDashboard() {
                 className="flex flex-col items-center p-4 bg-violet-50 dark:bg-violet-900 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-800 transition-colors"
               >
                 <UserPlus className="h-8 w-8 text-violet-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Add Contact</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Add Contact
+                </span>
               </Link>
               <Link
                 href="/deals"
                 className="flex flex-col items-center p-4 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
               >
                 <Briefcase className="h-8 w-8 text-blue-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">New Deal</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  New Deal
+                </span>
               </Link>
               <Link
                 href="/pipeline"
                 className="flex flex-col items-center p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors"
               >
                 <DollarSign className="h-8 w-8 text-purple-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">View Pipeline</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  View Pipeline
+                </span>
               </Link>
               <Link
                 href="/reports"
                 className="flex flex-col items-center p-4 bg-green-50 dark:bg-green-900 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
               >
                 <BarChart3 className="h-8 w-8 text-green-600 mb-2" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Sales Reports</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Sales Reports
+                </span>
               </Link>
             </div>
           </CardContent>
@@ -240,20 +260,31 @@ export default function CRMDashboard() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Description</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Date</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Type
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Description
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Date
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.recentActivities.map((activity) => (
-                      <tr key={activity.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <tr
+                        key={activity.id}
+                        className="border-b hover:bg-gray-50 dark:hover:bg-gray-800"
+                      >
                         <td className="py-3 px-4">
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-violet-100 dark:bg-violet-900 text-violet-700 dark:text-violet-300">
                             {activity.type}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{activity.description}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">
+                          {activity.description}
+                        </td>
                         <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
                           {new Date(activity.createdAt).toLocaleDateString()}
                         </td>

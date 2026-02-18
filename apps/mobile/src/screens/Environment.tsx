@@ -79,8 +79,22 @@ export default function EnvironmentScreen() {
         },
       });
       setRecentEvents([
-        { id: '1', referenceNumber: 'ENV-2024-001', title: 'Minor chemical spill in lab', severity: 'MODERATE', status: 'OPEN', dateOccurred: '2024-01-15' },
-        { id: '2', referenceNumber: 'ENV-2024-002', title: 'Waste segregation issue', severity: 'MINOR', status: 'CLOSED', dateOccurred: '2024-01-12' },
+        {
+          id: '1',
+          referenceNumber: 'ENV-2024-001',
+          title: 'Minor chemical spill in lab',
+          severity: 'MODERATE',
+          status: 'OPEN',
+          dateOccurred: '2024-01-15',
+        },
+        {
+          id: '2',
+          referenceNumber: 'ENV-2024-002',
+          title: 'Waste segregation issue',
+          severity: 'MINOR',
+          status: 'CLOSED',
+          dateOccurred: '2024-01-12',
+        },
       ]);
     } finally {
       setLoading(false);
@@ -119,10 +133,38 @@ export default function EnvironmentScreen() {
   ];
 
   const envIndicators = [
-    { label: 'Energy', value: stats?.metrics.energyConsumption || 0, unit: 'kWh', icon: Zap, color: 'text-yellow-500', bg: 'bg-yellow-50' },
-    { label: 'Water', value: stats?.metrics.waterConsumption || 0, unit: 'm³', icon: Droplets, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: 'Waste', value: stats?.metrics.wasteGenerated || 0, unit: 'kg', icon: Trash2, color: 'text-orange-500', bg: 'bg-orange-50' },
-    { label: 'Recycling', value: stats?.metrics.recyclingRate || 0, unit: '%', icon: Wind, color: 'text-green-500', bg: 'bg-green-50' },
+    {
+      label: 'Energy',
+      value: stats?.metrics.energyConsumption || 0,
+      unit: 'kWh',
+      icon: Zap,
+      color: 'text-yellow-500',
+      bg: 'bg-yellow-50',
+    },
+    {
+      label: 'Water',
+      value: stats?.metrics.waterConsumption || 0,
+      unit: 'm³',
+      icon: Droplets,
+      color: 'text-blue-500',
+      bg: 'bg-blue-50',
+    },
+    {
+      label: 'Waste',
+      value: stats?.metrics.wasteGenerated || 0,
+      unit: 'kg',
+      icon: Trash2,
+      color: 'text-orange-500',
+      bg: 'bg-orange-50',
+    },
+    {
+      label: 'Recycling',
+      value: stats?.metrics.recyclingRate || 0,
+      unit: '%',
+      icon: Wind,
+      color: 'text-green-500',
+      bg: 'bg-green-50',
+    },
   ];
 
   return (
@@ -149,15 +191,10 @@ export default function EnvironmentScreen() {
         {/* Quick Links */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           {quickLinks.map((link) => (
-            <div
-              key={link.label}
-              className="bg-gray-50 rounded-xl p-3 flex flex-col items-center"
-            >
+            <div key={link.label} className="bg-gray-50 rounded-xl p-3 flex flex-col items-center">
               <link.icon className={`w-5 h-5 ${link.color} mb-1`} />
               <span className="text-xs font-medium">{link.label}</span>
-              {link.count !== null && (
-                <span className="text-lg font-bold">{link.count}</span>
-              )}
+              {link.count !== null && <span className="text-lg font-bold">{link.count}</span>}
             </div>
           ))}
         </div>
@@ -213,10 +250,7 @@ export default function EnvironmentScreen() {
         <div className="space-y-2 pb-4">
           {recentEvents.length > 0 ? (
             recentEvents.map((event) => (
-              <div
-                key={event.id}
-                className="bg-gray-50 rounded-xl p-4"
-              >
+              <div key={event.id} className="bg-gray-50 rounded-xl p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <p className="font-medium text-sm">{event.title}</p>
@@ -224,7 +258,9 @@ export default function EnvironmentScreen() {
                       {event.referenceNumber} • {new Date(event.dateOccurred).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(event.severity)}`}>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(event.severity)}`}
+                  >
                     {event.severity}
                   </span>
                 </div>

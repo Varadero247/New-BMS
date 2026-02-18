@@ -1,7 +1,19 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { BarChart3, Search, Linkedin, LogOut, Shield, CalendarCheck, Lightbulb, FileText, ShieldCheck, Users, Receipt } from 'lucide-react';
+import {
+  BarChart3,
+  Search,
+  Linkedin,
+  LogOut,
+  Shield,
+  CalendarCheck,
+  Lightbulb,
+  FileText,
+  ShieldCheck,
+  Users,
+  Receipt,
+} from 'lucide-react';
 
 const navItems = [
   { href: '/growth-dashboard', label: 'Growth Dashboard', icon: BarChart3 },

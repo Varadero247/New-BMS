@@ -54,7 +54,11 @@ services:
           memory: 64M
           cpus: '0.05'
     healthcheck:
-      test: ['CMD-SHELL', 'redis-cli -a "$REDIS_PASSWORD" ping 2>/dev/null | grep -q PONG || redis-cli ping | grep -q PONG']
+      test:
+        [
+          'CMD-SHELL',
+          'redis-cli -a "$REDIS_PASSWORD" ping 2>/dev/null | grep -q PONG || redis-cli ping | grep -q PONG',
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -70,7 +74,7 @@ services:
       POSTGRES_DB: ims
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
-      SCHEDULE: "@daily"
+      SCHEDULE: '@daily'
       BACKUP_NUM_KEEP: 7
       BACKUP_DIR: /backups
     volumes:
@@ -143,7 +147,7 @@ services:
       SERVICE_SETUP_WIZARD_URL: http://api-setup-wizard:4039
       SERVICE_CHEMICALS_URL: http://api-chemicals:4040
       SERVICE_EMERGENCY_URL: http://api-emergency:4041
-      CSRF_ENABLED: "false"
+      CSRF_ENABLED: 'false'
     depends_on:
       postgres:
         condition: service_healthy
@@ -240,7 +244,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4000/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -273,7 +277,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4001/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4001/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -306,7 +310,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4002/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4002/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -339,7 +343,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4003/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4003/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -374,7 +378,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4004/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4004/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -408,7 +412,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4005/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4005/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -441,7 +445,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4006/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4006/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -474,7 +478,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4007/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4007/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -507,7 +511,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4008/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4008/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -540,7 +544,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4009/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4009/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -568,7 +572,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3000']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -596,7 +600,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3001']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -623,7 +627,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3002"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3002']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -650,7 +654,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3003"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3003']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -677,7 +681,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3004"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3004']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -704,7 +708,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3006"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3006']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -731,7 +735,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3007"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3007']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -758,7 +762,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3005"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3005']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -785,7 +789,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3008"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3008']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -812,7 +816,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3009"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3009']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -847,7 +851,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4010/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4010/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -880,7 +884,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4011/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4011/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -913,7 +917,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4012/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4012/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -946,7 +950,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4013/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4013/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -979,7 +983,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4014/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4014/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1012,7 +1016,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4015/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4015/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1045,7 +1049,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4016/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4016/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1078,7 +1082,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4017/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4017/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1111,7 +1115,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4018/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4018/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1144,7 +1148,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4019/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4019/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1177,7 +1181,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4020/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4020/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1210,7 +1214,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4021/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4021/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1243,7 +1247,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4022/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4022/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1276,7 +1280,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4023/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4023/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1309,7 +1313,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4024/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4024/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1336,7 +1340,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3010"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3010']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1363,7 +1367,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3011"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3011']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1390,7 +1394,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3012"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3012']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1417,7 +1421,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3013"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3013']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1444,7 +1448,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3014"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3014']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1471,7 +1475,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3015"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3015']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1498,7 +1502,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3016"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3016']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1525,7 +1529,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3017"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3017']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1552,7 +1556,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3018"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3018']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1579,7 +1583,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3019"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3019']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1606,7 +1610,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3020"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3020']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1633,7 +1637,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3021"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3021']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1660,7 +1664,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3022"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3022']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1687,7 +1691,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3023"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3023']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1714,7 +1718,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3024"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3024']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1741,7 +1745,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3025"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3025']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1777,7 +1781,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4025/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4025/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1811,7 +1815,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4026/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4026/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1844,7 +1848,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4027/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4027/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1877,7 +1881,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4028/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4028/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1910,7 +1914,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4029/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4029/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1943,7 +1947,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4030/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4030/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1976,7 +1980,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4031/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4031/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2009,7 +2013,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4032/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4032/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2042,7 +2046,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4033/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4033/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2075,7 +2079,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4034/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4034/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2108,7 +2112,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4035/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4035/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2141,7 +2145,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4036/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4036/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2174,7 +2178,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4037/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4037/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2207,7 +2211,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4038/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4038/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2240,7 +2244,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4039/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4039/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2273,7 +2277,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4040/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4040/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2300,7 +2304,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3044"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3044']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2327,7 +2331,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3030"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3030']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2354,7 +2358,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3026"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3026']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2381,7 +2385,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3027"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3027']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2408,7 +2412,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3031"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3031']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2435,7 +2439,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3032"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3032']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2462,7 +2466,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3033"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3033']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2489,7 +2493,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3034"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3034']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2516,7 +2520,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3035"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3035']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2543,7 +2547,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3036"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3036']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2570,7 +2574,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3037"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3037']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2597,7 +2601,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3038"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3038']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2624,7 +2628,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3039"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3039']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2651,7 +2655,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3040"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3040']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2678,7 +2682,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3041"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3041']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2705,7 +2709,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3042"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3042']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2732,7 +2736,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3043"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3043']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2765,7 +2769,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4041/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4041/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2792,7 +2796,7 @@ services:
           memory: 128M
           cpus: '0.10'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3045"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3045']
       interval: 30s
       timeout: 10s
       retries: 3

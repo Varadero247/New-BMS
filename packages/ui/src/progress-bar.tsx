@@ -43,14 +43,21 @@ export function ProgressBar({
     <div className={cn('w-full', className)}>
       {(label || showValue) && (
         <div className="flex items-center justify-between mb-1">
-          {label && <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>}
+          {label && (
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
+          )}
           {showValue && !indeterminate && (
-            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{Math.round(percent)}%</span>
+            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              {Math.round(percent)}%
+            </span>
           )}
         </div>
       )}
       <div
-        className={cn('w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden', sizeStyles[size])}
+        className={cn(
+          'w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden',
+          sizeStyles[size]
+        )}
         role="progressbar"
         aria-valuenow={indeterminate ? undefined : value}
         aria-valuemin={0}
@@ -58,10 +65,16 @@ export function ProgressBar({
         aria-label={label}
       >
         {indeterminate ? (
-          <div className={cn('h-full rounded-full animate-pulse w-2/3', variantStyles[variant])} style={{ animation: 'indeterminate 1.5s ease-in-out infinite' }} />
+          <div
+            className={cn('h-full rounded-full animate-pulse w-2/3', variantStyles[variant])}
+            style={{ animation: 'indeterminate 1.5s ease-in-out infinite' }}
+          />
         ) : (
           <div
-            className={cn('h-full rounded-full transition-all duration-300 ease-out', variantStyles[variant])}
+            className={cn(
+              'h-full rounded-full transition-all duration-300 ease-out',
+              variantStyles[variant]
+            )}
             style={{ width: `${percent}%` }}
           />
         )}

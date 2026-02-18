@@ -3,7 +3,14 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    cmmsWorkOrder: { findMany: jest.fn(), findFirst: jest.fn(), findUnique: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    cmmsWorkOrder: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
     cmmsAsset: { findFirst: jest.fn() },
   },
   Prisma: { Decimal: jest.fn((v: any) => v) },
@@ -132,7 +139,11 @@ describe('Work Orders Routes', () => {
   // --- GET /:id ---
   describe('GET /api/work-orders/:id', () => {
     it('should return a work order by ID', async () => {
-      prisma.cmmsWorkOrder.findFirst.mockResolvedValue({ ...mockWorkOrder, partUsages: [], downtimes: [] });
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue({
+        ...mockWorkOrder,
+        partUsages: [],
+        downtimes: [],
+      });
 
       const res = await request(app).get('/api/work-orders/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
@@ -153,14 +164,18 @@ describe('Work Orders Routes', () => {
       prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
       prisma.cmmsWorkOrder.update.mockResolvedValue({ ...mockWorkOrder, title: 'Updated' });
 
-      const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
+      const res = await request(app)
+        .put('/api/work-orders/00000000-0000-0000-0000-000000000001')
+        .send({ title: 'Updated' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent work order', async () => {
       prisma.cmmsWorkOrder.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000099').send({ title: 'Updated' });
+      const res = await request(app)
+        .put('/api/work-orders/00000000-0000-0000-0000-000000000099')
+        .send({ title: 'Updated' });
       expect(res.status).toBe(404);
     });
   });
@@ -171,7 +186,9 @@ describe('Work Orders Routes', () => {
       prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
       prisma.cmmsWorkOrder.update.mockResolvedValue({ ...mockWorkOrder, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/work-orders/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/work-orders/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -179,7 +196,9 @@ describe('Work Orders Routes', () => {
     it('should return 404 for non-existent work order', async () => {
       prisma.cmmsWorkOrder.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/work-orders/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/work-orders/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
     });
   });
@@ -190,19 +209,25 @@ describe('Work Orders Routes', () => {
       prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
       prisma.cmmsWorkOrder.update.mockResolvedValue({ ...mockWorkOrder, assignedTo: 'tech-2' });
 
-      const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000001/assign').send({ assignedTo: 'tech-2' });
+      const res = await request(app)
+        .put('/api/work-orders/00000000-0000-0000-0000-000000000001/assign')
+        .send({ assignedTo: 'tech-2' });
       expect(res.status).toBe(200);
     });
 
     it('should return 400 without assignedTo', async () => {
-      const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000001/assign').send({});
+      const res = await request(app)
+        .put('/api/work-orders/00000000-0000-0000-0000-000000000001/assign')
+        .send({});
       expect(res.status).toBe(400);
     });
 
     it('should return 404 for non-existent work order', async () => {
       prisma.cmmsWorkOrder.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000099/assign').send({ assignedTo: 'tech-2' });
+      const res = await request(app)
+        .put('/api/work-orders/00000000-0000-0000-0000-000000000099/assign')
+        .send({ assignedTo: 'tech-2' });
       expect(res.status).toBe(404);
     });
   });
@@ -211,16 +236,24 @@ describe('Work Orders Routes', () => {
   describe('PUT /api/work-orders/:id/start', () => {
     it('should start a work order', async () => {
       prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
-      prisma.cmmsWorkOrder.update.mockResolvedValue({ ...mockWorkOrder, status: 'IN_PROGRESS', actualStart: new Date() });
+      prisma.cmmsWorkOrder.update.mockResolvedValue({
+        ...mockWorkOrder,
+        status: 'IN_PROGRESS',
+        actualStart: new Date(),
+      });
 
-      const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000001/start');
+      const res = await request(app).put(
+        '/api/work-orders/00000000-0000-0000-0000-000000000001/start'
+      );
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent work order', async () => {
       prisma.cmmsWorkOrder.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000099/start');
+      const res = await request(app).put(
+        '/api/work-orders/00000000-0000-0000-0000-000000000099/start'
+      );
       expect(res.status).toBe(404);
     });
   });
@@ -231,14 +264,18 @@ describe('Work Orders Routes', () => {
       prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
       prisma.cmmsWorkOrder.update.mockResolvedValue({ ...mockWorkOrder, status: 'COMPLETED' });
 
-      const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000001/complete').send({ completionNotes: 'Done' });
+      const res = await request(app)
+        .put('/api/work-orders/00000000-0000-0000-0000-000000000001/complete')
+        .send({ completionNotes: 'Done' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent work order', async () => {
       prisma.cmmsWorkOrder.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000099/complete');
+      const res = await request(app).put(
+        '/api/work-orders/00000000-0000-0000-0000-000000000099/complete'
+      );
       expect(res.status).toBe(404);
     });
   });
@@ -249,21 +286,27 @@ describe('Work Orders Routes', () => {
       prisma.cmmsWorkOrder.findFirst.mockResolvedValue({ ...mockWorkOrder, status: 'COMPLETED' });
       prisma.cmmsWorkOrder.update.mockResolvedValue({ ...mockWorkOrder, status: 'CANCELLED' });
 
-      const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000001/close');
+      const res = await request(app).put(
+        '/api/work-orders/00000000-0000-0000-0000-000000000001/close'
+      );
       expect(res.status).toBe(200);
     });
 
     it('should return 400 for non-completed work order', async () => {
       prisma.cmmsWorkOrder.findFirst.mockResolvedValue({ ...mockWorkOrder, status: 'OPEN' });
 
-      const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000001/close');
+      const res = await request(app).put(
+        '/api/work-orders/00000000-0000-0000-0000-000000000001/close'
+      );
       expect(res.status).toBe(400);
     });
 
     it('should return 404 for non-existent work order', async () => {
       prisma.cmmsWorkOrder.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000099/close');
+      const res = await request(app).put(
+        '/api/work-orders/00000000-0000-0000-0000-000000000099/close'
+      );
       expect(res.status).toBe(404);
     });
   });

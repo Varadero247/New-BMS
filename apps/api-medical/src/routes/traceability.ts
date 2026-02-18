@@ -23,7 +23,9 @@ async function generateRefNumber(): Promise<string> {
   const yy = String(now.getFullYear()).slice(-2);
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const prefix = `TRC-${yy}${mm}`;
-  const count = await prisma.traceabilityMatrix.count({ where: { refNumber: { startsWith: prefix } } });
+  const count = await prisma.traceabilityMatrix.count({
+    where: { refNumber: { startsWith: prefix } },
+  });
   return `${prefix}-${String(count + 1).padStart(4, '0')}`;
 }
 
@@ -41,7 +43,10 @@ const createSchema = z.object({
 const updateSchema = createSchema.partial().extend({
   status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'RELEASED', 'OBSOLETE']).optional(),
   approvedBy: z.string().optional(),
-  approvedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  approvedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
 });
 
 const linkCreateSchema = z.object({
@@ -100,28 +105,41 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List traceability matrices error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list traceability matrices' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list traceability matrices' },
+    });
   }
 });
 
 // GET /:id - Get matrix with links
-router.get('/:id', checkOwnership(prisma.traceabilityMatrix), async (req: AuthRequest, res: Response) => {
-  try {
-    const matrix = await prisma.traceabilityMatrix.findUnique({
-      where: { id: req.params.id },
-      include: { links: { orderBy: { createdAt: 'asc' } } },
-    });
+router.get(
+  '/:id',
+  checkOwnership(prisma.traceabilityMatrix),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const matrix = await prisma.traceabilityMatrix.findUnique({
+        where: { id: req.params.id },
+        include: { links: { orderBy: { createdAt: 'asc' } } },
+      });
 
-    if (!matrix || matrix.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Traceability matrix not found' } });
+      if (!matrix || matrix.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Traceability matrix not found' },
+        });
+      }
+
+      res.json({ success: true, data: matrix });
+    } catch (error) {
+      logger.error('Get traceability matrix error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get traceability matrix' },
+      });
     }
-
-    res.json({ success: true, data: matrix });
-  } catch (error) {
-    logger.error('Get traceability matrix error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get traceability matrix' } });
   }
-});
+);
 
 // POST / - Create traceability matrix
 router.post('/', async (req: AuthRequest, res: Response) => {
@@ -148,62 +166,105 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: matrix });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create traceability matrix error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create traceability matrix' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create traceability matrix' },
+    });
   }
 });
 
 // PUT /:id - Update traceability matrix
-router.put('/:id', checkOwnership(prisma.traceabilityMatrix), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.traceabilityMatrix.findUnique({ where: { id: req.params.id } });
-    if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Traceability matrix not found' } });
+router.put(
+  '/:id',
+  checkOwnership(prisma.traceabilityMatrix),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.traceabilityMatrix.findUnique({ where: { id: req.params.id } });
+      if (!existing || existing.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Traceability matrix not found' },
+        });
+      }
+
+      const data = updateSchema.parse(req.body);
+      const updateData: Record<string, unknown> = { ...data };
+      if (data.approvedDate) updateData.approvedDate = new Date(data.approvedDate);
+
+      const matrix = await prisma.traceabilityMatrix.update({
+        where: { id: req.params.id },
+        data: updateData,
+      });
+
+      res.json({ success: true, data: matrix });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update traceability matrix error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update traceability matrix' },
+      });
     }
-
-    const data = updateSchema.parse(req.body);
-    const updateData: Record<string, unknown> = { ...data };
-    if (data.approvedDate) updateData.approvedDate = new Date(data.approvedDate);
-
-    const matrix = await prisma.traceabilityMatrix.update({
-      where: { id: req.params.id },
-      data: updateData,
-    });
-
-    res.json({ success: true, data: matrix });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
-    }
-    logger.error('Update traceability matrix error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update traceability matrix' } });
   }
-});
+);
 
 // DELETE /:id - Soft delete matrix
-router.delete('/:id', checkOwnership(prisma.traceabilityMatrix), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.traceabilityMatrix.findUnique({ where: { id: req.params.id } });
-    if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Traceability matrix not found' } });
-    }
+router.delete(
+  '/:id',
+  checkOwnership(prisma.traceabilityMatrix),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.traceabilityMatrix.findUnique({ where: { id: req.params.id } });
+      if (!existing || existing.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Traceability matrix not found' },
+        });
+      }
 
-    await prisma.traceabilityMatrix.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete traceability matrix error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete traceability matrix' } });
+      await prisma.traceabilityMatrix.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete traceability matrix error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete traceability matrix' },
+      });
+    }
   }
-});
+);
 
 // POST /:id/links - Add traceability link
 router.post('/:id/links', async (req: AuthRequest, res: Response) => {
   try {
     const matrix = await prisma.traceabilityMatrix.findUnique({ where: { id: req.params.id } });
     if (!matrix || matrix.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Traceability matrix not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Traceability matrix not found' },
+      });
     }
 
     const data = linkCreateSchema.parse(req.body);
@@ -215,10 +276,20 @@ router.post('/:id/links', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: link });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Add traceability link error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add traceability link' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add traceability link' },
+    });
   }
 });
 
@@ -229,7 +300,10 @@ router.put('/:id/links/:linkId', async (req: AuthRequest, res: Response) => {
 
     const link = await prisma.traceabilityLink.findUnique({ where: { id: linkId } });
     if (!link || link.matrixId !== id) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Traceability link not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Traceability link not found' },
+      });
     }
 
     const data = linkUpdateSchema.parse(req.body);
@@ -238,10 +312,20 @@ router.put('/:id/links/:linkId', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update traceability link error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update traceability link' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update traceability link' },
+    });
   }
 });
 
@@ -252,14 +336,20 @@ router.delete('/:id/links/:linkId', async (req: AuthRequest, res: Response) => {
 
     const link = await prisma.traceabilityLink.findUnique({ where: { id: linkId } });
     if (!link || link.matrixId !== id) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Traceability link not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Traceability link not found' },
+      });
     }
 
     await prisma.traceabilityLink.delete({ where: { id: linkId } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete traceability link error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete traceability link' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete traceability link' },
+    });
   }
 });
 

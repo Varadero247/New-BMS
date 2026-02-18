@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate , type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { z } from 'zod';
@@ -45,7 +45,10 @@ router.post('/', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -61,8 +64,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Account created', { accountId: account.id });
     return res.status(201).json({ success: true, data: account });
   } catch (error: unknown) {
-    logger.error('Failed to create account', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create account' } });
+    logger.error('Failed to create account', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create account' },
+    });
   }
 });
 
@@ -79,9 +87,7 @@ router.get('/', async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { deletedAt: null };
 
     if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-      ];
+      where.OR = [{ name: { contains: search, mode: 'insensitive' } }];
     }
 
     if (type) {
@@ -113,8 +119,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list accounts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list accounts' } });
+    logger.error('Failed to list accounts', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list accounts' },
+    });
   }
 });
 
@@ -126,13 +137,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!account) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     return res.json({ success: true, data: account });
   } catch (error: unknown) {
-    logger.error('Failed to get account', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get account' } });
+    logger.error('Failed to get account', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get account' },
+    });
   }
 });
 
@@ -143,7 +161,10 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -152,7 +173,9 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     const account = await prisma.crmAccount.update({
@@ -166,8 +189,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Account updated', { accountId: account.id });
     return res.json({ success: true, data: account });
   } catch (error: unknown) {
-    logger.error('Failed to update account', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update account' } });
+    logger.error('Failed to update account', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update account' },
+    });
   }
 });
 
@@ -179,7 +207,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     await prisma.crmAccount.update({
@@ -190,8 +220,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Account soft deleted', { accountId: req.params.id });
     return res.json({ success: true, data: { message: 'Account deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete account', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete account' } });
+    logger.error('Failed to delete account', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete account' },
+    });
   }
 });
 
@@ -203,18 +238,26 @@ router.get('/:id/contacts', async (req: Request, res: Response) => {
     });
 
     if (!account) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     const contacts = await prisma.crmContact.findMany({
       where: { accountId: req.params.id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     return res.json({ success: true, data: contacts });
   } catch (error: unknown) {
-    logger.error('Failed to list account contacts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list account contacts' } });
+    logger.error('Failed to list account contacts', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list account contacts' },
+    });
   }
 });
 
@@ -226,18 +269,26 @@ router.get('/:id/deals', async (req: Request, res: Response) => {
     });
 
     if (!account) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     const deals = await prisma.crmDeal.findMany({
       where: { accountId: req.params.id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     return res.json({ success: true, data: deals });
   } catch (error: unknown) {
-    logger.error('Failed to list account deals', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list account deals' } });
+    logger.error('Failed to list account deals', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list account deals' },
+    });
   }
 });
 
@@ -256,7 +307,9 @@ router.get('/:id/compliance', async (req: Request, res: Response) => {
     });
 
     if (!account) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     return res.json({
@@ -267,13 +320,22 @@ router.get('/:id/compliance', async (req: Request, res: Response) => {
         qualitySupplierScore: account.qualitySupplierScore || 0,
         openNCRCount: account.openNCRCount || 0,
         openComplaintCount: account.openComplaintCount || 0,
-        riskLevel: (account.openNCRCount || 0) + (account.openComplaintCount || 0) > 5 ? 'HIGH' :
-          (account.openNCRCount || 0) + (account.openComplaintCount || 0) > 2 ? 'MEDIUM' : 'LOW',
+        riskLevel:
+          (account.openNCRCount || 0) + (account.openComplaintCount || 0) > 5
+            ? 'HIGH'
+            : (account.openNCRCount || 0) + (account.openComplaintCount || 0) > 2
+              ? 'MEDIUM'
+              : 'LOW',
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get compliance data', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance data' } });
+    logger.error('Failed to get compliance data', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get compliance data' },
+    });
   }
 });
 
@@ -285,24 +347,41 @@ router.get('/:id/invoices', async (req: Request, res: Response) => {
     });
 
     if (!account) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     // Fetch invoices from the Finance service filtered by this account's name
     const headers = { ...createServiceHeaders('api-crm'), 'Content-Type': 'application/json' };
     const params = new URLSearchParams({ search: (account as any).name || '', limit: '50' });
-    const financeRes = await fetch(`${FINANCE_SERVICE_URL}/api/invoices?${params}`, { headers, signal: AbortSignal.timeout(5000) });
+    const financeRes = await fetch(`${FINANCE_SERVICE_URL}/api/invoices?${params}`, {
+      headers,
+      signal: AbortSignal.timeout(5000),
+    });
 
     if (!financeRes.ok) {
-      logger.warn('Finance service unavailable for invoice lookup', { status: financeRes.status, accountId: req.params.id });
+      logger.warn('Finance service unavailable for invoice lookup', {
+        status: financeRes.status,
+        accountId: req.params.id,
+      });
       return res.json({ success: true, data: [], meta: { source: 'finance-unavailable' } });
     }
 
-    const financeBody = await financeRes.json() as { success: boolean; data: unknown[] };
-    return res.json({ success: true, data: financeBody.data ?? [], meta: { source: 'finance-service' } });
+    const financeBody = (await financeRes.json()) as { success: boolean; data: unknown[] };
+    return res.json({
+      success: true,
+      data: financeBody.data ?? [],
+      meta: { source: 'finance-service' },
+    });
   } catch (error: unknown) {
-    logger.error('Failed to get invoices', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get invoices' } });
+    logger.error('Failed to get invoices', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get invoices' },
+    });
   }
 });
 

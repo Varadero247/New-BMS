@@ -37,7 +37,10 @@ jest.mock('@ims/service-auth', () => ({
 
 jest.mock('@ims/monitoring', () => ({
   createLogger: () => ({
-    info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn(),
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
   }),
 }));
 
@@ -107,7 +110,13 @@ describe('OASIS Routes', () => {
   // ============================================
   describe('POST /api/oasis/monitor', () => {
     it('should add supplier to monitoring', async () => {
-      const created = { id: 'sup-1', cageCode: 'AB123', companyName: 'AcmeCorp', certStatus: 'UNKNOWN', createdBy: 'test@test.com' };
+      const created = {
+        id: 'sup-1',
+        cageCode: 'AB123',
+        companyName: 'AcmeCorp',
+        certStatus: 'UNKNOWN',
+        createdBy: 'test@test.com',
+      };
       (mockPrisma.oasisMonitoredSupplier.create as jest.Mock).mockResolvedValue(created);
 
       const res = await request(app).post('/api/oasis/monitor').send({
@@ -155,7 +164,13 @@ describe('OASIS Routes', () => {
     });
 
     it('should accept optional certStandard and certBody', async () => {
-      const created = { id: 'sup-1', cageCode: 'AB123', companyName: 'Acme', certStandard: 'AS9100D', certBody: 'BSI' };
+      const created = {
+        id: 'sup-1',
+        cageCode: 'AB123',
+        companyName: 'Acme',
+        certStandard: 'AS9100D',
+        certBody: 'BSI',
+      };
       (mockPrisma.oasisMonitoredSupplier.create as jest.Mock).mockResolvedValue(created);
 
       const res = await request(app).post('/api/oasis/monitor').send({
@@ -168,7 +183,9 @@ describe('OASIS Routes', () => {
     });
 
     it('should return 500 for internal errors', async () => {
-      (mockPrisma.oasisMonitoredSupplier.create as jest.Mock).mockRejectedValue(new Error('DB error'));
+      (mockPrisma.oasisMonitoredSupplier.create as jest.Mock).mockRejectedValue(
+        new Error('DB error')
+      );
 
       const res = await request(app).post('/api/oasis/monitor').send({
         cageCode: 'AB123',
@@ -223,7 +240,9 @@ describe('OASIS Routes', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.oasisMonitoredSupplier.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+      (mockPrisma.oasisMonitoredSupplier.findMany as jest.Mock).mockRejectedValue(
+        new Error('DB error')
+      );
 
       const res = await request(app).get('/api/oasis/monitor');
       expect(res.status).toBe(500);
@@ -236,7 +255,11 @@ describe('OASIS Routes', () => {
   describe('GET /api/oasis/alerts', () => {
     it('should list unacknowledged alerts', async () => {
       (mockPrisma.oasisAlert.findMany as jest.Mock).mockResolvedValue([
-        { id: '00000000-0000-0000-0000-000000000001', acknowledged: false, supplier: { companyName: 'Acme' } },
+        {
+          id: '00000000-0000-0000-0000-000000000001',
+          acknowledged: false,
+          supplier: { companyName: 'Acme' },
+        },
       ]);
       (mockPrisma.oasisAlert.count as jest.Mock).mockResolvedValue(1);
 
@@ -268,13 +291,18 @@ describe('OASIS Routes', () => {
   describe('PUT /api/oasis/alerts/:id/acknowledge', () => {
     it('should acknowledge an alert', async () => {
       (mockPrisma.oasisAlert.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', acknowledged: false,
+        id: '00000000-0000-0000-0000-000000000001',
+        acknowledged: false,
       });
       (mockPrisma.oasisAlert.update as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', acknowledged: true, acknowledgedBy: 'test@test.com',
+        id: '00000000-0000-0000-0000-000000000001',
+        acknowledged: true,
+        acknowledgedBy: 'test@test.com',
       });
 
-      const res = await request(app).put('/api/oasis/alerts/00000000-0000-0000-0000-000000000001/acknowledge');
+      const res = await request(app).put(
+        '/api/oasis/alerts/00000000-0000-0000-0000-000000000001/acknowledge'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.acknowledged).toBe(true);
@@ -283,28 +311,36 @@ describe('OASIS Routes', () => {
     it('should return 404 for non-existent alert', async () => {
       (mockPrisma.oasisAlert.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/oasis/alerts/00000000-0000-0000-0000-000000000099/acknowledge');
+      const res = await request(app).put(
+        '/api/oasis/alerts/00000000-0000-0000-0000-000000000099/acknowledge'
+      );
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
 
     it('should return 400 for already acknowledged alert', async () => {
       (mockPrisma.oasisAlert.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', acknowledged: true,
+        id: '00000000-0000-0000-0000-000000000001',
+        acknowledged: true,
       });
 
-      const res = await request(app).put('/api/oasis/alerts/00000000-0000-0000-0000-000000000001/acknowledge');
+      const res = await request(app).put(
+        '/api/oasis/alerts/00000000-0000-0000-0000-000000000001/acknowledge'
+      );
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('ALREADY_ACKNOWLEDGED');
     });
 
     it('should return 500 on database error', async () => {
       (mockPrisma.oasisAlert.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', acknowledged: false,
+        id: '00000000-0000-0000-0000-000000000001',
+        acknowledged: false,
       });
       (mockPrisma.oasisAlert.update as jest.Mock).mockRejectedValue(new Error('DB fail'));
 
-      const res = await request(app).put('/api/oasis/alerts/00000000-0000-0000-0000-000000000001/acknowledge');
+      const res = await request(app).put(
+        '/api/oasis/alerts/00000000-0000-0000-0000-000000000001/acknowledge'
+      );
       expect(res.status).toBe(500);
     });
   });

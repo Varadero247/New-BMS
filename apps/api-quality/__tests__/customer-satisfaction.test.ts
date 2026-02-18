@@ -84,8 +84,9 @@ describe('Quality Customer Satisfaction API Routes', () => {
     it('should return a public survey by token', async () => {
       mockPrisma.customerSurvey.findUnique.mockResolvedValueOnce(mockSurvey);
 
-      const response = await request(app)
-        .get('/api/customer-satisfaction/public/CS-2602-0001-abc12345');
+      const response = await request(app).get(
+        '/api/customer-satisfaction/public/CS-2602-0001-abc12345'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -96,8 +97,7 @@ describe('Quality Customer Satisfaction API Routes', () => {
     it('should return 404 when survey not found', async () => {
       mockPrisma.customerSurvey.findUnique.mockResolvedValueOnce(null);
 
-      const response = await request(app)
-        .get('/api/customer-satisfaction/public/invalid-token');
+      const response = await request(app).get('/api/customer-satisfaction/public/invalid-token');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -109,8 +109,9 @@ describe('Quality Customer Satisfaction API Routes', () => {
         isPublic: false,
       });
 
-      const response = await request(app)
-        .get('/api/customer-satisfaction/public/CS-2602-0001-abc12345');
+      const response = await request(app).get(
+        '/api/customer-satisfaction/public/CS-2602-0001-abc12345'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -122,8 +123,9 @@ describe('Quality Customer Satisfaction API Routes', () => {
         isActive: false,
       });
 
-      const response = await request(app)
-        .get('/api/customer-satisfaction/public/CS-2602-0001-abc12345');
+      const response = await request(app).get(
+        '/api/customer-satisfaction/public/CS-2602-0001-abc12345'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -135,8 +137,9 @@ describe('Quality Customer Satisfaction API Routes', () => {
         deletedAt: new Date(),
       });
 
-      const response = await request(app)
-        .get('/api/customer-satisfaction/public/CS-2602-0001-abc12345');
+      const response = await request(app).get(
+        '/api/customer-satisfaction/public/CS-2602-0001-abc12345'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -145,8 +148,9 @@ describe('Quality Customer Satisfaction API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.customerSurvey.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/customer-satisfaction/public/CS-2602-0001-abc12345');
+      const response = await request(app).get(
+        '/api/customer-satisfaction/public/CS-2602-0001-abc12345'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -256,7 +260,13 @@ describe('Quality Customer Satisfaction API Routes', () => {
         ...createPayload,
         publicToken: 'CS-2602-0001-xyztoken',
         questions: [
-          { id: 'q-1', text: 'How likely to recommend?', type: 'NPS_SCALE', orderIndex: 0, required: true },
+          {
+            id: 'q-1',
+            text: 'How likely to recommend?',
+            type: 'NPS_SCALE',
+            orderIndex: 0,
+            required: true,
+          },
           { id: 'q-2', text: 'Comments?', type: 'TEXT', orderIndex: 1, required: false },
         ],
       });
@@ -514,9 +524,7 @@ describe('Quality Customer Satisfaction API Routes', () => {
       title: 'NPS Survey',
       type: 'NPS',
       deletedAt: null,
-      questions: [
-        { id: 'q-1', text: 'Rate us', type: 'NPS_SCALE', orderIndex: 0 },
-      ],
+      questions: [{ id: 'q-1', text: 'Rate us', type: 'NPS_SCALE', orderIndex: 0 }],
       _count: { responses: 10 },
     };
 
@@ -691,7 +699,12 @@ describe('Quality Customer Satisfaction API Routes', () => {
         csatScore: 4,
         npsCategory: 'PROMOTER',
         submittedAt: new Date('2026-02-01'),
-        survey: { id: '00000000-0000-0000-0000-000000000001', title: 'NPS Survey', refNumber: 'CS-2602-0001', type: 'NPS' },
+        survey: {
+          id: '00000000-0000-0000-0000-000000000001',
+          title: 'NPS Survey',
+          refNumber: 'CS-2602-0001',
+          type: 'NPS',
+        },
         answers: [{ questionId: 'q-1', numericValue: 9 }],
       },
     ];
@@ -787,9 +800,19 @@ describe('Quality Customer Satisfaction API Routes', () => {
   describe('GET /api/customer-satisfaction/metrics', () => {
     it('should return NPS and CSAT metrics', async () => {
       const mockResponses = [
-        { npsScore: 10, csatScore: 5, npsCategory: 'PROMOTER', submittedAt: new Date('2026-01-15') },
+        {
+          npsScore: 10,
+          csatScore: 5,
+          npsCategory: 'PROMOTER',
+          submittedAt: new Date('2026-01-15'),
+        },
         { npsScore: 8, csatScore: 4, npsCategory: 'PASSIVE', submittedAt: new Date('2026-01-20') },
-        { npsScore: 5, csatScore: 2, npsCategory: 'DETRACTOR', submittedAt: new Date('2026-02-10') },
+        {
+          npsScore: 5,
+          csatScore: 2,
+          npsCategory: 'DETRACTOR',
+          submittedAt: new Date('2026-02-10'),
+        },
       ];
 
       mockPrisma.surveyResponse.findMany.mockResolvedValueOnce(mockResponses);

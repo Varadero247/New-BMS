@@ -18,7 +18,11 @@ const sanitationCreateSchema = z.object({
   area: z.string().trim().min(1).max(200),
   procedure: z.string().trim().min(1).max(2000),
   frequency: z.enum(['CONTINUOUS', 'HOURLY', 'PER_BATCH', 'DAILY', 'WEEKLY']),
-  scheduledDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  scheduledDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   completedBy: z.string().max(200).optional().nullable(),
   result: z.enum(['PASS', 'FAIL', 'CONDITIONAL']).optional().nullable(),
   findings: z.string().max(2000).optional().nullable(),
@@ -35,7 +39,12 @@ const sanitationUpdateSchema = z.object({
   area: z.string().trim().min(1).max(200).optional(),
   procedure: z.string().trim().min(1).max(2000).optional(),
   frequency: z.enum(['CONTINUOUS', 'HOURLY', 'PER_BATCH', 'DAILY', 'WEEKLY']).optional(),
-  scheduledDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  scheduledDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional(),
   status: z.enum(['SCHEDULED', 'COMPLETED', 'OVERDUE', 'FAILED']).optional(),
   completedBy: z.string().max(200).optional().nullable(),
   result: z.enum(['PASS', 'FAIL', 'CONDITIONAL']).optional().nullable(),
@@ -68,8 +77,13 @@ router.get('/overdue', async (req: Request, res: Response) => {
 
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Error fetching overdue sanitation tasks', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue sanitation tasks' } });
+    logger.error('Error fetching overdue sanitation tasks', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue sanitation tasks' },
+    });
   }
 });
 
@@ -89,7 +103,12 @@ router.get('/', async (req: Request, res: Response) => {
     if (frequency) where.frequency = String(frequency);
 
     const [data, total] = await Promise.all([
-      prisma.fsSanitation.findMany({ where, skip, take: limit, orderBy: { scheduledDate: 'desc' } }),
+      prisma.fsSanitation.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { scheduledDate: 'desc' },
+      }),
       prisma.fsSanitation.count({ where }),
     ]);
 
@@ -99,8 +118,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing sanitation tasks', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list sanitation tasks' } });
+    logger.error('Error listing sanitation tasks', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list sanitation tasks' },
+    });
   }
 });
 
@@ -111,7 +135,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = sanitationCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -128,8 +155,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Sanitation task created', { id: task.id });
     res.status(201).json({ success: true, data: task });
   } catch (error: unknown) {
-    logger.error('Error creating sanitation task', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create sanitation task' } });
+    logger.error('Error creating sanitation task', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create sanitation task' },
+    });
   }
 });
 
@@ -143,13 +175,21 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!task) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Sanitation task not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Sanitation task not found' },
+      });
     }
 
     res.json({ success: true, data: task });
   } catch (error: unknown) {
-    logger.error('Error fetching sanitation task', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch sanitation task' } });
+    logger.error('Error fetching sanitation task', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch sanitation task' },
+    });
   }
 });
 
@@ -159,16 +199,24 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const RESERVED = new Set(['complete']);
-    if (RESERVED.has(req.params.id)) return (undefined as any);
+    if (RESERVED.has(req.params.id)) return undefined as any;
 
-    const existing = await prisma.fsSanitation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSanitation.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Sanitation task not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Sanitation task not found' },
+      });
     }
 
     const parsed = sanitationUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -183,8 +231,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Sanitation task updated', { id: task.id });
     res.json({ success: true, data: task });
   } catch (error: unknown) {
-    logger.error('Error updating sanitation task', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update sanitation task' } });
+    logger.error('Error updating sanitation task', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update sanitation task' },
+    });
   }
 });
 
@@ -193,9 +246,14 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSanitation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSanitation.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Sanitation task not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Sanitation task not found' },
+      });
     }
 
     await prisma.fsSanitation.update({
@@ -206,8 +264,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Sanitation task deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Sanitation task deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting sanitation task', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete sanitation task' } });
+    logger.error('Error deleting sanitation task', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete sanitation task' },
+    });
   }
 });
 
@@ -216,18 +279,32 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSanitation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSanitation.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Sanitation task not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Sanitation task not found' },
+      });
     }
 
     if (existing.status === 'COMPLETED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_COMPLETED', message: 'Sanitation task is already completed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'ALREADY_COMPLETED', message: 'Sanitation task is already completed' },
+      });
     }
 
     const completeParsed = sanitationCompleteSchema.safeParse(req.body);
     if (!completeParsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: completeParsed.error.errors[0]?.message || 'Invalid completion data' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: completeParsed.error.errors[0]?.message || 'Invalid completion data',
+        },
+      });
     }
     const { result, findings, verifiedBy } = completeParsed.data;
 
@@ -246,8 +323,13 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     logger.info('Sanitation task completed', { id: task.id });
     res.json({ success: true, data: task });
   } catch (error: unknown) {
-    logger.error('Error completing sanitation task', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete sanitation task' } });
+    logger.error('Error completing sanitation task', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete sanitation task' },
+    });
   }
 });
 

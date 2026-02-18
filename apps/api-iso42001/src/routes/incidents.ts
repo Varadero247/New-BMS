@@ -30,20 +30,23 @@ const incidentCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
   description: z.string().max(10000).optional().nullable(),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
-  incidentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  category: z.enum([
-    'BIAS_INCIDENT',
-    'DATA_BREACH',
-    'SAFETY_FAILURE',
-    'PERFORMANCE_DEGRADATION',
-    'UNAUTHORIZED_ACCESS',
-    'MISUSE',
-    'OUTPUT_ERROR',
-    'SYSTEM_FAILURE',
-    'PRIVACY_VIOLATION',
-    'REGULATORY_BREACH',
-    'OTHER',
-  ]).optional().default('OTHER'),
+  incidentDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  category: z
+    .enum([
+      'BIAS_INCIDENT',
+      'DATA_BREACH',
+      'SAFETY_FAILURE',
+      'PERFORMANCE_DEGRADATION',
+      'UNAUTHORIZED_ACCESS',
+      'MISUSE',
+      'OUTPUT_ERROR',
+      'SYSTEM_FAILURE',
+      'PRIVACY_VIOLATION',
+      'REGULATORY_BREACH',
+      'OTHER',
+    ])
+    .optional()
+    .default('OTHER'),
   affectedParties: z.string().max(2000).optional().nullable(),
   immediateAction: z.string().max(4000).optional().nullable(),
   reportedBy: z.string().max(200).optional().nullable(),
@@ -55,19 +58,21 @@ const incidentUpdateSchema = z.object({
   description: z.string().max(10000).optional().nullable(),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   status: z.enum(['REPORTED', 'INVESTIGATING', 'MITIGATING', 'RESOLVED', 'CLOSED']).optional(),
-  category: z.enum([
-    'BIAS_INCIDENT',
-    'DATA_BREACH',
-    'SAFETY_FAILURE',
-    'PERFORMANCE_DEGRADATION',
-    'UNAUTHORIZED_ACCESS',
-    'MISUSE',
-    'OUTPUT_ERROR',
-    'SYSTEM_FAILURE',
-    'PRIVACY_VIOLATION',
-    'REGULATORY_BREACH',
-    'OTHER',
-  ]).optional(),
+  category: z
+    .enum([
+      'BIAS_INCIDENT',
+      'DATA_BREACH',
+      'SAFETY_FAILURE',
+      'PERFORMANCE_DEGRADATION',
+      'UNAUTHORIZED_ACCESS',
+      'MISUSE',
+      'OUTPUT_ERROR',
+      'SYSTEM_FAILURE',
+      'PRIVACY_VIOLATION',
+      'REGULATORY_BREACH',
+      'OTHER',
+    ])
+    .optional(),
   affectedParties: z.string().max(2000).optional().nullable(),
   immediateAction: z.string().max(4000).optional().nullable(),
   reportedBy: z.string().max(200).optional().nullable(),
@@ -151,8 +156,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list incidents', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list incidents' } });
+    logger.error('Failed to list incidents', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list incidents' },
+    });
   }
 });
 
@@ -161,13 +171,24 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = incidentCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     // Verify system exists
-    const system = await prisma.aiSystem.findFirst({ where: { id: parsed.data.systemId, deletedAt: null } as any });
+    const system = await prisma.aiSystem.findFirst({
+      where: { id: parsed.data.systemId, deletedAt: null } as any,
+    });
     if (!system) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -194,11 +215,20 @@ router.post('/', async (req: Request, res: Response) => {
       },
     });
 
-    logger.info('AI incident created', { incidentId: incident.id, reference, severity: parsed.data.severity });
+    logger.info('AI incident created', {
+      incidentId: incident.id,
+      reference,
+      severity: parsed.data.severity,
+    });
     res.status(201).json({ success: true, data: incident });
   } catch (error: unknown) {
-    logger.error('Failed to create incident', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create incident' } });
+    logger.error('Failed to create incident', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create incident' },
+    });
   }
 });
 
@@ -208,16 +238,28 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = investigateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const existing = await prisma.aiIncident.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     }
 
     if (existing.status === 'CLOSED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_CLOSED', message: 'Cannot investigate a closed incident' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'ALREADY_CLOSED', message: 'Cannot investigate a closed incident' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -241,8 +283,14 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
     logger.info('AI incident investigation updated', { incidentId: id });
     res.json({ success: true, data: incident });
   } catch (error: unknown) {
-    logger.error('Failed to update investigation', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update investigation' } });
+    logger.error('Failed to update investigation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update investigation' },
+    });
   }
 });
 
@@ -252,16 +300,28 @@ router.put('/:id/close', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = closeSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const existing = await prisma.aiIncident.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     }
 
     if (existing.status === 'CLOSED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_CLOSED', message: 'Incident is already closed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'ALREADY_CLOSED', message: 'Incident is already closed' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -285,8 +345,14 @@ router.put('/:id/close', async (req: Request, res: Response) => {
     logger.info('AI incident closed', { incidentId: id });
     res.json({ success: true, data: incident });
   } catch (error: unknown) {
-    logger.error('Failed to close incident', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close incident' } });
+    logger.error('Failed to close incident', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to close incident' },
+    });
   }
 });
 
@@ -305,13 +371,21 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!incident) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     }
 
     res.json({ success: true, data: incident });
   } catch (error: unknown) {
-    logger.error('Failed to get incident', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get incident' } });
+    logger.error('Failed to get incident', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get incident' },
+    });
   }
 });
 
@@ -322,12 +396,21 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = incidentUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const existing = await prisma.aiIncident.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -346,8 +429,14 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     logger.info('AI incident updated', { incidentId: id });
     res.json({ success: true, data: incident });
   } catch (error: unknown) {
-    logger.error('Failed to update incident', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update incident' } });
+    logger.error('Failed to update incident', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update incident' },
+    });
   }
 });
 
@@ -359,7 +448,9 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.aiIncident.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -374,8 +465,14 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     logger.info('AI incident soft-deleted', { incidentId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete incident', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete incident' } });
+    logger.error('Failed to delete incident', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete incident' },
+    });
   }
 });
 

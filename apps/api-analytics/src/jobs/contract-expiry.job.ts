@@ -25,15 +25,27 @@ export async function runContractExpiryJob(): Promise<void> {
           where: { id: contract.id },
           data: { status: 'EXPIRED' },
         });
-        logger.warn('Contract expired', { id: contract.id, name: contract.name, vendor: contract.vendor, endDate: contract.endDate });
+        logger.warn('Contract expired', {
+          id: contract.id,
+          name: contract.name,
+          vendor: contract.vendor,
+          endDate: contract.endDate,
+        });
         expiredCount++;
       } else if (endDate <= thirtyDaysFromNow) {
         await prisma.contract.update({
           where: { id: contract.id },
           data: { status: 'EXPIRING_SOON' },
         });
-        const daysRemaining = Math.ceil((endDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
-        logger.warn('Contract expiring soon', { id: contract.id, name: contract.name, vendor: contract.vendor, daysRemaining });
+        const daysRemaining = Math.ceil(
+          (endDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)
+        );
+        logger.warn('Contract expiring soon', {
+          id: contract.id,
+          name: contract.name,
+          vendor: contract.vendor,
+          daysRemaining,
+        });
         expiringSoonCount++;
       }
     }

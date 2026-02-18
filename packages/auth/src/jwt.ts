@@ -53,30 +53,22 @@ export interface TokenPairResult {
  */
 export function generateToken(options: GenerateTokenOptions): string {
   const { userId, email, role, expiresIn = '15m' } = options;
-  return jwt.sign(
-    { userId, email, role },
-    getJwtSecret(),
-    {
-      expiresIn,
-      issuer: JWT_ISSUER,
-      audience: JWT_AUDIENCE,
-    } as jwt.SignOptions
-  );
+  return jwt.sign({ userId, email, role }, getJwtSecret(), {
+    expiresIn,
+    issuer: JWT_ISSUER,
+    audience: JWT_AUDIENCE,
+  } as jwt.SignOptions);
 }
 
 /**
  * Generate a refresh token
  */
 export function generateRefreshToken(userId: string): string {
-  return jwt.sign(
-    { userId, type: 'refresh' },
-    getJwtRefreshSecret(),
-    {
-      expiresIn: '7d',
-      issuer: JWT_ISSUER,
-      audience: JWT_AUDIENCE,
-    }
-  );
+  return jwt.sign({ userId, type: 'refresh' }, getJwtRefreshSecret(), {
+    expiresIn: '7d',
+    issuer: JWT_ISSUER,
+    audience: JWT_AUDIENCE,
+  });
 }
 
 /**

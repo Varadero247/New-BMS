@@ -2,7 +2,7 @@ import { TaxBracket, USFederalTaxResult } from './types';
 
 // US 2024 Federal tax brackets (Single)
 const US_SINGLE_BRACKETS: TaxBracket[] = [
-  { min: 0, max: 11600, rate: 0.10 },
+  { min: 0, max: 11600, rate: 0.1 },
   { min: 11601, max: 47150, rate: 0.12 },
   { min: 47151, max: 100525, rate: 0.22 },
   { min: 100526, max: 191950, rate: 0.24 },
@@ -13,7 +13,7 @@ const US_SINGLE_BRACKETS: TaxBracket[] = [
 
 // US 2024 Federal tax brackets (Married Filing Jointly)
 const US_MARRIED_BRACKETS: TaxBracket[] = [
-  { min: 0, max: 23200, rate: 0.10 },
+  { min: 0, max: 23200, rate: 0.1 },
   { min: 23201, max: 94300, rate: 0.12 },
   { min: 94301, max: 201050, rate: 0.22 },
   { min: 201051, max: 383900, rate: 0.24 },
@@ -28,19 +28,27 @@ const FICA_MEDICARE_RATE = 0.0145;
 
 function annualize(pay: number, period: string): number {
   switch (period) {
-    case 'monthly': return pay * 12;
-    case 'weekly': return pay * 52;
-    case 'fortnightly': return pay * 26;
-    default: return pay;
+    case 'monthly':
+      return pay * 12;
+    case 'weekly':
+      return pay * 52;
+    case 'fortnightly':
+      return pay * 26;
+    default:
+      return pay;
   }
 }
 
 function deannualize(amount: number, period: string): number {
   switch (period) {
-    case 'monthly': return amount / 12;
-    case 'weekly': return amount / 52;
-    case 'fortnightly': return amount / 26;
-    default: return amount;
+    case 'monthly':
+      return amount / 12;
+    case 'weekly':
+      return amount / 52;
+    case 'fortnightly':
+      return amount / 26;
+    default:
+      return amount;
   }
 }
 
@@ -53,7 +61,7 @@ function deannualize(amount: number, period: string): number {
 export function calculateUSFederal(
   grossPay: number,
   filingStatus: string = 'single',
-  period: string = 'annual',
+  period: string = 'annual'
 ): USFederalTaxResult {
   const annualGross = annualize(grossPay, period);
 

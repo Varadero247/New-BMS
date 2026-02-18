@@ -23,8 +23,19 @@ const sampleSections: InspectionSection[] = [
   {
     title: 'PPE Compliance',
     questions: [
-      { id: 'q5', label: 'Are all workers wearing required PPE?', type: 'checkbox', required: true },
-      { id: 'q6', label: 'PPE condition', type: 'select', required: true, options: ['Good', 'Fair', 'Poor', 'Replace'] },
+      {
+        id: 'q5',
+        label: 'Are all workers wearing required PPE?',
+        type: 'checkbox',
+        required: true,
+      },
+      {
+        id: 'q6',
+        label: 'PPE condition',
+        type: 'select',
+        required: true,
+        options: ['Good', 'Fair', 'Poor', 'Replace'],
+      },
       { id: 'q7', label: 'PPE deficiencies found', type: 'text', required: false },
     ],
   },
@@ -33,7 +44,12 @@ const sampleSections: InspectionSection[] = [
     questions: [
       { id: 'q8', label: 'Equipment inspection date', type: 'datetime', required: true },
       { id: 'q9', label: 'Number of items checked', type: 'number', required: true },
-      { id: 'q10', label: 'All equipment in safe working order?', type: 'checkbox', required: true },
+      {
+        id: 'q10',
+        label: 'All equipment in safe working order?',
+        type: 'checkbox',
+        required: true,
+      },
     ],
   },
 ];
@@ -58,8 +74,19 @@ export const SimpleForm: Story = {
       {
         title: 'Fire Equipment',
         questions: [
-          { id: 'f1', label: 'Are all fire extinguishers in place?', type: 'checkbox', required: true },
-          { id: 'f2', label: 'Fire alarm panel status', type: 'select', required: true, options: ['Normal', 'Fault', 'Silenced'] },
+          {
+            id: 'f1',
+            label: 'Are all fire extinguishers in place?',
+            type: 'checkbox',
+            required: true,
+          },
+          {
+            id: 'f2',
+            label: 'Fire alarm panel status',
+            type: 'select',
+            required: true,
+            options: ['Normal', 'Fault', 'Silenced'],
+          },
           { id: 'f3', label: 'Notes', type: 'text', required: false },
         ],
       },

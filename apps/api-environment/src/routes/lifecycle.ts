@@ -71,10 +71,20 @@ router.post('/assessments', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: assessment });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create LCA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create life cycle assessment' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create life cycle assessment' },
+    });
   }
 });
 
@@ -115,94 +125,126 @@ router.get('/assessments', scopeToUser, async (req: AuthRequest, res: Response) 
     });
   } catch (error) {
     logger.error('List LCAs error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list life cycle assessments' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list life cycle assessments' },
+    });
   }
 });
 
 // GET /assessments/:id — Get with all stages
-router.get('/assessments/:id', checkOwnership(prisma.lifeCycleAssessment as any), async (req: AuthRequest, res: Response) => {
-  try {
-    const assessment = await prisma.lifeCycleAssessment.findUnique({
-      where: { id: req.params.id },
-      include: { stages: { orderBy: { stageName: 'asc' } } },
-    });
-    if (!assessment) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Life cycle assessment not found' } });
+router.get(
+  '/assessments/:id',
+  checkOwnership(prisma.lifeCycleAssessment as any),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const assessment = await prisma.lifeCycleAssessment.findUnique({
+        where: { id: req.params.id },
+        include: { stages: { orderBy: { stageName: 'asc' } } },
+      });
+      if (!assessment)
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Life cycle assessment not found' },
+        });
 
-    res.json({ success: true, data: assessment });
-  } catch (error) {
-    logger.error('Get LCA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get life cycle assessment' } });
+      res.json({ success: true, data: assessment });
+    } catch (error) {
+      logger.error('Get LCA error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get life cycle assessment' },
+      });
+    }
   }
-});
+);
 
 // PUT /assessments/:id/stages/:stage — Update stage data
 // :stage param is the LcaStageName (e.g. "MANUFACTURING")
 // Uses upsert on the @@unique([assessmentId, stageName]) constraint
-router.put('/assessments/:id/stages/:stage', checkOwnership(prisma.lifeCycleAssessment as any), async (req: AuthRequest, res: Response) => {
-  try {
-    const { id, stage } = req.params;
+router.put(
+  '/assessments/:id/stages/:stage',
+  checkOwnership(prisma.lifeCycleAssessment as any),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { id, stage } = req.params;
 
-    // Validate stage name
-    if (!LCA_STAGE_NAMES.includes(stage as any)) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: `Invalid stage name. Must be one of: ${LCA_STAGE_NAMES.join(', ')}`,
-        },
+      // Validate stage name
+      if (!LCA_STAGE_NAMES.includes(stage as any)) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: `Invalid stage name. Must be one of: ${LCA_STAGE_NAMES.join(', ')}`,
+          },
+        });
+      }
+
+      // Verify the assessment exists
+      const assessment = await prisma.lifeCycleAssessment.findUnique({ where: { id } });
+      if (!assessment)
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Life cycle assessment not found' },
+        });
+
+      const schema = z.object({
+        aspects: z.string().optional(),
+        impacts: z.string().optional(),
+        severity: z.number().min(1).max(5).optional(),
+        controls: z.string().optional(),
+        supplierReqs: z.string().optional(),
+        notes: z.string().optional(),
       });
-    }
 
-    // Verify the assessment exists
-    const assessment = await prisma.lifeCycleAssessment.findUnique({ where: { id } });
-    if (!assessment) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Life cycle assessment not found' } });
+      const data = schema.parse(req.body);
 
-    const schema = z.object({
-      aspects: z.string().optional(),
-      impacts: z.string().optional(),
-      severity: z.number().min(1).max(5).optional(),
-      controls: z.string().optional(),
-      supplierReqs: z.string().optional(),
-      notes: z.string().optional(),
-    });
-
-    const data = schema.parse(req.body);
-
-    const stageRecord = await prisma.lifeCycleStage.upsert({
-      where: {
-        assessmentId_stageName: {
+      const stageRecord = await prisma.lifeCycleStage.upsert({
+        where: {
+          assessmentId_stageName: {
+            assessmentId: id,
+            stageName: stage as any,
+          },
+        },
+        update: {
+          aspects: data.aspects,
+          impacts: data.impacts,
+          severity: data.severity,
+          controls: data.controls,
+          supplierReqs: data.supplierReqs,
+          notes: data.notes,
+        },
+        create: {
           assessmentId: id,
           stageName: stage as any,
+          aspects: data.aspects,
+          impacts: data.impacts,
+          severity: data.severity,
+          controls: data.controls,
+          supplierReqs: data.supplierReqs,
+          notes: data.notes,
         },
-      },
-      update: {
-        aspects: data.aspects,
-        impacts: data.impacts,
-        severity: data.severity,
-        controls: data.controls,
-        supplierReqs: data.supplierReqs,
-        notes: data.notes,
-      },
-      create: {
-        assessmentId: id,
-        stageName: stage as any,
-        aspects: data.aspects,
-        impacts: data.impacts,
-        severity: data.severity,
-        controls: data.controls,
-        supplierReqs: data.supplierReqs,
-        notes: data.notes,
-      },
-    });
+      });
 
-    res.json({ success: true, data: stageRecord });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      res.json({ success: true, data: stageRecord });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update LCA stage error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update life cycle stage' },
+      });
     }
-    logger.error('Update LCA stage error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update life cycle stage' } });
   }
-});
+);
 
 export default router;

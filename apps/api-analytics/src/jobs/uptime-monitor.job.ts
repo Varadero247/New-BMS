@@ -51,7 +51,8 @@ export async function runUptimeMonitorJob(): Promise<void> {
             uptimeCheckId: check.id,
             detectedAt: now,
             httpStatus: status,
-            errorMessage: status === 0 ? 'Connection failed or timeout' : `Unexpected status ${status}`,
+            errorMessage:
+              status === 0 ? 'Connection failed or timeout' : `Unexpected status ${status}`,
           } as any,
         });
         logger.warn('Uptime incident detected', { checkId: check.id, url: check.url, status });
@@ -70,11 +71,20 @@ export async function runUptimeMonitorJob(): Promise<void> {
             where: { id: openIncident.id },
             data: { resolvedAt: now },
           });
-          logger.info('Uptime incident resolved', { checkId: check.id, incidentId: openIncident.id });
+          logger.info('Uptime incident resolved', {
+            checkId: check.id,
+            incidentId: openIncident.id,
+          });
         }
       }
 
-      logger.info('Uptime check completed', { checkId: check.id, url: check.url, status, responseMs, isUp });
+      logger.info('Uptime check completed', {
+        checkId: check.id,
+        url: check.url,
+        status,
+        responseMs,
+        isUp,
+      });
     }
 
     logger.info('Uptime monitor job completed', { checksProcessed: checks.length });

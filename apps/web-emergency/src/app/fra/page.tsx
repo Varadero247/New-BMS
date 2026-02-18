@@ -13,7 +13,15 @@ import {
   TableHead,
   TableCell,
 } from '@ims/ui';
-import { FileSearch, Plus, Search, AlertTriangle, CheckCircle, Clock, ChevronRight } from 'lucide-react';
+import {
+  FileSearch,
+  Plus,
+  Search,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  ChevronRight,
+} from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 import Link from 'next/link';
@@ -76,7 +84,9 @@ export default function FRAPage() {
     }
   }, [statusFilter, searchTerm]);
 
-  useEffect(() => { loadFRAs(); }, [loadFRAs]);
+  useEffect(() => {
+    loadFRAs();
+  }, [loadFRAs]);
 
   const overdue = fras.filter((f) => f.status === 'OVERDUE').length;
   const actionRequired = fras.filter((f) => f.status === 'ACTION_REQUIRED').length;
@@ -135,7 +145,9 @@ export default function FRAPage() {
             </Card>
             <Card>
               <CardContent className="pt-6 text-center">
-                <p className="text-3xl font-bold" style={{ color: '#F04B5A' }}>{overdue}</p>
+                <p className="text-3xl font-bold" style={{ color: '#F04B5A' }}>
+                  {overdue}
+                </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Overdue</p>
               </CardContent>
             </Card>
@@ -218,7 +230,9 @@ export default function FRAPage() {
                               >
                                 {new Date(fra.reviewDate).toLocaleDateString()}
                               </span>
-                            ) : '-'}
+                            ) : (
+                              '-'
+                            )}
                           </TableCell>
                           <TableCell>
                             {fra.overallRiskRating ? (
@@ -229,7 +243,9 @@ export default function FRAPage() {
                               >
                                 {fra.overallRiskRating.replace(/_/g, ' ')}
                               </span>
-                            ) : '-'}
+                            ) : (
+                              '-'
+                            )}
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1.5">

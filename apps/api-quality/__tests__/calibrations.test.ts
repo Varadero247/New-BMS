@@ -157,11 +157,16 @@ describe('Calibrations Routes', () => {
   describe('PUT /api/calibrations/:id', () => {
     it('should update a calibration', async () => {
       (prisma.qualCalibration.findFirst as jest.Mock).mockResolvedValue(mockCalibration);
-      (prisma.qualCalibration.update as jest.Mock).mockResolvedValue({ ...mockCalibration, status: 'EXPIRED' });
-
-      const res = await request(app).put('/api/calibrations/00000000-0000-0000-0000-000000000001').send({
+      (prisma.qualCalibration.update as jest.Mock).mockResolvedValue({
+        ...mockCalibration,
         status: 'EXPIRED',
       });
+
+      const res = await request(app)
+        .put('/api/calibrations/00000000-0000-0000-0000-000000000001')
+        .send({
+          status: 'EXPIRED',
+        });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.status).toBe('EXPIRED');
@@ -170,9 +175,11 @@ describe('Calibrations Routes', () => {
     it('should return 404 if not found', async () => {
       (prisma.qualCalibration.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/calibrations/00000000-0000-0000-0000-000000000099').send({
-        status: 'EXPIRED',
-      });
+      const res = await request(app)
+        .put('/api/calibrations/00000000-0000-0000-0000-000000000099')
+        .send({
+          status: 'EXPIRED',
+        });
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
     });
@@ -181,9 +188,11 @@ describe('Calibrations Routes', () => {
       (prisma.qualCalibration.findFirst as jest.Mock).mockResolvedValue(mockCalibration);
       (prisma.qualCalibration.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).put('/api/calibrations/00000000-0000-0000-0000-000000000001').send({
-        status: 'EXPIRED',
-      });
+      const res = await request(app)
+        .put('/api/calibrations/00000000-0000-0000-0000-000000000001')
+        .send({
+          status: 'EXPIRED',
+        });
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
@@ -192,9 +201,14 @@ describe('Calibrations Routes', () => {
   describe('DELETE /api/calibrations/:id', () => {
     it('should soft delete a calibration', async () => {
       (prisma.qualCalibration.findFirst as jest.Mock).mockResolvedValue(mockCalibration);
-      (prisma.qualCalibration.update as jest.Mock).mockResolvedValue({ ...mockCalibration, deletedAt: new Date().toISOString() });
+      (prisma.qualCalibration.update as jest.Mock).mockResolvedValue({
+        ...mockCalibration,
+        deletedAt: new Date().toISOString(),
+      });
 
-      const res = await request(app).delete('/api/calibrations/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/calibrations/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(prisma.qualCalibration.update).toHaveBeenCalledWith(
@@ -205,7 +219,9 @@ describe('Calibrations Routes', () => {
     it('should return 404 if not found', async () => {
       (prisma.qualCalibration.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/calibrations/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/calibrations/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
     });
@@ -213,7 +229,9 @@ describe('Calibrations Routes', () => {
     it('should handle delete errors', async () => {
       (prisma.qualCalibration.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/calibrations/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/calibrations/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });

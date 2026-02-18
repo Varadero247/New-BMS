@@ -127,8 +127,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list schedules', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list schedules' } });
+    logger.error('Failed to list schedules', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list schedules' },
+    });
   }
 });
 
@@ -141,7 +146,14 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = scheduleCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const data = parsed.data;
@@ -164,8 +176,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Schedule created', { id: schedule.id, name: schedule.name });
     res.status(201).json({ success: true, data: schedule });
   } catch (error: unknown) {
-    logger.error('Failed to create schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create schedule' } });
+    logger.error('Failed to create schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create schedule' },
+    });
   }
 });
 
@@ -177,9 +194,13 @@ router.put('/:id/toggle', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const schedule = await prisma.analyticsSchedule.findFirst({ where: { id, deletedAt: null } as any });
+    const schedule = await prisma.analyticsSchedule.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!schedule) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
     }
 
     const updated = await prisma.analyticsSchedule.update({
@@ -190,8 +211,13 @@ router.put('/:id/toggle', async (req: Request, res: Response) => {
     logger.info('Schedule toggled', { id, isActive: updated.isActive });
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Failed to toggle schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to toggle schedule' } });
+    logger.error('Failed to toggle schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to toggle schedule' },
+    });
   }
 });
 
@@ -206,13 +232,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!schedule) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
     }
 
     res.json({ success: true, data: schedule });
   } catch (error: unknown) {
-    logger.error('Failed to get schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get schedule' } });
+    logger.error('Failed to get schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get schedule' },
+    });
   }
 });
 
@@ -224,14 +257,25 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsSchedule.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsSchedule.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
     }
 
     const parsed = scheduleUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const updated = await prisma.analyticsSchedule.update({
@@ -241,8 +285,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Failed to update schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update schedule' } });
+    logger.error('Failed to update schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update schedule' },
+    });
   }
 });
 
@@ -254,9 +303,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsSchedule.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsSchedule.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
     }
 
     await prisma.analyticsSchedule.update({
@@ -266,8 +319,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { message: 'Schedule deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete schedule' } });
+    logger.error('Failed to delete schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete schedule' },
+    });
   }
 });
 

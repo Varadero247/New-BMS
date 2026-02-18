@@ -104,11 +104,7 @@ export const LegacySystemName: Story = {
 export const AllVariants: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <AIDisclosure
-        variant="compact"
-        provider="claude"
-        confidence={0.95}
-      />
+      <AIDisclosure variant="compact" provider="claude" confidence={0.95} />
       <AIDisclosure
         variant="inline"
         provider="claude"

@@ -33,7 +33,11 @@ jest.mock('@ims/auth', () => ({
     req.user = { id: 'admin-1', email: 'admin@ims.local', role: 'ADMIN' };
     next();
   }),
-  requireRole: jest.fn((..._roles: string[]) => (_req: any, _res: any, next: any) => next()),
+  requireRole: jest.fn(
+    (..._roles: string[]) =>
+      (_req: any, _res: any, next: any) =>
+        next()
+  ),
 }));
 
 jest.mock('@ims/monitoring', () => ({
@@ -458,7 +462,9 @@ describe('GDPR API Routes', () => {
   // =========================================================================
   describe('GET /api/v1/gdpr/retention-policies', () => {
     it('should list retention policies', async () => {
-      (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockResolvedValue([mockRetentionPolicy]);
+      (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockResolvedValue([
+        mockRetentionPolicy,
+      ]);
       (mockPrisma.dataRetentionPolicy.count as jest.Mock).mockResolvedValue(1);
 
       const response = await request(app)
@@ -472,7 +478,9 @@ describe('GDPR API Routes', () => {
     });
 
     it('should filter by module', async () => {
-      (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockResolvedValue([mockRetentionPolicy]);
+      (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockResolvedValue([
+        mockRetentionPolicy,
+      ]);
       (mockPrisma.dataRetentionPolicy.count as jest.Mock).mockResolvedValue(1);
 
       await request(app)
@@ -487,7 +495,9 @@ describe('GDPR API Routes', () => {
     });
 
     it('should filter by isActive', async () => {
-      (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockResolvedValue([mockRetentionPolicy]);
+      (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockResolvedValue([
+        mockRetentionPolicy,
+      ]);
       (mockPrisma.dataRetentionPolicy.count as jest.Mock).mockResolvedValue(1);
 
       await request(app)
@@ -515,7 +525,9 @@ describe('GDPR API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+      (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockRejectedValue(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/v1/gdpr/retention-policies')
@@ -607,7 +619,9 @@ describe('GDPR API Routes', () => {
   // =========================================================================
   describe('GET /api/v1/gdpr/data-map', () => {
     it('should return the data map', async () => {
-      (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockResolvedValue([mockRetentionPolicy]);
+      (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockResolvedValue([
+        mockRetentionPolicy,
+      ]);
 
       const response = await request(app)
         .get('/api/v1/gdpr/data-map')
@@ -624,7 +638,9 @@ describe('GDPR API Routes', () => {
     });
 
     it('should include retention policies per module', async () => {
-      (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockResolvedValue([mockRetentionPolicy]);
+      (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockResolvedValue([
+        mockRetentionPolicy,
+      ]);
 
       const response = await request(app)
         .get('/api/v1/gdpr/data-map')
@@ -651,7 +667,9 @@ describe('GDPR API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+      (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockRejectedValue(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/v1/gdpr/data-map')

@@ -20,7 +20,11 @@ type Trajectory = 'BEHIND' | 'ON_TRACK' | 'AHEAD';
 // Rolling averages over the last N snapshots
 // ---------------------------------------------------------------------------
 export function calculateRollingAverages(
-  snapshots: { mrrGrowthPct: number | null; revenueChurnPct: number | null; newCustomers: number }[],
+  snapshots: {
+    mrrGrowthPct: number | null;
+    revenueChurnPct: number | null;
+    newCustomers: number;
+  }[],
   windowSize: number = 3
 ): RollingAverages {
   if (snapshots.length === 0) {
@@ -61,10 +65,7 @@ export function projectForward(
 // ---------------------------------------------------------------------------
 // Classify trajectory: BEHIND / ON_TRACK / AHEAD (15% threshold)
 // ---------------------------------------------------------------------------
-export function classifyTrajectory(
-  projected: number[],
-  planned: number[]
-): Trajectory {
+export function classifyTrajectory(projected: number[], planned: number[]): Trajectory {
   if (projected.length === 0 || planned.length === 0) return 'ON_TRACK';
 
   // Use the average ratio across projected months

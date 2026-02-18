@@ -17,7 +17,13 @@ interface WarehouseOption {
   name: string;
 }
 
-type AdjustmentType = 'ADJUSTMENT_IN' | 'ADJUSTMENT_OUT' | 'CYCLE_COUNT' | 'TRANSFER' | 'RECEIVE' | 'ISSUE';
+type AdjustmentType =
+  | 'ADJUSTMENT_IN'
+  | 'ADJUSTMENT_OUT'
+  | 'CYCLE_COUNT'
+  | 'TRANSFER'
+  | 'RECEIVE'
+  | 'ISSUE';
 
 export default function AdjustmentsPage() {
   const [adjustmentType, setAdjustmentType] = useState<AdjustmentType>('ADJUSTMENT_IN');
@@ -159,10 +165,30 @@ export default function AdjustmentsPage() {
   }
 
   const adjustmentTypes = [
-    { value: 'ADJUSTMENT_IN', label: 'Add Stock', icon: Plus, color: 'bg-green-100 text-green-700' },
-    { value: 'ADJUSTMENT_OUT', label: 'Remove Stock', icon: Minus, color: 'bg-red-100 text-red-700' },
-    { value: 'CYCLE_COUNT', label: 'Cycle Count', icon: RefreshCw, color: 'bg-blue-100 text-blue-700' },
-    { value: 'TRANSFER', label: 'Transfer', icon: ArrowRightLeft, color: 'bg-purple-100 text-purple-700' },
+    {
+      value: 'ADJUSTMENT_IN',
+      label: 'Add Stock',
+      icon: Plus,
+      color: 'bg-green-100 text-green-700',
+    },
+    {
+      value: 'ADJUSTMENT_OUT',
+      label: 'Remove Stock',
+      icon: Minus,
+      color: 'bg-red-100 text-red-700',
+    },
+    {
+      value: 'CYCLE_COUNT',
+      label: 'Cycle Count',
+      icon: RefreshCw,
+      color: 'bg-blue-100 text-blue-700',
+    },
+    {
+      value: 'TRANSFER',
+      label: 'Transfer',
+      icon: ArrowRightLeft,
+      color: 'bg-purple-100 text-purple-700',
+    },
     { value: 'RECEIVE', label: 'Receive Goods', icon: Plus, color: 'bg-green-100 text-green-700' },
     { value: 'ISSUE', label: 'Issue Goods', icon: Minus, color: 'bg-orange-100 text-orange-700' },
   ];
@@ -173,7 +199,9 @@ export default function AdjustmentsPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Stock Adjustments</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Cycle counts, transfers, and inventory adjustments</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Cycle counts, transfers, and inventory adjustments
+          </p>
         </div>
 
         {/* Adjustment Type Selection */}
@@ -212,7 +240,7 @@ export default function AdjustmentsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ArrowRightLeft className="h-5 w-5 text-sky-500" />
-              {adjustmentTypes.find(t => t.value === adjustmentType)?.label}
+              {adjustmentTypes.find((t) => t.value === adjustmentType)?.label}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -227,8 +255,7 @@ export default function AdjustmentsPage() {
                   <p className="text-sm mt-1">
                     {adjustmentType === 'TRANSFER'
                       ? `Transfer reference: ${result.data?.transferReference}`
-                      : `Transaction: ${result.data?.transaction?.referenceNumber}`
-                    }
+                      : `Transaction: ${result.data?.transaction?.referenceNumber}`}
                   </p>
                 </div>
               )}
@@ -239,7 +266,8 @@ export default function AdjustmentsPage() {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <Input
-                    aria-label="Search by SKU or product name..." placeholder="Search by SKU or product name..."
+                    aria-label="Search by SKU or product name..."
+                    placeholder="Search by SKU or product name..."
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
@@ -274,7 +302,9 @@ export default function AdjustmentsPage() {
                   <div className="mt-2 p-3 bg-sky-50 rounded-lg flex items-center justify-between">
                     <div>
                       <p className="font-medium">{selectedProduct.name}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{selectedProduct.sku}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {selectedProduct.sku}
+                      </p>
                     </div>
                     <Button
                       type="button"
@@ -298,13 +328,17 @@ export default function AdjustmentsPage() {
                     <label className="block text-sm font-medium mb-2">From Warehouse *</label>
                     <select
                       value={formData.fromWarehouseId}
-                      onChange={(e) => setFormData({ ...formData, fromWarehouseId: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, fromWarehouseId: e.target.value })
+                      }
                       className="w-full px-4 py-2 border rounded-lg"
                       required
                     >
                       <option value="">Select source...</option>
                       {warehouses.map((wh) => (
-                        <option key={wh.id} value={wh.id}>{wh.name} ({wh.code})</option>
+                        <option key={wh.id} value={wh.id}>
+                          {wh.name} ({wh.code})
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -317,9 +351,13 @@ export default function AdjustmentsPage() {
                       required
                     >
                       <option value="">Select destination...</option>
-                      {warehouses.filter(wh => wh.id !== formData.fromWarehouseId).map((wh) => (
-                        <option key={wh.id} value={wh.id}>{wh.name} ({wh.code})</option>
-                      ))}
+                      {warehouses
+                        .filter((wh) => wh.id !== formData.fromWarehouseId)
+                        .map((wh) => (
+                          <option key={wh.id} value={wh.id}>
+                            {wh.name} ({wh.code})
+                          </option>
+                        ))}
                     </select>
                   </div>
                 </div>
@@ -334,7 +372,9 @@ export default function AdjustmentsPage() {
                   >
                     <option value="">Select warehouse...</option>
                     {warehouses.map((wh) => (
-                      <option key={wh.id} value={wh.id}>{wh.name} ({wh.code})</option>
+                      <option key={wh.id} value={wh.id}>
+                        {wh.name} ({wh.code})
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -350,7 +390,9 @@ export default function AdjustmentsPage() {
                     type="number"
                     min="0"
                     value={formData.quantity}
-                    onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })
+                    }
                     required
                   />
                 </div>
@@ -362,7 +404,9 @@ export default function AdjustmentsPage() {
                       step="0.01"
                       min="0"
                       value={formData.unitCost}
-                      onChange={(e) => setFormData({ ...formData, unitCost: parseFloat(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, unitCost: parseFloat(e.target.value) || 0 })
+                      }
                     />
                   </div>
                 )}
@@ -391,13 +435,18 @@ export default function AdjustmentsPage() {
               {/* Reason */}
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Reason {['ADJUSTMENT_IN', 'ADJUSTMENT_OUT', 'CYCLE_COUNT'].includes(adjustmentType) ? '*' : ''}
+                  Reason{' '}
+                  {['ADJUSTMENT_IN', 'ADJUSTMENT_OUT', 'CYCLE_COUNT'].includes(adjustmentType)
+                    ? '*'
+                    : ''}
                 </label>
                 <Input
                   value={formData.reason}
                   onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
                   placeholder="Reason for adjustment..."
-                  required={['ADJUSTMENT_IN', 'ADJUSTMENT_OUT', 'CYCLE_COUNT'].includes(adjustmentType)}
+                  required={['ADJUSTMENT_IN', 'ADJUSTMENT_OUT', 'CYCLE_COUNT'].includes(
+                    adjustmentType
+                  )}
                 />
               </div>
 
@@ -439,7 +488,9 @@ export default function AdjustmentsPage() {
                   Clear
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Processing...' : `Submit ${adjustmentTypes.find(t => t.value === adjustmentType)?.label}`}
+                  {loading
+                    ? 'Processing...'
+                    : `Submit ${adjustmentTypes.find((t) => t.value === adjustmentType)?.label}`}
                 </Button>
               </div>
             </form>

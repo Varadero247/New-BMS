@@ -35,11 +35,11 @@ if (service.isConfigured()) {
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `SMTP_HOST` | Yes | SMTP server hostname |
-| `SMTP_PORT` | No | SMTP port (default: 587) |
-| `SMTP_SECURE` | No | Use TLS (default: false) |
-| `SMTP_USER` | Yes | SMTP username |
-| `SMTP_PASS` | Yes | SMTP password |
-| `EMAIL_FROM` | No | Default sender (default: noreply@ims.local) |
+| Variable      | Required | Description                                 |
+| ------------- | -------- | ------------------------------------------- |
+| `SMTP_HOST`   | Yes      | SMTP server hostname                        |
+| `SMTP_PORT`   | No       | SMTP port (default: 587)                    |
+| `SMTP_SECURE` | No       | Use TLS (default: false)                    |
+| `SMTP_USER`   | Yes      | SMTP username                               |
+| `SMTP_PASS`   | Yes      | SMTP password                               |
+| `EMAIL_FROM`  | No       | Default sender (default: noreply@ims.local) |

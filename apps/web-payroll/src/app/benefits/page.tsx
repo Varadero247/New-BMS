@@ -62,8 +62,12 @@ export default function BenefitsPage() {
     try {
       await api.post('/benefits/plans', {
         ...formData,
-        employeeContribution: formData.employeeContribution ? parseFloat(formData.employeeContribution) : undefined,
-        employerContribution: formData.employerContribution ? parseFloat(formData.employerContribution) : undefined,
+        employeeContribution: formData.employeeContribution
+          ? parseFloat(formData.employeeContribution)
+          : undefined,
+        employerContribution: formData.employerContribution
+          ? parseFloat(formData.employerContribution)
+          : undefined,
         waitingPeriodDays: parseInt(formData.waitingPeriodDays),
       });
       setShowModal(false);
@@ -138,7 +142,9 @@ export default function BenefitsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Benefits Administration</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Benefits Administration
+        </h1>
         <button
           onClick={() => setShowModal(true)}
           className="flex items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
@@ -197,7 +203,10 @@ export default function BenefitsPage() {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Retirement Plans</p>
               <p className="text-xl font-semibold">
-                {plans.filter((p) => p.category === 'RETIREMENT' || p.category === 'PENSION').length}
+                {
+                  plans.filter((p) => p.category === 'RETIREMENT' || p.category === 'PENSION')
+                    .length
+                }
               </p>
             </div>
           </div>
@@ -220,12 +229,19 @@ export default function BenefitsPage() {
         {plans.length === 0 ? (
           <div className="col-span-full rounded-lg bg-white dark:bg-gray-900 p-12 text-center shadow">
             <Heart className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
-            <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">No benefit plans</h3>
-            <p className="mt-2 text-gray-500 dark:text-gray-400">Get started by creating a benefit plan.</p>
+            <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">
+              No benefit plans
+            </h3>
+            <p className="mt-2 text-gray-500 dark:text-gray-400">
+              Get started by creating a benefit plan.
+            </p>
           </div>
         ) : (
           plans.map((plan) => (
-            <div key={plan.id} className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow hover:shadow-lg transition-shadow">
+            <div
+              key={plan.id}
+              className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow hover:shadow-lg transition-shadow"
+            >
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3">
                   {getCategoryIcon(plan.category)}
@@ -234,14 +250,14 @@ export default function BenefitsPage() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">{plan.code}</p>
                   </div>
                 </div>
-                <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getCategoryBadge(plan.category)}`}>
+                <span
+                  className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getCategoryBadge(plan.category)}`}
+                >
                   {plan.category.replace(/_/g, ' ')}
                 </span>
               </div>
 
-              {plan.description && (
-                <p className="mt-3 text-sm text-gray-600">{plan.description}</p>
-              )}
+              {plan.description && <p className="mt-3 text-sm text-gray-600">{plan.description}</p>}
 
               <div className="mt-4 space-y-2">
                 {plan.provider && (
@@ -252,15 +268,21 @@ export default function BenefitsPage() {
                 )}
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500 dark:text-gray-400">Employee Contribution:</span>
-                  <span className="text-gray-900 dark:text-gray-100">{formatCurrency(plan.employeeContribution)}</span>
+                  <span className="text-gray-900 dark:text-gray-100">
+                    {formatCurrency(plan.employeeContribution)}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500 dark:text-gray-400">Employer Contribution:</span>
-                  <span className="text-gray-900 dark:text-gray-100">{formatCurrency(plan.employerContribution)}</span>
+                  <span className="text-gray-900 dark:text-gray-100">
+                    {formatCurrency(plan.employerContribution)}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500 dark:text-gray-400">Waiting Period:</span>
-                  <span className="text-gray-900 dark:text-gray-100">{plan.waitingPeriodDays} days</span>
+                  <span className="text-gray-900 dark:text-gray-100">
+                    {plan.waitingPeriodDays} days
+                  </span>
                 </div>
               </div>
 
@@ -271,9 +293,13 @@ export default function BenefitsPage() {
                     {plan._count.employeeBenefits} enrolled
                   </span>
                 </div>
-                <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                  plan.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-800'
-                }`}>
+                <span
+                  className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                    plan.isActive
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-800'
+                  }`}
+                >
                   {plan.isActive ? 'Active' : 'Inactive'}
                 </span>
               </div>
@@ -286,11 +312,15 @@ export default function BenefitsPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white dark:bg-gray-900 p-6 shadow-xl">
-            <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100">Add Benefit Plan</h2>
+            <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100">
+              Add Benefit Plan
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Code</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Code
+                  </label>
                   <input
                     type="text"
                     value={formData.code}
@@ -300,7 +330,9 @@ export default function BenefitsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Name
+                  </label>
                   <input
                     type="text"
                     value={formData.name}
@@ -311,7 +343,9 @@ export default function BenefitsPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Description
+                </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -321,7 +355,9 @@ export default function BenefitsPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Category
+                  </label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -340,7 +376,9 @@ export default function BenefitsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Provider</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Provider
+                  </label>
                   <input
                     type="text"
                     value={formData.provider}
@@ -351,38 +389,52 @@ export default function BenefitsPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Employee Contribution</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Employee Contribution
+                  </label>
                   <input
                     type="number"
                     step="0.01"
                     value={formData.employeeContribution}
-                    onChange={(e) => setFormData({ ...formData, employeeContribution: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, employeeContribution: e.target.value })
+                    }
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Employer Contribution</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Employer Contribution
+                  </label>
                   <input
                     type="number"
                     step="0.01"
                     value={formData.employerContribution}
-                    onChange={(e) => setFormData({ ...formData, employerContribution: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, employerContribution: e.target.value })
+                    }
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Waiting Period (days)</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Waiting Period (days)
+                  </label>
                   <input
                     type="number"
                     value={formData.waitingPeriodDays}
-                    onChange={(e) => setFormData({ ...formData, waitingPeriodDays: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, waitingPeriodDays: e.target.value })
+                    }
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Effective From</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Effective From
+                  </label>
                   <input
                     type="date"
                     value={formData.effectiveFrom}
@@ -397,10 +449,14 @@ export default function BenefitsPage() {
                   <input
                     type="checkbox"
                     checked={formData.dependentsCoverage}
-                    onChange={(e) => setFormData({ ...formData, dependentsCoverage: e.target.checked })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, dependentsCoverage: e.target.checked })
+                    }
                     className="rounded border-gray-300"
                   />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Dependents Coverage</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Dependents Coverage
+                  </span>
                 </label>
               </div>
               <div className="flex justify-end space-x-3 pt-4">

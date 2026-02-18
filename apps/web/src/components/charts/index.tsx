@@ -167,7 +167,20 @@ interface TrendChartProps {
 }
 
 export function TrendChart({ data, label, color, type = 'line' }: TrendChartProps) {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
 
   const chartData = {
     labels: data.map((d) => months[d.month - 1]),
@@ -304,7 +317,12 @@ interface COPQChartProps {
   externalFailure: number;
 }
 
-export function COPQChart({ prevention, appraisal, internalFailure, externalFailure }: COPQChartProps) {
+export function COPQChart({
+  prevention,
+  appraisal,
+  internalFailure,
+  externalFailure,
+}: COPQChartProps) {
   const data = {
     labels: ['Prevention', 'Appraisal', 'Internal Failure', 'External Failure'],
     datasets: [

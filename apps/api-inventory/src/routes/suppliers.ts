@@ -57,7 +57,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List suppliers error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list suppliers' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list suppliers' },
+    });
   }
 });
 
@@ -76,13 +79,18 @@ router.get('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, res
     });
 
     if (!supplier) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     res.json({ success: true, data: supplier });
   } catch (error) {
     logger.error('Get supplier error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get supplier' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get supplier' },
+    });
   }
 });
 
@@ -109,7 +117,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     // Check for duplicate code
     const existingCode = await prisma.supplier.findUnique({ where: { code: data.code } });
     if (existingCode) {
-      return res.status(400).json({ success: false, error: { code: 'DUPLICATE_CODE', message: 'Supplier code already exists' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'DUPLICATE_CODE', message: 'Supplier code already exists' },
+      });
     }
 
     const supplier = await prisma.supplier.create({
@@ -126,10 +137,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: supplier });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create supplier error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create supplier' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create supplier' },
+    });
   }
 });
 
@@ -138,7 +159,9 @@ router.patch('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, r
   try {
     const existing = await prisma.supplier.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     const schema = z.object({
@@ -164,7 +187,10 @@ router.patch('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, r
     if (data.code && data.code !== existing.code) {
       const existingCode = await prisma.supplier.findUnique({ where: { code: data.code } });
       if (existingCode) {
-        return res.status(400).json({ success: false, error: { code: 'DUPLICATE_CODE', message: 'Supplier code already exists' } });
+        return res.status(400).json({
+          success: false,
+          error: { code: 'DUPLICATE_CODE', message: 'Supplier code already exists' },
+        });
       }
     }
 
@@ -179,10 +205,20 @@ router.patch('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, r
     res.json({ success: true, data: supplier });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update supplier error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update supplier' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update supplier' },
+    });
   }
 });
 
@@ -195,23 +231,34 @@ router.delete('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, 
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     // Check for products
     if (existing.products.length > 0) {
       return res.status(400).json({
         success: false,
-        error: { code: 'HAS_PRODUCTS', message: 'Cannot delete supplier with associated products. Reassign products first.' }
+        error: {
+          code: 'HAS_PRODUCTS',
+          message: 'Cannot delete supplier with associated products. Reassign products first.',
+        },
       });
     }
 
-    await prisma.supplier.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
+    await prisma.supplier.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id },
+    });
 
     res.status(204).send();
   } catch (error) {
     logger.error('Delete supplier error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete supplier' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete supplier' },
+    });
   }
 });
 

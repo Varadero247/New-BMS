@@ -116,7 +116,13 @@ export function QuickAddTask({
           className
         )}
       >
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
         </svg>
         Add Task
@@ -125,7 +131,12 @@ export function QuickAddTask({
   }
 
   return (
-    <div className={cn('rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900', className)}>
+    <div
+      className={cn(
+        'rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900',
+        className
+      )}
+    >
       <div className="mb-3 flex items-center justify-between">
         <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Quick Add Task</h4>
         <button
@@ -133,7 +144,13 @@ export function QuickAddTask({
           onClick={() => setExpanded(false)}
           className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -189,12 +206,8 @@ export function QuickAddTask({
         </div>
 
         {/* Error / Success */}
-        {error && (
-          <div className="text-xs text-red-600 dark:text-red-400">{error}</div>
-        )}
-        {success && (
-          <div className="text-xs text-green-600 dark:text-green-400">{success}</div>
-        )}
+        {error && <div className="text-xs text-red-600 dark:text-red-400">{error}</div>}
+        {success && <div className="text-xs text-green-600 dark:text-green-400">{success}</div>}
 
         {/* Submit */}
         <div className="flex justify-end">

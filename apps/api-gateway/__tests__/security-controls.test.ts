@@ -12,7 +12,10 @@ jest.mock('@ims/auth', () => ({
     if (user && roles.includes(user.role)) {
       next();
     } else {
-      res.status(403).json({ success: false, error: { code: 'FORBIDDEN', message: 'Insufficient permissions' } });
+      res.status(403).json({
+        success: false,
+        error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
+      });
     }
   }),
 }));
@@ -192,7 +195,9 @@ describe('Security Controls API Routes', () => {
     it('should include Security Controls resource in RBAC matrix', async () => {
       const res = await request(app).get('/api/v1/security-controls/rbac-matrix');
 
-      const secPerm = res.body.data.permissions.find((p: any) => p.resource === 'Security Controls');
+      const secPerm = res.body.data.permissions.find(
+        (p: any) => p.resource === 'Security Controls'
+      );
       expect(secPerm).toBeDefined();
       expect(secPerm.actions.ADMIN).toBe('R');
       expect(secPerm.actions.USER).toBe('-');
@@ -201,7 +206,9 @@ describe('Security Controls API Routes', () => {
     it('should include GDPR Erasure Requests in RBAC matrix', async () => {
       const res = await request(app).get('/api/v1/security-controls/rbac-matrix');
 
-      const gdprPerm = res.body.data.permissions.find((p: any) => p.resource === 'GDPR Erasure Requests');
+      const gdprPerm = res.body.data.permissions.find(
+        (p: any) => p.resource === 'GDPR Erasure Requests'
+      );
       expect(gdprPerm).toBeDefined();
       expect(gdprPerm.actions.ADMIN).toBe('CRUD');
       expect(gdprPerm.actions.USER).toBe('C(self)');

@@ -187,7 +187,9 @@ describe('Compliance Scores API Routes', () => {
 
     it('should apply overrides via query parameters', async () => {
       const response = await request(app)
-        .get('/api/dashboard/compliance-scores?override_ISO_9001_objectives_on_track=50&override_ISO_9001_open_ncs_ratio=50&override_ISO_9001_capa_closure_rate=50&override_ISO_9001_audit_findings_closed=50')
+        .get(
+          '/api/dashboard/compliance-scores?override_ISO_9001_objectives_on_track=50&override_ISO_9001_open_ncs_ratio=50&override_ISO_9001_capa_closure_rate=50&override_ISO_9001_audit_findings_closed=50'
+        )
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);

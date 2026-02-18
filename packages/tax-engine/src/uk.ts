@@ -3,8 +3,8 @@ import { TaxBracket, TaxBreakdown, UKTaxResult } from './types';
 // UK 2025/26 tax brackets
 const UK_TAX_BRACKETS: TaxBracket[] = [
   { min: 0, max: 12570, rate: 0 },
-  { min: 12571, max: 50270, rate: 0.20 },
-  { min: 50271, max: 125140, rate: 0.40 },
+  { min: 12571, max: 50270, rate: 0.2 },
+  { min: 50271, max: 125140, rate: 0.4 },
   { min: 125141, max: null, rate: 0.45 },
 ];
 
@@ -17,23 +17,34 @@ const UK_NI_BRACKETS: TaxBracket[] = [
 
 function annualize(pay: number, period: string): number {
   switch (period) {
-    case 'monthly': return pay * 12;
-    case 'weekly': return pay * 52;
-    case 'fortnightly': return pay * 26;
-    default: return pay;
+    case 'monthly':
+      return pay * 12;
+    case 'weekly':
+      return pay * 52;
+    case 'fortnightly':
+      return pay * 26;
+    default:
+      return pay;
   }
 }
 
 function deannualize(amount: number, period: string): number {
   switch (period) {
-    case 'monthly': return amount / 12;
-    case 'weekly': return amount / 52;
-    case 'fortnightly': return amount / 26;
-    default: return amount;
+    case 'monthly':
+      return amount / 12;
+    case 'weekly':
+      return amount / 52;
+    case 'fortnightly':
+      return amount / 26;
+    default:
+      return amount;
   }
 }
 
-function calculateBracketTax(annualIncome: number, brackets: TaxBracket[]): { total: number; breakdown: TaxBreakdown[] } {
+function calculateBracketTax(
+  annualIncome: number,
+  brackets: TaxBracket[]
+): { total: number; breakdown: TaxBreakdown[] } {
   let total = 0;
   const breakdown: TaxBreakdown[] = [];
 
@@ -67,7 +78,7 @@ function calculateBracketTax(annualIncome: number, brackets: TaxBracket[]): { to
 export function calculateUKIncomeTax(
   grossPay: number,
   _taxCode: string = '1257L',
-  period: string = 'annual',
+  period: string = 'annual'
 ): UKTaxResult {
   const annualGross = annualize(grossPay, period);
 

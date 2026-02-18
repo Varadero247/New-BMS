@@ -182,7 +182,9 @@ export default function TaxPage() {
           className="rounded-lg border border-gray-300 px-4 py-2 focus:border-green-500 focus:outline-none"
         >
           {[2026, 2025, 2024, 2023].map((year) => (
-            <option key={year} value={year}>{year}</option>
+            <option key={year} value={year}>
+              {year}
+            </option>
           ))}
         </select>
         <select
@@ -263,7 +265,8 @@ export default function TaxPage() {
               <ul className="mt-2 space-y-1">
                 {summary.upcomingDeadlines.slice(0, 3).map((filing) => (
                   <li key={filing.id} className="text-sm text-yellow-700">
-                    {filing.filingType} - {filing.taxPeriod}: Due {new Date(filing.filingDeadline).toLocaleDateString()}
+                    {filing.filingType} - {filing.taxPeriod}: Due{' '}
+                    {new Date(filing.filingDeadline).toLocaleDateString()}
                   </li>
                 ))}
               </ul>
@@ -312,17 +315,24 @@ export default function TaxPage() {
               </tr>
             ) : (
               filings.map((filing) => (
-                <tr key={filing.id} className={`hover:bg-gray-50 dark:bg-gray-800 ${
-                  isOverdue(filing.filingDeadline, filing.status) ? 'bg-red-50' : ''
-                }`}>
+                <tr
+                  key={filing.id}
+                  className={`hover:bg-gray-50 dark:bg-gray-800 ${
+                    isOverdue(filing.filingDeadline, filing.status) ? 'bg-red-50' : ''
+                  }`}
+                >
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getTypeBadge(filing.filingType)}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getTypeBadge(filing.filingType)}`}
+                    >
                       {filing.filingType}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">{filing.taxPeriod}</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        {filing.taxPeriod}
+                      </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">{filing.taxYear}</p>
                     </div>
                   </td>
@@ -343,23 +353,27 @@ export default function TaxPage() {
                       {isOverdue(filing.filingDeadline, filing.status) && (
                         <AlertTriangle className="h-4 w-4 text-red-500" />
                       )}
-                      <span className={`text-sm ${
-                        isOverdue(filing.filingDeadline, filing.status)
-                          ? 'text-red-600 font-medium'
-                          : isDeadlineNear(filing.filingDeadline)
-                          ? 'text-yellow-600'
-                          : 'text-gray-500 dark:text-gray-400'
-                      }`}>
+                      <span
+                        className={`text-sm ${
+                          isOverdue(filing.filingDeadline, filing.status)
+                            ? 'text-red-600 font-medium'
+                            : isDeadlineNear(filing.filingDeadline)
+                              ? 'text-yellow-600'
+                              : 'text-gray-500 dark:text-gray-400'
+                        }`}
+                      >
                         {new Date(filing.filingDeadline).toLocaleDateString()}
                       </span>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                      isOverdue(filing.filingDeadline, filing.status)
-                        ? 'bg-red-100 text-red-800'
-                        : getStatusBadge(filing.status)
-                    }`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                        isOverdue(filing.filingDeadline, filing.status)
+                          ? 'bg-red-100 text-red-800'
+                          : getStatusBadge(filing.status)
+                      }`}
+                    >
                       {isOverdue(filing.filingDeadline, filing.status) ? 'OVERDUE' : filing.status}
                     </span>
                   </td>
@@ -393,11 +407,18 @@ export default function TaxPage() {
       </div>
 
       {/* Create Tax Filing Modal */}
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Tax Filing" size="lg">
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title="Create Tax Filing"
+        size="lg"
+      >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Filing Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Filing Type
+              </label>
               <select
                 value={formData.filingType}
                 onChange={(e) => setFormData({ ...formData, filingType: e.target.value })}
@@ -414,7 +435,9 @@ export default function TaxPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tax Period</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Tax Period
+              </label>
               <input
                 type="text"
                 value={formData.taxPeriod}
@@ -427,7 +450,9 @@ export default function TaxPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tax Year</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Tax Year
+              </label>
               <input
                 type="number"
                 value={formData.taxYear}
@@ -437,7 +462,9 @@ export default function TaxPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Filing Deadline</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Filing Deadline
+              </label>
               <input
                 type="date"
                 value={formData.filingDeadline}
@@ -449,7 +476,9 @@ export default function TaxPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Gross Wages</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Gross Wages
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -460,7 +489,9 @@ export default function TaxPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Taxable Wages</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Taxable Wages
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -473,7 +504,9 @@ export default function TaxPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tax Withheld</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Tax Withheld
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -484,7 +517,9 @@ export default function TaxPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Employer Tax</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Employer Tax
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -495,7 +530,9 @@ export default function TaxPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Payroll Run ID</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Payroll Run ID
+            </label>
             <input
               type="text"
               value={formData.payrollRunId}

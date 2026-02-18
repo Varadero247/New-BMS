@@ -2,13 +2,33 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, Truck, Users, Route, Calendar, Building2, MapPin,
-  FileText, ScrollText, Package, Clock, BarChart3, ClipboardCheck, StickyNote,
-  ExternalLink, LogOut
+  LayoutDashboard,
+  Truck,
+  Users,
+  Route,
+  Calendar,
+  Building2,
+  MapPin,
+  FileText,
+  ScrollText,
+  Package,
+  Clock,
+  BarChart3,
+  ClipboardCheck,
+  StickyNote,
+  ExternalLink,
+  LogOut,
 } from 'lucide-react';
 
-interface NavItem { label: string; href: string; icon: React.ReactNode; }
-interface NavSection { title: string; items: NavItem[]; }
+interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+}
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
 
 const sections: NavSection[] = [
   {
@@ -59,7 +79,9 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-card border-r border-border min-h-screen flex flex-col">
       <div className="p-4 border-b border-border bg-sky-50 dark:bg-sky-900/10">
-        <h1 className="text-lg font-bold font-display text-sky-900 dark:text-sky-100">Field Service</h1>
+        <h1 className="text-lg font-bold font-display text-sky-900 dark:text-sky-100">
+          Field Service
+        </h1>
         <p className="text-xs text-sky-600 dark:text-sky-400">Dispatch & Operations</p>
       </div>
 

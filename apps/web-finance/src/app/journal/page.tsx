@@ -1,7 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+} from '@ims/ui';
 import { Plus, Search, FileText, Trash2, Eye } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -116,16 +127,16 @@ export default function JournalPage() {
   }
 
   function addLine() {
-    setLines(prev => [...prev, { ...emptyLine }]);
+    setLines((prev) => [...prev, { ...emptyLine }]);
   }
 
   function removeLine(index: number) {
     if (lines.length <= 2) return;
-    setLines(prev => prev.filter((_, i) => i !== index));
+    setLines((prev) => prev.filter((_, i) => i !== index));
   }
 
   function updateLine(index: number, field: keyof JournalLine, value: string | number) {
-    setLines(prev => prev.map((line, i) => i === index ? { ...line, [field]: value } : line));
+    setLines((prev) => prev.map((line, i) => (i === index ? { ...line, [field]: value } : line)));
   }
 
   const totalDebit = lines.reduce((sum, l) => sum + (Number(l.debit) || 0), 0);
@@ -135,12 +146,26 @@ export default function JournalPage() {
   async function handleCreate() {
     setFormError('');
 
-    if (!formDate) { setFormError('Date is required'); return; }
-    if (!formDescription.trim()) { setFormError('Description is required'); return; }
-    if (!isBalanced) { setFormError('Total debits must equal total credits'); return; }
+    if (!formDate) {
+      setFormError('Date is required');
+      return;
+    }
+    if (!formDescription.trim()) {
+      setFormError('Description is required');
+      return;
+    }
+    if (!isBalanced) {
+      setFormError('Total debits must equal total credits');
+      return;
+    }
 
-    const validLines = lines.filter(l => l.accountId && (Number(l.debit) > 0 || Number(l.credit) > 0));
-    if (validLines.length < 2) { setFormError('At least 2 valid lines are required'); return; }
+    const validLines = lines.filter(
+      (l) => l.accountId && (Number(l.debit) > 0 || Number(l.credit) > 0)
+    );
+    if (validLines.length < 2) {
+      setFormError('At least 2 valid lines are required');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -148,7 +173,7 @@ export default function JournalPage() {
         reference: formReference || undefined,
         date: formDate,
         description: formDescription,
-        lines: validLines.map(l => ({
+        lines: validLines.map((l) => ({
           accountId: l.accountId,
           description: l.description,
           debit: Number(l.debit) || 0,
@@ -183,8 +208,9 @@ export default function JournalPage() {
     }
   }
 
-  const filteredEntries = entries.filter(e => {
-    const matchesSearch = !searchTerm ||
+  const filteredEntries = entries.filter((e) => {
+    const matchesSearch =
+      !searchTerm ||
       e.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
       e.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || e.status === statusFilter;
@@ -208,7 +234,9 @@ export default function JournalPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Journal Entries</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Record and manage journal entries</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Record and manage journal entries
+            </p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> New Entry
@@ -216,7 +244,9 @@ export default function JournalPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
         )}
 
         <Card className="mb-6">
@@ -227,14 +257,20 @@ export default function JournalPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
-                    aria-label="Search entries..." placeholder="Search entries..."
+                    aria-label="Search entries..."
+                    placeholder="Search entries..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
-              <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+              <select
+                aria-label="Filter by status"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="border rounded-md px-3 py-2 text-sm"
+              >
                 <option value="">All Status</option>
                 <option value="DRAFT">Draft</option>
                 <option value="POSTED">Posted</option>
@@ -258,38 +294,78 @@ export default function JournalPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Reference</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Date</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Description</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Debit</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Credit</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Reference
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Date
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Description
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Status
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Debit
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Credit
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredEntries.map((entry) => (
                       <tr key={entry.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">{entry.reference}</td>
-                        <td className="py-3 px-4 text-gray-600">{new Date(entry.date).toLocaleDateString()}</td>
-                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{entry.description}</td>
-                        <td className="py-3 px-4">
-                          <Badge className={statusColors[entry.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{entry.status}</Badge>
+                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">
+                          {entry.reference}
                         </td>
-                        <td className="py-3 px-4 text-right font-medium">{formatCurrency(entry.totalDebit || 0)}</td>
-                        <td className="py-3 px-4 text-right font-medium">{formatCurrency(entry.totalCredit || 0)}</td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {new Date(entry.date).toLocaleDateString()}
+                        </td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">
+                          {entry.description}
+                        </td>
+                        <td className="py-3 px-4">
+                          <Badge
+                            className={
+                              statusColors[entry.status] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
+                            {entry.status}
+                          </Badge>
+                        </td>
+                        <td className="py-3 px-4 text-right font-medium">
+                          {formatCurrency(entry.totalDebit || 0)}
+                        </td>
+                        <td className="py-3 px-4 text-right font-medium">
+                          {formatCurrency(entry.totalCredit || 0)}
+                        </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openViewModal(entry)} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600">
+                            <button
+                              onClick={() => openViewModal(entry)}
+                              className="text-gray-400 dark:text-gray-500 hover:text-indigo-600"
+                            >
                               <Eye className="h-4 w-4" />
                             </button>
                             {entry.status === 'DRAFT' && (
-                              <button onClick={() => handlePost(entry.id)} className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200">
+                              <button
+                                onClick={() => handlePost(entry.id)}
+                                className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200"
+                              >
                                 Post
                               </button>
                             )}
                             {entry.status === 'DRAFT' && (
-                              <button onClick={() => handleVoid(entry.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600">
+                              <button
+                                onClick={() => handleVoid(entry.id)}
+                                className="text-gray-400 dark:text-gray-500 hover:text-red-600"
+                              >
                                 <Trash2 className="h-4 w-4" />
                               </button>
                             )}
@@ -311,38 +387,73 @@ export default function JournalPage() {
       </div>
 
       {/* Create Modal */}
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="New Journal Entry" size="full">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="New Journal Entry"
+        size="full"
+      >
         <div className="max-h-[70vh] overflow-y-auto pr-2 space-y-4">
           {formError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
           )}
           <div className="grid grid-cols-3 gap-4">
             <div>
               <Label htmlFor="je-reference">Reference</Label>
-              <Input id="je-reference" value={formReference} onChange={(e) => setFormReference(e.target.value)} placeholder="Auto-generated if empty" />
+              <Input
+                id="je-reference"
+                value={formReference}
+                onChange={(e) => setFormReference(e.target.value)}
+                placeholder="Auto-generated if empty"
+              />
             </div>
             <div>
               <Label htmlFor="je-date">Date *</Label>
-              <Input id="je-date" type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} />
+              <Input
+                id="je-date"
+                type="date"
+                value={formDate}
+                onChange={(e) => setFormDate(e.target.value)}
+              />
             </div>
             <div>
               <Label htmlFor="je-description">Description *</Label>
-              <Input id="je-description" value={formDescription} onChange={(e) => setFormDescription(e.target.value)} placeholder="Entry description" />
+              <Input
+                id="je-description"
+                value={formDescription}
+                onChange={(e) => setFormDescription(e.target.value)}
+                placeholder="Entry description"
+              />
             </div>
           </div>
 
           <div>
             <div className="flex justify-between items-center mb-2">
               <Label>Line Items</Label>
-              <button onClick={addLine} className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">+ Add Line</button>
+              <button
+                onClick={addLine}
+                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+              >
+                + Add Line
+              </button>
             </div>
             <table className="w-full text-sm border">
               <thead>
                 <tr className="bg-gray-50 dark:bg-gray-800">
-                  <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Account</th>
-                  <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Description</th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Debit</th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Credit</th>
+                  <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">
+                    Account
+                  </th>
+                  <th className="text-left py-2 px-3 font-medium text-gray-500 dark:text-gray-400">
+                    Description
+                  </th>
+                  <th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400">
+                    Debit
+                  </th>
+                  <th className="text-right py-2 px-3 font-medium text-gray-500 dark:text-gray-400">
+                    Credit
+                  </th>
                   <th className="w-10"></th>
                 </tr>
               </thead>
@@ -356,8 +467,10 @@ export default function JournalPage() {
                         className="w-full border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-indigo-500"
                       >
                         <option value="">Select account</option>
-                        {accounts.map(a => (
-                          <option key={a.id} value={a.id}>{a.code} - {a.name}</option>
+                        {accounts.map((a) => (
+                          <option key={a.id} value={a.id}>
+                            {a.code} - {a.name}
+                          </option>
                         ))}
                       </select>
                     </td>
@@ -393,7 +506,10 @@ export default function JournalPage() {
                     </td>
                     <td className="py-2 px-3 text-center">
                       {lines.length > 2 && (
-                        <button onClick={() => removeLine(idx)} className="text-red-400 hover:text-red-600">
+                        <button
+                          onClick={() => removeLine(idx)}
+                          className="text-red-400 hover:text-red-600"
+                        >
                           <Trash2 className="h-4 w-4" />
                         </button>
                       )}
@@ -401,7 +517,9 @@ export default function JournalPage() {
                   </tr>
                 ))}
                 <tr className="border-t bg-gray-50 dark:bg-gray-800 font-medium">
-                  <td colSpan={2} className="py-2 px-3 text-right">Totals:</td>
+                  <td colSpan={2} className="py-2 px-3 text-right">
+                    Totals:
+                  </td>
                   <td className="py-2 px-3 text-right">{formatCurrency(totalDebit)}</td>
                   <td className="py-2 px-3 text-right">{formatCurrency(totalCredit)}</td>
                   <td></td>
@@ -409,18 +527,30 @@ export default function JournalPage() {
               </tbody>
             </table>
             {!isBalanced && totalDebit > 0 && (
-              <p className="text-sm text-red-600 mt-1">Debits and credits must balance. Difference: {formatCurrency(Math.abs(totalDebit - totalCredit))}</p>
+              <p className="text-sm text-red-600 mt-1">
+                Debits and credits must balance. Difference:{' '}
+                {formatCurrency(Math.abs(totalDebit - totalCredit))}
+              </p>
             )}
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleCreate} disabled={submitting || !isBalanced}>{submitting ? 'Creating...' : 'Create Entry'}</Button>
+          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleCreate} disabled={submitting || !isBalanced}>
+            {submitting ? 'Creating...' : 'Create Entry'}
+          </Button>
         </ModalFooter>
       </Modal>
 
       {/* View Modal */}
-      <Modal isOpen={viewModalOpen} onClose={() => setViewModalOpen(false)} title={`Journal Entry: ${viewEntry?.reference || ''}`} size="lg">
+      <Modal
+        isOpen={viewModalOpen}
+        onClose={() => setViewModalOpen(false)}
+        title={`Journal Entry: ${viewEntry?.reference || ''}`}
+        size="lg"
+      >
         {viewEntry && (
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
@@ -450,16 +580,24 @@ export default function JournalPage() {
                 <tbody>
                   {viewEntry.lines.map((line, idx) => (
                     <tr key={idx} className="border-t">
-                      <td className="py-2 px-3">{line.accountCode || line.accountName || line.accountId}</td>
+                      <td className="py-2 px-3">
+                        {line.accountCode || line.accountName || line.accountId}
+                      </td>
                       <td className="py-2 px-3">{line.description}</td>
                       <td className="py-2 px-3 text-right">{formatCurrency(line.debit || 0)}</td>
                       <td className="py-2 px-3 text-right">{formatCurrency(line.credit || 0)}</td>
                     </tr>
                   ))}
                   <tr className="border-t bg-gray-50 dark:bg-gray-800 font-medium">
-                    <td colSpan={2} className="py-2 px-3 text-right">Totals:</td>
-                    <td className="py-2 px-3 text-right">{formatCurrency(viewEntry.totalDebit || 0)}</td>
-                    <td className="py-2 px-3 text-right">{formatCurrency(viewEntry.totalCredit || 0)}</td>
+                    <td colSpan={2} className="py-2 px-3 text-right">
+                      Totals:
+                    </td>
+                    <td className="py-2 px-3 text-right">
+                      {formatCurrency(viewEntry.totalDebit || 0)}
+                    </td>
+                    <td className="py-2 px-3 text-right">
+                      {formatCurrency(viewEntry.totalCredit || 0)}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -467,7 +605,9 @@ export default function JournalPage() {
           </div>
         )}
         <ModalFooter>
-          <Button variant="outline" onClick={() => setViewModalOpen(false)}>Close</Button>
+          <Button variant="outline" onClick={() => setViewModalOpen(false)}>
+            Close
+          </Button>
         </ModalFooter>
       </Modal>
     </div>

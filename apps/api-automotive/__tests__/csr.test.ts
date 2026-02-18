@@ -149,9 +149,7 @@ describe('Automotive CSR API Routes', () => {
         { oem: 'Toyota' },
       ]);
 
-      const response = await request(app)
-        .get('/api/csr/oems')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/csr/oems').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -167,9 +165,7 @@ describe('Automotive CSR API Routes', () => {
     it('should return an empty array when no OEMs exist', async () => {
       (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
 
-      const response = await request(app)
-        .get('/api/csr/oems')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/csr/oems').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -181,9 +177,7 @@ describe('Automotive CSR API Routes', () => {
         new Error('DB connection lost')
       );
 
-      const response = await request(app)
-        .get('/api/csr/oems')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/csr/oems').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -199,9 +193,7 @@ describe('Automotive CSR API Routes', () => {
       (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([mockCsr2, mockCsr3]);
       (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(2);
 
-      const response = await request(app)
-        .get('/api/csr/gaps')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/csr/gaps').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -251,9 +243,7 @@ describe('Automotive CSR API Routes', () => {
       (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
       (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
 
-      const response = await request(app)
-        .get('/api/csr/gaps')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/csr/gaps').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.data).toEqual([]);
@@ -265,9 +255,7 @@ describe('Automotive CSR API Routes', () => {
         new Error('Query timeout')
       );
 
-      const response = await request(app)
-        .get('/api/csr/gaps')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/csr/gaps').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);

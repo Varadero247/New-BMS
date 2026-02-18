@@ -38,18 +38,18 @@ const DEFAULT_ICONS: ManifestIcon[] = [
 
 /** Module-specific theme colors */
 const MODULE_THEMES: Record<string, { themeColor: string; backgroundColor: string }> = {
-  dashboard:    { themeColor: '#2563eb', backgroundColor: '#f8fafc' },
+  dashboard: { themeColor: '#2563eb', backgroundColor: '#f8fafc' },
   'health-safety': { themeColor: '#dc2626', backgroundColor: '#fef2f2' },
-  environment:  { themeColor: '#16a34a', backgroundColor: '#f0fdf4' },
-  quality:      { themeColor: '#9333ea', backgroundColor: '#faf5ff' },
-  hr:           { themeColor: '#0891b2', backgroundColor: '#ecfeff' },
-  finance:      { themeColor: '#059669', backgroundColor: '#ecfdf5' },
-  crm:          { themeColor: '#2563eb', backgroundColor: '#eff6ff' },
-  infosec:      { themeColor: '#7c3aed', backgroundColor: '#f5f3ff' },
-  esg:          { themeColor: '#16a34a', backgroundColor: '#f0fdf4' },
-  risk:         { themeColor: '#ea580c', backgroundColor: '#fff7ed' },
-  chemicals:    { themeColor: '#ca8a04', backgroundColor: '#fefce8' },
-  emergency:    { themeColor: '#dc2626', backgroundColor: '#fef2f2' },
+  environment: { themeColor: '#16a34a', backgroundColor: '#f0fdf4' },
+  quality: { themeColor: '#9333ea', backgroundColor: '#faf5ff' },
+  hr: { themeColor: '#0891b2', backgroundColor: '#ecfeff' },
+  finance: { themeColor: '#059669', backgroundColor: '#ecfdf5' },
+  crm: { themeColor: '#2563eb', backgroundColor: '#eff6ff' },
+  infosec: { themeColor: '#7c3aed', backgroundColor: '#f5f3ff' },
+  esg: { themeColor: '#16a34a', backgroundColor: '#f0fdf4' },
+  risk: { themeColor: '#ea580c', backgroundColor: '#fff7ed' },
+  chemicals: { themeColor: '#ca8a04', backgroundColor: '#fefce8' },
+  emergency: { themeColor: '#dc2626', backgroundColor: '#fef2f2' },
   'field-service': { themeColor: '#0284c7', backgroundColor: '#f0f9ff' },
 };
 

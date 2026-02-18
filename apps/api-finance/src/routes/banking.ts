@@ -17,7 +17,9 @@ const createBankAccountSchema = z.object({
   sortCode: z.string().optional(),
   iban: z.string().optional(),
   swift: z.string().optional(),
-  type: z.enum(['CURRENT', 'SAVINGS', 'CREDIT_CARD', 'LOAN', 'MERCHANT', 'OTHER']).default('CURRENT'),
+  type: z
+    .enum(['CURRENT', 'SAVINGS', 'CREDIT_CARD', 'LOAN', 'MERCHANT', 'OTHER'])
+    .default('CURRENT'),
   currency: z.string().length(3).default('GBP'),
   bankName: z.string().optional(),
   accountId: z.string().trim().uuid().optional(),
@@ -26,7 +28,10 @@ const createBankAccountSchema = z.object({
 
 const createTransactionSchema = z.object({
   bankAccountId: z.string().trim().uuid(),
-  date: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  date: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   description: z.string().trim().min(1).max(2000),
   reference: z.string().optional(),
   amount: z.number(),
@@ -36,18 +41,23 @@ const createTransactionSchema = z.object({
 
 const importTransactionsSchema = z.object({
   bankAccountId: z.string().trim().uuid(),
-  transactions: z.array(z.object({
-    date: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-    description: z.string().trim().min(1).max(2000),
-    reference: z.string().optional(),
-    amount: z.number(),
-  })),
+  transactions: z.array(
+    z.object({
+      date: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      description: z.string().trim().min(1).max(2000),
+      reference: z.string().optional(),
+      amount: z.number(),
+    })
+  ),
 });
 
 const startReconciliationSchema = z.object({
   bankAccountId: z.string().trim().uuid(),
-  startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  endDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   openingBalance: z.number(),
   closingBalance: z.number(),
 });
@@ -75,12 +85,18 @@ router.get('/', async (req: Request, res: Response) => {
         _count: { select: { transactions: true } },
       },
       orderBy: { name: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: accounts });
   } catch (error: unknown) {
-    logger.error('Error listing bank accounts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list bank accounts' } });
+    logger.error('Error listing bank accounts', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list bank accounts' },
+    });
   }
 });
 
@@ -99,13 +115,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!account) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bank account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Bank account not found' } });
     }
 
     res.json({ success: true, data: account });
   } catch (error: unknown) {
-    logger.error('Error getting bank account', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get bank account' } });
+    logger.error('Error getting bank account', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get bank account' },
+    });
   }
 });
 
@@ -126,10 +149,18 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: account });
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
-    logger.error('Error creating bank account', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create bank account' } });
+    logger.error('Error creating bank account', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create bank account' },
+    });
   }
 });
 
@@ -140,7 +171,9 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.finBankAccount.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bank account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Bank account not found' } });
     }
 
     const account = await prisma.finBankAccount.update({
@@ -151,10 +184,18 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: account });
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
-    logger.error('Error updating bank account', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update bank account' } });
+    logger.error('Error updating bank account', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update bank account' },
+    });
   }
 });
 
@@ -167,11 +208,16 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bank account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Bank account not found' } });
     }
 
     if ((existing as any)._count?.transactions > 0) {
-      return res.status(409).json({ success: false, error: { code: 'IN_USE', message: 'Bank account has unreconciled transactions' } });
+      return res.status(409).json({
+        success: false,
+        error: { code: 'IN_USE', message: 'Bank account has unreconciled transactions' },
+      });
     }
 
     await prisma.finBankAccount.update({
@@ -181,8 +227,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { message: 'Bank account deleted' } });
   } catch (error: unknown) {
-    logger.error('Error deleting bank account', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete bank account' } });
+    logger.error('Error deleting bank account', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete bank account' },
+    });
   }
 });
 
@@ -222,11 +273,21 @@ router.get('/transactions/list', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: transactions,
-      pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
     });
   } catch (error: unknown) {
-    logger.error('Error listing transactions', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list transactions' } });
+    logger.error('Error listing transactions', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list transactions' },
+    });
   }
 });
 
@@ -236,9 +297,13 @@ router.post('/transactions', async (req: Request, res: Response) => {
     const data = createTransactionSchema.parse(req.body);
     const user = (req as AuthRequest).user;
 
-    const bankAccount = await prisma.finBankAccount.findUnique({ where: { id: data.bankAccountId } });
+    const bankAccount = await prisma.finBankAccount.findUnique({
+      where: { id: data.bankAccountId },
+    });
     if (!bankAccount) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bank account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Bank account not found' } });
     }
 
     const transaction = await prisma.finBankTransaction.create({
@@ -260,10 +325,18 @@ router.post('/transactions', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: transaction });
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
-    logger.error('Error creating transaction', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create transaction' } });
+    logger.error('Error creating transaction', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create transaction' },
+    });
   }
 });
 
@@ -273,13 +346,17 @@ router.post('/import', async (req: Request, res: Response) => {
     const data = importTransactionsSchema.parse(req.body);
     const user = (req as AuthRequest).user;
 
-    const bankAccount = await prisma.finBankAccount.findUnique({ where: { id: data.bankAccountId } });
+    const bankAccount = await prisma.finBankAccount.findUnique({
+      where: { id: data.bankAccountId },
+    });
     if (!bankAccount) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bank account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Bank account not found' } });
     }
 
     const created = await prisma.finBankTransaction.createMany({
-      data: data.transactions.map(t => ({
+      data: data.transactions.map((t) => ({
         bankAccountId: data.bankAccountId,
         date: new Date(t.date),
         description: t.description,
@@ -293,10 +370,18 @@ router.post('/import', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: { imported: created.count } });
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
-    logger.error('Error importing transactions', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to import transactions' } });
+    logger.error('Error importing transactions', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to import transactions' },
+    });
   }
 });
 
@@ -320,12 +405,18 @@ router.get('/reconciliations/list', async (req: Request, res: Response) => {
         _count: { select: { transactions: true } },
       },
       orderBy: { createdAt: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: reconciliations });
   } catch (error: unknown) {
-    logger.error('Error listing reconciliations', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list reconciliations' } });
+    logger.error('Error listing reconciliations', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list reconciliations' },
+    });
   }
 });
 
@@ -349,10 +440,18 @@ router.post('/reconciliations', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: reconciliation });
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
-    logger.error('Error starting reconciliation', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to start reconciliation' } });
+    logger.error('Error starting reconciliation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to start reconciliation' },
+    });
   }
 });
 
@@ -362,13 +461,21 @@ router.post('/reconciliations/:id/reconcile', async (req: Request, res: Response
     const data = reconcileTransactionsSchema.parse(req.body);
     const user = (req as AuthRequest).user;
 
-    const reconciliation = await prisma.finReconciliation.findUnique({ where: { id: req.params.id } });
+    const reconciliation = await prisma.finReconciliation.findUnique({
+      where: { id: req.params.id },
+    });
     if (!reconciliation) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Reconciliation not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Reconciliation not found' },
+      });
     }
 
     if (reconciliation.status === 'COMPLETED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_COMPLETED', message: 'Reconciliation already completed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'ALREADY_COMPLETED', message: 'Reconciliation already completed' },
+      });
     }
 
     // Mark transactions as reconciled
@@ -380,10 +487,18 @@ router.post('/reconciliations/:id/reconcile', async (req: Request, res: Response
     res.json({ success: true, data: { reconciled: data.transactionIds.length } });
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
-    logger.error('Error reconciling transactions', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reconcile transactions' } });
+    logger.error('Error reconciling transactions', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to reconcile transactions' },
+    });
   }
 });
 
@@ -392,9 +507,14 @@ router.post('/reconciliations/:id/complete', async (req: Request, res: Response)
   try {
     const user = (req as AuthRequest).user;
 
-    const reconciliation = await prisma.finReconciliation.findUnique({ where: { id: req.params.id } });
+    const reconciliation = await prisma.finReconciliation.findUnique({
+      where: { id: req.params.id },
+    });
     if (!reconciliation) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Reconciliation not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Reconciliation not found' },
+      });
     }
 
     const updated = await prisma.finReconciliation.update({
@@ -414,8 +534,13 @@ router.post('/reconciliations/:id/complete', async (req: Request, res: Response)
 
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Error completing reconciliation', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete reconciliation' } });
+    logger.error('Error completing reconciliation', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete reconciliation' },
+    });
   }
 });
 

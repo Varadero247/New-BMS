@@ -32,7 +32,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/drills', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockDrill = prisma.femEvacuationDrill as any;
 
@@ -71,7 +73,12 @@ describe('GET /api/drills/analytics', () => {
   it('returns drill analytics with premises stats', async () => {
     const drillsData = [
       { ...fakeDrill, evacuationTimeMinutes: 4.5, targetAchieved: true },
-      { ...fakeDrill, id: '00000000-0000-0000-0000-000000000003', evacuationTimeMinutes: 5.5, targetAchieved: false },
+      {
+        ...fakeDrill,
+        id: '00000000-0000-0000-0000-000000000003',
+        evacuationTimeMinutes: 5.5,
+        targetAchieved: false,
+      },
     ];
     mockDrill.findMany.mockResolvedValue(drillsData);
 
@@ -98,7 +105,13 @@ describe('GET /api/drills/analytics', () => {
   it('computes correct avgEvacTime and targetMetRate', async () => {
     const drills = [
       { ...fakeDrill, evacuationTimeMinutes: 4, targetAchieved: true, premises: { name: 'HQ' } },
-      { ...fakeDrill, id: 'drill-2', evacuationTimeMinutes: 6, targetAchieved: false, premises: { name: 'HQ' } },
+      {
+        ...fakeDrill,
+        id: 'drill-2',
+        evacuationTimeMinutes: 6,
+        targetAchieved: false,
+        premises: { name: 'HQ' },
+      },
     ];
     mockDrill.findMany.mockResolvedValue(drills);
 
@@ -155,7 +168,9 @@ describe('POST /api/drills/premises/:id', () => {
   it('records a new drill and returns 201', async () => {
     mockDrill.create.mockResolvedValue(fakeDrill);
 
-    const res = await request(app).post(`/api/drills/premises/${PREMISES_ID}`).send(validCreateBody);
+    const res = await request(app)
+      .post(`/api/drills/premises/${PREMISES_ID}`)
+      .send(validCreateBody);
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -198,7 +213,11 @@ describe('POST /api/drills/premises/:id', () => {
   });
 
   it('creates a partial evacuation drill', async () => {
-    const partialDrill = { ...fakeDrill, evacuationType: 'PARTIAL_EVACUATION', totalPersonsEvacuated: 50 };
+    const partialDrill = {
+      ...fakeDrill,
+      evacuationType: 'PARTIAL_EVACUATION',
+      totalPersonsEvacuated: 50,
+    };
     mockDrill.create.mockResolvedValue(partialDrill);
 
     const res = await request(app).post(`/api/drills/premises/${PREMISES_ID}`).send({
@@ -217,16 +236,22 @@ describe('POST /api/drills/premises/:id', () => {
   });
 
   it('creates drill with PEEP evacuation tested', async () => {
-    const peepDrill = { ...fakeDrill, peepEvacuationTested: true, peepIssues: 'Stairclimber required maintenance' };
-    mockDrill.create.mockResolvedValue(peepDrill);
-
-    const res = await request(app).post(`/api/drills/premises/${PREMISES_ID}`).send({
-      ...validCreateBody,
+    const peepDrill = {
+      ...fakeDrill,
       peepEvacuationTested: true,
       peepIssues: 'Stairclimber required maintenance',
-      rollCallCompleted: true,
-      rollCallTimeMinutes: 3,
-    });
+    };
+    mockDrill.create.mockResolvedValue(peepDrill);
+
+    const res = await request(app)
+      .post(`/api/drills/premises/${PREMISES_ID}`)
+      .send({
+        ...validCreateBody,
+        peepEvacuationTested: true,
+        peepIssues: 'Stairclimber required maintenance',
+        rollCallCompleted: true,
+        rollCallTimeMinutes: 3,
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.data.peepEvacuationTested).toBe(true);
@@ -235,7 +260,11 @@ describe('POST /api/drills/premises/:id', () => {
 
 describe('PUT /api/drills/:id', () => {
   it('updates an existing drill record', async () => {
-    const updated = { ...fakeDrill, correctiveActions: 'Fire exits cleared and signed', evacuationTimeMinutes: 4.2 };
+    const updated = {
+      ...fakeDrill,
+      correctiveActions: 'Fire exits cleared and signed',
+      evacuationTimeMinutes: 4.2,
+    };
     mockDrill.findFirst.mockResolvedValue(fakeDrill);
     mockDrill.update.mockResolvedValue(updated);
 

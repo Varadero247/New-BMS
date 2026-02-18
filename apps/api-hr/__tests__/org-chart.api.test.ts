@@ -16,7 +16,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((_req: any, _res: any, next: any) => {
-    _req.user = { id: '00000000-0000-4000-a000-000000000099', orgId: '00000000-0000-4000-a000-000000000100', role: 'ADMIN' };
+    _req.user = {
+      id: '00000000-0000-4000-a000-000000000099',
+      orgId: '00000000-0000-4000-a000-000000000100',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -94,9 +98,11 @@ describe('GET /api/org-chart', () => {
 
 describe('GET /api/org-chart/flat', () => {
   it('returns flat list of employees with manager info', async () => {
-    const flatEmployees = mockEmployees.map(e => ({
+    const flatEmployees = mockEmployees.map((e) => ({
       ...e,
-      manager: e.managerId ? { id: EMP_ID_1, firstName: 'Alice', lastName: 'Smith', jobTitle: 'CEO' } : null,
+      manager: e.managerId
+        ? { id: EMP_ID_1, firstName: 'Alice', lastName: 'Smith', jobTitle: 'CEO' }
+        : null,
       _count: { subordinates: 1 },
     }));
     (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue(flatEmployees);
@@ -122,7 +128,15 @@ describe('GET /api/org-chart/by-department', () => {
       code: 'EXEC',
       isActive: true,
       employees: [
-        { id: EMP_ID_1, employeeNumber: 'EMP-001', firstName: 'Alice', lastName: 'Smith', jobTitle: 'CEO', managerId: null, profilePhoto: null },
+        {
+          id: EMP_ID_1,
+          employeeNumber: 'EMP-001',
+          firstName: 'Alice',
+          lastName: 'Smith',
+          jobTitle: 'CEO',
+          managerId: null,
+          profilePhoto: null,
+        },
       ],
       manager: null,
     };
@@ -145,8 +159,24 @@ describe('GET /api/org-chart/by-department', () => {
 describe('GET /api/org-chart/reporting-chain/:employeeId', () => {
   it('returns reporting chain for employee', async () => {
     (mockPrisma.employee.findUnique as jest.Mock)
-      .mockResolvedValueOnce({ id: EMP_ID_2, employeeNumber: 'EMP-002', firstName: 'Bob', lastName: 'Jones', jobTitle: 'Engineer', managerId: EMP_ID_1, department: { id: DEPT_ID, name: 'Executive' } })
-      .mockResolvedValueOnce({ id: EMP_ID_1, employeeNumber: 'EMP-001', firstName: 'Alice', lastName: 'Smith', jobTitle: 'CEO', managerId: null, department: { id: DEPT_ID, name: 'Executive' } });
+      .mockResolvedValueOnce({
+        id: EMP_ID_2,
+        employeeNumber: 'EMP-002',
+        firstName: 'Bob',
+        lastName: 'Jones',
+        jobTitle: 'Engineer',
+        managerId: EMP_ID_1,
+        department: { id: DEPT_ID, name: 'Executive' },
+      })
+      .mockResolvedValueOnce({
+        id: EMP_ID_1,
+        employeeNumber: 'EMP-001',
+        firstName: 'Alice',
+        lastName: 'Smith',
+        jobTitle: 'CEO',
+        managerId: null,
+        department: { id: DEPT_ID, name: 'Executive' },
+      });
 
     const res = await request(app).get(`/api/org-chart/reporting-chain/${EMP_ID_2}`);
     expect(res.status).toBe(200);

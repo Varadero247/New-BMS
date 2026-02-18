@@ -21,7 +21,12 @@ export const Default: Story = {
     return (
       <div style={{ padding: '24px' }}>
         {!active && (
-          <Button onClick={() => { setActive(true); setStep(0); }}>
+          <Button
+            onClick={() => {
+              setActive(true);
+              setStep(0);
+            }}
+          >
             Restart Tour
           </Button>
         )}
@@ -29,7 +34,7 @@ export const Default: Story = {
           tourId="demo-tour"
           isActive={active}
           currentStep={step}
-          onNext={() => step < totalSteps - 1 ? setStep(step + 1) : setActive(false)}
+          onNext={() => (step < totalSteps - 1 ? setStep(step + 1) : setActive(false))}
           onBack={() => step > 0 && setStep(step - 1)}
           onSkip={() => setActive(false)}
         >
@@ -44,7 +49,9 @@ export const Default: Story = {
               }}
             >
               <h3 style={{ fontWeight: 'bold', marginBottom: '8px' }}>Dashboard</h3>
-              <p style={{ fontSize: '14px', color: '#666' }}>View your key metrics and compliance status here.</p>
+              <p style={{ fontSize: '14px', color: '#666' }}>
+                View your key metrics and compliance status here.
+              </p>
             </div>
 
             <div
@@ -57,7 +64,9 @@ export const Default: Story = {
               }}
             >
               <h3 style={{ fontWeight: 'bold', marginBottom: '8px' }}>Risk Register</h3>
-              <p style={{ fontSize: '14px', color: '#666' }}>Manage and track all identified risks.</p>
+              <p style={{ fontSize: '14px', color: '#666' }}>
+                Manage and track all identified risks.
+              </p>
             </div>
 
             <div
@@ -70,20 +79,44 @@ export const Default: Story = {
               }}
             >
               <h3 style={{ fontWeight: 'bold', marginBottom: '8px' }}>Reports</h3>
-              <p style={{ fontSize: '14px', color: '#666' }}>Generate compliance reports and analytics.</p>
+              <p style={{ fontSize: '14px', color: '#666' }}>
+                Generate compliance reports and analytics.
+              </p>
             </div>
           </div>
         </TourManager>
 
         {active && (
-          <div style={{ marginTop: '24px', padding: '16px', background: '#f8fafc', borderRadius: '8px', fontSize: '14px' }}>
-            <p>Step {step + 1} of {totalSteps}</p>
+          <div
+            style={{
+              marginTop: '24px',
+              padding: '16px',
+              background: '#f8fafc',
+              borderRadius: '8px',
+              fontSize: '14px',
+            }}
+          >
+            <p>
+              Step {step + 1} of {totalSteps}
+            </p>
             <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-              <Button variant="outline" size="sm" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>Back</Button>
-              <Button size="sm" onClick={() => step < totalSteps - 1 ? setStep(step + 1) : setActive(false)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setStep(Math.max(0, step - 1))}
+                disabled={step === 0}
+              >
+                Back
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => (step < totalSteps - 1 ? setStep(step + 1) : setActive(false))}
+              >
                 {step < totalSteps - 1 ? 'Next' : 'Finish'}
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => setActive(false)}>Skip</Button>
+              <Button variant="ghost" size="sm" onClick={() => setActive(false)}>
+                Skip
+              </Button>
             </div>
           </div>
         )}

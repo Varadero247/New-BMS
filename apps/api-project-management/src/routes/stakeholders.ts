@@ -27,7 +27,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const { projectId, page = '1', limit = '50' } = req.query;
 
     if (!projectId) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' },
+      });
     }
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -53,7 +56,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List stakeholders error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list stakeholders' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list stakeholders' },
+    });
   }
 });
 
@@ -111,57 +117,88 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: stakeholder });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
     logger.error('Create stakeholder error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create stakeholder' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create stakeholder' },
+    });
   }
 });
 
 // PUT /api/stakeholders/:id - Update stakeholder
-router.put('/:id', checkOwnership(prisma.projectStakeholder), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectStakeholder.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Stakeholder not found' } });
+router.put(
+  '/:id',
+  checkOwnership(prisma.projectStakeholder),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectStakeholder.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Stakeholder not found' } });
+      }
+
+      const parsed = updateStakeholderSchema.safeParse(req.body);
+      if (!parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+        });
+      const data = parsed.data;
+      const updateData = { ...data } as Record<string, unknown>;
+
+      // Recalculate stakeholder category if power/interest changed
+      const powerLevel = data.powerLevel ?? existing.powerLevel;
+      const interestLevel = data.interestLevel ?? existing.interestLevel;
+      updateData.stakeholderCategory = getStakeholderCategory(powerLevel, interestLevel);
+
+      const stakeholder = await prisma.projectStakeholder.update({
+        where: { id: req.params.id },
+        data: updateData,
+      });
+
+      res.json({ success: true, data: stakeholder });
+    } catch (error) {
+      logger.error('Update stakeholder error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update stakeholder' },
+      });
     }
-
-    const parsed = updateStakeholderSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const data = parsed.data;
-    const updateData = { ...data } as Record<string, unknown>;
-
-    // Recalculate stakeholder category if power/interest changed
-    const powerLevel = data.powerLevel ?? existing.powerLevel;
-    const interestLevel = data.interestLevel ?? existing.interestLevel;
-    updateData.stakeholderCategory = getStakeholderCategory(powerLevel, interestLevel);
-
-    const stakeholder = await prisma.projectStakeholder.update({
-      where: { id: req.params.id },
-      data: updateData,
-    });
-
-    res.json({ success: true, data: stakeholder });
-  } catch (error) {
-    logger.error('Update stakeholder error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update stakeholder' } });
   }
-});
+);
 
 // DELETE /api/stakeholders/:id - Delete stakeholder
-router.delete('/:id', checkOwnership(prisma.projectStakeholder), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectStakeholder.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Stakeholder not found' } });
-    }
+router.delete(
+  '/:id',
+  checkOwnership(prisma.projectStakeholder),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectStakeholder.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Stakeholder not found' } });
+      }
 
-    await prisma.projectStakeholder.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete stakeholder error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete stakeholder' } });
+      await prisma.projectStakeholder.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete stakeholder error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete stakeholder' },
+      });
+    }
   }
-});
+);
 
 export default router;

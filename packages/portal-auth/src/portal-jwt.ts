@@ -1,5 +1,13 @@
 import jwt from 'jsonwebtoken';
-import { PortalUser, PortalToken, PortalType, PortalAuthConfig, PortalRequest, PortalResponse, NextFunction } from './types';
+import {
+  PortalUser,
+  PortalToken,
+  PortalType,
+  PortalAuthConfig,
+  PortalRequest,
+  PortalResponse,
+  NextFunction,
+} from './types';
 
 const DEFAULT_EXPIRY = '8h';
 const DEFAULT_ISSUER = 'ims-portal';
@@ -24,7 +32,7 @@ function getSecret(): string {
 export function signPortalToken(
   user: PortalUser,
   type: PortalType,
-  config: PortalAuthConfig = {},
+  config: PortalAuthConfig = {}
 ): string {
   const secret = config.secret ?? getSecret();
   const expiresIn = config.expiresIn ?? DEFAULT_EXPIRY;
@@ -52,10 +60,7 @@ export function signPortalToken(
  * @param config - Optional configuration overrides
  * @returns Decoded portal user or null if invalid
  */
-export function verifyPortalToken(
-  token: string,
-  config: PortalAuthConfig = {},
-): PortalUser | null {
+export function verifyPortalToken(token: string, config: PortalAuthConfig = {}): PortalUser | null {
   try {
     const secret = config.secret ?? getSecret();
     const issuer = config.issuer ?? DEFAULT_ISSUER;

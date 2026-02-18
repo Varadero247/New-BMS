@@ -31,13 +31,7 @@ function NexaraMark({
 }) {
   const stroke = strokeColor || `url(#${gradientId})`;
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 80 80"
-      fill="none"
-      aria-hidden="true"
-    >
+    <svg width={size} height={size} viewBox="0 0 80 80" fill="none" aria-hidden="true">
       {/* Outer arc */}
       <path
         d="M 40 6 A 34 34 0 1 1 7.5 55"
@@ -66,7 +60,15 @@ function NexaraMark({
       />
       {/* Radial spokes */}
       <line x1="40" y1="6" x2="40" y2="27" stroke={stroke} strokeWidth="1" opacity="0.3" />
-      <line x1="69.5" y1="20.5" x2="52.4" y2="29.4" stroke={stroke} strokeWidth="1" opacity="0.25" />
+      <line
+        x1="69.5"
+        y1="20.5"
+        x2="52.4"
+        y2="29.4"
+        stroke={stroke}
+        strokeWidth="1"
+        opacity="0.25"
+      />
       <line x1="74" y1="54.5" x2="53.9" y2="45.7" stroke={stroke} strokeWidth="1" opacity="0.25" />
       {/* Core glow */}
       <circle cx="40" cy="40" r="10" fill={`url(#${coreId})`} opacity="0.25" />
@@ -125,12 +127,7 @@ export function NexaraLogo({
 
   return (
     <span className={cn('inline-flex items-center', s.gap, className)}>
-      <NexaraMark
-        size={s.mark}
-        gradientId={gradientId}
-        coreId={coreId}
-        strokeColor={strokeColor}
-      />
+      <NexaraMark size={s.mark} gradientId={gradientId} coreId={coreId} strokeColor={strokeColor} />
       <span className="flex flex-col">
         <span
           className={cn(

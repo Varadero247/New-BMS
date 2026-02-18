@@ -54,13 +54,17 @@ router.get('/public/:token', async (req: AuthRequest, res: Response) => {
     });
 
     if (!survey || !survey.isPublic || !survey.isActive || survey.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Survey not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Survey not found' } });
     }
 
     res.json({ success: true, data: survey });
   } catch (error) {
     logger.error('Get public survey error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get survey' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get survey' } });
   }
 });
 
@@ -75,19 +79,25 @@ router.post('/public/:token/respond', async (req: AuthRequest, res: Response) =>
     });
 
     if (!survey || !survey.isPublic || !survey.isActive || survey.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Survey not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Survey not found' } });
     }
 
     const schema = z.object({
       respondentName: z.string().optional(),
       respondentEmail: z.string().trim().email().optional(),
       respondentCompany: z.string().optional(),
-      answers: z.array(z.object({
-        questionId: z.string().trim().min(1).max(200),
-        textValue: z.string().optional(),
-        numericValue: z.number().optional(),
-        selectedOptions: z.array(z.string()).optional(),
-      })).min(1),
+      answers: z
+        .array(
+          z.object({
+            questionId: z.string().trim().min(1).max(200),
+            textValue: z.string().optional(),
+            numericValue: z.number().optional(),
+            selectedOptions: z.array(z.string()).optional(),
+          })
+        )
+        .min(1),
     });
 
     const data = schema.parse(req.body);
@@ -97,7 +107,7 @@ router.post('/public/:token/respond', async (req: AuthRequest, res: Response) =>
     let csatScore: number | null = null;
 
     for (const answer of data.answers) {
-      const question = survey.questions.find(q => q.id === answer.questionId);
+      const question = survey.questions.find((q) => q.id === answer.questionId);
       if (!question) continue;
       if (question.type === 'NPS_SCALE' && answer.numericValue != null) {
         npsScore = answer.numericValue;
@@ -119,7 +129,7 @@ router.post('/public/:token/respond', async (req: AuthRequest, res: Response) =>
         csatScore,
         npsCategory,
         answers: {
-          create: data.answers.map(a => ({
+          create: data.answers.map((a) => ({
             questionId: a.questionId,
             textValue: a.textValue,
             numericValue: a.numericValue,
@@ -133,10 +143,20 @@ router.post('/public/:token/respond', async (req: AuthRequest, res: Response) =>
     res.status(201).json({ success: true, data: response });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Submit public response error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit response' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to submit response' },
+    });
   }
 });
 
@@ -155,14 +175,18 @@ router.post('/surveys', async (req: AuthRequest, res: Response) => {
       description: z.string().optional(),
       type: z.enum(['NPS', 'CSAT', 'CUSTOM', 'POST_DELIVERY', 'ANNUAL']),
       isPublic: z.boolean().optional(),
-      questions: z.array(z.object({
-        text: z.string().trim().min(1).max(200),
-        type: z.enum(['RATING', 'TEXT', 'MULTIPLE_CHOICE', 'YES_NO', 'NPS_SCALE']),
-        required: z.boolean().optional(),
-        options: z.array(z.string()).optional(),
-        minValue: z.number().optional(),
-        maxValue: z.number().optional(),
-      })).min(1),
+      questions: z
+        .array(
+          z.object({
+            text: z.string().trim().min(1).max(200),
+            type: z.enum(['RATING', 'TEXT', 'MULTIPLE_CHOICE', 'YES_NO', 'NPS_SCALE']),
+            required: z.boolean().optional(),
+            options: z.array(z.string()).optional(),
+            minValue: z.number().optional(),
+            maxValue: z.number().optional(),
+          })
+        )
+        .min(1),
     });
 
     const data = schema.parse(req.body);
@@ -200,10 +224,20 @@ router.post('/surveys', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: survey });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create survey error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create survey' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create survey' },
+    });
   }
 });
 
@@ -250,7 +284,10 @@ router.get('/surveys', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List surveys error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list surveys' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list surveys' },
+    });
   }
 });
 
@@ -268,13 +305,17 @@ router.get('/surveys/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!survey || survey.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Survey not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Survey not found' } });
     }
 
     res.json({ success: true, data: survey });
   } catch (error) {
     logger.error('Get survey error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get survey' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get survey' } });
   }
 });
 
@@ -288,12 +329,16 @@ router.post('/responses', async (req: AuthRequest, res: Response) => {
       respondentName: z.string().optional(),
       respondentEmail: z.string().trim().email().optional(),
       respondentCompany: z.string().optional(),
-      answers: z.array(z.object({
-        questionId: z.string().trim().min(1).max(200),
-        textValue: z.string().optional(),
-        numericValue: z.number().optional(),
-        selectedOptions: z.array(z.string()).optional(),
-      })).min(1),
+      answers: z
+        .array(
+          z.object({
+            questionId: z.string().trim().min(1).max(200),
+            textValue: z.string().optional(),
+            numericValue: z.number().optional(),
+            selectedOptions: z.array(z.string()).optional(),
+          })
+        )
+        .min(1),
     });
 
     const data = schema.parse(req.body);
@@ -305,7 +350,10 @@ router.post('/responses', async (req: AuthRequest, res: Response) => {
     });
 
     if (!survey || !survey.isActive || survey.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Survey not found or not active' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Survey not found or not active' },
+      });
     }
 
     // Calculate NPS and CSAT scores from answers
@@ -313,7 +361,7 @@ router.post('/responses', async (req: AuthRequest, res: Response) => {
     let csatScore: number | null = null;
 
     for (const answer of data.answers) {
-      const question = survey.questions.find(q => q.id === answer.questionId);
+      const question = survey.questions.find((q) => q.id === answer.questionId);
       if (!question) continue;
       if (question.type === 'NPS_SCALE' && answer.numericValue != null) {
         npsScore = answer.numericValue;
@@ -335,7 +383,7 @@ router.post('/responses', async (req: AuthRequest, res: Response) => {
         csatScore,
         npsCategory,
         answers: {
-          create: data.answers.map(a => ({
+          create: data.answers.map((a) => ({
             questionId: a.questionId,
             textValue: a.textValue,
             numericValue: a.numericValue,
@@ -349,10 +397,20 @@ router.post('/responses', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: response });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Submit response error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit response' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to submit response' },
+    });
   }
 });
 
@@ -402,7 +460,10 @@ router.get('/responses', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List responses error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list responses' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list responses' },
+    });
   }
 });
 
@@ -431,23 +492,29 @@ router.get('/metrics', async (req: AuthRequest, res: Response) => {
         submittedAt: true,
       },
       orderBy: { submittedAt: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     const totalResponses = responses.length;
 
     // Overall NPS calculation
-    const npsResponses = responses.filter(r => r.npsCategory != null);
-    const promoters = npsResponses.filter(r => r.npsCategory === 'PROMOTER').length;
-    const detractors = npsResponses.filter(r => r.npsCategory === 'DETRACTOR').length;
-    const nps = npsResponses.length > 0
-      ? Math.round(((promoters - detractors) / npsResponses.length) * 100)
-      : null;
+    const npsResponses = responses.filter((r) => r.npsCategory != null);
+    const promoters = npsResponses.filter((r) => r.npsCategory === 'PROMOTER').length;
+    const detractors = npsResponses.filter((r) => r.npsCategory === 'DETRACTOR').length;
+    const nps =
+      npsResponses.length > 0
+        ? Math.round(((promoters - detractors) / npsResponses.length) * 100)
+        : null;
 
     // Average CSAT
-    const csatResponses = responses.filter(r => r.csatScore != null);
-    const averageCsat = csatResponses.length > 0
-      ? Math.round((csatResponses.reduce((sum, r) => sum + (r.csatScore || 0), 0) / csatResponses.length) * 100) / 100
-      : null;
+    const csatResponses = responses.filter((r) => r.csatScore != null);
+    const averageCsat =
+      csatResponses.length > 0
+        ? Math.round(
+            (csatResponses.reduce((sum, r) => sum + (r.csatScore || 0), 0) / csatResponses.length) *
+              100
+          ) / 100
+        : null;
 
     // Monthly trends
     const monthlyTrends: Array<{
@@ -465,17 +532,19 @@ router.get('/metrics', async (req: AuthRequest, res: Response) => {
     }
 
     for (const [month, monthResponses] of grouped) {
-      const mNps = monthResponses.filter(r => r.npsCategory != null);
-      const mPromoters = mNps.filter(r => r.npsCategory === 'PROMOTER').length;
-      const mDetractors = mNps.filter(r => r.npsCategory === 'DETRACTOR').length;
-      const mNpsScore = mNps.length > 0
-        ? Math.round(((mPromoters - mDetractors) / mNps.length) * 100)
-        : null;
+      const mNps = monthResponses.filter((r) => r.npsCategory != null);
+      const mPromoters = mNps.filter((r) => r.npsCategory === 'PROMOTER').length;
+      const mDetractors = mNps.filter((r) => r.npsCategory === 'DETRACTOR').length;
+      const mNpsScore =
+        mNps.length > 0 ? Math.round(((mPromoters - mDetractors) / mNps.length) * 100) : null;
 
-      const mCsat = monthResponses.filter(r => r.csatScore != null);
-      const mCsatAvg = mCsat.length > 0
-        ? Math.round((mCsat.reduce((sum, r) => sum + (r.csatScore || 0), 0) / mCsat.length) * 100) / 100
-        : null;
+      const mCsat = monthResponses.filter((r) => r.csatScore != null);
+      const mCsatAvg =
+        mCsat.length > 0
+          ? Math.round(
+              (mCsat.reduce((sum, r) => sum + (r.csatScore || 0), 0) / mCsat.length) * 100
+            ) / 100
+          : null;
 
       monthlyTrends.push({
         month,
@@ -499,7 +568,10 @@ router.get('/metrics', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Metrics calculation error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to calculate metrics' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to calculate metrics' },
+    });
   }
 });
 
@@ -521,20 +593,26 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
     const recentResponses = await prisma.surveyResponse.findMany({
       where: { submittedAt: { gte: ninetyDaysAgo } },
       select: { npsScore: true, csatScore: true, npsCategory: true, submittedAt: true },
-      take: 1000});
+      take: 1000,
+    });
 
-    const npsResponses = recentResponses.filter(r => r.npsCategory != null);
-    const promoters = npsResponses.filter(r => r.npsCategory === 'PROMOTER').length;
-    const detractors = npsResponses.filter(r => r.npsCategory === 'DETRACTOR').length;
-    const currentNps = npsResponses.length > 0
-      ? Math.round(((promoters - detractors) / npsResponses.length) * 100)
-      : null;
+    const npsResponses = recentResponses.filter((r) => r.npsCategory != null);
+    const promoters = npsResponses.filter((r) => r.npsCategory === 'PROMOTER').length;
+    const detractors = npsResponses.filter((r) => r.npsCategory === 'DETRACTOR').length;
+    const currentNps =
+      npsResponses.length > 0
+        ? Math.round(((promoters - detractors) / npsResponses.length) * 100)
+        : null;
 
     // Current CSAT (last 90 days)
-    const csatResponses = recentResponses.filter(r => r.csatScore != null);
-    const currentCsat = csatResponses.length > 0
-      ? Math.round((csatResponses.reduce((sum, r) => sum + (r.csatScore || 0), 0) / csatResponses.length) * 100) / 100
-      : null;
+    const csatResponses = recentResponses.filter((r) => r.csatScore != null);
+    const currentCsat =
+      csatResponses.length > 0
+        ? Math.round(
+            (csatResponses.reduce((sum, r) => sum + (r.csatScore || 0), 0) / csatResponses.length) *
+              100
+          ) / 100
+        : null;
 
     // Trend direction: compare last 90 days vs previous 90 days
     const oneEightyDaysAgo = new Date();
@@ -545,14 +623,16 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
         submittedAt: { gte: oneEightyDaysAgo, lt: ninetyDaysAgo },
       },
       select: { npsCategory: true },
-      take: 1000});
+      take: 1000,
+    });
 
-    const prevNps = previousResponses.filter(r => r.npsCategory != null);
-    const prevPromoters = prevNps.filter(r => r.npsCategory === 'PROMOTER').length;
-    const prevDetractors = prevNps.filter(r => r.npsCategory === 'DETRACTOR').length;
-    const previousNps = prevNps.length > 0
-      ? Math.round(((prevPromoters - prevDetractors) / prevNps.length) * 100)
-      : null;
+    const prevNps = previousResponses.filter((r) => r.npsCategory != null);
+    const prevPromoters = prevNps.filter((r) => r.npsCategory === 'PROMOTER').length;
+    const prevDetractors = prevNps.filter((r) => r.npsCategory === 'DETRACTOR').length;
+    const previousNps =
+      prevNps.length > 0
+        ? Math.round(((prevPromoters - prevDetractors) / prevNps.length) * 100)
+        : null;
 
     let trendDirection: 'up' | 'down' | 'stable' | 'insufficient_data' = 'insufficient_data';
     if (currentNps != null && previousNps != null) {
@@ -574,7 +654,10 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Dashboard stats error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get dashboard stats' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get dashboard stats' },
+    });
   }
 });
 

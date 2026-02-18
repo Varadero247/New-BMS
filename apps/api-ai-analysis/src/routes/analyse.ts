@@ -102,7 +102,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (!settings?.apiKey) {
       return res.status(400).json({
         success: false,
-        error: { code: 'NO_AI_CONFIG', message: 'AI provider not configured. Please set up API key in settings.' },
+        error: {
+          code: 'NO_AI_CONFIG',
+          message: 'AI provider not configured. Please set up API key in settings.',
+        },
       });
     }
 
@@ -133,9 +136,17 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
     try {
       if (settings.provider === 'OPENAI') {
-        aiResponse = await openAIBreaker.fire(settings.apiKey, settings.model || 'gpt-4', fullPrompt);
+        aiResponse = await openAIBreaker.fire(
+          settings.apiKey,
+          settings.model || 'gpt-4',
+          fullPrompt
+        );
       } else if (settings.provider === 'ANTHROPIC') {
-        aiResponse = await anthropicBreaker.fire(settings.apiKey, settings.model || 'claude-3-sonnet-20240229', fullPrompt);
+        aiResponse = await anthropicBreaker.fire(
+          settings.apiKey,
+          settings.model || 'claude-3-sonnet-20240229',
+          fullPrompt
+        );
       } else if (settings.provider === 'GROK') {
         aiResponse = await grokBreaker.fire(settings.apiKey, fullPrompt);
       }
@@ -183,7 +194,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: analysis });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const fields = error.errors.map(e => e.path.join('.'));
+      const fields = error.errors.map((e) => e.path.join('.'));
       return res.status(400).json({
         success: false,
         error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields },
@@ -198,37 +209,44 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // Helper functions for AI providers
-async function callOpenAIImpl(apiKey: string, model: string, prompt: string): Promise<AIProviderResponse> {
+async function callOpenAIImpl(
+  apiKey: string,
+  model: string,
+  prompt: string
+): Promise<AIProviderResponse> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert ISO management system consultant specializing in ISO 45001, ISO 14001, and ISO 9001. Provide structured analysis with clear root causes, corrective actions, and compliance gaps.',
-        },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 2000,
-    }),
-    signal: controller.signal,
-  });
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are an expert ISO management system consultant specializing in ISO 45001, ISO 14001, and ISO 9001. Provide structured analysis with clear root causes, corrective actions, and compliance gaps.',
+          },
+          { role: 'user', content: prompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 2000,
+      }),
+      signal: controller.signal,
+    });
 
     if (!response.ok) {
       let errorMessage = 'OpenAI API error';
       try {
         const errBody: any = await response.json();
         errorMessage = errBody.error?.message || errorMessage;
-      } catch { /* non-JSON error response */ }
+      } catch {
+        /* non-JSON error response */
+      }
       throw new Error(errorMessage);
     }
 
@@ -250,32 +268,39 @@ async function callOpenAIImpl(apiKey: string, model: string, prompt: string): Pr
   }
 }
 
-async function callAnthropicImpl(apiKey: string, model: string, prompt: string): Promise<AIProviderResponse> {
+async function callAnthropicImpl(
+  apiKey: string,
+  model: string,
+  prompt: string
+): Promise<AIProviderResponse> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 2000,
-      system: 'You are an expert ISO management system consultant specializing in ISO 45001, ISO 14001, and ISO 9001. Provide structured analysis with clear root causes, corrective actions, and compliance gaps.',
-      messages: [{ role: 'user', content: prompt }],
-    }),
-    signal: controller.signal,
-  });
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 2000,
+        system:
+          'You are an expert ISO management system consultant specializing in ISO 45001, ISO 14001, and ISO 9001. Provide structured analysis with clear root causes, corrective actions, and compliance gaps.',
+        messages: [{ role: 'user', content: prompt }],
+      }),
+      signal: controller.signal,
+    });
 
     if (!response.ok) {
       let errorMessage = 'Anthropic API error';
       try {
         const errBody: any = await response.json();
         errorMessage = errBody.error?.message || errorMessage;
-      } catch { /* non-JSON error response */ }
+      } catch {
+        /* non-JSON error response */
+      }
       throw new Error(errorMessage);
     }
 
@@ -302,30 +327,32 @@ async function callGrokImpl(apiKey: string, prompt: string): Promise<AIProviderR
   const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
     const response = await fetch('https://api.x.ai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'grok-beta',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert ISO management system consultant.',
-        },
-        { role: 'user', content: prompt },
-      ],
-    }),
-    signal: controller.signal,
-  });
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'grok-beta',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert ISO management system consultant.',
+          },
+          { role: 'user', content: prompt },
+        ],
+      }),
+      signal: controller.signal,
+    });
 
     if (!response.ok) {
       let errorMessage = 'Grok API error';
       try {
         const errBody: any = await response.json();
         errorMessage = errBody.error?.message || errorMessage;
-      } catch { /* non-JSON error response */ }
+      } catch {
+        /* non-JSON error response */
+      }
       throw new Error(errorMessage);
     }
 

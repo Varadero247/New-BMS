@@ -1,7 +1,18 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+} from '@ims/ui';
 import { Plus, Search, Users, Building2, Mail, Phone } from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
@@ -80,7 +91,9 @@ export default function EmployeesPage() {
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [positions, setPositions] = useState<Position[]>([]);
-  const [allEmployees, setAllEmployees] = useState<Array<{ id: string; firstName: string; lastName: string }>>([]);
+  const [allEmployees, setAllEmployees] = useState<
+    Array<{ id: string; firstName: string; lastName: string }>
+  >([]);
 
   // Debounced search: wait 300ms after user stops typing before firing API call
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -153,9 +166,11 @@ export default function EmployeesPage() {
     loadAllEmployees();
   }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
   async function handleCreate() {
@@ -235,7 +250,7 @@ export default function EmployeesPage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-3 gap-4">
-            {[1, 2, 3, 4, 5, 6].map(i => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="h-40 bg-gray-200 rounded" />
             ))}
           </div>
@@ -262,7 +277,12 @@ export default function EmployeesPage() {
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 flex items-center justify-between">
             <span>{error}</span>
-            <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700 font-bold">×</button>
+            <button
+              onClick={() => setError(null)}
+              className="text-red-500 hover:text-red-700 font-bold"
+            >
+              ×
+            </button>
           </div>
         )}
 
@@ -275,7 +295,8 @@ export default function EmployeesPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
-                    aria-label="Search employees..." placeholder="Search employees..."
+                    aria-label="Search employees..."
+                    placeholder="Search employees..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -299,8 +320,10 @@ export default function EmployeesPage() {
                 className="border rounded-md px-3 py-2 text-sm"
               >
                 <option value="">All Departments</option>
-                {departments.map(dept => (
-                  <option key={dept.id} value={dept.id}>{dept.name}</option>
+                {departments.map((dept) => (
+                  <option key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -326,7 +349,7 @@ export default function EmployeesPage() {
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {employees.filter(e => e.employmentStatus === 'ACTIVE').length}
+                    {employees.filter((e) => e.employmentStatus === 'ACTIVE').length}
                   </p>
                 </div>
                 <Users className="h-8 w-8 text-green-500" />
@@ -339,7 +362,7 @@ export default function EmployeesPage() {
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">On Leave</p>
                   <p className="text-2xl font-bold text-yellow-600">
-                    {employees.filter(e => e.employmentStatus === 'ON_LEAVE').length}
+                    {employees.filter((e) => e.employmentStatus === 'ON_LEAVE').length}
                   </p>
                 </div>
                 <Users className="h-8 w-8 text-yellow-500" />
@@ -352,7 +375,7 @@ export default function EmployeesPage() {
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Probation</p>
                   <p className="text-2xl font-bold text-blue-600">
-                    {employees.filter(e => e.employmentStatus === 'PROBATION').length}
+                    {employees.filter((e) => e.employmentStatus === 'PROBATION').length}
                   </p>
                 </div>
                 <Users className="h-8 w-8 text-blue-500" />
@@ -376,20 +399,32 @@ export default function EmployeesPage() {
                         <div className="flex items-center gap-3">
                           <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center">
                             <span className="text-lg font-bold text-emerald-700">
-                              {employee.firstName[0]}{employee.lastName[0]}
+                              {employee.firstName[0]}
+                              {employee.lastName[0]}
                             </span>
                           </div>
                           <div>
-                            <h3 className="font-medium">{employee.firstName} {employee.lastName}</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{employee.employeeNumber}</p>
+                            <h3 className="font-medium">
+                              {employee.firstName} {employee.lastName}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {employee.employeeNumber}
+                            </p>
                           </div>
                         </div>
-                        <Badge className={statusColors[employee.employmentStatus] || 'bg-gray-100 dark:bg-gray-800'}>
+                        <Badge
+                          className={
+                            statusColors[employee.employmentStatus] ||
+                            'bg-gray-100 dark:bg-gray-800'
+                          }
+                        >
                           {employee.employmentStatus}
                         </Badge>
                       </div>
                       <div className="space-y-2 text-sm">
-                        <p className="font-medium text-gray-900 dark:text-gray-100">{employee.jobTitle}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          {employee.jobTitle}
+                        </p>
                         {employee.department && (
                           <div className="flex items-center gap-2 text-gray-600">
                             <Building2 className="h-4 w-4" />
@@ -408,7 +443,11 @@ export default function EmployeesPage() {
                         )}
                       </div>
                       <div className="mt-3 pt-3 border-t flex items-center justify-between">
-                        <Badge className={typeColors[employee.employmentType] || 'bg-gray-100 dark:bg-gray-800'}>
+                        <Badge
+                          className={
+                            typeColors[employee.employmentType] || 'bg-gray-100 dark:bg-gray-800'
+                          }
+                        >
                           {employee.employmentType.replace('_', ' ')}
                         </Badge>
                         {employee._count && employee._count.subordinates > 0 && (
@@ -432,7 +471,12 @@ export default function EmployeesPage() {
       </div>
 
       {/* Create Employee Modal */}
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Add Employee" size="full">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Add Employee"
+        size="full"
+      >
         <div className="max-h-[70vh] overflow-y-auto pr-2">
           {formError && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
@@ -443,7 +487,9 @@ export default function EmployeesPage() {
           <div className="space-y-6">
             {/* Basic Information */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Basic Information</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                Basic Information
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="employeeNumber">Employee Number *</Label>
@@ -480,7 +526,9 @@ export default function EmployeesPage() {
 
             {/* Contact Information */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Contact Information</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                Contact Information
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="workEmail">Work Email *</Label>
@@ -519,7 +567,9 @@ export default function EmployeesPage() {
 
             {/* Personal Details */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Personal Details</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                Personal Details
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="dateOfBirth">Date of Birth</Label>
@@ -572,7 +622,9 @@ export default function EmployeesPage() {
 
             {/* Employment Details */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Employment Details</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                Employment Details
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="jobTitle">Job Title *</Label>
@@ -594,8 +646,10 @@ export default function EmployeesPage() {
                     className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
                     <option value="">Select department</option>
-                    {departments.map(dept => (
-                      <option key={dept.id} value={dept.id}>{dept.name}</option>
+                    {departments.map((dept) => (
+                      <option key={dept.id} value={dept.id}>
+                        {dept.name}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -610,9 +664,13 @@ export default function EmployeesPage() {
                   >
                     <option value="">Select position</option>
                     {positions
-                      .filter(p => !formData.departmentId || p.department?.id === formData.departmentId)
-                      .map(pos => (
-                        <option key={pos.id} value={pos.id}>{pos.title}</option>
+                      .filter(
+                        (p) => !formData.departmentId || p.department?.id === formData.departmentId
+                      )
+                      .map((pos) => (
+                        <option key={pos.id} value={pos.id}>
+                          {pos.title}
+                        </option>
                       ))}
                   </select>
                 </div>
@@ -629,7 +687,9 @@ export default function EmployeesPage() {
                   >
                     <option value="">Select manager</option>
                     {allEmployees.map((emp: Record<string, unknown>) => (
-                      <option key={emp.id} value={emp.id}>{emp.firstName} {emp.lastName}</option>
+                      <option key={emp.id} value={emp.id}>
+                        {emp.firstName} {emp.lastName}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -666,11 +726,7 @@ export default function EmployeesPage() {
         </div>
 
         <ModalFooter>
-          <Button
-            variant="outline"
-            onClick={() => setCreateModalOpen(false)}
-            disabled={submitting}
-          >
+          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>
             Cancel
           </Button>
           <Button onClick={handleCreate} disabled={submitting}>

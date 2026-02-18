@@ -99,9 +99,7 @@ describe('Status Routes', () => {
       mockGetPlatformStatus.mockReturnValueOnce({
         status: 'outage',
         timestamp: new Date().toISOString(),
-        services: [
-          { name: 'api-gateway', status: 'outage', latencyMs: null },
-        ],
+        services: [{ name: 'api-gateway', status: 'outage', latencyMs: null }],
         uptime: { '24h': 95.0, '7d': 99.0, '30d': 99.5 },
         incidents: [{ id: 'inc-2', title: 'Gateway down', status: 'identified' }],
       });

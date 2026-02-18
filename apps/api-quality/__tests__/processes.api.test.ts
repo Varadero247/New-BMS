@@ -130,9 +130,7 @@ describe('Quality Processes API Routes', () => {
       (mockPrisma.qualProcess.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualProcess.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/processes?status=ACTIVE')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/processes?status=ACTIVE').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualProcess.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -147,9 +145,7 @@ describe('Quality Processes API Routes', () => {
       (mockPrisma.qualProcess.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualProcess.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/processes?search=order')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/processes?search=order').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualProcess.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -164,9 +160,7 @@ describe('Quality Processes API Routes', () => {
       (mockPrisma.qualProcess.findMany as jest.Mock).mockResolvedValueOnce(mockProcesses);
       (mockPrisma.qualProcess.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/processes')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/processes').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualProcess.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -289,7 +283,14 @@ describe('Quality Processes API Routes', () => {
       const response = await request(app)
         .post('/api/processes')
         .set('Authorization', 'Bearer token')
-        .send({ processType: 'CORE', department: 'Q', processOwner: 'O', purposeScope: 'S', inputs: 'I', outputs: 'O' });
+        .send({
+          processType: 'CORE',
+          department: 'Q',
+          processOwner: 'O',
+          purposeScope: 'S',
+          inputs: 'I',
+          outputs: 'O',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -299,7 +300,14 @@ describe('Quality Processes API Routes', () => {
       const response = await request(app)
         .post('/api/processes')
         .set('Authorization', 'Bearer token')
-        .send({ processName: 'Name', department: 'Q', processOwner: 'O', purposeScope: 'S', inputs: 'I', outputs: 'O' });
+        .send({
+          processName: 'Name',
+          department: 'Q',
+          processOwner: 'O',
+          purposeScope: 'S',
+          inputs: 'I',
+          outputs: 'O',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -309,7 +317,14 @@ describe('Quality Processes API Routes', () => {
       const response = await request(app)
         .post('/api/processes')
         .set('Authorization', 'Bearer token')
-        .send({ processName: 'Name', processType: 'CORE', processOwner: 'O', purposeScope: 'S', inputs: 'I', outputs: 'O' });
+        .send({
+          processName: 'Name',
+          processType: 'CORE',
+          processOwner: 'O',
+          purposeScope: 'S',
+          inputs: 'I',
+          outputs: 'O',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -319,7 +334,14 @@ describe('Quality Processes API Routes', () => {
       const response = await request(app)
         .post('/api/processes')
         .set('Authorization', 'Bearer token')
-        .send({ processName: 'Name', processType: 'CORE', department: 'Q', purposeScope: 'S', inputs: 'I', outputs: 'O' });
+        .send({
+          processName: 'Name',
+          processType: 'CORE',
+          department: 'Q',
+          purposeScope: 'S',
+          inputs: 'I',
+          outputs: 'O',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -329,7 +351,14 @@ describe('Quality Processes API Routes', () => {
       const response = await request(app)
         .post('/api/processes')
         .set('Authorization', 'Bearer token')
-        .send({ processName: 'Name', processType: 'CORE', department: 'Q', processOwner: 'O', inputs: 'I', outputs: 'O' });
+        .send({
+          processName: 'Name',
+          processType: 'CORE',
+          department: 'Q',
+          processOwner: 'O',
+          inputs: 'I',
+          outputs: 'O',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -339,7 +368,14 @@ describe('Quality Processes API Routes', () => {
       const response = await request(app)
         .post('/api/processes')
         .set('Authorization', 'Bearer token')
-        .send({ processName: 'Name', processType: 'CORE', department: 'Q', processOwner: 'O', purposeScope: 'S', outputs: 'O' });
+        .send({
+          processName: 'Name',
+          processType: 'CORE',
+          department: 'Q',
+          processOwner: 'O',
+          purposeScope: 'S',
+          outputs: 'O',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -349,7 +385,14 @@ describe('Quality Processes API Routes', () => {
       const response = await request(app)
         .post('/api/processes')
         .set('Authorization', 'Bearer token')
-        .send({ processName: 'Name', processType: 'CORE', department: 'Q', processOwner: 'O', purposeScope: 'S', inputs: 'I' });
+        .send({
+          processName: 'Name',
+          processType: 'CORE',
+          department: 'Q',
+          processOwner: 'O',
+          purposeScope: 'S',
+          inputs: 'I',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -468,7 +511,9 @@ describe('Quality Processes API Routes', () => {
 
   describe('DELETE /api/processes/:id', () => {
     it('should delete a process successfully', async () => {
-      (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce({ id: '1d000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '1d000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualProcess.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)

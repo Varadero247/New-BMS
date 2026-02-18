@@ -69,7 +69,7 @@ describe('regulatory-feed', () => {
     it('should find UK sources', () => {
       const ukSources = getSourcesByJurisdiction('UK');
       expect(ukSources.length).toBeGreaterThanOrEqual(3);
-      expect(ukSources.every(s => s.jurisdiction === 'UK')).toBe(true);
+      expect(ukSources.every((s) => s.jurisdiction === 'UK')).toBe(true);
     });
 
     it('should find UAE sources', () => {
@@ -108,7 +108,7 @@ describe('regulatory-feed', () => {
       const result = calculateRelevance(reg, orgProfile);
       expect(result.jurisdictionMatch).toBe(false);
       expect(result.score).toBeLessThan(
-        calculateRelevance(createTestRegulation(), orgProfile).score,
+        calculateRelevance(createTestRegulation(), orgProfile).score
       );
     });
 
@@ -139,8 +139,20 @@ describe('regulatory-feed', () => {
     it('should filter and sort by relevance', () => {
       const regulations = [
         createTestRegulation({ id: 'reg-1', title: 'UK Safety Update', standards: ['ISO 45001'] }),
-        createTestRegulation({ id: 'reg-2', title: 'Australian Tax Update', jurisdiction: 'AU', standards: [], keywords: ['tax'] }),
-        createTestRegulation({ id: 'reg-3', title: 'EU Environment Directive', jurisdiction: 'EU', standards: ['ISO 14001'], categories: ['environment'] }),
+        createTestRegulation({
+          id: 'reg-2',
+          title: 'Australian Tax Update',
+          jurisdiction: 'AU',
+          standards: [],
+          keywords: ['tax'],
+        }),
+        createTestRegulation({
+          id: 'reg-3',
+          title: 'EU Environment Directive',
+          jurisdiction: 'EU',
+          standards: ['ISO 14001'],
+          categories: ['environment'],
+        }),
       ];
 
       const results = filterRelevant(regulations, orgProfile, 20);
@@ -154,7 +166,13 @@ describe('regulatory-feed', () => {
     it('should respect threshold', () => {
       const regulations = [
         createTestRegulation({ id: 'reg-high', jurisdiction: 'UK', standards: ['ISO 45001'] }),
-        createTestRegulation({ id: 'reg-low', jurisdiction: 'AU', standards: [], keywords: [], categories: [] }),
+        createTestRegulation({
+          id: 'reg-low',
+          jurisdiction: 'AU',
+          standards: [],
+          keywords: [],
+          categories: [],
+        }),
       ];
 
       const highThreshold = filterRelevant(regulations, orgProfile, 50);

@@ -76,9 +76,7 @@ export async function isEnabled(flagName: string, orgId?: string): Promise<boole
 
   // Check org override first
   if (orgId) {
-    const override = store.orgOverrides.find(
-      (o) => o.flagName === flagName && o.orgId === orgId,
-    );
+    const override = store.orgOverrides.find((o) => o.flagName === flagName && o.orgId === orgId);
     if (override) {
       cache.set(cacheKey, { value: override.enabled, expiresAt: Date.now() + CACHE_TTL_MS });
       return override.enabled;
@@ -111,7 +109,7 @@ export async function getAll(orgId?: string): Promise<Record<string, boolean>> {
   for (const flag of store.flags) {
     if (orgId) {
       const override = store.orgOverrides.find(
-        (o) => o.flagName === flag.name && o.orgId === orgId,
+        (o) => o.flagName === flag.name && o.orgId === orgId
       );
       result[flag.name] = override ? override.enabled : flag.enabled;
     } else {
@@ -168,7 +166,11 @@ export function getAllOrgOverrides(): OrgFeatureFlagOverride[] {
 /**
  * Create a new feature flag. Returns null if a flag with the same name already exists.
  */
-export function createFlag(name: string, description: string, enabled: boolean = false): FeatureFlag | null {
+export function createFlag(
+  name: string,
+  description: string,
+  enabled: boolean = false
+): FeatureFlag | null {
   const store = readStore();
   if (store.flags.some((f) => f.name === name)) {
     return null;
@@ -186,7 +188,7 @@ export function createFlag(name: string, description: string, enabled: boolean =
  */
 export function updateFlag(
   name: string,
-  updates: { enabled?: boolean; description?: string },
+  updates: { enabled?: boolean; description?: string }
 ): FeatureFlag | null {
   const store = readStore();
   const idx = store.flags.findIndex((f) => f.name === name);
@@ -219,7 +221,11 @@ export function deleteFlag(name: string): boolean {
 /**
  * Set an org override for a flag. Creates or updates the override.
  */
-export function setOrgOverride(flagName: string, orgId: string, enabled: boolean): OrgFeatureFlagOverride | null {
+export function setOrgOverride(
+  flagName: string,
+  orgId: string,
+  enabled: boolean
+): OrgFeatureFlagOverride | null {
   const store = readStore();
   // Ensure the flag exists
   if (!store.flags.some((f) => f.name === flagName)) return null;

@@ -53,7 +53,10 @@ describe('POST /api/supplier/register', () => {
   });
 
   it('should return 409 if email already registered', async () => {
-    (prisma as any).portalUser.findFirst.mockResolvedValue({ id: 'u-1', email: 'supplier@test.com' });
+    (prisma as any).portalUser.findFirst.mockResolvedValue({
+      id: 'u-1',
+      email: 'supplier@test.com',
+    });
 
     const res = await request(app)
       .post('/api/supplier/register')
@@ -92,7 +95,15 @@ describe('POST /api/supplier/register', () => {
 
 describe('GET /api/supplier/register/status', () => {
   it('should return registration status', async () => {
-    const user = { id: 'user-123', email: 'test@test.com', name: 'John', company: 'Acme', status: 'PENDING', role: 'SUPPLIER_USER', createdAt: new Date() };
+    const user = {
+      id: 'user-123',
+      email: 'test@test.com',
+      name: 'John',
+      company: 'Acme',
+      status: 'PENDING',
+      role: 'SUPPLIER_USER',
+      createdAt: new Date(),
+    };
     (prisma as any).portalUser.findFirst.mockResolvedValue(user);
 
     const res = await request(app).get('/api/supplier/register/status');

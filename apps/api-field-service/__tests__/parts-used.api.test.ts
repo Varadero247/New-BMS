@@ -40,7 +40,9 @@ beforeEach(() => {
 
 describe('GET /api/parts-used', () => {
   it('should return parts used with pagination', async () => {
-    const parts = [{ id: '00000000-0000-0000-0000-000000000001', partName: 'Filter', quantity: 2, job: {} }];
+    const parts = [
+      { id: '00000000-0000-0000-0000-000000000001', partName: 'Filter', quantity: 2, job: {} },
+    ];
     (prisma as any).fsSvcPartUsed.findMany.mockResolvedValue(parts);
     (prisma as any).fsSvcPartUsed.count.mockResolvedValue(1);
 
@@ -75,28 +77,30 @@ describe('GET /api/parts-used', () => {
 
 describe('POST /api/parts-used', () => {
   it('should create a part used entry', async () => {
-    const created = { id: 'pu-new', partName: 'Compressor', quantity: 1, unitCost: 150, totalCost: 150 };
+    const created = {
+      id: 'pu-new',
+      partName: 'Compressor',
+      quantity: 1,
+      unitCost: 150,
+      totalCost: 150,
+    };
     (prisma as any).fsSvcPartUsed.create.mockResolvedValue(created);
 
-    const res = await request(app)
-      .post('/api/parts-used')
-      .send({
-        jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        partName: 'Compressor',
-        partNumber: 'CMP-001',
-        quantity: 1,
-        unitCost: 150,
-        totalCost: 150,
-      });
+    const res = await request(app).post('/api/parts-used').send({
+      jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      partName: 'Compressor',
+      partNumber: 'CMP-001',
+      quantity: 1,
+      unitCost: 150,
+      totalCost: 150,
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });
 
   it('should reject invalid data', async () => {
-    const res = await request(app)
-      .post('/api/parts-used')
-      .send({ partName: '' });
+    const res = await request(app).post('/api/parts-used').send({ partName: '' });
 
     expect(res.status).toBe(400);
   });
@@ -104,7 +108,11 @@ describe('POST /api/parts-used', () => {
 
 describe('GET /api/parts-used/:id', () => {
   it('should return a part used entry', async () => {
-    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', partName: 'Filter', job: {} });
+    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      partName: 'Filter',
+      job: {},
+    });
 
     const res = await request(app).get('/api/parts-used/00000000-0000-0000-0000-000000000001');
 
@@ -123,8 +131,13 @@ describe('GET /api/parts-used/:id', () => {
 
 describe('PUT /api/parts-used/:id', () => {
   it('should update a part used entry', async () => {
-    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcPartUsed.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', quantity: 3 });
+    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcPartUsed.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      quantity: 3,
+    });
 
     const res = await request(app)
       .put('/api/parts-used/00000000-0000-0000-0000-000000000001')
@@ -146,8 +159,13 @@ describe('PUT /api/parts-used/:id', () => {
 
 describe('DELETE /api/parts-used/:id', () => {
   it('should soft delete a part used entry', async () => {
-    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcPartUsed.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcPartUsed.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/parts-used/00000000-0000-0000-0000-000000000001');
 

@@ -14,10 +14,10 @@ const STEP_PROGRESSION: Record<string, string> = {
 
 // Days until next action from current step
 const STEP_DAYS: Record<string, number> = {
-  DAY_0: 3,   // DAY_0 -> DAY_3: 3 days
-  DAY_3: 4,   // DAY_3 -> DAY_7: 4 days
-  DAY_7: 2,   // DAY_7 -> DAY_9: 2 days
-  DAY_9: 5,   // DAY_9 -> DAY_14: 5 days
+  DAY_0: 3, // DAY_0 -> DAY_3: 3 days
+  DAY_3: 4, // DAY_3 -> DAY_7: 4 days
+  DAY_7: 2, // DAY_7 -> DAY_9: 2 days
+  DAY_9: 5, // DAY_9 -> DAY_14: 5 days
 };
 
 export async function runDunningJob(): Promise<{ processed: number; cancelled: number }> {

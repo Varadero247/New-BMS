@@ -76,9 +76,7 @@ describe('SAML Routes', () => {
 
   describe('POST /auth/saml/callback', () => {
     it('returns 400 when SAMLResponse is missing', async () => {
-      const res = await request(app)
-        .post('/auth/saml/callback')
-        .send({ RelayState: 'org-1' });
+      const res = await request(app).post('/auth/saml/callback').send({ RelayState: 'org-1' });
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
     });
@@ -95,20 +93,24 @@ describe('SAML Routes', () => {
     it('processes SAML callback with valid SAMLResponse', async () => {
       // First create a SAML config for callback-test-org
       mockAuthenticate.mockImplementationOnce((req: any, _res: any, next: any) => {
-        req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'callback-test-org' };
+        req.user = {
+          id: 'user-1',
+          email: 'admin@ims.local',
+          role: 'ADMIN',
+          orgId: 'callback-test-org',
+        };
         next();
       });
-      await request(app)
-        .post('/admin/security/sso')
-        .send({
-          entryPoint: 'https://idp.example.com/sso',
-          issuer: 'https://idp.example.com',
-          cert: 'MIIC...',
-          allowUnencryptedAssertions: true,
-        });
+      await request(app).post('/admin/security/sso').send({
+        entryPoint: 'https://idp.example.com/sso',
+        issuer: 'https://idp.example.com',
+        cert: 'MIIC...',
+        allowUnencryptedAssertions: true,
+      });
 
       // Build a minimal SAML response with NameID
-      const samlXml = '<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"><saml:Assertion><saml:Subject><saml:NameID>admin@ims.local</saml:NameID></saml:Subject></saml:Assertion></samlp:Response>';
+      const samlXml =
+        '<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"><saml:Assertion><saml:Subject><saml:NameID>admin@ims.local</saml:NameID></saml:Subject></saml:Assertion></samlp:Response>';
       const samlB64 = Buffer.from(samlXml).toString('base64');
 
       const res = await request(app)
@@ -151,9 +153,7 @@ describe('SAML Routes', () => {
     };
 
     it('creates a new SAML configuration', async () => {
-      const res = await request(app)
-        .post('/admin/security/sso')
-        .send(validConfig);
+      const res = await request(app).post('/admin/security/sso').send(validConfig);
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toHaveProperty('id');
@@ -219,7 +219,12 @@ describe('SAML Routes', () => {
       };
       // Use a unique org to avoid collisions
       mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
-        req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-delete-unique' };
+        req.user = {
+          id: 'user-1',
+          email: 'admin@ims.local',
+          role: 'ADMIN',
+          orgId: 'org-delete-unique',
+        };
         next();
       });
       // Create first
@@ -235,7 +240,12 @@ describe('SAML Routes', () => {
     it('returns 404 after deleting (config is gone)', async () => {
       // Use a fresh org with no config
       mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
-        req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-no-config-xyz' };
+        req.user = {
+          id: 'user-1',
+          email: 'admin@ims.local',
+          role: 'ADMIN',
+          orgId: 'org-no-config-xyz',
+        };
         next();
       });
       const res = await request(app).delete('/admin/security/sso');

@@ -1,5 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { auditMiddleware, attachOldData, createAuditLogger, AuditMiddlewareOptions } from '../src/middleware';
+import {
+  auditMiddleware,
+  attachOldData,
+  createAuditLogger,
+  AuditMiddlewareOptions,
+} from '../src/middleware';
 import { AuditService } from '../src/service';
 import { AuditAction, AuditEntity } from '../src/types';
 
@@ -290,7 +295,10 @@ describe('Audit Middleware', () => {
       await new Promise((resolve) => setImmediate(resolve));
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(mockLoggerFns.error).toHaveBeenCalledWith('Audit logging failed', expect.objectContaining({ error: 'DB error' }));
+      expect(mockLoggerFns.error).toHaveBeenCalledWith(
+        'Audit logging failed',
+        expect.objectContaining({ error: 'DB error' })
+      );
       jest.useFakeTimers(); // Restore fake timers
     });
 
@@ -413,7 +421,10 @@ describe('Audit Middleware', () => {
       const middleware = attachOldData(getData);
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockLoggerFns.error).toHaveBeenCalledWith('Failed to get old data for audit', expect.objectContaining({ error: 'DB error' }));
+      expect(mockLoggerFns.error).toHaveBeenCalledWith(
+        'Failed to get old data for audit',
+        expect.objectContaining({ error: 'DB error' })
+      );
       expect(mockNext).toHaveBeenCalled();
     });
 
@@ -442,13 +453,9 @@ describe('Audit Middleware', () => {
       it('should log an action', async () => {
         const logger = createAuditLogger(mockAuditService);
 
-        await logger.logAction(
-          mockReq as Request,
-          'CUSTOM_ACTION',
-          'CustomEntity',
-          'entity-456',
-          { newData: { foo: 'bar' } }
-        );
+        await logger.logAction(mockReq as Request, 'CUSTOM_ACTION', 'CustomEntity', 'entity-456', {
+          newData: { foo: 'bar' },
+        });
 
         expect(mockAuditService.log).toHaveBeenCalledWith({
           userId: 'user-123',
@@ -493,7 +500,13 @@ describe('Audit Middleware', () => {
       it('should log failed auth with reason', async () => {
         const logger = createAuditLogger(mockAuditService);
 
-        await logger.logAuth(mockReq as Request, 'LOGIN_FAILED', undefined, false, 'Invalid password');
+        await logger.logAuth(
+          mockReq as Request,
+          'LOGIN_FAILED',
+          undefined,
+          false,
+          'Invalid password'
+        );
 
         expect(mockAuditService.logAuth).toHaveBeenCalledWith('LOGIN_FAILED', undefined, {
           ipAddress: '192.168.1.1',

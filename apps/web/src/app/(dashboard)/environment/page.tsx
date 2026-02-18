@@ -20,11 +20,7 @@ import { Card } from '@/components/ui/card';
 import { ExportDropdown } from '@/components/ui/export-dropdown';
 import { ComplianceGauge, TrendChart } from '@/components/charts';
 import api from '@/lib/api';
-import {
-  exportIncidents,
-  exportIncidentsExcel,
-  type IncidentExportData,
-} from '@/lib/export';
+import { exportIncidents, exportIncidentsExcel, type IncidentExportData } from '@/lib/export';
 
 interface StandardSummary {
   standard: string;
@@ -77,9 +73,7 @@ export default function EnvironmentOverviewPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [summaryRes] = await Promise.all([
-          api.get('/dashboard/summary/ISO_14001'),
-        ]);
+        const [summaryRes] = await Promise.all([api.get('/dashboard/summary/ISO_14001')]);
 
         setSummary(summaryRes.data.data);
 
@@ -148,11 +142,36 @@ export default function EnvironmentOverviewPage() {
   };
 
   const quickLinks = [
-    { name: 'Aspects', href: '/environment/aspects', icon: Leaf, count: summary?.summary.risks.active },
-    { name: 'Events', href: '/environment/events', icon: FileText, count: summary?.summary.incidents.open },
-    { name: 'Legal', href: '/environment/legal', icon: FileText, count: summary?.summary.legal.total },
-    { name: 'Objectives', href: '/environment/objectives', icon: Target, count: summary?.summary.objectives.total },
-    { name: 'Actions', href: '/environment/actions', icon: ClipboardCheck, count: summary?.summary.actions.open },
+    {
+      name: 'Aspects',
+      href: '/environment/aspects',
+      icon: Leaf,
+      count: summary?.summary.risks.active,
+    },
+    {
+      name: 'Events',
+      href: '/environment/events',
+      icon: FileText,
+      count: summary?.summary.incidents.open,
+    },
+    {
+      name: 'Legal',
+      href: '/environment/legal',
+      icon: FileText,
+      count: summary?.summary.legal.total,
+    },
+    {
+      name: 'Objectives',
+      href: '/environment/objectives',
+      icon: Target,
+      count: summary?.summary.objectives.total,
+    },
+    {
+      name: 'Actions',
+      href: '/environment/actions',
+      icon: ClipboardCheck,
+      count: summary?.summary.actions.open,
+    },
     { name: 'Metrics', href: '/environment/metrics', icon: TrendingUp },
   ];
 
@@ -279,7 +298,9 @@ export default function EnvironmentOverviewPage() {
         <Card className="p-6">
           <h3 className="text-sm font-medium text-muted-foreground mb-2">Recycling Rate</h3>
           <div className="flex items-end gap-2">
-            <span className="text-3xl font-bold text-green-500">{metrics?.ytd.recyclingRate || 0}%</span>
+            <span className="text-3xl font-bold text-green-500">
+              {metrics?.ytd.recyclingRate || 0}%
+            </span>
           </div>
           <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
             <div
@@ -292,7 +313,9 @@ export default function EnvironmentOverviewPage() {
         <Card className="p-6">
           <h3 className="text-sm font-medium text-muted-foreground mb-2">Environmental Events</h3>
           <div className="flex items-end gap-2">
-            <span className="text-3xl font-bold text-green-500">{summary?.summary.incidents.open || 0}</span>
+            <span className="text-3xl font-bold text-green-500">
+              {summary?.summary.incidents.open || 0}
+            </span>
             <span className="text-sm text-muted-foreground mb-1">open</span>
           </div>
           <div className="mt-2 text-sm text-muted-foreground">
@@ -319,14 +342,18 @@ export default function EnvironmentOverviewPage() {
           {environmentalIndicators.map((indicator) => (
             <div key={indicator.name} className="p-4 rounded-lg bg-muted/50">
               <div className="flex items-center gap-2 mb-2">
-                <div className={`w-8 h-8 ${indicator.bgColor} rounded-lg flex items-center justify-center`}>
+                <div
+                  className={`w-8 h-8 ${indicator.bgColor} rounded-lg flex items-center justify-center`}
+                >
                   <indicator.icon className={`w-4 h-4 ${indicator.color}`} />
                 </div>
                 <span className="text-sm font-medium">{indicator.name}</span>
               </div>
               <p className="text-2xl font-bold">
                 {indicator.value.toLocaleString()}
-                <span className="text-sm font-normal text-muted-foreground ml-1">{indicator.unit}</span>
+                <span className="text-sm font-normal text-muted-foreground ml-1">
+                  {indicator.unit}
+                </span>
               </p>
             </div>
           ))}
@@ -384,7 +411,9 @@ export default function EnvironmentOverviewPage() {
                       {event.referenceNumber} • {new Date(event.dateOccurred).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(event.severity)}`}>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(event.severity)}`}
+                  >
                     {event.severity}
                   </span>
                 </Link>
@@ -416,7 +445,9 @@ export default function EnvironmentOverviewPage() {
                 className="p-4 rounded-lg border hover:border-green-300 transition-colors"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getSignificanceColor(aspect.riskLevel)}`}>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${getSignificanceColor(aspect.riskLevel)}`}
+                  >
                     {aspect.riskLevel}
                   </span>
                   <span className="text-sm font-medium">Score: {aspect.riskScore}</span>

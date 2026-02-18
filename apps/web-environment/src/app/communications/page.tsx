@@ -33,7 +33,14 @@ interface Communication {
   subject: string;
   description: string;
   direction: 'INTERNAL' | 'EXTERNAL';
-  type: 'REPORT' | 'COMPLAINT' | 'ENQUIRY' | 'NOTIFICATION' | 'CONSULTATION' | 'DISCLOSURE' | 'OTHER';
+  type:
+    | 'REPORT'
+    | 'COMPLAINT'
+    | 'ENQUIRY'
+    | 'NOTIFICATION'
+    | 'CONSULTATION'
+    | 'DISCLOSURE'
+    | 'OTHER';
   status: 'DRAFT' | 'SENT' | 'RECEIVED' | 'ACKNOWLEDGED' | 'CLOSED';
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
   stakeholder: string;
@@ -323,7 +330,8 @@ export default function CommunicationsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              aria-label="Search by subject, stakeholder or ref..." placeholder="Search by subject, stakeholder or ref..."
+              aria-label="Search by subject, stakeholder or ref..."
+              placeholder="Search by subject, stakeholder or ref..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
@@ -363,14 +371,19 @@ export default function CommunicationsPage() {
             <CardTitle className="flex items-center gap-2 text-base">
               <MessageSquare className="h-5 w-5 text-green-600" />
               {activeTab === 'EXTERNAL' ? 'External Communications' : 'Internal Communications'}
-              <span className="ml-auto text-sm text-gray-400 dark:text-gray-500 font-normal">{tabRecords.length} records</span>
+              <span className="ml-auto text-sm text-gray-400 dark:text-gray-500 font-normal">
+                {tabRecords.length} records
+              </span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {loading ? (
               <div className="p-6 space-y-3">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-14 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+                  <div
+                    key={i}
+                    className="h-14 bg-gray-100 dark:bg-gray-800 rounded animate-pulse"
+                  />
                 ))}
               </div>
             ) : tabRecords.length === 0 ? (
@@ -391,14 +404,30 @@ export default function CommunicationsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Ref</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Subject</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Type</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Stakeholder</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Priority</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Due Date</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Response?</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                        Ref
+                      </th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                        Subject
+                      </th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                        Type
+                      </th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                        Stakeholder
+                      </th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                        Priority
+                      </th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                        Status
+                      </th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                        Due Date
+                      </th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                        Response?
+                      </th>
                       <th className="px-4 py-3"></th>
                     </tr>
                   </thead>
@@ -412,9 +441,13 @@ export default function CommunicationsPage() {
                           {rec.referenceNumber || '—'}
                         </td>
                         <td className="px-4 py-3">
-                          <p className="font-medium text-gray-900 dark:text-gray-100 line-clamp-1">{rec.subject}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100 line-clamp-1">
+                            {rec.subject}
+                          </p>
                           {rec.description && (
-                            <p className="text-xs text-gray-400 dark:text-gray-500 line-clamp-1 mt-0.5">{rec.description}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 line-clamp-1 mt-0.5">
+                              {rec.description}
+                            </p>
                           )}
                         </td>
                         <td className="px-4 py-3">
@@ -423,25 +456,31 @@ export default function CommunicationsPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="text-sm text-gray-700 dark:text-gray-300">{rec.stakeholder}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                            {rec.stakeholder}
+                          </p>
                           {rec.stakeholderType && (
-                            <p className="text-xs text-gray-400 dark:text-gray-500">{rec.stakeholderType}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500">
+                              {rec.stakeholderType}
+                            </p>
                           )}
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`text-xs px-2 py-1 rounded font-medium ${PRIORITY_COLORS[rec.priority] || ''}`}>
+                          <span
+                            className={`text-xs px-2 py-1 rounded font-medium ${PRIORITY_COLORS[rec.priority] || ''}`}
+                          >
                             {rec.priority}
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`text-xs px-2 py-1 rounded font-medium ${STATUS_COLORS[rec.status] || ''}`}>
+                          <span
+                            className={`text-xs px-2 py-1 rounded font-medium ${STATUS_COLORS[rec.status] || ''}`}
+                          >
                             {rec.status}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
-                          {rec.dueDate
-                            ? new Date(rec.dueDate).toLocaleDateString()
-                            : '—'}
+                          {rec.dueDate ? new Date(rec.dueDate).toLocaleDateString() : '—'}
                         </td>
                         <td className="px-4 py-3">
                           {rec.responseRequired ? (
@@ -520,7 +559,9 @@ export default function CommunicationsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Description
+              </label>
               <textarea
                 rows={3}
                 value={form.description}
@@ -531,10 +572,14 @@ export default function CommunicationsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Direction</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Direction
+                </label>
                 <select
                   value={form.direction}
-                  onChange={(e) => setForm({ ...form, direction: e.target.value as 'INTERNAL' | 'EXTERNAL' })}
+                  onChange={(e) =>
+                    setForm({ ...form, direction: e.target.value as 'INTERNAL' | 'EXTERNAL' })
+                  }
                   className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 >
                   <option value="EXTERNAL">External</option>
@@ -542,24 +587,32 @@ export default function CommunicationsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Type
+                </label>
                 <select
                   value={form.type}
                   onChange={(e) => setForm({ ...form, type: e.target.value as typeof form.type })}
                   className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 >
                   {Object.entries(TYPE_LABELS).map(([val, label]) => (
-                    <option key={val} value={val}>{label}</option>
+                    <option key={val} value={val}>
+                      {label}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Status
+                </label>
                 <select
                   value={form.status}
-                  onChange={(e) => setForm({ ...form, status: e.target.value as typeof form.status })}
+                  onChange={(e) =>
+                    setForm({ ...form, status: e.target.value as typeof form.status })
+                  }
                   className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 >
                   <option value="DRAFT">Draft</option>
@@ -570,10 +623,14 @@ export default function CommunicationsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Priority
+                </label>
                 <select
                   value={form.priority}
-                  onChange={(e) => setForm({ ...form, priority: e.target.value as typeof form.priority })}
+                  onChange={(e) =>
+                    setForm({ ...form, priority: e.target.value as typeof form.priority })
+                  }
                   className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                 >
                   <option value="LOW">Low</option>
@@ -591,7 +648,10 @@ export default function CommunicationsPage() {
                 onChange={(e) => setForm({ ...form, responseRequired: e.target.checked })}
                 className="h-4 w-4 text-green-600 rounded border-gray-300"
               />
-              <label htmlFor="responseRequired" className="text-sm text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="responseRequired"
+                className="text-sm text-gray-700 dark:text-gray-300"
+              >
                 Response required
               </label>
             </div>
@@ -615,7 +675,9 @@ export default function CommunicationsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stakeholder Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Stakeholder Type
+                </label>
                 <select
                   value={form.stakeholderType}
                   onChange={(e) => setForm({ ...form, stakeholderType: e.target.value })}
@@ -638,7 +700,9 @@ export default function CommunicationsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contact Person</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Contact Person
+                </label>
                 <input
                   type="text"
                   value={form.contactPerson}
@@ -648,7 +712,9 @@ export default function CommunicationsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contact Email</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Contact Email
+                </label>
                 <input
                   type="email"
                   value={form.contactEmail}
@@ -665,7 +731,8 @@ export default function CommunicationsPage() {
               <p className="text-xs text-green-700">
                 The organisation shall establish and implement processes for external environmental
                 communications as required by its compliance obligations and as decided by the
-                organisation. External communications shall consider the views of interested parties.
+                organisation. External communications shall consider the views of interested
+                parties.
               </p>
             </div>
           </div>
@@ -676,7 +743,9 @@ export default function CommunicationsPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date Sent</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Date Sent
+                </label>
                 <input
                   type="date"
                   value={form.dateSent}
@@ -685,7 +754,9 @@ export default function CommunicationsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date Received</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Date Received
+                </label>
                 <input
                   type="date"
                   value={form.dateReceived}
@@ -696,7 +767,9 @@ export default function CommunicationsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due / Response Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Due / Response Date
+                </label>
                 <input
                   type="date"
                   value={form.dueDate}
@@ -705,7 +778,9 @@ export default function CommunicationsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Assigned To</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Assigned To
+                </label>
                 <input
                   type="text"
                   value={form.assignedTo}
@@ -748,7 +823,9 @@ export default function CommunicationsPage() {
         {formTab === 3 && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes / Additional Details</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Notes / Additional Details
+              </label>
               <textarea
                 rows={8}
                 value={form.notes}
@@ -816,8 +893,12 @@ export default function CommunicationsPage() {
         </p>
         {selectedRecord && (
           <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-4">
-            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{selectedRecord.subject}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{selectedRecord.stakeholder}</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              {selectedRecord.subject}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {selectedRecord.stakeholder}
+            </p>
           </div>
         )}
         <p className="text-xs text-red-500">This action cannot be undone.</p>
@@ -825,10 +906,7 @@ export default function CommunicationsPage() {
           <Button variant="outline" onClick={() => setDeleteModalOpen(false)}>
             Cancel
           </Button>
-          <Button
-            onClick={handleDelete}
-            className="bg-red-600 hover:bg-red-700 text-white"
-          >
+          <Button onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white">
             Delete
           </Button>
         </ModalFooter>

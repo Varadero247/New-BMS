@@ -23,10 +23,7 @@ export function SectorCard({ name, standard, tagline, icon, color, className }: 
       }}
     >
       {/* Sector head */}
-      <div
-        className="flex items-center gap-3 px-5 py-4"
-        style={{ backgroundColor: `${color}10` }}
-      >
+      <div className="flex items-center gap-3 px-5 py-4" style={{ backgroundColor: `${color}10` }}>
         {icon && (
           <div
             className="flex items-center justify-center shrink-0"

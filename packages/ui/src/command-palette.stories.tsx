@@ -18,8 +18,20 @@ const sampleItems: CommandItem[] = [
   { id: '4', label: 'Create New Risk', category: 'Actions', href: '/risks/new' },
   { id: '5', label: 'Create New Incident', category: 'Actions', href: '/incidents/new' },
   { id: '6', label: 'Run Audit Report', category: 'Actions', href: '/reports/audit' },
-  { id: '7', label: 'Search Documents', category: 'Search', href: '/documents', keywords: ['docs', 'files'] },
-  { id: '8', label: 'Search Users', category: 'Search', href: '/users', keywords: ['people', 'team'] },
+  {
+    id: '7',
+    label: 'Search Documents',
+    category: 'Search',
+    href: '/documents',
+    keywords: ['docs', 'files'],
+  },
+  {
+    id: '8',
+    label: 'Search Users',
+    category: 'Search',
+    href: '/users',
+    keywords: ['people', 'team'],
+  },
 ];
 
 export const Default: Story = {

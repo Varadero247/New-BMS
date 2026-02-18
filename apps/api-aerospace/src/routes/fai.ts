@@ -69,37 +69,45 @@ const createFAISchema = z.object({
 });
 
 const part1Schema = z.object({
-  characteristics: z.array(z.object({
-    charNumber: z.number().int().positive('Characteristic number must be a positive integer'),
-    charName: z.string().min(1, 'Characteristic name is required'),
-    nominal: z.string().min(1, 'Nominal value is required'),
-    tolerance: z.string().min(1, 'Tolerance is required'),
-    actual: z.string(),
-    pass: z.boolean(),
-  })),
+  characteristics: z.array(
+    z.object({
+      charNumber: z.number().int().positive('Characteristic number must be a positive integer'),
+      charName: z.string().min(1, 'Characteristic name is required'),
+      nominal: z.string().min(1, 'Nominal value is required'),
+      tolerance: z.string().min(1, 'Tolerance is required'),
+      actual: z.string(),
+      pass: z.boolean(),
+    })
+  ),
 });
 
 const part2Schema = z.object({
-  documents: z.array(z.object({
-    docType: z.string().min(1, 'Document type is required'),
-    docNumber: z.string().min(1, 'Document number is required'),
-    revision: z.string().min(1, 'Revision is required'),
-    available: z.boolean(),
-  })),
+  documents: z.array(
+    z.object({
+      docType: z.string().min(1, 'Document type is required'),
+      docNumber: z.string().min(1, 'Document number is required'),
+      revision: z.string().min(1, 'Revision is required'),
+      available: z.boolean(),
+    })
+  ),
 });
 
 const part3Schema = z.object({
-  testResults: z.array(z.object({
-    testName: z.string().min(1, 'Test name is required'),
-    testMethod: z.string().min(1, 'Test method is required'),
-    requirement: z.string().min(1, 'Requirement is required'),
-    result: z.string(),
-    pass: z.boolean(),
-  })),
+  testResults: z.array(
+    z.object({
+      testName: z.string().min(1, 'Test name is required'),
+      testMethod: z.string().min(1, 'Test method is required'),
+      requirement: z.string().min(1, 'Requirement is required'),
+      result: z.string(),
+      pass: z.boolean(),
+    })
+  ),
 });
 
 const partialApprovalSchema = z.object({
-  openItems: z.array(z.string().trim().min(1).max(200)).min(1, 'At least one open item is required'),
+  openItems: z
+    .array(z.string().trim().min(1).max(200))
+    .min(1, 'At least one open item is required'),
 });
 
 // ============================================
@@ -108,7 +116,7 @@ const partialApprovalSchema = z.object({
 
 function determinePart1Status(characteristics: Part1Characteristic[]): string {
   if (characteristics.length === 0) return 'NOT_STARTED';
-  const filled = characteristics.filter(c => c.actual.trim() !== '');
+  const filled = characteristics.filter((c) => c.actual.trim() !== '');
   if (filled.length === 0) return 'NOT_STARTED';
   if (filled.length === characteristics.length) return 'COMPLETED';
   return 'IN_PROGRESS';
@@ -116,7 +124,7 @@ function determinePart1Status(characteristics: Part1Characteristic[]): string {
 
 function determinePart2Status(documents: Part2Document[]): string {
   if (documents.length === 0) return 'NOT_STARTED';
-  const available = documents.filter(d => d.available);
+  const available = documents.filter((d) => d.available);
   if (available.length === 0) return 'NOT_STARTED';
   if (available.length === documents.length) return 'COMPLETED';
   return 'IN_PROGRESS';
@@ -124,7 +132,7 @@ function determinePart2Status(documents: Part2Document[]): string {
 
 function determinePart3Status(testResults: Part3TestResult[]): string {
   if (testResults.length === 0) return 'NOT_STARTED';
-  const filled = testResults.filter(t => t.result.trim() !== '');
+  const filled = testResults.filter((t) => t.result.trim() !== '');
   if (filled.length === 0) return 'NOT_STARTED';
   if (filled.length === testResults.length) return 'COMPLETED';
   return 'IN_PROGRESS';
@@ -179,11 +187,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create FAI error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create first article inspection' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create first article inspection' },
+    });
   }
 });
 
@@ -226,7 +241,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List FAIs error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list first article inspections' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list first article inspections' },
+    });
   }
 });
 
@@ -238,7 +256,10 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!fai || fai.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'First article inspection not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'First article inspection not found' },
+      });
     }
 
     // Parse JSON fields into typed arrays for the response
@@ -253,22 +274,33 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: parsed });
   } catch (error) {
     logger.error('Get FAI error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get first article inspection' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get first article inspection' },
+    });
   }
 });
 
 // PUT /:id/part1 — Update Part 1 (Design Characteristics)
 router.put('/:id/part1', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.firstArticleInspection.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.firstArticleInspection.findUnique({
+      where: { id: req.params.id },
+    });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'First article inspection not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'First article inspection not found' },
+      });
     }
 
     if (existing.status === 'APPROVED' || existing.status === 'REJECTED') {
       return res.status(400).json({
         success: false,
-        error: { code: 'INVALID_STATE', message: `Cannot modify Part 1 when FAI status is ${existing.status}` },
+        error: {
+          code: 'INVALID_STATE',
+          message: `Cannot modify Part 1 when FAI status is ${existing.status}`,
+        },
       });
     }
 
@@ -284,32 +316,54 @@ router.put('/:id/part1', async (req: AuthRequest, res: Response) => {
       } as any,
     });
 
-    logger.info('FAI Part 1 updated', { id: req.params.id, part1Status, characteristicCount: data.characteristics.length });
+    logger.info('FAI Part 1 updated', {
+      id: req.params.id,
+      part1Status,
+      characteristicCount: data.characteristics.length,
+    });
     res.json({ success: true, data: fai });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update FAI Part 1 error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update Part 1 design characteristics' } });
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to update Part 1 design characteristics',
+      },
+    });
   }
 });
 
 // PUT /:id/part2 — Update Part 2 (Manufacturing Process Documentation)
 router.put('/:id/part2', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.firstArticleInspection.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.firstArticleInspection.findUnique({
+      where: { id: req.params.id },
+    });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'First article inspection not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'First article inspection not found' },
+      });
     }
 
     if (existing.status === 'APPROVED' || existing.status === 'REJECTED') {
       return res.status(400).json({
         success: false,
-        error: { code: 'INVALID_STATE', message: `Cannot modify Part 2 when FAI status is ${existing.status}` },
+        error: {
+          code: 'INVALID_STATE',
+          message: `Cannot modify Part 2 when FAI status is ${existing.status}`,
+        },
       });
     }
 
@@ -325,32 +379,54 @@ router.put('/:id/part2', async (req: AuthRequest, res: Response) => {
       } as any,
     });
 
-    logger.info('FAI Part 2 updated', { id: req.params.id, part2Status, documentCount: data.documents.length });
+    logger.info('FAI Part 2 updated', {
+      id: req.params.id,
+      part2Status,
+      documentCount: data.documents.length,
+    });
     res.json({ success: true, data: fai });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update FAI Part 2 error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update Part 2 manufacturing process documentation' } });
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to update Part 2 manufacturing process documentation',
+      },
+    });
   }
 });
 
 // PUT /:id/part3 — Update Part 3 (Test Results)
 router.put('/:id/part3', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.firstArticleInspection.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.firstArticleInspection.findUnique({
+      where: { id: req.params.id },
+    });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'First article inspection not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'First article inspection not found' },
+      });
     }
 
     if (existing.status === 'APPROVED' || existing.status === 'REJECTED') {
       return res.status(400).json({
         success: false,
-        error: { code: 'INVALID_STATE', message: `Cannot modify Part 3 when FAI status is ${existing.status}` },
+        error: {
+          code: 'INVALID_STATE',
+          message: `Cannot modify Part 3 when FAI status is ${existing.status}`,
+        },
       });
     }
 
@@ -366,26 +442,42 @@ router.put('/:id/part3', async (req: AuthRequest, res: Response) => {
       } as any,
     });
 
-    logger.info('FAI Part 3 updated', { id: req.params.id, part3Status, testResultCount: data.testResults.length });
+    logger.info('FAI Part 3 updated', {
+      id: req.params.id,
+      part3Status,
+      testResultCount: data.testResults.length,
+    });
     res.json({ success: true, data: fai });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update FAI Part 3 error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update Part 3 test results' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update Part 3 test results' },
+    });
   }
 });
 
 // POST /:id/approve — Full FAI approval
 router.post('/:id/approve', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.firstArticleInspection.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.firstArticleInspection.findUnique({
+      where: { id: req.params.id },
+    });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'First article inspection not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'First article inspection not found' },
+      });
     }
 
     // Validate all 3 parts are COMPLETED
@@ -397,7 +489,8 @@ router.post('/:id/approve', async (req: AuthRequest, res: Response) => {
 
     const incompleteParts: string[] = [];
     if (partStatuses.part1 !== 'COMPLETED') incompleteParts.push('Part 1 (Design Characteristics)');
-    if (partStatuses.part2 !== 'COMPLETED') incompleteParts.push('Part 2 (Manufacturing Process Documentation)');
+    if (partStatuses.part2 !== 'COMPLETED')
+      incompleteParts.push('Part 2 (Manufacturing Process Documentation)');
     if (partStatuses.part3 !== 'COMPLETED') incompleteParts.push('Part 3 (Test Results)');
 
     if (incompleteParts.length > 0) {
@@ -412,26 +505,26 @@ router.post('/:id/approve', async (req: AuthRequest, res: Response) => {
 
     // Validate all Part 1 characteristics pass
     const characteristics = safeParseJSON<Part1Characteristic>(existing.part1Data, []);
-    const failedChars = characteristics.filter(c => !c.pass);
+    const failedChars = characteristics.filter((c) => !c.pass);
     if (failedChars.length > 0) {
       return res.status(400).json({
         success: false,
         error: {
           code: 'CHARACTERISTICS_FAILED',
-          message: `Cannot approve FAI. ${failedChars.length} characteristic(s) did not pass: ${failedChars.map(c => `#${c.charNumber} ${c.charName}`).join(', ')}`,
+          message: `Cannot approve FAI. ${failedChars.length} characteristic(s) did not pass: ${failedChars.map((c) => `#${c.charNumber} ${c.charName}`).join(', ')}`,
         },
       });
     }
 
     // Validate all Part 3 test results pass
     const testResults = safeParseJSON<Part3TestResult>(existing.part3Data, []);
-    const failedTests = testResults.filter(t => !t.pass);
+    const failedTests = testResults.filter((t) => !t.pass);
     if (failedTests.length > 0) {
       return res.status(400).json({
         success: false,
         error: {
           code: 'TESTS_FAILED',
-          message: `Cannot approve FAI. ${failedTests.length} test(s) did not pass: ${failedTests.map(t => t.testName).join(', ')}`,
+          message: `Cannot approve FAI. ${failedTests.length} test(s) did not pass: ${failedTests.map((t) => t.testName).join(', ')}`,
         },
       });
     }
@@ -445,20 +538,32 @@ router.post('/:id/approve', async (req: AuthRequest, res: Response) => {
       },
     });
 
-    logger.info('FAI approved', { id: req.params.id, refNumber: existing.refNumber, approvedBy: fai.approvedBy });
+    logger.info('FAI approved', {
+      id: req.params.id,
+      refNumber: existing.refNumber,
+      approvedBy: fai.approvedBy,
+    });
     res.json({ success: true, data: fai });
   } catch (error) {
     logger.error('Approve FAI error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve first article inspection' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve first article inspection' },
+    });
   }
 });
 
 // POST /:id/partial — Mark as Partial FAI with open items
 router.post('/:id/partial', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.firstArticleInspection.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.firstArticleInspection.findUnique({
+      where: { id: req.params.id },
+    });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'First article inspection not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'First article inspection not found' },
+      });
     }
 
     const data = partialApprovalSchema.parse(req.body);
@@ -473,17 +578,31 @@ router.post('/:id/partial', async (req: AuthRequest, res: Response) => {
       },
     });
 
-    logger.info('FAI partial approval', { id: req.params.id, refNumber: existing.refNumber, openItemCount: data.openItems.length });
+    logger.info('FAI partial approval', {
+      id: req.params.id,
+      refNumber: existing.refNumber,
+      openItemCount: data.openItems.length,
+    });
     res.json({ success: true, data: fai });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Partial approve FAI error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to partially approve first article inspection' } });
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to partially approve first article inspection',
+      },
+    });
   }
 });
 

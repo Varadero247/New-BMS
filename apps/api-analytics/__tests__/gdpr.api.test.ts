@@ -46,8 +46,18 @@ beforeEach(() => {
 describe('GET /api/gdpr/categories', () => {
   it('should return a list of GDPR data categories', async () => {
     const categories = [
-      { id: 'cat-1', category: 'Personal Data', legalBasis: 'CONSENT', complianceStatus: 'COMPLIANT' },
-      { id: 'cat-2', category: 'Health Data', legalBasis: 'VITAL_INTERESTS', complianceStatus: 'AT_RISK' },
+      {
+        id: 'cat-1',
+        category: 'Personal Data',
+        legalBasis: 'CONSENT',
+        complianceStatus: 'COMPLIANT',
+      },
+      {
+        id: 'cat-2',
+        category: 'Health Data',
+        legalBasis: 'VITAL_INTERESTS',
+        complianceStatus: 'AT_RISK',
+      },
     ];
     (prisma as any).gdprDataCategory.findMany.mockResolvedValue(categories);
 
@@ -194,7 +204,9 @@ describe('POST /api/gdpr/categories', () => {
   });
 
   it('should reject missing legalBasis field', async () => {
-    const res = await request(app).post('/api/gdpr/categories').send({ category: 'Financial Data' });
+    const res = await request(app)
+      .post('/api/gdpr/categories')
+      .send({ category: 'Financial Data' });
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');

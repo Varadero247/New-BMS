@@ -2,15 +2,32 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
 } from '@ims/ui';
 import {
-  Plus, Search, Loader2, Filter,
-  MessageSquare, AlertTriangle, FileWarning,
-  CheckCircle2, Clock, XCircle,
-  ChevronLeft, BarChart3,
+  Plus,
+  Search,
+  Loader2,
+  Filter,
+  MessageSquare,
+  AlertTriangle,
+  FileWarning,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  ChevronLeft,
+  BarChart3,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -91,25 +108,41 @@ const MDR_OPTIONS = ['YES', 'NO', 'PENDING'] as const;
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getSeverityBadgeVariant(severity: string): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
+function getSeverityBadgeVariant(
+  severity: string
+): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
   switch (severity) {
-    case 'LOW': return 'info';
-    case 'MEDIUM': return 'warning';
-    case 'HIGH': return 'danger';
-    case 'CRITICAL': return 'danger';
-    default: return 'outline';
+    case 'LOW':
+      return 'info';
+    case 'MEDIUM':
+      return 'warning';
+    case 'HIGH':
+      return 'danger';
+    case 'CRITICAL':
+      return 'danger';
+    default:
+      return 'outline';
   }
 }
 
-function getStatusBadgeVariant(status: string): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
+function getStatusBadgeVariant(
+  status: string
+): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
   switch (status) {
-    case 'NEW': return 'info';
-    case 'UNDER_INVESTIGATION': return 'warning';
-    case 'PENDING_MDR': return 'danger';
-    case 'PENDING_CAPA': return 'warning';
-    case 'CLOSED': return 'success';
-    case 'REJECTED': return 'secondary';
-    default: return 'outline';
+    case 'NEW':
+      return 'info';
+    case 'UNDER_INVESTIGATION':
+      return 'warning';
+    case 'PENDING_MDR':
+      return 'danger';
+    case 'PENDING_CAPA':
+      return 'warning';
+    case 'CLOSED':
+      return 'success';
+    case 'REJECTED':
+      return 'secondary';
+    default:
+      return 'outline';
   }
 }
 
@@ -120,19 +153,29 @@ function formatDate(date: string | null): string {
 
 function getMdrIcon(mdr: string): string {
   switch (mdr) {
-    case 'YES': return 'Yes';
-    case 'NO': return 'No';
-    case 'PENDING': return 'Pending';
-    default: return '--';
+    case 'YES':
+      return 'Yes';
+    case 'NO':
+      return 'No';
+    case 'PENDING':
+      return 'Pending';
+    default:
+      return '--';
   }
 }
 
-function getMdrBadgeVariant(mdr: string): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
+function getMdrBadgeVariant(
+  mdr: string
+): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
   switch (mdr) {
-    case 'YES': return 'danger';
-    case 'NO': return 'secondary';
-    case 'PENDING': return 'warning';
-    default: return 'outline';
+    case 'YES':
+      return 'danger';
+    case 'NO':
+      return 'secondary';
+    case 'PENDING':
+      return 'warning';
+    default:
+      return 'outline';
   }
 }
 
@@ -270,22 +313,25 @@ export default function ComplaintsClient() {
   // Handlers
   // ---------------------------------------------------------------------------
 
-  const handleCreate = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post('/complaints', form);
-      setShowCreateModal(false);
-      setForm(emptyComplaintForm);
-      fetchComplaints();
-      fetchMdrPending();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create complaint');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [form, fetchComplaints, fetchMdrPending]);
+  const handleCreate = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post('/complaints', form);
+        setShowCreateModal(false);
+        setForm(emptyComplaintForm);
+        fetchComplaints();
+        fetchMdrPending();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create complaint');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [form, fetchComplaints, fetchMdrPending]
+  );
 
   const handleUpdateInvestigation = useCallback(async () => {
     if (!selectedComplaint) return;
@@ -333,21 +379,25 @@ export default function ComplaintsClient() {
     }
   }, [selectedComplaint, fetchComplaintDetail, fetchComplaints]);
 
-  const openDetail = useCallback(async (complaint: Complaint) => {
-    await fetchComplaintDetail(complaint.id);
-    setView('detail');
-  }, [fetchComplaintDetail]);
+  const openDetail = useCallback(
+    async (complaint: Complaint) => {
+      await fetchComplaintDetail(complaint.id);
+      setView('detail');
+    },
+    [fetchComplaintDetail]
+  );
 
   // ---------------------------------------------------------------------------
   // Filtered data
   // ---------------------------------------------------------------------------
 
   const filteredComplaints = useMemo(() => {
-    return complaints.filter(c => {
+    return complaints.filter((c) => {
       if (statusFilter !== 'all' && c.status !== statusFilter) return false;
       if (severityFilter !== 'all' && c.severity !== severityFilter) return false;
       if (mdrFilter !== 'all' && c.mdrReportable !== mdrFilter) return false;
-      if (deviceNameFilter && !c.deviceName?.toLowerCase().includes(deviceNameFilter.toLowerCase())) return false;
+      if (deviceNameFilter && !c.deviceName?.toLowerCase().includes(deviceNameFilter.toLowerCase()))
+        return false;
       if (dateFromFilter && c.complaintDate < dateFromFilter) return false;
       if (dateToFilter && c.complaintDate > dateToFilter) return false;
       if (searchQuery) {
@@ -357,11 +407,21 @@ export default function ComplaintsClient() {
           !c.referenceNumber?.toLowerCase().includes(q) &&
           !c.description?.toLowerCase().includes(q) &&
           !c.reporterName?.toLowerCase().includes(q)
-        ) return false;
+        )
+          return false;
       }
       return true;
     });
-  }, [complaints, statusFilter, severityFilter, mdrFilter, deviceNameFilter, dateFromFilter, dateToFilter, searchQuery]);
+  }, [
+    complaints,
+    statusFilter,
+    severityFilter,
+    mdrFilter,
+    deviceNameFilter,
+    dateFromFilter,
+    dateToFilter,
+    searchQuery,
+  ]);
 
   // ---------------------------------------------------------------------------
   // Stats
@@ -373,9 +433,11 @@ export default function ComplaintsClient() {
 
     return {
       total: complaints.length,
-      underInvestigation: complaints.filter(c => c.status === 'UNDER_INVESTIGATION').length,
-      mdrPendingCount: complaints.filter(c => c.mdrReportable === 'PENDING' || c.status === 'PENDING_MDR').length,
-      closedThisMonth: complaints.filter(c => {
+      underInvestigation: complaints.filter((c) => c.status === 'UNDER_INVESTIGATION').length,
+      mdrPendingCount: complaints.filter(
+        (c) => c.mdrReportable === 'PENDING' || c.status === 'PENDING_MDR'
+      ).length,
+      closedThisMonth: complaints.filter((c) => {
         if (!c.closedDate) return false;
         const closed = c.closedDate.substring(0, 7);
         return closed === thisMonth;
@@ -404,7 +466,10 @@ export default function ComplaintsClient() {
         <div className="max-w-7xl mx-auto">
           {/* Back navigation */}
           <button
-            onClick={() => { setView('list'); setSelectedComplaint(null); }}
+            onClick={() => {
+              setView('list');
+              setSelectedComplaint(null);
+            }}
             className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-teal-600 mb-6 transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -412,7 +477,9 @@ export default function ComplaintsClient() {
           </button>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-6">{error}</div>
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-6">
+              {error}
+            </div>
           )}
 
           {/* Complaint Info Card */}
@@ -421,7 +488,9 @@ export default function ComplaintsClient() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedComplaint.referenceNumber}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {selectedComplaint.referenceNumber}
+                    </h1>
                     <Badge variant={getSeverityBadgeVariant(selectedComplaint.severity)}>
                       {selectedComplaint.severity}
                     </Badge>
@@ -429,16 +498,24 @@ export default function ComplaintsClient() {
                       {selectedComplaint.status?.replace(/_/g, ' ')}
                     </Badge>
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Device: <strong>{selectedComplaint.deviceName}</strong></p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                    Device: <strong>{selectedComplaint.deviceName}</strong>
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   {/* MDR Status Indicator */}
-                  <div className={`px-3 py-2 rounded-lg border ${
-                    selectedComplaint.mdrReportable === 'YES' ? 'bg-red-50 border-red-200' :
-                    selectedComplaint.mdrReportable === 'PENDING' ? 'bg-amber-50 border-amber-200' :
-                    'bg-gray-50 dark:bg-gray-800 border-gray-200'
-                  }`}>
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">MDR Status</p>
+                  <div
+                    className={`px-3 py-2 rounded-lg border ${
+                      selectedComplaint.mdrReportable === 'YES'
+                        ? 'bg-red-50 border-red-200'
+                        : selectedComplaint.mdrReportable === 'PENDING'
+                          ? 'bg-amber-50 border-amber-200'
+                          : 'bg-gray-50 dark:bg-gray-800 border-gray-200'
+                    }`}
+                  >
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      MDR Status
+                    </p>
                     <Badge variant={getMdrBadgeVariant(selectedComplaint.mdrReportable)}>
                       {getMdrIcon(selectedComplaint.mdrReportable)}
                     </Badge>
@@ -448,71 +525,119 @@ export default function ComplaintsClient() {
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Complaint Date</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">{formatDate(selectedComplaint.complaintDate)}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Complaint Date
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    {formatDate(selectedComplaint.complaintDate)}
+                  </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Source</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">{selectedComplaint.source?.replace(/_/g, ' ')}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Source
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    {selectedComplaint.source?.replace(/_/g, ' ')}
+                  </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Reporter</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">{selectedComplaint.reporterName || '--'}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Reporter
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    {selectedComplaint.reporterName || '--'}
+                  </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Days Open</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">{selectedComplaint.daysOpen ?? '--'}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Days Open
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    {selectedComplaint.daysOpen ?? '--'}
+                  </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Device ID</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 font-mono">{selectedComplaint.deviceId || '--'}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Device ID
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 font-mono">
+                    {selectedComplaint.deviceId || '--'}
+                  </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Lot Number</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 font-mono">{selectedComplaint.lotNumber || '--'}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Lot Number
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 font-mono">
+                    {selectedComplaint.lotNumber || '--'}
+                  </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Serial Number</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 font-mono">{selectedComplaint.serialNumber || '--'}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Serial Number
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 font-mono">
+                    {selectedComplaint.serialNumber || '--'}
+                  </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Contact</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">{selectedComplaint.reporterContact || '--'}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Contact
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    {selectedComplaint.reporterContact || '--'}
+                  </p>
                 </div>
               </div>
 
               {/* Patient/Injury flags */}
               <div className="flex items-center gap-4 mt-4">
                 <div className="flex items-center gap-2">
-                  <span className={`w-3 h-3 rounded-full ${selectedComplaint.patientInvolved ? 'bg-red-500' : 'bg-gray-300'}`}></span>
+                  <span
+                    className={`w-3 h-3 rounded-full ${selectedComplaint.patientInvolved ? 'bg-red-500' : 'bg-gray-300'}`}
+                  ></span>
                   <span className="text-xs text-gray-600">Patient Involved</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`w-3 h-3 rounded-full ${selectedComplaint.injuryOccurred ? 'bg-red-500' : 'bg-gray-300'}`}></span>
+                  <span
+                    className={`w-3 h-3 rounded-full ${selectedComplaint.injuryOccurred ? 'bg-red-500' : 'bg-gray-300'}`}
+                  ></span>
                   <span className="text-xs text-gray-600">Injury Occurred</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`w-3 h-3 rounded-full ${selectedComplaint.deathOccurred ? 'bg-red-700' : 'bg-gray-300'}`}></span>
+                  <span
+                    className={`w-3 h-3 rounded-full ${selectedComplaint.deathOccurred ? 'bg-red-700' : 'bg-gray-300'}`}
+                  ></span>
                   <span className="text-xs text-gray-600">Death Occurred</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`w-3 h-3 rounded-full ${selectedComplaint.malfunctionOccurred ? 'bg-amber-500' : 'bg-gray-300'}`}></span>
+                  <span
+                    className={`w-3 h-3 rounded-full ${selectedComplaint.malfunctionOccurred ? 'bg-amber-500' : 'bg-gray-300'}`}
+                  ></span>
                   <span className="text-xs text-gray-600">Malfunction</span>
                 </div>
               </div>
 
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mt-4">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Complaint Description</p>
-                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedComplaint.description}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                  Complaint Description
+                </p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                  {selectedComplaint.description}
+                </p>
               </div>
 
               {selectedComplaint.injuryOccurred && selectedComplaint.injuryDescription && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
-                  <p className="text-xs font-medium text-red-700 uppercase mb-1">Injury Description</p>
-                  <p className="text-sm text-red-900 whitespace-pre-wrap">{selectedComplaint.injuryDescription}</p>
+                  <p className="text-xs font-medium text-red-700 uppercase mb-1">
+                    Injury Description
+                  </p>
+                  <p className="text-sm text-red-900 whitespace-pre-wrap">
+                    {selectedComplaint.injuryDescription}
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -530,7 +655,12 @@ export default function ComplaintsClient() {
                   <Textarea
                     id="inv-summary"
                     value={investigationForm.investigationSummary}
-                    onChange={(e) => setInvestigationForm({ ...investigationForm, investigationSummary: e.target.value })}
+                    onChange={(e) =>
+                      setInvestigationForm({
+                        ...investigationForm,
+                        investigationSummary: e.target.value,
+                      })
+                    }
                     rows={4}
                     placeholder="Document investigation findings..."
                   />
@@ -540,7 +670,9 @@ export default function ComplaintsClient() {
                   <Textarea
                     id="inv-rootCause"
                     value={investigationForm.rootCause}
-                    onChange={(e) => setInvestigationForm({ ...investigationForm, rootCause: e.target.value })}
+                    onChange={(e) =>
+                      setInvestigationForm({ ...investigationForm, rootCause: e.target.value })
+                    }
                     rows={3}
                     placeholder="Identified root cause..."
                   />
@@ -550,7 +682,12 @@ export default function ComplaintsClient() {
                   <Textarea
                     id="inv-corrective"
                     value={investigationForm.correctiveAction}
-                    onChange={(e) => setInvestigationForm({ ...investigationForm, correctiveAction: e.target.value })}
+                    onChange={(e) =>
+                      setInvestigationForm({
+                        ...investigationForm,
+                        correctiveAction: e.target.value,
+                      })
+                    }
                     rows={3}
                     placeholder="Corrective actions taken or planned..."
                   />
@@ -560,7 +697,9 @@ export default function ComplaintsClient() {
                   <Input
                     id="inv-capaRef"
                     value={investigationForm.capaRef}
-                    onChange={(e) => setInvestigationForm({ ...investigationForm, capaRef: e.target.value })}
+                    onChange={(e) =>
+                      setInvestigationForm({ ...investigationForm, capaRef: e.target.value })
+                    }
                     placeholder="e.g. CAPA-2026-001"
                   />
                 </div>
@@ -571,8 +710,13 @@ export default function ComplaintsClient() {
                     className="bg-teal-600 hover:bg-teal-700"
                   >
                     {submitting ? (
-                      <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Saving...</span>
-                    ) : 'Save Investigation'}
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Saving...
+                      </span>
+                    ) : (
+                      'Save Investigation'
+                    )}
                   </Button>
                 </div>
               </div>
@@ -592,10 +736,14 @@ export default function ComplaintsClient() {
                     <Select
                       id="mdr-reportable"
                       value={mdrDecision.mdrReportable}
-                      onChange={(e) => setMdrDecision({ ...mdrDecision, mdrReportable: e.target.value })}
+                      onChange={(e) =>
+                        setMdrDecision({ ...mdrDecision, mdrReportable: e.target.value })
+                      }
                     >
-                      {MDR_OPTIONS.map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
+                      {MDR_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -604,7 +752,9 @@ export default function ComplaintsClient() {
                     <Input
                       id="mdr-reportRef"
                       value={mdrDecision.mdrReportRef}
-                      onChange={(e) => setMdrDecision({ ...mdrDecision, mdrReportRef: e.target.value })}
+                      onChange={(e) =>
+                        setMdrDecision({ ...mdrDecision, mdrReportRef: e.target.value })
+                      }
                       placeholder="e.g. MDR-2026-001"
                     />
                   </div>
@@ -614,8 +764,9 @@ export default function ComplaintsClient() {
                   <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                     <p className="text-sm text-red-700 font-medium">
                       <AlertTriangle className="h-4 w-4 inline mr-1" />
-                      This complaint involves {selectedComplaint.deathOccurred ? 'a death' : 'an injury'}.
-                      MDR reporting may be required within regulatory timeframes.
+                      This complaint involves{' '}
+                      {selectedComplaint.deathOccurred ? 'a death' : 'an injury'}. MDR reporting may
+                      be required within regulatory timeframes.
                     </p>
                   </div>
                 )}
@@ -627,8 +778,13 @@ export default function ComplaintsClient() {
                     className="bg-teal-600 hover:bg-teal-700"
                   >
                     {submitting ? (
-                      <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Submitting...</span>
-                    ) : 'Submit MDR Decision'}
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Submitting...
+                      </span>
+                    ) : (
+                      'Submit MDR Decision'
+                    )}
                   </Button>
                 </div>
               </div>
@@ -641,9 +797,12 @@ export default function ComplaintsClient() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Close Complaint</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                      Close Complaint
+                    </h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      Ensure investigation is complete and MDR decision has been made before closing.
+                      Ensure investigation is complete and MDR decision has been made before
+                      closing.
                     </p>
                   </div>
                   <Button
@@ -653,9 +812,15 @@ export default function ComplaintsClient() {
                     className="border-red-300 text-red-700 hover:bg-red-50"
                   >
                     {submitting ? (
-                      <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Closing...</span>
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Closing...
+                      </span>
                     ) : (
-                      <span className="flex items-center gap-2"><XCircle className="h-4 w-4" />Close Complaint</span>
+                      <span className="flex items-center gap-2">
+                        <XCircle className="h-4 w-4" />
+                        Close Complaint
+                      </span>
                     )}
                   </Button>
                 </div>
@@ -676,8 +841,12 @@ export default function ComplaintsClient() {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Complaint Handling</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Complaint Management & MDR/Vigilance Reporting</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Complaint Handling
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Complaint Management & MDR/Vigilance Reporting
+          </p>
         </div>
 
         {/* MDR Warning Banner */}
@@ -689,7 +858,8 @@ export default function ComplaintsClient() {
                 {mdrPending.total} complaint{mdrPending.total > 1 ? 's' : ''} pending MDR decision
               </p>
               <p className="text-xs text-amber-600 mt-0.5">
-                Review these complaints promptly to determine if Medical Device Reporting is required.
+                Review these complaints promptly to determine if Medical Device Reporting is
+                required.
               </p>
             </div>
           </div>
@@ -748,7 +918,8 @@ export default function ComplaintsClient() {
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
-              aria-label="Search by device, reference, description, or reporter..." placeholder="Search by device, reference, description, or reporter..."
+              aria-label="Search by device, reference, description, or reporter..."
+              placeholder="Search by device, reference, description, or reporter..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -762,22 +933,29 @@ export default function ComplaintsClient() {
           >
             <Filter className="h-4 w-4" />
             Filters
-            {(statusFilter !== 'all' || severityFilter !== 'all' || mdrFilter !== 'all' || deviceNameFilter || dateFromFilter || dateToFilter) && (
-              <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-teal-100 text-teal-700">Active</span>
+            {(statusFilter !== 'all' ||
+              severityFilter !== 'all' ||
+              mdrFilter !== 'all' ||
+              deviceNameFilter ||
+              dateFromFilter ||
+              dateToFilter) && (
+              <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-teal-100 text-teal-700">
+                Active
+              </span>
             )}
           </Button>
 
-          <Button
-            variant="outline"
-            onClick={fetchTrending}
-            className="flex items-center gap-2"
-          >
+          <Button variant="outline" onClick={fetchTrending} className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Trending
           </Button>
 
           <Button
-            onClick={() => { setForm(emptyComplaintForm); setError(''); setShowCreateModal(true); }}
+            onClick={() => {
+              setForm(emptyComplaintForm);
+              setError('');
+              setShowCreateModal(true);
+            }}
             className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
           >
             <Plus className="h-4 w-4" />
@@ -795,8 +973,10 @@ export default function ComplaintsClient() {
                 className="w-40"
               >
                 <option value="all">All Statuses</option>
-                {COMPLAINT_STATUSES.map(s => (
-                  <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                {COMPLAINT_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s.replace(/_/g, ' ')}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -808,8 +988,10 @@ export default function ComplaintsClient() {
                 className="w-36"
               >
                 <option value="all">All</option>
-                {SEVERITIES.map(s => (
-                  <option key={s} value={s}>{s}</option>
+                {SEVERITIES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -830,8 +1012,10 @@ export default function ComplaintsClient() {
                 className="w-32"
               >
                 <option value="all">All</option>
-                {MDR_OPTIONS.map(m => (
-                  <option key={m} value={m}>{m}</option>
+                {MDR_OPTIONS.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -879,21 +1063,39 @@ export default function ComplaintsClient() {
         </div>
 
         {/* Complaints Table */}
-        {loading ? <LoadingSpinner /> : filteredComplaints.length > 0 ? (
+        {loading ? (
+          <LoadingSpinner />
+        ) : filteredComplaints.length > 0 ? (
           <Card>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Ref #</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Device</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Date</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Source</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Severity</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">MDR</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Days Open</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Ref #
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Device
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Date
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Source
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Severity
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Status
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        MDR
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Days Open
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -904,21 +1106,27 @@ export default function ComplaintsClient() {
                         onClick={() => openDetail(c)}
                       >
                         <td className="px-6 py-4">
-                          <span className="text-sm font-mono text-gray-600">{c.referenceNumber || '--'}</span>
+                          <span className="text-sm font-mono text-gray-600">
+                            {c.referenceNumber || '--'}
+                          </span>
                         </td>
                         <td className="px-6 py-4">
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{c.deviceName}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {c.deviceName}
+                          </p>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-gray-700 dark:text-gray-300">{formatDate(c.complaintDate)}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            {formatDate(c.complaintDate)}
+                          </span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-gray-700 dark:text-gray-300">{c.source?.replace(/_/g, ' ')}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            {c.source?.replace(/_/g, ' ')}
+                          </span>
                         </td>
                         <td className="px-6 py-4">
-                          <Badge variant={getSeverityBadgeVariant(c.severity)}>
-                            {c.severity}
-                          </Badge>
+                          <Badge variant={getSeverityBadgeVariant(c.severity)}>{c.severity}</Badge>
                         </td>
                         <td className="px-6 py-4">
                           <Badge variant={getStatusBadgeVariant(c.status)}>
@@ -931,10 +1139,15 @@ export default function ComplaintsClient() {
                           </Badge>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`text-sm font-medium ${
-                            (c.daysOpen || 0) > 30 ? 'text-red-600' :
-                            (c.daysOpen || 0) > 14 ? 'text-amber-600' : 'text-gray-700 dark:text-gray-300'
-                          }`}>
+                          <span
+                            className={`text-sm font-medium ${
+                              (c.daysOpen || 0) > 30
+                                ? 'text-red-600'
+                                : (c.daysOpen || 0) > 14
+                                  ? 'text-amber-600'
+                                  : 'text-gray-700 dark:text-gray-300'
+                            }`}
+                          >
                             {c.daysOpen ?? '--'}
                           </span>
                         </td>
@@ -948,10 +1161,18 @@ export default function ComplaintsClient() {
         ) : (
           <div className="text-center py-16">
             <MessageSquare className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No complaints found</h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">Record and track complaints to meet post-market surveillance requirements.</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              No complaints found
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
+              Record and track complaints to meet post-market surveillance requirements.
+            </p>
             <Button
-              onClick={() => { setForm(emptyComplaintForm); setError(''); setShowCreateModal(true); }}
+              onClick={() => {
+                setForm(emptyComplaintForm);
+                setError('');
+                setShowCreateModal(true);
+              }}
               className="bg-teal-600 hover:bg-teal-700"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -973,12 +1194,16 @@ export default function ComplaintsClient() {
         <form onSubmit={handleCreate}>
           <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
             )}
 
             {/* Device Info */}
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Device Information</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+                Device Information
+              </h3>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -1026,7 +1251,9 @@ export default function ComplaintsClient() {
 
             {/* Complaint Details */}
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Complaint Details</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+                Complaint Details
+              </h3>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -1046,8 +1273,10 @@ export default function ComplaintsClient() {
                       value={form.source}
                       onChange={(e) => setForm({ ...form, source: e.target.value })}
                     >
-                      {SOURCES.map(s => (
-                        <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                      {SOURCES.map((s) => (
+                        <option key={s} value={s}>
+                          {s.replace(/_/g, ' ')}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -1090,8 +1319,10 @@ export default function ComplaintsClient() {
                     value={form.severity}
                     onChange={(e) => setForm({ ...form, severity: e.target.value })}
                   >
-                    {SEVERITIES.map(s => (
-                      <option key={s} value={s}>{s}</option>
+                    {SEVERITIES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -1100,7 +1331,9 @@ export default function ComplaintsClient() {
 
             {/* Patient/Injury */}
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Patient & Injury Information</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+                Patient & Injury Information
+              </h3>
               <div className="space-y-4">
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-2">
@@ -1163,7 +1396,8 @@ export default function ComplaintsClient() {
                   <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                     <p className="text-sm text-red-700 font-medium">
                       <AlertTriangle className="h-4 w-4 inline mr-1" />
-                      This complaint may require MDR reporting. Ensure timely regulatory notification.
+                      This complaint may require MDR reporting. Ensure timely regulatory
+                      notification.
                     </p>
                   </div>
                 )}
@@ -1172,11 +1406,18 @@ export default function ComplaintsClient() {
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={submitting}>
               {submitting ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating...</span>
-              ) : 'Create Complaint'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                'Create Complaint'
+              )}
             </Button>
           </ModalFooter>
         </form>
@@ -1196,7 +1437,7 @@ export default function ComplaintsClient() {
           {trendingData.length > 0 ? (
             <div className="space-y-2">
               {trendingData.map((item) => {
-                const maxCount = Math.max(...trendingData.map(t => t.count), 1);
+                const maxCount = Math.max(...trendingData.map((t) => t.count), 1);
                 const widthPercent = (item.count / maxCount) * 100;
                 return (
                   <div key={item.month} className="flex items-center gap-3">
@@ -1214,11 +1455,15 @@ export default function ComplaintsClient() {
               })}
             </div>
           ) : (
-            <p className="text-gray-400 dark:text-gray-500 text-center py-8">No trending data available.</p>
+            <p className="text-gray-400 dark:text-gray-500 text-center py-8">
+              No trending data available.
+            </p>
           )}
 
           <ModalFooter>
-            <Button variant="outline" onClick={() => setShowTrendingModal(false)}>Close</Button>
+            <Button variant="outline" onClick={() => setShowTrendingModal(false)}>
+              Close
+            </Button>
           </ModalFooter>
         </div>
       </Modal>

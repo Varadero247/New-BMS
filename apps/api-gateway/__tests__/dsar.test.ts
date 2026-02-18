@@ -104,7 +104,12 @@ describe('DSAR Routes', () => {
   describe('GET /api/admin/privacy/dsar', () => {
     it('returns list of DSAR requests for ADMIN', async () => {
       mockListRequests.mockReturnValueOnce([
-        { id: '00000000-0000-0000-0000-000000000001', type: 'EXPORT', status: 'PENDING', subjectEmail: 'user@example.com' },
+        {
+          id: '00000000-0000-0000-0000-000000000001',
+          type: 'EXPORT',
+          status: 'PENDING',
+          subjectEmail: 'user@example.com',
+        },
       ]);
       const res = await request(app).get('/api/admin/privacy/dsar');
       expect(res.status).toBe(200);
@@ -162,9 +167,7 @@ describe('DSAR Routes', () => {
     });
 
     it('rejects missing subjectEmail', async () => {
-      const res = await request(app)
-        .post('/api/admin/privacy/dsar')
-        .send({ type: 'EXPORT' });
+      const res = await request(app).post('/api/admin/privacy/dsar').send({ type: 'EXPORT' });
       expect(res.status).toBe(400);
     });
 
@@ -185,7 +188,9 @@ describe('DSAR Routes', () => {
 
   describe('GET /api/admin/privacy/dsar/:id', () => {
     it('returns a specific DSAR request', async () => {
-      const res = await request(app).get('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).get(
+        '/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toHaveProperty('id', 'dsar-1');
@@ -193,7 +198,9 @@ describe('DSAR Routes', () => {
 
     it('returns 404 for non-existent request', async () => {
       mockGetRequest.mockReturnValueOnce(undefined);
-      const res = await request(app).get('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).get(
+        '/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
@@ -201,7 +208,9 @@ describe('DSAR Routes', () => {
 
   describe('POST /api/admin/privacy/dsar/:id/process', () => {
     it('processes an EXPORT DSAR request', async () => {
-      const res = await request(app).post('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process');
+      const res = await request(app).post(
+        '/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.status).toBe('COMPLETE');
@@ -214,14 +223,18 @@ describe('DSAR Routes', () => {
         status: 'PENDING',
         subjectEmail: 'user@example.com',
       });
-      const res = await request(app).post('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process');
+      const res = await request(app).post(
+        '/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process'
+      );
       expect(res.status).toBe(200);
       expect(mockProcessErasureRequest).toHaveBeenCalled();
     });
 
     it('returns 404 for non-existent request', async () => {
       mockGetRequest.mockReturnValueOnce(undefined);
-      const res = await request(app).post('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000099/process');
+      const res = await request(app).post(
+        '/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000099/process'
+      );
       expect(res.status).toBe(404);
     });
 
@@ -232,7 +245,9 @@ describe('DSAR Routes', () => {
         status: 'COMPLETE',
         subjectEmail: 'user@example.com',
       });
-      const res = await request(app).post('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process');
+      const res = await request(app).post(
+        '/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process'
+      );
       expect(res.status).toBe(409);
       expect(res.body.error.code).toBe('ALREADY_COMPLETE');
     });
@@ -244,14 +259,18 @@ describe('DSAR Routes', () => {
         status: 'IN_PROGRESS',
         subjectEmail: 'user@example.com',
       });
-      const res = await request(app).post('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process');
+      const res = await request(app).post(
+        '/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process'
+      );
       expect(res.status).toBe(409);
       expect(res.body.error.code).toBe('IN_PROGRESS');
     });
 
     it('returns 500 when processing returns null', async () => {
       mockProcessExportRequest.mockResolvedValueOnce(null);
-      const res = await request(app).post('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process');
+      const res = await request(app).post(
+        '/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process'
+      );
       expect(res.status).toBe(500);
       expect(res.body.error.code).toBe('PROCESSING_FAILED');
     });

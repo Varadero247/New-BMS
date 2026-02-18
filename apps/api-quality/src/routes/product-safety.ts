@@ -95,11 +95,18 @@ router.post('/characteristics', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create safety characteristic error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create safety characteristic' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create safety characteristic' },
+    });
   }
 });
 
@@ -139,69 +146,98 @@ router.get('/characteristics', scopeToUser, async (req: AuthRequest, res: Respon
     });
   } catch (error) {
     logger.error('List safety characteristics error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list safety characteristics' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list safety characteristics' },
+    });
   }
 });
 
 // GET /characteristics/:id - Get detail
-router.get('/characteristics/:id', checkOwnership(prisma.safetyCharacteristic), async (req: AuthRequest, res: Response) => {
-  try {
-    const characteristic = await prisma.safetyCharacteristic.findUnique({
-      where: { id: req.params.id },
-    });
+router.get(
+  '/characteristics/:id',
+  checkOwnership(prisma.safetyCharacteristic),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const characteristic = await prisma.safetyCharacteristic.findUnique({
+        where: { id: req.params.id },
+      });
 
-    if (!characteristic || characteristic.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Safety characteristic not found' } });
-    }
+      if (!characteristic || characteristic.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Safety characteristic not found' },
+        });
+      }
 
-    res.json({ success: true, data: characteristic });
-  } catch (error) {
-    logger.error('Get safety characteristic error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get safety characteristic' } });
-  }
-});
-
-// PUT /characteristics/:id - Update
-router.put('/characteristics/:id', checkOwnership(prisma.safetyCharacteristic), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.safetyCharacteristic.findUnique({ where: { id: req.params.id } });
-    if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Safety characteristic not found' } });
-    }
-
-    const schema = z.object({
-      partNumber: z.string().trim().min(1).max(200).optional(),
-      partName: z.string().trim().min(1).max(200).optional(),
-      characteristicType: z.enum(['SC', 'CC', 'KPC']).optional(),
-      description: z.string().trim().min(1).max(2000).optional(),
-      controlMethod: z.string().trim().min(1).max(200).optional(),
-      measurementMethod: z.string().optional(),
-      tolerance: z.string().optional(),
-      linkedFmeaId: z.string().optional(),
-      linkedControlPlanId: z.string().optional(),
-      notes: z.string().optional(),
-      status: z.enum(['ACTIVE', 'INACTIVE', 'UNDER_REVIEW']).optional(),
-    });
-
-    const data = schema.parse(req.body);
-
-    const characteristic = await prisma.safetyCharacteristic.update({
-      where: { id: req.params.id },
-      data,
-    });
-
-    res.json({ success: true, data: characteristic });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.json({ success: true, data: characteristic });
+    } catch (error) {
+      logger.error('Get safety characteristic error', { error: (error as Error).message });
+      res.status(500).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get safety characteristic' },
       });
     }
-    logger.error('Update safety characteristic error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update safety characteristic' } });
   }
-});
+);
+
+// PUT /characteristics/:id - Update
+router.put(
+  '/characteristics/:id',
+  checkOwnership(prisma.safetyCharacteristic),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.safetyCharacteristic.findUnique({
+        where: { id: req.params.id },
+      });
+      if (!existing || existing.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Safety characteristic not found' },
+        });
+      }
+
+      const schema = z.object({
+        partNumber: z.string().trim().min(1).max(200).optional(),
+        partName: z.string().trim().min(1).max(200).optional(),
+        characteristicType: z.enum(['SC', 'CC', 'KPC']).optional(),
+        description: z.string().trim().min(1).max(2000).optional(),
+        controlMethod: z.string().trim().min(1).max(200).optional(),
+        measurementMethod: z.string().optional(),
+        tolerance: z.string().optional(),
+        linkedFmeaId: z.string().optional(),
+        linkedControlPlanId: z.string().optional(),
+        notes: z.string().optional(),
+        status: z.enum(['ACTIVE', 'INACTIVE', 'UNDER_REVIEW']).optional(),
+      });
+
+      const data = schema.parse(req.body);
+
+      const characteristic = await prisma.safetyCharacteristic.update({
+        where: { id: req.params.id },
+        data,
+      });
+
+      res.json({ success: true, data: characteristic });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update safety characteristic error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update safety characteristic' },
+      });
+    }
+  }
+);
 
 // =============================================
 // SAFETY INCIDENTS
@@ -247,11 +283,18 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create safety incident error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create safety incident' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create safety incident' },
+    });
   }
 });
 
@@ -291,48 +334,67 @@ router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) =>
     });
   } catch (error) {
     logger.error('List safety incidents error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list safety incidents' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list safety incidents' },
+    });
   }
 });
 
 // PUT /incidents/:id - Update incident
-router.put('/incidents/:id', checkOwnership((prisma as any).safetyIncident), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await (prisma as any).safetyIncident.findUnique({ where: { id: req.params.id } });
-    if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Safety incident not found' } });
-    }
+router.put(
+  '/incidents/:id',
+  checkOwnership((prisma as any).safetyIncident),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await (prisma as any).safetyIncident.findUnique({
+        where: { id: req.params.id },
+      });
+      if (!existing || existing.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Safety incident not found' },
+        });
+      }
 
-    const schema = z.object({
-      title: z.string().trim().min(1).max(200).optional(),
-      description: z.string().trim().min(1).max(2000).optional(),
-      severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
-      status: z.enum(['OPEN', 'INVESTIGATING', 'CONTAINED', 'CORRECTED', 'CLOSED']).optional(),
-      rootCause: z.string().optional(),
-      correctiveAction: z.string().optional(),
-      immediateAction: z.string().optional(),
-      notes: z.string().optional(),
-    });
+      const schema = z.object({
+        title: z.string().trim().min(1).max(200).optional(),
+        description: z.string().trim().min(1).max(2000).optional(),
+        severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
+        status: z.enum(['OPEN', 'INVESTIGATING', 'CONTAINED', 'CORRECTED', 'CLOSED']).optional(),
+        rootCause: z.string().optional(),
+        correctiveAction: z.string().optional(),
+        immediateAction: z.string().optional(),
+        notes: z.string().optional(),
+      });
 
-    const data = schema.parse(req.body);
+      const data = schema.parse(req.body);
 
-    const incident = await (prisma as any).safetyIncident.update({
-      where: { id: req.params.id },
-      data,
-    });
+      const incident = await (prisma as any).safetyIncident.update({
+        where: { id: req.params.id },
+        data,
+      });
 
-    res.json({ success: true, data: incident });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.json({ success: true, data: incident });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update safety incident error', { error: (error as Error).message });
+      res.status(500).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update safety incident' },
       });
     }
-    logger.error('Update safety incident error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update safety incident' } });
   }
-});
+);
 
 // =============================================
 // RECALL ACTIONS
@@ -378,11 +440,18 @@ router.post('/recalls', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create recall action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create recall action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create recall action' },
+    });
   }
 });
 
@@ -421,50 +490,71 @@ router.get('/recalls', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List recall actions error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list recall actions' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list recall actions' },
+    });
   }
 });
 
 // PUT /recalls/:id - Update recall
-router.put('/recalls/:id', checkOwnership((prisma as any).recallAction), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await (prisma as any).recallAction.findUnique({ where: { id: req.params.id } });
-    if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Recall action not found' } });
-    }
+router.put(
+  '/recalls/:id',
+  checkOwnership((prisma as any).recallAction),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await (prisma as any).recallAction.findUnique({
+        where: { id: req.params.id },
+      });
+      if (!existing || existing.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Recall action not found' },
+        });
+      }
 
-    const schema = z.object({
-      reason: z.string().trim().min(1).max(2000).optional(),
-      scope: z.string().optional(),
-      affectedQuantity: z.number().int().nonnegative().optional(),
-      status: z.enum(['INITIATED', 'INVESTIGATING', 'CONTAINED', 'CORRECTED', 'CLOSED']).optional(),
-      customerNotified: z.boolean().optional(),
-      regulatoryNotified: z.boolean().optional(),
-      regulatoryBody: z.string().optional(),
-      containmentAction: z.string().optional(),
-      correctiveAction: z.string().optional(),
-      notes: z.string().optional(),
-    });
+      const schema = z.object({
+        reason: z.string().trim().min(1).max(2000).optional(),
+        scope: z.string().optional(),
+        affectedQuantity: z.number().int().nonnegative().optional(),
+        status: z
+          .enum(['INITIATED', 'INVESTIGATING', 'CONTAINED', 'CORRECTED', 'CLOSED'])
+          .optional(),
+        customerNotified: z.boolean().optional(),
+        regulatoryNotified: z.boolean().optional(),
+        regulatoryBody: z.string().optional(),
+        containmentAction: z.string().optional(),
+        correctiveAction: z.string().optional(),
+        notes: z.string().optional(),
+      });
 
-    const data = schema.parse(req.body);
+      const data = schema.parse(req.body);
 
-    const recall = await (prisma as any).recallAction.update({
-      where: { id: req.params.id },
-      data,
-    });
+      const recall = await (prisma as any).recallAction.update({
+        where: { id: req.params.id },
+        data,
+      });
 
-    res.json({ success: true, data: recall });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.json({ success: true, data: recall });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update recall action error', { error: (error as Error).message });
+      res.status(500).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update recall action' },
       });
     }
-    logger.error('Update recall action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update recall action' } });
   }
-});
+);
 
 // =============================================
 // COMPLIANCE (REACH/RoHS/IMDS)
@@ -514,7 +604,10 @@ router.get('/compliance', scopeToUser, async (req: AuthRequest, res: Response) =
     });
   } catch (error) {
     logger.error('List compliance records error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list compliance records' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list compliance records' },
+    });
   }
 });
 
@@ -527,7 +620,10 @@ router.post('/compliance', async (req: AuthRequest, res: Response) => {
       regulation: z.enum(['REACH', 'RoHS', 'IMDS', 'TSCA', 'PROP65', 'OTHER']),
       status: z.enum(['COMPLIANT', 'NON_COMPLIANT', 'PENDING', 'EXEMPT']),
       certificateRef: z.string().optional(),
-      expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      expiryDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       substances: z.string().optional(),
       notes: z.string().optional(),
     });
@@ -553,11 +649,18 @@ router.post('/compliance', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create compliance record error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create compliance record' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create compliance record' },
+    });
   }
 });
 

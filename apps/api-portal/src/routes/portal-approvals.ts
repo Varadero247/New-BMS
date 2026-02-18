@@ -61,8 +61,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing approvals', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list approvals' } });
+    logger.error('Error listing approvals', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list approvals' },
+    });
   }
 });
 
@@ -75,7 +80,10 @@ router.post('/', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = approvalCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const data = parsed.data;
@@ -94,8 +102,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Approval request created', { id: approval.id, type: data.type });
     return res.status(201).json({ success: true, data: approval });
   } catch (error: unknown) {
-    logger.error('Error creating approval', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create approval' } });
+    logger.error('Error creating approval', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create approval' },
+    });
   }
 });
 
@@ -108,18 +121,26 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = decisionSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const existing = await prisma.portalApproval.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Approval not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Approval not found' } });
     }
 
     if (existing.status !== 'PENDING') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Approval is not pending' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Approval is not pending' },
+      });
     }
 
     const updated = await prisma.portalApproval.update({
@@ -135,8 +156,12 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     logger.info('Approval approved', { id: updated.id });
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Error approving', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve' } });
+    logger.error('Error approving', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve' } });
   }
 });
 
@@ -149,18 +174,26 @@ router.put('/:id/reject', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = decisionSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const existing = await prisma.portalApproval.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Approval not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Approval not found' } });
     }
 
     if (existing.status !== 'PENDING') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Approval is not pending' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Approval is not pending' },
+      });
     }
 
     const updated = await prisma.portalApproval.update({
@@ -176,8 +209,12 @@ router.put('/:id/reject', async (req: Request, res: Response) => {
     logger.info('Approval rejected', { id: updated.id });
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Error rejecting', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reject' } });
+    logger.error('Error rejecting', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reject' } });
   }
 });
 

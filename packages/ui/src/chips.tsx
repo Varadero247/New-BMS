@@ -15,14 +15,10 @@ const chipBase =
 /* -------------------------------------------------------------------------- */
 
 const severityStyles: Record<string, string> = {
-  CRITICAL:
-    'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
-  HIGH:
-    'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-  MEDIUM:
-    'bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300',
-  LOW:
-    'bg-gray-100 text-gray-800 dark:bg-gray-700/40 dark:text-gray-300',
+  CRITICAL: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+  HIGH: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+  MEDIUM: 'bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300',
+  LOW: 'bg-gray-100 text-gray-800 dark:bg-gray-700/40 dark:text-gray-300',
 };
 
 export interface SeverityChipProps extends React.HTMLAttributes<HTMLSpanElement> {
@@ -45,24 +41,15 @@ export function SeverityChip({ severity, className, ...props }: SeverityChipProp
 /* -------------------------------------------------------------------------- */
 
 const statusStyles: Record<string, string> = {
-  OPEN:
-    'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
-  IN_PROGRESS:
-    'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-  UNDER_REVIEW:
-    'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
-  CLOSED:
-    'bg-gray-100 text-gray-800 dark:bg-gray-700/40 dark:text-gray-300',
-  RESOLVED:
-    'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
-  DRAFT:
-    'bg-slate-100 text-slate-800 dark:bg-slate-700/40 dark:text-slate-300',
-  APPROVED:
-    'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
-  SUPERSEDED:
-    'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
-  CANCELLED:
-    'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+  OPEN: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
+  IN_PROGRESS: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+  UNDER_REVIEW: 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
+  CLOSED: 'bg-gray-100 text-gray-800 dark:bg-gray-700/40 dark:text-gray-300',
+  RESOLVED: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+  DRAFT: 'bg-slate-100 text-slate-800 dark:bg-slate-700/40 dark:text-slate-300',
+  APPROVED: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+  SUPERSEDED: 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
+  CANCELLED: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
 };
 
 const statusLabels: Record<string, string> = {
@@ -94,10 +81,7 @@ export interface StatusChipProps extends React.HTMLAttributes<HTMLSpanElement> {
 
 export function StatusChip({ status, className, ...props }: StatusChipProps) {
   return (
-    <span
-      className={cn(chipBase, statusStyles[status] ?? statusStyles.OPEN, className)}
-      {...props}
-    >
+    <span className={cn(chipBase, statusStyles[status] ?? statusStyles.OPEN, className)} {...props}>
       {statusLabels[status] ?? status}
     </span>
   );
@@ -108,20 +92,13 @@ export function StatusChip({ status, className, ...props }: StatusChipProps) {
 /* -------------------------------------------------------------------------- */
 
 const isoStyles: Record<string, string> = {
-  COMPLIANT:
-    'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
-  PARTIAL:
-    'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-  NON_COMPLIANT:
-    'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
-  NOT_APPLICABLE:
-    'bg-gray-100 text-gray-800 dark:bg-gray-700/40 dark:text-gray-300',
-  OBSERVATION:
-    'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
-  MAJOR_NC:
-    'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
-  MINOR_NC:
-    'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+  COMPLIANT: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+  PARTIAL: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+  NON_COMPLIANT: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+  NOT_APPLICABLE: 'bg-gray-100 text-gray-800 dark:bg-gray-700/40 dark:text-gray-300',
+  OBSERVATION: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
+  MAJOR_NC: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+  MINOR_NC: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
 };
 
 const isoLabels: Record<string, string> = {

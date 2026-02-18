@@ -119,10 +119,25 @@ export default function HSOverviewPage() {
 
   const quickLinks = [
     { name: 'Risks', href: '/hs/risks', icon: AlertTriangle, count: summary?.summary.risks.active },
-    { name: 'Incidents', href: '/hs/incidents', icon: FileText, count: summary?.summary.incidents.open },
+    {
+      name: 'Incidents',
+      href: '/hs/incidents',
+      icon: FileText,
+      count: summary?.summary.incidents.open,
+    },
     { name: 'Legal', href: '/hs/legal', icon: FileText, count: summary?.summary.legal.total },
-    { name: 'Objectives', href: '/hs/objectives', icon: Target, count: summary?.summary.objectives.total },
-    { name: 'Actions', href: '/hs/actions', icon: ClipboardCheck, count: summary?.summary.actions.open },
+    {
+      name: 'Objectives',
+      href: '/hs/objectives',
+      icon: Target,
+      count: summary?.summary.objectives.total,
+    },
+    {
+      name: 'Actions',
+      href: '/hs/actions',
+      icon: ClipboardCheck,
+      count: summary?.summary.actions.open,
+    },
     { name: 'Metrics', href: '/hs/metrics', icon: TrendingUp },
   ];
 
@@ -216,15 +231,21 @@ export default function HSOverviewPage() {
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm">LTIFR</span>
-              <span className="text-lg font-bold">{safetyMetrics?.ytd.ltifr?.toFixed(2) || '0.00'}</span>
+              <span className="text-lg font-bold">
+                {safetyMetrics?.ytd.ltifr?.toFixed(2) || '0.00'}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm">TRIR</span>
-              <span className="text-lg font-bold">{safetyMetrics?.ytd.trir?.toFixed(2) || '0.00'}</span>
+              <span className="text-lg font-bold">
+                {safetyMetrics?.ytd.trir?.toFixed(2) || '0.00'}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm">Severity Rate</span>
-              <span className="text-lg font-bold">{safetyMetrics?.ytd.severityRate?.toFixed(2) || '0.00'}</span>
+              <span className="text-lg font-bold">
+                {safetyMetrics?.ytd.severityRate?.toFixed(2) || '0.00'}
+              </span>
             </div>
           </div>
         </Card>
@@ -232,7 +253,9 @@ export default function HSOverviewPage() {
         <Card className="p-6">
           <h3 className="text-sm font-medium text-muted-foreground mb-2">Incidents</h3>
           <div className="flex items-end gap-2">
-            <span className="text-3xl font-bold text-red-500">{summary?.summary.incidents.open || 0}</span>
+            <span className="text-3xl font-bold text-red-500">
+              {summary?.summary.incidents.open || 0}
+            </span>
             <span className="text-sm text-muted-foreground mb-1">open</span>
           </div>
           <div className="mt-2 text-sm text-muted-foreground">
@@ -300,10 +323,13 @@ export default function HSOverviewPage() {
                   <div>
                     <p className="font-medium text-sm">{incident.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {incident.referenceNumber} • {new Date(incident.dateOccurred).toLocaleDateString()}
+                      {incident.referenceNumber} •{' '}
+                      {new Date(incident.dateOccurred).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(incident.severity)}`}>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(incident.severity)}`}
+                  >
                     {incident.severity}
                   </span>
                 </Link>
@@ -335,9 +361,13 @@ export default function HSOverviewPage() {
                 className="p-4 rounded-lg border hover:border-red-300 transition-colors"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${
-                    risk.riskLevel === 'CRITICAL' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'
-                  }`}>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                      risk.riskLevel === 'CRITICAL'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-orange-100 text-orange-700'
+                    }`}
+                  >
                     {risk.riskLevel}
                   </span>
                   <span className="text-sm font-medium">Score: {risk.riskScore}</span>

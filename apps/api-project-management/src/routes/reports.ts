@@ -21,7 +21,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const { projectId, page = '1', limit = '20' } = req.query;
 
     if (!projectId) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' },
+      });
     }
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -47,27 +50,39 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List reports error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list reports' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list reports' },
+    });
   }
 });
 
 // GET /api/reports/:id - Get single report
-router.get('/:id', checkOwnership(prisma.projectStatusReport), async (req: AuthRequest, res: Response) => {
-  try {
-    const report = await prisma.projectStatusReport.findUnique({
-      where: { id: req.params.id },
-    });
+router.get(
+  '/:id',
+  checkOwnership(prisma.projectStatusReport),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const report = await prisma.projectStatusReport.findUnique({
+        where: { id: req.params.id },
+      });
 
-    if (!report) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
+      if (!report) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
+      }
+
+      res.json({ success: true, data: report });
+    } catch (error) {
+      logger.error('Get report error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get report' },
+      });
     }
-
-    res.json({ success: true, data: report });
-  } catch (error) {
-    logger.error('Get report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get report' } });
   }
-});
+);
 
 // POST /api/reports - Create status report
 router.post('/', async (req: AuthRequest, res: Response) => {
@@ -129,27 +144,47 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: report });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
     logger.error('Create report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create report' },
+    });
   }
 });
 
 // DELETE /api/reports/:id - Delete report
-router.delete('/:id', checkOwnership(prisma.projectStatusReport), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectStatusReport.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
-    }
+router.delete(
+  '/:id',
+  checkOwnership(prisma.projectStatusReport),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectStatusReport.findUnique({
+        where: { id: req.params.id },
+      });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
+      }
 
-    await prisma.projectStatusReport.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete report' } });
+      await prisma.projectStatusReport.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete report error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete report' },
+      });
+    }
   }
-});
+);
 
 export default router;

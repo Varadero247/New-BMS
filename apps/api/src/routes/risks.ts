@@ -132,7 +132,8 @@ router.get('/matrix', authenticate, async (req, res, next) => {
         riskLevel: true,
         standard: true,
       },
-      take: 1000});
+      take: 1000,
+    });
 
     // Create 5x5 matrix
     const matrix: Record<string, unknown[]> = {};
@@ -195,7 +196,8 @@ router.get('/:id', authenticate, async (req, res, next) => {
 // POST /api/risks - Create new risk
 router.post('/', authenticate, validate(createRiskSchema), async (req, res, next) => {
   try {
-    const { likelihood, severity, detectability, scale, frequency, legalImpact, ...rest } = req.body;
+    const { likelihood, severity, detectability, scale, frequency, legalImpact, ...rest } =
+      req.body;
 
     const { score, level } = calculateRiskScore(likelihood, severity, detectability);
     const significanceScore = calculateSignificanceScore(scale, frequency, legalImpact);
@@ -246,7 +248,8 @@ router.put('/:id', authenticate, validate(updateRiskSchema), async (req, res, ne
       });
     }
 
-    const { likelihood, severity, detectability, scale, frequency, legalImpact, ...rest } = req.body;
+    const { likelihood, severity, detectability, scale, frequency, legalImpact, ...rest } =
+      req.body;
 
     // Recalculate scores if values changed
     const newLikelihood = likelihood ?? existing.likelihood;

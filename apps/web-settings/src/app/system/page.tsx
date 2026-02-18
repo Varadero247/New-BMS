@@ -42,7 +42,7 @@ export default function SystemSettingsPage() {
   async function handleSave() {
     setSaving(true);
     // Simulate save
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     setSaving(false);
   }
 
@@ -53,7 +53,9 @@ export default function SystemSettingsPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">System Settings</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Configure general system settings</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Configure general system settings
+            </p>
           </div>
           <Button onClick={handleSave} disabled={saving}>
             {saving ? (
@@ -82,7 +84,7 @@ export default function SystemSettingsPage() {
                 <input
                   type="text"
                   value={settings.siteName}
-                  onChange={(e) => setSettings(prev => ({ ...prev, siteName: e.target.value }))}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, siteName: e.target.value }))}
                   className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
               </div>
@@ -93,7 +95,7 @@ export default function SystemSettingsPage() {
                 <input
                   type="text"
                   value={settings.siteUrl}
-                  onChange={(e) => setSettings(prev => ({ ...prev, siteUrl: e.target.value }))}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, siteUrl: e.target.value }))}
                   className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
               </div>
@@ -115,7 +117,7 @@ export default function SystemSettingsPage() {
                 </label>
                 <select
                   value={settings.timezone}
-                  onChange={(e) => setSettings(prev => ({ ...prev, timezone: e.target.value }))}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, timezone: e.target.value }))}
                   className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
                 >
                   <option value="UTC">UTC</option>
@@ -131,7 +133,7 @@ export default function SystemSettingsPage() {
                 </label>
                 <select
                   value={settings.dateFormat}
-                  onChange={(e) => setSettings(prev => ({ ...prev, dateFormat: e.target.value }))}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, dateFormat: e.target.value }))}
                   className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
                 >
                   <option value="DD/MM/YYYY">DD/MM/YYYY</option>
@@ -153,14 +155,20 @@ export default function SystemSettingsPage() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">Email Notifications</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Send email notifications for important events</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                    Email Notifications
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Send email notifications for important events
+                  </p>
                 </div>
                 <button
-                  onClick={() => setSettings(prev => ({
-                    ...prev,
-                    emailNotifications: !prev.emailNotifications,
-                  }))}
+                  onClick={() =>
+                    setSettings((prev) => ({
+                      ...prev,
+                      emailNotifications: !prev.emailNotifications,
+                    }))
+                  }
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     settings.emailNotifications ? 'bg-green-600' : 'bg-gray-200'
                   }`}
@@ -175,13 +183,17 @@ export default function SystemSettingsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-gray-900 dark:text-gray-100">Maintenance Mode</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Disable access for non-admin users</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Disable access for non-admin users
+                  </p>
                 </div>
                 <button
-                  onClick={() => setSettings(prev => ({
-                    ...prev,
-                    maintenanceMode: !prev.maintenanceMode,
-                  }))}
+                  onClick={() =>
+                    setSettings((prev) => ({
+                      ...prev,
+                      maintenanceMode: !prev.maintenanceMode,
+                    }))
+                  }
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     settings.maintenanceMode ? 'bg-red-600' : 'bg-gray-200'
                   }`}
@@ -212,7 +224,9 @@ export default function SystemSettingsPage() {
                 <input
                   type="number"
                   value={settings.sessionTimeout}
-                  onChange={(e) => setSettings(prev => ({ ...prev, sessionTimeout: parseInt(e.target.value) }))}
+                  onChange={(e) =>
+                    setSettings((prev) => ({ ...prev, sessionTimeout: parseInt(e.target.value) }))
+                  }
                   className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
               </div>
@@ -223,10 +237,15 @@ export default function SystemSettingsPage() {
                     <input
                       type="checkbox"
                       checked={settings.passwordPolicy.requireUppercase}
-                      onChange={(e) => setSettings(prev => ({
-                        ...prev,
-                        passwordPolicy: { ...prev.passwordPolicy, requireUppercase: e.target.checked },
-                      }))}
+                      onChange={(e) =>
+                        setSettings((prev) => ({
+                          ...prev,
+                          passwordPolicy: {
+                            ...prev.passwordPolicy,
+                            requireUppercase: e.target.checked,
+                          },
+                        }))
+                      }
                       className="rounded border-gray-300"
                     />
                     <span className="text-sm text-gray-600">Require uppercase letters</span>
@@ -235,10 +254,15 @@ export default function SystemSettingsPage() {
                     <input
                       type="checkbox"
                       checked={settings.passwordPolicy.requireNumbers}
-                      onChange={(e) => setSettings(prev => ({
-                        ...prev,
-                        passwordPolicy: { ...prev.passwordPolicy, requireNumbers: e.target.checked },
-                      }))}
+                      onChange={(e) =>
+                        setSettings((prev) => ({
+                          ...prev,
+                          passwordPolicy: {
+                            ...prev.passwordPolicy,
+                            requireNumbers: e.target.checked,
+                          },
+                        }))
+                      }
                       className="rounded border-gray-300"
                     />
                     <span className="text-sm text-gray-600">Require numbers</span>
@@ -247,10 +271,15 @@ export default function SystemSettingsPage() {
                     <input
                       type="checkbox"
                       checked={settings.passwordPolicy.requireSpecialChars}
-                      onChange={(e) => setSettings(prev => ({
-                        ...prev,
-                        passwordPolicy: { ...prev.passwordPolicy, requireSpecialChars: e.target.checked },
-                      }))}
+                      onChange={(e) =>
+                        setSettings((prev) => ({
+                          ...prev,
+                          passwordPolicy: {
+                            ...prev.passwordPolicy,
+                            requireSpecialChars: e.target.checked,
+                          },
+                        }))
+                      }
                       className="rounded border-gray-300"
                     />
                     <span className="text-sm text-gray-600">Require special characters</span>
@@ -280,7 +309,9 @@ export default function SystemSettingsPage() {
                 </div>
                 <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <p className="text-sm text-gray-500 dark:text-gray-400">Last Backup</p>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">{new Date().toLocaleDateString()}</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                    {new Date().toLocaleDateString()}
+                  </p>
                 </div>
               </div>
               <div className="mt-4 flex gap-4">

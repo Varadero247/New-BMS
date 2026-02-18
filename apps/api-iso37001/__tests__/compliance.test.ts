@@ -80,10 +80,10 @@ describe('ISO 37001 Compliance API', () => {
   describe('GET /api/compliance/stats', () => {
     it('should return compliance statistics', async () => {
       (mockPrisma.abCompliance.count as jest.Mock)
-        .mockResolvedValueOnce(100)  // total
-        .mockResolvedValueOnce(60)   // compliant
-        .mockResolvedValueOnce(15)   // nonCompliant
-        .mockResolvedValueOnce(25);  // partial
+        .mockResolvedValueOnce(100) // total
+        .mockResolvedValueOnce(60) // compliant
+        .mockResolvedValueOnce(15) // nonCompliant
+        .mockResolvedValueOnce(25); // partial
       (mockPrisma.abCompliance.groupBy as jest.Mock).mockResolvedValueOnce([
         { category: 'POLICY', _count: { id: 30 } },
         { category: 'PROCEDURE', _count: { id: 40 } },
@@ -289,10 +289,12 @@ describe('ISO 37001 Compliance API', () => {
     });
 
     it('should return 400 for invalid category', async () => {
-      const res = await request(app).post('/api/compliance').send({
-        ...validPayload,
-        category: 'INVALID_CATEGORY',
-      });
+      const res = await request(app)
+        .post('/api/compliance')
+        .send({
+          ...validPayload,
+          category: 'INVALID_CATEGORY',
+        });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -353,9 +355,7 @@ describe('ISO 37001 Compliance API', () => {
         status: 'COMPLIANT',
       });
 
-      const res = await request(app)
-        .put(`/api/compliance/${UUID1}`)
-        .send({ status: 'COMPLIANT' });
+      const res = await request(app).put(`/api/compliance/${UUID1}`).send({ status: 'COMPLIANT' });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -365,9 +365,7 @@ describe('ISO 37001 Compliance API', () => {
     it('should return 404 when not found for update', async () => {
       (mockPrisma.abCompliance.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app)
-        .put(`/api/compliance/${UUID2}`)
-        .send({ status: 'COMPLIANT' });
+      const res = await request(app).put(`/api/compliance/${UUID2}`).send({ status: 'COMPLIANT' });
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -389,9 +387,7 @@ describe('ISO 37001 Compliance API', () => {
       (mockPrisma.abCompliance.findFirst as jest.Mock).mockResolvedValueOnce(mockCompliance);
       (mockPrisma.abCompliance.update as jest.Mock).mockResolvedValueOnce(mockCompliance);
 
-      await request(app)
-        .put(`/api/compliance/${UUID1}`)
-        .send({ notes: 'Reviewed and approved' });
+      await request(app).put(`/api/compliance/${UUID1}`).send({ notes: 'Reviewed and approved' });
 
       expect(mockPrisma.abCompliance.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -404,9 +400,7 @@ describe('ISO 37001 Compliance API', () => {
       (mockPrisma.abCompliance.findFirst as jest.Mock).mockResolvedValueOnce(mockCompliance);
       (mockPrisma.abCompliance.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const res = await request(app)
-        .put(`/api/compliance/${UUID1}`)
-        .send({ notes: 'Test' });
+      const res = await request(app).put(`/api/compliance/${UUID1}`).send({ notes: 'Test' });
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);

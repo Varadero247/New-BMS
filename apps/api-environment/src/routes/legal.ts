@@ -24,7 +24,15 @@ async function generateRefNumber(): Promise<string> {
 // GET / - List legal obligations
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
-    const { page = '1', limit = '50', complianceStatus, obligationType, jurisdiction, status, search } = req.query;
+    const {
+      page = '1',
+      limit = '50',
+      complianceStatus,
+      obligationType,
+      jurisdiction,
+      status,
+      search,
+    } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
@@ -55,7 +63,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List legal obligations error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list legal obligations' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list legal obligations' },
+    });
   }
 });
 
@@ -63,11 +74,18 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, res: Response) => {
   try {
     const obligation = await prisma.envLegal.findUnique({ where: { id: req.params.id } });
-    if (!obligation) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });
+    if (!obligation)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Legal obligation not found' },
+      });
     res.json({ success: true, data: obligation });
   } catch (error) {
     logger.error('Get legal obligation error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get legal obligation' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get legal obligation' },
+    });
   }
 });
 
@@ -84,8 +102,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       applicableActivities: z.string().trim().min(1).max(200),
       responsiblePerson: z.string().trim().min(1).max(200),
       relevantSection: z.string().optional(),
-      effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      expiryReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      effectiveDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      expiryReviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       status: z.string().optional(),
       applicableSites: z.string().optional(),
       linkedAspects: z.array(z.string()).optional().default([]),
@@ -93,13 +117,19 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       complianceStatus: z.string().optional(),
       complianceEvidence: z.string().optional(),
       evidenceReference: z.string().optional(),
-      lastAssessedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      lastAssessedDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       assessedBy: z.string().optional(),
       assessmentMethod: z.string().optional(),
       complianceGaps: z.string().optional(),
       requiredActions: z.string().optional(),
       actionPriority: z.string().optional(),
-      actionsDueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      actionsDueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       capaRequired: z.boolean().optional(),
       monitoringRequirements: z.string().optional(),
       reportingRequirements: z.string().optional(),
@@ -169,10 +199,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: obligation });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create legal obligation error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create legal obligation' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create legal obligation' },
+    });
   }
 });
 
@@ -187,16 +227,28 @@ const legalUpdateSchema = z.object({
   applicableActivities: z.array(z.string()).optional(),
   responsiblePerson: z.string().optional(),
   relevantSection: z.string().optional(),
-  effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  expiryReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  effectiveDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  expiryReviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   complianceStatus: z.string().optional(),
-  lastAssessedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  lastAssessedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   assessedBy: z.string().optional(),
   assessmentMethod: z.string().optional(),
   complianceGaps: z.string().optional(),
   requiredActions: z.string().optional(),
   actionPriority: z.string().optional(),
-  actionsDueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  actionsDueDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   capaRequired: z.boolean().optional(),
   monitoringRequirements: z.string().optional(),
   reportingRequirements: z.string().optional(),
@@ -218,11 +270,22 @@ const legalUpdateSchema = z.object({
 router.put('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envLegal.findUnique({ where: { id: req.params.id } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Legal obligation not found' },
+      });
 
     const parsed = legalUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: parsed.error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: parsed.error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     const data: Record<string, unknown> = { ...parsed.data };
 
@@ -241,7 +304,10 @@ router.put('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, res
     res.json({ success: true, data: obligation });
   } catch (error) {
     logger.error('Update legal obligation error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update legal obligation' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update legal obligation' },
+    });
   }
 });
 
@@ -249,12 +315,22 @@ router.put('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, res
 router.delete('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envLegal.findUnique({ where: { id: req.params.id } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });
-    await prisma.envLegal.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: req.user?.id } });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Legal obligation not found' },
+      });
+    await prisma.envLegal.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date(), updatedBy: req.user?.id },
+    });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete legal obligation error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete legal obligation' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete legal obligation' },
+    });
   }
 });
 

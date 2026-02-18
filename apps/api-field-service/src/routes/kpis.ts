@@ -14,16 +14,40 @@ router.use(authenticate);
 
 const kpiCreateSchema = z.object({
   technicianId: z.string().trim().uuid().optional().nullable(),
-  metricType: z.enum(['FIRST_TIME_FIX', 'RESPONSE_TIME', 'RESOLUTION_TIME', 'CUSTOMER_SATISFACTION', 'UTILIZATION', 'JOBS_COMPLETED']),
+  metricType: z.enum([
+    'FIRST_TIME_FIX',
+    'RESPONSE_TIME',
+    'RESOLUTION_TIME',
+    'CUSTOMER_SATISFACTION',
+    'UTILIZATION',
+    'JOBS_COMPLETED',
+  ]),
   value: z.number(),
   unit: z.string().trim().min(1).max(50),
-  periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodStart: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodEnd: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   target: z.number().optional().nullable(),
 });
 
 const kpiUpdateSchema = z.object({
-  metricType: z.enum(['FIRST_TIME_FIX', 'RESPONSE_TIME', 'RESOLUTION_TIME', 'CUSTOMER_SATISFACTION', 'UTILIZATION', 'JOBS_COMPLETED']).optional(),
+  metricType: z
+    .enum([
+      'FIRST_TIME_FIX',
+      'RESPONSE_TIME',
+      'RESOLUTION_TIME',
+      'CUSTOMER_SATISFACTION',
+      'UTILIZATION',
+      'JOBS_COMPLETED',
+    ])
+    .optional(),
   value: z.number().optional(),
   unit: z.string().trim().min(1).max(50).optional(),
   periodStart: z.string().optional(),
@@ -61,7 +85,13 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [data, total] = await Promise.all([
-      prisma.fsSvcKpi.findMany({ where, skip, take: limit, orderBy: { periodStart: 'desc' }, include: { technician: true } }),
+      prisma.fsSvcKpi.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { periodStart: 'desc' },
+        include: { technician: true },
+      }),
       prisma.fsSvcKpi.count({ where }),
     ]);
 
@@ -71,8 +101,12 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list KPIs', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list KPIs' } });
+    logger.error('Failed to list KPIs', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list KPIs' } });
   }
 });
 
@@ -90,10 +124,14 @@ router.get('/dashboard', async (req: Request, res: Response) => {
         periodStart: { gte: thirtyDaysAgo } as any,
       },
       include: { technician: true },
-      take: 1000});
+      take: 1000,
+    });
 
     // Aggregate by metric type
-    const summary: Record<string, { metricType: string; average: number; count: number; unit: string; target: number | null }> = {};
+    const summary: Record<
+      string,
+      { metricType: string; average: number; count: number; unit: string; target: number | null }
+    > = {};
 
     for (const kpi of kpis) {
       if (!summary[kpi.metricType]) {
@@ -118,9 +156,18 @@ router.get('/dashboard', async (req: Request, res: Response) => {
 
     // Job stats
     const [totalJobs, completedJobs, openJobs] = await Promise.all([
-      prisma.fsSvcJob.count({ where: { deletedAt: null, createdAt: { gte: thirtyDaysAgo } as any } }),
-      prisma.fsSvcJob.count({ where: { deletedAt: null, status: 'COMPLETED', createdAt: { gte: thirtyDaysAgo } as any } }),
-      prisma.fsSvcJob.count({ where: { deletedAt: null, status: { in: ['UNASSIGNED', 'ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'] } as any } }),
+      prisma.fsSvcJob.count({
+        where: { deletedAt: null, createdAt: { gte: thirtyDaysAgo } as any },
+      }),
+      prisma.fsSvcJob.count({
+        where: { deletedAt: null, status: 'COMPLETED', createdAt: { gte: thirtyDaysAgo } as any },
+      }),
+      prisma.fsSvcJob.count({
+        where: {
+          deletedAt: null,
+          status: { in: ['UNASSIGNED', 'ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'] } as any,
+        },
+      }),
     ]);
 
     res.json({
@@ -132,8 +179,13 @@ router.get('/dashboard', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get KPI dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get KPI dashboard' } });
+    logger.error('Failed to get KPI dashboard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get KPI dashboard' },
+    });
   }
 });
 
@@ -144,7 +196,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = kpiCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -161,8 +216,12 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to create KPI', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create KPI' } });
+    logger.error('Failed to create KPI', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create KPI' } });
   }
 });
 
@@ -178,12 +237,18 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!data) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
     }
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to get KPI', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get KPI' } });
+    logger.error('Failed to get KPI', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get KPI' } });
   }
 });
 
@@ -192,27 +257,40 @@ router.get('/:id', async (req: Request, res: Response, next) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcKpi.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSvcKpi.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
     }
 
     const parsed = kpiUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+      });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.value !== undefined) updateData.value = new Prisma.Decimal(parsed.data.value);
-    if (parsed.data.target !== undefined) updateData.target = parsed.data.target != null ? new Prisma.Decimal(parsed.data.target) : null;
+    if (parsed.data.target !== undefined)
+      updateData.target =
+        parsed.data.target != null ? new Prisma.Decimal(parsed.data.target) : null;
     if (parsed.data.periodStart) updateData.periodStart = new Date(parsed.data.periodStart);
     if (parsed.data.periodEnd) updateData.periodEnd = new Date(parsed.data.periodEnd);
 
     const data = await prisma.fsSvcKpi.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to update KPI', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update KPI' } });
+    logger.error('Failed to update KPI', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update KPI' } });
   }
 });
 
@@ -221,16 +299,24 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcKpi.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSvcKpi.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
     }
 
     await prisma.fsSvcKpi.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'KPI deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete KPI', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete KPI' } });
+    logger.error('Failed to delete KPI', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete KPI' } });
   }
 });
 

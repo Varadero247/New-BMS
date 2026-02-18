@@ -14,40 +14,180 @@ const assistantSchema = z.object({
 
 // IMS knowledge base for fallback answers
 const MODULE_KB: Record<string, { description: string; iso?: string; port: number }> = {
-  'Health & Safety': { description: 'Risk assessments, incident reporting, legal compliance registers, PPE tracking, and COSHH management.', iso: 'ISO 45001', port: 3001 },
-  'Environmental': { description: 'Environmental aspects & impacts, events, legal requirements, objectives, and CAPA workflows.', iso: 'ISO 14001', port: 3002 },
-  'Quality': { description: 'Non-conformance reports, CAPA, evidence packs, headstart templates, and document control.', iso: 'ISO 9001', port: 3003 },
-  'ESG': { description: 'Sustainability reporting, carbon footprint tracking, scope 1/2/3 emissions, and ESG frameworks.', iso: 'GRI/SASB/TCFD', port: 3016 },
-  'Food Safety': { description: 'HACCP plans, CCP monitoring, allergen management, supplier approvals, and recall procedures.', iso: 'ISO 22000', port: 3020 },
-  'Energy': { description: 'Energy reviews, baselines, EnPIs, significant energy uses, and energy action plans.', iso: 'ISO 50001', port: 3021 },
-  'ISO 42001 (AI)': { description: 'AI risk management, algorithmic impact assessments, AI inventory, and ethical AI governance.', iso: 'ISO 42001', port: 3024 },
-  'ISO 37001 (Anti-Bribery)': { description: 'Bribery risk assessments, due diligence, gifts & hospitality registers, and whistleblowing.', iso: 'ISO 37001', port: 3025 },
-  'InfoSec': { description: 'Information security risk registers, asset management, access control, and incident response.', iso: 'ISO 27001', port: 3015 },
-  'Inventory': { description: 'Stock levels, warehouse management, purchase orders, and automatic reorder points.', port: 3005 },
-  'HR': { description: 'Employee records, performance reviews, training matrices, and competency tracking.', port: 3006 },
-  'Payroll': { description: 'Salary processing, tax calculations across 40+ jurisdictions, benefits, and deductions.', port: 3007 },
-  'Workflows': { description: 'Visual workflow builder with 6 ISO templates, approval chains, and automated triggers.', port: 3008 },
-  'Project Management': { description: 'Tasks, milestones, Gantt charts, resource allocation, and project dashboards.', port: 3009 },
-  'Finance': { description: 'Accounts, budgets, invoicing, expense tracking, and financial reporting.', port: 3013 },
-  'CRM': { description: 'Customer contacts, deals pipeline, support tickets, and customer satisfaction tracking.', port: 3014 },
-  'CMMS': { description: 'Work orders, preventive maintenance schedules, asset lifecycle, and spare parts inventory.', port: 3017 },
-  'Field Service': { description: 'Job dispatch, mobile workforce management, route optimization, and time tracking.', port: 3023 },
-  'Analytics': { description: 'Cross-module dashboards, custom reports, trend analysis, and data export.', port: 3022 },
-  'Risk': { description: 'Enterprise risk register, bow-tie analysis, KRIs, risk appetite statements, and heat maps.', iso: 'ISO 31000', port: 3031 },
-  'Incidents': { description: 'Incident reporting, investigation workflows, root cause analysis, and lessons learned.', port: 3041 },
-  'Audits': { description: 'Audit planning, checklists, findings management, and corrective action tracking.', port: 3042 },
-  'Complaints': { description: 'Customer complaint logging, investigation, resolution tracking, and trend analysis.', port: 3036 },
-  'Regulatory Monitor': { description: 'Live regulatory feed, compliance calendar, obligation tracking, and change impact assessment.', port: 3040 },
-  'Management Review': { description: 'Meeting scheduling, agenda management, action items, and minutes documentation.', port: 3043 },
-  'Permit to Work': { description: 'Permit requests, approvals, isolation management, and permit-to-work registers.', port: 3039 },
-  'Emergency': { description: 'Fire risk assessments, evacuation drills, business continuity plans, and PEEP management.', iso: 'ISO 22301', port: 3045 },
-  'Chemicals': { description: 'Chemical register, SDS management, COSHH assessments, exposure monitoring, and GHS classification.', port: 3044 },
-  'Documents': { description: 'Document control, version management, approval workflows, and distribution tracking.', port: 3035 },
-  'Templates': { description: '192 built-in templates across 34 modules in DOCX format, mapped to ISO clauses.', port: 3000 },
-  'Training': { description: 'Training plans, course management, competency assessments, and certification tracking.', port: 3032 },
-  'Suppliers': { description: 'Supplier database, evaluations, approved supplier lists, and performance scorecards.', port: 3033 },
-  'Assets': { description: 'Asset register, depreciation tracking, maintenance schedules, and disposal management.', port: 3034 },
-  'Contracts': { description: 'Contract lifecycle management, renewals, obligations tracking, and electronic signatures.', port: 3037 },
+  'Health & Safety': {
+    description:
+      'Risk assessments, incident reporting, legal compliance registers, PPE tracking, and COSHH management.',
+    iso: 'ISO 45001',
+    port: 3001,
+  },
+  Environmental: {
+    description:
+      'Environmental aspects & impacts, events, legal requirements, objectives, and CAPA workflows.',
+    iso: 'ISO 14001',
+    port: 3002,
+  },
+  Quality: {
+    description:
+      'Non-conformance reports, CAPA, evidence packs, headstart templates, and document control.',
+    iso: 'ISO 9001',
+    port: 3003,
+  },
+  ESG: {
+    description:
+      'Sustainability reporting, carbon footprint tracking, scope 1/2/3 emissions, and ESG frameworks.',
+    iso: 'GRI/SASB/TCFD',
+    port: 3016,
+  },
+  'Food Safety': {
+    description:
+      'HACCP plans, CCP monitoring, allergen management, supplier approvals, and recall procedures.',
+    iso: 'ISO 22000',
+    port: 3020,
+  },
+  Energy: {
+    description:
+      'Energy reviews, baselines, EnPIs, significant energy uses, and energy action plans.',
+    iso: 'ISO 50001',
+    port: 3021,
+  },
+  'ISO 42001 (AI)': {
+    description:
+      'AI risk management, algorithmic impact assessments, AI inventory, and ethical AI governance.',
+    iso: 'ISO 42001',
+    port: 3024,
+  },
+  'ISO 37001 (Anti-Bribery)': {
+    description:
+      'Bribery risk assessments, due diligence, gifts & hospitality registers, and whistleblowing.',
+    iso: 'ISO 37001',
+    port: 3025,
+  },
+  InfoSec: {
+    description:
+      'Information security risk registers, asset management, access control, and incident response.',
+    iso: 'ISO 27001',
+    port: 3015,
+  },
+  Inventory: {
+    description:
+      'Stock levels, warehouse management, purchase orders, and automatic reorder points.',
+    port: 3005,
+  },
+  HR: {
+    description:
+      'Employee records, performance reviews, training matrices, and competency tracking.',
+    port: 3006,
+  },
+  Payroll: {
+    description:
+      'Salary processing, tax calculations across 40+ jurisdictions, benefits, and deductions.',
+    port: 3007,
+  },
+  Workflows: {
+    description:
+      'Visual workflow builder with 6 ISO templates, approval chains, and automated triggers.',
+    port: 3008,
+  },
+  'Project Management': {
+    description: 'Tasks, milestones, Gantt charts, resource allocation, and project dashboards.',
+    port: 3009,
+  },
+  Finance: {
+    description: 'Accounts, budgets, invoicing, expense tracking, and financial reporting.',
+    port: 3013,
+  },
+  CRM: {
+    description:
+      'Customer contacts, deals pipeline, support tickets, and customer satisfaction tracking.',
+    port: 3014,
+  },
+  CMMS: {
+    description:
+      'Work orders, preventive maintenance schedules, asset lifecycle, and spare parts inventory.',
+    port: 3017,
+  },
+  'Field Service': {
+    description:
+      'Job dispatch, mobile workforce management, route optimization, and time tracking.',
+    port: 3023,
+  },
+  Analytics: {
+    description: 'Cross-module dashboards, custom reports, trend analysis, and data export.',
+    port: 3022,
+  },
+  Risk: {
+    description:
+      'Enterprise risk register, bow-tie analysis, KRIs, risk appetite statements, and heat maps.',
+    iso: 'ISO 31000',
+    port: 3031,
+  },
+  Incidents: {
+    description:
+      'Incident reporting, investigation workflows, root cause analysis, and lessons learned.',
+    port: 3041,
+  },
+  Audits: {
+    description: 'Audit planning, checklists, findings management, and corrective action tracking.',
+    port: 3042,
+  },
+  Complaints: {
+    description:
+      'Customer complaint logging, investigation, resolution tracking, and trend analysis.',
+    port: 3036,
+  },
+  'Regulatory Monitor': {
+    description:
+      'Live regulatory feed, compliance calendar, obligation tracking, and change impact assessment.',
+    port: 3040,
+  },
+  'Management Review': {
+    description: 'Meeting scheduling, agenda management, action items, and minutes documentation.',
+    port: 3043,
+  },
+  'Permit to Work': {
+    description: 'Permit requests, approvals, isolation management, and permit-to-work registers.',
+    port: 3039,
+  },
+  Emergency: {
+    description:
+      'Fire risk assessments, evacuation drills, business continuity plans, and PEEP management.',
+    iso: 'ISO 22301',
+    port: 3045,
+  },
+  Chemicals: {
+    description:
+      'Chemical register, SDS management, COSHH assessments, exposure monitoring, and GHS classification.',
+    port: 3044,
+  },
+  Documents: {
+    description:
+      'Document control, version management, approval workflows, and distribution tracking.',
+    port: 3035,
+  },
+  Templates: {
+    description: '192 built-in templates across 34 modules in DOCX format, mapped to ISO clauses.',
+    port: 3000,
+  },
+  Training: {
+    description:
+      'Training plans, course management, competency assessments, and certification tracking.',
+    port: 3032,
+  },
+  Suppliers: {
+    description:
+      'Supplier database, evaluations, approved supplier lists, and performance scorecards.',
+    port: 3033,
+  },
+  Assets: {
+    description:
+      'Asset register, depreciation tracking, maintenance schedules, and disposal management.',
+    port: 3034,
+  },
+  Contracts: {
+    description:
+      'Contract lifecycle management, renewals, obligations tracking, and electronic signatures.',
+    port: 3037,
+  },
 };
 
 const FAQ: Record<string, string> = {
@@ -104,7 +244,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       const settings = await prisma.aISettings.findFirst({ where: { isActive: true } as any });
       if (settings?.apiKey) {
         const moduleList = Object.entries(MODULE_KB)
-          .map(([name, info]) => `- ${name}${info.iso ? ` (${info.iso})` : ''}: ${info.description}`)
+          .map(
+            ([name, info]) => `- ${name}${info.iso ? ` (${info.iso})` : ''}: ${info.description}`
+          )
           .join('\n');
 
         const systemPrompt = `You are the Nexara IMS assistant. Answer questions about the Integrated Management System. Be concise (2-4 sentences max). Here are the available modules:\n\n${moduleList}\n\nKey facts:\n- 42+ modules, 192 templates, 35+ AI analysis types\n- All modules share data through a unified platform\n- RBAC with 39 roles and 7 permission levels\n- Supports 10+ ISO standards`;
@@ -189,7 +331,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     return res.json({
       success: true,
       data: {
-        answer: 'I\'m not sure about that specific topic. Try asking about ISO standards, specific modules (like Risk, Quality, or H&S), integrations between modules, or how to get started with Nexara.',
+        answer:
+          "I'm not sure about that specific topic. Try asking about ISO standards, specific modules (like Risk, Quality, or H&S), integrations between modules, or how to get started with Nexara.",
         suggestedModules: [],
         relatedFeatures: [],
       },

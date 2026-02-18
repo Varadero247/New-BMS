@@ -23,9 +23,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemingProvider apiUrl={API_URL}>
-        <RBACProvider>
-          {children}
-        </RBACProvider>
+        <RBACProvider>{children}</RBACProvider>
       </ThemingProvider>
     </QueryClientProvider>
   );

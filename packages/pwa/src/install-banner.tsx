@@ -109,7 +109,13 @@ export function InstallBanner({
       }}
     >
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16" stroke="var(--accent-primary, #2563eb)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path
+          d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16"
+          stroke="var(--accent-primary, #2563eb)"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
       <span style={{ fontSize: '14px', color: 'var(--text-primary, #111827)' }}>{message}</span>
       <button

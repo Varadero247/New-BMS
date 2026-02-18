@@ -271,10 +271,14 @@ async function main() {
         status: 'CURRENT',
         documentRef: `SDS-${chem.casNumber || chem.id.substring(0, 8)}`,
         productUseDescription: `${chem.productName} for laboratory/industrial use`,
-        firstAidInhalation: 'Move person to fresh air. If not breathing, give artificial respiration.',
-        firstAidSkinContact: 'Remove contaminated clothing. Wash skin thoroughly with soap and water.',
-        firstAidEyeContact: 'Rinse cautiously with water for at least 15 minutes. Remove contact lenses if present.',
-        firstAidIngestion: 'Do NOT induce vomiting. Rinse mouth with water. Seek medical attention immediately.',
+        firstAidInhalation:
+          'Move person to fresh air. If not breathing, give artificial respiration.',
+        firstAidSkinContact:
+          'Remove contaminated clothing. Wash skin thoroughly with soap and water.',
+        firstAidEyeContact:
+          'Rinse cautiously with water for at least 15 minutes. Remove contact lenses if present.',
+        firstAidIngestion:
+          'Do NOT induce vomiting. Rinse mouth with water. Seek medical attention immediately.',
         handlingPrecautions: 'Use in well-ventilated areas. Avoid contact with skin and eyes.',
         storageConditions: 'Store in cool, dry place. Keep container tightly closed.',
       },
@@ -288,8 +292,18 @@ async function main() {
     { chem: naoh, activity: 'pH adjustment in water treatment', likelihood: 2, severity: 4 },
     { chem: hcl, activity: 'Equipment descaling and acid wash', likelihood: 3, severity: 4 },
     { chem: acetone, activity: 'Parts degreasing and cleaning', likelihood: 2, severity: 2 },
-    { chem: benzene, activity: 'Analytical standard preparation (fume cupboard)', likelihood: 2, severity: 5 },
-    { chem: co2, activity: 'Atmosphere control in confined space work', likelihood: 3, severity: 3 },
+    {
+      chem: benzene,
+      activity: 'Analytical standard preparation (fume cupboard)',
+      likelihood: 2,
+      severity: 5,
+    },
+    {
+      chem: co2,
+      activity: 'Atmosphere control in confined space work',
+      likelihood: 3,
+      severity: 3,
+    },
     { chem: bleach, activity: 'General cleaning and sanitisation', likelihood: 2, severity: 3 },
     { chem: lubOil, activity: 'Machine lubrication and maintenance', likelihood: 1, severity: 2 },
   ];
@@ -332,8 +346,16 @@ async function main() {
         inherentRiskScore: inherentScore,
         inherentRiskLevel: getLevel(inherentScore) as any,
         controlMeasures: [
-          { type: 'ENGINEERING', description: 'Local exhaust ventilation / fume cupboard', inPlace: true },
-          { type: 'ADMINISTRATIVE', description: 'Standard operating procedure in place', inPlace: true },
+          {
+            type: 'ENGINEERING',
+            description: 'Local exhaust ventilation / fume cupboard',
+            inPlace: true,
+          },
+          {
+            type: 'ADMINISTRATIVE',
+            description: 'Standard operating procedure in place',
+            inPlace: true,
+          },
           { type: 'PPE', description: 'Safety goggles, nitrile gloves, lab coat', inPlace: true },
         ],
         rpeClass: c.chem.casNumber === '71-43-2' ? 'FFP3' : 'NONE_REQUIRED',
@@ -371,7 +393,8 @@ async function main() {
       chemicalId: bleach.id,
       incompatibleWithCas: '7647-01-0',
       incompatibleWithName: 'Hydrochloric Acid 37%',
-      hazardDescription: 'Mixing sodium hypochlorite (bleach) with hydrochloric acid produces toxic chlorine gas (Cl2). This reaction is extremely dangerous and can be fatal in enclosed spaces.',
+      hazardDescription:
+        'Mixing sodium hypochlorite (bleach) with hydrochloric acid produces toxic chlorine gas (Cl2). This reaction is extremely dangerous and can be fatal in enclosed spaces.',
       severityLevel: 'CRITICAL',
       storageLocationA: 'Cleaning Supplies Store',
       storageLocationB: 'Acid Cabinet',
@@ -383,7 +406,8 @@ async function main() {
       chemicalId: hcl.id,
       incompatibleWithCas: '7681-52-9',
       incompatibleWithName: 'Sodium Hypochlorite 5% (Bleach)',
-      hazardDescription: 'Mixing hydrochloric acid with sodium hypochlorite (bleach) produces toxic chlorine gas (Cl2). This reaction is extremely dangerous and can be fatal in enclosed spaces.',
+      hazardDescription:
+        'Mixing hydrochloric acid with sodium hypochlorite (bleach) produces toxic chlorine gas (Cl2). This reaction is extremely dangerous and can be fatal in enclosed spaces.',
       severityLevel: 'CRITICAL',
       storageLocationA: 'Acid Cabinet',
       storageLocationB: 'Cleaning Supplies Store',
@@ -397,7 +421,13 @@ async function main() {
     { chem: naoh, location: 'Chemical Store - Corrosives Cabinet', qty: 2.5, unit: 'L' },
     { chem: hcl, location: 'Chemical Store - Acid Cabinet', qty: 2.5, unit: 'L' },
     { chem: acetone, location: 'Lab Store Room A - Flammables Cabinet', qty: 10, unit: 'L' },
-    { chem: benzene, location: 'Restricted Access Store - CMR Cabinet', qty: 0.5, unit: 'L', min: 0.1 },
+    {
+      chem: benzene,
+      location: 'Restricted Access Store - CMR Cabinet',
+      qty: 0.5,
+      unit: 'L',
+      min: 0.1,
+    },
     { chem: bleach, location: 'Cleaning Supplies Store', qty: 20, unit: 'L' },
     { chem: lubOil, location: 'Workshop - Lubricant Store', qty: 50, unit: 'L' },
   ];

@@ -74,9 +74,7 @@ describe('Quality Interested Parties API Routes', () => {
       (mockPrisma.qualInterestedParty.findMany as jest.Mock).mockResolvedValueOnce(mockParties);
       (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/parties')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/parties').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -90,7 +88,9 @@ describe('Quality Interested Parties API Routes', () => {
     });
 
     it('should support pagination parameters', async () => {
-      (mockPrisma.qualInterestedParty.findMany as jest.Mock).mockResolvedValueOnce([mockParties[0]]);
+      (mockPrisma.qualInterestedParty.findMany as jest.Mock).mockResolvedValueOnce([
+        mockParties[0],
+      ]);
       (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(100);
 
       const response = await request(app)
@@ -124,9 +124,7 @@ describe('Quality Interested Parties API Routes', () => {
       (mockPrisma.qualInterestedParty.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/parties?status=ACTIVE')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/parties?status=ACTIVE').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualInterestedParty.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -141,9 +139,7 @@ describe('Quality Interested Parties API Routes', () => {
       (mockPrisma.qualInterestedParty.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/parties?search=Acme')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/parties?search=Acme').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualInterestedParty.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -158,9 +154,7 @@ describe('Quality Interested Parties API Routes', () => {
       (mockPrisma.qualInterestedParty.findMany as jest.Mock).mockResolvedValueOnce(mockParties);
       (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/parties')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/parties').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualInterestedParty.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -173,9 +167,7 @@ describe('Quality Interested Parties API Routes', () => {
       (mockPrisma.qualInterestedParty.findMany as jest.Mock).mockResolvedValueOnce(mockParties);
       (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/parties')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/parties').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualInterestedParty.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -185,11 +177,11 @@ describe('Quality Interested Parties API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualInterestedParty.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualInterestedParty.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
-      const response = await request(app)
-        .get('/api/parties')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/parties').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -244,7 +236,9 @@ describe('Quality Interested Parties API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/parties/24000000-0000-4000-a000-000000000001')
@@ -344,7 +338,9 @@ describe('Quality Interested Parties API Routes', () => {
 
     it('should handle database errors', async () => {
       (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.qualInterestedParty.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualInterestedParty.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/parties')
@@ -418,7 +414,9 @@ describe('Quality Interested Parties API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/parties/24000000-0000-4000-a000-000000000001')
@@ -432,7 +430,9 @@ describe('Quality Interested Parties API Routes', () => {
 
   describe('DELETE /api/parties/:id', () => {
     it('should delete an interested party successfully', async () => {
-      (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({ id: '24000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '24000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualInterestedParty.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
@@ -458,7 +458,9 @@ describe('Quality Interested Parties API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/parties/24000000-0000-4000-a000-000000000001')

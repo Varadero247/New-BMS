@@ -55,14 +55,46 @@ export interface UpdateScheduleParams {
 }
 
 export const REPORT_TYPES: { value: ReportType; label: string; description: string }[] = [
-  { value: 'quality_kpi', label: 'Quality KPIs', description: 'Key quality metrics including NCR rates, CAPA closure, and audit findings' },
-  { value: 'incident_summary', label: 'Incident Summary', description: 'Summary of health & safety incidents, near-misses, and trends' },
-  { value: 'audit_status', label: 'Audit Status', description: 'Internal and external audit schedule, findings, and closure rates' },
-  { value: 'capa_tracker', label: 'CAPA Tracker', description: 'Corrective and preventive action status and effectiveness' },
-  { value: 'environmental_metrics', label: 'Environmental Metrics', description: 'Environmental aspect significance, emissions, and compliance status' },
-  { value: 'energy_consumption', label: 'Energy Consumption', description: 'Energy usage trends, EnPIs, and baseline comparisons' },
-  { value: 'compliance_overview', label: 'Compliance Overview', description: 'Cross-standard compliance status and upcoming deadlines' },
-  { value: 'risk_register', label: 'Risk Register', description: 'Active risks, risk ratings, and mitigation status across all modules' },
+  {
+    value: 'quality_kpi',
+    label: 'Quality KPIs',
+    description: 'Key quality metrics including NCR rates, CAPA closure, and audit findings',
+  },
+  {
+    value: 'incident_summary',
+    label: 'Incident Summary',
+    description: 'Summary of health & safety incidents, near-misses, and trends',
+  },
+  {
+    value: 'audit_status',
+    label: 'Audit Status',
+    description: 'Internal and external audit schedule, findings, and closure rates',
+  },
+  {
+    value: 'capa_tracker',
+    label: 'CAPA Tracker',
+    description: 'Corrective and preventive action status and effectiveness',
+  },
+  {
+    value: 'environmental_metrics',
+    label: 'Environmental Metrics',
+    description: 'Environmental aspect significance, emissions, and compliance status',
+  },
+  {
+    value: 'energy_consumption',
+    label: 'Energy Consumption',
+    description: 'Energy usage trends, EnPIs, and baseline comparisons',
+  },
+  {
+    value: 'compliance_overview',
+    label: 'Compliance Overview',
+    description: 'Cross-standard compliance status and upcoming deadlines',
+  },
+  {
+    value: 'risk_register',
+    label: 'Risk Register',
+    description: 'Active risks, risk ratings, and mitigation status across all modules',
+  },
 ];
 
 // ─── In-Memory Store ────────────────────────────────────────────────────────
@@ -149,7 +181,7 @@ export function createSchedule(params: CreateScheduleParams): ReportSchedule {
 }
 
 export function listSchedules(orgId: string): ReportSchedule[] {
-  return Array.from(scheduleStore.values()).filter(s => s.orgId === orgId);
+  return Array.from(scheduleStore.values()).filter((s) => s.orgId === orgId);
 }
 
 export function getSchedule(id: string): ReportSchedule | undefined {

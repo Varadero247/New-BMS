@@ -61,17 +61,19 @@ const dueDiligenceCreateSchema = z.object({
 
 const dueDiligenceUpdateSchema = z.object({
   thirdPartyName: z.string().trim().min(1).max(300).optional(),
-  thirdPartyType: z.enum([
-    'SUPPLIER',
-    'AGENT',
-    'INTERMEDIARY',
-    'CONSULTANT',
-    'JOINT_VENTURE_PARTNER',
-    'CONTRACTOR',
-    'DISTRIBUTOR',
-    'GOVERNMENT_ENTITY',
-    'OTHER',
-  ]).optional(),
+  thirdPartyType: z
+    .enum([
+      'SUPPLIER',
+      'AGENT',
+      'INTERMEDIARY',
+      'CONSULTANT',
+      'JOINT_VENTURE_PARTNER',
+      'CONTRACTOR',
+      'DISTRIBUTOR',
+      'GOVERNMENT_ENTITY',
+      'OTHER',
+    ])
+    .optional(),
   level: z.enum(['BASIC', 'STANDARD', 'ENHANCED']).optional(),
   country: z.string().trim().min(1).max(100).optional(),
   industry: z.string().max(200).optional(),
@@ -87,7 +89,9 @@ const dueDiligenceUpdateSchema = z.object({
 const completeSchema = z.object({
   findings: z.string().trim().min(1).max(5000),
   riskLevel: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
-  recommendation: z.enum(['APPROVE', 'APPROVE_WITH_CONDITIONS', 'REJECT', 'FURTHER_REVIEW']).optional(),
+  recommendation: z
+    .enum(['APPROVE', 'APPROVE_WITH_CONDITIONS', 'REJECT', 'FURTHER_REVIEW'])
+    .optional(),
   conditions: z.string().max(2000).optional(),
 });
 
@@ -149,8 +153,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list due diligence assessments', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list due diligence assessments' } });
+    logger.error('Failed to list due diligence assessments', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list due diligence assessments' },
+    });
   }
 });
 
@@ -178,8 +187,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Due diligence assessment created', { id: assessment.id, referenceNumber });
     res.status(201).json({ success: true, data: assessment });
   } catch (error: unknown) {
-    logger.error('Failed to create due diligence assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create due diligence assessment' } });
+    logger.error('Failed to create due diligence assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create due diligence assessment' },
+    });
   }
 });
 
@@ -193,13 +207,21 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!assessment) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Due diligence assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Due diligence assessment not found' },
+      });
     }
 
     res.json({ success: true, data: assessment });
   } catch (error: unknown) {
-    logger.error('Failed to get due diligence assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get due diligence assessment' } });
+    logger.error('Failed to get due diligence assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get due diligence assessment' },
+    });
   }
 });
 
@@ -217,7 +239,10 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Due diligence assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Due diligence assessment not found' },
+      });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -233,8 +258,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Due diligence assessment updated', { id: assessment.id });
     res.json({ success: true, data: assessment });
   } catch (error: unknown) {
-    logger.error('Failed to update due diligence assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update due diligence assessment' } });
+    logger.error('Failed to update due diligence assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update due diligence assessment' },
+    });
   }
 });
 
@@ -250,7 +280,10 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Due diligence assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Due diligence assessment not found' },
+      });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -272,8 +305,13 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     logger.info('Due diligence assessment completed', { id: assessment.id });
     res.json({ success: true, data: assessment });
   } catch (error: unknown) {
-    logger.error('Failed to complete due diligence assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete due diligence assessment' } });
+    logger.error('Failed to complete due diligence assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete due diligence assessment' },
+    });
   }
 });
 
@@ -284,7 +322,10 @@ router.put('/:id/expire', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Due diligence assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Due diligence assessment not found' },
+      });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -300,8 +341,13 @@ router.put('/:id/expire', async (req: Request, res: Response) => {
     logger.info('Due diligence assessment expired', { id: assessment.id });
     res.json({ success: true, data: assessment });
   } catch (error: unknown) {
-    logger.error('Failed to expire due diligence assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to expire due diligence assessment' } });
+    logger.error('Failed to expire due diligence assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to expire due diligence assessment' },
+    });
   }
 });
 
@@ -312,7 +358,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Due diligence assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Due diligence assessment not found' },
+      });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -328,8 +377,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Due diligence assessment deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Due diligence assessment deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete due diligence assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete due diligence assessment' } });
+    logger.error('Failed to delete due diligence assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete due diligence assessment' },
+    });
   }
 });
 

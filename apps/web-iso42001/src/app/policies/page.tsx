@@ -79,44 +79,159 @@ const emptySections: PolicySections = {
   reviewSchedule: '',
 };
 
-const sectionMeta: { key: keyof PolicySections; label: string; icon: typeof FileText; placeholder: string }[] = [
-  { key: 'statement', label: 'Policy Statement', icon: FileText, placeholder: 'Define the organisation\'s commitment to responsible AI development and deployment in accordance with ISO 42001:2023...' },
-  { key: 'scope', label: 'Scope', icon: Search, placeholder: 'Define which AI systems, processes, and organisational units this policy covers...' },
-  { key: 'approvedUses', label: 'Approved Uses', icon: CheckCircle2, placeholder: 'List approved use cases: document classification, risk scoring, anomaly detection, predictive analytics...' },
-  { key: 'prohibitedUses', label: 'Prohibited Uses', icon: AlertTriangle, placeholder: 'List prohibited applications: autonomous decision-making without human oversight, social scoring, mass surveillance...' },
-  { key: 'dataGovernance', label: 'Data Governance', icon: Lock, placeholder: 'Define data quality requirements, retention periods, consent management, anonymisation standards...' },
-  { key: 'oversightRules', label: 'Human Oversight Rules', icon: Users, placeholder: 'Specify human-in-the-loop requirements, escalation thresholds, review frequencies, override procedures...' },
-  { key: 'incidentProcedure', label: 'Incident Procedure', icon: Shield, placeholder: 'Define AI incident reporting process: detection, classification, investigation, remediation, communication...' },
-  { key: 'reviewSchedule', label: 'Review Schedule', icon: Clock, placeholder: 'Specify review frequency (e.g. quarterly), review board membership, criteria for ad-hoc reviews...' },
+const sectionMeta: {
+  key: keyof PolicySections;
+  label: string;
+  icon: typeof FileText;
+  placeholder: string;
+}[] = [
+  {
+    key: 'statement',
+    label: 'Policy Statement',
+    icon: FileText,
+    placeholder:
+      "Define the organisation's commitment to responsible AI development and deployment in accordance with ISO 42001:2023...",
+  },
+  {
+    key: 'scope',
+    label: 'Scope',
+    icon: Search,
+    placeholder:
+      'Define which AI systems, processes, and organisational units this policy covers...',
+  },
+  {
+    key: 'approvedUses',
+    label: 'Approved Uses',
+    icon: CheckCircle2,
+    placeholder:
+      'List approved use cases: document classification, risk scoring, anomaly detection, predictive analytics...',
+  },
+  {
+    key: 'prohibitedUses',
+    label: 'Prohibited Uses',
+    icon: AlertTriangle,
+    placeholder:
+      'List prohibited applications: autonomous decision-making without human oversight, social scoring, mass surveillance...',
+  },
+  {
+    key: 'dataGovernance',
+    label: 'Data Governance',
+    icon: Lock,
+    placeholder:
+      'Define data quality requirements, retention periods, consent management, anonymisation standards...',
+  },
+  {
+    key: 'oversightRules',
+    label: 'Human Oversight Rules',
+    icon: Users,
+    placeholder:
+      'Specify human-in-the-loop requirements, escalation thresholds, review frequencies, override procedures...',
+  },
+  {
+    key: 'incidentProcedure',
+    label: 'Incident Procedure',
+    icon: Shield,
+    placeholder:
+      'Define AI incident reporting process: detection, classification, investigation, remediation, communication...',
+  },
+  {
+    key: 'reviewSchedule',
+    label: 'Review Schedule',
+    icon: Clock,
+    placeholder:
+      'Specify review frequency (e.g. quarterly), review board membership, criteria for ad-hoc reviews...',
+  },
 ];
 
 const policyTypeOptions = [
-  'AI_ETHICS', 'AI_GOVERNANCE', 'HUMAN_OVERSIGHT', 'DATA_GOVERNANCE',
-  'TRANSPARENCY', 'RISK_MANAGEMENT', 'SECURITY', 'PRIVACY', 'OTHER',
+  'AI_ETHICS',
+  'AI_GOVERNANCE',
+  'HUMAN_OVERSIGHT',
+  'DATA_GOVERNANCE',
+  'TRANSPARENCY',
+  'RISK_MANAGEMENT',
+  'SECURITY',
+  'PRIVACY',
+  'OTHER',
 ];
 
 const policyTypeLabels: Record<string, string> = {
-  AI_ETHICS: 'AI Ethics', AI_GOVERNANCE: 'AI Governance', HUMAN_OVERSIGHT: 'Human Oversight',
-  DATA_GOVERNANCE: 'Data Governance', TRANSPARENCY: 'Transparency', RISK_MANAGEMENT: 'Risk Management',
-  SECURITY: 'Security', PRIVACY: 'Privacy', OTHER: 'Other',
+  AI_ETHICS: 'AI Ethics',
+  AI_GOVERNANCE: 'AI Governance',
+  HUMAN_OVERSIGHT: 'Human Oversight',
+  DATA_GOVERNANCE: 'Data Governance',
+  TRANSPARENCY: 'Transparency',
+  RISK_MANAGEMENT: 'Risk Management',
+  SECURITY: 'Security',
+  PRIVACY: 'Privacy',
+  OTHER: 'Other',
 };
 
-const policyTypeColors: Record<string, { bg: string; text: string; darkBg: string; darkText: string }> = {
-  AI_ETHICS: { bg: 'bg-purple-100', text: 'text-purple-700', darkBg: 'dark:bg-purple-900/30', darkText: 'dark:text-purple-300' },
-  AI_GOVERNANCE: { bg: 'bg-indigo-100', text: 'text-indigo-700', darkBg: 'dark:bg-indigo-900/30', darkText: 'dark:text-indigo-300' },
-  HUMAN_OVERSIGHT: { bg: 'bg-blue-100', text: 'text-blue-700', darkBg: 'dark:bg-blue-900/30', darkText: 'dark:text-blue-300' },
-  DATA_GOVERNANCE: { bg: 'bg-emerald-100', text: 'text-emerald-700', darkBg: 'dark:bg-emerald-900/30', darkText: 'dark:text-emerald-300' },
-  TRANSPARENCY: { bg: 'bg-cyan-100', text: 'text-cyan-700', darkBg: 'dark:bg-cyan-900/30', darkText: 'dark:text-cyan-300' },
-  RISK_MANAGEMENT: { bg: 'bg-red-100', text: 'text-red-700', darkBg: 'dark:bg-red-900/30', darkText: 'dark:text-red-300' },
-  SECURITY: { bg: 'bg-orange-100', text: 'text-orange-700', darkBg: 'dark:bg-orange-900/30', darkText: 'dark:text-orange-300' },
-  PRIVACY: { bg: 'bg-pink-100', text: 'text-pink-700', darkBg: 'dark:bg-pink-900/30', darkText: 'dark:text-pink-300' },
-  OTHER: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-700 dark:text-gray-300', darkBg: 'dark:bg-gray-700', darkText: 'dark:text-gray-300' },
+const policyTypeColors: Record<
+  string,
+  { bg: string; text: string; darkBg: string; darkText: string }
+> = {
+  AI_ETHICS: {
+    bg: 'bg-purple-100',
+    text: 'text-purple-700',
+    darkBg: 'dark:bg-purple-900/30',
+    darkText: 'dark:text-purple-300',
+  },
+  AI_GOVERNANCE: {
+    bg: 'bg-indigo-100',
+    text: 'text-indigo-700',
+    darkBg: 'dark:bg-indigo-900/30',
+    darkText: 'dark:text-indigo-300',
+  },
+  HUMAN_OVERSIGHT: {
+    bg: 'bg-blue-100',
+    text: 'text-blue-700',
+    darkBg: 'dark:bg-blue-900/30',
+    darkText: 'dark:text-blue-300',
+  },
+  DATA_GOVERNANCE: {
+    bg: 'bg-emerald-100',
+    text: 'text-emerald-700',
+    darkBg: 'dark:bg-emerald-900/30',
+    darkText: 'dark:text-emerald-300',
+  },
+  TRANSPARENCY: {
+    bg: 'bg-cyan-100',
+    text: 'text-cyan-700',
+    darkBg: 'dark:bg-cyan-900/30',
+    darkText: 'dark:text-cyan-300',
+  },
+  RISK_MANAGEMENT: {
+    bg: 'bg-red-100',
+    text: 'text-red-700',
+    darkBg: 'dark:bg-red-900/30',
+    darkText: 'dark:text-red-300',
+  },
+  SECURITY: {
+    bg: 'bg-orange-100',
+    text: 'text-orange-700',
+    darkBg: 'dark:bg-orange-900/30',
+    darkText: 'dark:text-orange-300',
+  },
+  PRIVACY: {
+    bg: 'bg-pink-100',
+    text: 'text-pink-700',
+    darkBg: 'dark:bg-pink-900/30',
+    darkText: 'dark:text-pink-300',
+  },
+  OTHER: {
+    bg: 'bg-gray-100 dark:bg-gray-800',
+    text: 'text-gray-700 dark:text-gray-300',
+    darkBg: 'dark:bg-gray-700',
+    darkText: 'dark:text-gray-300',
+  },
 };
 
 const statusOptions = ['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED'];
 
 const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-700 dark:text-gray-300',
+  DRAFT:
+    'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-700 dark:text-gray-300',
   UNDER_REVIEW: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
   APPROVED: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
   PUBLISHED: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
@@ -125,7 +240,11 @@ const statusColors: Record<string, string> = {
 
 const workflowSteps = [
   { status: 'DRAFT', label: 'Draft', description: 'Initial draft being prepared' },
-  { status: 'UNDER_REVIEW', label: 'Under Review', description: 'Submitted for stakeholder review' },
+  {
+    status: 'UNDER_REVIEW',
+    label: 'Under Review',
+    description: 'Submitted for stakeholder review',
+  },
   { status: 'APPROVED', label: 'Approved', description: 'Approved by designated authority' },
   { status: 'PUBLISHED', label: 'Published', description: 'Published and in effect' },
 ];
@@ -133,12 +252,32 @@ const workflowSteps = [
 // Mock acknowledgement data for demo
 function mockAcknowledgements(): Acknowledgement[] {
   return [
-    { userId: '1', userName: 'Sarah Chen', role: 'AI Governance Lead', acknowledgedAt: '2026-02-10T09:30:00Z' },
-    { userId: '2', userName: 'James Mitchell', role: 'CTO', acknowledgedAt: '2026-02-11T14:15:00Z' },
-    { userId: '3', userName: 'Priya Patel', role: 'Data Protection Officer', acknowledgedAt: '2026-02-12T11:00:00Z' },
+    {
+      userId: '1',
+      userName: 'Sarah Chen',
+      role: 'AI Governance Lead',
+      acknowledgedAt: '2026-02-10T09:30:00Z',
+    },
+    {
+      userId: '2',
+      userName: 'James Mitchell',
+      role: 'CTO',
+      acknowledgedAt: '2026-02-11T14:15:00Z',
+    },
+    {
+      userId: '3',
+      userName: 'Priya Patel',
+      role: 'Data Protection Officer',
+      acknowledgedAt: '2026-02-12T11:00:00Z',
+    },
     { userId: '4', userName: 'Marcus Johnson', role: 'ML Engineering Lead', acknowledgedAt: null },
     { userId: '5', userName: 'Elena Rodriguez', role: 'Legal Counsel', acknowledgedAt: null },
-    { userId: '6', userName: 'David Kim', role: 'Risk Manager', acknowledgedAt: '2026-02-13T08:45:00Z' },
+    {
+      userId: '6',
+      userName: 'David Kim',
+      role: 'Risk Manager',
+      acknowledgedAt: '2026-02-13T08:45:00Z',
+    },
   ];
 }
 
@@ -151,10 +290,11 @@ function mockVersionHistory(currentVersion: string): VersionEntry[] {
       entries.push({
         version: `${mj}.${mn}`,
         changedBy: ['Sarah Chen', 'James Mitchell', 'Priya Patel'][entries.length % 3],
-        changedAt: new Date(Date.now() - (entries.length * 7 * 86400000)).toISOString(),
-        summary: mn === 0
-          ? `Major revision ${mj}.0 - restructured policy sections`
-          : `Minor update ${mj}.${mn} - clarifications and corrections`,
+        changedAt: new Date(Date.now() - entries.length * 7 * 86400000).toISOString(),
+        summary:
+          mn === 0
+            ? `Major revision ${mj}.0 - restructured policy sections`
+            : `Minor update ${mj}.${mn} - clarifications and corrections`,
       });
     }
   }
@@ -174,7 +314,9 @@ export default function PoliciesPage() {
   const [filterType, setFilterType] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [activeSection, setActiveSection] = useState(0);
-  const [viewTab, setViewTab] = useState<'sections' | 'workflow' | 'acknowledgements' | 'history'>('sections');
+  const [viewTab, setViewTab] = useState<'sections' | 'workflow' | 'acknowledgements' | 'history'>(
+    'sections'
+  );
 
   const [form, setForm] = useState({
     title: '',
@@ -212,8 +354,12 @@ export default function PoliciesPage() {
   function openAddModal() {
     setEditingPolicy(null);
     setForm({
-      title: '', description: '', policyType: 'AI_GOVERNANCE', status: 'DRAFT',
-      version: '1.0', content: '',
+      title: '',
+      description: '',
+      policyType: 'AI_GOVERNANCE',
+      status: 'DRAFT',
+      version: '1.0',
+      content: '',
       sections: { ...emptySections },
     });
     setActiveSection(0);
@@ -305,9 +451,14 @@ export default function PoliciesPage() {
   const publishedCount = policies.filter((p) => p.status === 'PUBLISHED').length;
   const draftCount = policies.filter((p) => p.status === 'DRAFT').length;
   const reviewCount = policies.filter((p) => p.status === 'UNDER_REVIEW').length;
-  const completionPct = policies.length > 0
-    ? Math.round((policies.filter((p) => p.status === 'PUBLISHED' || p.status === 'APPROVED').length / policies.length) * 100)
-    : 0;
+  const completionPct =
+    policies.length > 0
+      ? Math.round(
+          (policies.filter((p) => p.status === 'PUBLISHED' || p.status === 'APPROVED').length /
+            policies.length) *
+            100
+        )
+      : 0;
 
   if (loading) {
     return (
@@ -332,7 +483,10 @@ export default function PoliciesPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-foreground">AI Governance Policies</h1>
-            <p className="text-muted-foreground mt-1">ISO 42001:2023 -- 8-section structured policies with version control and acknowledgement tracking</p>
+            <p className="text-muted-foreground mt-1">
+              ISO 42001:2023 -- 8-section structured policies with version control and
+              acknowledgement tracking
+            </p>
           </div>
           <button
             onClick={openAddModal}
@@ -396,7 +550,10 @@ export default function PoliciesPage() {
             </div>
             {/* Mini progress bar */}
             <div className="mt-2 w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full">
-              <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${completionPct}%` }} />
+              <div
+                className="h-full bg-blue-500 rounded-full transition-all"
+                style={{ width: `${completionPct}%` }}
+              />
             </div>
           </div>
         </div>
@@ -410,7 +567,9 @@ export default function PoliciesPage() {
           >
             <option value="">All Types</option>
             {policyTypeOptions.map((p) => (
-              <option key={p} value={p}>{policyTypeLabels[p]}</option>
+              <option key={p} value={p}>
+                {policyTypeLabels[p]}
+              </option>
             ))}
           </select>
           <select
@@ -420,12 +579,17 @@ export default function PoliciesPage() {
           >
             <option value="">All Statuses</option>
             {statusOptions.map((s) => (
-              <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+              <option key={s} value={s}>
+                {s.replace(/_/g, ' ')}
+              </option>
             ))}
           </select>
           {(filterType || filterStatus) && (
             <button
-              onClick={() => { setFilterType(''); setFilterStatus(''); }}
+              onClick={() => {
+                setFilterType('');
+                setFilterStatus('');
+              }}
               className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
             >
               Clear Filters
@@ -459,7 +623,9 @@ export default function PoliciesPage() {
                   <div className="p-5">
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-4 flex-1">
-                        <div className={`h-10 w-10 rounded-lg ${tc.bg} ${tc.darkBg} flex items-center justify-center shrink-0`}>
+                        <div
+                          className={`h-10 w-10 rounded-lg ${tc.bg} ${tc.darkBg} flex items-center justify-center shrink-0`}
+                        >
                           <FileText className={`h-5 w-5 ${tc.text} ${tc.darkText}`} />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -470,20 +636,25 @@ export default function PoliciesPage() {
                             >
                               {policy.title}
                             </button>
-                            <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${tc.bg} ${tc.text} ${tc.darkBg} ${tc.darkText}`}>
+                            <span
+                              className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${tc.bg} ${tc.text} ${tc.darkBg} ${tc.darkText}`}
+                            >
                               {policyTypeLabels[policy.policyType]}
                             </span>
-                            <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${statusColors[policy.status]}`}>
+                            <span
+                              className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${statusColors[policy.status]}`}
+                            >
                               {policy.status.replace(/_/g, ' ')}
                             </span>
                           </div>
                           {policy.description && (
-                            <p className="text-sm text-muted-foreground truncate max-w-2xl">{policy.description}</p>
+                            <p className="text-sm text-muted-foreground truncate max-w-2xl">
+                              {policy.description}
+                            </p>
                           )}
                           <div className="flex items-center gap-5 mt-2 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
-                              <GitBranch className="h-3.5 w-3.5" />
-                              v{policy.version}
+                              <GitBranch className="h-3.5 w-3.5" />v{policy.version}
                             </span>
                             <span className="flex items-center gap-1">
                               <BookOpen className="h-3.5 w-3.5" />
@@ -557,7 +728,10 @@ export default function PoliciesPage() {
                     {/* Section completeness bar */}
                     <div className="mt-3 flex gap-1">
                       {sectionMeta.map((sec, idx) => {
-                        const filled = policy.sections && policy.sections[sec.key] && policy.sections[sec.key].trim().length > 0;
+                        const filled =
+                          policy.sections &&
+                          policy.sections[sec.key] &&
+                          policy.sections[sec.key].trim().length > 0;
                         return (
                           <div
                             key={sec.key}
@@ -576,7 +750,12 @@ export default function PoliciesPage() {
       </div>
 
       {/* View Policy Modal */}
-      <Modal isOpen={viewModalOpen} onClose={() => setViewModalOpen(false)} title={viewPolicy?.title || 'Policy Details'} size="lg">
+      <Modal
+        isOpen={viewModalOpen}
+        onClose={() => setViewModalOpen(false)}
+        title={viewPolicy?.title || 'Policy Details'}
+        size="lg"
+      >
         {viewPolicy && (
           <div className="space-y-4">
             {/* Meta row */}
@@ -584,12 +763,16 @@ export default function PoliciesPage() {
               {(() => {
                 const tc = policyTypeColors[viewPolicy.policyType] || policyTypeColors.OTHER;
                 return (
-                  <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${tc.bg} ${tc.text} ${tc.darkBg} ${tc.darkText}`}>
+                  <span
+                    className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${tc.bg} ${tc.text} ${tc.darkBg} ${tc.darkText}`}
+                  >
                     {policyTypeLabels[viewPolicy.policyType]}
                   </span>
                 );
               })()}
-              <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${statusColors[viewPolicy.status]}`}>
+              <span
+                className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${statusColors[viewPolicy.status]}`}
+              >
                 {viewPolicy.status.replace(/_/g, ' ')}
               </span>
               <span className="text-sm text-muted-foreground">v{viewPolicy.version}</span>
@@ -613,7 +796,13 @@ export default function PoliciesPage() {
                       : 'border-transparent text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  {tab === 'sections' ? 'Sections' : tab === 'workflow' ? 'Workflow' : tab === 'acknowledgements' ? 'Acknowledgements' : 'Version History'}
+                  {tab === 'sections'
+                    ? 'Sections'
+                    : tab === 'workflow'
+                      ? 'Workflow'
+                      : tab === 'acknowledgements'
+                        ? 'Acknowledgements'
+                        : 'Version History'}
                 </button>
               ))}
             </div>
@@ -639,7 +828,9 @@ export default function PoliciesPage() {
                         {content && content.trim() ? (
                           <p className="text-sm text-foreground whitespace-pre-wrap">{content}</p>
                         ) : (
-                          <p className="text-sm text-muted-foreground italic">No content defined for this section.</p>
+                          <p className="text-sm text-muted-foreground italic">
+                            No content defined for this section.
+                          </p>
                         )}
                       </div>
                     </div>
@@ -666,19 +857,21 @@ export default function PoliciesPage() {
                                 : 'bg-gray-200 dark:bg-gray-700 text-muted-foreground'
                             } ${isCurrent ? 'ring-2 ring-indigo-300 dark:ring-indigo-700' : ''}`}
                           >
-                            {isCompleted ? (
-                              <CheckCircle2 className="h-5 w-5" />
-                            ) : (
-                              idx + 1
-                            )}
+                            {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : idx + 1}
                           </div>
-                          <p className={`text-xs mt-2 text-center font-medium ${isCompleted ? 'text-indigo-600 dark:text-indigo-400' : 'text-muted-foreground'}`}>
+                          <p
+                            className={`text-xs mt-2 text-center font-medium ${isCompleted ? 'text-indigo-600 dark:text-indigo-400' : 'text-muted-foreground'}`}
+                          >
                             {step.label}
                           </p>
-                          <p className="text-[10px] text-muted-foreground text-center mt-0.5">{step.description}</p>
+                          <p className="text-[10px] text-muted-foreground text-center mt-0.5">
+                            {step.description}
+                          </p>
                         </div>
                         {idx < workflowSteps.length - 1 && (
-                          <div className={`h-0.5 flex-1 mx-2 ${idx < currentIdx ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'}`} />
+                          <div
+                            className={`h-0.5 flex-1 mx-2 ${idx < currentIdx ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'}`}
+                          />
                         )}
                       </div>
                     );
@@ -696,11 +889,15 @@ export default function PoliciesPage() {
                   return (
                     <>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">{ackDone}/{acks.length} acknowledged</span>
+                        <span className="text-sm text-muted-foreground">
+                          {ackDone}/{acks.length} acknowledged
+                        </span>
                         <div className="w-32 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
                           <div
                             className="h-full bg-green-500 rounded-full transition-all"
-                            style={{ width: `${acks.length > 0 ? (ackDone / acks.length) * 100 : 0}%` }}
+                            style={{
+                              width: `${acks.length > 0 ? (ackDone / acks.length) * 100 : 0}%`,
+                            }}
                           />
                         </div>
                       </div>
@@ -708,16 +905,26 @@ export default function PoliciesPage() {
                         <table className="w-full text-sm">
                           <thead className="bg-gray-50 dark:bg-gray-800/50">
                             <tr>
-                              <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Name</th>
-                              <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Role</th>
-                              <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Status</th>
-                              <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Date</th>
+                              <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">
+                                Name
+                              </th>
+                              <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">
+                                Role
+                              </th>
+                              <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">
+                                Status
+                              </th>
+                              <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">
+                                Date
+                              </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-border">
                             {acks.map((ack) => (
                               <tr key={ack.userId}>
-                                <td className="px-4 py-2.5 text-foreground font-medium">{ack.userName}</td>
+                                <td className="px-4 py-2.5 text-foreground font-medium">
+                                  {ack.userName}
+                                </td>
                                 <td className="px-4 py-2.5 text-muted-foreground">{ack.role}</td>
                                 <td className="px-4 py-2.5">
                                   {ack.acknowledgedAt ? (
@@ -733,7 +940,9 @@ export default function PoliciesPage() {
                                   )}
                                 </td>
                                 <td className="px-4 py-2.5 text-xs text-muted-foreground">
-                                  {ack.acknowledgedAt ? new Date(ack.acknowledgedAt).toLocaleDateString() : '-'}
+                                  {ack.acknowledgedAt
+                                    ? new Date(ack.acknowledgedAt).toLocaleDateString()
+                                    : '-'}
                                 </td>
                               </tr>
                             ))}
@@ -752,10 +961,16 @@ export default function PoliciesPage() {
                 {(viewPolicy.versionHistory || []).map((entry, idx) => (
                   <div key={idx} className="flex items-start gap-3">
                     <div className="flex flex-col items-center">
-                      <div className={`h-6 w-6 rounded-full flex items-center justify-center ${
-                        idx === 0 ? 'bg-indigo-100 dark:bg-indigo-900/30' : 'bg-gray-100 dark:bg-gray-800'
-                      }`}>
-                        <History className={`h-3.5 w-3.5 ${idx === 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-muted-foreground'}`} />
+                      <div
+                        className={`h-6 w-6 rounded-full flex items-center justify-center ${
+                          idx === 0
+                            ? 'bg-indigo-100 dark:bg-indigo-900/30'
+                            : 'bg-gray-100 dark:bg-gray-800'
+                        }`}
+                      >
+                        <History
+                          className={`h-3.5 w-3.5 ${idx === 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-muted-foreground'}`}
+                        />
                       </div>
                       {idx < (viewPolicy.versionHistory || []).length - 1 && (
                         <div className="w-px h-8 bg-gray-200 dark:bg-gray-700" />
@@ -763,7 +978,9 @@ export default function PoliciesPage() {
                     </div>
                     <div className="flex-1 pb-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-foreground">v{entry.version}</span>
+                        <span className="text-sm font-semibold text-foreground">
+                          v{entry.version}
+                        </span>
                         {idx === 0 && (
                           <span className="inline-flex px-1.5 py-0.5 text-[10px] font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 rounded">
                             Current
@@ -803,7 +1020,12 @@ export default function PoliciesPage() {
       </Modal>
 
       {/* Create/Edit Modal with 8 sections */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingPolicy ? 'Edit Policy' : 'New Policy'} size="lg">
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingPolicy ? 'Edit Policy' : 'New Policy'}
+        size="lg"
+      >
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Basic info */}
           <div>
@@ -836,7 +1058,9 @@ export default function PoliciesPage() {
                 className="w-full px-3 py-2 border border-border bg-card text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 {policyTypeOptions.map((p) => (
-                  <option key={p} value={p}>{policyTypeLabels[p]}</option>
+                  <option key={p} value={p}>
+                    {policyTypeLabels[p]}
+                  </option>
                 ))}
               </select>
             </div>
@@ -848,7 +1072,9 @@ export default function PoliciesPage() {
                 className="w-full px-3 py-2 border border-border bg-card text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 {statusOptions.map((s) => (
-                  <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                  <option key={s} value={s}>
+                    {s.replace(/_/g, ' ')}
+                  </option>
                 ))}
               </select>
             </div>
@@ -865,7 +1091,9 @@ export default function PoliciesPage() {
                   <div className="flex gap-1">
                     <button
                       type="button"
-                      onClick={() => setForm({ ...form, version: bumpVersion(form.version, 'minor') })}
+                      onClick={() =>
+                        setForm({ ...form, version: bumpVersion(form.version, 'minor') })
+                      }
                       className="px-2 py-1 text-[10px] bg-gray-100 dark:bg-gray-700 text-muted-foreground rounded hover:bg-gray-200 dark:hover:bg-gray-600"
                       title="Bump minor version"
                     >
@@ -873,7 +1101,9 @@ export default function PoliciesPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setForm({ ...form, version: bumpVersion(form.version, 'major') })}
+                      onClick={() =>
+                        setForm({ ...form, version: bumpVersion(form.version, 'major') })
+                      }
                       className="px-2 py-1 text-[10px] bg-gray-100 dark:bg-gray-700 text-muted-foreground rounded hover:bg-gray-200 dark:hover:bg-gray-600"
                       title="Bump major version"
                     >
@@ -918,7 +1148,9 @@ export default function PoliciesPage() {
                   const Icon = sectionMeta[activeSection].icon;
                   return <Icon className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />;
                 })()}
-                <span className="text-sm font-medium text-foreground">{sectionMeta[activeSection].label}</span>
+                <span className="text-sm font-medium text-foreground">
+                  {sectionMeta[activeSection].label}
+                </span>
               </div>
               <textarea
                 value={form.sections[sectionMeta[activeSection].key]}

@@ -99,7 +99,11 @@ describe('notifications', () => {
         emailDigest: 'none',
       });
 
-      const notif = createTestNotification({ id: 'n-disabled', userId: 'user-001', type: 'ACTION_ASSIGNED' });
+      const notif = createTestNotification({
+        id: 'n-disabled',
+        userId: 'user-001',
+        type: 'ACTION_ASSIGNED',
+      });
       await service.send(notif);
       // Still stored but not really sent through channels
       const stored = service.getById('n-disabled');
@@ -206,7 +210,7 @@ describe('notifications', () => {
 
     it('should return low priority rules with auto-close', () => {
       const rules = getDefaultEscalationRules('LOW', 'mgr-001');
-      expect(rules.some(r => r.action === 'AUTO_CLOSE')).toBe(true);
+      expect(rules.some((r) => r.action === 'AUTO_CLOSE')).toBe(true);
     });
 
     it('should return empty for unknown priority', () => {

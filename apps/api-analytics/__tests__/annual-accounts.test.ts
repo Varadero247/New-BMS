@@ -29,9 +29,33 @@ describe('runAnnualAccountsJob', () => {
 
   it('aggregates revenue from monthly snapshots', async () => {
     const snapshots = [
-      { month: '2025-04', mrr: 5000, arr: 60000, founderSalary: 2500, founderLoanPayment: 1000, arpu: 500, customers: 10 },
-      { month: '2025-05', mrr: 6000, arr: 72000, founderSalary: 2500, founderLoanPayment: 1000, arpu: 600, customers: 10 },
-      { month: '2025-06', mrr: 7000, arr: 84000, founderSalary: 2500, founderLoanPayment: 1000, arpu: 700, customers: 10 },
+      {
+        month: '2025-04',
+        mrr: 5000,
+        arr: 60000,
+        founderSalary: 2500,
+        founderLoanPayment: 1000,
+        arpu: 500,
+        customers: 10,
+      },
+      {
+        month: '2025-05',
+        mrr: 6000,
+        arr: 72000,
+        founderSalary: 2500,
+        founderLoanPayment: 1000,
+        arpu: 600,
+        customers: 10,
+      },
+      {
+        month: '2025-06',
+        mrr: 7000,
+        arr: 84000,
+        founderSalary: 2500,
+        founderLoanPayment: 1000,
+        arpu: 700,
+        customers: 10,
+      },
     ];
     (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue(snapshots);
     (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'aap-2' });
@@ -45,7 +69,15 @@ describe('runAnnualAccountsJob', () => {
 
   it('calculates net profit correctly', async () => {
     const snapshots = [
-      { month: '2025-04', mrr: 10000, arr: 120000, founderSalary: 3000, founderLoanPayment: 500, arpu: 1000, customers: 10 },
+      {
+        month: '2025-04',
+        mrr: 10000,
+        arr: 120000,
+        founderSalary: 3000,
+        founderLoanPayment: 500,
+        arpu: 1000,
+        customers: 10,
+      },
     ];
     (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue(snapshots);
     (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'aap-3' });
@@ -93,7 +125,15 @@ describe('runAnnualAccountsJob', () => {
 
   it('includes structured sections in the pack', async () => {
     const snapshots = [
-      { month: '2025-04', mrr: 5000, arr: 60000, founderSalary: 2500, founderLoanPayment: 1000, arpu: 500, customers: 10 },
+      {
+        month: '2025-04',
+        mrr: 5000,
+        arr: 60000,
+        founderSalary: 2500,
+        founderLoanPayment: 1000,
+        arpu: 500,
+        customers: 10,
+      },
     ];
     (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue(snapshots);
     (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'aap-7' });
@@ -110,8 +150,24 @@ describe('runAnnualAccountsJob', () => {
 
   it('calculates average MRR correctly', async () => {
     const snapshots = [
-      { month: '2025-04', mrr: 4000, arr: 48000, founderSalary: 2000, founderLoanPayment: 500, arpu: 400, customers: 10 },
-      { month: '2025-05', mrr: 6000, arr: 72000, founderSalary: 2000, founderLoanPayment: 500, arpu: 600, customers: 10 },
+      {
+        month: '2025-04',
+        mrr: 4000,
+        arr: 48000,
+        founderSalary: 2000,
+        founderLoanPayment: 500,
+        arpu: 400,
+        customers: 10,
+      },
+      {
+        month: '2025-05',
+        mrr: 6000,
+        arr: 72000,
+        founderSalary: 2000,
+        founderLoanPayment: 500,
+        arpu: 600,
+        customers: 10,
+      },
     ];
     (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue(snapshots);
     (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'aap-8' });

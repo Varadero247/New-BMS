@@ -273,7 +273,10 @@ describe('Health & Safety Communications API Routes', () => {
   // ==========================================
   describe('GET /api/communications', () => {
     it('should return a list with default pagination', async () => {
-      (mockPrisma.hsCommunication.findMany as jest.Mock).mockResolvedValueOnce([mockCommunication, mockCommunication2]);
+      (mockPrisma.hsCommunication.findMany as jest.Mock).mockResolvedValueOnce([
+        mockCommunication,
+        mockCommunication2,
+      ]);
       (mockPrisma.hsCommunication.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app)
@@ -302,7 +305,9 @@ describe('Health & Safety Communications API Routes', () => {
     });
 
     it('should filter by type', async () => {
-      (mockPrisma.hsCommunication.findMany as jest.Mock).mockResolvedValueOnce([mockCommunication2]);
+      (mockPrisma.hsCommunication.findMany as jest.Mock).mockResolvedValueOnce([
+        mockCommunication2,
+      ]);
       (mockPrisma.hsCommunication.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app)
@@ -348,7 +353,9 @@ describe('Health & Safety Communications API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.hsCommunication.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.hsCommunication.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/communications')
@@ -366,11 +373,31 @@ describe('Health & Safety Communications API Routes', () => {
     it('should return participation summary', async () => {
       (mockPrisma.hsCommunication.count as jest.Mock).mockResolvedValueOnce(5);
       (mockPrisma.hsCommunication.findMany as jest.Mock).mockResolvedValueOnce([
-        { type: 'WORKER_CONSULTATION', direction: 'INTERNAL', status: 'CLOSED', createdAt: new Date() },
+        {
+          type: 'WORKER_CONSULTATION',
+          direction: 'INTERNAL',
+          status: 'CLOSED',
+          createdAt: new Date(),
+        },
         { type: 'TOOLBOX_TALK', direction: 'INTERNAL', status: 'CLOSED', createdAt: new Date() },
-        { type: 'COMMITTEE_MEETING', direction: 'INTERNAL', status: 'CLOSED', createdAt: new Date() },
-        { type: 'REGULATORY', direction: 'EXTERNAL', status: 'ACKNOWLEDGED', createdAt: new Date() },
-        { type: 'MANAGEMENT_NOTIFICATION', direction: 'INTERNAL', status: 'SENT', createdAt: new Date() },
+        {
+          type: 'COMMITTEE_MEETING',
+          direction: 'INTERNAL',
+          status: 'CLOSED',
+          createdAt: new Date(),
+        },
+        {
+          type: 'REGULATORY',
+          direction: 'EXTERNAL',
+          status: 'ACKNOWLEDGED',
+          createdAt: new Date(),
+        },
+        {
+          type: 'MANAGEMENT_NOTIFICATION',
+          direction: 'INTERNAL',
+          status: 'SENT',
+          createdAt: new Date(),
+        },
       ]);
 
       const response = await request(app)
@@ -478,7 +505,9 @@ describe('Health & Safety Communications API Routes', () => {
     });
 
     it('should add a response with respondedBy and respondedAt', async () => {
-      (mockPrisma.hsCommunication.findUnique as jest.Mock).mockResolvedValueOnce(mockCommunication2);
+      (mockPrisma.hsCommunication.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockCommunication2
+      );
       (mockPrisma.hsCommunication.update as jest.Mock).mockResolvedValueOnce({
         ...mockCommunication2,
         response: 'We acknowledge the new requirements',
@@ -531,7 +560,9 @@ describe('Health & Safety Communications API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.hsCommunication.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.hsCommunication.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/communications/40000000-0000-4000-a000-000000000001')
@@ -575,7 +606,9 @@ describe('Health & Safety Communications API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.hsCommunication.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.hsCommunication.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/communications/40000000-0000-4000-a000-000000000001')

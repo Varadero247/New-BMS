@@ -23,7 +23,10 @@ export function Timeline({ items, className }: TimelineProps) {
   return (
     <div className={cn('relative', className)}>
       {/* Connector line */}
-      <div className="absolute left-4 top-6 bottom-6 w-0.5 bg-gray-200 dark:bg-gray-700" aria-hidden="true" />
+      <div
+        className="absolute left-4 top-6 bottom-6 w-0.5 bg-gray-200 dark:bg-gray-700"
+        aria-hidden="true"
+      />
 
       <ul className="space-y-4">
         {items.map((item) => (
@@ -42,16 +45,21 @@ export function Timeline({ items, className }: TimelineProps) {
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.title}</p>
                 {item.badge && (
-                  <span className={cn(
-                    'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium',
-                    item.badge.className || 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-                  )}>
+                  <span
+                    className={cn(
+                      'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium',
+                      item.badge.className ||
+                        'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                    )}
+                  >
                     {item.badge.label}
                   </span>
                 )}
               </div>
               {item.description && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{item.description}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                  {item.description}
+                </p>
               )}
               <div className="flex items-center gap-2 mt-1 text-xs text-gray-400 dark:text-gray-500">
                 <time>{item.timestamp}</time>

@@ -208,7 +208,8 @@ export const chemicalsTemplates: TemplateDefinition[] = [
         id: 'section_risk_inherent',
         label: 'Inherent Risk Rating (Before Controls)',
         type: 'section',
-        helpText: 'Rate the risk before any control measures are applied. Use the 5×5 matrix (1=Very Low, 5=Very High).',
+        helpText:
+          'Rate the risk before any control measures are applied. Use the 5×5 matrix (1=Very Low, 5=Very High).',
       },
       {
         id: 'inherent_likelihood',
@@ -236,7 +237,8 @@ export const chemicalsTemplates: TemplateDefinition[] = [
         id: 'section_controls',
         label: 'Control Measures (Hierarchy of Controls)',
         type: 'section',
-        helpText: 'Document controls in order of the hierarchy: Elimination → Substitution → Engineering → Administrative → PPE.',
+        helpText:
+          'Document controls in order of the hierarchy: Elimination → Substitution → Engineering → Administrative → PPE.',
       },
       {
         id: 'controls_table',
@@ -257,7 +259,12 @@ export const chemicalsTemplates: TemplateDefinition[] = [
               { label: 'PPE', value: 'PPE' },
             ],
           },
-          { id: 'control_description', label: 'Description', type: 'text', placeholder: 'e.g. Use fume cupboard for decanting' },
+          {
+            id: 'control_description',
+            label: 'Description',
+            type: 'text',
+            placeholder: 'e.g. Use fume cupboard for decanting',
+          },
           {
             id: 'control_status',
             label: 'Status',
@@ -574,7 +581,8 @@ export const chemicalsTemplates: TemplateDefinition[] = [
         id: 'h_statements',
         label: 'Hazard Statements',
         type: 'textarea',
-        placeholder: 'e.g. H225 — Highly flammable liquid and vapour\nH319 — Causes serious eye irritation',
+        placeholder:
+          'e.g. H225 — Highly flammable liquid and vapour\nH319 — Causes serious eye irritation',
         width: 'full',
         section: 'section_classification',
       },
@@ -823,7 +831,14 @@ export const chemicalsTemplates: TemplateDefinition[] = [
       'Incident report form for chemical spills and accidental releases. Covers immediate response actions, containment, clean-up, root cause analysis, and follow-up corrective actions. Aligned with ISO 14001 clause 8.2 and COSHH Regulations.',
     module: 'CHEMICALS',
     category: 'INCIDENT_INVESTIGATION',
-    tags: ['spill', 'chemical incident', 'emergency', 'ISO 14001', 'COSHH', 'environmental release'],
+    tags: [
+      'spill',
+      'chemical incident',
+      'emergency',
+      'ISO 14001',
+      'COSHH',
+      'environmental release',
+    ],
     isoClause: '8.2',
     fields: [
       {
@@ -912,7 +927,12 @@ export const chemicalsTemplates: TemplateDefinition[] = [
         required: true,
         columns: [
           { id: 'time', label: 'Time', type: 'text', placeholder: 'HH:MM' },
-          { id: 'action', label: 'Action Taken', type: 'text', placeholder: 'e.g. Area evacuated, spill kit deployed' },
+          {
+            id: 'action',
+            label: 'Action Taken',
+            type: 'text',
+            placeholder: 'e.g. Area evacuated, spill kit deployed',
+          },
           { id: 'by', label: 'By Whom', type: 'text' },
         ],
         section: 'section_response',
@@ -927,7 +947,8 @@ export const chemicalsTemplates: TemplateDefinition[] = [
         id: 'environmental_agency_notified',
         label: 'Environment Agency Notified?',
         type: 'checkbox',
-        helpText: 'Required if release reaches controlled waters or is above notification threshold.',
+        helpText:
+          'Required if release reaches controlled waters or is above notification threshold.',
         section: 'section_response',
       },
       // ── Root Cause ──
@@ -1017,7 +1038,15 @@ export const chemicalsTemplates: TemplateDefinition[] = [
       'Form for recording airborne workplace exposure monitoring results against UK EH40 Workplace Exposure Limits (WELs). Covers TWA and STEL measurements, sampling methodology, and compliance determination.',
     module: 'CHEMICALS',
     category: 'INSPECTION',
-    tags: ['WEL', 'EH40', 'exposure monitoring', 'TWA', 'STEL', 'air sampling', 'occupational hygiene'],
+    tags: [
+      'WEL',
+      'EH40',
+      'exposure monitoring',
+      'TWA',
+      'STEL',
+      'air sampling',
+      'occupational hygiene',
+    ],
     isoClause: '8.1',
     fields: [
       {
@@ -1313,7 +1342,16 @@ export const chemicalsTemplates: TemplateDefinition[] = [
         columns: [
           { id: 'ncr_ref', label: 'NCR Ref', type: 'text' },
           { id: 'description', label: 'Description', type: 'text' },
-          { id: 'priority', label: 'Priority', type: 'select', options: [{ label: 'High', value: 'HIGH' }, { label: 'Medium', value: 'MEDIUM' }, { label: 'Low', value: 'LOW' }] },
+          {
+            id: 'priority',
+            label: 'Priority',
+            type: 'select',
+            options: [
+              { label: 'High', value: 'HIGH' },
+              { label: 'Medium', value: 'MEDIUM' },
+              { label: 'Low', value: 'LOW' },
+            ],
+          },
           { id: 'assigned_to', label: 'Assigned To', type: 'text' },
           { id: 'due_date', label: 'Due Date', type: 'date' },
         ],

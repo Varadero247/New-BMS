@@ -44,13 +44,7 @@ const updateRecordSchema = createRecordSchema.partial().extend({
 // GET /api/training/courses - List all courses
 router.get('/courses', authenticate, async (req, res, next) => {
   try {
-    const {
-      standard,
-      isActive,
-      search,
-      page = '1',
-      limit = '20',
-    } = req.query;
+    const { standard, isActive, search, page = '1', limit = '20' } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
@@ -105,7 +99,9 @@ router.get('/courses/:id', authenticate, async (req, res, next) => {
       include: {
         trainingRecords: {
           include: {
-            user: { select: { id: true, firstName: true, lastName: true, email: true, department: true } },
+            user: {
+              select: { id: true, firstName: true, lastName: true, email: true, department: true },
+            },
           },
         },
       },
@@ -125,63 +121,75 @@ router.get('/courses/:id', authenticate, async (req, res, next) => {
 });
 
 // POST /api/training/courses - Create new course
-router.post('/courses', authenticate, requireRole(['ADMIN', 'MANAGER']), validate(createCourseSchema), async (req, res, next) => {
-  try {
-    const course = await prisma.trainingCourse.create({
-      data: req.body,
-    });
+router.post(
+  '/courses',
+  authenticate,
+  requireRole(['ADMIN', 'MANAGER']),
+  validate(createCourseSchema),
+  async (req, res, next) => {
+    try {
+      const course = await prisma.trainingCourse.create({
+        data: req.body,
+      });
 
-    await prisma.auditLog.create({
-      data: {
-        userId: req.user!.id,
-        action: 'CREATE',
-        entity: 'TrainingCourse',
-        entityId: course.id,
-        newData: course as any,
-      },
-    });
+      await prisma.auditLog.create({
+        data: {
+          userId: req.user!.id,
+          action: 'CREATE',
+          entity: 'TrainingCourse',
+          entityId: course.id,
+          newData: course as any,
+        },
+      });
 
-    res.status(201).json({ success: true, data: course });
-  } catch (error) {
-    next(error);
+      res.status(201).json({ success: true, data: course });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // PUT /api/training/courses/:id - Update course
-router.put('/courses/:id', authenticate, requireRole(['ADMIN', 'MANAGER']), validate(updateCourseSchema), async (req, res, next) => {
-  try {
-    const existing = await prisma.trainingCourse.findUnique({
-      where: { id: req.params.id },
-    });
-
-    if (!existing) {
-      return res.status(404).json({
-        success: false,
-        error: { code: 'NOT_FOUND', message: 'Course not found' },
+router.put(
+  '/courses/:id',
+  authenticate,
+  requireRole(['ADMIN', 'MANAGER']),
+  validate(updateCourseSchema),
+  async (req, res, next) => {
+    try {
+      const existing = await prisma.trainingCourse.findUnique({
+        where: { id: req.params.id },
       });
+
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Course not found' },
+        });
+      }
+
+      const course = await prisma.trainingCourse.update({
+        where: { id: req.params.id },
+        data: req.body,
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          userId: req.user!.id,
+          action: 'UPDATE',
+          entity: 'TrainingCourse',
+          entityId: course.id,
+          oldData: existing as any,
+          newData: course as any,
+        },
+      });
+
+      res.json({ success: true, data: course });
+    } catch (error) {
+      next(error);
     }
-
-    const course = await prisma.trainingCourse.update({
-      where: { id: req.params.id },
-      data: req.body,
-    });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: req.user!.id,
-        action: 'UPDATE',
-        entity: 'TrainingCourse',
-        entityId: course.id,
-        oldData: existing as any,
-        newData: course as any,
-      },
-    });
-
-    res.json({ success: true, data: course });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 // DELETE /api/training/courses/:id - Delete course
 router.delete('/courses/:id', authenticate, requireRole(['ADMIN']), async (req, res, next) => {
@@ -222,13 +230,7 @@ router.delete('/courses/:id', authenticate, requireRole(['ADMIN']), async (req, 
 // GET /api/training/records - List all training records
 router.get('/records', authenticate, async (req, res, next) => {
   try {
-    const {
-      userId,
-      courseId,
-      status,
-      page = '1',
-      limit = '20',
-    } = req.query;
+    const { userId, courseId, status, page = '1', limit = '20' } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
@@ -256,7 +258,9 @@ router.get('/records', authenticate, async (req, res, next) => {
         take: limitNum,
         orderBy: { createdAt: 'desc' },
         include: {
-          user: { select: { id: true, firstName: true, lastName: true, email: true, department: true } },
+          user: {
+            select: { id: true, firstName: true, lastName: true, email: true, department: true },
+          },
           course: true,
         },
       }),
@@ -290,7 +294,8 @@ router.get('/matrix', authenticate, async (req, res, next) => {
     const courses = await prisma.trainingCourse.findMany({
       where: courseWhere,
       orderBy: { title: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Get all users
     const userWhere: Record<string, unknown> = { isActive: true };
@@ -317,7 +322,8 @@ router.get('/matrix', authenticate, async (req, res, next) => {
         },
       },
       orderBy: [{ department: 'asc' }, { lastName: 'asc' }],
-      take: 1000});
+      take: 1000,
+    });
 
     // Build matrix
     const matrix = users.map((user) => {
@@ -359,7 +365,7 @@ router.get('/matrix', authenticate, async (req, res, next) => {
         const requiredDepts = course.requiredForDepartments?.split(',').map((d) => d.trim()) || [];
 
         const isRequired =
-          requiredRoles.length === 0 && requiredDepts.length === 0 ||
+          (requiredRoles.length === 0 && requiredDepts.length === 0) ||
           requiredRoles.includes(user.role) ||
           (user.department && requiredDepts.includes(user.department));
 
@@ -372,7 +378,8 @@ router.get('/matrix', authenticate, async (req, res, next) => {
       });
     });
 
-    stats.completionRate = totalRequired > 0 ? Math.round((totalCompleted / totalRequired) * 100) : 100;
+    stats.completionRate =
+      totalRequired > 0 ? Math.round((totalCompleted / totalRequired) * 100) : 100;
 
     res.json({
       success: true,
@@ -399,7 +406,10 @@ router.post('/records', authenticate, validate(createRecordSchema), async (req, 
     if (existing) {
       return res.status(400).json({
         success: false,
-        error: { code: 'DUPLICATE', message: 'Training record already exists for this user and course' },
+        error: {
+          code: 'DUPLICATE',
+          message: 'Training record already exists for this user and course',
+        },
       });
     }
 
@@ -467,27 +477,32 @@ router.put('/records/:id', authenticate, validate(updateRecordSchema), async (re
 });
 
 // DELETE /api/training/records/:id - Delete training record
-router.delete('/records/:id', authenticate, requireRole(['ADMIN', 'MANAGER']), async (req, res, next) => {
-  try {
-    const existing = await prisma.trainingRecord.findUnique({
-      where: { id: req.params.id },
-    });
-
-    if (!existing) {
-      return res.status(404).json({
-        success: false,
-        error: { code: 'NOT_FOUND', message: 'Training record not found' },
+router.delete(
+  '/records/:id',
+  authenticate,
+  requireRole(['ADMIN', 'MANAGER']),
+  async (req, res, next) => {
+    try {
+      const existing = await prisma.trainingRecord.findUnique({
+        where: { id: req.params.id },
       });
+
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Training record not found' },
+        });
+      }
+
+      await prisma.trainingRecord.delete({
+        where: { id: req.params.id },
+      });
+
+      res.json({ success: true, data: { message: 'Training record deleted successfully' } });
+    } catch (error) {
+      next(error);
     }
-
-    await prisma.trainingRecord.delete({
-      where: { id: req.params.id },
-    });
-
-    res.json({ success: true, data: { message: 'Training record deleted successfully' } });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 export default router;

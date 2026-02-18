@@ -22,7 +22,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((_req: any, _res: any, next: any) => {
-    _req.user = { id: '00000000-0000-4000-a000-000000000099', orgId: '00000000-0000-4000-a000-000000000100', role: 'ADMIN' };
+    _req.user = {
+      id: '00000000-0000-4000-a000-000000000099',
+      orgId: '00000000-0000-4000-a000-000000000100',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -97,7 +101,9 @@ describe('GET /api/purchase-orders', () => {
     (prisma as any).finPurchaseOrder.findMany.mockResolvedValue([]);
     (prisma as any).finPurchaseOrder.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/purchase-orders?dateFrom=2026-01-01&dateTo=2026-01-31');
+    const res = await request(app).get(
+      '/api/purchase-orders?dateFrom=2026-01-01&dateTo=2026-01-31'
+    );
 
     expect(res.status).toBe(200);
   });
@@ -135,7 +141,14 @@ describe('GET /api/purchase-orders/:id', () => {
       status: 'DRAFT',
       supplier: { id: SUPPLIER_UUID, code: 'SUPP-ACME-1234', name: 'Acme Supplies' },
       lines: [
-        { id: 'f6100000-0000-4000-a000-000000000001', description: 'Office Chairs', quantity: 10, unitPrice: 200, amount: 2000, sortOrder: 0 },
+        {
+          id: 'f6100000-0000-4000-a000-000000000001',
+          description: 'Office Chairs',
+          quantity: 10,
+          unitPrice: 200,
+          amount: 2000,
+          sortOrder: 0,
+        },
       ],
     };
     (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(order);
@@ -196,7 +209,11 @@ describe('POST /api/purchase-orders', () => {
       subtotal: 4500,
       total: 4500,
       supplier: { id: SUPPLIER_UUID, code: 'SUPP-ACME-1234', name: 'Acme Supplies' },
-      lines: validOrder.lines.map((l, i) => ({ id: `line-${i}`, ...l, amount: l.quantity * l.unitPrice })),
+      lines: validOrder.lines.map((l, i) => ({
+        id: `line-${i}`,
+        ...l,
+        amount: l.quantity * l.unitPrice,
+      })),
     });
 
     const res = await request(app).post('/api/purchase-orders').send(validOrder);
@@ -227,10 +244,12 @@ describe('POST /api/purchase-orders', () => {
   });
 
   it('should return 400 for invalid supplierId (not UUID)', async () => {
-    const res = await request(app).post('/api/purchase-orders').send({
-      ...validOrder,
-      supplierId: 'not-a-uuid',
-    });
+    const res = await request(app)
+      .post('/api/purchase-orders')
+      .send({
+        ...validOrder,
+        supplierId: 'not-a-uuid',
+      });
 
     expect(res.status).toBe(400);
   });
@@ -257,7 +276,11 @@ describe('POST /api/purchase-orders', () => {
 
 describe('PUT /api/purchase-orders/:id', () => {
   it('should update a purchase order header', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'DRAFT', deletedAt: null });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000001',
+      status: 'DRAFT',
+      deletedAt: null,
+    });
     (prisma as any).finPurchaseOrder.update.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       status: 'SENT',
@@ -266,7 +289,9 @@ describe('PUT /api/purchase-orders/:id', () => {
       lines: [],
     });
 
-    const res = await request(app).put('/api/purchase-orders/f7100000-0000-4000-a000-000000000001').send({ status: 'SENT', notes: 'Please deliver by end of month' });
+    const res = await request(app)
+      .put('/api/purchase-orders/f7100000-0000-4000-a000-000000000001')
+      .send({ status: 'SENT', notes: 'Please deliver by end of month' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -275,42 +300,68 @@ describe('PUT /api/purchase-orders/:id', () => {
   it('should return 404 when purchase order not found', async () => {
     (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/purchase-orders/00000000-0000-0000-0000-000000000099').send({ notes: 'test' });
+    const res = await request(app)
+      .put('/api/purchase-orders/00000000-0000-0000-0000-000000000099')
+      .send({ notes: 'test' });
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
   });
 
   it('should return 400 when trying to update a RECEIVED order', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'RECEIVED', deletedAt: null });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000001',
+      status: 'RECEIVED',
+      deletedAt: null,
+    });
 
-    const res = await request(app).put('/api/purchase-orders/f7100000-0000-4000-a000-000000000001').send({ notes: 'test' });
+    const res = await request(app)
+      .put('/api/purchase-orders/f7100000-0000-4000-a000-000000000001')
+      .send({ notes: 'test' });
 
     expect(res.status).toBe(400);
     expect(res.body.error.message).toContain('RECEIVED');
   });
 
   it('should return 400 when trying to update a CANCELLED order', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'CANCELLED', deletedAt: null });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000001',
+      status: 'CANCELLED',
+      deletedAt: null,
+    });
 
-    const res = await request(app).put('/api/purchase-orders/f7100000-0000-4000-a000-000000000001').send({ notes: 'test' });
+    const res = await request(app)
+      .put('/api/purchase-orders/f7100000-0000-4000-a000-000000000001')
+      .send({ notes: 'test' });
 
     expect(res.status).toBe(400);
   });
 
   it('should return 400 for validation error (invalid status)', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'DRAFT', deletedAt: null });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000001',
+      status: 'DRAFT',
+      deletedAt: null,
+    });
 
-    const res = await request(app).put('/api/purchase-orders/f7100000-0000-4000-a000-000000000001').send({ status: 'INVALID_STATUS' });
+    const res = await request(app)
+      .put('/api/purchase-orders/f7100000-0000-4000-a000-000000000001')
+      .send({ status: 'INVALID_STATUS' });
 
     expect(res.status).toBe(400);
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'DRAFT', deletedAt: null });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000001',
+      status: 'DRAFT',
+      deletedAt: null,
+    });
     (prisma as any).finPurchaseOrder.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/purchase-orders/f7100000-0000-4000-a000-000000000001').send({ notes: 'test' });
+    const res = await request(app)
+      .put('/api/purchase-orders/f7100000-0000-4000-a000-000000000001')
+      .send({ notes: 'test' });
 
     expect(res.status).toBe(500);
   });
@@ -322,10 +373,18 @@ describe('PUT /api/purchase-orders/:id', () => {
 
 describe('DELETE /api/purchase-orders/:id', () => {
   it('should soft delete a DRAFT purchase order', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'DRAFT', deletedAt: null });
-    (prisma as any).finPurchaseOrder.update.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001' });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000001',
+      status: 'DRAFT',
+      deletedAt: null,
+    });
+    (prisma as any).finPurchaseOrder.update.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000001',
+    });
 
-    const res = await request(app).delete('/api/purchase-orders/f7100000-0000-4000-a000-000000000001');
+    const res = await request(app).delete(
+      '/api/purchase-orders/f7100000-0000-4000-a000-000000000001'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -333,10 +392,18 @@ describe('DELETE /api/purchase-orders/:id', () => {
   });
 
   it('should soft delete a CANCELLED purchase order', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'CANCELLED', deletedAt: null });
-    (prisma as any).finPurchaseOrder.update.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001' });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000001',
+      status: 'CANCELLED',
+      deletedAt: null,
+    });
+    (prisma as any).finPurchaseOrder.update.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000001',
+    });
 
-    const res = await request(app).delete('/api/purchase-orders/f7100000-0000-4000-a000-000000000001');
+    const res = await request(app).delete(
+      '/api/purchase-orders/f7100000-0000-4000-a000-000000000001'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -345,34 +412,54 @@ describe('DELETE /api/purchase-orders/:id', () => {
   it('should return 404 when purchase order not found', async () => {
     (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/purchase-orders/00000000-0000-0000-0000-000000000099');
+    const res = await request(app).delete(
+      '/api/purchase-orders/00000000-0000-0000-0000-000000000099'
+    );
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
   });
 
   it('should return 409 when trying to delete a SENT order', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'SENT', deletedAt: null });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000001',
+      status: 'SENT',
+      deletedAt: null,
+    });
 
-    const res = await request(app).delete('/api/purchase-orders/f7100000-0000-4000-a000-000000000001');
+    const res = await request(app).delete(
+      '/api/purchase-orders/f7100000-0000-4000-a000-000000000001'
+    );
 
     expect(res.status).toBe(409);
     expect(res.body.error.message).toContain('SENT');
   });
 
   it('should return 409 when trying to delete a RECEIVED order', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'RECEIVED', deletedAt: null });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000001',
+      status: 'RECEIVED',
+      deletedAt: null,
+    });
 
-    const res = await request(app).delete('/api/purchase-orders/f7100000-0000-4000-a000-000000000001');
+    const res = await request(app).delete(
+      '/api/purchase-orders/f7100000-0000-4000-a000-000000000001'
+    );
 
     expect(res.status).toBe(409);
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({ id: 'f7100000-0000-4000-a000-000000000001', status: 'DRAFT', deletedAt: null });
+    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000001',
+      status: 'DRAFT',
+      deletedAt: null,
+    });
     (prisma as any).finPurchaseOrder.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).delete('/api/purchase-orders/f7100000-0000-4000-a000-000000000001');
+    const res = await request(app).delete(
+      '/api/purchase-orders/f7100000-0000-4000-a000-000000000001'
+    );
 
     expect(res.status).toBe(500);
   });

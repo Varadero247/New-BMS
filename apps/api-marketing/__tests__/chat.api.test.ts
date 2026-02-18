@@ -27,7 +27,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/chat', chatRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockSession = {
   id: 'session-1',
@@ -48,9 +50,7 @@ describe('POST /api/chat/start', () => {
     (prisma.mktChatSession.create as jest.Mock).mockResolvedValue(mockSession);
     (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(mockSession);
 
-    const res = await request(app)
-      .post('/api/chat/start')
-      .send({});
+    const res = await request(app).post('/api/chat/start').send({});
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -62,9 +62,7 @@ describe('POST /api/chat/start', () => {
     (prisma.mktChatSession.create as jest.Mock).mockResolvedValue(mockSession);
     (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(mockSession);
 
-    const res = await request(app)
-      .post('/api/chat/start')
-      .send({ visitorId: 'visitor-123' });
+    const res = await request(app).post('/api/chat/start').send({ visitorId: 'visitor-123' });
 
     expect(res.status).toBe(200);
     expect(prisma.mktChatSession.create).toHaveBeenCalled();
@@ -73,9 +71,7 @@ describe('POST /api/chat/start', () => {
   it('returns 500 on database error', async () => {
     (prisma.mktChatSession.create as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app)
-      .post('/api/chat/start')
-      .send({});
+    const res = await request(app).post('/api/chat/start').send({});
 
     expect(res.status).toBe(500);
   });
@@ -87,9 +83,7 @@ describe('POST /api/chat/start', () => {
 
 describe('POST /api/chat/message', () => {
   it('returns 400 for missing sessionId', async () => {
-    const res = await request(app)
-      .post('/api/chat/message')
-      .send({ message: 'hello' });
+    const res = await request(app).post('/api/chat/message').send({ message: 'hello' });
 
     expect(res.status).toBe(400);
   });
@@ -113,7 +107,10 @@ describe('POST /api/chat/message', () => {
   });
 
   it('processes message and returns response', async () => {
-    const session = { ...mockSession, messages: JSON.stringify([{ role: 'assistant', content: 'Hi!' }]) };
+    const session = {
+      ...mockSession,
+      messages: JSON.stringify([{ role: 'assistant', content: 'Hi!' }]),
+    };
     (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
     (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(session);
 
@@ -133,7 +130,10 @@ describe('POST /api/chat/message', () => {
       json: () => Promise.resolve({ content: [{ text: 'AI response' }] }),
     });
 
-    const session = { ...mockSession, messages: JSON.stringify([{ role: 'assistant', content: 'Hi!' }]) };
+    const session = {
+      ...mockSession,
+      messages: JSON.stringify([{ role: 'assistant', content: 'Hi!' }]),
+    };
     (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
     (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(session);
 
@@ -148,20 +148,25 @@ describe('POST /api/chat/message', () => {
 
   it('detects CAPTURE JSON and saves lead', async () => {
     process.env.ANTHROPIC_API_KEY = 'test-key';
-    const captureResponse = 'Thanks! CAPTURE:{"name":"Jane","email":"jane@test.com","isoStandards":"9001","companySize":"50","isDecisionMaker":true,"preferredDemoTime":"morning"}';
+    const captureResponse =
+      'Thanks! CAPTURE:{"name":"Jane","email":"jane@test.com","isoStandards":"9001","companySize":"50","isDecisionMaker":true,"preferredDemoTime":"morning"}';
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ content: [{ text: captureResponse }] }),
     });
 
-    const session = { ...mockSession, messages: JSON.stringify([{ role: 'assistant', content: 'Hi!' }]) };
+    const session = {
+      ...mockSession,
+      messages: JSON.stringify([{ role: 'assistant', content: 'Hi!' }]),
+    };
     (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
     (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(session);
     (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: 'lead-1' });
 
-    const res = await request(app)
-      .post('/api/chat/message')
-      .send({ sessionId: '00000000-0000-0000-0000-000000000001', message: 'my email is jane@test.com' });
+    const res = await request(app).post('/api/chat/message').send({
+      sessionId: '00000000-0000-0000-0000-000000000001',
+      message: 'my email is jane@test.com',
+    });
 
     expect(res.body.data.captured).toBe(true);
     expect(res.body.data.message).not.toContain('CAPTURE:');
@@ -173,7 +178,14 @@ describe('POST /api/chat/message', () => {
     process.env.ANTHROPIC_API_KEY = 'test-key';
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ content: [{ text: 'Great! CAPTURE:{"name":"Jane","email":"j@t.com","isoStandards":"9001","companySize":"50","isDecisionMaker":true,"preferredDemoTime":"am"} I will send you info.' }] }),
+      json: () =>
+        Promise.resolve({
+          content: [
+            {
+              text: 'Great! CAPTURE:{"name":"Jane","email":"j@t.com","isoStandards":"9001","companySize":"50","isDecisionMaker":true,"preferredDemoTime":"am"} I will send you info.',
+            },
+          ],
+        }),
     });
 
     const session = { ...mockSession, messages: JSON.stringify([]) };
@@ -204,7 +216,10 @@ describe('POST /api/chat/message', () => {
 
 describe('GET /api/chat/session/:id', () => {
   it('returns session with parsed messages', async () => {
-    const session = { ...mockSession, messages: JSON.stringify([{ role: 'assistant', content: 'Hi' }]) };
+    const session = {
+      ...mockSession,
+      messages: JSON.stringify([{ role: 'assistant', content: 'Hi' }]),
+    };
     (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
 
     const res = await request(app).get('/api/chat/session/00000000-0000-0000-0000-000000000001');

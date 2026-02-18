@@ -43,7 +43,15 @@ beforeEach(() => {
 
 describe('GET /api/kpis', () => {
   it('should return KPIs with pagination', async () => {
-    const kpis = [{ id: '00000000-0000-0000-0000-000000000001', metricType: 'FIRST_TIME_FIX', value: 85, unit: '%', technician: {} }];
+    const kpis = [
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        metricType: 'FIRST_TIME_FIX',
+        value: 85,
+        unit: '%',
+        technician: {},
+      },
+    ];
     (prisma as any).fsSvcKpi.findMany.mockResolvedValue(kpis);
     (prisma as any).fsSvcKpi.count.mockResolvedValue(1);
 
@@ -92,15 +100,27 @@ describe('GET /api/kpis', () => {
 describe('GET /api/kpis/dashboard', () => {
   it('should return KPI dashboard summary', async () => {
     const kpis = [
-      { metricType: 'FIRST_TIME_FIX', value: 85, unit: '%', target: 90, technician: { name: 'John' } },
-      { metricType: 'FIRST_TIME_FIX', value: 90, unit: '%', target: 90, technician: { name: 'Jane' } },
+      {
+        metricType: 'FIRST_TIME_FIX',
+        value: 85,
+        unit: '%',
+        target: 90,
+        technician: { name: 'John' },
+      },
+      {
+        metricType: 'FIRST_TIME_FIX',
+        value: 90,
+        unit: '%',
+        target: 90,
+        technician: { name: 'Jane' },
+      },
       { metricType: 'UTILIZATION', value: 75, unit: '%', target: 80, technician: { name: 'John' } },
     ];
     (prisma as any).fsSvcKpi.findMany.mockResolvedValue(kpis);
     (prisma as any).fsSvcJob.count
-      .mockResolvedValueOnce(50)   // totalJobs
-      .mockResolvedValueOnce(40)   // completedJobs
-      .mockResolvedValueOnce(10);  // openJobs
+      .mockResolvedValueOnce(50) // totalJobs
+      .mockResolvedValueOnce(40) // completedJobs
+      .mockResolvedValueOnce(10); // openJobs
 
     const res = await request(app).get('/api/kpis/dashboard');
 
@@ -126,16 +146,14 @@ describe('POST /api/kpis', () => {
     const created = { id: 'kpi-new', metricType: 'FIRST_TIME_FIX', value: 92, unit: '%' };
     (prisma as any).fsSvcKpi.create.mockResolvedValue(created);
 
-    const res = await request(app)
-      .post('/api/kpis')
-      .send({
-        metricType: 'FIRST_TIME_FIX',
-        value: 92,
-        unit: '%',
-        periodStart: '2026-02-01',
-        periodEnd: '2026-02-28',
-        target: 90,
-      });
+    const res = await request(app).post('/api/kpis').send({
+      metricType: 'FIRST_TIME_FIX',
+      value: 92,
+      unit: '%',
+      periodStart: '2026-02-01',
+      periodEnd: '2026-02-28',
+      target: 90,
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -145,24 +163,20 @@ describe('POST /api/kpis', () => {
     const created = { id: 'kpi-new', technicianId: 'tech-1', metricType: 'UTILIZATION', value: 80 };
     (prisma as any).fsSvcKpi.create.mockResolvedValue(created);
 
-    const res = await request(app)
-      .post('/api/kpis')
-      .send({
-        technicianId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        metricType: 'UTILIZATION',
-        value: 80,
-        unit: '%',
-        periodStart: '2026-02-01',
-        periodEnd: '2026-02-28',
-      });
+    const res = await request(app).post('/api/kpis').send({
+      technicianId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      metricType: 'UTILIZATION',
+      value: 80,
+      unit: '%',
+      periodStart: '2026-02-01',
+      periodEnd: '2026-02-28',
+    });
 
     expect(res.status).toBe(201);
   });
 
   it('should reject invalid data', async () => {
-    const res = await request(app)
-      .post('/api/kpis')
-      .send({ metricType: 'INVALID' });
+    const res = await request(app).post('/api/kpis').send({ metricType: 'INVALID' });
 
     expect(res.status).toBe(400);
   });
@@ -170,7 +184,11 @@ describe('POST /api/kpis', () => {
 
 describe('GET /api/kpis/:id', () => {
   it('should return a KPI by id', async () => {
-    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', metricType: 'FIRST_TIME_FIX', technician: {} });
+    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      metricType: 'FIRST_TIME_FIX',
+      technician: {},
+    });
 
     const res = await request(app).get('/api/kpis/00000000-0000-0000-0000-000000000001');
 
@@ -189,8 +207,13 @@ describe('GET /api/kpis/:id', () => {
 
 describe('PUT /api/kpis/:id', () => {
   it('should update a KPI', async () => {
-    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcKpi.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', value: 95 });
+    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcKpi.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      value: 95,
+    });
 
     const res = await request(app)
       .put('/api/kpis/00000000-0000-0000-0000-000000000001')
@@ -212,8 +235,13 @@ describe('PUT /api/kpis/:id', () => {
 
 describe('DELETE /api/kpis/:id', () => {
   it('should soft delete a KPI', async () => {
-    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcKpi.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcKpi.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000001');
 

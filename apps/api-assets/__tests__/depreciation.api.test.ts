@@ -7,19 +7,42 @@ jest.mock('../src/prisma', () => ({
   },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/depreciation';
 import { prisma } from '../src/prisma';
-const app = express(); app.use(express.json()); app.use('/api/depreciation', router);
-beforeEach(() => { jest.clearAllMocks(); });
+const app = express();
+app.use(express.json());
+app.use('/api/depreciation', router);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('GET /api/depreciation', () => {
   it('should return depreciation data for assets', async () => {
     (prisma as any).assetRegister.findMany.mockResolvedValue([
-      { id: '1', name: 'Forklift', purchaseCost: 50000, currentValue: 30000, purchaseDate: '2023-01-01' },
-      { id: '2', name: 'Pump', purchaseCost: 10000, currentValue: 7500, purchaseDate: '2024-06-01' },
+      {
+        id: '1',
+        name: 'Forklift',
+        purchaseCost: 50000,
+        currentValue: 30000,
+        purchaseDate: '2023-01-01',
+      },
+      {
+        id: '2',
+        name: 'Pump',
+        purchaseCost: 10000,
+        currentValue: 7500,
+        purchaseDate: '2024-06-01',
+      },
     ]);
     const res = await request(app).get('/api/depreciation');
     expect(res.status).toBe(200);

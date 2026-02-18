@@ -14,7 +14,9 @@ export default function PayrollSettingsPage() {
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Payroll Settings</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Configure payroll processing preferences</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Configure payroll processing preferences
+          </p>
         </div>
 
         <div className="space-y-6">
@@ -27,8 +29,14 @@ export default function PayrollSettingsPage() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Base Currency</label>
-                  <select value={baseCurrency} onChange={(e) => setBaseCurrency(e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Base Currency
+                  </label>
+                  <select
+                    value={baseCurrency}
+                    onChange={(e) => setBaseCurrency(e.target.value)}
+                    className="w-full border rounded-md px-3 py-2 text-sm"
+                  >
                     <option value="GBP">GBP - British Pound</option>
                     <option value="USD">USD - US Dollar</option>
                     <option value="EUR">EUR - Euro</option>
@@ -38,18 +46,33 @@ export default function PayrollSettingsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pay Frequency</label>
-                  <select value={payFrequency} onChange={(e) => setPayFrequency(e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Pay Frequency
+                  </label>
+                  <select
+                    value={payFrequency}
+                    onChange={(e) => setPayFrequency(e.target.value)}
+                    className="w-full border rounded-md px-3 py-2 text-sm"
+                  >
                     <option value="WEEKLY">Weekly</option>
                     <option value="FORTNIGHTLY">Fortnightly</option>
                     <option value="MONTHLY">Monthly</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pay Day</label>
-                  <select value={payDay} onChange={(e) => setPayDay(e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Pay Day
+                  </label>
+                  <select
+                    value={payDay}
+                    onChange={(e) => setPayDay(e.target.value)}
+                    className="w-full border rounded-md px-3 py-2 text-sm"
+                  >
                     {Array.from({ length: 28 }, (_, i) => (
-                      <option key={i + 1} value={String(i + 1)}>{i + 1}{['st','nd','rd'][i] || 'th'} of month</option>
+                      <option key={i + 1} value={String(i + 1)}>
+                        {i + 1}
+                        {['st', 'nd', 'rd'][i] || 'th'} of month
+                      </option>
                     ))}
                     <option value="LAST">Last working day</option>
                   </select>
@@ -65,8 +88,14 @@ export default function PayrollSettingsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Manage active payroll jurisdictions and tax rules.</p>
-              <Button variant="outline" size="sm" onClick={() => window.location.href = '/jurisdictions'}>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                Manage active payroll jurisdictions and tax rules.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => (window.location.href = '/jurisdictions')}
+              >
                 Manage Jurisdictions
               </Button>
             </CardContent>
@@ -82,15 +111,21 @@ export default function PayrollSettingsPage() {
               <div className="space-y-3">
                 <label className="flex items-center gap-2">
                   <input type="checkbox" defaultChecked className="rounded" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Notify payroll admins when a run is ready for review</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Notify payroll admins when a run is ready for review
+                  </span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input type="checkbox" defaultChecked className="rounded" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Send payslip notifications to employees</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Send payslip notifications to employees
+                  </span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input type="checkbox" defaultChecked className="rounded" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Alert before tax filing deadlines</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Alert before tax filing deadlines
+                  </span>
                 </label>
               </div>
             </CardContent>

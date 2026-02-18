@@ -20,16 +20,22 @@ const createSchema = z.object({
   issuingOrganization: z.string().trim().min(1).max(200),
   credentialId: z.string().optional(),
   credentialUrl: z.string().trim().url().optional(),
-  issueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  issueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  expiryDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   doesNotExpire: z.boolean().optional(),
   renewalRequired: z.boolean().optional(),
   certificateUrl: z.string().trim().url().optional(),
 });
 
-const updateSchema = createSchema.omit({ employeeId: true }).partial().extend({
-  status: z.enum(['ACTIVE', 'EXPIRED', 'REVOKED', 'PENDING_RENEWAL', 'SUSPENDED']).optional(),
-});
+const updateSchema = createSchema
+  .omit({ employeeId: true })
+  .partial()
+  .extend({
+    status: z.enum(['ACTIVE', 'EXPIRED', 'REVOKED', 'PENDING_RENEWAL', 'SUSPENDED']).optional(),
+  });
 
 function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
@@ -69,7 +75,15 @@ router.get('/', async (req: Request, res: Response) => {
         take: limit,
         orderBy: { expiryDate: 'asc' },
         include: {
-          employee: { select: { id: true, employeeNumber: true, firstName: true, lastName: true, jobTitle: true } },
+          employee: {
+            select: {
+              id: true,
+              employeeNumber: true,
+              firstName: true,
+              lastName: true,
+              jobTitle: true,
+            },
+          },
         },
       }),
       prisma.employeeCertification.count({ where }),
@@ -82,7 +96,10 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching certifications', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch certifications' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch certifications' },
+    });
   }
 });
 
@@ -100,7 +117,16 @@ router.get('/expiring-soon', async (_req: Request, res: Response) => {
       },
       orderBy: { expiryDate: 'asc' },
       include: {
-        employee: { select: { id: true, employeeNumber: true, firstName: true, lastName: true, workEmail: true, jobTitle: true } },
+        employee: {
+          select: {
+            id: true,
+            employeeNumber: true,
+            firstName: true,
+            lastName: true,
+            workEmail: true,
+            jobTitle: true,
+          },
+        },
       },
       take: 100,
     });
@@ -108,7 +134,10 @@ router.get('/expiring-soon', async (_req: Request, res: Response) => {
     res.json({ success: true, data: certs });
   } catch (error) {
     logger.error('Error fetching expiring certifications', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch expiring certifications' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch expiring certifications' },
+    });
   }
 });
 
@@ -116,21 +145,30 @@ router.get('/expiring-soon', async (_req: Request, res: Response) => {
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const now = new Date();
-    const in30Days = new Date(); in30Days.setDate(now.getDate() + 30);
-    const in90Days = new Date(); in90Days.setDate(now.getDate() + 90);
+    const in30Days = new Date();
+    in30Days.setDate(now.getDate() + 30);
+    const in90Days = new Date();
+    in90Days.setDate(now.getDate() + 90);
 
     const [total, active, expired, expiring30, expiring90] = await Promise.all([
       prisma.employeeCertification.count(),
       prisma.employeeCertification.count({ where: { status: 'ACTIVE' } }),
       prisma.employeeCertification.count({ where: { status: 'EXPIRED' } }),
-      prisma.employeeCertification.count({ where: { doesNotExpire: false, expiryDate: { lte: in30Days, gte: now }, status: 'ACTIVE' } }),
-      prisma.employeeCertification.count({ where: { doesNotExpire: false, expiryDate: { lte: in90Days, gte: now }, status: 'ACTIVE' } }),
+      prisma.employeeCertification.count({
+        where: { doesNotExpire: false, expiryDate: { lte: in30Days, gte: now }, status: 'ACTIVE' },
+      }),
+      prisma.employeeCertification.count({
+        where: { doesNotExpire: false, expiryDate: { lte: in90Days, gte: now }, status: 'ACTIVE' },
+      }),
     ]);
 
     res.json({ success: true, data: { total, active, expired, expiring30, expiring90 } });
   } catch (error) {
     logger.error('Error fetching certification stats', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch certification stats' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch certification stats' },
+    });
   }
 });
 
@@ -140,18 +178,31 @@ router.get('/:id', async (req: Request, res: Response) => {
     const cert = await prisma.employeeCertification.findUnique({
       where: { id: req.params.id },
       include: {
-        employee: { select: { id: true, employeeNumber: true, firstName: true, lastName: true, jobTitle: true } },
+        employee: {
+          select: {
+            id: true,
+            employeeNumber: true,
+            firstName: true,
+            lastName: true,
+            jobTitle: true,
+          },
+        },
       },
     });
 
     if (!cert) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Certification not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Certification not found' } });
     }
 
     res.json({ success: true, data: cert });
   } catch (error) {
     logger.error('Error fetching certification', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch certification' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch certification' },
+    });
   }
 });
 
@@ -162,7 +213,9 @@ router.post('/', async (req: Request, res: Response) => {
 
     const employee = await prisma.employee.findUnique({ where: { id: data.employeeId } });
     if (!employee) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Employee not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Employee not found' } });
     }
 
     const cert = await prisma.employeeCertification.create({
@@ -187,19 +240,28 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: cert });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating certification', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create certification' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create certification' },
+    });
   }
 });
 
 // PUT /:id - Update certification
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.employeeCertification.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.employeeCertification.findUnique({
+      where: { id: req.params.id },
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Certification not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Certification not found' } });
     }
 
     const data = updateSchema.parse(req.body);
@@ -218,26 +280,38 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: cert });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error updating certification', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update certification' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update certification' },
+    });
   }
 });
 
 // DELETE /:id - Delete certification
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.employeeCertification.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.employeeCertification.findUnique({
+      where: { id: req.params.id },
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Certification not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Certification not found' } });
     }
 
     await prisma.employeeCertification.delete({ where: { id: req.params.id } });
     res.status(204).send();
   } catch (error) {
     logger.error('Error deleting certification', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete certification' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete certification' },
+    });
   }
 });
 

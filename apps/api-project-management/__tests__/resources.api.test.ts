@@ -94,7 +94,9 @@ describe('Resources API Routes', () => {
     });
 
     it('should handle database errors with 500', async () => {
-      (mockPrisma.projectResource.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.projectResource.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/resources?projectId=project-1')
@@ -266,7 +268,9 @@ describe('Resources API Routes', () => {
     });
 
     it('should handle database errors with 500', async () => {
-      (mockPrisma.projectResource.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.projectResource.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/resources/47000000-0000-4000-a000-000000000001')
@@ -308,7 +312,9 @@ describe('Resources API Routes', () => {
     });
 
     it('should handle database errors with 500', async () => {
-      (mockPrisma.projectResource.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.projectResource.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/resources/47000000-0000-4000-a000-000000000001')

@@ -323,7 +323,9 @@ export async function initializeSecretsFromVault(options?: {
     if (required) {
       throw error;
     }
-    logger.warn('Failed to load from Vault, using environment variables', { error: (error as Error).message });
+    logger.warn('Failed to load from Vault, using environment variables', {
+      error: (error as Error).message,
+    });
     return false;
   }
 }

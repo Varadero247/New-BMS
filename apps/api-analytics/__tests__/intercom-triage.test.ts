@@ -28,14 +28,26 @@ beforeEach(() => {
 
 describe('POST /webhooks/intercom', () => {
   it('creates a support ticket from conversation payload', async () => {
-    const mockTicket = { id: 'ticket-1', subject: 'Help needed', category: 'GENERAL', priority: 'P3_MEDIUM' };
+    const mockTicket = {
+      id: 'ticket-1',
+      subject: 'Help needed',
+      category: 'GENERAL',
+      priority: 'P3_MEDIUM',
+    };
     (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue(mockTicket);
 
     const res = await request(app)
       .post('/webhooks/intercom')
       .send({
         topic: 'conversation.created',
-        data: { item: { id: 'conv-1', subject: 'Help needed', body: 'I need help with login', customer: { email: 'user@test.com', id: 'cust-1' } } },
+        data: {
+          item: {
+            id: 'conv-1',
+            subject: 'Help needed',
+            body: 'I need help with login',
+            customer: { email: 'user@test.com', id: 'cust-1' },
+          },
+        },
       });
 
     expect(res.status).toBe(200);
@@ -45,11 +57,17 @@ describe('POST /webhooks/intercom', () => {
   });
 
   it('classifies "bug" keyword as BUG category', async () => {
-    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ticket-2', category: 'BUG' });
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({
+      id: 'ticket-2',
+      category: 'BUG',
+    });
 
     await request(app)
       .post('/webhooks/intercom')
-      .send({ topic: 'conversation.created', data: { item: { id: 'conv-2', subject: 'Bug in reports', body: 'Report page is broken' } } });
+      .send({
+        topic: 'conversation.created',
+        data: { item: { id: 'conv-2', subject: 'Bug in reports', body: 'Report page is broken' } },
+      });
 
     expect(prisma.supportTicketLog.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ category: 'BUG' }) })
@@ -57,11 +75,19 @@ describe('POST /webhooks/intercom', () => {
   });
 
   it('classifies "feature" keyword as FEATURE_REQUEST category', async () => {
-    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ticket-3', category: 'FEATURE_REQUEST' });
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({
+      id: 'ticket-3',
+      category: 'FEATURE_REQUEST',
+    });
 
     await request(app)
       .post('/webhooks/intercom')
-      .send({ topic: 'conversation.created', data: { item: { id: 'conv-3', subject: 'Feature request', body: 'I wish you had dark mode' } } });
+      .send({
+        topic: 'conversation.created',
+        data: {
+          item: { id: 'conv-3', subject: 'Feature request', body: 'I wish you had dark mode' },
+        },
+      });
 
     expect(prisma.supportTicketLog.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ category: 'FEATURE_REQUEST' }) })
@@ -69,11 +95,17 @@ describe('POST /webhooks/intercom', () => {
   });
 
   it('classifies "bill" keyword as BILLING category', async () => {
-    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ticket-4', category: 'BILLING' });
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({
+      id: 'ticket-4',
+      category: 'BILLING',
+    });
 
     await request(app)
       .post('/webhooks/intercom')
-      .send({ topic: 'conversation.created', data: { item: { id: 'conv-4', subject: 'Billing issue', body: 'Wrong charge on my bill' } } });
+      .send({
+        topic: 'conversation.created',
+        data: { item: { id: 'conv-4', subject: 'Billing issue', body: 'Wrong charge on my bill' } },
+      });
 
     expect(prisma.supportTicketLog.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ category: 'BILLING' }) })
@@ -81,11 +113,19 @@ describe('POST /webhooks/intercom', () => {
   });
 
   it('classifies "onboard" keyword as ONBOARDING category', async () => {
-    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ticket-5', category: 'ONBOARDING' });
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({
+      id: 'ticket-5',
+      category: 'ONBOARDING',
+    });
 
     await request(app)
       .post('/webhooks/intercom')
-      .send({ topic: 'conversation.created', data: { item: { id: 'conv-5', subject: 'Onboarding help', body: 'Getting started with setup' } } });
+      .send({
+        topic: 'conversation.created',
+        data: {
+          item: { id: 'conv-5', subject: 'Onboarding help', body: 'Getting started with setup' },
+        },
+      });
 
     expect(prisma.supportTicketLog.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ category: 'ONBOARDING' }) })
@@ -93,11 +133,17 @@ describe('POST /webhooks/intercom', () => {
   });
 
   it('defaults to GENERAL category for unrecognised text', async () => {
-    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ticket-6', category: 'GENERAL' });
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({
+      id: 'ticket-6',
+      category: 'GENERAL',
+    });
 
     await request(app)
       .post('/webhooks/intercom')
-      .send({ topic: 'conversation.created', data: { item: { id: 'conv-6', subject: 'Hello', body: 'Just saying hi' } } });
+      .send({
+        topic: 'conversation.created',
+        data: { item: { id: 'conv-6', subject: 'Hello', body: 'Just saying hi' } },
+      });
 
     expect(prisma.supportTicketLog.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ category: 'GENERAL' }) })
@@ -105,11 +151,17 @@ describe('POST /webhooks/intercom', () => {
   });
 
   it('assigns P1_CRITICAL priority for "urgent" keyword', async () => {
-    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ticket-7', priority: 'P1_CRITICAL' });
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({
+      id: 'ticket-7',
+      priority: 'P1_CRITICAL',
+    });
 
     await request(app)
       .post('/webhooks/intercom')
-      .send({ topic: 'conversation.created', data: { item: { id: 'conv-7', subject: 'Urgent: system down', body: 'Critical outage' } } });
+      .send({
+        topic: 'conversation.created',
+        data: { item: { id: 'conv-7', subject: 'Urgent: system down', body: 'Critical outage' } },
+      });
 
     expect(prisma.supportTicketLog.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ priority: 'P1_CRITICAL' }) })
@@ -117,11 +169,17 @@ describe('POST /webhooks/intercom', () => {
   });
 
   it('assigns P1_CRITICAL priority for "critical" keyword', async () => {
-    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ticket-8', priority: 'P1_CRITICAL' });
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({
+      id: 'ticket-8',
+      priority: 'P1_CRITICAL',
+    });
 
     await request(app)
       .post('/webhooks/intercom')
-      .send({ topic: 'conversation.created', data: { item: { id: 'conv-8', subject: 'Critical bug', body: 'Everything is broken' } } });
+      .send({
+        topic: 'conversation.created',
+        data: { item: { id: 'conv-8', subject: 'Critical bug', body: 'Everything is broken' } },
+      });
 
     expect(prisma.supportTicketLog.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ priority: 'P1_CRITICAL' }) })
@@ -129,11 +187,17 @@ describe('POST /webhooks/intercom', () => {
   });
 
   it('assigns P2_HIGH priority for "asap" keyword', async () => {
-    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ticket-9', priority: 'P2_HIGH' });
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({
+      id: 'ticket-9',
+      priority: 'P2_HIGH',
+    });
 
     await request(app)
       .post('/webhooks/intercom')
-      .send({ topic: 'conversation.created', data: { item: { id: 'conv-9', subject: 'Need this asap', body: 'Please fix quickly' } } });
+      .send({
+        topic: 'conversation.created',
+        data: { item: { id: 'conv-9', subject: 'Need this asap', body: 'Please fix quickly' } },
+      });
 
     expect(prisma.supportTicketLog.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ priority: 'P2_HIGH' }) })
@@ -141,11 +205,17 @@ describe('POST /webhooks/intercom', () => {
   });
 
   it('assigns P3_MEDIUM priority by default', async () => {
-    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ticket-10', priority: 'P3_MEDIUM' });
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({
+      id: 'ticket-10',
+      priority: 'P3_MEDIUM',
+    });
 
     await request(app)
       .post('/webhooks/intercom')
-      .send({ topic: 'conversation.created', data: { item: { id: 'conv-10', subject: 'Question', body: 'How do I export CSV?' } } });
+      .send({
+        topic: 'conversation.created',
+        data: { item: { id: 'conv-10', subject: 'Question', body: 'How do I export CSV?' } },
+      });
 
     expect(prisma.supportTicketLog.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ priority: 'P3_MEDIUM' }) })
@@ -163,7 +233,15 @@ describe('POST /webhooks/intercom', () => {
 
     await request(app)
       .post('/webhooks/intercom')
-      .send({ data: { item: { id: 'conv-11', subject: 'Test', customer: { email: 'deep@test.com', id: 'cust-x' } } } });
+      .send({
+        data: {
+          item: {
+            id: 'conv-11',
+            subject: 'Test',
+            customer: { email: 'deep@test.com', id: 'cust-x' },
+          },
+        },
+      });
 
     expect(prisma.supportTicketLog.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ customerEmail: 'deep@test.com' }) })
@@ -189,7 +267,9 @@ describe('POST /webhooks/intercom', () => {
       .send({ topic: 'conversation.created', data: { item: { id: 'conv-12', subject: 'Test' } } });
 
     expect(prisma.supportTicketLog.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ aiClassification: expect.any(Object) }) })
+      expect.objectContaining({
+        data: expect.objectContaining({ aiClassification: expect.any(Object) }),
+      })
     );
   });
 });

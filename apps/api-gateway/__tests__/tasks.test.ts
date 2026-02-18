@@ -15,13 +15,33 @@ jest.mock('@ims/monitoring', () => ({
   createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
 }));
 
-const mockCreateTask = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', refNumber: 'TSK-2602-001', title: 'Test Task', status: 'OPEN' });
+const mockCreateTask = jest.fn().mockResolvedValue({
+  id: '00000000-0000-0000-0000-000000000001',
+  refNumber: 'TSK-2602-001',
+  title: 'Test Task',
+  status: 'OPEN',
+});
 const mockGetTasks = jest.fn().mockResolvedValue({ tasks: [], total: 0 });
-const mockGetTaskById = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Test', assigneeId: 'user-1', status: 'OPEN' });
-const mockUpdateTask = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated', status: 'IN_PROGRESS' });
-const mockCompleteTask = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETE', completedAt: new Date().toISOString() });
+const mockGetTaskById = jest.fn().mockResolvedValue({
+  id: '00000000-0000-0000-0000-000000000001',
+  title: 'Test',
+  assigneeId: 'user-1',
+  status: 'OPEN',
+});
+const mockUpdateTask = jest.fn().mockResolvedValue({
+  id: '00000000-0000-0000-0000-000000000001',
+  title: 'Updated',
+  status: 'IN_PROGRESS',
+});
+const mockCompleteTask = jest.fn().mockResolvedValue({
+  id: '00000000-0000-0000-0000-000000000001',
+  status: 'COMPLETE',
+  completedAt: new Date().toISOString(),
+});
 const mockDeleteTask = jest.fn().mockResolvedValue(undefined);
-const mockGetMyTasks = jest.fn().mockResolvedValue({ overdue: [], today: [], thisWeek: [], later: [] });
+const mockGetMyTasks = jest
+  .fn()
+  .mockResolvedValue({ overdue: [], today: [], thisWeek: [], later: [] });
 
 jest.mock('@ims/tasks', () => ({
   createTask: (...args: any[]) => mockCreateTask(...args),
@@ -62,9 +82,12 @@ describe('Tasks Routes', () => {
 
   describe('POST /api/tasks', () => {
     it('creates a new task', async () => {
-      const res = await request(app)
-        .post('/api/tasks')
-        .send({ title: 'Fix NCR-2602-001', assigneeId: 'user-2', assigneeName: 'John', priority: 'HIGH' });
+      const res = await request(app).post('/api/tasks').send({
+        title: 'Fix NCR-2602-001',
+        assigneeId: 'user-2',
+        assigneeName: 'John',
+        priority: 'HIGH',
+      });
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
     });
@@ -79,7 +102,10 @@ describe('Tasks Routes', () => {
 
   describe('GET /api/tasks', () => {
     it('returns paginated tasks list', async () => {
-      mockGetTasks.mockResolvedValue({ tasks: [{ id: '00000000-0000-0000-0000-000000000001', title: 'Task 1' }], total: 1 });
+      mockGetTasks.mockResolvedValue({
+        tasks: [{ id: '00000000-0000-0000-0000-000000000001', title: 'Task 1' }],
+        total: 1,
+      });
       const res = await request(app).get('/api/tasks');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -93,7 +119,9 @@ describe('Tasks Routes', () => {
 
   describe('PATCH /api/tasks/:id/complete', () => {
     it('marks a task complete', async () => {
-      const res = await request(app).patch('/api/tasks/00000000-0000-0000-0000-000000000001/complete');
+      const res = await request(app).patch(
+        '/api/tasks/00000000-0000-0000-0000-000000000001/complete'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });

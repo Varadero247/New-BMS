@@ -43,14 +43,14 @@ export function AuditComplianceTrend({
       {
         type: 'line',
         label: 'Compliance %',
-        data: data.map(d => d.compliance),
+        data: data.map((d) => d.compliance),
         borderColor: 'rgba(34, 197, 94, 1)',
         backgroundColor: 'rgba(34, 197, 94, 0.1)',
         borderWidth: 3,
         fill: true,
         tension: 0.3,
         yAxisID: 'y',
-        pointBackgroundColor: data.map(d =>
+        pointBackgroundColor: data.map((d) =>
           d.compliance >= target ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)'
         ),
         pointRadius: 6,
@@ -62,18 +62,18 @@ export function AuditComplianceTrend({
       datasets.push({
         type: 'bar',
         label: 'Total Findings',
-        data: data.map(d => d.findings || 0),
+        data: data.map((d) => d.findings || 0),
         backgroundColor: 'rgba(59, 130, 246, 0.5)',
         borderColor: 'rgba(59, 130, 246, 1)',
         borderWidth: 1,
         yAxisID: 'y1',
       });
 
-      if (data.some(d => d.majorFindings !== undefined)) {
+      if (data.some((d) => d.majorFindings !== undefined)) {
         datasets.push({
           type: 'bar',
           label: 'Major Findings',
-          data: data.map(d => d.majorFindings || 0),
+          data: data.map((d) => d.majorFindings || 0),
           backgroundColor: 'rgba(239, 68, 68, 0.5)',
           borderColor: 'rgba(239, 68, 68, 1)',
           borderWidth: 1,
@@ -85,7 +85,7 @@ export function AuditComplianceTrend({
     chartInstance.current = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: data.map(d => d.period),
+        labels: data.map((d) => d.period),
         datasets,
       },
       options: {
@@ -176,9 +176,8 @@ export function AuditComplianceTrend({
   // Calculate summary stats
   const latestCompliance = data[data.length - 1]?.compliance || 0;
   const avgCompliance = data.reduce((sum, d) => sum + d.compliance, 0) / data.length;
-  const trend = data.length >= 2
-    ? data[data.length - 1].compliance - data[data.length - 2].compliance
-    : 0;
+  const trend =
+    data.length >= 2 ? data[data.length - 1].compliance - data[data.length - 2].compliance : 0;
   const totalFindings = data.reduce((sum, d) => sum + (d.findings || 0), 0);
   const totalMajor = data.reduce((sum, d) => sum + (d.majorFindings || 0), 0);
 
@@ -191,18 +190,23 @@ export function AuditComplianceTrend({
       {/* Summary statistics */}
       <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
-          <p className={`text-2xl font-bold ${latestCompliance >= target ? 'text-green-600' : 'text-red-600'}`}>
+          <p
+            className={`text-2xl font-bold ${latestCompliance >= target ? 'text-green-600' : 'text-red-600'}`}
+          >
             {latestCompliance.toFixed(1)}%
           </p>
           <p className="text-xs text-gray-600">Current</p>
         </div>
         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{avgCompliance.toFixed(1)}%</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            {avgCompliance.toFixed(1)}%
+          </p>
           <p className="text-xs text-gray-600">Average</p>
         </div>
         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
           <p className={`text-2xl font-bold ${trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {trend >= 0 ? '+' : ''}{trend.toFixed(1)}%
+            {trend >= 0 ? '+' : ''}
+            {trend.toFixed(1)}%
           </p>
           <p className="text-xs text-gray-600">Trend</p>
         </div>
@@ -219,8 +223,12 @@ export function AuditComplianceTrend({
       {/* Performance indicator */}
       <div className="mt-4 p-4 rounded-lg border">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Performance</span>
-          <span className={`text-sm font-bold ${avgCompliance >= target ? 'text-green-600' : 'text-red-600'}`}>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Overall Performance
+          </span>
+          <span
+            className={`text-sm font-bold ${avgCompliance >= target ? 'text-green-600' : 'text-red-600'}`}
+          >
             {avgCompliance >= target ? 'Meeting Target' : 'Below Target'}
           </span>
         </div>

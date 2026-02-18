@@ -96,7 +96,9 @@ describe('Quality Opportunities API Routes', () => {
     });
 
     it('should support pagination parameters', async () => {
-      (mockPrisma.qualOpportunity.findMany as jest.Mock).mockResolvedValueOnce([mockOpportunities[0]]);
+      (mockPrisma.qualOpportunity.findMany as jest.Mock).mockResolvedValueOnce([
+        mockOpportunities[0],
+      ]);
       (mockPrisma.qualOpportunity.count as jest.Mock).mockResolvedValueOnce(50);
 
       const response = await request(app)
@@ -147,9 +149,7 @@ describe('Quality Opportunities API Routes', () => {
       (mockPrisma.qualOpportunity.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualOpportunity.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/opportunities?process=IT')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/opportunities?process=IT').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualOpportunity.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -181,9 +181,7 @@ describe('Quality Opportunities API Routes', () => {
       (mockPrisma.qualOpportunity.findMany as jest.Mock).mockResolvedValueOnce(mockOpportunities);
       (mockPrisma.qualOpportunity.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/opportunities')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/opportunities').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualOpportunity.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -193,7 +191,9 @@ describe('Quality Opportunities API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualOpportunity.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualOpportunity.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/opportunities')
@@ -238,7 +238,9 @@ describe('Quality Opportunities API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/opportunities/23000000-0000-4000-a000-000000000001')
@@ -410,7 +412,9 @@ describe('Quality Opportunities API Routes', () => {
     };
 
     it('should update an opportunity successfully', async () => {
-      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce(existingOpportunity);
+      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce(
+        existingOpportunity
+      );
       (mockPrisma.qualOpportunity.update as jest.Mock).mockResolvedValueOnce({
         ...existingOpportunity,
         opportunityDescription: 'Updated description',
@@ -426,7 +430,9 @@ describe('Quality Opportunities API Routes', () => {
     });
 
     it('should recalculate opportunity fields on update', async () => {
-      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce(existingOpportunity);
+      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce(
+        existingOpportunity
+      );
       (mockPrisma.qualOpportunity.update as jest.Mock).mockResolvedValueOnce({
         ...existingOpportunity,
         likelihood: 2,
@@ -464,7 +470,9 @@ describe('Quality Opportunities API Routes', () => {
     });
 
     it('should return 400 for invalid status value', async () => {
-      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce(existingOpportunity);
+      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce(
+        existingOpportunity
+      );
 
       const response = await request(app)
         .put('/api/opportunities/23000000-0000-4000-a000-000000000001')
@@ -476,7 +484,9 @@ describe('Quality Opportunities API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/opportunities/23000000-0000-4000-a000-000000000001')
@@ -490,7 +500,9 @@ describe('Quality Opportunities API Routes', () => {
 
   describe('DELETE /api/opportunities/:id', () => {
     it('should delete an opportunity successfully', async () => {
-      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce({ id: '23000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '23000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualOpportunity.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
@@ -516,7 +528,9 @@ describe('Quality Opportunities API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/opportunities/23000000-0000-4000-a000-000000000001')

@@ -51,7 +51,9 @@ export default function PayoutsPage() {
 
     try {
       await api.post('/api/payouts/request', { amount: availableBalance });
-      setSuccess('Payout request submitted successfully. You will receive payment within 5-10 business days.');
+      setSuccess(
+        'Payout request submitted successfully. You will receive payment within 5-10 business days.'
+      );
       fetchPayouts();
     } catch {
       // Handle error silently
@@ -98,7 +100,8 @@ export default function PayoutsPage() {
                 <p className="text-3xl font-bold text-white">{formatCurrency(availableBalance)}</p>
                 {!canRequestPayout && availableBalance > 0 && (
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    Minimum payout threshold is {formatCurrency(100)}. You need {formatCurrency(100 - availableBalance)} more.
+                    Minimum payout threshold is {formatCurrency(100)}. You need{' '}
+                    {formatCurrency(100 - availableBalance)} more.
                   </p>
                 )}
                 {availableBalance === 0 && (
@@ -142,22 +145,42 @@ export default function PayoutsPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-800">
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Reference</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Amount</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Method</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Requested</th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Paid</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                        Reference
+                      </th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                        Amount
+                      </th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                        Method
+                      </th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                        Requested
+                      </th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                        Paid
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-800">
                     {payouts.map((payout) => (
                       <tr key={payout.id} className="hover:bg-gray-800/50 transition-colors">
-                        <td className="py-3 px-6 text-sm text-white font-mono">{payout.reference}</td>
-                        <td className="py-3 px-6 text-sm text-white font-medium">{formatCurrency(payout.amount)}</td>
-                        <td className="py-3 px-6 text-sm text-gray-400 dark:text-gray-500">{payout.method || 'Bank Transfer'}</td>
+                        <td className="py-3 px-6 text-sm text-white font-mono">
+                          {payout.reference}
+                        </td>
+                        <td className="py-3 px-6 text-sm text-white font-medium">
+                          {formatCurrency(payout.amount)}
+                        </td>
+                        <td className="py-3 px-6 text-sm text-gray-400 dark:text-gray-500">
+                          {payout.method || 'Bank Transfer'}
+                        </td>
                         <td className="py-3 px-6">
-                          <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor[payout.status] || 'bg-gray-500/20 text-gray-400'}`}>
+                          <span
+                            className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor[payout.status] || 'bg-gray-500/20 text-gray-400'}`}
+                          >
                             {payout.status}
                           </span>
                         </td>
@@ -165,7 +188,9 @@ export default function PayoutsPage() {
                           {new Date(payout.requestedAt).toLocaleDateString('en-GB')}
                         </td>
                         <td className="py-3 px-6 text-sm text-gray-400 dark:text-gray-500">
-                          {payout.paidAt ? new Date(payout.paidAt).toLocaleDateString('en-GB') : '-'}
+                          {payout.paidAt
+                            ? new Date(payout.paidAt).toLocaleDateString('en-GB')
+                            : '-'}
                         </td>
                       </tr>
                     ))}

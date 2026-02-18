@@ -1,7 +1,18 @@
 'use client';
 
 import { useState, useMemo, type ElementType } from 'react';
-import { Search, AlertCircle, AlertTriangle, Info, Activity, ZapOff, Clock, CheckCircle2, XCircle, ChevronDown } from 'lucide-react';
+import {
+  Search,
+  AlertCircle,
+  AlertTriangle,
+  Info,
+  Activity,
+  ZapOff,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  ChevronDown,
+} from 'lucide-react';
 
 type ScanStatus = 'completed' | 'running' | 'scheduled' | 'failed';
 type Scanner = 'Nessus' | 'Qualys' | 'OpenVAS';
@@ -43,10 +54,28 @@ const MOCK_SCANS: VulnerabilityScan[] = [
     infoCount: 15,
     scanner: 'Nessus',
     vulnerabilities: [
-      { cveId: 'CVE-2024-1234', title: 'Remote Code Execution in OpenSSL', cvssScore: 9.8, affectedHosts: 1, severity: 'critical' },
-      { cveId: 'CVE-2024-5678', title: 'SQL Injection in Legacy API', cvssScore: 8.9, affectedHosts: 1, severity: 'critical' },
-      { cveId: 'CVE-2024-9012', title: 'Unpatched Apache Struts', cvssScore: 8.1, affectedHosts: 1, severity: 'high' },
-    ]
+      {
+        cveId: 'CVE-2024-1234',
+        title: 'Remote Code Execution in OpenSSL',
+        cvssScore: 9.8,
+        affectedHosts: 1,
+        severity: 'critical',
+      },
+      {
+        cveId: 'CVE-2024-5678',
+        title: 'SQL Injection in Legacy API',
+        cvssScore: 8.9,
+        affectedHosts: 1,
+        severity: 'critical',
+      },
+      {
+        cveId: 'CVE-2024-9012',
+        title: 'Unpatched Apache Struts',
+        cvssScore: 8.1,
+        affectedHosts: 1,
+        severity: 'high',
+      },
+    ],
   },
   {
     id: '2',
@@ -61,10 +90,28 @@ const MOCK_SCANS: VulnerabilityScan[] = [
     infoCount: 22,
     scanner: 'Qualys',
     vulnerabilities: [
-      { cveId: 'CVE-2024-2468', title: 'PostgreSQL Authentication Bypass', cvssScore: 7.5, affectedHosts: 1, severity: 'high' },
-      { cveId: 'CVE-2024-3579', title: 'Weak SSL/TLS Configuration', cvssScore: 7.2, affectedHosts: 1, severity: 'high' },
-      { cveId: 'CVE-2024-0135', title: 'Missing Security Headers', cvssScore: 5.3, affectedHosts: 1, severity: 'medium' },
-    ]
+      {
+        cveId: 'CVE-2024-2468',
+        title: 'PostgreSQL Authentication Bypass',
+        cvssScore: 7.5,
+        affectedHosts: 1,
+        severity: 'high',
+      },
+      {
+        cveId: 'CVE-2024-3579',
+        title: 'Weak SSL/TLS Configuration',
+        cvssScore: 7.2,
+        affectedHosts: 1,
+        severity: 'high',
+      },
+      {
+        cveId: 'CVE-2024-0135',
+        title: 'Missing Security Headers',
+        cvssScore: 5.3,
+        affectedHosts: 1,
+        severity: 'medium',
+      },
+    ],
   },
   {
     id: '3',
@@ -79,10 +126,28 @@ const MOCK_SCANS: VulnerabilityScan[] = [
     infoCount: 18,
     scanner: 'OpenVAS',
     vulnerabilities: [
-      { cveId: 'CVE-2024-4567', title: 'Insecure Direct Object Reference (IDOR)', cvssScore: 9.1, affectedHosts: 1, severity: 'critical' },
-      { cveId: 'CVE-2024-6789', title: 'Broken Authentication', cvssScore: 8.2, affectedHosts: 1, severity: 'high' },
-      { cveId: 'CVE-2024-1098', title: 'Sensitive Data Exposure', cvssScore: 7.8, affectedHosts: 1, severity: 'high' },
-    ]
+      {
+        cveId: 'CVE-2024-4567',
+        title: 'Insecure Direct Object Reference (IDOR)',
+        cvssScore: 9.1,
+        affectedHosts: 1,
+        severity: 'critical',
+      },
+      {
+        cveId: 'CVE-2024-6789',
+        title: 'Broken Authentication',
+        cvssScore: 8.2,
+        affectedHosts: 1,
+        severity: 'high',
+      },
+      {
+        cveId: 'CVE-2024-1098',
+        title: 'Sensitive Data Exposure',
+        cvssScore: 7.8,
+        affectedHosts: 1,
+        severity: 'high',
+      },
+    ],
   },
   {
     id: '4',
@@ -97,10 +162,28 @@ const MOCK_SCANS: VulnerabilityScan[] = [
     infoCount: 8,
     scanner: 'Nessus',
     vulnerabilities: [
-      { cveId: 'CVE-2024-7890', title: 'Exposed SSH Service', cvssScore: 7.0, affectedHosts: 3, severity: 'high' },
-      { cveId: 'CVE-2024-2345', title: 'Outdated SNMP Version', cvssScore: 5.5, affectedHosts: 2, severity: 'medium' },
-      { cveId: 'CVE-2024-5432', title: 'Open DNS Resolver', cvssScore: 5.0, affectedHosts: 1, severity: 'medium' },
-    ]
+      {
+        cveId: 'CVE-2024-7890',
+        title: 'Exposed SSH Service',
+        cvssScore: 7.0,
+        affectedHosts: 3,
+        severity: 'high',
+      },
+      {
+        cveId: 'CVE-2024-2345',
+        title: 'Outdated SNMP Version',
+        cvssScore: 5.5,
+        affectedHosts: 2,
+        severity: 'medium',
+      },
+      {
+        cveId: 'CVE-2024-5432',
+        title: 'Open DNS Resolver',
+        cvssScore: 5.0,
+        affectedHosts: 1,
+        severity: 'medium',
+      },
+    ],
   },
   {
     id: '5',
@@ -115,10 +198,28 @@ const MOCK_SCANS: VulnerabilityScan[] = [
     infoCount: 11,
     scanner: 'Qualys',
     vulnerabilities: [
-      { cveId: 'CVE-2024-8765', title: 'Missing Security Patches', cvssScore: 6.5, affectedHosts: 1, severity: 'medium' },
-      { cveId: 'CVE-2024-3210', title: 'Deprecated Cipher Suites', cvssScore: 5.9, affectedHosts: 1, severity: 'medium' },
-      { cveId: 'CVE-2024-6543', title: 'Certificate Expiry Warning', cvssScore: 4.2, affectedHosts: 1, severity: 'low' },
-    ]
+      {
+        cveId: 'CVE-2024-8765',
+        title: 'Missing Security Patches',
+        cvssScore: 6.5,
+        affectedHosts: 1,
+        severity: 'medium',
+      },
+      {
+        cveId: 'CVE-2024-3210',
+        title: 'Deprecated Cipher Suites',
+        cvssScore: 5.9,
+        affectedHosts: 1,
+        severity: 'medium',
+      },
+      {
+        cveId: 'CVE-2024-6543',
+        title: 'Certificate Expiry Warning',
+        cvssScore: 4.2,
+        affectedHosts: 1,
+        severity: 'low',
+      },
+    ],
   },
   {
     id: '6',
@@ -135,7 +236,10 @@ const MOCK_SCANS: VulnerabilityScan[] = [
   },
 ];
 
-const statusConfig: Record<ScanStatus, { bg: string; text: string; icon: ElementType; label: string }> = {
+const statusConfig: Record<
+  ScanStatus,
+  { bg: string; text: string; icon: ElementType; label: string }
+> = {
   completed: { bg: 'bg-green-50', text: 'text-green-700', icon: CheckCircle2, label: 'Completed' },
   running: { bg: 'bg-blue-50', text: 'text-blue-700', icon: Activity, label: 'Running' },
   scheduled: { bg: 'bg-purple-50', text: 'text-purple-700', icon: Clock, label: 'Scheduled' },
@@ -147,7 +251,11 @@ const severityConfig: Record<string, { bg: string; text: string; icon: ElementTy
   high: { bg: 'bg-orange-100', text: 'text-orange-700', icon: AlertTriangle },
   medium: { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: AlertTriangle },
   low: { bg: 'bg-blue-100', text: 'text-blue-700', icon: Info },
-  info: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-700 dark:text-gray-300', icon: Info },
+  info: {
+    bg: 'bg-gray-100 dark:bg-gray-800',
+    text: 'text-gray-700 dark:text-gray-300',
+    icon: Info,
+  },
 };
 
 export default function VulnerabilityScansClient() {
@@ -164,9 +272,10 @@ export default function VulnerabilityScansClient() {
 
   // Filter scans
   const filteredScans = useMemo(() => {
-    return MOCK_SCANS.filter(scan => {
-      const matchesSearch = scan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           scan.target.toLowerCase().includes(searchTerm.toLowerCase());
+    return MOCK_SCANS.filter((scan) => {
+      const matchesSearch =
+        scan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        scan.target.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || scan.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -177,8 +286,12 @@ export default function VulnerabilityScansClient() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Vulnerability Scans</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage and monitor security vulnerability assessments across infrastructure</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Vulnerability Scans
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Manage and monitor security vulnerability assessments across infrastructure
+          </p>
         </div>
       </div>
 
@@ -187,18 +300,26 @@ export default function VulnerabilityScansClient() {
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Scans</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{totalScans}</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Total Scans
+              </p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">
+                {totalScans}
+              </p>
             </div>
             <Activity className="h-5 w-5 text-indigo-500" />
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">{MOCK_SCANS.filter(s => s.status === 'completed').length} completed</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            {MOCK_SCANS.filter((s) => s.status === 'completed').length} completed
+          </p>
         </div>
 
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Critical</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Critical
+              </p>
               <p className="text-2xl font-bold text-red-600 mt-2">{totalCritical}</p>
             </div>
             <AlertCircle className="h-5 w-5 text-red-500" />
@@ -209,7 +330,9 @@ export default function VulnerabilityScansClient() {
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">High</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                High
+              </p>
               <p className="text-2xl font-bold text-orange-600 mt-2">{totalHigh}</p>
             </div>
             <AlertTriangle className="h-5 w-5 text-orange-500" />
@@ -220,7 +343,9 @@ export default function VulnerabilityScansClient() {
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Open Findings</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Open Findings
+              </p>
               <p className="text-2xl font-bold text-amber-600 mt-2">{openFindings}</p>
             </div>
             <ZapOff className="h-5 w-5 text-amber-500" />
@@ -235,7 +360,8 @@ export default function VulnerabilityScansClient() {
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
-            aria-label="Search by name or target..." placeholder="Search by name or target..."
+            aria-label="Search by name or target..."
+            placeholder="Search by name or target..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -272,11 +398,18 @@ export default function VulnerabilityScansClient() {
             {filteredScans.map((scan) => {
               const isExpanded = expandedScanId === scan.id;
               const sc = statusConfig[scan.status];
-              const totalVulns = scan.criticalCount + scan.highCount + scan.mediumCount + scan.lowCount + scan.infoCount;
+              const totalVulns =
+                scan.criticalCount +
+                scan.highCount +
+                scan.mediumCount +
+                scan.lowCount +
+                scan.infoCount;
 
               return (
                 <div key={scan.id}>
-                  <tr className={`hover:bg-gray-50 dark:bg-gray-800 ${isExpanded ? 'bg-indigo-50' : ''}`}>
+                  <tr
+                    className={`hover:bg-gray-50 dark:bg-gray-800 ${isExpanded ? 'bg-indigo-50' : ''}`}
+                  >
                     <td className="py-3 px-4">
                       <button
                         onClick={() => setExpandedScanId(isExpanded ? null : scan.id)}
@@ -287,9 +420,13 @@ export default function VulnerabilityScansClient() {
                     </td>
                     <td className="py-3 px-4 text-gray-600 font-mono">{scan.target}</td>
                     <td className="py-3 px-4 text-gray-600">{scan.scanner}</td>
-                    <td className="py-3 px-4 text-gray-600">{new Date(scan.scanDate).toLocaleDateString()}</td>
+                    <td className="py-3 px-4 text-gray-600">
+                      {new Date(scan.scanDate).toLocaleDateString()}
+                    </td>
                     <td className="py-3 px-4 text-center">
-                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium ${sc.bg} ${sc.text}`}>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium ${sc.bg} ${sc.text}`}
+                      >
                         <sc.icon className="h-3 w-3" />
                         {sc.label}
                       </span>
@@ -318,7 +455,9 @@ export default function VulnerabilityScansClient() {
                         onClick={() => setExpandedScanId(isExpanded ? null : scan.id)}
                         className="text-gray-400 dark:text-gray-500 hover:text-gray-600"
                       >
-                        <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                        />
                       </button>
                     </td>
                   </tr>
@@ -328,23 +467,38 @@ export default function VulnerabilityScansClient() {
                     <tr className="bg-indigo-50">
                       <td colSpan={7} className="py-4 px-4">
                         <div className="space-y-3">
-                          <div className="font-medium text-gray-900 dark:text-gray-100 text-xs uppercase tracking-wider">Top 3 Vulnerabilities</div>
+                          <div className="font-medium text-gray-900 dark:text-gray-100 text-xs uppercase tracking-wider">
+                            Top 3 Vulnerabilities
+                          </div>
                           {scan.vulnerabilities.slice(0, 3).map((vuln, idx) => {
                             const sc = severityConfig[vuln.severity];
                             return (
-                              <div key={idx} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-3">
+                              <div
+                                key={idx}
+                                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-3"
+                              >
                                 <div className="flex items-start justify-between gap-3">
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2">
-                                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${sc.bg} ${sc.text}`}>
+                                      <span
+                                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${sc.bg} ${sc.text}`}
+                                      >
                                         <sc.icon className="h-3 w-3" />
                                         {vuln.severity.toUpperCase()}
                                       </span>
-                                      <span className="font-mono text-[10px] font-medium text-gray-600">{vuln.cveId}</span>
-                                      <span className="text-[10px] font-bold text-indigo-700">CVSS: {vuln.cvssScore}</span>
+                                      <span className="font-mono text-[10px] font-medium text-gray-600">
+                                        {vuln.cveId}
+                                      </span>
+                                      <span className="text-[10px] font-bold text-indigo-700">
+                                        CVSS: {vuln.cvssScore}
+                                      </span>
                                     </div>
-                                    <p className="text-xs font-medium text-gray-900 dark:text-gray-100 mt-1">{vuln.title}</p>
-                                    <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">{vuln.affectedHosts} host(s) affected</p>
+                                    <p className="text-xs font-medium text-gray-900 dark:text-gray-100 mt-1">
+                                      {vuln.title}
+                                    </p>
+                                    <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
+                                      {vuln.affectedHosts} host(s) affected
+                                    </p>
                                   </div>
                                 </div>
                               </div>
@@ -364,7 +518,9 @@ export default function VulnerabilityScansClient() {
       {filteredScans.length === 0 && (
         <div className="text-center py-12">
           <AlertCircle className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-          <p className="text-gray-500 dark:text-gray-400 text-sm">No scans found matching your criteria</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
+            No scans found matching your criteria
+          </p>
         </div>
       )}
     </div>

@@ -32,7 +32,13 @@ const projectCreateSchema = z.object({
   estimatedSavings: z.number().optional().nullable(),
   investmentCost: z.number().nonnegative().optional().nullable(),
   paybackMonths: z.number().int().min(0).optional().nullable(),
-  startDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  startDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
   owner: z.string().max(200).optional().nullable(),
 });
 
@@ -45,7 +51,13 @@ const projectUpdateSchema = z.object({
   actualSavings: z.number().optional().nullable(),
   investmentCost: z.number().nonnegative().optional().nullable(),
   paybackMonths: z.number().int().min(0).optional().nullable(),
-  startDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  startDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
   owner: z.string().max(200).optional().nullable(),
   roi: z.number().optional().nullable(),
 });
@@ -67,16 +79,24 @@ router.get('/roi-summary', async (_req: Request, res: Response) => {
   try {
     const projects = await prisma.energyProject.findMany({
       where: { deletedAt: null, status: { in: ['COMPLETED', 'IN_PROGRESS'] } as any },
-      take: 1000});
+      take: 1000,
+    });
 
     const totalInvestment = projects.reduce((sum, p) => sum + Number(p.investmentCost || 0), 0);
-    const totalEstimatedSavings = projects.reduce((sum, p) => sum + Number(p.estimatedSavings || 0), 0);
+    const totalEstimatedSavings = projects.reduce(
+      (sum, p) => sum + Number(p.estimatedSavings || 0),
+      0
+    );
     const totalActualSavings = projects.reduce((sum, p) => sum + Number(p.actualSavings || 0), 0);
-    const completedCount = projects.filter(p => p.status === 'COMPLETED').length;
-    const inProgressCount = projects.filter(p => p.status === 'IN_PROGRESS').length;
-    const averagePayback = projects.filter(p => p.paybackMonths).length > 0
-      ? projects.filter(p => p.paybackMonths).reduce((sum, p) => sum + (p.paybackMonths || 0), 0) / projects.filter(p => p.paybackMonths).length
-      : 0;
+    const completedCount = projects.filter((p) => p.status === 'COMPLETED').length;
+    const inProgressCount = projects.filter((p) => p.status === 'IN_PROGRESS').length;
+    const averagePayback =
+      projects.filter((p) => p.paybackMonths).length > 0
+        ? projects
+            .filter((p) => p.paybackMonths)
+            .reduce((sum, p) => sum + (p.paybackMonths || 0), 0) /
+          projects.filter((p) => p.paybackMonths).length
+        : 0;
 
     res.json({
       success: true,
@@ -85,15 +105,23 @@ router.get('/roi-summary', async (_req: Request, res: Response) => {
         totalEstimatedSavings,
         totalActualSavings,
         netReturn: totalActualSavings - totalInvestment,
-        overallROI: totalInvestment > 0 ? ((totalActualSavings - totalInvestment) / totalInvestment) * 100 : 0,
+        overallROI:
+          totalInvestment > 0
+            ? ((totalActualSavings - totalInvestment) / totalInvestment) * 100
+            : 0,
         completedProjects: completedCount,
         inProgressProjects: inProgressCount,
         averagePaybackMonths: Math.round(averagePayback * 10) / 10,
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get ROI summary', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get ROI summary' } });
+    logger.error('Failed to get ROI summary', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get ROI summary' },
+    });
   }
 });
 
@@ -133,8 +161,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list projects', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list projects' } });
+    logger.error('Failed to list projects', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list projects' },
+    });
   }
 });
 
@@ -146,7 +179,11 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = projectCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -158,8 +195,10 @@ router.post('/', async (req: Request, res: Response) => {
         description: data.description ?? null,
         type: data.type,
         status: 'PROPOSED',
-        estimatedSavings: data.estimatedSavings != null ? new Prisma.Decimal(data.estimatedSavings) : null,
-        investmentCost: data.investmentCost != null ? new Prisma.Decimal(data.investmentCost) : null,
+        estimatedSavings:
+          data.estimatedSavings != null ? new Prisma.Decimal(data.estimatedSavings) : null,
+        investmentCost:
+          data.investmentCost != null ? new Prisma.Decimal(data.investmentCost) : null,
         paybackMonths: data.paybackMonths ?? null,
         startDate: data.startDate ? new Date(data.startDate) : null,
         owner: data.owner ?? null,
@@ -170,8 +209,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Project created', { projectId: project.id });
     res.status(201).json({ success: true, data: project });
   } catch (error: unknown) {
-    logger.error('Failed to create project', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create project' } });
+    logger.error('Failed to create project', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create project' },
+    });
   }
 });
 
@@ -190,13 +234,21 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!project) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
     }
 
     res.json({ success: true, data: project });
   } catch (error: unknown) {
-    logger.error('Failed to get project', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get project' } });
+    logger.error('Failed to get project', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get project' },
+    });
   }
 });
 
@@ -210,12 +262,20 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = projectUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
-    const existing = await prisma.energyProject.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyProject.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -243,8 +303,14 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     logger.info('Project updated', { projectId: id });
     res.json({ success: true, data: project });
   } catch (error: unknown) {
-    logger.error('Failed to update project', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update project' } });
+    logger.error('Failed to update project', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update project' },
+    });
   }
 });
 
@@ -256,9 +322,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyProject.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyProject.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
     }
 
     await prisma.energyProject.update({
@@ -269,8 +339,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Project soft-deleted', { projectId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete project', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete project' } });
+    logger.error('Failed to delete project', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete project' },
+    });
   }
 });
 
@@ -283,19 +359,33 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     const { id } = req.params;
     const _schema = z.object({ actualSavings: z.number().nonnegative().optional() });
     const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    if (!_parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+      });
     const { actualSavings } = _parsed.data;
 
-    const existing = await prisma.energyProject.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyProject.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
     }
 
     if (existing.status === 'COMPLETED') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Project is already completed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Project is already completed' },
+      });
     }
     if (existing.status === 'CANCELLED') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Cannot complete a cancelled project' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Cannot complete a cancelled project' },
+      });
     }
 
     const investment = Number(existing.investmentCost || 0);
@@ -315,8 +405,14 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     logger.info('Project completed', { projectId: id });
     res.json({ success: true, data: project });
   } catch (error: unknown) {
-    logger.error('Failed to complete project', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete project' } });
+    logger.error('Failed to complete project', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete project' },
+    });
   }
 });
 

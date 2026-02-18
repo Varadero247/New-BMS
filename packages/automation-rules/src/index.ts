@@ -2,7 +2,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-export type RuleCategory = 'quality' | 'safety' | 'environment' | 'compliance' | 'hr' | 'maintenance';
+export type RuleCategory =
+  | 'quality'
+  | 'safety'
+  | 'environment'
+  | 'compliance'
+  | 'hr'
+  | 'maintenance';
 
 export type TriggerType =
   | 'record_created'
@@ -22,12 +28,27 @@ export interface RuleTrigger {
 
 export interface RuleCondition {
   field: string;
-  operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains' | 'in' | 'days_before' | 'days_after';
+  operator:
+    | 'equals'
+    | 'not_equals'
+    | 'greater_than'
+    | 'less_than'
+    | 'contains'
+    | 'in'
+    | 'days_before'
+    | 'days_after';
   value: string | number | string[];
 }
 
 export interface RuleAction {
-  type: 'create_record' | 'send_notification' | 'send_email' | 'update_field' | 'escalate' | 'assign_task' | 'webhook';
+  type:
+    | 'create_record'
+    | 'send_notification'
+    | 'send_email'
+    | 'update_field'
+    | 'escalate'
+    | 'assign_task'
+    | 'webhook';
   target: string;
   params: Record<string, unknown>;
 }
@@ -66,7 +87,13 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     description: 'Automatically creates a CAPA when a critical non-conformance is raised.',
     trigger: { type: 'record_created', module: 'quality', recordType: 'ncr' },
     conditions: [{ field: 'severity', operator: 'equals', value: 'CRITICAL' }],
-    actions: [{ type: 'create_record', target: 'quality.capa', params: { linkToNcr: true, priority: 'HIGH' } }],
+    actions: [
+      {
+        type: 'create_record',
+        target: 'quality.capa',
+        params: { linkToNcr: true, priority: 'HIGH' },
+      },
+    ],
     category: 'quality',
   },
   {
@@ -75,7 +102,13 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     description: 'Escalates to department manager when a CAPA passes its due date.',
     trigger: { type: 'date_passed', module: 'quality', recordType: 'capa' },
     conditions: [{ field: 'dueDate', operator: 'days_after', value: 0 }],
-    actions: [{ type: 'escalate', target: 'department_manager', params: { message: 'CAPA is overdue and requires immediate attention' } }],
+    actions: [
+      {
+        type: 'escalate',
+        target: 'department_manager',
+        params: { message: 'CAPA is overdue and requires immediate attention' },
+      },
+    ],
     category: 'quality',
   },
   {
@@ -84,7 +117,13 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     description: 'Sends alert when equipment calibration is due within 30 days.',
     trigger: { type: 'date_approaching', module: 'quality', recordType: 'calibration' },
     conditions: [{ field: 'nextCalibrationDate', operator: 'days_before', value: 30 }],
-    actions: [{ type: 'send_notification', target: 'equipment_owner', params: { template: 'calibration_due' } }],
+    actions: [
+      {
+        type: 'send_notification',
+        target: 'equipment_owner',
+        params: { template: 'calibration_due' },
+      },
+    ],
     category: 'quality',
   },
   {
@@ -93,7 +132,13 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     description: 'Notifies HR when an employee competence certification expires within 60 days.',
     trigger: { type: 'date_approaching', module: 'hr', recordType: 'competence' },
     conditions: [{ field: 'expiryDate', operator: 'days_before', value: 60 }],
-    actions: [{ type: 'send_notification', target: 'hr_manager', params: { template: 'competence_expiry' } }],
+    actions: [
+      {
+        type: 'send_notification',
+        target: 'hr_manager',
+        params: { template: 'competence_expiry' },
+      },
+    ],
     category: 'hr',
   },
   {
@@ -102,7 +147,13 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     description: 'Creates a CAPA automatically when an audit finding is classified as a Major NC.',
     trigger: { type: 'record_created', module: 'quality', recordType: 'audit_finding' },
     conditions: [{ field: 'classification', operator: 'equals', value: 'MAJOR_NC' }],
-    actions: [{ type: 'create_record', target: 'quality.capa', params: { linkToFinding: true, classification: 'MAJOR' } }],
+    actions: [
+      {
+        type: 'create_record',
+        target: 'quality.capa',
+        params: { linkToFinding: true, classification: 'MAJOR' },
+      },
+    ],
     category: 'quality',
   },
   {
@@ -111,25 +162,45 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     description: 'Alerts procurement when a supplier score drops below the acceptable threshold.',
     trigger: { type: 'score_changed', module: 'quality', recordType: 'supplier_evaluation' },
     conditions: [{ field: 'overallScore', operator: 'less_than', value: 60 }],
-    actions: [{ type: 'send_notification', target: 'procurement_manager', params: { template: 'supplier_score_drop' } }],
+    actions: [
+      {
+        type: 'send_notification',
+        target: 'procurement_manager',
+        params: { template: 'supplier_score_drop' },
+      },
+    ],
     category: 'quality',
   },
   {
     id: 'rule-007',
     name: 'Management Review Due (Annual)',
-    description: 'Sends reminder to senior management when annual management review is approaching.',
+    description:
+      'Sends reminder to senior management when annual management review is approaching.',
     trigger: { type: 'date_approaching', module: 'quality', recordType: 'management_review' },
     conditions: [{ field: 'scheduledDate', operator: 'days_before', value: 30 }],
-    actions: [{ type: 'send_email', target: 'senior_management', params: { template: 'management_review_due' } }],
+    actions: [
+      {
+        type: 'send_email',
+        target: 'senior_management',
+        params: { template: 'management_review_due' },
+      },
+    ],
     category: 'compliance',
   },
   {
     id: 'rule-008',
     name: 'CSAT Complaint → NCR Auto-Create',
-    description: 'Automatically creates a non-conformance report when a customer complaint is received.',
+    description:
+      'Automatically creates a non-conformance report when a customer complaint is received.',
     trigger: { type: 'record_created', module: 'crm', recordType: 'complaint' },
     conditions: [{ field: 'type', operator: 'equals', value: 'COMPLAINT' }],
-    actions: [{ type: 'create_record', target: 'quality.ncr', params: { source: 'customer_complaint', linkToComplaint: true } }],
+    actions: [
+      {
+        type: 'create_record',
+        target: 'quality.ncr',
+        params: { source: 'customer_complaint', linkToComplaint: true },
+      },
+    ],
     category: 'quality',
   },
   {
@@ -138,7 +209,13 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     description: 'Notifies the designated reviewer when an AI analysis requires human review.',
     trigger: { type: 'record_created', module: 'ai', recordType: 'analysis' },
     conditions: [{ field: 'requiresReview', operator: 'equals', value: 'true' }],
-    actions: [{ type: 'send_notification', target: 'ai_reviewer', params: { template: 'ai_review_required', urgent: true } }],
+    actions: [
+      {
+        type: 'send_notification',
+        target: 'ai_reviewer',
+        params: { template: 'ai_review_required', urgent: true },
+      },
+    ],
     category: 'compliance',
   },
   {
@@ -147,17 +224,28 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     description: 'Alerts document owner when a controlled document review date is approaching.',
     trigger: { type: 'date_approaching', module: 'quality', recordType: 'document' },
     conditions: [{ field: 'reviewDate', operator: 'days_before', value: 30 }],
-    actions: [{ type: 'send_notification', target: 'document_owner', params: { template: 'document_review_due' } }],
+    actions: [
+      {
+        type: 'send_notification',
+        target: 'document_owner',
+        params: { template: 'document_review_due' },
+      },
+    ],
     category: 'compliance',
   },
   {
     id: 'rule-011',
     name: 'Incident RIDDOR → Notify HS Manager',
-    description: 'Immediately notifies the H&S manager when a RIDDOR-reportable incident is logged.',
+    description:
+      'Immediately notifies the H&S manager when a RIDDOR-reportable incident is logged.',
     trigger: { type: 'record_created', module: 'health-safety', recordType: 'incident' },
     conditions: [{ field: 'riddorReportable', operator: 'equals', value: 'true' }],
     actions: [
-      { type: 'send_notification', target: 'hs_manager', params: { template: 'riddor_incident', urgent: true } },
+      {
+        type: 'send_notification',
+        target: 'hs_manager',
+        params: { template: 'riddor_incident', urgent: true },
+      },
       { type: 'send_email', target: 'hs_manager', params: { template: 'riddor_notification' } },
     ],
     category: 'safety',
@@ -168,7 +256,13 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     description: 'Creates a CAPA when an FMEA risk item has an RPN exceeding 200.',
     trigger: { type: 'field_threshold', module: 'quality', recordType: 'fmea_item' },
     conditions: [{ field: 'rpn', operator: 'greater_than', value: 200 }],
-    actions: [{ type: 'create_record', target: 'quality.capa', params: { source: 'fmea', linkToItem: true } }],
+    actions: [
+      {
+        type: 'create_record',
+        target: 'quality.capa',
+        params: { source: 'fmea', linkToItem: true },
+      },
+    ],
     category: 'quality',
   },
   {
@@ -177,7 +271,13 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     description: 'Alerts the objective owner when progress falls behind the expected trajectory.',
     trigger: { type: 'score_changed', module: 'quality', recordType: 'objective' },
     conditions: [{ field: 'progressPercentage', operator: 'less_than', value: 50 }],
-    actions: [{ type: 'send_notification', target: 'objective_owner', params: { template: 'objective_off_track' } }],
+    actions: [
+      {
+        type: 'send_notification',
+        target: 'objective_owner',
+        params: { template: 'objective_off_track' },
+      },
+    ],
     category: 'compliance',
   },
   {
@@ -187,8 +287,16 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     trigger: { type: 'date_approaching', module: 'quality', recordType: 'certificate' },
     conditions: [{ field: 'expiryDate', operator: 'days_before', value: 90 }],
     actions: [
-      { type: 'send_notification', target: 'compliance_team', params: { template: 'certificate_expiry' } },
-      { type: 'send_email', target: 'compliance_manager', params: { template: 'certificate_expiry_email' } },
+      {
+        type: 'send_notification',
+        target: 'compliance_team',
+        params: { template: 'certificate_expiry' },
+      },
+      {
+        type: 'send_email',
+        target: 'compliance_manager',
+        params: { template: 'certificate_expiry_email' },
+      },
     ],
     category: 'compliance',
   },
@@ -198,7 +306,13 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     description: 'Sends alert when ISO audit readiness score drops below 70%.',
     trigger: { type: 'score_changed', module: 'quality', recordType: 'readiness_score' },
     conditions: [{ field: 'score', operator: 'less_than', value: 70 }],
-    actions: [{ type: 'send_notification', target: 'quality_manager', params: { template: 'readiness_low', urgent: true } }],
+    actions: [
+      {
+        type: 'send_notification',
+        target: 'quality_manager',
+        params: { template: 'readiness_low', urgent: true },
+      },
+    ],
     category: 'compliance',
   },
   {
@@ -207,7 +321,13 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     description: 'Assigns onboarding tasks and training when a new user is created.',
     trigger: { type: 'record_created', module: 'hr', recordType: 'user' },
     conditions: [],
-    actions: [{ type: 'assign_task', target: 'new_user', params: { taskList: 'onboarding_checklist', dueInDays: 14 } }],
+    actions: [
+      {
+        type: 'assign_task',
+        target: 'new_user',
+        params: { taskList: 'onboarding_checklist', dueInDays: 14 },
+      },
+    ],
     category: 'hr',
   },
   {
@@ -216,7 +336,9 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     description: 'Sends upgrade reminder when organisation trial expires in 7 days.',
     trigger: { type: 'date_approaching', module: 'settings', recordType: 'organisation' },
     conditions: [{ field: 'trialEndDate', operator: 'days_before', value: 7 }],
-    actions: [{ type: 'send_email', target: 'org_admin', params: { template: 'trial_expiry_nudge' } }],
+    actions: [
+      { type: 'send_email', target: 'org_admin', params: { template: 'trial_expiry_nudge' } },
+    ],
     category: 'compliance',
   },
   {
@@ -225,25 +347,45 @@ export const AUTOMATION_RULES: AutomationRule[] = [
     description: 'Alerts admin when the AI service error rate exceeds 5% in the last hour.',
     trigger: { type: 'field_threshold', module: 'ai', recordType: 'metrics' },
     conditions: [{ field: 'errorRate', operator: 'greater_than', value: 5 }],
-    actions: [{ type: 'send_notification', target: 'system_admin', params: { template: 'ai_error_spike', urgent: true } }],
+    actions: [
+      {
+        type: 'send_notification',
+        target: 'system_admin',
+        params: { template: 'ai_error_spike', urgent: true },
+      },
+    ],
     category: 'compliance',
   },
   {
     id: 'rule-019',
     name: 'Energy Deviation → EnPI Alert',
-    description: 'Alerts energy manager when energy performance indicator deviates beyond threshold.',
+    description:
+      'Alerts energy manager when energy performance indicator deviates beyond threshold.',
     trigger: { type: 'field_threshold', module: 'energy', recordType: 'enpi' },
     conditions: [{ field: 'deviationPercent', operator: 'greater_than', value: 10 }],
-    actions: [{ type: 'send_notification', target: 'energy_manager', params: { template: 'enpi_deviation' } }],
+    actions: [
+      {
+        type: 'send_notification',
+        target: 'energy_manager',
+        params: { template: 'enpi_deviation' },
+      },
+    ],
     category: 'environment',
   },
   {
     id: 'rule-020',
     name: 'Risk Score Increase → Notify Owner',
-    description: 'Notifies the risk owner when a risk score increases above its previous assessment.',
+    description:
+      'Notifies the risk owner when a risk score increases above its previous assessment.',
     trigger: { type: 'score_changed', module: 'health-safety', recordType: 'risk' },
     conditions: [{ field: 'scoreChange', operator: 'greater_than', value: 0 }],
-    actions: [{ type: 'send_notification', target: 'risk_owner', params: { template: 'risk_score_increase' } }],
+    actions: [
+      {
+        type: 'send_notification',
+        target: 'risk_owner',
+        params: { template: 'risk_score_increase' },
+      },
+    ],
     category: 'safety',
   },
 ];
@@ -259,7 +401,7 @@ const executionLogStore: ExecutionLogEntry[] = [];
 // ─── Rule Management Functions ──────────────────────────────────────────────
 
 export function enableRule(orgId: string, ruleId: string): boolean {
-  const rule = AUTOMATION_RULES.find(r => r.id === ruleId);
+  const rule = AUTOMATION_RULES.find((r) => r.id === ruleId);
   if (!rule) return false;
 
   if (!enabledRulesStore.has(orgId)) {
@@ -270,7 +412,7 @@ export function enableRule(orgId: string, ruleId: string): boolean {
 }
 
 export function disableRule(orgId: string, ruleId: string): boolean {
-  const rule = AUTOMATION_RULES.find(r => r.id === ruleId);
+  const rule = AUTOMATION_RULES.find((r) => r.id === ruleId);
   if (!rule) return false;
 
   const orgRules = enabledRulesStore.get(orgId);
@@ -282,7 +424,7 @@ export function disableRule(orgId: string, ruleId: string): boolean {
 
 export function listRules(orgId: string): RuleWithStatus[] {
   const orgRules = enabledRulesStore.get(orgId) || new Set<string>();
-  return AUTOMATION_RULES.map(rule => ({
+  return AUTOMATION_RULES.map((rule) => ({
     ...rule,
     enabled: orgRules.has(rule.id),
   }));
@@ -290,11 +432,11 @@ export function listRules(orgId: string): RuleWithStatus[] {
 
 export function getEnabledRules(orgId: string): AutomationRule[] {
   const orgRules = enabledRulesStore.get(orgId) || new Set<string>();
-  return AUTOMATION_RULES.filter(rule => orgRules.has(rule.id));
+  return AUTOMATION_RULES.filter((rule) => orgRules.has(rule.id));
 }
 
 export function getRuleById(ruleId: string): AutomationRule | undefined {
-  return AUTOMATION_RULES.find(r => r.id === ruleId);
+  return AUTOMATION_RULES.find((r) => r.id === ruleId);
 }
 
 // ─── Execution Log Functions ────────────────────────────────────────────────
@@ -322,14 +464,12 @@ export function getExecutionLog(
   ruleId?: string,
   limit: number = 50
 ): ExecutionLogEntry[] {
-  let entries = executionLogStore.filter(e => e.orgId === orgId);
+  let entries = executionLogStore.filter((e) => e.orgId === orgId);
   if (ruleId) {
-    entries = entries.filter(e => e.ruleId === ruleId);
+    entries = entries.filter((e) => e.ruleId === ruleId);
   }
   // Return in reverse insertion order (newest first)
-  return entries
-    .reverse()
-    .slice(0, limit);
+  return entries.reverse().slice(0, limit);
 }
 
 // ─── Reset (for testing) ────────────────────────────────────────────────────

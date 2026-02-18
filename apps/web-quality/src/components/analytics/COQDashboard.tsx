@@ -59,7 +59,7 @@ export function COQDashboard({
       external_failure: 0,
     };
 
-    data.forEach(item => {
+    data.forEach((item) => {
       byType[item.type] += item.amount;
     });
 
@@ -85,13 +85,19 @@ export function COQDashboard({
     pieChartInstance.current = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: Object.keys(summary.byType).map(k => typeLabels[k as keyof typeof typeLabels]),
-        datasets: [{
-          data: Object.values(summary.byType),
-          backgroundColor: Object.keys(summary.byType).map(k => typeColors[k as keyof typeof typeColors].bg),
-          borderColor: Object.keys(summary.byType).map(k => typeColors[k as keyof typeof typeColors].border),
-          borderWidth: 2,
-        }],
+        labels: Object.keys(summary.byType).map((k) => typeLabels[k as keyof typeof typeLabels]),
+        datasets: [
+          {
+            data: Object.values(summary.byType),
+            backgroundColor: Object.keys(summary.byType).map(
+              (k) => typeColors[k as keyof typeof typeColors].bg
+            ),
+            borderColor: Object.keys(summary.byType).map(
+              (k) => typeColors[k as keyof typeof typeColors].border
+            ),
+            borderWidth: 2,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -132,15 +138,19 @@ export function COQDashboard({
     if (!ctx) return;
 
     // Group by category
-    const categories = [...new Set(data.map(d => d.category))];
-    const dataByCategory = categories.map(cat => {
-      const items = data.filter(d => d.category === cat);
+    const categories = [...new Set(data.map((d) => d.category))];
+    const dataByCategory = categories.map((cat) => {
+      const items = data.filter((d) => d.category === cat);
       return {
         category: cat,
-        prevention: items.filter(i => i.type === 'prevention').reduce((s, i) => s + i.amount, 0),
-        appraisal: items.filter(i => i.type === 'appraisal').reduce((s, i) => s + i.amount, 0),
-        internal_failure: items.filter(i => i.type === 'internal_failure').reduce((s, i) => s + i.amount, 0),
-        external_failure: items.filter(i => i.type === 'external_failure').reduce((s, i) => s + i.amount, 0),
+        prevention: items.filter((i) => i.type === 'prevention').reduce((s, i) => s + i.amount, 0),
+        appraisal: items.filter((i) => i.type === 'appraisal').reduce((s, i) => s + i.amount, 0),
+        internal_failure: items
+          .filter((i) => i.type === 'internal_failure')
+          .reduce((s, i) => s + i.amount, 0),
+        external_failure: items
+          .filter((i) => i.type === 'external_failure')
+          .reduce((s, i) => s + i.amount, 0),
       };
     });
 
@@ -151,28 +161,28 @@ export function COQDashboard({
         datasets: [
           {
             label: 'Prevention',
-            data: dataByCategory.map(d => d.prevention),
+            data: dataByCategory.map((d) => d.prevention),
             backgroundColor: typeColors.prevention.bg,
             borderColor: typeColors.prevention.border,
             borderWidth: 1,
           },
           {
             label: 'Appraisal',
-            data: dataByCategory.map(d => d.appraisal),
+            data: dataByCategory.map((d) => d.appraisal),
             backgroundColor: typeColors.appraisal.bg,
             borderColor: typeColors.appraisal.border,
             borderWidth: 1,
           },
           {
             label: 'Internal Failure',
-            data: dataByCategory.map(d => d.internal_failure),
+            data: dataByCategory.map((d) => d.internal_failure),
             backgroundColor: typeColors.internal_failure.bg,
             borderColor: typeColors.internal_failure.border,
             borderWidth: 1,
           },
           {
             label: 'External Failure',
-            data: dataByCategory.map(d => d.external_failure),
+            data: dataByCategory.map((d) => d.external_failure),
             backgroundColor: typeColors.external_failure.bg,
             borderColor: typeColors.external_failure.border,
             borderWidth: 1,
@@ -223,35 +233,45 @@ export function COQDashboard({
   return (
     <div className="w-full space-y-6">
       {title && (
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center">
+          {title}
+        </h3>
       )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4">
           <p className="text-sm text-green-700 font-medium">Prevention</p>
-          <p className="text-2xl font-bold text-green-800">{formatCurrency(summary.byType.prevention)}</p>
+          <p className="text-2xl font-bold text-green-800">
+            {formatCurrency(summary.byType.prevention)}
+          </p>
           <p className="text-xs text-green-600 mt-1">
             {((summary.byType.prevention / summary.total) * 100).toFixed(1)}% of COQ
           </p>
         </div>
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4">
           <p className="text-sm text-blue-700 font-medium">Appraisal</p>
-          <p className="text-2xl font-bold text-blue-800">{formatCurrency(summary.byType.appraisal)}</p>
+          <p className="text-2xl font-bold text-blue-800">
+            {formatCurrency(summary.byType.appraisal)}
+          </p>
           <p className="text-xs text-blue-600 mt-1">
             {((summary.byType.appraisal / summary.total) * 100).toFixed(1)}% of COQ
           </p>
         </div>
         <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-4">
           <p className="text-sm text-yellow-700 font-medium">Internal Failure</p>
-          <p className="text-2xl font-bold text-yellow-800">{formatCurrency(summary.byType.internal_failure)}</p>
+          <p className="text-2xl font-bold text-yellow-800">
+            {formatCurrency(summary.byType.internal_failure)}
+          </p>
           <p className="text-xs text-yellow-600 mt-1">
             {((summary.byType.internal_failure / summary.total) * 100).toFixed(1)}% of COQ
           </p>
         </div>
         <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-4">
           <p className="text-sm text-red-700 font-medium">External Failure</p>
-          <p className="text-2xl font-bold text-red-800">{formatCurrency(summary.byType.external_failure)}</p>
+          <p className="text-2xl font-bold text-red-800">
+            {formatCurrency(summary.byType.external_failure)}
+          </p>
           <p className="text-xs text-red-600 mt-1">
             {((summary.byType.external_failure / summary.total) * 100).toFixed(1)}% of COQ
           </p>
@@ -261,13 +281,17 @@ export function COQDashboard({
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-gray-900 rounded-lg border p-4">
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Cost Distribution</h4>
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+            Cost Distribution
+          </h4>
           <div className="h-64">
             <canvas ref={pieChartRef} />
           </div>
         </div>
         <div className="bg-white dark:bg-gray-900 rounded-lg border p-4">
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Costs by Category</h4>
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+            Costs by Category
+          </h4>
           <div className="h-64">
             <canvas ref={barChartRef} />
           </div>
@@ -277,7 +301,9 @@ export function COQDashboard({
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-center">
-          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(summary.total)}</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            {formatCurrency(summary.total)}
+          </p>
           <p className="text-sm text-gray-600">Total Cost of Quality</p>
           {summary.coqRatio !== null && (
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -286,24 +312,26 @@ export function COQDashboard({
           )}
         </div>
         <div className="bg-green-50 rounded-lg p-4 text-center">
-          <p className="text-3xl font-bold text-green-700">{formatCurrency(summary.conformanceCost)}</p>
-          <p className="text-sm text-gray-600">Conformance Costs</p>
-          <p className="text-xs text-green-600 mt-1">
-            Prevention + Appraisal
+          <p className="text-3xl font-bold text-green-700">
+            {formatCurrency(summary.conformanceCost)}
           </p>
+          <p className="text-sm text-gray-600">Conformance Costs</p>
+          <p className="text-xs text-green-600 mt-1">Prevention + Appraisal</p>
         </div>
         <div className="bg-red-50 rounded-lg p-4 text-center">
-          <p className="text-3xl font-bold text-red-700">{formatCurrency(summary.nonConformanceCost)}</p>
-          <p className="text-sm text-gray-600">Non-Conformance Costs</p>
-          <p className="text-xs text-red-600 mt-1">
-            Internal + External Failure
+          <p className="text-3xl font-bold text-red-700">
+            {formatCurrency(summary.nonConformanceCost)}
           </p>
+          <p className="text-sm text-gray-600">Non-Conformance Costs</p>
+          <p className="text-xs text-red-600 mt-1">Internal + External Failure</p>
         </div>
       </div>
 
       {/* Optimal balance indicator */}
       <div className="bg-white dark:bg-gray-900 rounded-lg border p-4">
-        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Cost Balance Analysis</h4>
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          Cost Balance Analysis
+        </h4>
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <div className="flex justify-between text-xs text-gray-600 mb-1">
@@ -343,7 +371,9 @@ export function COQDashboard({
             />
             <div>
               <p className="font-medium text-gray-700 dark:text-gray-300">{label}</p>
-              <p className="text-gray-500 dark:text-gray-400 text-xs">{typeDescriptions[key as keyof typeof typeDescriptions]}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-xs">
+                {typeDescriptions[key as keyof typeof typeDescriptions]}
+              </p>
             </div>
           </div>
         ))}

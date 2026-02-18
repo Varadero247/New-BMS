@@ -77,7 +77,11 @@ export default function FeatureFlagsPage() {
       const res = await fetch(`${API_URL}/api/admin/feature-flags`, {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ name: newName.trim(), description: newDescription.trim(), enabled: false }),
+        body: JSON.stringify({
+          name: newName.trim(),
+          description: newDescription.trim(),
+          enabled: false,
+        }),
       });
       if (!res.ok) {
         const json = await res.json();
@@ -132,7 +136,7 @@ export default function FeatureFlagsPage() {
           method: 'PUT',
           headers: getAuthHeaders(),
           body: JSON.stringify({ enabled: newOrgEnabled }),
-        },
+        }
       );
       if (!res.ok) throw new Error('Failed to add org override');
       setNewOrgId('');
@@ -151,7 +155,7 @@ export default function FeatureFlagsPage() {
           method: 'PUT',
           headers: getAuthHeaders(),
           body: JSON.stringify({ enabled }),
-        },
+        }
       );
       if (!res.ok) throw new Error('Failed to update org override');
       await fetchFlags();
@@ -167,7 +171,7 @@ export default function FeatureFlagsPage() {
         {
           method: 'DELETE',
           headers: getAuthHeaders(),
-        },
+        }
       );
       if (!res.ok) throw new Error('Failed to remove org override');
       await fetchFlags();
@@ -186,7 +190,11 @@ export default function FeatureFlagsPage() {
           </p>
         </div>
         <button
-          onClick={() => { setShowCreate(true); setNewName(''); setNewDescription(''); }}
+          onClick={() => {
+            setShowCreate(true);
+            setNewName('');
+            setNewDescription('');
+          }}
           className="px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700"
         >
           Create Flag
@@ -198,14 +206,18 @@ export default function FeatureFlagsPage() {
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
           <div className="flex items-center justify-between">
             <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
-            <button onClick={() => setError(null)} className="text-xs text-red-500 hover:underline">Dismiss</button>
+            <button onClick={() => setError(null)} className="text-xs text-red-500 hover:underline">
+              Dismiss
+            </button>
           </div>
         </div>
       )}
 
       {/* Loading state */}
       {loading && (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">Loading feature flags...</div>
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          Loading feature flags...
+        </div>
       )}
 
       {/* Flags table */}
@@ -220,11 +232,21 @@ export default function FeatureFlagsPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
               <tr>
-                <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Flag Name</th>
-                <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Description</th>
-                <th className="text-center p-3 font-medium text-gray-700 dark:text-gray-300">Global Status</th>
-                <th className="text-center p-3 font-medium text-gray-700 dark:text-gray-300">Org Overrides</th>
-                <th className="text-right p-3 font-medium text-gray-700 dark:text-gray-300">Actions</th>
+                <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                  Flag Name
+                </th>
+                <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                  Description
+                </th>
+                <th className="text-center p-3 font-medium text-gray-700 dark:text-gray-300">
+                  Global Status
+                </th>
+                <th className="text-center p-3 font-medium text-gray-700 dark:text-gray-300">
+                  Org Overrides
+                </th>
+                <th className="text-right p-3 font-medium text-gray-700 dark:text-gray-300">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -303,7 +325,8 @@ export default function FeatureFlagsPage() {
                             Organisation Overrides
                           </h4>
                           <div className="text-[10px] text-gray-400 dark:text-gray-500">
-                            Created: {new Date(flag.createdAt).toLocaleDateString()} | Updated: {new Date(flag.updatedAt).toLocaleDateString()}
+                            Created: {new Date(flag.createdAt).toLocaleDateString()} | Updated:{' '}
+                            {new Date(flag.updatedAt).toLocaleDateString()}
                           </div>
                         </div>
 
@@ -316,13 +339,23 @@ export default function FeatureFlagsPage() {
                                 className="flex items-center justify-between bg-white dark:bg-gray-900 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-2"
                               >
                                 <div className="text-xs">
-                                  <span className="font-medium text-gray-800 dark:text-gray-200">{override.orgId}</span>
+                                  <span className="font-medium text-gray-800 dark:text-gray-200">
+                                    {override.orgId}
+                                  </span>
                                 </div>
                                 <div className="flex items-center gap-3">
                                   <button
-                                    onClick={() => handleToggleOrgOverride(flag.name, override.orgId, !override.enabled)}
+                                    onClick={() =>
+                                      handleToggleOrgOverride(
+                                        flag.name,
+                                        override.orgId,
+                                        !override.enabled
+                                      )
+                                    }
                                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                                      override.enabled ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
+                                      override.enabled
+                                        ? 'bg-green-500'
+                                        : 'bg-gray-300 dark:bg-gray-600'
                                     }`}
                                   >
                                     <span
@@ -332,7 +365,9 @@ export default function FeatureFlagsPage() {
                                     />
                                   </button>
                                   <button
-                                    onClick={() => handleRemoveOrgOverride(flag.name, override.orgId)}
+                                    onClick={() =>
+                                      handleRemoveOrgOverride(flag.name, override.orgId)
+                                    }
                                     className="text-xs text-red-500 hover:underline"
                                   >
                                     Remove
@@ -342,13 +377,17 @@ export default function FeatureFlagsPage() {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-xs text-gray-400 dark:text-gray-500 italic">No organisation overrides configured.</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 italic">
+                            No organisation overrides configured.
+                          </p>
                         )}
 
                         {/* Add new override */}
                         <div className="flex items-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
                           <div className="flex-1">
-                            <label className="block text-[10px] font-medium text-gray-500 dark:text-gray-400 mb-1">Organisation ID</label>
+                            <label className="block text-[10px] font-medium text-gray-500 dark:text-gray-400 mb-1">
+                              Organisation ID
+                            </label>
                             <input
                               value={newOrgId}
                               onChange={(e) => setNewOrgId(e.target.value)}
@@ -396,11 +435,15 @@ export default function FeatureFlagsPage() {
             </div>
             <div>
               <span className="text-gray-500 dark:text-gray-400">Enabled:</span>{' '}
-              <span className="font-medium text-green-600">{flags.filter(f => f.enabled).length}</span>
+              <span className="font-medium text-green-600">
+                {flags.filter((f) => f.enabled).length}
+              </span>
             </div>
             <div>
               <span className="text-gray-500 dark:text-gray-400">Disabled:</span>{' '}
-              <span className="font-medium text-gray-600">{flags.filter(f => !f.enabled).length}</span>
+              <span className="font-medium text-gray-600">
+                {flags.filter((f) => !f.enabled).length}
+              </span>
             </div>
           </div>
         </div>
@@ -408,7 +451,9 @@ export default function FeatureFlagsPage() {
 
       {/* Usage info */}
       <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Developer Usage</h3>
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          Developer Usage
+        </h3>
         <div className="text-xs text-gray-500 dark:text-gray-400 space-y-2">
           <p>
             <strong>Server-side:</strong>{' '}
@@ -433,24 +478,33 @@ export default function FeatureFlagsPage() {
 
       {/* Create Modal */}
       {showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowCreate(false)}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setShowCreate(false)}
+        >
           <div
             className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-md w-full mx-4 border border-gray-200 dark:border-gray-700"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6 space-y-4">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Create Feature Flag</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                Create Feature Flag
+              </h2>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Flag Name *
                 </label>
                 <input
                   value={newName}
-                  onChange={(e) => setNewName(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                  onChange={(e) =>
+                    setNewName(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))
+                  }
                   placeholder="e.g. new_dashboard_v2"
                   className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                 />
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Lowercase letters, numbers, and underscores only.</p>
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+                  Lowercase letters, numbers, and underscores only.
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

@@ -57,9 +57,7 @@ describe('Evidence Pack API', () => {
 
   describe('POST /api/evidence-pack', () => {
     it('should create an evidence pack for ISO_9001', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_9001' });
+      const res = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_9001' });
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -73,99 +71,77 @@ describe('Evidence Pack API', () => {
     });
 
     it('should create evidence pack for ISO_14001', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_14001' });
+      const res = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_14001' });
 
       expect(res.status).toBe(201);
       expect(res.body.data.standard).toBe('ISO_14001');
     });
 
     it('should create evidence pack for ISO_45001', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_45001' });
+      const res = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_45001' });
 
       expect(res.status).toBe(201);
       expect(res.body.data.standard).toBe('ISO_45001');
     });
 
     it('should create evidence pack for ISO_27001', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_27001' });
+      const res = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_27001' });
 
       expect(res.status).toBe(201);
       expect(res.body.data.standard).toBe('ISO_27001');
     });
 
     it('should create evidence pack for IATF_16949', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'IATF_16949' });
+      const res = await request(app).post('/api/evidence-pack').send({ standard: 'IATF_16949' });
 
       expect(res.status).toBe(201);
       expect(res.body.data.standard).toBe('IATF_16949');
     });
 
     it('should create evidence pack for ISO_13485', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_13485' });
+      const res = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_13485' });
 
       expect(res.status).toBe(201);
       expect(res.body.data.standard).toBe('ISO_13485');
     });
 
     it('should create evidence pack for AS9100D', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'AS9100D' });
+      const res = await request(app).post('/api/evidence-pack').send({ standard: 'AS9100D' });
 
       expect(res.status).toBe(201);
       expect(res.body.data.standard).toBe('AS9100D');
     });
 
     it('should create evidence pack for ISO_22000', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_22000' });
+      const res = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_22000' });
 
       expect(res.status).toBe(201);
       expect(res.body.data.standard).toBe('ISO_22000');
     });
 
     it('should create evidence pack for ISO_50001', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_50001' });
+      const res = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_50001' });
 
       expect(res.status).toBe(201);
       expect(res.body.data.standard).toBe('ISO_50001');
     });
 
     it('should create evidence pack for ISO_42001', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_42001' });
+      const res = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_42001' });
 
       expect(res.status).toBe(201);
       expect(res.body.data.standard).toBe('ISO_42001');
     });
 
     it('should create evidence pack for ISO_37001', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_37001' });
+      const res = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_37001' });
 
       expect(res.status).toBe(201);
       expect(res.body.data.standard).toBe('ISO_37001');
     });
 
     it('should default format to PDF', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_9001' });
+      const res = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_9001' });
 
       expect(res.status).toBe(201);
     });
@@ -179,31 +155,27 @@ describe('Evidence Pack API', () => {
     });
 
     it('should accept date range filters', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({
-          standard: 'ISO_9001',
-          dateFrom: '2025-01-01',
-          dateTo: '2025-12-31',
-        });
+      const res = await request(app).post('/api/evidence-pack').send({
+        standard: 'ISO_9001',
+        dateFrom: '2025-01-01',
+        dateTo: '2025-12-31',
+      });
 
       expect(res.status).toBe(201);
     });
 
     it('should accept inclusion flags', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({
-          standard: 'ISO_9001',
-          includeDocuments: true,
-          includeAudits: true,
-          includeCapa: false,
-          includeTraining: false,
-          includeObjectives: true,
-          includeLegalRegister: true,
-          includeRiskRegister: true,
-          includeManagementReview: true,
-        });
+      const res = await request(app).post('/api/evidence-pack').send({
+        standard: 'ISO_9001',
+        includeDocuments: true,
+        includeAudits: true,
+        includeCapa: false,
+        includeTraining: false,
+        includeObjectives: true,
+        includeLegalRegister: true,
+        includeRiskRegister: true,
+        includeManagementReview: true,
+      });
 
       expect(res.status).toBe(201);
     });
@@ -219,9 +191,7 @@ describe('Evidence Pack API', () => {
     });
 
     it('should reject missing standard', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({});
+      const res = await request(app).post('/api/evidence-pack').send({});
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -236,33 +206,23 @@ describe('Evidence Pack API', () => {
     });
 
     it('should generate unique reference numbers', async () => {
-      const res1 = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_9001' });
+      const res1 = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_9001' });
 
-      const res2 = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_9001' });
+      const res2 = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_9001' });
 
       expect(res1.body.data.referenceNumber).not.toBe(res2.body.data.referenceNumber);
     });
 
     it('should generate unique IDs', async () => {
-      const res1 = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_14001' });
+      const res1 = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_14001' });
 
-      const res2 = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_14001' });
+      const res2 = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_14001' });
 
       expect(res1.body.data.id).not.toBe(res2.body.data.id);
     });
 
     it('should return clause numbers for the requested standard', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'ISO_9001' });
+      const res = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_9001' });
 
       expect(res.body.data.clauses).toContain('4.1');
       expect(res.body.data.clauses).toContain('10.2');
@@ -284,8 +244,7 @@ describe('Evidence Pack API', () => {
     });
 
     it('should support pagination', async () => {
-      const res = await request(app)
-        .get('/api/evidence-pack?page=1&limit=5');
+      const res = await request(app).get('/api/evidence-pack?page=1&limit=5');
 
       expect(res.status).toBe(200);
       expect(res.body.data.limit).toBe(5);
@@ -296,8 +255,7 @@ describe('Evidence Pack API', () => {
       await request(app).post('/api/evidence-pack').send({ standard: 'ISO_9001' });
       await request(app).post('/api/evidence-pack').send({ standard: 'ISO_14001' });
 
-      const res = await request(app)
-        .get('/api/evidence-pack?standard=ISO_14001');
+      const res = await request(app).get('/api/evidence-pack?standard=ISO_14001');
 
       expect(res.status).toBe(200);
       if (res.body.data.items.length > 0) {
@@ -308,31 +266,27 @@ describe('Evidence Pack API', () => {
     });
 
     it('should filter by status', async () => {
-      const res = await request(app)
-        .get('/api/evidence-pack?status=GENERATING');
+      const res = await request(app).get('/api/evidence-pack?status=GENERATING');
 
       expect(res.status).toBe(200);
     });
 
     it('should return totalPages', async () => {
-      const res = await request(app)
-        .get('/api/evidence-pack?limit=2');
+      const res = await request(app).get('/api/evidence-pack?limit=2');
 
       expect(res.status).toBe(200);
       expect(res.body.data.totalPages).toBeDefined();
     });
 
     it('should cap limit at 100', async () => {
-      const res = await request(app)
-        .get('/api/evidence-pack?limit=200');
+      const res = await request(app).get('/api/evidence-pack?limit=200');
 
       expect(res.status).toBe(200);
       expect(res.body.data.limit).toBeLessThanOrEqual(100);
     });
 
     it('should default to page 1', async () => {
-      const res = await request(app)
-        .get('/api/evidence-pack?page=0');
+      const res = await request(app).get('/api/evidence-pack?page=0');
 
       expect(res.status).toBe(200);
       expect(res.body.data.page).toBe(1);
@@ -358,8 +312,7 @@ describe('Evidence Pack API', () => {
     });
 
     it('should return 404 for non-existent pack', async () => {
-      const res = await request(app)
-        .get('/api/evidence-pack/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).get('/api/evidence-pack/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -387,8 +340,9 @@ describe('Evidence Pack API', () => {
 
   describe('GET /api/evidence-pack/:id/download', () => {
     it('should return 404 for non-existent pack', async () => {
-      const res = await request(app)
-        .get('/api/evidence-pack/00000000-0000-0000-0000-000000000099/download');
+      const res = await request(app).get(
+        '/api/evidence-pack/00000000-0000-0000-0000-000000000099/download'
+      );
 
       expect(res.status).toBe(404);
     });
@@ -403,8 +357,7 @@ describe('Evidence Pack API', () => {
       // Wait for async generation
       await new Promise((resolve) => setTimeout(resolve, 200));
 
-      const res = await request(app)
-        .get(`/api/evidence-pack/${id}/download`);
+      const res = await request(app).get(`/api/evidence-pack/${id}/download`);
 
       // May be 200 (complete) or 409 (still generating)
       expect([200, 409]).toContain(res.status);
@@ -424,8 +377,7 @@ describe('Evidence Pack API', () => {
       const id = createRes.body.data.id;
 
       // Immediately try to download (should be still generating)
-      const res = await request(app)
-        .get(`/api/evidence-pack/${id}/download`);
+      const res = await request(app).get(`/api/evidence-pack/${id}/download`);
 
       // Could be 409 (generating) or 200 (if generation was instant)
       expect([200, 409]).toContain(res.status);
@@ -439,9 +391,7 @@ describe('Evidence Pack API', () => {
       const standards = ['ISO_9001', 'ISO_14001', 'ISO_45001'];
 
       for (const standard of standards) {
-        const res = await request(app)
-          .post('/api/evidence-pack')
-          .send({ standard });
+        const res = await request(app).post('/api/evidence-pack').send({ standard });
 
         expect(res.status).toBe(201);
         expect(res.body.data.standard).toBe(standard);
@@ -462,17 +412,13 @@ describe('Evidence Pack API', () => {
     });
 
     it('should handle empty body gracefully', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send();
+      const res = await request(app).post('/api/evidence-pack').send();
 
       expect(res.status).toBe(400);
     });
 
     it('should return proper error structure', async () => {
-      const res = await request(app)
-        .post('/api/evidence-pack')
-        .send({ standard: 'INVALID' });
+      const res = await request(app).post('/api/evidence-pack').send({ standard: 'INVALID' });
 
       expect(res.status).toBe(400);
       expect(res.body).toHaveProperty('success', false);

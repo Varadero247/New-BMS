@@ -227,23 +227,19 @@ describe('POST /api/template-generator', () => {
       category: 'POLICY',
     });
 
-    const res = await request(app)
-      .post('/api/template-generator')
-      .send({
-        prompt: 'Create a custom compliance document',
-        category: 'POLICY',
-        isoStandard: 'ISO 37001:2016',
-        title: 'Anti-Bribery Compliance Policy',
-      });
+    const res = await request(app).post('/api/template-generator').send({
+      prompt: 'Create a custom compliance document',
+      category: 'POLICY',
+      isoStandard: 'ISO 37001:2016',
+      title: 'Anti-Bribery Compliance Policy',
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.data.configJson.isoRef).toBe('ISO 37001:2016');
   });
 
   it('should reject empty prompt', async () => {
-    const res = await request(app)
-      .post('/api/template-generator')
-      .send({ prompt: '' });
+    const res = await request(app).post('/api/template-generator').send({ prompt: '' });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
@@ -251,9 +247,7 @@ describe('POST /api/template-generator', () => {
   });
 
   it('should reject too-short prompt', async () => {
-    const res = await request(app)
-      .post('/api/template-generator')
-      .send({ prompt: 'hi' });
+    const res = await request(app).post('/api/template-generator').send({ prompt: 'hi' });
 
     expect(res.status).toBe(400);
   });
@@ -296,7 +290,12 @@ describe('POST /api/template-generator', () => {
 describe('GET /api/template-generator', () => {
   it('should list generated templates', async () => {
     mockFindMany.mockResolvedValue([
-      { id: '00000000-0000-0000-0000-000000000001', docNumber: 'PRO-100', title: 'Test', category: 'PROCEDURE' },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        docNumber: 'PRO-100',
+        title: 'Test',
+        category: 'PROCEDURE',
+      },
     ]);
     mockCount.mockResolvedValue(1);
 
@@ -332,7 +331,9 @@ describe('GET /api/template-generator/:id', () => {
       configJson: JSON.stringify({ sections: [] }),
     });
 
-    const res = await request(app).get('/api/template-generator/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/template-generator/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.configJson.sections).toBeDefined();
@@ -341,7 +342,9 @@ describe('GET /api/template-generator/:id', () => {
   it('should return 404 for unknown template', async () => {
     mockFindUnique.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/template-generator/00000000-0000-0000-0000-000000000099');
+    const res = await request(app).get(
+      '/api/template-generator/00000000-0000-0000-0000-000000000099'
+    );
 
     expect(res.status).toBe(404);
   });
@@ -351,7 +354,9 @@ describe('DELETE /api/template-generator/:id', () => {
   it('should delete a template', async () => {
     mockUpdate.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).delete('/api/template-generator/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).delete(
+      '/api/template-generator/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Template deleted');

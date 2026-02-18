@@ -197,9 +197,7 @@ export default function FiveWhysPage() {
                     <label className="text-sm font-medium">Why #{num}</label>
                     <Input
                       value={formData[`why${num}` as keyof typeof formData] as string}
-                      onChange={(e) =>
-                        setFormData({ ...formData, [`why${num}`]: e.target.value })
-                      }
+                      onChange={(e) => setFormData({ ...formData, [`why${num}`]: e.target.value })}
                       placeholder={num === 1 ? 'Why did this problem occur?' : 'Why?'}
                       className="mt-1"
                     />
@@ -223,8 +221,15 @@ export default function FiveWhysPage() {
               <Button variant="outline" onClick={() => setShowForm(false)}>
                 Cancel
               </Button>
-              <Button onClick={createAnalysis} disabled={creating || !formData.title || !formData.problemStatement}>
-                {creating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              <Button
+                onClick={createAnalysis}
+                disabled={creating || !formData.title || !formData.problemStatement}
+              >
+                {creating ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
                 Save Analysis
               </Button>
             </div>
@@ -266,7 +271,8 @@ export default function FiveWhysPage() {
             </div>
           </div>
           <p className="text-sm text-muted-foreground text-center mt-4">
-            By asking &quot;Why?&quot; five times, you can peel away the layers of symptoms to reveal the root cause of a problem.
+            By asking &quot;Why?&quot; five times, you can peel away the layers of symptoms to
+            reveal the root cause of a problem.
           </p>
         </CardContent>
       </Card>
@@ -288,10 +294,13 @@ export default function FiveWhysPage() {
                     <div>
                       <h3 className="font-medium">{analysis.title}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(analysis.createdAt).toLocaleDateString()} • {analysis.sourceType.replace('_', ' ')}
+                        {new Date(analysis.createdAt).toLocaleDateString()} •{' '}
+                        {analysis.sourceType.replace('_', ' ')}
                       </p>
                     </div>
-                    <span className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 ${getStatusColor(analysis.status)}`}>
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 ${getStatusColor(analysis.status)}`}
+                    >
                       {getStatusIcon(analysis.status)}
                       {analysis.status}
                     </span>

@@ -105,9 +105,7 @@ describe('Payroll Tax API Routes', () => {
     it('should filter by taxYear', async () => {
       (mockPrisma.taxFiling.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/tax/filings?taxYear=2024')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/tax/filings?taxYear=2024').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.taxFiling.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -153,9 +151,7 @@ describe('Payroll Tax API Routes', () => {
     it('should order by filingDeadline descending', async () => {
       (mockPrisma.taxFiling.findMany as jest.Mock).mockResolvedValueOnce(mockFilings);
 
-      await request(app)
-        .get('/api/tax/filings')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/tax/filings').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.taxFiling.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -427,9 +423,7 @@ describe('Payroll Tax API Routes', () => {
     it('should filter by taxYear', async () => {
       (mockPrisma.taxBracket.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/tax/brackets?taxYear=2024')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/tax/brackets?taxYear=2024').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.taxBracket.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -444,9 +438,7 @@ describe('Payroll Tax API Routes', () => {
     it('should filter by country', async () => {
       (mockPrisma.taxBracket.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/tax/brackets?country=US')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/tax/brackets?country=US').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.taxBracket.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -461,9 +453,7 @@ describe('Payroll Tax API Routes', () => {
     it('should only return active brackets by default', async () => {
       (mockPrisma.taxBracket.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/tax/brackets')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/tax/brackets').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.taxBracket.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -477,9 +467,7 @@ describe('Payroll Tax API Routes', () => {
     it('should order by minIncome ascending', async () => {
       (mockPrisma.taxBracket.findMany as jest.Mock).mockResolvedValueOnce(mockBrackets);
 
-      await request(app)
-        .get('/api/tax/brackets')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/tax/brackets').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.taxBracket.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -581,9 +569,7 @@ describe('Payroll Tax API Routes', () => {
       });
       (mockPrisma.taxFiling.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/tax/summary?year=2024')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/tax/summary?year=2024').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.taxFiling.groupBy).toHaveBeenCalledWith(
         expect.objectContaining({

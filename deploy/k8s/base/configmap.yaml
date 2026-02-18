@@ -4,66 +4,66 @@ metadata:
   name: ims-config
   namespace: ims
 data:
-  NODE_ENV: "production"
-  LOG_LEVEL: "info"
+  NODE_ENV: 'production'
+  LOG_LEVEL: 'info'
 
   # API Gateway
-  API_GATEWAY_PORT: "4000"
+  API_GATEWAY_PORT: '4000'
   # NOTE: Do NOT set CORS_ORIGIN — the gateway uses a built-in allowed-origins array.
   # Setting CORS_ORIGIN overrides that array and breaks cross-origin requests.
   # See CLAUDE.md Known Issue #3.
   # CORS_ORIGIN: ""
 
   # Service URLs (internal K8s DNS)
-  HEALTH_SAFETY_URL: "http://api-health-safety:4001"
-  ENVIRONMENT_URL: "http://api-environment:4002"
-  QUALITY_URL: "http://api-quality:4003"
-  AI_ANALYSIS_URL: "http://api-ai:4004"
-  INVENTORY_URL: "http://api-inventory:4005"
-  HR_URL: "http://api-hr:4006"
-  PAYROLL_URL: "http://api-payroll:4007"
-  WORKFLOWS_URL: "http://api-workflows:4008"
-  PROJECT_MANAGEMENT_URL: "http://api-project-management:4009"
-  AUTOMOTIVE_URL: "http://api-automotive:4010"
-  MEDICAL_URL: "http://api-medical:4011"
-  AEROSPACE_URL: "http://api-aerospace:4012"
-  FINANCE_URL: "http://api-finance:4013"
-  CRM_URL: "http://api-crm:4014"
-  INFOSEC_URL: "http://api-infosec:4015"
-  ESG_URL: "http://api-esg:4016"
-  CMMS_URL: "http://api-cmms:4017"
-  PORTAL_URL: "http://api-portal:4018"
-  FOOD_SAFETY_URL: "http://api-food-safety:4019"
-  ENERGY_URL: "http://api-energy:4020"
-  ANALYTICS_URL: "http://api-analytics:4021"
-  FIELD_SERVICE_URL: "http://api-field-service:4022"
-  ISO42001_URL: "http://api-iso42001:4023"
-  ISO37001_URL: "http://api-iso37001:4024"
-  MARKETING_URL: "http://api-marketing:4025"
-  PARTNERS_URL: "http://api-partners:4026"
-  RISK_URL: "http://api-risk:4027"
-  TRAINING_URL: "http://api-training:4028"
-  SUPPLIERS_URL: "http://api-suppliers:4029"
-  ASSETS_URL: "http://api-assets:4030"
-  DOCUMENTS_URL: "http://api-documents:4031"
-  COMPLAINTS_URL: "http://api-complaints:4032"
-  CONTRACTS_URL: "http://api-contracts:4033"
-  PTW_URL: "http://api-ptw:4034"
-  REG_MONITOR_URL: "http://api-reg-monitor:4035"
-  INCIDENTS_URL: "http://api-incidents:4036"
-  AUDITS_URL: "http://api-audits:4037"
-  MGMT_REVIEW_URL: "http://api-mgmt-review:4038"
-  SETUP_WIZARD_URL: "http://api-setup-wizard:4039"
-  CHEMICALS_URL: "http://api-chemicals:4040"
-  EMERGENCY_URL: "http://api-emergency:4041"
+  HEALTH_SAFETY_URL: 'http://api-health-safety:4001'
+  ENVIRONMENT_URL: 'http://api-environment:4002'
+  QUALITY_URL: 'http://api-quality:4003'
+  AI_ANALYSIS_URL: 'http://api-ai:4004'
+  INVENTORY_URL: 'http://api-inventory:4005'
+  HR_URL: 'http://api-hr:4006'
+  PAYROLL_URL: 'http://api-payroll:4007'
+  WORKFLOWS_URL: 'http://api-workflows:4008'
+  PROJECT_MANAGEMENT_URL: 'http://api-project-management:4009'
+  AUTOMOTIVE_URL: 'http://api-automotive:4010'
+  MEDICAL_URL: 'http://api-medical:4011'
+  AEROSPACE_URL: 'http://api-aerospace:4012'
+  FINANCE_URL: 'http://api-finance:4013'
+  CRM_URL: 'http://api-crm:4014'
+  INFOSEC_URL: 'http://api-infosec:4015'
+  ESG_URL: 'http://api-esg:4016'
+  CMMS_URL: 'http://api-cmms:4017'
+  PORTAL_URL: 'http://api-portal:4018'
+  FOOD_SAFETY_URL: 'http://api-food-safety:4019'
+  ENERGY_URL: 'http://api-energy:4020'
+  ANALYTICS_URL: 'http://api-analytics:4021'
+  FIELD_SERVICE_URL: 'http://api-field-service:4022'
+  ISO42001_URL: 'http://api-iso42001:4023'
+  ISO37001_URL: 'http://api-iso37001:4024'
+  MARKETING_URL: 'http://api-marketing:4025'
+  PARTNERS_URL: 'http://api-partners:4026'
+  RISK_URL: 'http://api-risk:4027'
+  TRAINING_URL: 'http://api-training:4028'
+  SUPPLIERS_URL: 'http://api-suppliers:4029'
+  ASSETS_URL: 'http://api-assets:4030'
+  DOCUMENTS_URL: 'http://api-documents:4031'
+  COMPLAINTS_URL: 'http://api-complaints:4032'
+  CONTRACTS_URL: 'http://api-contracts:4033'
+  PTW_URL: 'http://api-ptw:4034'
+  REG_MONITOR_URL: 'http://api-reg-monitor:4035'
+  INCIDENTS_URL: 'http://api-incidents:4036'
+  AUDITS_URL: 'http://api-audits:4037'
+  MGMT_REVIEW_URL: 'http://api-mgmt-review:4038'
+  SETUP_WIZARD_URL: 'http://api-setup-wizard:4039'
+  CHEMICALS_URL: 'http://api-chemicals:4040'
+  EMERGENCY_URL: 'http://api-emergency:4041'
 
   # Redis
-  REDIS_HOST: "redis"
-  REDIS_PORT: "6379"
+  REDIS_HOST: 'redis'
+  REDIS_PORT: '6379'
 
   # Observability
-  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger-collector:4317"
-  OTEL_SERVICE_NAME: "ims"
+  OTEL_EXPORTER_OTLP_ENDPOINT: 'http://jaeger-collector:4317'
+  OTEL_SERVICE_NAME: 'ims'
 
   # CSRF
-  CSRF_ENABLED: "true"
+  CSRF_ENABLED: 'true'

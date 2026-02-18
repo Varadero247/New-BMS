@@ -128,9 +128,7 @@ describe('DPA Routes', () => {
     });
 
     it('rejects missing signerName', async () => {
-      const res = await request(app)
-        .post('/api/admin/dpa/accept')
-        .send({ signerTitle: 'DPO' });
+      const res = await request(app).post('/api/admin/dpa/accept').send({ signerTitle: 'DPO' });
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
     });
@@ -177,7 +175,11 @@ describe('DPA Routes', () => {
     });
 
     it('returns acceptance record when DPA is accepted', async () => {
-      const acceptance = { id: 'acc-1', signedAt: new Date().toISOString(), signerName: 'John Smith' };
+      const acceptance = {
+        id: 'acc-1',
+        signedAt: new Date().toISOString(),
+        signerName: 'John Smith',
+      };
       mockGetDpaAcceptance.mockReturnValueOnce(acceptance);
       const res = await request(app).get('/api/admin/dpa/acceptance');
       expect(res.status).toBe(200);

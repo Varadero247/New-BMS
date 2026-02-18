@@ -1,8 +1,32 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea } from '@ims/ui';
-import { Plus, ClipboardList, Search, Clock, CheckCircle, AlertTriangle, RefreshCw, Eye, Edit2, ShieldCheck } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
+} from '@ims/ui';
+import {
+  Plus,
+  ClipboardList,
+  Search,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  RefreshCw,
+  Eye,
+  Edit2,
+  ShieldCheck,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -45,19 +69,9 @@ interface ControlPlan {
 // Constants
 // ---------------------------------------------------------------------------
 
-const CP_STATUSES = [
-  'DRAFT',
-  'ACTIVE',
-  'APPROVED',
-  'SUPERSEDED',
-  'ARCHIVED',
-] as const;
+const CP_STATUSES = ['DRAFT', 'ACTIVE', 'APPROVED', 'SUPERSEDED', 'ARCHIVED'] as const;
 
-const PLAN_TYPES = [
-  'PROTOTYPE',
-  'PRE_LAUNCH',
-  'PRODUCTION',
-] as const;
+const PLAN_TYPES = ['PROTOTYPE', 'PRE_LAUNCH', 'PRODUCTION'] as const;
 
 const planTypeLabels: Record<string, string> = {
   PROTOTYPE: 'Prototype',
@@ -65,19 +79,9 @@ const planTypeLabels: Record<string, string> = {
   PRODUCTION: 'Production',
 };
 
-const CHAR_TYPES = [
-  'PRODUCT',
-  'PROCESS',
-] as const;
+const CHAR_TYPES = ['PRODUCT', 'PROCESS'] as const;
 
-const SPECIAL_CHARS = [
-  '',
-  'CC',
-  'SC',
-  'HI',
-  'YC',
-  'SH',
-] as const;
+const SPECIAL_CHARS = ['', 'CC', 'SC', 'HI', 'YC', 'SH'] as const;
 
 const statusColors: Record<string, string> = {
   DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
@@ -264,7 +268,10 @@ export default function ControlPlansClient() {
     setSavingChar(true);
     try {
       if (editingCharId) {
-        await api.put(`/control-plans/${selectedPlan.id}/characteristics/${editingCharId}`, charForm);
+        await api.put(
+          `/control-plans/${selectedPlan.id}/characteristics/${editingCharId}`,
+          charForm
+        );
       } else {
         await api.post(`/control-plans/${selectedPlan.id}/characteristics`, charForm);
       }
@@ -303,21 +310,25 @@ export default function ControlPlansClient() {
   // -------------------------------------------------------------------------
 
   const filtered = plans
-    .filter(p => statusFilter === 'all' || p.status === statusFilter)
-    .filter(p => planTypeFilter === 'all' || p.planType === planTypeFilter)
-    .filter(p =>
-      !searchQuery ||
-      p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.referenceNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.partNumber?.toLowerCase().includes(searchQuery.toLowerCase())
+    .filter((p) => statusFilter === 'all' || p.status === statusFilter)
+    .filter((p) => planTypeFilter === 'all' || p.planType === planTypeFilter)
+    .filter(
+      (p) =>
+        !searchQuery ||
+        p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.referenceNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.partNumber?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-  const stats = useMemo(() => ({
-    total: plans.length,
-    active: plans.filter(p => p.status === 'ACTIVE').length,
-    draft: plans.filter(p => p.status === 'DRAFT').length,
-    approved: plans.filter(p => p.status === 'APPROVED').length,
-  }), [plans]);
+  const stats = useMemo(
+    () => ({
+      total: plans.length,
+      active: plans.filter((p) => p.status === 'ACTIVE').length,
+      draft: plans.filter((p) => p.status === 'DRAFT').length,
+      approved: plans.filter((p) => p.status === 'APPROVED').length,
+    }),
+    [plans]
+  );
 
   // -------------------------------------------------------------------------
   // Helpers
@@ -326,7 +337,11 @@ export default function ControlPlansClient() {
   function formatDate(dateStr: string | undefined | null): string {
     if (!dateStr) return '-';
     try {
-      return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      return new Date(dateStr).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
     } catch {
       return '-';
     }
@@ -355,7 +370,10 @@ export default function ControlPlansClient() {
               <RefreshCw className="h-4 w-4" />
               Refresh
             </Button>
-            <Button onClick={openCreateModal} className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700">
+            <Button
+              onClick={openCreateModal}
+              className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700"
+            >
               <Plus className="h-4 w-4" />
               New Control Plan
             </Button>
@@ -417,7 +435,9 @@ export default function ControlPlansClient() {
               <AlertTriangle className="h-5 w-5" />
               <span>{error}</span>
             </div>
-            <Button variant="outline" size="sm" onClick={loadPlans}>Retry</Button>
+            <Button variant="outline" size="sm" onClick={loadPlans}>
+              Retry
+            </Button>
           </div>
         )}
 
@@ -426,12 +446,15 @@ export default function ControlPlansClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Search</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Search
+                </Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
-                    aria-label="Search by title, reference, part number..." placeholder="Search by title, reference, part number..."
+                    aria-label="Search by title, reference, part number..."
+                    placeholder="Search by title, reference, part number..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -439,20 +462,28 @@ export default function ControlPlansClient() {
                 </div>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Status</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Status
+                </Label>
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">All Statuses</option>
-                  {CP_STATUSES.map(s => (
-                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                  {CP_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Plan Type</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Plan Type
+                </Label>
                 <Select value={planTypeFilter} onChange={(e) => setPlanTypeFilter(e.target.value)}>
                   <option value="all">All Types</option>
-                  {PLAN_TYPES.map(t => (
-                    <option key={t} value={t}>{planTypeLabels[t] || t}</option>
+                  {PLAN_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {planTypeLabels[t] || t}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -473,7 +504,7 @@ export default function ControlPlansClient() {
           <CardContent>
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3, 4].map(i => (
+                {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="h-20 bg-gray-200 rounded" />
                 ))}
               </div>
@@ -494,31 +525,54 @@ export default function ControlPlansClient() {
                   </thead>
                   <tbody>
                     {filtered.map((plan) => (
-                      <tr key={plan.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 transition-colors">
+                      <tr
+                        key={plan.id}
+                        className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 transition-colors"
+                      >
                         <td className="px-4 py-3">
                           <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
                             {plan.referenceNumber || '-'}
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="font-medium text-gray-900 dark:text-gray-100">{plan.title}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
+                            {plan.title}
+                          </p>
                           {plan.partName && (
-                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{plan.partName}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                              {plan.partName}
+                            </p>
                           )}
                         </td>
-                        <td className="px-4 py-3 font-mono text-sm text-gray-700 dark:text-gray-300">{plan.partNumber}</td>
+                        <td className="px-4 py-3 font-mono text-sm text-gray-700 dark:text-gray-300">
+                          {plan.partNumber}
+                        </td>
                         <td className="px-4 py-3 text-center">
-                          <Badge className={planTypeColors[plan.planType] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+                          <Badge
+                            className={
+                              planTypeColors[plan.planType] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
                             {planTypeLabels[plan.planType] || plan.planType}
                           </Badge>
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <Badge className={statusColors[plan.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+                          <Badge
+                            className={
+                              statusColors[plan.status] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
                             {plan.status?.replace(/_/g, ' ')}
                           </Badge>
                         </td>
-                        <td className="px-4 py-3 text-center text-sm font-mono">{plan.revision || '-'}</td>
-                        <td className="px-4 py-3 text-center text-sm font-medium">{getCharCount(plan)}</td>
+                        <td className="px-4 py-3 text-center text-sm font-mono">
+                          {plan.revision || '-'}
+                        </td>
+                        <td className="px-4 py-3 text-center text-sm font-medium">
+                          {getCharCount(plan)}
+                        </td>
                         <td className="px-4 py-3 text-center">
                           <button
                             type="button"
@@ -537,14 +591,19 @@ export default function ControlPlansClient() {
             ) : (
               <div className="text-center py-16">
                 <ClipboardList className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No control plans found</h3>
+                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">
+                  No control plans found
+                </h3>
                 <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
                   {searchQuery || statusFilter !== 'all' || planTypeFilter !== 'all'
                     ? 'Try adjusting your filters or search query.'
                     : 'Get started by creating your first control plan.'}
                 </p>
                 {!searchQuery && statusFilter === 'all' && planTypeFilter === 'all' && (
-                  <Button onClick={openCreateModal} className="flex items-center gap-2 mx-auto bg-orange-600 hover:bg-orange-700">
+                  <Button
+                    onClick={openCreateModal}
+                    className="flex items-center gap-2 mx-auto bg-orange-600 hover:bg-orange-700"
+                  >
                     <Plus className="h-4 w-4" />
                     Create First Plan
                   </Button>
@@ -571,7 +630,7 @@ export default function ControlPlansClient() {
               <Input
                 id="cp-title"
                 value={form.title}
-                onChange={e => setForm({ ...form, title: e.target.value })}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
                 required
                 placeholder="e.g. Brake Caliper Assembly - Production Control Plan"
               />
@@ -583,7 +642,7 @@ export default function ControlPlansClient() {
                 <Input
                   id="cp-partNumber"
                   value={form.partNumber}
-                  onChange={e => setForm({ ...form, partNumber: e.target.value })}
+                  onChange={(e) => setForm({ ...form, partNumber: e.target.value })}
                   required
                   placeholder="e.g. BC-2026-001"
                 />
@@ -593,7 +652,7 @@ export default function ControlPlansClient() {
                 <Input
                   id="cp-partName"
                   value={form.partName}
-                  onChange={e => setForm({ ...form, partName: e.target.value })}
+                  onChange={(e) => setForm({ ...form, partName: e.target.value })}
                   placeholder="e.g. Brake Caliper Assembly"
                 />
               </div>
@@ -605,10 +664,12 @@ export default function ControlPlansClient() {
                 <Select
                   id="cp-planType"
                   value={form.planType}
-                  onChange={e => setForm({ ...form, planType: e.target.value })}
+                  onChange={(e) => setForm({ ...form, planType: e.target.value })}
                 >
-                  {PLAN_TYPES.map(t => (
-                    <option key={t} value={t}>{planTypeLabels[t] || t}</option>
+                  {PLAN_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {planTypeLabels[t] || t}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -617,7 +678,7 @@ export default function ControlPlansClient() {
                 <Input
                   id="cp-revision"
                   value={form.revision}
-                  onChange={e => setForm({ ...form, revision: e.target.value })}
+                  onChange={(e) => setForm({ ...form, revision: e.target.value })}
                   placeholder="e.g. A"
                 />
               </div>
@@ -628,7 +689,7 @@ export default function ControlPlansClient() {
               <Textarea
                 id="cp-notes"
                 value={form.notes}
-                onChange={e => setForm({ ...form, notes: e.target.value })}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
                 rows={3}
                 placeholder="Additional notes or comments"
               />
@@ -639,7 +700,11 @@ export default function ControlPlansClient() {
             <Button type="button" variant="outline" onClick={() => setShowModal(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={submitting} className="bg-orange-600 hover:bg-orange-700">
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
               {submitting ? 'Creating...' : 'Create Plan'}
             </Button>
           </ModalFooter>
@@ -651,14 +716,19 @@ export default function ControlPlansClient() {
       {/* ================================================================= */}
       <Modal
         isOpen={showDetail}
-        onClose={() => { setShowDetail(false); setSelectedPlan(null); }}
+        onClose={() => {
+          setShowDetail(false);
+          setSelectedPlan(null);
+        }}
         title={selectedPlan?.title || 'Control Plan Detail'}
         size="lg"
       >
         {detailLoading ? (
           <div className="py-12">
             <div className="animate-pulse space-y-4">
-              {[1, 2, 3].map(i => <div key={i} className="h-12 bg-gray-200 rounded" />)}
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-12 bg-gray-200 rounded" />
+              ))}
             </div>
           </div>
         ) : selectedPlan ? (
@@ -666,15 +736,23 @@ export default function ControlPlansClient() {
             {/* Header Info */}
             <div className="flex items-center gap-3 flex-wrap">
               {selectedPlan.referenceNumber && (
-                <span className="text-sm font-mono text-gray-500 dark:text-gray-400">{selectedPlan.referenceNumber}</span>
+                <span className="text-sm font-mono text-gray-500 dark:text-gray-400">
+                  {selectedPlan.referenceNumber}
+                </span>
               )}
-              <Badge className={planTypeColors[selectedPlan.planType] || 'bg-gray-100 dark:bg-gray-800'}>
+              <Badge
+                className={planTypeColors[selectedPlan.planType] || 'bg-gray-100 dark:bg-gray-800'}
+              >
                 {planTypeLabels[selectedPlan.planType] || selectedPlan.planType}
               </Badge>
-              <Badge className={statusColors[selectedPlan.status] || 'bg-gray-100 dark:bg-gray-800'}>
+              <Badge
+                className={statusColors[selectedPlan.status] || 'bg-gray-100 dark:bg-gray-800'}
+              >
                 {selectedPlan.status?.replace(/_/g, ' ')}
               </Badge>
-              <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600">Rev {selectedPlan.revision || '-'}</Badge>
+              <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600">
+                Rev {selectedPlan.revision || '-'}
+              </Badge>
             </div>
 
             {/* Info Grid */}
@@ -710,7 +788,9 @@ export default function ControlPlansClient() {
                   <ShieldCheck className="h-4 w-4" />
                   {approving ? 'Approving...' : 'Approve Control Plan'}
                 </Button>
-                <span className="text-xs text-gray-400 dark:text-gray-500">Changes status to APPROVED</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500">
+                  Changes status to APPROVED
+                </span>
               </div>
             )}
 
@@ -720,7 +800,11 @@ export default function ControlPlansClient() {
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
                   Characteristics ({selectedPlan.characteristics?.length || 0})
                 </h3>
-                <Button onClick={openAddCharModal} size="sm" className="bg-orange-600 hover:bg-orange-700 flex items-center gap-1">
+                <Button
+                  onClick={openAddCharModal}
+                  size="sm"
+                  className="bg-orange-600 hover:bg-orange-700 flex items-center gap-1"
+                >
                   <Plus className="h-3.5 w-3.5" />
                   Add
                 </Button>
@@ -732,36 +816,57 @@ export default function ControlPlansClient() {
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700">
                         <th className="px-2 py-2 text-left font-medium text-gray-600">Process #</th>
-                        <th className="px-2 py-2 text-left font-medium text-gray-600">Process Name</th>
+                        <th className="px-2 py-2 text-left font-medium text-gray-600">
+                          Process Name
+                        </th>
                         <th className="px-2 py-2 text-left font-medium text-gray-600">Machine</th>
-                        <th className="px-2 py-2 text-left font-medium text-gray-600">Characteristic</th>
+                        <th className="px-2 py-2 text-left font-medium text-gray-600">
+                          Characteristic
+                        </th>
                         <th className="px-2 py-2 text-center font-medium text-gray-600">Type</th>
                         <th className="px-2 py-2 text-center font-medium text-gray-600">Special</th>
                         <th className="px-2 py-2 text-left font-medium text-gray-600">Spec/Tol</th>
                         <th className="px-2 py-2 text-left font-medium text-gray-600">Eval Tech</th>
                         <th className="px-2 py-2 text-center font-medium text-gray-600">Sample</th>
                         <th className="px-2 py-2 text-center font-medium text-gray-600">Freq</th>
-                        <th className="px-2 py-2 text-left font-medium text-gray-600">Control Method</th>
-                        <th className="px-2 py-2 text-left font-medium text-gray-600">Reaction Plan</th>
+                        <th className="px-2 py-2 text-left font-medium text-gray-600">
+                          Control Method
+                        </th>
+                        <th className="px-2 py-2 text-left font-medium text-gray-600">
+                          Reaction Plan
+                        </th>
                         <th className="px-2 py-2 text-center font-medium text-gray-600">Edit</th>
                       </tr>
                     </thead>
                     <tbody>
                       {selectedPlan.characteristics.map((char) => (
-                        <tr key={char.id} className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-800">
+                        <tr
+                          key={char.id}
+                          className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-800"
+                        >
                           <td className="px-2 py-2 font-mono">{char.processNumber || '-'}</td>
                           <td className="px-2 py-2">{char.processName || '-'}</td>
                           <td className="px-2 py-2">{char.machine || '-'}</td>
                           <td className="px-2 py-2 font-medium">{char.characteristicName}</td>
                           <td className="px-2 py-2 text-center">
-                            <Badge className={char.characteristicType === 'PRODUCT' ? 'bg-blue-100 text-blue-700' : 'bg-violet-100 text-violet-700'}>
+                            <Badge
+                              className={
+                                char.characteristicType === 'PRODUCT'
+                                  ? 'bg-blue-100 text-blue-700'
+                                  : 'bg-violet-100 text-violet-700'
+                              }
+                            >
                               {char.characteristicType}
                             </Badge>
                           </td>
                           <td className="px-2 py-2 text-center">
                             {char.specialCharacteristic ? (
-                              <Badge className="bg-red-100 text-red-700">{char.specialCharacteristic}</Badge>
-                            ) : '-'}
+                              <Badge className="bg-red-100 text-red-700">
+                                {char.specialCharacteristic}
+                              </Badge>
+                            ) : (
+                              '-'
+                            )}
                           </td>
                           <td className="px-2 py-2 font-mono">{char.specTolerance || '-'}</td>
                           <td className="px-2 py-2">{char.evalTechnique || '-'}</td>
@@ -786,7 +891,9 @@ export default function ControlPlansClient() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-sm text-gray-400 dark:text-gray-500">No characteristics defined yet. Click Add to start.</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500">
+                    No characteristics defined yet. Click Add to start.
+                  </p>
                 </div>
               )}
             </div>
@@ -794,7 +901,15 @@ export default function ControlPlansClient() {
         ) : null}
 
         <ModalFooter>
-          <Button variant="outline" onClick={() => { setShowDetail(false); setSelectedPlan(null); }}>Close</Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setShowDetail(false);
+              setSelectedPlan(null);
+            }}
+          >
+            Close
+          </Button>
         </ModalFooter>
       </Modal>
 
@@ -803,7 +918,10 @@ export default function ControlPlansClient() {
       {/* ================================================================= */}
       <Modal
         isOpen={showCharModal}
-        onClose={() => { setShowCharModal(false); setEditingCharId(null); }}
+        onClose={() => {
+          setShowCharModal(false);
+          setEditingCharId(null);
+        }}
         title={editingCharId ? 'Edit Characteristic' : 'Add Characteristic'}
         size="lg"
       >
@@ -815,7 +933,7 @@ export default function ControlPlansClient() {
                 <Input
                   id="char-processNumber"
                   value={charForm.processNumber}
-                  onChange={e => setCharForm({ ...charForm, processNumber: e.target.value })}
+                  onChange={(e) => setCharForm({ ...charForm, processNumber: e.target.value })}
                   placeholder="e.g. 10"
                 />
               </div>
@@ -824,7 +942,7 @@ export default function ControlPlansClient() {
                 <Input
                   id="char-processName"
                   value={charForm.processName}
-                  onChange={e => setCharForm({ ...charForm, processName: e.target.value })}
+                  onChange={(e) => setCharForm({ ...charForm, processName: e.target.value })}
                   required
                   placeholder="e.g. CNC Machining"
                 />
@@ -834,7 +952,7 @@ export default function ControlPlansClient() {
                 <Input
                   id="char-machine"
                   value={charForm.machine}
-                  onChange={e => setCharForm({ ...charForm, machine: e.target.value })}
+                  onChange={(e) => setCharForm({ ...charForm, machine: e.target.value })}
                   placeholder="e.g. Mazak QTN-200"
                 />
               </div>
@@ -846,7 +964,7 @@ export default function ControlPlansClient() {
                 <Input
                   id="char-characteristicName"
                   value={charForm.characteristicName}
-                  onChange={e => setCharForm({ ...charForm, characteristicName: e.target.value })}
+                  onChange={(e) => setCharForm({ ...charForm, characteristicName: e.target.value })}
                   required
                   placeholder="e.g. Bore Diameter"
                 />
@@ -856,10 +974,12 @@ export default function ControlPlansClient() {
                 <Select
                   id="char-characteristicType"
                   value={charForm.characteristicType}
-                  onChange={e => setCharForm({ ...charForm, characteristicType: e.target.value })}
+                  onChange={(e) => setCharForm({ ...charForm, characteristicType: e.target.value })}
                 >
-                  {CHAR_TYPES.map(t => (
-                    <option key={t} value={t}>{t}</option>
+                  {CHAR_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -868,7 +988,9 @@ export default function ControlPlansClient() {
                 <Select
                   id="char-specialCharacteristic"
                   value={charForm.specialCharacteristic}
-                  onChange={e => setCharForm({ ...charForm, specialCharacteristic: e.target.value })}
+                  onChange={(e) =>
+                    setCharForm({ ...charForm, specialCharacteristic: e.target.value })
+                  }
                 >
                   <option value="">None</option>
                   <option value="CC">CC (Critical)</option>
@@ -886,7 +1008,7 @@ export default function ControlPlansClient() {
                 <Input
                   id="char-specTolerance"
                   value={charForm.specTolerance}
-                  onChange={e => setCharForm({ ...charForm, specTolerance: e.target.value })}
+                  onChange={(e) => setCharForm({ ...charForm, specTolerance: e.target.value })}
                   required
                   placeholder="e.g. 25.00 +/- 0.05 mm"
                 />
@@ -896,7 +1018,7 @@ export default function ControlPlansClient() {
                 <Input
                   id="char-evalTechnique"
                   value={charForm.evalTechnique}
-                  onChange={e => setCharForm({ ...charForm, evalTechnique: e.target.value })}
+                  onChange={(e) => setCharForm({ ...charForm, evalTechnique: e.target.value })}
                   placeholder="e.g. CMM, Bore Gauge"
                 />
               </div>
@@ -908,7 +1030,7 @@ export default function ControlPlansClient() {
                 <Input
                   id="char-sampleSize"
                   value={charForm.sampleSize}
-                  onChange={e => setCharForm({ ...charForm, sampleSize: e.target.value })}
+                  onChange={(e) => setCharForm({ ...charForm, sampleSize: e.target.value })}
                   placeholder="e.g. 5 pcs"
                 />
               </div>
@@ -917,7 +1039,7 @@ export default function ControlPlansClient() {
                 <Input
                   id="char-frequency"
                   value={charForm.frequency}
-                  onChange={e => setCharForm({ ...charForm, frequency: e.target.value })}
+                  onChange={(e) => setCharForm({ ...charForm, frequency: e.target.value })}
                   placeholder="e.g. Every 2 hours"
                 />
               </div>
@@ -928,7 +1050,7 @@ export default function ControlPlansClient() {
               <Input
                 id="char-controlMethod"
                 value={charForm.controlMethod}
-                onChange={e => setCharForm({ ...charForm, controlMethod: e.target.value })}
+                onChange={(e) => setCharForm({ ...charForm, controlMethod: e.target.value })}
                 required
                 placeholder="e.g. X-bar & R chart"
               />
@@ -939,7 +1061,7 @@ export default function ControlPlansClient() {
               <Textarea
                 id="char-reactionPlan"
                 value={charForm.reactionPlan}
-                onChange={e => setCharForm({ ...charForm, reactionPlan: e.target.value })}
+                onChange={(e) => setCharForm({ ...charForm, reactionPlan: e.target.value })}
                 required
                 rows={2}
                 placeholder="e.g. Stop production, sort, 100% inspect, notify supervisor"
@@ -948,11 +1070,26 @@ export default function ControlPlansClient() {
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => { setShowCharModal(false); setEditingCharId(null); }}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowCharModal(false);
+                setEditingCharId(null);
+              }}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={savingChar} className="bg-orange-600 hover:bg-orange-700">
-              {savingChar ? 'Saving...' : editingCharId ? 'Update Characteristic' : 'Add Characteristic'}
+            <Button
+              type="submit"
+              disabled={savingChar}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              {savingChar
+                ? 'Saving...'
+                : editingCharId
+                  ? 'Update Characteristic'
+                  : 'Add Characteristic'}
             </Button>
           </ModalFooter>
         </form>

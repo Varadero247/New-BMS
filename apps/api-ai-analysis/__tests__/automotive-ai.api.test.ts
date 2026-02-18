@@ -20,7 +20,11 @@ jest.mock('../src/prisma', () => ({
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, res: any, next: any) => {
     if (req.headers.authorization) {
-      req.user = { id: '20000000-0000-4000-a000-000000000001', email: 'admin@ims.local', role: 'ADMIN' };
+      req.user = {
+        id: '20000000-0000-4000-a000-000000000001',
+        email: 'admin@ims.local',
+        role: 'ADMIN',
+      };
       next();
     } else {
       res.status(401).json({
@@ -173,7 +177,11 @@ describe('AI Analyze - Automotive APQP/PPAP Types', () => {
     });
 
     it('should handle Anthropic provider for APQP risk assessment', async () => {
-      const anthropicSettings = { ...mockSettings, provider: 'ANTHROPIC', model: 'claude-3-sonnet-20240229' };
+      const anthropicSettings = {
+        ...mockSettings,
+        provider: 'ANTHROPIC',
+        model: 'claude-3-sonnet-20240229',
+      };
 
       mockPrisma.aISettings.findFirst.mockResolvedValueOnce(anthropicSettings);
       mockPrisma.aISettings.update.mockResolvedValueOnce(anthropicSettings);
@@ -247,7 +255,9 @@ describe('AI Analyze - Automotive APQP/PPAP Types', () => {
       mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
       mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
       mockFetch.mockResolvedValueOnce(
-        mockOpenAIResponse('This is plain text without any JSON structure at all no brackets no braces nothing parseable')
+        mockOpenAIResponse(
+          'This is plain text without any JSON structure at all no brackets no braces nothing parseable'
+        )
       );
 
       const response = await request(app)
@@ -412,7 +422,11 @@ describe('AI Analyze - Automotive APQP/PPAP Types', () => {
     });
 
     it('should handle Anthropic provider for PPAP readiness', async () => {
-      const anthropicSettings = { ...mockSettings, provider: 'ANTHROPIC', model: 'claude-3-sonnet-20240229' };
+      const anthropicSettings = {
+        ...mockSettings,
+        provider: 'ANTHROPIC',
+        model: 'claude-3-sonnet-20240229',
+      };
 
       mockPrisma.aISettings.findFirst.mockResolvedValueOnce(anthropicSettings);
       mockPrisma.aISettings.update.mockResolvedValueOnce(anthropicSettings);
@@ -475,12 +489,10 @@ describe('AI Analyze - Automotive APQP/PPAP Types', () => {
     });
 
     it('should return 401 without auth for PPAP', async () => {
-      const response = await request(app)
-        .post('/api/analyze')
-        .send({
-          type: 'AUTOMOTIVE_PPAP_READINESS',
-          context: {},
-        });
+      const response = await request(app).post('/api/analyze').send({
+        type: 'AUTOMOTIVE_PPAP_READINESS',
+        context: {},
+      });
 
       expect(response.status).toBe(401);
     });

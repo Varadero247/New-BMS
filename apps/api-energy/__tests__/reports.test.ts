@@ -40,7 +40,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -63,7 +67,7 @@ beforeEach(() => {
 describe('GET /api/reports/dashboard', () => {
   it('should return energy dashboard KPIs', async () => {
     (prisma.energyReading.aggregate as jest.Mock)
-      .mockResolvedValueOnce({ _sum: { value: 15000, cost: 3000 } })  // monthly
+      .mockResolvedValueOnce({ _sum: { value: 15000, cost: 3000 } }) // monthly
       .mockResolvedValueOnce({ _sum: { value: 100000, cost: 20000 } }); // yearly
     (prisma.energyMeter.count as jest.Mock).mockResolvedValue(5);
     (prisma.energyTarget.findMany as jest.Mock).mockResolvedValue([
@@ -123,10 +127,24 @@ describe('GET /api/reports/esos', () => {
       { id: 'ec000000-0000-4000-a000-000000000001', type: 'EXTERNAL', title: 'ESOS Audit' },
     ]);
     (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([
-      { name: 'HVAC', facility: 'HQ', annualConsumption: 100000, consumptionPercentage: 40, unit: 'kWh', status: 'ANALYZED' },
+      {
+        name: 'HVAC',
+        facility: 'HQ',
+        annualConsumption: 100000,
+        consumptionPercentage: 40,
+        unit: 'kWh',
+        status: 'ANALYZED',
+      },
     ]);
     (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([
-      { title: 'LED Upgrade', type: 'EFFICIENCY', estimatedSavings: 15000, investmentCost: 25000, paybackMonths: 20, status: 'PROPOSED' },
+      {
+        title: 'LED Upgrade',
+        type: 'EFFICIENCY',
+        estimatedSavings: 15000,
+        investmentCost: 25000,
+        paybackMonths: 20,
+        status: 'PROPOSED',
+      },
     ]);
 
     const res = await request(app).get('/api/reports/esos');
@@ -161,7 +179,13 @@ describe('GET /api/reports/secr', () => {
       _sum: { cost: 1500, consumption: 8000 },
     });
     (prisma.energyEnpi.findMany as jest.Mock).mockResolvedValue([
-      { name: 'Intensity', unit: 'kWh/m2', baselineValue: 150, currentValue: 120, targetValue: 100 },
+      {
+        name: 'Intensity',
+        unit: 'kWh/m2',
+        baselineValue: 150,
+        currentValue: 120,
+        targetValue: 100,
+      },
     ]);
 
     const res = await request(app).get('/api/reports/secr?year=2025');
@@ -175,7 +199,9 @@ describe('GET /api/reports/secr', () => {
 
   it('should default to current year if no year provided', async () => {
     (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
-    (prisma.energyBill.aggregate as jest.Mock).mockResolvedValue({ _sum: { cost: null, consumption: null } });
+    (prisma.energyBill.aggregate as jest.Mock).mockResolvedValue({
+      _sum: { cost: null, consumption: null },
+    });
     (prisma.energyEnpi.findMany as jest.Mock).mockResolvedValue([]);
 
     const res = await request(app).get('/api/reports/secr');
@@ -188,9 +214,17 @@ describe('GET /api/reports/secr', () => {
 describe('GET /api/reports/consumption', () => {
   it('should return consumption grouped by type', async () => {
     (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([
-      { value: 5000, cost: 1000, meter: { type: 'ELECTRICITY', facility: 'HQ', unit: 'kWh', name: 'M1' } },
+      {
+        value: 5000,
+        cost: 1000,
+        meter: { type: 'ELECTRICITY', facility: 'HQ', unit: 'kWh', name: 'M1' },
+      },
       { value: 3000, cost: 500, meter: { type: 'GAS', facility: 'HQ', unit: 'kWh', name: 'M2' } },
-      { value: 2000, cost: 400, meter: { type: 'ELECTRICITY', facility: 'Factory', unit: 'kWh', name: 'M3' } },
+      {
+        value: 2000,
+        cost: 400,
+        meter: { type: 'ELECTRICITY', facility: 'Factory', unit: 'kWh', name: 'M3' },
+      },
     ]);
 
     const res = await request(app).get('/api/reports/consumption');
@@ -203,8 +237,16 @@ describe('GET /api/reports/consumption', () => {
 
   it('should group by facility', async () => {
     (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([
-      { value: 5000, cost: 1000, meter: { type: 'ELECTRICITY', facility: 'HQ', unit: 'kWh', name: 'M1' } },
-      { value: 3000, cost: 500, meter: { type: 'GAS', facility: 'Factory', unit: 'kWh', name: 'M2' } },
+      {
+        value: 5000,
+        cost: 1000,
+        meter: { type: 'ELECTRICITY', facility: 'HQ', unit: 'kWh', name: 'M1' },
+      },
+      {
+        value: 3000,
+        cost: 500,
+        meter: { type: 'GAS', facility: 'Factory', unit: 'kWh', name: 'M2' },
+      },
     ]);
 
     const res = await request(app).get('/api/reports/consumption?groupBy=facility');

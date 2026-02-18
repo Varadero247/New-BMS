@@ -2,16 +2,37 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
 } from '@ims/ui';
 import {
-  Plus, Settings, Search, Loader2,
-  Shield, Database, GitPullRequest,
-  FileText, Cpu, Monitor, Link2,
-  ChevronDown, ChevronUp, Sparkles,
-  Edit, Trash2, Eye,
+  Plus,
+  Settings,
+  Search,
+  Loader2,
+  Shield,
+  Database,
+  GitPullRequest,
+  FileText,
+  Cpu,
+  Monitor,
+  Link2,
+  ChevronDown,
+  ChevronUp,
+  Sparkles,
+  Edit,
+  Trash2,
+  Eye,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -54,12 +75,7 @@ interface Baseline {
 
 const CI_TYPES = ['HARDWARE', 'SOFTWARE', 'DOCUMENT', 'INTERFACE'] as const;
 
-const CI_CLASSIFICATIONS = [
-  'CRITICAL',
-  'MAJOR',
-  'MINOR',
-  'STANDARD',
-] as const;
+const CI_CLASSIFICATIONS = ['CRITICAL', 'MAJOR', 'MINOR', 'STANDARD'] as const;
 
 const CI_STATUSES = [
   'DRAFT',
@@ -76,43 +92,69 @@ const CI_STATUSES = [
 
 function getTypeIcon(type: string) {
   switch (type) {
-    case 'HARDWARE': return <Cpu className="h-4 w-4" />;
-    case 'SOFTWARE': return <Monitor className="h-4 w-4" />;
-    case 'DOCUMENT': return <FileText className="h-4 w-4" />;
-    case 'INTERFACE': return <Link2 className="h-4 w-4" />;
-    default: return <Settings className="h-4 w-4" />;
+    case 'HARDWARE':
+      return <Cpu className="h-4 w-4" />;
+    case 'SOFTWARE':
+      return <Monitor className="h-4 w-4" />;
+    case 'DOCUMENT':
+      return <FileText className="h-4 w-4" />;
+    case 'INTERFACE':
+      return <Link2 className="h-4 w-4" />;
+    default:
+      return <Settings className="h-4 w-4" />;
   }
 }
 
 function getTypeBadgeColor(type: string): string {
   switch (type) {
-    case 'HARDWARE': return 'bg-indigo-100 text-indigo-800 border-indigo-300';
-    case 'SOFTWARE': return 'bg-purple-100 text-purple-800 border-purple-300';
-    case 'DOCUMENT': return 'bg-slate-100 text-slate-800 border-slate-300';
-    case 'INTERFACE': return 'bg-cyan-100 text-cyan-800 border-cyan-300';
-    default: return 'bg-gray-100 dark:bg-gray-800 text-gray-800 border-gray-300';
+    case 'HARDWARE':
+      return 'bg-indigo-100 text-indigo-800 border-indigo-300';
+    case 'SOFTWARE':
+      return 'bg-purple-100 text-purple-800 border-purple-300';
+    case 'DOCUMENT':
+      return 'bg-slate-100 text-slate-800 border-slate-300';
+    case 'INTERFACE':
+      return 'bg-cyan-100 text-cyan-800 border-cyan-300';
+    default:
+      return 'bg-gray-100 dark:bg-gray-800 text-gray-800 border-gray-300';
   }
 }
 
-function getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'secondary' | 'danger' | 'destructive' {
+function getStatusVariant(
+  status: string
+): 'success' | 'warning' | 'info' | 'secondary' | 'danger' | 'destructive' {
   switch (status) {
-    case 'ACTIVE': return 'success';
-    case 'UNDER_REVIEW': return 'warning';
-    case 'DRAFT': return 'info';
-    case 'SUPERSEDED': return 'secondary';
-    case 'OBSOLETE': return 'danger';
-    case 'ARCHIVED': return 'secondary';
-    default: return 'info';
+    case 'ACTIVE':
+      return 'success';
+    case 'UNDER_REVIEW':
+      return 'warning';
+    case 'DRAFT':
+      return 'info';
+    case 'SUPERSEDED':
+      return 'secondary';
+    case 'OBSOLETE':
+      return 'danger';
+    case 'ARCHIVED':
+      return 'secondary';
+    default:
+      return 'info';
   }
 }
 
-function getClassificationVariant(classification: string): 'destructive' | 'danger' | 'warning' | 'info' {
+function getClassificationVariant(
+  classification: string
+): 'destructive' | 'danger' | 'warning' | 'info' {
   switch (classification) {
-    case 'CRITICAL': return 'destructive';
-    case 'MAJOR': return 'danger';
-    case 'MINOR': return 'warning';
-    case 'STANDARD': return 'info';
-    default: return 'info';
+    case 'CRITICAL':
+      return 'destructive';
+    case 'MAJOR':
+      return 'danger';
+    case 'MINOR':
+      return 'warning';
+    case 'STANDARD':
+      return 'info';
+    default:
+      return 'info';
   }
 }
 
@@ -208,64 +250,78 @@ export default function ConfigurationClient() {
   // Submit handlers
   // ---------------------------------------------------------------------------
 
-  const handleCreate = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post('/configuration', {
-        ...form,
-        baselineId: form.baselineId || undefined,
-        effectivityStart: form.effectivityStart || undefined,
-        effectivityEnd: form.effectivityEnd || undefined,
-      });
-      setShowCreateModal(false);
-      setForm(emptyForm);
-      setAiAnalysis('');
-      setAiExpanded(false);
-      fetchItems();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create configuration item');
-      console.error('Failed to create configuration item:', err);
-    } finally {
-      setSubmitting(false);
-    }
-  }, [form, fetchItems]);
+  const handleCreate = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post('/configuration', {
+          ...form,
+          baselineId: form.baselineId || undefined,
+          effectivityStart: form.effectivityStart || undefined,
+          effectivityEnd: form.effectivityEnd || undefined,
+        });
+        setShowCreateModal(false);
+        setForm(emptyForm);
+        setAiAnalysis('');
+        setAiExpanded(false);
+        fetchItems();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create configuration item');
+        console.error('Failed to create configuration item:', err);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [form, fetchItems]
+  );
 
-  const handleEdit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedItem) return;
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.put(`/configuration/${selectedItem.id}`, {
-        ...form,
-        baselineId: form.baselineId || undefined,
-        effectivityStart: form.effectivityStart || undefined,
-        effectivityEnd: form.effectivityEnd || undefined,
-      });
-      setShowEditModal(false);
-      setForm(emptyForm);
-      setSelectedItem(null);
-      fetchItems();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to update configuration item');
-      console.error('Failed to update configuration item:', err);
-    } finally {
-      setSubmitting(false);
-    }
-  }, [form, selectedItem, fetchItems]);
+  const handleEdit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!selectedItem) return;
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.put(`/configuration/${selectedItem.id}`, {
+          ...form,
+          baselineId: form.baselineId || undefined,
+          effectivityStart: form.effectivityStart || undefined,
+          effectivityEnd: form.effectivityEnd || undefined,
+        });
+        setShowEditModal(false);
+        setForm(emptyForm);
+        setSelectedItem(null);
+        fetchItems();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to update configuration item');
+        console.error('Failed to update configuration item:', err);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [form, selectedItem, fetchItems]
+  );
 
-  const handleDelete = useCallback(async (id: string) => {
-    if (!confirm('Are you sure you want to delete this configuration item? This action cannot be undone.')) return;
-    try {
-      await api.delete(`/configuration/${id}`);
-      fetchItems();
-    } catch (err: unknown) {
-      console.error('Failed to delete configuration item:', err);
-      alert(err.response?.data?.message || 'Failed to delete configuration item');
-    }
-  }, [fetchItems]);
+  const handleDelete = useCallback(
+    async (id: string) => {
+      if (
+        !confirm(
+          'Are you sure you want to delete this configuration item? This action cannot be undone.'
+        )
+      )
+        return;
+      try {
+        await api.delete(`/configuration/${id}`);
+        fetchItems();
+      } catch (err: unknown) {
+        console.error('Failed to delete configuration item:', err);
+        alert(err.response?.data?.message || 'Failed to delete configuration item');
+      }
+    },
+    [fetchItems]
+  );
 
   const openEditModal = useCallback((item: ConfigurationItem) => {
     setSelectedItem(item);
@@ -323,40 +379,48 @@ export default function ConfigurationClient() {
   // Filtered data
   // ---------------------------------------------------------------------------
 
-  const filteredItems = useMemo(() => items.filter(item => {
-    if (typeFilter !== 'all' && item.type !== typeFilter) return false;
-    if (statusFilter !== 'all' && item.status !== statusFilter) return false;
-    if (classificationFilter !== 'all' && item.classification !== classificationFilter) return false;
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      if (
-        !item.name.toLowerCase().includes(query) &&
-        !item.ciNumber.toLowerCase().includes(query) &&
-        !(item.description || '').toLowerCase().includes(query) &&
-        !(item.partNumber || '').toLowerCase().includes(query)
-      ) {
-        return false;
-      }
-    }
-    return true;
-  }), [items, typeFilter, statusFilter, classificationFilter, searchQuery]);
+  const filteredItems = useMemo(
+    () =>
+      items.filter((item) => {
+        if (typeFilter !== 'all' && item.type !== typeFilter) return false;
+        if (statusFilter !== 'all' && item.status !== statusFilter) return false;
+        if (classificationFilter !== 'all' && item.classification !== classificationFilter)
+          return false;
+        if (searchQuery) {
+          const query = searchQuery.toLowerCase();
+          if (
+            !item.name.toLowerCase().includes(query) &&
+            !item.ciNumber.toLowerCase().includes(query) &&
+            !(item.description || '').toLowerCase().includes(query) &&
+            !(item.partNumber || '').toLowerCase().includes(query)
+          ) {
+            return false;
+          }
+        }
+        return true;
+      }),
+    [items, typeFilter, statusFilter, classificationFilter, searchQuery]
+  );
 
   // ---------------------------------------------------------------------------
   // Summary stats
   // ---------------------------------------------------------------------------
 
-  const summaryStats = useMemo(() => ({
-    total: items.length,
-    hardware: items.filter(i => i.type === 'HARDWARE').length,
-    software: items.filter(i => i.type === 'SOFTWARE').length,
-    document: items.filter(i => i.type === 'DOCUMENT').length,
-    interface: items.filter(i => i.type === 'INTERFACE').length,
-    active: items.filter(i => i.status === 'ACTIVE').length,
-    draft: items.filter(i => i.status === 'DRAFT').length,
-    underReview: items.filter(i => i.status === 'UNDER_REVIEW').length,
-    critical: items.filter(i => i.classification === 'CRITICAL').length,
-    major: items.filter(i => i.classification === 'MAJOR').length,
-  }), [items]);
+  const summaryStats = useMemo(
+    () => ({
+      total: items.length,
+      hardware: items.filter((i) => i.type === 'HARDWARE').length,
+      software: items.filter((i) => i.type === 'SOFTWARE').length,
+      document: items.filter((i) => i.type === 'DOCUMENT').length,
+      interface: items.filter((i) => i.type === 'INTERFACE').length,
+      active: items.filter((i) => i.status === 'ACTIVE').length,
+      draft: items.filter((i) => i.status === 'DRAFT').length,
+      underReview: items.filter((i) => i.status === 'UNDER_REVIEW').length,
+      critical: items.filter((i) => i.classification === 'CRITICAL').length,
+      major: items.filter((i) => i.classification === 'MAJOR').length,
+    }),
+    [items]
+  );
 
   // ---------------------------------------------------------------------------
   // Loading spinner
@@ -430,8 +494,10 @@ export default function ConfigurationClient() {
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
               >
-                {CI_TYPES.map(t => (
-                  <option key={t} value={t}>{t}</option>
+                {CI_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -442,8 +508,10 @@ export default function ConfigurationClient() {
                 value={form.classification}
                 onChange={(e) => setForm({ ...form, classification: e.target.value })}
               >
-                {CI_CLASSIFICATIONS.map(c => (
-                  <option key={c} value={c}>{c}</option>
+                {CI_CLASSIFICATIONS.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -454,8 +522,10 @@ export default function ConfigurationClient() {
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
               >
-                {CI_STATUSES.map(s => (
-                  <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                {CI_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s.replace(/_/g, ' ')}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -518,8 +588,10 @@ export default function ConfigurationClient() {
                 onChange={(e) => setForm({ ...form, baselineId: e.target.value })}
               >
                 <option value="">-- No Baseline --</option>
-                {baselines.map(b => (
-                  <option key={b.id} value={b.id}>{b.name} ({b.status})</option>
+                {baselines.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name} ({b.status})
+                  </option>
                 ))}
               </Select>
             </div>
@@ -595,8 +667,7 @@ export default function ConfigurationClient() {
           className="flex items-center justify-between w-full text-left"
         >
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-purple-500" />
-            D -- AI Configuration Analysis
+            <Sparkles className="h-4 w-4 text-purple-500" />D -- AI Configuration Analysis
           </h3>
           {aiExpanded ? (
             <ChevronUp className="h-4 w-4 text-gray-400 dark:text-gray-500" />
@@ -607,7 +678,8 @@ export default function ConfigurationClient() {
         {aiExpanded && (
           <div className="mt-4 space-y-3">
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              AI will analyze the configuration item details and provide AS9100D compliance recommendations.
+              AI will analyze the configuration item details and provide AS9100D compliance
+              recommendations.
             </p>
             <Button
               type="button"
@@ -617,9 +689,15 @@ export default function ConfigurationClient() {
               className="flex items-center gap-2"
             >
               {aiLoading ? (
-                <><Loader2 className="h-4 w-4 animate-spin" />Analyzing...</>
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Analyzing...
+                </>
               ) : (
-                <><Sparkles className="h-4 w-4" />Run AI Analysis</>
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Run AI Analysis
+                </>
               )}
             </Button>
             {aiAnalysis && (
@@ -642,8 +720,12 @@ export default function ConfigurationClient() {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Configuration Items</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">AS9100D Clause 8.1.2 -- Configuration Management</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Configuration Items
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            AS9100D Clause 8.1.2 -- Configuration Management
+          </p>
         </div>
 
         {/* Summary Metrics */}
@@ -665,7 +747,9 @@ export default function ConfigurationClient() {
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
                   <p className="text-3xl font-bold text-green-600">{summaryStats.active}</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{summaryStats.draft} draft</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                    {summaryStats.draft} draft
+                  </p>
                 </div>
                 <Shield className="h-8 w-8 text-green-500" />
               </div>
@@ -688,7 +772,9 @@ export default function ConfigurationClient() {
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Critical Items</p>
                   <p className="text-3xl font-bold text-red-600">{summaryStats.critical}</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{summaryStats.major} major</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                    {summaryStats.major} major
+                  </p>
                 </div>
                 <Shield className="h-8 w-8 text-red-500" />
               </div>
@@ -698,19 +784,27 @@ export default function ConfigurationClient() {
             <CardContent className="pt-6">
               <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1"><Cpu className="h-3 w-3" /> Hardware</span>
+                  <span className="flex items-center gap-1">
+                    <Cpu className="h-3 w-3" /> Hardware
+                  </span>
                   <span className="font-medium">{summaryStats.hardware}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1"><Monitor className="h-3 w-3" /> Software</span>
+                  <span className="flex items-center gap-1">
+                    <Monitor className="h-3 w-3" /> Software
+                  </span>
                   <span className="font-medium">{summaryStats.software}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1"><FileText className="h-3 w-3" /> Document</span>
+                  <span className="flex items-center gap-1">
+                    <FileText className="h-3 w-3" /> Document
+                  </span>
                   <span className="font-medium">{summaryStats.document}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1"><Link2 className="h-3 w-3" /> Interface</span>
+                  <span className="flex items-center gap-1">
+                    <Link2 className="h-3 w-3" /> Interface
+                  </span>
                   <span className="font-medium">{summaryStats.interface}</span>
                 </div>
               </div>
@@ -726,8 +820,10 @@ export default function ConfigurationClient() {
             className="w-40"
           >
             <option value="all">All Types</option>
-            {CI_TYPES.map(t => (
-              <option key={t} value={t}>{t}</option>
+            {CI_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
             ))}
           </Select>
           <Select
@@ -736,8 +832,10 @@ export default function ConfigurationClient() {
             className="w-44"
           >
             <option value="all">All Statuses</option>
-            {CI_STATUSES.map(s => (
-              <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+            {CI_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {s.replace(/_/g, ' ')}
+              </option>
             ))}
           </Select>
           <Select
@@ -746,14 +844,17 @@ export default function ConfigurationClient() {
             className="w-44"
           >
             <option value="all">All Classifications</option>
-            {CI_CLASSIFICATIONS.map(c => (
-              <option key={c} value={c}>{c}</option>
+            {CI_CLASSIFICATIONS.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </Select>
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
-              aria-label="Search by name, CI number, part number..." placeholder="Search by name, CI number, part number..."
+              aria-label="Search by name, CI number, part number..."
+              placeholder="Search by name, CI number, part number..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -774,7 +875,13 @@ export default function ConfigurationClient() {
             </button>
           </div>
           <Button
-            onClick={() => { setForm(emptyForm); setError(''); setAiAnalysis(''); setAiExpanded(false); setShowCreateModal(true); }}
+            onClick={() => {
+              setForm(emptyForm);
+              setError('');
+              setAiAnalysis('');
+              setAiExpanded(false);
+              setShowCreateModal(true);
+            }}
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700"
           >
             <Plus className="h-4 w-4" />
@@ -783,7 +890,9 @@ export default function ConfigurationClient() {
         </div>
 
         {/* Content */}
-        {loading ? <LoadingSpinner /> : filteredItems.length > 0 ? (
+        {loading ? (
+          <LoadingSpinner />
+        ) : filteredItems.length > 0 ? (
           viewMode === 'table' ? (
             /* Table View */
             <Card>
@@ -792,39 +901,68 @@ export default function ConfigurationClient() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">CI Number</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Name</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Type</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Baseline</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Status</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Classification</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Rev</th>
-                        <th className="text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Actions</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                          CI Number
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                          Name
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                          Type
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                          Baseline
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                          Status
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                          Classification
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                          Rev
+                        </th>
+                        <th className="text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                          Actions
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                       {filteredItems.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50 dark:bg-gray-800 transition-colors">
+                        <tr
+                          key={item.id}
+                          className="hover:bg-gray-50 dark:bg-gray-800 transition-colors"
+                        >
                           <td className="px-4 py-3">
-                            <span className="text-sm font-mono text-indigo-600 font-medium">{item.ciNumber}</span>
+                            <span className="text-sm font-mono text-indigo-600 font-medium">
+                              {item.ciNumber}
+                            </span>
                           </td>
                           <td className="px-4 py-3">
                             <div>
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.name}</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {item.name}
+                              </p>
                               {item.partNumber && (
-                                <p className="text-xs text-gray-400 dark:text-gray-500">P/N: {item.partNumber}</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500">
+                                  P/N: {item.partNumber}
+                                </p>
                               )}
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border ${getTypeBadgeColor(item.type)}`}>
+                            <span
+                              className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border ${getTypeBadgeColor(item.type)}`}
+                            >
                               {getTypeIcon(item.type)}
                               {item.type}
                             </span>
                           </td>
                           <td className="px-4 py-3">
                             {item.baselineName ? (
-                              <span className="text-sm text-gray-700 dark:text-gray-300">{item.baselineName}</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300">
+                                {item.baselineName}
+                              </span>
                             ) : (
                               <span className="text-xs text-gray-400 dark:text-gray-500">None</span>
                             )}
@@ -904,7 +1042,9 @@ export default function ConfigurationClient() {
                   <CardContent>
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.description}</p>
                     <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border ${getTypeBadgeColor(item.type)}`}>
+                      <span
+                        className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border ${getTypeBadgeColor(item.type)}`}
+                      >
                         {getTypeIcon(item.type)}
                         {item.type}
                       </span>
@@ -928,12 +1068,21 @@ export default function ConfigurationClient() {
         ) : (
           <div className="text-center py-16">
             <Settings className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No configuration items found</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              No configuration items found
+            </h3>
             <p className="text-gray-500 dark:text-gray-400 mb-6">
-              Start by identifying the configuration items in your aerospace product structure per AS9100D Clause 8.1.2.
+              Start by identifying the configuration items in your aerospace product structure per
+              AS9100D Clause 8.1.2.
             </p>
             <Button
-              onClick={() => { setForm(emptyForm); setError(''); setAiAnalysis(''); setAiExpanded(false); setShowCreateModal(true); }}
+              onClick={() => {
+                setForm(emptyForm);
+                setError('');
+                setAiAnalysis('');
+                setAiExpanded(false);
+                setShowCreateModal(true);
+              }}
               className="bg-indigo-600 hover:bg-indigo-700"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -953,15 +1102,31 @@ export default function ConfigurationClient() {
       {/* ==================================================================== */}
       {/* MODAL: Create Configuration Item                                     */}
       {/* ==================================================================== */}
-      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Add Configuration Item" size="full">
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title="Add Configuration Item"
+        size="full"
+      >
         <form onSubmit={handleCreate}>
           {renderFormFields()}
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>Cancel</Button>
-            <Button type="submit" disabled={submitting} className="bg-indigo-600 hover:bg-indigo-700">
+            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-indigo-600 hover:bg-indigo-700"
+            >
               {submitting ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating...</span>
-              ) : 'Create Item'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                'Create Item'
+              )}
             </Button>
           </ModalFooter>
         </form>
@@ -970,15 +1135,31 @@ export default function ConfigurationClient() {
       {/* ==================================================================== */}
       {/* MODAL: Edit Configuration Item                                       */}
       {/* ==================================================================== */}
-      <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Configuration Item" size="full">
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        title="Edit Configuration Item"
+        size="full"
+      >
         <form onSubmit={handleEdit}>
           {renderFormFields()}
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowEditModal(false)}>Cancel</Button>
-            <Button type="submit" disabled={submitting} className="bg-indigo-600 hover:bg-indigo-700">
+            <Button type="button" variant="outline" onClick={() => setShowEditModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-indigo-600 hover:bg-indigo-700"
+            >
               {submitting ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Updating...</span>
-              ) : 'Update Item'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Updating...
+                </span>
+              ) : (
+                'Update Item'
+              )}
             </Button>
           </ModalFooter>
         </form>
@@ -987,13 +1168,20 @@ export default function ConfigurationClient() {
       {/* ==================================================================== */}
       {/* MODAL: View Configuration Item Detail                                */}
       {/* ==================================================================== */}
-      <Modal isOpen={showDetailModal} onClose={() => setShowDetailModal(false)} title="Configuration Item Details" size="lg">
+      <Modal
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        title="Configuration Item Details"
+        size="lg"
+      >
         {selectedItem && (
           <div className="space-y-6">
             {/* Header */}
             <div className="flex items-start justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{selectedItem.name}</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  {selectedItem.name}
+                </h2>
                 <p className="text-sm font-mono text-indigo-600 mt-1">{selectedItem.ciNumber}</p>
               </div>
               <div className="flex items-center gap-2">
@@ -1008,8 +1196,12 @@ export default function ConfigurationClient() {
 
             {/* Description */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Description</h3>
-              <p className="text-sm text-gray-600">{selectedItem.description || 'No description provided.'}</p>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                Description
+              </h3>
+              <p className="text-sm text-gray-600">
+                {selectedItem.description || 'No description provided.'}
+              </p>
             </div>
 
             {/* Details Grid */}
@@ -1072,10 +1264,14 @@ export default function ConfigurationClient() {
             {/* Effectivity */}
             {(selectedItem.effectivityStart || selectedItem.effectivityEnd) && (
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Effectivity</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Effectivity
+                </h3>
                 <div className="flex items-center gap-4 text-sm text-gray-600">
                   {selectedItem.effectivityStart && (
-                    <span>Start: {new Date(selectedItem.effectivityStart).toLocaleDateString()}</span>
+                    <span>
+                      Start: {new Date(selectedItem.effectivityStart).toLocaleDateString()}
+                    </span>
                   )}
                   {selectedItem.effectivityEnd && (
                     <span>End: {new Date(selectedItem.effectivityEnd).toLocaleDateString()}</span>
@@ -1091,10 +1287,15 @@ export default function ConfigurationClient() {
             </div>
 
             <ModalFooter>
-              <Button type="button" variant="outline" onClick={() => setShowDetailModal(false)}>Close</Button>
+              <Button type="button" variant="outline" onClick={() => setShowDetailModal(false)}>
+                Close
+              </Button>
               <Button
                 type="button"
-                onClick={() => { setShowDetailModal(false); openEditModal(selectedItem); }}
+                onClick={() => {
+                  setShowDetailModal(false);
+                  openEditModal(selectedItem);
+                }}
                 className="bg-indigo-600 hover:bg-indigo-700"
               >
                 <Edit className="h-4 w-4 mr-2" />

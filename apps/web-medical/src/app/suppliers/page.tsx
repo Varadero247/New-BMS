@@ -1,7 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+} from '@ims/ui';
 import { Truck, Plus, Search, FileCheck } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -41,7 +50,10 @@ export default function SuppliersPage() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-    name: '', classification: 'CRITICAL', products: '', iso13485Certified: false,
+    name: '',
+    classification: 'CRITICAL',
+    products: '',
+    iso13485Certified: false,
   });
 
   useEffect(() => {
@@ -72,14 +84,21 @@ export default function SuppliersPage() {
     }
   }
 
-  const filtered = suppliers.filter(s => {
+  const filtered = suppliers.filter((s) => {
     const matchSearch = !search || s.name.toLowerCase().includes(search.toLowerCase());
     const matchStatus = !statusFilter || s.qualificationStatus === statusFilter;
     return matchSearch && matchStatus;
   });
 
   if (loading) {
-    return <div className="p-8"><div className="animate-pulse space-y-4"><div className="h-8 bg-gray-200 rounded w-1/4" /><div className="h-64 bg-gray-200 rounded" /></div></div>;
+    return (
+      <div className="p-8">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-1/4" />
+          <div className="h-64 bg-gray-200 rounded" />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -87,10 +106,25 @@ export default function SuppliersPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Supplier Controls</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 13485 supplier qualification and monitoring</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Supplier Controls
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              ISO 13485 supplier qualification and monitoring
+            </p>
           </div>
-          <Button className="flex items-center gap-2" onClick={() => { setForm({ name: '', classification: 'CRITICAL', products: '', iso13485Certified: false }); setCreateModalOpen(true); }}>
+          <Button
+            className="flex items-center gap-2"
+            onClick={() => {
+              setForm({
+                name: '',
+                classification: 'CRITICAL',
+                products: '',
+                iso13485Certified: false,
+              });
+              setCreateModalOpen(true);
+            }}
+          >
             <Plus className="h-4 w-4" /> Add Supplier
           </Button>
         </div>
@@ -100,9 +134,21 @@ export default function SuppliersPage() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="relative flex-1 min-w-64">
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                <input type="text" aria-label="Search suppliers..." placeholder="Search suppliers..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md text-sm" />
+                <input
+                  type="text"
+                  aria-label="Search suppliers..."
+                  placeholder="Search suppliers..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border rounded-md text-sm"
+                />
               </div>
-              <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+              <select
+                aria-label="Filter by status"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="border rounded-md px-3 py-2 text-sm"
+              >
                 <option value="">All Status</option>
                 <option value="QUALIFIED">Qualified</option>
                 <option value="PENDING">Pending</option>
@@ -126,31 +172,69 @@ export default function SuppliersPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Classification</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">ISO 13485</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Risk</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Next Audit</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Ref
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Name
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Classification
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Status
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        ISO 13485
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Risk
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Next Audit
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map(s => (
+                    {filtered.map((s) => (
                       <tr key={s.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                        <td className="py-3 px-4 font-mono text-xs text-gray-600">{s.referenceNumber}</td>
-                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{s.name}</td>
+                        <td className="py-3 px-4 font-mono text-xs text-gray-600">
+                          {s.referenceNumber}
+                        </td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                          {s.name}
+                        </td>
                         <td className="py-3 px-4 text-gray-600">{s.classification}</td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[s.qualificationStatus] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{s.qualificationStatus}</Badge>
+                          <Badge
+                            className={
+                              statusColors[s.qualificationStatus] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
+                            {s.qualificationStatus}
+                          </Badge>
                         </td>
                         <td className="py-3 px-4 text-center">
-                          {s.iso13485Certified ? <FileCheck className="h-4 w-4 text-green-600 mx-auto" /> : <span className="text-gray-400 dark:text-gray-500">-</span>}
+                          {s.iso13485Certified ? (
+                            <FileCheck className="h-4 w-4 text-green-600 mx-auto" />
+                          ) : (
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
+                          )}
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={riskColors[s.riskLevel] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{s.riskLevel}</Badge>
+                          <Badge
+                            className={
+                              riskColors[s.riskLevel] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
+                            {s.riskLevel}
+                          </Badge>
                         </td>
-                        <td className="py-3 px-4 text-gray-600">{s.nextAuditDate ? new Date(s.nextAuditDate).toLocaleDateString() : '-'}</td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {s.nextAuditDate ? new Date(s.nextAuditDate).toLocaleDateString() : '-'}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -166,33 +250,65 @@ export default function SuppliersPage() {
         </Card>
       </div>
 
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Add Supplier" size="lg">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Add Supplier"
+        size="lg"
+      >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Supplier Name *</label>
-            <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-3 py-2 border rounded-md text-sm" />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Supplier Name *
+            </label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="w-full px-3 py-2 border rounded-md text-sm"
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Classification</label>
-              <select value={form.classification} onChange={(e) => setForm({ ...form, classification: e.target.value })} className="w-full px-3 py-2 border rounded-md text-sm">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Classification
+              </label>
+              <select
+                value={form.classification}
+                onChange={(e) => setForm({ ...form, classification: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md text-sm"
+              >
                 <option value="CRITICAL">Critical</option>
                 <option value="MAJOR">Major</option>
                 <option value="MINOR">Minor</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Products/Services</label>
-              <input type="text" value={form.products} onChange={(e) => setForm({ ...form, products: e.target.value })} className="w-full px-3 py-2 border rounded-md text-sm" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Products/Services
+              </label>
+              <input
+                type="text"
+                value={form.products}
+                onChange={(e) => setForm({ ...form, products: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md text-sm"
+              />
             </div>
           </div>
           <label className="flex items-center gap-2">
-            <input type="checkbox" checked={form.iso13485Certified} onChange={(e) => setForm({ ...form, iso13485Certified: e.target.checked })} className="rounded" />
+            <input
+              type="checkbox"
+              checked={form.iso13485Certified}
+              onChange={(e) => setForm({ ...form, iso13485Certified: e.target.checked })}
+              className="rounded"
+            />
             <span className="text-sm text-gray-700 dark:text-gray-300">ISO 13485 certified</span>
           </label>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setCreateModalOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setCreateModalOpen(false)}>
+            Cancel
+          </Button>
           <Button onClick={handleCreate} disabled={saving || !form.name.trim()}>
             {saving ? 'Adding...' : 'Add Supplier'}
           </Button>

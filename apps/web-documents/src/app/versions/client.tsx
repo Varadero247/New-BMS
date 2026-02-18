@@ -2,9 +2,21 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Card, CardContent, Button, Badge, Modal, ModalFooter,
-  Input, Label, Textarea,
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  Card,
+  CardContent,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Textarea,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
 } from '@ims/ui';
 import { Plus, GitBranch, Loader2, Search } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -58,7 +70,9 @@ export default function VersionsClient() {
     }
   }, [searchTerm]);
 
-  useEffect(() => { loadVersions(); }, [loadVersions]);
+  useEffect(() => {
+    loadVersions();
+  }, [loadVersions]);
 
   function openCreate() {
     setForm({ ...emptyForm });
@@ -118,18 +132,42 @@ export default function VersionsClient() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Document Versions</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Track version history and change notes</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Document Versions
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Track version history and change notes
+            </p>
           </div>
           <Button onClick={openCreate} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />Add Version
+            <Plus className="h-4 w-4" />
+            Add Version
           </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card><CardContent className="pt-6 text-center"><p className="text-3xl font-bold">{versions.length}</p><p className="text-sm text-gray-500 dark:text-gray-400">Total Versions</p></CardContent></Card>
-          <Card><CardContent className="pt-6 text-center"><p className="text-3xl font-bold text-indigo-600">{new Set(versions.map(v => v.documentId)).size}</p><p className="text-sm text-gray-500 dark:text-gray-400">Documents Versioned</p></CardContent></Card>
-          <Card><CardContent className="pt-6 text-center"><p className="text-3xl font-bold text-blue-600">{Math.max(...versions.map(v => v.version), 0)}</p><p className="text-sm text-gray-500 dark:text-gray-400">Latest Version</p></CardContent></Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <p className="text-3xl font-bold">{versions.length}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Versions</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <p className="text-3xl font-bold text-indigo-600">
+                {new Set(versions.map((v) => v.documentId)).size}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Documents Versioned</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <p className="text-3xl font-bold text-blue-600">
+                {Math.max(...versions.map((v) => v.version), 0)}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Latest Version</p>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="flex gap-4 mb-6 flex-wrap items-center">
@@ -140,7 +178,7 @@ export default function VersionsClient() {
               aria-label="Search versions"
               placeholder="Search versions..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
             />
           </div>
@@ -149,7 +187,11 @@ export default function VersionsClient() {
         <Card>
           <CardContent className="p-0">
             {loading ? (
-              <div className="animate-pulse space-y-4 p-6">{[1, 2, 3].map(i => <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded" />)}</div>
+              <div className="animate-pulse space-y-4 p-6">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded" />
+                ))}
+              </div>
             ) : versions.length > 0 ? (
               <div className="overflow-x-auto">
                 <Table>
@@ -164,17 +206,34 @@ export default function VersionsClient() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {versions.map(ver => (
+                    {versions.map((ver) => (
                       <TableRow key={ver.id}>
-                        <TableCell className="font-mono text-xs">{ver.documentId?.slice(0, 8)}...</TableCell>
-                        <TableCell><Badge variant="default">v{ver.version}</Badge></TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {ver.documentId?.slice(0, 8)}...
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="default">v{ver.version}</Badge>
+                        </TableCell>
                         <TableCell className="text-sm">{formatFileSize(ver.fileSize)}</TableCell>
-                        <TableCell className="text-sm max-w-xs truncate">{ver.changeNotes || '-'}</TableCell>
-                        <TableCell className="text-sm">{ver.createdAt ? new Date(ver.createdAt).toLocaleDateString() : '-'}</TableCell>
+                        <TableCell className="text-sm max-w-xs truncate">
+                          {ver.changeNotes || '-'}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {ver.createdAt ? new Date(ver.createdAt).toLocaleDateString() : '-'}
+                        </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => openEdit(ver)}>Edit</Button>
-                            <Button size="sm" variant="outline" onClick={() => handleDelete(ver.id)} className="text-red-600 hover:bg-red-50">Delete</Button>
+                            <Button size="sm" variant="outline" onClick={() => openEdit(ver)}>
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDelete(ver.id)}
+                              className="text-red-600 hover:bg-red-50"
+                            >
+                              Delete
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -187,7 +246,8 @@ export default function VersionsClient() {
                 <GitBranch className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">No versions found</p>
                 <Button variant="outline" className="mt-4" onClick={openCreate}>
-                  <Plus className="h-4 w-4 mr-2" />Add First Version
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add First Version
                 </Button>
               </div>
             )}
@@ -195,35 +255,78 @@ export default function VersionsClient() {
         </Card>
 
         {modalOpen && (
-          <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editId ? 'Edit Version' : 'Add Version'} size="lg">
+          <Modal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            title={editId ? 'Edit Version' : 'Add Version'}
+            size="lg"
+          >
             <div className="space-y-4">
               <div>
                 <Label>Document ID *</Label>
-                <Input value={form.documentId} onChange={e => setForm(p => ({ ...p, documentId: e.target.value }))} placeholder="Document UUID" />
+                <Input
+                  value={form.documentId}
+                  onChange={(e) => setForm((p) => ({ ...p, documentId: e.target.value }))}
+                  placeholder="Document UUID"
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Version Number *</Label>
-                  <Input type="number" value={form.version} onChange={e => setForm(p => ({ ...p, version: parseInt(e.target.value) || 1 }))} min={1} />
+                  <Input
+                    type="number"
+                    value={form.version}
+                    onChange={(e) =>
+                      setForm((p) => ({ ...p, version: parseInt(e.target.value) || 1 }))
+                    }
+                    min={1}
+                  />
                 </div>
                 <div>
                   <Label>File Size (bytes)</Label>
-                  <Input type="number" value={form.fileSize} onChange={e => setForm(p => ({ ...p, fileSize: parseInt(e.target.value) || 0 }))} min={0} />
+                  <Input
+                    type="number"
+                    value={form.fileSize}
+                    onChange={(e) =>
+                      setForm((p) => ({ ...p, fileSize: parseInt(e.target.value) || 0 }))
+                    }
+                    min={0}
+                  />
                 </div>
               </div>
               <div>
                 <Label>File URL</Label>
-                <Input value={form.fileUrl} onChange={e => setForm(p => ({ ...p, fileUrl: e.target.value }))} placeholder="https://..." />
+                <Input
+                  value={form.fileUrl}
+                  onChange={(e) => setForm((p) => ({ ...p, fileUrl: e.target.value }))}
+                  placeholder="https://..."
+                />
               </div>
               <div>
                 <Label>Change Notes</Label>
-                <Textarea value={form.changeNotes} onChange={e => setForm(p => ({ ...p, changeNotes: e.target.value }))} rows={3} placeholder="Describe what changed in this version..." />
+                <Textarea
+                  value={form.changeNotes}
+                  onChange={(e) => setForm((p) => ({ ...p, changeNotes: e.target.value }))}
+                  rows={3}
+                  placeholder="Describe what changed in this version..."
+                />
               </div>
             </div>
             <ModalFooter>
-              <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setModalOpen(false)}>
+                Cancel
+              </Button>
               <Button onClick={handleSubmit} disabled={saving || !form.documentId}>
-                {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</> : editId ? 'Update Version' : 'Create Version'}
+                {saving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Saving...
+                  </>
+                ) : editId ? (
+                  'Update Version'
+                ) : (
+                  'Create Version'
+                )}
               </Button>
             </ModalFooter>
           </Modal>

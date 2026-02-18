@@ -26,10 +26,15 @@ import { portalPrisma } from '../src/prisma-portal';
 
 const app = express();
 app.use(express.json());
-app.use((req: any, _res: any, next: any) => { req.partner = { id: 'partner-1' }; next(); });
+app.use((req: any, _res: any, next: any) => {
+  req.partner = { id: 'partner-1' };
+  next();
+});
 app.use('/api/referrals', referralsRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockReferral = {
   id: 'ref-1',

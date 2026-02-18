@@ -119,7 +119,10 @@ describe('GET /api/fmea', () => {
 
 describe('GET /api/fmea/:id', () => {
   it('returns a single FMEA study with items', async () => {
-    (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue({ ...mockStudy, items: [mockItem] });
+    (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue({
+      ...mockStudy,
+      items: [mockItem],
+    });
 
     const res = await request(app).get(`/api/fmea/${STUDY_ID}`);
     expect(res.status).toBe(200);
@@ -136,7 +139,11 @@ describe('GET /api/fmea/:id', () => {
   });
 
   it('returns 404 when soft-deleted', async () => {
-    (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue({ ...mockStudy, deletedAt: new Date(), items: [] });
+    (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue({
+      ...mockStudy,
+      deletedAt: new Date(),
+      items: [],
+    });
 
     const res = await request(app).get(`/api/fmea/${STUDY_ID}`);
     expect(res.status).toBe(404);
@@ -176,7 +183,10 @@ describe('POST /api/fmea', () => {
 describe('PUT /api/fmea/:id', () => {
   it('updates FMEA study successfully', async () => {
     (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue(mockStudy);
-    (mockPrisma.fmeaStudy.update as jest.Mock).mockResolvedValue({ ...mockStudy, status: 'IN_REVIEW' });
+    (mockPrisma.fmeaStudy.update as jest.Mock).mockResolvedValue({
+      ...mockStudy,
+      status: 'IN_REVIEW',
+    });
 
     const res = await request(app).put(`/api/fmea/${STUDY_ID}`).send({ status: 'IN_REVIEW' });
     expect(res.status).toBe(200);
@@ -201,7 +211,10 @@ describe('PUT /api/fmea/:id', () => {
 describe('DELETE /api/fmea/:id', () => {
   it('soft deletes FMEA study', async () => {
     (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue(mockStudy);
-    (mockPrisma.fmeaStudy.update as jest.Mock).mockResolvedValue({ ...mockStudy, deletedAt: new Date() });
+    (mockPrisma.fmeaStudy.update as jest.Mock).mockResolvedValue({
+      ...mockStudy,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete(`/api/fmea/${STUDY_ID}`);
     expect(res.status).toBe(204);
@@ -257,9 +270,15 @@ describe('PUT /api/fmea/:id/items/:itemId', () => {
   it('updates FMEA item and recalculates RPN', async () => {
     (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue(mockStudy);
     (mockPrisma.fmeaItem.findUnique as jest.Mock).mockResolvedValue(mockItem);
-    (mockPrisma.fmeaItem.update as jest.Mock).mockResolvedValue({ ...mockItem, occurrence: 2, rpn: 64 });
+    (mockPrisma.fmeaItem.update as jest.Mock).mockResolvedValue({
+      ...mockItem,
+      occurrence: 2,
+      rpn: 64,
+    });
 
-    const res = await request(app).put(`/api/fmea/${STUDY_ID}/items/${ITEM_ID}`).send({ occurrence: 2 });
+    const res = await request(app)
+      .put(`/api/fmea/${STUDY_ID}/items/${ITEM_ID}`)
+      .send({ occurrence: 2 });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -267,7 +286,9 @@ describe('PUT /api/fmea/:id/items/:itemId', () => {
   it('returns 404 when study not found', async () => {
     (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put(`/api/fmea/${STUDY_ID}/items/${ITEM_ID}`).send({ occurrence: 2 });
+    const res = await request(app)
+      .put(`/api/fmea/${STUDY_ID}/items/${ITEM_ID}`)
+      .send({ occurrence: 2 });
     expect(res.status).toBe(404);
   });
 
@@ -275,7 +296,9 @@ describe('PUT /api/fmea/:id/items/:itemId', () => {
     (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue(mockStudy);
     (mockPrisma.fmeaItem.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put(`/api/fmea/${STUDY_ID}/items/${ITEM_ID}`).send({ occurrence: 2 });
+    const res = await request(app)
+      .put(`/api/fmea/${STUDY_ID}/items/${ITEM_ID}`)
+      .send({ occurrence: 2 });
     expect(res.status).toBe(404);
   });
 });

@@ -2,15 +2,33 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
   AIDisclosure,
 } from '@ims/ui';
 import {
-  Plus, AlertOctagon, Search, Loader2, Sparkles,
-  AlertCircle, Clock, CheckCircle, Shield,
-  ChevronDown, ChevronUp, XCircle,
+  Plus,
+  AlertOctagon,
+  Search,
+  Loader2,
+  Sparkles,
+  AlertCircle,
+  Clock,
+  CheckCircle,
+  Shield,
+  ChevronDown,
+  ChevronUp,
+  XCircle,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -165,18 +183,47 @@ interface FormData {
 }
 
 const emptyForm: FormData = {
-  ncType: 'INTERNAL', source: 'INTERNAL_AUDIT', severity: 'MINOR', status: 'REPORTED',
-  isoClause: '', dateReported: new Date().toISOString().split('T')[0], reportedBy: '',
-  department: '', title: '', description: '', evidenceRef: '', whereDetected: '',
-  quantityAffected: '', quantityUnit: '', customerImpact: false, customerImpactDesc: '',
-  containmentRequired: false, containmentActions: '', productsQuarantined: false,
-  customersNotified: false, rcaMethod: '', why1: '', why2: '', why3: '', why4: '', why5: '',
-  rootCause: '', rootCauseCategory: '', capaRequired: false, capaReference: '',
-  correctiveActions: '', preventiveActions: '', recurrencePrevention: '', lessonsLearned: '',
+  ncType: 'INTERNAL',
+  source: 'INTERNAL_AUDIT',
+  severity: 'MINOR',
+  status: 'REPORTED',
+  isoClause: '',
+  dateReported: new Date().toISOString().split('T')[0],
+  reportedBy: '',
+  department: '',
+  title: '',
+  description: '',
+  evidenceRef: '',
+  whereDetected: '',
+  quantityAffected: '',
+  quantityUnit: '',
+  customerImpact: false,
+  customerImpactDesc: '',
+  containmentRequired: false,
+  containmentActions: '',
+  productsQuarantined: false,
+  customersNotified: false,
+  rcaMethod: '',
+  why1: '',
+  why2: '',
+  why3: '',
+  why4: '',
+  why5: '',
+  rootCause: '',
+  rootCauseCategory: '',
+  capaRequired: false,
+  capaReference: '',
+  correctiveActions: '',
+  preventiveActions: '',
+  recurrencePrevention: '',
+  lessonsLearned: '',
 };
 
-function getBadge(value: string, options: readonly { value: string; label: string; color: string }[]) {
-  const opt = options.find(o => o.value === value);
+function getBadge(
+  value: string,
+  options: readonly { value: string; label: string; color: string }[]
+) {
+  const opt = options.find((o) => o.value === value);
   return opt ? <Badge className={opt.color}>{opt.label}</Badge> : <Badge>{value}</Badge>;
 }
 
@@ -213,27 +260,52 @@ export default function NonConformancesClient() {
     }
   }, [search, filterType, filterStatus, filterSeverity]);
 
-  useEffect(() => { fetchRecords(); }, [fetchRecords]);
+  useEffect(() => {
+    fetchRecords();
+  }, [fetchRecords]);
 
-  const openCreate = () => { setEditing(null); setForm(emptyForm); setModalOpen(true); };
+  const openCreate = () => {
+    setEditing(null);
+    setForm(emptyForm);
+    setModalOpen(true);
+  };
   const openEdit = (r: NCRecord) => {
     setEditing(r);
     setForm({
-      ncType: r.ncType, source: r.source, severity: r.severity, status: r.status,
-      isoClause: r.isoClause || '', dateReported: r.dateReported ? r.dateReported.split('T')[0] : '',
-      reportedBy: r.reportedBy, department: r.department, title: r.title,
-      description: r.description, evidenceRef: r.evidenceRef || '',
+      ncType: r.ncType,
+      source: r.source,
+      severity: r.severity,
+      status: r.status,
+      isoClause: r.isoClause || '',
+      dateReported: r.dateReported ? r.dateReported.split('T')[0] : '',
+      reportedBy: r.reportedBy,
+      department: r.department,
+      title: r.title,
+      description: r.description,
+      evidenceRef: r.evidenceRef || '',
       whereDetected: r.whereDetected || '',
-      quantityAffected: r.quantityAffected?.toString() || '', quantityUnit: r.quantityUnit || '',
-      customerImpact: r.customerImpact, customerImpactDesc: r.customerImpactDesc || '',
-      containmentRequired: r.containmentRequired, containmentActions: r.containmentActions || '',
-      productsQuarantined: r.productsQuarantined, customersNotified: r.customersNotified,
-      rcaMethod: r.rcaMethod || '', why1: r.why1 || '', why2: r.why2 || '',
-      why3: r.why3 || '', why4: r.why4 || '', why5: r.why5 || '',
-      rootCause: r.rootCause || '', rootCauseCategory: r.rootCauseCategory || '',
-      capaRequired: r.capaRequired, capaReference: r.capaReference || '',
-      correctiveActions: r.correctiveActions || '', preventiveActions: r.preventiveActions || '',
-      recurrencePrevention: r.recurrencePrevention || '', lessonsLearned: r.lessonsLearned || '',
+      quantityAffected: r.quantityAffected?.toString() || '',
+      quantityUnit: r.quantityUnit || '',
+      customerImpact: r.customerImpact,
+      customerImpactDesc: r.customerImpactDesc || '',
+      containmentRequired: r.containmentRequired,
+      containmentActions: r.containmentActions || '',
+      productsQuarantined: r.productsQuarantined,
+      customersNotified: r.customersNotified,
+      rcaMethod: r.rcaMethod || '',
+      why1: r.why1 || '',
+      why2: r.why2 || '',
+      why3: r.why3 || '',
+      why4: r.why4 || '',
+      why5: r.why5 || '',
+      rootCause: r.rootCause || '',
+      rootCauseCategory: r.rootCauseCategory || '',
+      capaRequired: r.capaRequired,
+      capaReference: r.capaReference || '',
+      correctiveActions: r.correctiveActions || '',
+      preventiveActions: r.preventiveActions || '',
+      recurrencePrevention: r.recurrencePrevention || '',
+      lessonsLearned: r.lessonsLearned || '',
     });
     setModalOpen(true);
   };
@@ -276,9 +348,9 @@ export default function NonConformancesClient() {
 
   const stats = {
     total: records.length,
-    open: records.filter(r => r.status !== 'CLOSED').length,
-    critical: records.filter(r => r.severity === 'CRITICAL' || r.severity === 'MAJOR').length,
-    closed: records.filter(r => r.status === 'CLOSED').length,
+    open: records.filter((r) => r.status !== 'CLOSED').length,
+    critical: records.filter((r) => r.severity === 'CRITICAL' || r.severity === 'MAJOR').length,
+    closed: records.filter((r) => r.status === 'CLOSED').length,
   };
 
   return (
@@ -286,8 +358,12 @@ export default function NonConformancesClient() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Non-Conformance Register</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 non-conformance tracking with RCA</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Non-Conformance Register
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            ISO 9001:2015 non-conformance tracking with RCA
+          </p>
         </div>
         <Button onClick={openCreate}>
           <Plus className="h-4 w-4 mr-2" /> Report NC
@@ -299,32 +375,52 @@ export default function NonConformancesClient() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg"><AlertOctagon className="h-5 w-5 text-blue-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.total}</p><p className="text-xs text-gray-500 dark:text-gray-400">Total NCs</p></div>
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <AlertOctagon className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.total}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Total NCs</p>
+              </div>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-orange-100 rounded-lg"><Clock className="h-5 w-5 text-orange-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.open}</p><p className="text-xs text-gray-500 dark:text-gray-400">Open</p></div>
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <Clock className="h-5 w-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.open}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Open</p>
+              </div>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-100 rounded-lg"><AlertCircle className="h-5 w-5 text-red-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.critical}</p><p className="text-xs text-gray-500 dark:text-gray-400">Major/Critical</p></div>
+              <div className="p-2 bg-red-100 rounded-lg">
+                <AlertCircle className="h-5 w-5 text-red-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.critical}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Major/Critical</p>
+              </div>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg"><CheckCircle className="h-5 w-5 text-green-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.closed}</p><p className="text-xs text-gray-500 dark:text-gray-400">Closed</p></div>
+              <div className="p-2 bg-green-100 rounded-lg">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.closed}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Closed</p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -337,20 +433,38 @@ export default function NonConformancesClient() {
             <div className="flex-1 min-w-[200px]">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                <Input aria-label="Search NCs..." placeholder="Search NCs..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+                <Input
+                  aria-label="Search NCs..."
+                  placeholder="Search NCs..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10"
+                />
               </div>
             </div>
             <Select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
               <option value="">All Types</option>
-              {NC_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              {NC_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
             </Select>
             <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
               <option value="">All Statuses</option>
-              {NC_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+              {NC_STATUSES.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
             </Select>
             <Select value={filterSeverity} onChange={(e) => setFilterSeverity(e.target.value)}>
               <option value="">All Severities</option>
-              {SEVERITIES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+              {SEVERITIES.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
             </Select>
           </div>
         </CardContent>
@@ -358,44 +472,79 @@ export default function NonConformancesClient() {
 
       {/* List */}
       {loading ? (
-        <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-blue-500" /></div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        </div>
       ) : records.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
             <AlertOctagon className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Non-Conformances Found</h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">Report a non-conformance to start tracking quality issues.</p>
-            <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" /> Report NC</Button>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              No Non-Conformances Found
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              Report a non-conformance to start tracking quality issues.
+            </p>
+            <Button onClick={openCreate}>
+              <Plus className="h-4 w-4 mr-2" /> Report NC
+            </Button>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
-          {records.map(r => (
+          {records.map((r) => (
             <Card key={r.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-mono text-gray-400 dark:text-gray-500">{r.referenceNumber}</span>
+                      <span className="text-xs font-mono text-gray-400 dark:text-gray-500">
+                        {r.referenceNumber}
+                      </span>
                       {getBadge(r.severity, SEVERITIES)}
                       {getBadge(r.status, NC_STATUSES)}
-                      {r.customerImpact && <Badge className="bg-red-100 text-red-800">Customer Impact</Badge>}
+                      {r.customerImpact && (
+                        <Badge className="bg-red-100 text-red-800">Customer Impact</Badge>
+                      )}
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{r.title}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{r.description}</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      {r.title}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                      {r.description}
+                    </p>
                     <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
-                      <span>Type: {NC_TYPES.find(t => t.value === r.ncType)?.label || r.ncType}</span>
+                      <span>
+                        Type: {NC_TYPES.find((t) => t.value === r.ncType)?.label || r.ncType}
+                      </span>
                       <span>Reported by: {r.reportedBy}</span>
                       <span>Dept: {r.department}</span>
                       <span>Date: {new Date(r.dateReported).toLocaleDateString()}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}>
-                      {expandedId === r.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}
+                    >
+                      {expandedId === r.id ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => openEdit(r)}>Edit</Button>
-                    <Button variant="outline" size="sm" onClick={() => handleDelete(r.id)} className="text-red-600 hover:text-red-700">Delete</Button>
+                    <Button variant="outline" size="sm" onClick={() => openEdit(r)}>
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(r.id)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      Delete
+                    </Button>
                   </div>
                 </div>
 
@@ -405,12 +554,22 @@ export default function NonConformancesClient() {
                     {/* Containment */}
                     {r.containmentRequired && (
                       <div>
-                        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Containment</h4>
+                        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          Containment
+                        </h4>
                         <div className="bg-yellow-50 p-3 rounded-lg space-y-1 text-sm">
                           {r.containmentActions && <p>{r.containmentActions}</p>}
                           <div className="flex gap-4 text-xs">
-                            {r.productsQuarantined && <Badge className="bg-orange-100 text-orange-700">Products Quarantined</Badge>}
-                            {r.customersNotified && <Badge className="bg-blue-100 text-blue-700">Customers Notified</Badge>}
+                            {r.productsQuarantined && (
+                              <Badge className="bg-orange-100 text-orange-700">
+                                Products Quarantined
+                              </Badge>
+                            )}
+                            {r.customersNotified && (
+                              <Badge className="bg-blue-100 text-blue-700">
+                                Customers Notified
+                              </Badge>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -419,14 +578,23 @@ export default function NonConformancesClient() {
                     {/* Root Cause Analysis */}
                     {r.rcaMethod && (
                       <div>
-                        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Root Cause Analysis — {RCA_METHODS.find(m => m.value === r.rcaMethod)?.label}</h4>
+                        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          Root Cause Analysis —{' '}
+                          {RCA_METHODS.find((m) => m.value === r.rcaMethod)?.label}
+                        </h4>
                         {r.rcaMethod === 'FIVE_WHY' && (
                           <div className="space-y-2">
-                            {[r.why1, r.why2, r.why3, r.why4, r.why5].map((w, i) => w && (
-                              <div key={i} className="bg-purple-50 p-2 rounded text-sm">
-                                <span className="font-semibold text-purple-700">Why {i + 1}:</span> {w}
-                              </div>
-                            ))}
+                            {[r.why1, r.why2, r.why3, r.why4, r.why5].map(
+                              (w, i) =>
+                                w && (
+                                  <div key={i} className="bg-purple-50 p-2 rounded text-sm">
+                                    <span className="font-semibold text-purple-700">
+                                      Why {i + 1}:
+                                    </span>{' '}
+                                    {w}
+                                  </div>
+                                )
+                            )}
                           </div>
                         )}
                         {r.rootCause && (
@@ -435,7 +603,11 @@ export default function NonConformancesClient() {
                             <p>{r.rootCause}</p>
                             {r.rootCauseCategory && (
                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                Category: {ROOT_CAUSE_CATEGORIES.find(c => c.value === r.rootCauseCategory)?.label}
+                                Category:{' '}
+                                {
+                                  ROOT_CAUSE_CATEGORIES.find((c) => c.value === r.rootCauseCategory)
+                                    ?.label
+                                }
                               </p>
                             )}
                           </div>
@@ -446,11 +618,27 @@ export default function NonConformancesClient() {
                     {/* CAPA & Corrective Actions */}
                     {(r.correctiveActions || r.preventiveActions || r.capaReference) && (
                       <div>
-                        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Corrective & Preventive Actions</h4>
+                        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          Corrective & Preventive Actions
+                        </h4>
                         <div className="space-y-2 text-sm">
-                          {r.correctiveActions && <div className="bg-blue-50 p-3 rounded-lg"><p className="font-semibold text-blue-700">Corrective:</p><p>{r.correctiveActions}</p></div>}
-                          {r.preventiveActions && <div className="bg-green-50 p-3 rounded-lg"><p className="font-semibold text-green-700">Preventive:</p><p>{r.preventiveActions}</p></div>}
-                          {r.capaReference && <p className="text-xs text-gray-500 dark:text-gray-400">CAPA Ref: {r.capaReference}</p>}
+                          {r.correctiveActions && (
+                            <div className="bg-blue-50 p-3 rounded-lg">
+                              <p className="font-semibold text-blue-700">Corrective:</p>
+                              <p>{r.correctiveActions}</p>
+                            </div>
+                          )}
+                          {r.preventiveActions && (
+                            <div className="bg-green-50 p-3 rounded-lg">
+                              <p className="font-semibold text-green-700">Preventive:</p>
+                              <p>{r.preventiveActions}</p>
+                            </div>
+                          )}
+                          {r.capaReference && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              CAPA Ref: {r.capaReference}
+                            </p>
+                          )}
                         </div>
                       </div>
                     )}
@@ -460,7 +648,9 @@ export default function NonConformancesClient() {
                       <div className="bg-green-50 p-3 rounded-lg text-sm space-y-1">
                         <p className="font-semibold text-green-700">Closed</p>
                         {r.closedBy && <p>By: {r.closedBy}</p>}
-                        {r.closureDate && <p>Date: {new Date(r.closureDate).toLocaleDateString()}</p>}
+                        {r.closureDate && (
+                          <p>Date: {new Date(r.closureDate).toLocaleDateString()}</p>
+                        )}
                         {r.effectivenessVerified && <p>Effectiveness: {r.effectivenessVerified}</p>}
                         {r.lessonsLearned && <p>Lessons: {r.lessonsLearned}</p>}
                       </div>
@@ -469,17 +659,41 @@ export default function NonConformancesClient() {
                     {/* AI Analysis */}
                     {r.aiAnalysis && (
                       <div className="border-t pt-3">
-                        <button onClick={() => setAiExpandedId(aiExpandedId === r.id ? null : r.id)} className="flex items-center gap-2 text-sm font-medium text-purple-700">
+                        <button
+                          onClick={() => setAiExpandedId(aiExpandedId === r.id ? null : r.id)}
+                          className="flex items-center gap-2 text-sm font-medium text-purple-700"
+                        >
                           <Sparkles className="h-4 w-4" /> AI Analysis
-                          {aiExpandedId === r.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                          {aiExpandedId === r.id ? (
+                            <ChevronUp className="h-3 w-3" />
+                          ) : (
+                            <ChevronDown className="h-3 w-3" />
+                          )}
                         </button>
                         {aiExpandedId === r.id && (
                           <div className="mt-2 bg-purple-50 p-3 rounded-lg space-y-2 text-sm">
                             <p>{r.aiAnalysis}</p>
-                            {r.aiRootCauseSuggestions && <p><strong>Root Cause Suggestions:</strong> {r.aiRootCauseSuggestions}</p>}
-                            {r.aiContainmentAdequacy && <p><strong>Containment Adequacy:</strong> {r.aiContainmentAdequacy}</p>}
-                            {r.aiCapaRecommendations && <p><strong>CAPA Recommendations:</strong> {r.aiCapaRecommendations}</p>}
-                            <AIDisclosure variant="inline" provider="claude" analysisType="NCR Root Cause Analysis" confidence={0.85} />
+                            {r.aiRootCauseSuggestions && (
+                              <p>
+                                <strong>Root Cause Suggestions:</strong> {r.aiRootCauseSuggestions}
+                              </p>
+                            )}
+                            {r.aiContainmentAdequacy && (
+                              <p>
+                                <strong>Containment Adequacy:</strong> {r.aiContainmentAdequacy}
+                              </p>
+                            )}
+                            {r.aiCapaRecommendations && (
+                              <p>
+                                <strong>CAPA Recommendations:</strong> {r.aiCapaRecommendations}
+                              </p>
+                            )}
+                            <AIDisclosure
+                              variant="inline"
+                              provider="claude"
+                              analysisType="NCR Root Cause Analysis"
+                              confidence={0.85}
+                            />
                           </div>
                         )}
                       </div>
@@ -493,134 +707,387 @@ export default function NonConformancesClient() {
       )}
 
       {/* Modal */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Non-Conformance' : 'Report Non-Conformance'} size="lg">
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editing ? 'Edit Non-Conformance' : 'Report Non-Conformance'}
+        size="lg"
+      >
         <div className="space-y-6 max-h-[70vh] overflow-y-auto p-1">
           {/* Basic Info */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">NC Details</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">
+              NC Details
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2"><Label>Title *</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} /></div>
-              <div><Label>NC Type *</Label>
-                <Select value={form.ncType} onChange={e => setForm({...form, ncType: e.target.value})}>
-                  {NC_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              <div className="md:col-span-2">
+                <Label>Title *</Label>
+                <Input
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>NC Type *</Label>
+                <Select
+                  value={form.ncType}
+                  onChange={(e) => setForm({ ...form, ncType: e.target.value })}
+                >
+                  {NC_TYPES.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
                 </Select>
               </div>
-              <div><Label>Source *</Label>
-                <Select value={form.source} onChange={e => setForm({...form, source: e.target.value})}>
-                  {NC_SOURCES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+              <div>
+                <Label>Source *</Label>
+                <Select
+                  value={form.source}
+                  onChange={(e) => setForm({ ...form, source: e.target.value })}
+                >
+                  {NC_SOURCES.map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
                 </Select>
               </div>
-              <div><Label>Severity *</Label>
-                <Select value={form.severity} onChange={e => setForm({...form, severity: e.target.value})}>
-                  {SEVERITIES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+              <div>
+                <Label>Severity *</Label>
+                <Select
+                  value={form.severity}
+                  onChange={(e) => setForm({ ...form, severity: e.target.value })}
+                >
+                  {SEVERITIES.map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
                 </Select>
               </div>
               {editing && (
-                <div><Label>Status</Label>
-                  <Select value={form.status} onChange={e => setForm({...form, status: e.target.value})}>
-                    {NC_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                <div>
+                  <Label>Status</Label>
+                  <Select
+                    value={form.status}
+                    onChange={(e) => setForm({ ...form, status: e.target.value })}
+                  >
+                    {NC_STATUSES.map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))}
                   </Select>
                 </div>
               )}
-              <div><Label>Reported By *</Label><Input value={form.reportedBy} onChange={e => setForm({...form, reportedBy: e.target.value})} /></div>
-              <div><Label>Department *</Label><Input value={form.department} onChange={e => setForm({...form, department: e.target.value})} /></div>
-              <div><Label>Date Reported</Label><Input type="date" value={form.dateReported} onChange={e => setForm({...form, dateReported: e.target.value})} /></div>
-              <div><Label>ISO Clause</Label><Input value={form.isoClause} onChange={e => setForm({...form, isoClause: e.target.value})} placeholder="e.g. 10.2" /></div>
-              <div className="md:col-span-2"><Label>Description *</Label><Textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} rows={3} /></div>
-              <div><Label>Where Detected</Label><Input value={form.whereDetected} onChange={e => setForm({...form, whereDetected: e.target.value})} /></div>
-              <div><Label>Evidence Reference</Label><Input value={form.evidenceRef} onChange={e => setForm({...form, evidenceRef: e.target.value})} /></div>
-              <div><Label>Quantity Affected</Label><Input type="number" value={form.quantityAffected} onChange={e => setForm({...form, quantityAffected: e.target.value})} /></div>
-              <div><Label>Unit</Label><Input value={form.quantityUnit} onChange={e => setForm({...form, quantityUnit: e.target.value})} placeholder="pcs, kg, etc." /></div>
+              <div>
+                <Label>Reported By *</Label>
+                <Input
+                  value={form.reportedBy}
+                  onChange={(e) => setForm({ ...form, reportedBy: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Department *</Label>
+                <Input
+                  value={form.department}
+                  onChange={(e) => setForm({ ...form, department: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Date Reported</Label>
+                <Input
+                  type="date"
+                  value={form.dateReported}
+                  onChange={(e) => setForm({ ...form, dateReported: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>ISO Clause</Label>
+                <Input
+                  value={form.isoClause}
+                  onChange={(e) => setForm({ ...form, isoClause: e.target.value })}
+                  placeholder="e.g. 10.2"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <Label>Description *</Label>
+                <Textarea
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label>Where Detected</Label>
+                <Input
+                  value={form.whereDetected}
+                  onChange={(e) => setForm({ ...form, whereDetected: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Evidence Reference</Label>
+                <Input
+                  value={form.evidenceRef}
+                  onChange={(e) => setForm({ ...form, evidenceRef: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Quantity Affected</Label>
+                <Input
+                  type="number"
+                  value={form.quantityAffected}
+                  onChange={(e) => setForm({ ...form, quantityAffected: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Unit</Label>
+                <Input
+                  value={form.quantityUnit}
+                  onChange={(e) => setForm({ ...form, quantityUnit: e.target.value })}
+                  placeholder="pcs, kg, etc."
+                />
+              </div>
             </div>
           </div>
 
           {/* Customer Impact */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Customer Impact</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">
+              Customer Impact
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
-                <input type="checkbox" checked={form.customerImpact} onChange={e => setForm({...form, customerImpact: e.target.checked})} className="rounded" />
+                <input
+                  type="checkbox"
+                  checked={form.customerImpact}
+                  onChange={(e) => setForm({ ...form, customerImpact: e.target.checked })}
+                  className="rounded"
+                />
                 <Label>Customer Impact</Label>
               </div>
               {form.customerImpact && (
-                <div className="md:col-span-2"><Label>Impact Description</Label><Textarea value={form.customerImpactDesc} onChange={e => setForm({...form, customerImpactDesc: e.target.value})} rows={2} /></div>
+                <div className="md:col-span-2">
+                  <Label>Impact Description</Label>
+                  <Textarea
+                    value={form.customerImpactDesc}
+                    onChange={(e) => setForm({ ...form, customerImpactDesc: e.target.value })}
+                    rows={2}
+                  />
+                </div>
               )}
             </div>
           </div>
 
           {/* Containment */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Containment</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">
+              Containment
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
-                <input type="checkbox" checked={form.containmentRequired} onChange={e => setForm({...form, containmentRequired: e.target.checked})} className="rounded" />
+                <input
+                  type="checkbox"
+                  checked={form.containmentRequired}
+                  onChange={(e) => setForm({ ...form, containmentRequired: e.target.checked })}
+                  className="rounded"
+                />
                 <Label>Containment Required</Label>
               </div>
               <div className="flex items-center gap-2">
-                <input type="checkbox" checked={form.productsQuarantined} onChange={e => setForm({...form, productsQuarantined: e.target.checked})} className="rounded" />
+                <input
+                  type="checkbox"
+                  checked={form.productsQuarantined}
+                  onChange={(e) => setForm({ ...form, productsQuarantined: e.target.checked })}
+                  className="rounded"
+                />
                 <Label>Products Quarantined</Label>
               </div>
               <div className="flex items-center gap-2">
-                <input type="checkbox" checked={form.customersNotified} onChange={e => setForm({...form, customersNotified: e.target.checked})} className="rounded" />
+                <input
+                  type="checkbox"
+                  checked={form.customersNotified}
+                  onChange={(e) => setForm({ ...form, customersNotified: e.target.checked })}
+                  className="rounded"
+                />
                 <Label>Customers Notified</Label>
               </div>
               {form.containmentRequired && (
-                <div className="md:col-span-2"><Label>Containment Actions</Label><Textarea value={form.containmentActions} onChange={e => setForm({...form, containmentActions: e.target.value})} rows={2} /></div>
+                <div className="md:col-span-2">
+                  <Label>Containment Actions</Label>
+                  <Textarea
+                    value={form.containmentActions}
+                    onChange={(e) => setForm({ ...form, containmentActions: e.target.value })}
+                    rows={2}
+                  />
+                </div>
               )}
             </div>
           </div>
 
           {/* Root Cause Analysis */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Root Cause Analysis</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">
+              Root Cause Analysis
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><Label>RCA Method</Label>
-                <Select value={form.rcaMethod} onChange={e => setForm({...form, rcaMethod: e.target.value})}>
+              <div>
+                <Label>RCA Method</Label>
+                <Select
+                  value={form.rcaMethod}
+                  onChange={(e) => setForm({ ...form, rcaMethod: e.target.value })}
+                >
                   <option value="">Select...</option>
-                  {RCA_METHODS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                  {RCA_METHODS.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
+                  ))}
                 </Select>
               </div>
-              <div><Label>Root Cause Category</Label>
-                <Select value={form.rootCauseCategory} onChange={e => setForm({...form, rootCauseCategory: e.target.value})}>
+              <div>
+                <Label>Root Cause Category</Label>
+                <Select
+                  value={form.rootCauseCategory}
+                  onChange={(e) => setForm({ ...form, rootCauseCategory: e.target.value })}
+                >
                   <option value="">Select...</option>
-                  {ROOT_CAUSE_CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                  {ROOT_CAUSE_CATEGORIES.map((c) => (
+                    <option key={c.value} value={c.value}>
+                      {c.label}
+                    </option>
+                  ))}
                 </Select>
               </div>
               {form.rcaMethod === 'FIVE_WHY' && (
                 <>
-                  <div className="md:col-span-2"><Label>Why 1</Label><Input value={form.why1} onChange={e => setForm({...form, why1: e.target.value})} /></div>
-                  <div className="md:col-span-2"><Label>Why 2</Label><Input value={form.why2} onChange={e => setForm({...form, why2: e.target.value})} /></div>
-                  <div className="md:col-span-2"><Label>Why 3</Label><Input value={form.why3} onChange={e => setForm({...form, why3: e.target.value})} /></div>
-                  <div className="md:col-span-2"><Label>Why 4</Label><Input value={form.why4} onChange={e => setForm({...form, why4: e.target.value})} /></div>
-                  <div className="md:col-span-2"><Label>Why 5</Label><Input value={form.why5} onChange={e => setForm({...form, why5: e.target.value})} /></div>
+                  <div className="md:col-span-2">
+                    <Label>Why 1</Label>
+                    <Input
+                      value={form.why1}
+                      onChange={(e) => setForm({ ...form, why1: e.target.value })}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label>Why 2</Label>
+                    <Input
+                      value={form.why2}
+                      onChange={(e) => setForm({ ...form, why2: e.target.value })}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label>Why 3</Label>
+                    <Input
+                      value={form.why3}
+                      onChange={(e) => setForm({ ...form, why3: e.target.value })}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label>Why 4</Label>
+                    <Input
+                      value={form.why4}
+                      onChange={(e) => setForm({ ...form, why4: e.target.value })}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label>Why 5</Label>
+                    <Input
+                      value={form.why5}
+                      onChange={(e) => setForm({ ...form, why5: e.target.value })}
+                    />
+                  </div>
                 </>
               )}
-              <div className="md:col-span-2"><Label>Root Cause</Label><Textarea value={form.rootCause} onChange={e => setForm({...form, rootCause: e.target.value})} rows={2} /></div>
+              <div className="md:col-span-2">
+                <Label>Root Cause</Label>
+                <Textarea
+                  value={form.rootCause}
+                  onChange={(e) => setForm({ ...form, rootCause: e.target.value })}
+                  rows={2}
+                />
+              </div>
             </div>
           </div>
 
           {/* Corrective & Preventive Actions */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Actions</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">
+              Actions
+            </h3>
             <div className="grid grid-cols-1 gap-4">
-              <div><Label>Corrective Actions</Label><Textarea value={form.correctiveActions} onChange={e => setForm({...form, correctiveActions: e.target.value})} rows={2} /></div>
-              <div><Label>Preventive Actions</Label><Textarea value={form.preventiveActions} onChange={e => setForm({...form, preventiveActions: e.target.value})} rows={2} /></div>
-              <div><Label>Recurrence Prevention</Label><Textarea value={form.recurrencePrevention} onChange={e => setForm({...form, recurrencePrevention: e.target.value})} rows={2} /></div>
+              <div>
+                <Label>Corrective Actions</Label>
+                <Textarea
+                  value={form.correctiveActions}
+                  onChange={(e) => setForm({ ...form, correctiveActions: e.target.value })}
+                  rows={2}
+                />
+              </div>
+              <div>
+                <Label>Preventive Actions</Label>
+                <Textarea
+                  value={form.preventiveActions}
+                  onChange={(e) => setForm({ ...form, preventiveActions: e.target.value })}
+                  rows={2}
+                />
+              </div>
+              <div>
+                <Label>Recurrence Prevention</Label>
+                <Textarea
+                  value={form.recurrencePrevention}
+                  onChange={(e) => setForm({ ...form, recurrencePrevention: e.target.value })}
+                  rows={2}
+                />
+              </div>
               <div className="flex items-center gap-2">
-                <input type="checkbox" checked={form.capaRequired} onChange={e => setForm({...form, capaRequired: e.target.checked})} className="rounded" />
+                <input
+                  type="checkbox"
+                  checked={form.capaRequired}
+                  onChange={(e) => setForm({ ...form, capaRequired: e.target.checked })}
+                  className="rounded"
+                />
                 <Label>CAPA Required</Label>
               </div>
               {form.capaRequired && (
-                <div><Label>CAPA Reference</Label><Input value={form.capaReference} onChange={e => setForm({...form, capaReference: e.target.value})} /></div>
+                <div>
+                  <Label>CAPA Reference</Label>
+                  <Input
+                    value={form.capaReference}
+                    onChange={(e) => setForm({ ...form, capaReference: e.target.value })}
+                  />
+                </div>
               )}
-              <div><Label>Lessons Learned</Label><Textarea value={form.lessonsLearned} onChange={e => setForm({...form, lessonsLearned: e.target.value})} rows={2} /></div>
+              <div>
+                <Label>Lessons Learned</Label>
+                <Textarea
+                  value={form.lessonsLearned}
+                  onChange={(e) => setForm({ ...form, lessonsLearned: e.target.value })}
+                  rows={2}
+                />
+              </div>
             </div>
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
-          <Button onClick={handleSubmit} disabled={submitting || !form.title || !form.reportedBy || !form.department || !form.description}>
-            {submitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...</> : editing ? 'Update NC' : 'Report NC'}
+          <Button variant="outline" onClick={() => setModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={
+              submitting || !form.title || !form.reportedBy || !form.department || !form.description
+            }
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...
+              </>
+            ) : editing ? (
+              'Update NC'
+            ) : (
+              'Report NC'
+            )}
           </Button>
         </ModalFooter>
       </Modal>

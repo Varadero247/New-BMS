@@ -20,9 +20,17 @@ export function WizardFab({ show, onClick }: WizardFabProps) {
       <span className="text-sm font-medium">Discovery Guide</span>
       <style jsx>{`
         @keyframes fab-entrance {
-          0% { transform: scale(0.8); opacity: 0; }
-          50% { transform: scale(1.05); }
-          100% { transform: scale(1); opacity: 1; }
+          0% {
+            transform: scale(0.8);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.05);
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
         }
         .animate-fab-entrance {
           animation: fab-entrance 0.4s ease-out;

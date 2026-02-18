@@ -18,7 +18,15 @@ const planCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   assetId: z.string().trim().uuid(),
   description: z.string().max(2000).optional().nullable(),
-  frequency: z.enum(['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'SEMI_ANNUALLY', 'ANNUALLY']),
+  frequency: z.enum([
+    'DAILY',
+    'WEEKLY',
+    'BIWEEKLY',
+    'MONTHLY',
+    'QUARTERLY',
+    'SEMI_ANNUALLY',
+    'ANNUALLY',
+  ]),
   lastPerformed: z.string().optional().nullable(),
   nextDue: z.string().optional().nullable(),
   tasks: z.any(),
@@ -31,7 +39,9 @@ const planCreateSchema = z.object({
 const planUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
-  frequency: z.enum(['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'SEMI_ANNUALLY', 'ANNUALLY']).optional(),
+  frequency: z
+    .enum(['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'SEMI_ANNUALLY', 'ANNUALLY'])
+    .optional(),
   lastPerformed: z.string().optional().nullable(),
   nextDue: z.string().optional().nullable(),
   tasks: z.any().optional(),
@@ -67,9 +77,7 @@ router.get('/', async (req: Request, res: Response) => {
     if (frequency) where.frequency = String(frequency);
     if (isActive !== undefined) where.isActive = isActive === 'true';
     if (search) {
-      where.OR = [
-        { name: { contains: String(search), mode: 'insensitive' } },
-      ];
+      where.OR = [{ name: { contains: String(search), mode: 'insensitive' } }];
     }
 
     const [plans, total] = await Promise.all([
@@ -89,8 +97,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list preventive plans', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list preventive plans' } });
+    logger.error('Failed to list preventive plans', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list preventive plans' },
+    });
   }
 });
 
@@ -99,7 +112,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = planCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -124,8 +140,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: plan });
   } catch (error: unknown) {
-    logger.error('Failed to create preventive plan', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create preventive plan' } });
+    logger.error('Failed to create preventive plan', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create preventive plan' },
+    });
   }
 });
 
@@ -138,13 +159,21 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!plan) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Preventive plan not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Preventive plan not found' },
+      });
     }
 
     res.json({ success: true, data: plan });
   } catch (error: unknown) {
-    logger.error('Failed to get preventive plan', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get preventive plan' } });
+    logger.error('Failed to get preventive plan', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get preventive plan' },
+    });
   }
 });
 
@@ -153,41 +182,74 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = planUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
-    const existing = await prisma.cmmsPreventivePlan.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsPreventivePlan.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Preventive plan not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Preventive plan not found' },
+      });
     }
 
     const data = parsed.data;
     const updateData: Record<string, unknown> = { ...data };
-    if (data.lastPerformed !== undefined) updateData.lastPerformed = data.lastPerformed ? new Date(data.lastPerformed) : null;
-    if (data.nextDue !== undefined) updateData.nextDue = data.nextDue ? new Date(data.nextDue) : null;
-    if (data.estimatedCost !== undefined) updateData.estimatedCost = data.estimatedCost != null ? new Prisma.Decimal(data.estimatedCost) : null;
+    if (data.lastPerformed !== undefined)
+      updateData.lastPerformed = data.lastPerformed ? new Date(data.lastPerformed) : null;
+    if (data.nextDue !== undefined)
+      updateData.nextDue = data.nextDue ? new Date(data.nextDue) : null;
+    if (data.estimatedCost !== undefined)
+      updateData.estimatedCost =
+        data.estimatedCost != null ? new Prisma.Decimal(data.estimatedCost) : null;
 
-    const plan = await prisma.cmmsPreventivePlan.update({ where: { id: req.params.id }, data: updateData });
+    const plan = await prisma.cmmsPreventivePlan.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
     res.json({ success: true, data: plan });
   } catch (error: unknown) {
-    logger.error('Failed to update preventive plan', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update preventive plan' } });
+    logger.error('Failed to update preventive plan', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update preventive plan' },
+    });
   }
 });
 
 // DELETE /:id — Soft delete preventive plan
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsPreventivePlan.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsPreventivePlan.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Preventive plan not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Preventive plan not found' },
+      });
     }
 
-    await prisma.cmmsPreventivePlan.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.cmmsPreventivePlan.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Preventive plan deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete preventive plan', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete preventive plan' } });
+    logger.error('Failed to delete preventive plan', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete preventive plan' },
+    });
   }
 });
 

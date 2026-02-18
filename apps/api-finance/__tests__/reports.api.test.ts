@@ -33,7 +33,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -65,7 +69,9 @@ describe('GET /api/reports/dashboard', () => {
     (prisma as any).finBill.aggregate
       .mockResolvedValueOnce({ _sum: { amountPaid: 30000 } }) // expenses
       .mockResolvedValueOnce({ _sum: { amountDue: 10000 } }); // AP
-    (prisma as any).finBankAccount.aggregate.mockResolvedValue({ _sum: { currentBalance: 100000 } });
+    (prisma as any).finBankAccount.aggregate.mockResolvedValue({
+      _sum: { currentBalance: 100000 },
+    });
     (prisma as any).finInvoice.count.mockResolvedValue(3); // overdue invoices
     (prisma as any).finBill.count.mockResolvedValue(2); // overdue bills
 
@@ -118,7 +124,18 @@ describe('GET /api/reports/dashboard', () => {
 describe('GET /api/reports/budgets', () => {
   it('should return a list of budgets', async () => {
     const budgets = [
-      { id: 'f3000000-0000-4000-a000-000000000001', name: 'Marketing Q1', fiscalYear: 2026, budgetAmount: 10000, account: { id: 'f2000000-0000-4000-a000-000000000001', code: '5100', name: 'Marketing', type: 'EXPENSE' } },
+      {
+        id: 'f3000000-0000-4000-a000-000000000001',
+        name: 'Marketing Q1',
+        fiscalYear: 2026,
+        budgetAmount: 10000,
+        account: {
+          id: 'f2000000-0000-4000-a000-000000000001',
+          code: '5100',
+          name: 'Marketing',
+          type: 'EXPENSE',
+        },
+      },
     ];
     (prisma as any).finBudget.findMany.mockResolvedValue(budgets);
     (prisma as any).finBudget.count.mockResolvedValue(1);
@@ -196,7 +213,11 @@ describe('POST /api/reports/budgets', () => {
   };
 
   it('should create a budget', async () => {
-    (prisma as any).finAccount.findUnique.mockResolvedValue({ id: validBudget.accountId, code: '5100', name: 'Marketing' });
+    (prisma as any).finAccount.findUnique.mockResolvedValue({
+      id: validBudget.accountId,
+      code: '5100',
+      name: 'Marketing',
+    });
     (prisma as any).finBudget.create.mockResolvedValue({
       id: 'bud-new',
       ...validBudget,
@@ -236,7 +257,9 @@ describe('POST /api/reports/budgets', () => {
   });
 
   it('should return 400 for invalid fiscalYear', async () => {
-    const res = await request(app).post('/api/reports/budgets').send({ ...validBudget, fiscalYear: 1999 });
+    const res = await request(app)
+      .post('/api/reports/budgets')
+      .send({ ...validBudget, fiscalYear: 1999 });
 
     expect(res.status).toBe(400);
   });
@@ -252,10 +275,17 @@ describe('PUT /api/reports/budgets/:id', () => {
       id: 'f3000000-0000-4000-a000-000000000001',
       budgetAmount: 15000,
       variance: 10000,
-      account: { id: 'f2000000-0000-4000-a000-000000000001', code: '5100', name: 'Marketing', type: 'EXPENSE' },
+      account: {
+        id: 'f2000000-0000-4000-a000-000000000001',
+        code: '5100',
+        name: 'Marketing',
+        type: 'EXPENSE',
+      },
     });
 
-    const res = await request(app).put('/api/reports/budgets/00000000-0000-0000-0000-000000000001').send({ budgetAmount: 15000 });
+    const res = await request(app)
+      .put('/api/reports/budgets/00000000-0000-0000-0000-000000000001')
+      .send({ budgetAmount: 15000 });
 
     expect(res.status).toBe(200);
     expect(res.body.data.budgetAmount).toBe(15000);
@@ -264,7 +294,9 @@ describe('PUT /api/reports/budgets/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finBudget.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/reports/budgets/00000000-0000-0000-0000-000000000099').send({ budgetAmount: 5000 });
+    const res = await request(app)
+      .put('/api/reports/budgets/00000000-0000-0000-0000-000000000099')
+      .send({ budgetAmount: 5000 });
 
     expect(res.status).toBe(404);
   });
@@ -272,10 +304,16 @@ describe('PUT /api/reports/budgets/:id', () => {
 
 describe('DELETE /api/reports/budgets/:id', () => {
   it('should soft delete a budget', async () => {
-    (prisma as any).finBudget.findUnique.mockResolvedValue({ id: 'f3000000-0000-4000-a000-000000000001' });
-    (prisma as any).finBudget.update.mockResolvedValue({ id: 'f3000000-0000-4000-a000-000000000001' });
+    (prisma as any).finBudget.findUnique.mockResolvedValue({
+      id: 'f3000000-0000-4000-a000-000000000001',
+    });
+    (prisma as any).finBudget.update.mockResolvedValue({
+      id: 'f3000000-0000-4000-a000-000000000001',
+    });
 
-    const res = await request(app).delete('/api/reports/budgets/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).delete(
+      '/api/reports/budgets/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toContain('deleted');
@@ -284,7 +322,9 @@ describe('DELETE /api/reports/budgets/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finBudget.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/reports/budgets/00000000-0000-0000-0000-000000000099');
+    const res = await request(app).delete(
+      '/api/reports/budgets/00000000-0000-0000-0000-000000000099'
+    );
 
     expect(res.status).toBe(404);
   });
@@ -305,7 +345,12 @@ describe('GET /api/reports/budget-vs-actual', () => {
         budgetAmount: 10000,
         actualAmount: 8000,
         variance: 2000,
-        account: { id: 'f2000000-0000-4000-a000-000000000001', code: '5100', name: 'Marketing', type: 'EXPENSE' },
+        account: {
+          id: 'f2000000-0000-4000-a000-000000000001',
+          code: '5100',
+          name: 'Marketing',
+          type: 'EXPENSE',
+        },
       },
       {
         id: 'f3000000-0000-4000-a000-000000000002',
@@ -315,7 +360,12 @@ describe('GET /api/reports/budget-vs-actual', () => {
         budgetAmount: 10000,
         actualAmount: 12000,
         variance: -2000,
-        account: { id: 'f2000000-0000-4000-a000-000000000001', code: '5100', name: 'Marketing', type: 'EXPENSE' },
+        account: {
+          id: 'f2000000-0000-4000-a000-000000000001',
+          code: '5100',
+          name: 'Marketing',
+          type: 'EXPENSE',
+        },
       },
     ];
     (prisma as any).finBudget.findMany.mockResolvedValue(budgets);
@@ -356,9 +406,24 @@ describe('GET /api/reports/budget-vs-actual', () => {
 describe('GET /api/reports/revenue-breakdown', () => {
   it('should return revenue grouped by customer', async () => {
     const invoices = [
-      { id: 'f6000000-0000-4000-a000-000000000001', customerId: 'f4000000-0000-4000-a000-000000000001', amountPaid: 5000, customer: { id: 'f4000000-0000-4000-a000-000000000001', name: 'Acme Corp', code: 'C001' } },
-      { id: 'f6000000-0000-4000-a000-000000000002', customerId: 'f4000000-0000-4000-a000-000000000001', amountPaid: 3000, customer: { id: 'f4000000-0000-4000-a000-000000000001', name: 'Acme Corp', code: 'C001' } },
-      { id: 'f6000000-0000-4000-a000-000000000003', customerId: 'f4000000-0000-4000-a000-000000000002', amountPaid: 7000, customer: { id: 'f4000000-0000-4000-a000-000000000002', name: 'Beta Inc', code: 'C002' } },
+      {
+        id: 'f6000000-0000-4000-a000-000000000001',
+        customerId: 'f4000000-0000-4000-a000-000000000001',
+        amountPaid: 5000,
+        customer: { id: 'f4000000-0000-4000-a000-000000000001', name: 'Acme Corp', code: 'C001' },
+      },
+      {
+        id: 'f6000000-0000-4000-a000-000000000002',
+        customerId: 'f4000000-0000-4000-a000-000000000001',
+        amountPaid: 3000,
+        customer: { id: 'f4000000-0000-4000-a000-000000000001', name: 'Acme Corp', code: 'C001' },
+      },
+      {
+        id: 'f6000000-0000-4000-a000-000000000003',
+        customerId: 'f4000000-0000-4000-a000-000000000002',
+        amountPaid: 7000,
+        customer: { id: 'f4000000-0000-4000-a000-000000000002', name: 'Beta Inc', code: 'C002' },
+      },
     ];
     (prisma as any).finInvoice.findMany.mockResolvedValue(invoices);
 
@@ -375,7 +440,9 @@ describe('GET /api/reports/revenue-breakdown', () => {
   it('should filter by date range', async () => {
     (prisma as any).finInvoice.findMany.mockResolvedValue([]);
 
-    const res = await request(app).get('/api/reports/revenue-breakdown?dateFrom=2026-01-01&dateTo=2026-03-31');
+    const res = await request(app).get(
+      '/api/reports/revenue-breakdown?dateFrom=2026-01-01&dateTo=2026-03-31'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.totalRevenue).toBe(0);
@@ -397,8 +464,18 @@ describe('GET /api/reports/revenue-breakdown', () => {
 describe('GET /api/reports/expense-breakdown', () => {
   it('should return expenses grouped by supplier', async () => {
     const bills = [
-      { id: 'f7200000-0000-4000-a000-000000000001', supplierId: 'f7000000-0000-4000-a000-000000000001', amountPaid: 3000, supplier: { id: 'f7000000-0000-4000-a000-000000000001', name: 'Widget Co', code: 'S001' } },
-      { id: 'f7200000-0000-4000-a000-000000000002', supplierId: 'f7000000-0000-4000-a000-000000000002', amountPaid: 5000, supplier: { id: 'f7000000-0000-4000-a000-000000000002', name: 'Gear Inc', code: 'S002' } },
+      {
+        id: 'f7200000-0000-4000-a000-000000000001',
+        supplierId: 'f7000000-0000-4000-a000-000000000001',
+        amountPaid: 3000,
+        supplier: { id: 'f7000000-0000-4000-a000-000000000001', name: 'Widget Co', code: 'S001' },
+      },
+      {
+        id: 'f7200000-0000-4000-a000-000000000002',
+        supplierId: 'f7000000-0000-4000-a000-000000000002',
+        amountPaid: 5000,
+        supplier: { id: 'f7000000-0000-4000-a000-000000000002', name: 'Gear Inc', code: 'S002' },
+      },
     ];
     (prisma as any).finBill.findMany.mockResolvedValue(bills);
 
@@ -413,7 +490,9 @@ describe('GET /api/reports/expense-breakdown', () => {
   it('should filter by date range', async () => {
     (prisma as any).finBill.findMany.mockResolvedValue([]);
 
-    const res = await request(app).get('/api/reports/expense-breakdown?dateFrom=2026-01-01&dateTo=2026-03-31');
+    const res = await request(app).get(
+      '/api/reports/expense-breakdown?dateFrom=2026-01-01&dateTo=2026-03-31'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.totalExpenses).toBe(0);

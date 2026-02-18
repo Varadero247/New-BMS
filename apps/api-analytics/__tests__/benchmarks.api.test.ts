@@ -41,7 +41,15 @@ beforeEach(() => {
 describe('GET /api/benchmarks', () => {
   it('should return industry and organization benchmarks', async () => {
     const kpis = [
-      { id: 'kpi-1', name: 'TRIR', module: 'HEALTH_SAFETY', currentValue: 2.5, targetValue: 1.0, trend: 'DOWN', unit: 'per 200k hours' },
+      {
+        id: 'kpi-1',
+        name: 'TRIR',
+        module: 'HEALTH_SAFETY',
+        currentValue: 2.5,
+        targetValue: 1.0,
+        trend: 'DOWN',
+        unit: 'per 200k hours',
+      },
     ];
     (prisma as any).analyticsKpi.findMany.mockResolvedValue(kpis);
 
@@ -74,7 +82,15 @@ describe('GET /api/benchmarks', () => {
 describe('GET /api/benchmarks/:module', () => {
   it('should return benchmarks for a specific module', async () => {
     const kpis = [
-      { id: 'kpi-1', name: 'TRIR', module: 'HEALTH_SAFETY', currentValue: 2.5, targetValue: 1.0, trend: 'DOWN', unit: 'per 200k hours' },
+      {
+        id: 'kpi-1',
+        name: 'TRIR',
+        module: 'HEALTH_SAFETY',
+        currentValue: 2.5,
+        targetValue: 1.0,
+        trend: 'DOWN',
+        unit: 'per 200k hours',
+      },
     ];
     (prisma as any).analyticsKpi.findMany.mockResolvedValue(kpis);
 
@@ -113,14 +129,21 @@ describe('GET /api/benchmarks/:module', () => {
 describe('POST /api/benchmarks', () => {
   it('should create a custom benchmark stored as KPI', async () => {
     const created = {
-      id: 'kpi-new', name: 'Custom Metric', module: 'QUALITY',
-      description: 'Benchmark: Custom Metric', trend: 'UP',
+      id: 'kpi-new',
+      name: 'Custom Metric',
+      module: 'QUALITY',
+      description: 'Benchmark: Custom Metric',
+      trend: 'UP',
     };
     (prisma as any).analyticsKpi.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/benchmarks').send({
-      name: 'Custom Metric', module: 'QUALITY', metric: 'Custom Metric',
-      industryAverage: 80, topPerformer: 99, currentValue: 90,
+      name: 'Custom Metric',
+      module: 'QUALITY',
+      metric: 'Custom Metric',
+      industryAverage: 80,
+      topPerformer: 99,
+      currentValue: 90,
     });
 
     expect(res.status).toBe(201);
@@ -132,8 +155,12 @@ describe('POST /api/benchmarks', () => {
     (prisma as any).analyticsKpi.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/benchmarks').send({
-      name: 'Low Metric', module: 'HR', metric: 'Low Metric',
-      industryAverage: 80, topPerformer: 99, currentValue: 50,
+      name: 'Low Metric',
+      module: 'HR',
+      metric: 'Low Metric',
+      industryAverage: 80,
+      topPerformer: 99,
+      currentValue: 50,
     });
 
     expect(res.status).toBe(201);
@@ -148,8 +175,11 @@ describe('POST /api/benchmarks', () => {
     (prisma as any).analyticsKpi.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/benchmarks').send({
-      name: 'No Value', module: 'FINANCE', metric: 'No Value',
-      industryAverage: 10, topPerformer: 25,
+      name: 'No Value',
+      module: 'FINANCE',
+      metric: 'No Value',
+      industryAverage: 10,
+      topPerformer: 25,
     });
 
     expect(res.status).toBe(201);
@@ -169,8 +199,11 @@ describe('POST /api/benchmarks', () => {
     (prisma as any).analyticsKpi.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/benchmarks').send({
-      name: 'Test', module: 'HR', metric: 'Test',
-      industryAverage: 10, topPerformer: 25,
+      name: 'Test',
+      module: 'HR',
+      metric: 'Test',
+      industryAverage: 10,
+      topPerformer: 25,
     });
 
     expect(res.status).toBe(500);

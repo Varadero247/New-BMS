@@ -2,14 +2,32 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
 } from '@ims/ui';
 import {
-  Plus, Search, Loader2, Filter,
-  Activity, Eye, FileText, AlertTriangle,
-  CheckCircle2, Clock, ChevronLeft, BarChart3,
+  Plus,
+  Search,
+  Loader2,
+  Filter,
+  Activity,
+  Eye,
+  FileText,
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  ChevronLeft,
+  BarChart3,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -69,14 +87,22 @@ const REPORT_TYPES = ['PSUR', 'PMCF'] as const;
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getStatusBadgeVariant(status: string): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
+function getStatusBadgeVariant(
+  status: string
+): 'secondary' | 'info' | 'warning' | 'success' | 'danger' | 'outline' {
   switch (status) {
-    case 'DRAFT': return 'secondary';
-    case 'ACTIVE': return 'success';
-    case 'UNDER_REVIEW': return 'warning';
-    case 'SUSPENDED': return 'danger';
-    case 'CLOSED': return 'info';
-    default: return 'outline';
+    case 'DRAFT':
+      return 'secondary';
+    case 'ACTIVE':
+      return 'success';
+    case 'UNDER_REVIEW':
+      return 'warning';
+    case 'SUSPENDED':
+      return 'danger';
+    case 'CLOSED':
+      return 'info';
+    default:
+      return 'outline';
   }
 }
 
@@ -183,53 +209,61 @@ export default function PMSClient() {
   // Handlers
   // ---------------------------------------------------------------------------
 
-  const handleCreate = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError('');
-    try {
-      await api.post('/pms/plans', form);
-      setShowCreateModal(false);
-      setForm(emptyPlanForm);
-      fetchPlans();
-      fetchDashboard();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create plan');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [form, fetchPlans, fetchDashboard]);
+  const handleCreate = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmitting(true);
+      setError('');
+      try {
+        await api.post('/pms/plans', form);
+        setShowCreateModal(false);
+        setForm(emptyPlanForm);
+        fetchPlans();
+        fetchDashboard();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create plan');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [form, fetchPlans, fetchDashboard]
+  );
 
-  const handleCreateReport = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError('');
-    try {
-      const endpoint = reportForm.reportType === 'PSUR'
-        ? '/pms/reports/psur'
-        : '/pms/reports/pmcf';
-      await api.post(endpoint, reportForm);
-      setShowReportModal(false);
-      setReportForm(emptyReportForm);
-      fetchDashboard();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create report');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [reportForm, fetchDashboard]);
+  const handleCreateReport = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmitting(true);
+      setError('');
+      try {
+        const endpoint =
+          reportForm.reportType === 'PSUR' ? '/pms/reports/psur' : '/pms/reports/pmcf';
+        await api.post(endpoint, reportForm);
+        setShowReportModal(false);
+        setReportForm(emptyReportForm);
+        fetchDashboard();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create report');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [reportForm, fetchDashboard]
+  );
 
-  const openDetail = useCallback(async (plan: Plan) => {
-    await fetchPlanDetail(plan.id);
-    setView('detail');
-  }, [fetchPlanDetail]);
+  const openDetail = useCallback(
+    async (plan: Plan) => {
+      await fetchPlanDetail(plan.id);
+      setView('detail');
+    },
+    [fetchPlanDetail]
+  );
 
   // ---------------------------------------------------------------------------
   // Filtered data
   // ---------------------------------------------------------------------------
 
   const filteredPlans = useMemo(() => {
-    return plans.filter(p => {
+    return plans.filter((p) => {
       if (statusFilter !== 'all' && p.status !== statusFilter) return false;
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
@@ -237,7 +271,8 @@ export default function PMSClient() {
           !p.deviceName?.toLowerCase().includes(q) &&
           !p.referenceNumber?.toLowerCase().includes(q) &&
           !p.planTitle?.toLowerCase().includes(q)
-        ) return false;
+        )
+          return false;
       }
       return true;
     });
@@ -251,9 +286,11 @@ export default function PMSClient() {
     const now = new Date();
     return {
       total: plans.length,
-      active: plans.filter(p => p.status === 'ACTIVE').length,
+      active: plans.filter((p) => p.status === 'ACTIVE').length,
       reportsPending: dashboard?.reportsPending || 0,
-      overdueReviews: plans.filter(p => p.nextReviewDate && new Date(p.nextReviewDate) < now && p.status === 'ACTIVE').length,
+      overdueReviews: plans.filter(
+        (p) => p.nextReviewDate && new Date(p.nextReviewDate) < now && p.status === 'ACTIVE'
+      ).length,
     };
   }, [plans, dashboard]);
 
@@ -278,7 +315,10 @@ export default function PMSClient() {
         <div className="max-w-7xl mx-auto">
           {/* Back navigation */}
           <button
-            onClick={() => { setView('list'); setSelectedPlan(null); }}
+            onClick={() => {
+              setView('list');
+              setSelectedPlan(null);
+            }}
             className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-teal-600 mb-6 transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -286,7 +326,9 @@ export default function PMSClient() {
           </button>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-6">{error}</div>
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-6">
+              {error}
+            </div>
           )}
 
           {/* Plan Info Card */}
@@ -295,20 +337,28 @@ export default function PMSClient() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedPlan.referenceNumber}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {selectedPlan.referenceNumber}
+                    </h1>
                     <Badge variant={getStatusBadgeVariant(selectedPlan.status)}>
                       {selectedPlan.status?.replace(/_/g, ' ')}
                     </Badge>
-                    {selectedPlan.pmcfRequired && (
-                      <Badge variant="warning">PMCF Required</Badge>
-                    )}
+                    {selectedPlan.pmcfRequired && <Badge variant="warning">PMCF Required</Badge>}
                   </div>
-                  <p className="text-lg text-gray-700 dark:text-gray-300 mb-1">{selectedPlan.planTitle}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Device: <strong>{selectedPlan.deviceName}</strong></p>
+                  <p className="text-lg text-gray-700 dark:text-gray-300 mb-1">
+                    {selectedPlan.planTitle}
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Device: <strong>{selectedPlan.deviceName}</strong>
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
-                    onClick={() => { setReportForm(emptyReportForm); setError(''); setShowReportModal(true); }}
+                    onClick={() => {
+                      setReportForm(emptyReportForm);
+                      setError('');
+                      setShowReportModal(true);
+                    }}
                     className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
                     size="sm"
                   >
@@ -320,27 +370,51 @@ export default function PMSClient() {
 
               {selectedPlan.description && (
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mt-4">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Description</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedPlan.description}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Description
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                    {selectedPlan.description}
+                  </p>
                 </div>
               )}
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Device ID</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 font-mono">{selectedPlan.deviceId || '--'}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Device ID
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 font-mono">
+                    {selectedPlan.deviceId || '--'}
+                  </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Review Frequency</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">{selectedPlan.reviewFrequency?.replace(/_/g, ' ')}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Review Frequency
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    {selectedPlan.reviewFrequency?.replace(/_/g, ' ')}
+                  </p>
                 </div>
-                <div className={`rounded-lg p-3 ${isOverdue(selectedPlan.nextReviewDate) ? 'bg-red-50' : 'bg-gray-50 dark:bg-gray-800'}`}>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Last Review</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">{formatDate(selectedPlan.lastReviewDate)}</p>
+                <div
+                  className={`rounded-lg p-3 ${isOverdue(selectedPlan.nextReviewDate) ? 'bg-red-50' : 'bg-gray-50 dark:bg-gray-800'}`}
+                >
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Last Review
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    {formatDate(selectedPlan.lastReviewDate)}
+                  </p>
                 </div>
-                <div className={`rounded-lg p-3 ${isOverdue(selectedPlan.nextReviewDate) ? 'bg-red-50' : 'bg-gray-50 dark:bg-gray-800'}`}>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Next Review</p>
-                  <p className={`text-sm font-medium ${isOverdue(selectedPlan.nextReviewDate) ? 'text-red-700' : 'text-gray-900 dark:text-gray-100'}`}>
+                <div
+                  className={`rounded-lg p-3 ${isOverdue(selectedPlan.nextReviewDate) ? 'bg-red-50' : 'bg-gray-50 dark:bg-gray-800'}`}
+                >
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Next Review
+                  </p>
+                  <p
+                    className={`text-sm font-medium ${isOverdue(selectedPlan.nextReviewDate) ? 'text-red-700' : 'text-gray-900 dark:text-gray-100'}`}
+                  >
                     {formatDate(selectedPlan.nextReviewDate)}
                     {isOverdue(selectedPlan.nextReviewDate) && ' (OVERDUE)'}
                   </p>
@@ -349,15 +423,23 @@ export default function PMSClient() {
 
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">PSUR Due</p>
-                  <p className={`text-sm font-medium ${isOverdue(selectedPlan.psurDue) ? 'text-red-700' : 'text-gray-900 dark:text-gray-100'}`}>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    PSUR Due
+                  </p>
+                  <p
+                    className={`text-sm font-medium ${isOverdue(selectedPlan.psurDue) ? 'text-red-700' : 'text-gray-900 dark:text-gray-100'}`}
+                  >
                     {formatDate(selectedPlan.psurDue)}
                     {isOverdue(selectedPlan.psurDue) && ' (OVERDUE)'}
                   </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Data Sources</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">{selectedPlan.dataSourceTypes || '--'}</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    Data Sources
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    {selectedPlan.dataSourceTypes || '--'}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -366,7 +448,9 @@ export default function PMSClient() {
           {/* Flags */}
           <div className="flex items-center gap-4 mb-8">
             <div className="flex items-center gap-2">
-              <span className={`w-3 h-3 rounded-full ${selectedPlan.pmcfRequired ? 'bg-amber-500' : 'bg-gray-300'}`}></span>
+              <span
+                className={`w-3 h-3 rounded-full ${selectedPlan.pmcfRequired ? 'bg-amber-500' : 'bg-gray-300'}`}
+              ></span>
               <span className="text-xs text-gray-600">PMCF Required</span>
             </div>
             {isOverdue(selectedPlan.nextReviewDate) && (
@@ -390,7 +474,9 @@ export default function PMSClient() {
           <form onSubmit={handleCreateReport}>
             <div className="space-y-4">
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
               )}
               <div>
                 <Label htmlFor="r-type">Report Type *</Label>
@@ -399,8 +485,10 @@ export default function PMSClient() {
                   value={reportForm.reportType}
                   onChange={(e) => setReportForm({ ...reportForm, reportType: e.target.value })}
                 >
-                  {REPORT_TYPES.map(t => (
-                    <option key={t} value={t}>{t}</option>
+                  {REPORT_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -438,11 +526,18 @@ export default function PMSClient() {
               </div>
             </div>
             <ModalFooter>
-              <Button type="button" variant="outline" onClick={() => setShowReportModal(false)}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setShowReportModal(false)}>
+                Cancel
+              </Button>
               <Button type="submit" disabled={submitting}>
                 {submitting ? (
-                  <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating...</span>
-                ) : 'Create Report'}
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Creating...
+                  </span>
+                ) : (
+                  'Create Report'
+                )}
               </Button>
             </ModalFooter>
           </form>
@@ -470,7 +565,9 @@ export default function PMSClient() {
 
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">PMS Dashboard</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Post-Market Surveillance Overview</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Post-Market Surveillance Overview
+            </p>
           </div>
 
           {/* Dashboard Stats */}
@@ -512,25 +609,41 @@ export default function PMSClient() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Device</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Plan</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Next Review</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Device
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Plan
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Next Review
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Status
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                       {dashboard.upcomingReviews.map((p) => (
                         <tr key={p.id} className="hover:bg-gray-50 dark:bg-gray-800">
-                          <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{p.deviceName}</td>
-                          <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{p.planTitle}</td>
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {p.deviceName}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                            {p.planTitle}
+                          </td>
                           <td className="px-6 py-4">
-                            <span className={`text-sm font-medium ${isOverdue(p.nextReviewDate) ? 'text-red-700' : 'text-gray-700 dark:text-gray-300'}`}>
+                            <span
+                              className={`text-sm font-medium ${isOverdue(p.nextReviewDate) ? 'text-red-700' : 'text-gray-700 dark:text-gray-300'}`}
+                            >
                               {formatDate(p.nextReviewDate)}
                               {isOverdue(p.nextReviewDate) && ' (OVERDUE)'}
                             </span>
                           </td>
                           <td className="px-6 py-4">
-                            <Badge variant={getStatusBadgeVariant(p.status)}>{p.status?.replace(/_/g, ' ')}</Badge>
+                            <Badge variant={getStatusBadgeVariant(p.status)}>
+                              {p.status?.replace(/_/g, ' ')}
+                            </Badge>
                           </td>
                         </tr>
                       ))}
@@ -552,19 +665,31 @@ export default function PMSClient() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Type</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Title</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Period</th>
-                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Type
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Title
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Period
+                        </th>
+                        <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                          Status
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                       {dashboard.recentReports.map((r) => (
                         <tr key={r.id} className="hover:bg-gray-50 dark:bg-gray-800">
                           <td className="px-6 py-4">
-                            <Badge variant={r.reportType === 'PSUR' ? 'info' : 'warning'}>{r.reportType}</Badge>
+                            <Badge variant={r.reportType === 'PSUR' ? 'info' : 'warning'}>
+                              {r.reportType}
+                            </Badge>
                           </td>
-                          <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{r.title}</td>
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {r.title}
+                          </td>
                           <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                             {formatDate(r.periodStart)} - {formatDate(r.periodEnd)}
                           </td>
@@ -593,7 +718,9 @@ export default function PMSClient() {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Post-Market Surveillance</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Post-Market Surveillance
+          </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">PMS Plans, PSUR & PMCF Reports</p>
         </div>
 
@@ -603,10 +730,12 @@ export default function PMSClient() {
             <AlertTriangle className="h-6 w-6 text-red-600 flex-shrink-0" />
             <div>
               <p className="text-sm font-medium text-red-800">
-                {stats.overdueReviews} plan{stats.overdueReviews > 1 ? 's have' : ' has'} overdue reviews
+                {stats.overdueReviews} plan{stats.overdueReviews > 1 ? 's have' : ' has'} overdue
+                reviews
               </p>
               <p className="text-xs text-red-600 mt-0.5">
-                Overdue PMS reviews may affect regulatory compliance. Please complete reviews promptly.
+                Overdue PMS reviews may affect regulatory compliance. Please complete reviews
+                promptly.
               </p>
             </div>
           </div>
@@ -665,7 +794,8 @@ export default function PMSClient() {
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
-              aria-label="Search by device, reference, or plan title..." placeholder="Search by device, reference, or plan title..."
+              aria-label="Search by device, reference, or plan title..."
+              placeholder="Search by device, reference, or plan title..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -680,13 +810,18 @@ export default function PMSClient() {
             <Filter className="h-4 w-4" />
             Filters
             {statusFilter !== 'all' && (
-              <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-teal-100 text-teal-700">Active</span>
+              <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-teal-100 text-teal-700">
+                Active
+              </span>
             )}
           </Button>
 
           <Button
             variant="outline"
-            onClick={() => { fetchDashboard(); setView('dashboard'); }}
+            onClick={() => {
+              fetchDashboard();
+              setView('dashboard');
+            }}
             className="flex items-center gap-2"
           >
             <BarChart3 className="h-4 w-4" />
@@ -695,7 +830,11 @@ export default function PMSClient() {
 
           <Button
             variant="outline"
-            onClick={() => { setReportForm(emptyReportForm); setError(''); setShowReportModal(true); }}
+            onClick={() => {
+              setReportForm(emptyReportForm);
+              setError('');
+              setShowReportModal(true);
+            }}
             className="flex items-center gap-2"
           >
             <FileText className="h-4 w-4" />
@@ -703,7 +842,11 @@ export default function PMSClient() {
           </Button>
 
           <Button
-            onClick={() => { setForm(emptyPlanForm); setError(''); setShowCreateModal(true); }}
+            onClick={() => {
+              setForm(emptyPlanForm);
+              setError('');
+              setShowCreateModal(true);
+            }}
             className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
           >
             <Plus className="h-4 w-4" />
@@ -721,8 +864,10 @@ export default function PMSClient() {
                 className="w-40"
               >
                 <option value="all">All Statuses</option>
-                {PLAN_STATUSES.map(s => (
-                  <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                {PLAN_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s.replace(/_/g, ' ')}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -745,19 +890,33 @@ export default function PMSClient() {
         </div>
 
         {/* Plans Table */}
-        {loading ? <LoadingSpinner /> : filteredPlans.length > 0 ? (
+        {loading ? (
+          <LoadingSpinner />
+        ) : filteredPlans.length > 0 ? (
           <Card>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Ref #</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Device Name</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Status</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Last Review</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">Next Review</th>
-                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">PMCF</th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Ref #
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Device Name
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Status
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Last Review
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        Next Review
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-3">
+                        PMCF
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -768,10 +927,14 @@ export default function PMSClient() {
                         onClick={() => openDetail(p)}
                       >
                         <td className="px-6 py-4">
-                          <span className="text-sm font-mono text-gray-600">{p.referenceNumber || '--'}</span>
+                          <span className="text-sm font-mono text-gray-600">
+                            {p.referenceNumber || '--'}
+                          </span>
                         </td>
                         <td className="px-6 py-4">
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{p.deviceName}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {p.deviceName}
+                          </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{p.planTitle}</p>
                         </td>
                         <td className="px-6 py-4">
@@ -780,16 +943,22 @@ export default function PMSClient() {
                           </Badge>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-gray-700 dark:text-gray-300">{formatDate(p.lastReviewDate)}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            {formatDate(p.lastReviewDate)}
+                          </span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`text-sm font-medium ${isOverdue(p.nextReviewDate) ? 'text-red-700' : 'text-gray-700 dark:text-gray-300'}`}>
+                          <span
+                            className={`text-sm font-medium ${isOverdue(p.nextReviewDate) ? 'text-red-700' : 'text-gray-700 dark:text-gray-300'}`}
+                          >
                             {formatDate(p.nextReviewDate)}
                             {isOverdue(p.nextReviewDate) && ' !'}
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`w-3 h-3 rounded-full inline-block ${p.pmcfRequired ? 'bg-amber-500' : 'bg-gray-300'}`}></span>
+                          <span
+                            className={`w-3 h-3 rounded-full inline-block ${p.pmcfRequired ? 'bg-amber-500' : 'bg-gray-300'}`}
+                          ></span>
                         </td>
                       </tr>
                     ))}
@@ -801,10 +970,18 @@ export default function PMSClient() {
         ) : (
           <div className="text-center py-16">
             <Eye className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No PMS plans found</h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">Create post-market surveillance plans to monitor device safety and performance.</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              No PMS plans found
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
+              Create post-market surveillance plans to monitor device safety and performance.
+            </p>
             <Button
-              onClick={() => { setForm(emptyPlanForm); setError(''); setShowCreateModal(true); }}
+              onClick={() => {
+                setForm(emptyPlanForm);
+                setError('');
+                setShowCreateModal(true);
+              }}
               className="bg-teal-600 hover:bg-teal-700"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -826,7 +1003,9 @@ export default function PMSClient() {
         <form onSubmit={handleCreate}>
           <div className="max-h-[70vh] overflow-y-auto space-y-4 pr-2">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
             )}
 
             <div>
@@ -880,8 +1059,10 @@ export default function PMSClient() {
                 value={form.reviewFrequency}
                 onChange={(e) => setForm({ ...form, reviewFrequency: e.target.value })}
               >
-                {REVIEW_FREQUENCIES.map(f => (
-                  <option key={f} value={f}>{f.replace(/_/g, ' ')}</option>
+                {REVIEW_FREQUENCIES.map((f) => (
+                  <option key={f} value={f}>
+                    {f.replace(/_/g, ' ')}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -909,11 +1090,18 @@ export default function PMSClient() {
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={submitting}>
               {submitting ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating...</span>
-              ) : 'Create Plan'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                'Create Plan'
+              )}
             </Button>
           </ModalFooter>
         </form>
@@ -931,7 +1119,9 @@ export default function PMSClient() {
         <form onSubmit={handleCreateReport}>
           <div className="space-y-4">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
             )}
             <div>
               <Label htmlFor="r2-type">Report Type *</Label>
@@ -940,8 +1130,10 @@ export default function PMSClient() {
                 value={reportForm.reportType}
                 onChange={(e) => setReportForm({ ...reportForm, reportType: e.target.value })}
               >
-                {REPORT_TYPES.map(t => (
-                  <option key={t} value={t}>{t}</option>
+                {REPORT_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -979,11 +1171,18 @@ export default function PMSClient() {
             </div>
           </div>
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowReportModal(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setShowReportModal(false)}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={submitting}>
               {submitting ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating...</span>
-              ) : 'Create Report'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                'Create Report'
+              )}
             </Button>
           </ModalFooter>
         </form>

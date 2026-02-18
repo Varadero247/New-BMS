@@ -46,7 +46,9 @@ export default function CoshhListPage() {
         const res = await api.get('/coshh', { params });
         setAssessments(res.data.data || []);
       } catch (e: unknown) {
-        setError(e.response?.status === 401 ? 'Session expired.' : 'Failed to load COSHH assessments.');
+        setError(
+          e.response?.status === 401 ? 'Session expired.' : 'Failed to load COSHH assessments.'
+        );
       } finally {
         setLoading(false);
       }
@@ -79,7 +81,9 @@ export default function CoshhListPage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">COSHH Assessments</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                COSHH Assessments
+              </h1>
               <p className="text-gray-500 dark:text-gray-400 mt-1">
                 Control of Substances Hazardous to Health assessments
               </p>
@@ -120,19 +124,34 @@ export default function CoshhListPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Reference</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Chemical</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Activity</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Risk Level</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Status</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Review Date</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">
+                        Reference
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">
+                        Chemical
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">
+                        Activity
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">
+                        Risk Level
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">
+                        Status
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">
+                        Review Date
+                      </th>
                       <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300"></th>
                     </tr>
                   </thead>
                   <tbody>
                     {assessments.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-12 text-gray-500 dark:text-gray-400">
+                        <td
+                          colSpan={7}
+                          className="text-center py-12 text-gray-500 dark:text-gray-400"
+                        >
                           No COSHH assessments found. Create your first assessment to get started.
                         </td>
                       </tr>
@@ -151,24 +170,38 @@ export default function CoshhListPage() {
                           >
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
-                                <ShieldAlert className={`h-4 w-4 ${overdue ? 'text-red-500' : 'text-gray-400'}`} />
-                                <span className="font-mono text-xs font-medium text-gray-900 dark:text-gray-100">{a.reference}</span>
+                                <ShieldAlert
+                                  className={`h-4 w-4 ${overdue ? 'text-red-500' : 'text-gray-400'}`}
+                                />
+                                <span className="font-mono text-xs font-medium text-gray-900 dark:text-gray-100">
+                                  {a.reference}
+                                </span>
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-gray-900 dark:text-gray-100">{a.chemicalName}</td>
-                            <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{a.activity}</td>
+                            <td className="px-4 py-3 text-gray-900 dark:text-gray-100">
+                              {a.chemicalName}
+                            </td>
+                            <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                              {a.activity}
+                            </td>
                             <td className="px-4 py-3">
-                              <span className={`text-xs font-medium px-2 py-1 rounded-full ${riskBadgeClass[a.riskLevel] || 'bg-gray-100 text-gray-800'}`}>
+                              <span
+                                className={`text-xs font-medium px-2 py-1 rounded-full ${riskBadgeClass[a.riskLevel] || 'bg-gray-100 text-gray-800'}`}
+                              >
                                 {a.riskLevel?.replace('_', ' ')}
                               </span>
                             </td>
                             <td className="px-4 py-3">
-                              <span className={`text-xs font-medium px-2 py-1 rounded-full ${statusBadgeClass[a.status] || 'bg-gray-100 text-gray-800'}`}>
+                              <span
+                                className={`text-xs font-medium px-2 py-1 rounded-full ${statusBadgeClass[a.status] || 'bg-gray-100 text-gray-800'}`}
+                              >
                                 {a.status?.replace('_', ' ')}
                               </span>
                             </td>
                             <td className="px-4 py-3">
-                              <span className={`text-sm ${overdue ? 'text-red-600 font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
+                              <span
+                                className={`text-sm ${overdue ? 'text-red-600 font-medium' : 'text-gray-600 dark:text-gray-400'}`}
+                              >
                                 {a.reviewDate ? new Date(a.reviewDate).toLocaleDateString() : '-'}
                                 {overdue && ' (OVERDUE)'}
                               </span>

@@ -80,7 +80,9 @@ describe('GET /api/actions/overdue', () => {
 describe('GET /api/actions/stats', () => {
   it('returns action statistics', async () => {
     (mockPrisma.hSAction.count as jest.Mock).mockResolvedValue(20);
-    (mockPrisma.hSAction.groupBy as jest.Mock).mockResolvedValue([{ type: 'CORRECTIVE', _count: { id: 10 } }]);
+    (mockPrisma.hSAction.groupBy as jest.Mock).mockResolvedValue([
+      { type: 'CORRECTIVE', _count: { id: 10 } },
+    ]);
 
     const res = await request(app).get('/api/actions/stats');
     expect(res.status).toBe(200);
@@ -191,7 +193,10 @@ describe('GET /api/actions/:id', () => {
 describe('PUT /api/actions/:id', () => {
   it('updates action successfully', async () => {
     (mockPrisma.hSAction.findFirst as jest.Mock).mockResolvedValue(mockAction);
-    (mockPrisma.hSAction.update as jest.Mock).mockResolvedValue({ ...mockAction, status: 'IN_PROGRESS' });
+    (mockPrisma.hSAction.update as jest.Mock).mockResolvedValue({
+      ...mockAction,
+      status: 'IN_PROGRESS',
+    });
 
     const res = await request(app).put(`/api/actions/${ACTION_ID}`).send({ status: 'IN_PROGRESS' });
     expect(res.status).toBe(200);
@@ -206,7 +211,9 @@ describe('PUT /api/actions/:id', () => {
   });
 
   it('returns 400 on validation error', async () => {
-    const res = await request(app).put(`/api/actions/${ACTION_ID}`).send({ status: 'INVALID_STATUS' });
+    const res = await request(app)
+      .put(`/api/actions/${ACTION_ID}`)
+      .send({ status: 'INVALID_STATUS' });
     expect(res.status).toBe(400);
   });
 
@@ -222,7 +229,10 @@ describe('PUT /api/actions/:id', () => {
 describe('DELETE /api/actions/:id', () => {
   it('soft deletes action successfully', async () => {
     (mockPrisma.hSAction.findFirst as jest.Mock).mockResolvedValue(mockAction);
-    (mockPrisma.hSAction.update as jest.Mock).mockResolvedValue({ ...mockAction, deletedAt: new Date() });
+    (mockPrisma.hSAction.update as jest.Mock).mockResolvedValue({
+      ...mockAction,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete(`/api/actions/${ACTION_ID}`);
     expect(res.status).toBe(200);

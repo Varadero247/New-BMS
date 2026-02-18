@@ -15,7 +15,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -113,9 +117,7 @@ describe('InfoSec Scope API', () => {
       const updated = { ...mockScope, name: 'Updated Scope' };
       (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce(updated);
 
-      const res = await request(app)
-        .put('/api/scope')
-        .send({ name: 'Updated Scope' });
+      const res = await request(app).put('/api/scope').send({ name: 'Updated Scope' });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -128,20 +130,19 @@ describe('InfoSec Scope API', () => {
 
     it('should accept valid status values', async () => {
       (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(mockScope);
-      (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce({ ...mockScope, status: 'ACTIVE' });
+      (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce({
+        ...mockScope,
+        status: 'ACTIVE',
+      });
 
-      const res = await request(app)
-        .put('/api/scope')
-        .send({ status: 'ACTIVE' });
+      const res = await request(app).put('/api/scope').send({ status: 'ACTIVE' });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
 
     it('should return 400 for invalid status', async () => {
-      const res = await request(app)
-        .put('/api/scope')
-        .send({ status: 'INVALID_STATUS' });
+      const res = await request(app).put('/api/scope').send({ status: 'INVALID_STATUS' });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -175,9 +176,7 @@ describe('InfoSec Scope API', () => {
       (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(mockScope);
       (mockPrisma.isScope.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const res = await request(app)
-        .put('/api/scope')
-        .send({ name: 'Fail' });
+      const res = await request(app).put('/api/scope').send({ name: 'Fail' });
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -187,9 +186,7 @@ describe('InfoSec Scope API', () => {
       (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(mockScope);
       (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce(mockScope);
 
-      await request(app)
-        .put('/api/scope')
-        .send({ description: 'New desc' });
+      await request(app).put('/api/scope').send({ description: 'New desc' });
 
       const updateCall = (mockPrisma.isScope.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.updatedBy).toBe('00000000-0000-4000-a000-000000000123');
@@ -199,9 +196,7 @@ describe('InfoSec Scope API', () => {
       (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.isScope.create as jest.Mock).mockResolvedValueOnce(mockScope);
 
-      await request(app)
-        .put('/api/scope')
-        .send({ name: 'New Scope' });
+      await request(app).put('/api/scope').send({ name: 'New Scope' });
 
       const createCall = (mockPrisma.isScope.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.createdBy).toBe('00000000-0000-4000-a000-000000000123');

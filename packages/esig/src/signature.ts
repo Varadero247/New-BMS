@@ -12,8 +12,14 @@ import type {
 const logger = createLogger('esig');
 
 const VALID_MEANINGS: SignatureMeaning[] = [
-  'APPROVED', 'REVIEWED', 'RELEASED', 'VERIFIED',
-  'REJECTED', 'WITNESSED', 'AUTHORED', 'ACKNOWLEDGED',
+  'APPROVED',
+  'REVIEWED',
+  'RELEASED',
+  'VERIFIED',
+  'REJECTED',
+  'WITNESSED',
+  'AUTHORED',
+  'ACKNOWLEDGED',
 ];
 
 /**
@@ -86,9 +92,7 @@ export async function createSignature(
  * Verify an electronic signature's integrity.
  * Recomputes checksum and compares against stored value.
  */
-export function verifySignature(
-  signature: ElectronicSignature
-): SignatureVerification {
+export function verifySignature(signature: ElectronicSignature): SignatureVerification {
   const checksumMatch = verifySignatureChecksum({
     userId: signature.userId,
     meaning: signature.meaning,

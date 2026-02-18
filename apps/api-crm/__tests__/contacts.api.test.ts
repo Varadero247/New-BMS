@@ -38,7 +38,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/contacts', contactsRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockContact = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -94,24 +96,26 @@ describe('POST /api/contacts', () => {
     };
     (prisma as any).crmContact.create.mockResolvedValue(fullContact);
 
-    const res = await request(app).post('/api/contacts').send({
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john@example.com',
-      phone: '+1234567890',
-      mobile: '+0987654321',
-      jobTitle: 'CTO',
-      department: 'Engineering',
-      accountId: '550e8400-e29b-41d4-a716-446655440000',
-      source: 'REFERRAL',
-      tags: ['vip', 'tech'],
-      address: '123 Main St',
-      city: 'London',
-      state: 'England',
-      country: 'UK',
-      postalCode: 'EC1A 1BB',
-      notes: 'Important contact',
-    });
+    const res = await request(app)
+      .post('/api/contacts')
+      .send({
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        phone: '+1234567890',
+        mobile: '+0987654321',
+        jobTitle: 'CTO',
+        department: 'Engineering',
+        accountId: '550e8400-e29b-41d4-a716-446655440000',
+        source: 'REFERRAL',
+        tags: ['vip', 'tech'],
+        address: '123 Main St',
+        city: 'London',
+        state: 'England',
+        country: 'UK',
+        postalCode: 'EC1A 1BB',
+        notes: 'Important contact',
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -334,7 +338,9 @@ describe('PUT /api/contacts/:id', () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
     (prisma as any).crmContact.update.mockResolvedValue({ ...mockContact, firstName: 'Jane' });
 
-    const res = await request(app).put('/api/contacts/00000000-0000-0000-0000-000000000001').send({ firstName: 'Jane' });
+    const res = await request(app)
+      .put('/api/contacts/00000000-0000-0000-0000-000000000001')
+      .send({ firstName: 'Jane' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -344,7 +350,9 @@ describe('PUT /api/contacts/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/contacts/00000000-0000-0000-0000-000000000099').send({ firstName: 'Jane' });
+    const res = await request(app)
+      .put('/api/contacts/00000000-0000-0000-0000-000000000099')
+      .send({ firstName: 'Jane' });
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -371,7 +379,9 @@ describe('PUT /api/contacts/:id', () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
     (prisma as any).crmContact.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/contacts/00000000-0000-0000-0000-000000000001').send({ firstName: 'Jane' });
+    const res = await request(app)
+      .put('/api/contacts/00000000-0000-0000-0000-000000000001')
+      .send({ firstName: 'Jane' });
 
     expect(res.status).toBe(500);
   });
@@ -433,7 +443,9 @@ describe('POST /api/contacts/:id/activities', () => {
       createdBy: 'user-123',
     });
 
-    const res = await request(app).post('/api/contacts/00000000-0000-0000-0000-000000000001/activities').send(validActivity);
+    const res = await request(app)
+      .post('/api/contacts/00000000-0000-0000-0000-000000000001/activities')
+      .send(validActivity);
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -452,41 +464,49 @@ describe('POST /api/contacts/:id/activities', () => {
       outcome: 'Positive',
     });
 
-    const res = await request(app).post('/api/contacts/00000000-0000-0000-0000-000000000001/activities').send({
-      type: 'MEETING',
-      subject: 'Quarterly review',
-      description: 'Discuss Q1 performance',
-      duration: 60,
-      outcome: 'Positive',
-    });
+    const res = await request(app)
+      .post('/api/contacts/00000000-0000-0000-0000-000000000001/activities')
+      .send({
+        type: 'MEETING',
+        subject: 'Quarterly review',
+        description: 'Discuss Q1 performance',
+        duration: 60,
+        outcome: 'Positive',
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 400 for missing type', async () => {
-    const res = await request(app).post('/api/contacts/00000000-0000-0000-0000-000000000001/activities').send({
-      subject: 'Follow up call',
-    });
+    const res = await request(app)
+      .post('/api/contacts/00000000-0000-0000-0000-000000000001/activities')
+      .send({
+        subject: 'Follow up call',
+      });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
   });
 
   it('should return 400 for missing subject', async () => {
-    const res = await request(app).post('/api/contacts/00000000-0000-0000-0000-000000000001/activities').send({
-      type: 'CALL',
-    });
+    const res = await request(app)
+      .post('/api/contacts/00000000-0000-0000-0000-000000000001/activities')
+      .send({
+        type: 'CALL',
+      });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
   });
 
   it('should return 400 for invalid type', async () => {
-    const res = await request(app).post('/api/contacts/00000000-0000-0000-0000-000000000001/activities').send({
-      type: 'INVALID',
-      subject: 'Test',
-    });
+    const res = await request(app)
+      .post('/api/contacts/00000000-0000-0000-0000-000000000001/activities')
+      .send({
+        type: 'INVALID',
+        subject: 'Test',
+      });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
@@ -495,7 +515,9 @@ describe('POST /api/contacts/:id/activities', () => {
   it('should return 404 when contact not found', async () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/contacts/00000000-0000-0000-0000-000000000099/activities').send(validActivity);
+    const res = await request(app)
+      .post('/api/contacts/00000000-0000-0000-0000-000000000099/activities')
+      .send(validActivity);
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -505,7 +527,9 @@ describe('POST /api/contacts/:id/activities', () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
     (prisma as any).crmActivity.create.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).post('/api/contacts/00000000-0000-0000-0000-000000000001/activities').send(validActivity);
+    const res = await request(app)
+      .post('/api/contacts/00000000-0000-0000-0000-000000000001/activities')
+      .send(validActivity);
 
     expect(res.status).toBe(500);
   });
@@ -518,14 +542,28 @@ describe('POST /api/contacts/:id/activities', () => {
 describe('GET /api/contacts/:id/activities', () => {
   it('should return activities list', async () => {
     const activities = [
-      { id: 'act-1', contactId: 'contact-1', type: 'CALL', subject: 'Call 1', createdAt: new Date() },
-      { id: 'act-2', contactId: 'contact-1', type: 'EMAIL', subject: 'Email 1', createdAt: new Date() },
+      {
+        id: 'act-1',
+        contactId: 'contact-1',
+        type: 'CALL',
+        subject: 'Call 1',
+        createdAt: new Date(),
+      },
+      {
+        id: 'act-2',
+        contactId: 'contact-1',
+        type: 'EMAIL',
+        subject: 'Email 1',
+        createdAt: new Date(),
+      },
     ];
     (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
     (prisma as any).crmActivity.findMany.mockResolvedValue(activities);
     (prisma as any).crmActivity.count.mockResolvedValue(2);
 
-    const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000001/activities');
+    const res = await request(app).get(
+      '/api/contacts/00000000-0000-0000-0000-000000000001/activities'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -538,7 +576,9 @@ describe('GET /api/contacts/:id/activities', () => {
     (prisma as any).crmActivity.findMany.mockResolvedValue([]);
     (prisma as any).crmActivity.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000001/activities');
+    const res = await request(app).get(
+      '/api/contacts/00000000-0000-0000-0000-000000000001/activities'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(0);
@@ -547,7 +587,9 @@ describe('GET /api/contacts/:id/activities', () => {
   it('should return 404 when contact not found', async () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000099/activities');
+    const res = await request(app).get(
+      '/api/contacts/00000000-0000-0000-0000-000000000099/activities'
+    );
 
     expect(res.status).toBe(404);
   });
@@ -557,7 +599,9 @@ describe('GET /api/contacts/:id/activities', () => {
     (prisma as any).crmActivity.findMany.mockResolvedValue([]);
     (prisma as any).crmActivity.count.mockResolvedValue(25);
 
-    const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000001/activities?page=2&limit=10');
+    const res = await request(app).get(
+      '/api/contacts/00000000-0000-0000-0000-000000000001/activities?page=2&limit=10'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.pagination.page).toBe(2);
@@ -568,7 +612,9 @@ describe('GET /api/contacts/:id/activities', () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
     (prisma as any).crmActivity.findMany.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000001/activities');
+    const res = await request(app).get(
+      '/api/contacts/00000000-0000-0000-0000-000000000001/activities'
+    );
 
     expect(res.status).toBe(500);
   });

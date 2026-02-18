@@ -32,7 +32,9 @@ app.use((req: any, _res: any, next: any) => {
 });
 app.use('/api/wizard', wizardRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockWizard = {
   id: 'wiz-1',
@@ -44,10 +46,42 @@ const mockWizard = {
   createdAt: new Date(),
   updatedAt: new Date(),
   steps: [
-    { id: 's1', wizardId: 'wiz-1', stepIndex: 0, title: 'ISO Standard Selection', status: 'PENDING', data: {}, completedAt: null },
-    { id: 's2', wizardId: 'wiz-1', stepIndex: 1, title: 'Document Seeding', status: 'PENDING', data: {}, completedAt: null },
-    { id: 's3', wizardId: 'wiz-1', stepIndex: 2, title: 'Team Invitation', status: 'PENDING', data: {}, completedAt: null },
-    { id: 's4', wizardId: 'wiz-1', stepIndex: 3, title: 'Pre-Audit Summary', status: 'PENDING', data: {}, completedAt: null },
+    {
+      id: 's1',
+      wizardId: 'wiz-1',
+      stepIndex: 0,
+      title: 'ISO Standard Selection',
+      status: 'PENDING',
+      data: {},
+      completedAt: null,
+    },
+    {
+      id: 's2',
+      wizardId: 'wiz-1',
+      stepIndex: 1,
+      title: 'Document Seeding',
+      status: 'PENDING',
+      data: {},
+      completedAt: null,
+    },
+    {
+      id: 's3',
+      wizardId: 'wiz-1',
+      stepIndex: 2,
+      title: 'Team Invitation',
+      status: 'PENDING',
+      data: {},
+      completedAt: null,
+    },
+    {
+      id: 's4',
+      wizardId: 'wiz-1',
+      stepIndex: 3,
+      title: 'Pre-Audit Summary',
+      status: 'PENDING',
+      data: {},
+      completedAt: null,
+    },
   ],
 };
 
@@ -99,7 +133,10 @@ describe('POST /api/wizard/init', () => {
 describe('PATCH /api/wizard/step/:stepIndex', () => {
   it('updates a step with valid data', async () => {
     (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(mockWizard);
-    (prisma.setupWizardStep.update as jest.Mock).mockResolvedValue({ ...mockWizard.steps[0], status: 'COMPLETED' });
+    (prisma.setupWizardStep.update as jest.Mock).mockResolvedValue({
+      ...mockWizard.steps[0],
+      status: 'COMPLETED',
+    });
     (prisma.setupWizard.update as jest.Mock).mockResolvedValue({ ...mockWizard, currentStep: 1 });
 
     const res = await request(app)
@@ -123,7 +160,10 @@ describe('PATCH /api/wizard/step/:stepIndex', () => {
   });
 
   it('returns 400 when wizard already completed', async () => {
-    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue({ ...mockWizard, status: 'COMPLETED' });
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue({
+      ...mockWizard,
+      status: 'COMPLETED',
+    });
     const res = await request(app).patch('/api/wizard/step/0').send({ data: {} });
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('ALREADY_COMPLETED');
@@ -154,7 +194,10 @@ describe('POST /api/wizard/complete', () => {
   });
 
   it('returns 400 when already completed', async () => {
-    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue({ ...mockWizard, status: 'COMPLETED' });
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue({
+      ...mockWizard,
+      status: 'COMPLETED',
+    });
     const res = await request(app).post('/api/wizard/complete');
     expect(res.status).toBe(400);
   });
@@ -166,7 +209,10 @@ describe('POST /api/wizard/complete', () => {
 describe('POST /api/wizard/skip', () => {
   it('skips wizard when none exists', async () => {
     (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(null);
-    (prisma.setupWizard.create as jest.Mock).mockResolvedValue({ ...mockWizard, status: 'SKIPPED' });
+    (prisma.setupWizard.create as jest.Mock).mockResolvedValue({
+      ...mockWizard,
+      status: 'SKIPPED',
+    });
 
     const res = await request(app).post('/api/wizard/skip');
     expect(res.status).toBe(200);
@@ -175,7 +221,10 @@ describe('POST /api/wizard/skip', () => {
 
   it('skips existing in-progress wizard', async () => {
     (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(mockWizard);
-    (prisma.setupWizard.update as jest.Mock).mockResolvedValue({ ...mockWizard, status: 'SKIPPED' });
+    (prisma.setupWizard.update as jest.Mock).mockResolvedValue({
+      ...mockWizard,
+      status: 'SKIPPED',
+    });
 
     const res = await request(app).post('/api/wizard/skip');
     expect(res.status).toBe(200);

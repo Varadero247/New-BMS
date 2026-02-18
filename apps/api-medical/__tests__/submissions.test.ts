@@ -33,7 +33,10 @@ jest.mock('@ims/service-auth', () => ({
 
 jest.mock('@ims/monitoring', () => ({
   createLogger: () => ({
-    info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn(),
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
   }),
 }));
 
@@ -124,7 +127,9 @@ describe('Regulatory Submissions Routes', () => {
     it('should accept valid EU market', async () => {
       (mockPrisma.regulatorySubmission.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.regulatorySubmission.create as jest.Mock).mockResolvedValue({
-        id: 'sub-2', market: 'EU_CE_MDR', status: 'PREPARATION',
+        id: 'sub-2',
+        market: 'EU_CE_MDR',
+        status: 'PREPARATION',
       });
 
       const res = await request(app).post('/api/submissions').send({
@@ -138,7 +143,8 @@ describe('Regulatory Submissions Routes', () => {
     it('should accept optional notes', async () => {
       (mockPrisma.regulatorySubmission.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.regulatorySubmission.create as jest.Mock).mockResolvedValue({
-        id: 'sub-3', notes: 'Test notes',
+        id: 'sub-3',
+        notes: 'Test notes',
       });
 
       const res = await request(app).post('/api/submissions').send({
@@ -152,7 +158,9 @@ describe('Regulatory Submissions Routes', () => {
 
     it('should return 500 on database error', async () => {
       (mockPrisma.regulatorySubmission.count as jest.Mock).mockResolvedValue(0);
-      (mockPrisma.regulatorySubmission.create as jest.Mock).mockRejectedValue(new Error('DB error'));
+      (mockPrisma.regulatorySubmission.create as jest.Mock).mockRejectedValue(
+        new Error('DB error')
+      );
 
       const res = await request(app).post('/api/submissions').send({
         deviceName: 'Test',
@@ -169,7 +177,12 @@ describe('Regulatory Submissions Routes', () => {
   describe('GET /api/submissions', () => {
     it('should list submissions', async () => {
       (mockPrisma.regulatorySubmission.findMany as jest.Mock).mockResolvedValue([
-        { id: '00000000-0000-0000-0000-000000000001', deviceName: 'Device A', market: 'FDA_510K', changes: [] },
+        {
+          id: '00000000-0000-0000-0000-000000000001',
+          deviceName: 'Device A',
+          market: 'FDA_510K',
+          changes: [],
+        },
       ]);
       (mockPrisma.regulatorySubmission.count as jest.Mock).mockResolvedValue(1);
 
@@ -215,7 +228,9 @@ describe('Regulatory Submissions Routes', () => {
     });
 
     it('should return 500 on error', async () => {
-      (mockPrisma.regulatorySubmission.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+      (mockPrisma.regulatorySubmission.findMany as jest.Mock).mockRejectedValue(
+        new Error('DB error')
+      );
 
       const res = await request(app).get('/api/submissions');
       expect(res.status).toBe(500);
@@ -228,7 +243,10 @@ describe('Regulatory Submissions Routes', () => {
   describe('GET /api/submissions/:id', () => {
     it('should get submission by id', async () => {
       (mockPrisma.regulatorySubmission.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deviceName: 'Device A', deletedAt: null, changes: [],
+        id: '00000000-0000-0000-0000-000000000001',
+        deviceName: 'Device A',
+        deletedAt: null,
+        changes: [],
       });
 
       const res = await request(app).get('/api/submissions/00000000-0000-0000-0000-000000000001');
@@ -246,7 +264,8 @@ describe('Regulatory Submissions Routes', () => {
 
     it('should return 404 for soft-deleted submission', async () => {
       (mockPrisma.regulatorySubmission.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date(),
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: new Date(),
       });
 
       const res = await request(app).get('/api/submissions/00000000-0000-0000-0000-000000000001');
@@ -267,15 +286,20 @@ describe('Regulatory Submissions Routes', () => {
   describe('PUT /api/submissions/:id', () => {
     it('should update submission status', async () => {
       (mockPrisma.regulatorySubmission.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, refNumber: 'REG-2602-0001',
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
+        refNumber: 'REG-2602-0001',
       });
       (mockPrisma.regulatorySubmission.update as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', status: 'SUBMITTED',
-      });
-
-      const res = await request(app).put('/api/submissions/00000000-0000-0000-0000-000000000001').send({
+        id: '00000000-0000-0000-0000-000000000001',
         status: 'SUBMITTED',
       });
+
+      const res = await request(app)
+        .put('/api/submissions/00000000-0000-0000-0000-000000000001')
+        .send({
+          status: 'SUBMITTED',
+        });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -283,55 +307,71 @@ describe('Regulatory Submissions Routes', () => {
     it('should return 404 for non-existent submission', async () => {
       (mockPrisma.regulatorySubmission.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/submissions/00000000-0000-0000-0000-000000000099').send({
-        status: 'SUBMITTED',
-      });
+      const res = await request(app)
+        .put('/api/submissions/00000000-0000-0000-0000-000000000099')
+        .send({
+          status: 'SUBMITTED',
+        });
       expect(res.status).toBe(404);
     });
 
     it('should return 404 for soft-deleted submission', async () => {
       (mockPrisma.regulatorySubmission.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date(),
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: new Date(),
       });
 
-      const res = await request(app).put('/api/submissions/00000000-0000-0000-0000-000000000001').send({
-        status: 'SUBMITTED',
-      });
+      const res = await request(app)
+        .put('/api/submissions/00000000-0000-0000-0000-000000000001')
+        .send({
+          status: 'SUBMITTED',
+        });
       expect(res.status).toBe(404);
     });
 
     it('should accept valid status values', async () => {
       (mockPrisma.regulatorySubmission.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
       });
-      (mockPrisma.regulatorySubmission.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.regulatorySubmission.update as jest.Mock).mockResolvedValue({
+        id: '00000000-0000-0000-0000-000000000001',
+      });
 
       for (const status of ['PREPARATION', 'SUBMITTED', 'APPROVED', 'REJECTED']) {
-        const res = await request(app).put('/api/submissions/00000000-0000-0000-0000-000000000001').send({ status });
+        const res = await request(app)
+          .put('/api/submissions/00000000-0000-0000-0000-000000000001')
+          .send({ status });
         expect(res.status).toBe(200);
       }
     });
 
     it('should return 400 for invalid status', async () => {
       (mockPrisma.regulatorySubmission.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
       });
 
-      const res = await request(app).put('/api/submissions/00000000-0000-0000-0000-000000000001').send({
-        status: 'INVALID_STATUS',
-      });
+      const res = await request(app)
+        .put('/api/submissions/00000000-0000-0000-0000-000000000001')
+        .send({
+          status: 'INVALID_STATUS',
+        });
       expect(res.status).toBe(400);
     });
 
     it('should return 500 on database error', async () => {
       (mockPrisma.regulatorySubmission.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
       });
       (mockPrisma.regulatorySubmission.update as jest.Mock).mockRejectedValue(new Error('DB'));
 
-      const res = await request(app).put('/api/submissions/00000000-0000-0000-0000-000000000001').send({
-        status: 'SUBMITTED',
-      });
+      const res = await request(app)
+        .put('/api/submissions/00000000-0000-0000-0000-000000000001')
+        .send({
+          status: 'SUBMITTED',
+        });
       expect(res.status).toBe(500);
     });
   });
@@ -342,16 +382,21 @@ describe('Regulatory Submissions Routes', () => {
   describe('POST /api/submissions/:id/changes', () => {
     it('should log a change notification', async () => {
       (mockPrisma.regulatorySubmission.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
       });
       (mockPrisma.regSubmissionChange.create as jest.Mock).mockResolvedValue({
-        id: 'chg-1', changeType: 'Design Change', description: 'Updated housing',
+        id: 'chg-1',
+        changeType: 'Design Change',
+        description: 'Updated housing',
       });
 
-      const res = await request(app).post('/api/submissions/00000000-0000-0000-0000-000000000001/changes').send({
-        changeType: 'Design Change',
-        description: 'Updated housing material',
-      });
+      const res = await request(app)
+        .post('/api/submissions/00000000-0000-0000-0000-000000000001/changes')
+        .send({
+          changeType: 'Design Change',
+          description: 'Updated housing material',
+        });
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
     });
@@ -359,45 +404,56 @@ describe('Regulatory Submissions Routes', () => {
     it('should return 404 for non-existent submission', async () => {
       (mockPrisma.regulatorySubmission.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/submissions/00000000-0000-0000-0000-000000000099/changes').send({
-        changeType: 'Design',
-        description: 'Test',
-      });
+      const res = await request(app)
+        .post('/api/submissions/00000000-0000-0000-0000-000000000099/changes')
+        .send({
+          changeType: 'Design',
+          description: 'Test',
+        });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for missing changeType', async () => {
       (mockPrisma.regulatorySubmission.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
       });
 
-      const res = await request(app).post('/api/submissions/00000000-0000-0000-0000-000000000001/changes').send({
-        description: 'Test',
-      });
+      const res = await request(app)
+        .post('/api/submissions/00000000-0000-0000-0000-000000000001/changes')
+        .send({
+          description: 'Test',
+        });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for missing description', async () => {
       (mockPrisma.regulatorySubmission.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
       });
 
-      const res = await request(app).post('/api/submissions/00000000-0000-0000-0000-000000000001/changes').send({
-        changeType: 'Design',
-      });
+      const res = await request(app)
+        .post('/api/submissions/00000000-0000-0000-0000-000000000001/changes')
+        .send({
+          changeType: 'Design',
+        });
       expect(res.status).toBe(400);
     });
 
     it('should return 500 on database error', async () => {
       (mockPrisma.regulatorySubmission.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
       });
       (mockPrisma.regSubmissionChange.create as jest.Mock).mockRejectedValue(new Error('DB'));
 
-      const res = await request(app).post('/api/submissions/00000000-0000-0000-0000-000000000001/changes').send({
-        changeType: 'Design',
-        description: 'Test',
-      });
+      const res = await request(app)
+        .post('/api/submissions/00000000-0000-0000-0000-000000000001/changes')
+        .send({
+          changeType: 'Design',
+          description: 'Test',
+        });
       expect(res.status).toBe(500);
     });
   });

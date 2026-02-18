@@ -76,10 +76,26 @@ describe('xbarRChart', () => {
   it('should compute correct X-bar and R chart for known data', () => {
     // 4 subgroups of size 5
     const values = [
-      10, 12, 11, 13, 14, // subgroup 1: mean=12, range=4
-      11, 10, 12, 11, 11, // subgroup 2: mean=11, range=2
-      13, 14, 12, 11, 10, // subgroup 3: mean=12, range=4
-      10, 11, 12, 13, 14, // subgroup 4: mean=12, range=4
+      10,
+      12,
+      11,
+      13,
+      14, // subgroup 1: mean=12, range=4
+      11,
+      10,
+      12,
+      11,
+      11, // subgroup 2: mean=11, range=2
+      13,
+      14,
+      12,
+      11,
+      10, // subgroup 3: mean=12, range=4
+      10,
+      11,
+      12,
+      13,
+      14, // subgroup 4: mean=12, range=4
     ];
     const data = makeDataPoints(values);
     const chart = xbarRChart(data, 5);
@@ -111,10 +127,26 @@ describe('xbarRChart', () => {
   it('should correctly identify out-of-control X-bar points', () => {
     // Create data where one subgroup mean is clearly beyond UCL
     const values = [
-      10, 10, 10, 10, 10, // mean=10, range=0
-      10, 10, 10, 10, 10, // mean=10, range=0
-      10, 10, 10, 10, 10, // mean=10, range=0
-      25, 25, 25, 25, 25, // mean=25 -- way beyond UCL
+      10,
+      10,
+      10,
+      10,
+      10, // mean=10, range=0
+      10,
+      10,
+      10,
+      10,
+      10, // mean=10, range=0
+      10,
+      10,
+      10,
+      10,
+      10, // mean=10, range=0
+      25,
+      25,
+      25,
+      25,
+      25, // mean=25 -- way beyond UCL
     ];
     const data = makeDataPoints(values);
     const chart = xbarRChart(data, 5);
@@ -229,7 +261,7 @@ describe('pChart', () => {
     expect(chart.centerLine).toBeCloseTo(0.05, 4);
 
     // sigma = sqrt(0.05 * 0.95 / 100) = sqrt(0.000475) = 0.0218
-    const sigma = Math.sqrt(0.05 * 0.95 / 100);
+    const sigma = Math.sqrt((0.05 * 0.95) / 100);
     expect(chart.ucl).toBeCloseTo(0.05 + 3 * sigma, 4);
     expect(chart.lcl).toBeCloseTo(Math.max(0, 0.05 - 3 * sigma), 4);
 
@@ -267,8 +299,8 @@ describe('calculateCpk', () => {
   it('should compute correct Cpk for a well-centered, capable process', () => {
     // Generate data tightly centered at 50 with small variation
     const data = [
-      49.8, 50.1, 50.0, 49.9, 50.2, 50.0, 49.9, 50.1, 50.0, 49.8,
-      50.1, 50.0, 49.9, 50.2, 50.0, 49.9, 50.1, 50.0, 49.8, 50.1,
+      49.8, 50.1, 50.0, 49.9, 50.2, 50.0, 49.9, 50.1, 50.0, 49.8, 50.1, 50.0, 49.9, 50.2, 50.0,
+      49.9, 50.1, 50.0, 49.8, 50.1,
     ];
     const usl = 52;
     const lsl = 48;
@@ -299,9 +331,7 @@ describe('calculateCpk', () => {
 
   it('should detect off-center process', () => {
     // Process centered at 51 instead of 50, spec is 48-52
-    const data = [
-      51.0, 51.1, 50.9, 51.0, 51.2, 50.8, 51.0, 51.1, 50.9, 51.0,
-    ];
+    const data = [51.0, 51.1, 50.9, 51.0, 51.2, 50.8, 51.0, 51.1, 50.9, 51.0];
     const usl = 52;
     const lsl = 48;
 
@@ -332,8 +362,8 @@ describe('calculatePpk', () => {
   it('should return status based on Ppk, not Cpk', () => {
     // With stable data, Ppk and Cpk should be similar
     const data = [
-      49.8, 50.1, 50.0, 49.9, 50.2, 50.0, 49.9, 50.1, 50.0, 49.8,
-      50.1, 50.0, 49.9, 50.2, 50.0, 49.9, 50.1, 50.0, 49.8, 50.1,
+      49.8, 50.1, 50.0, 49.9, 50.2, 50.0, 49.9, 50.1, 50.0, 49.8, 50.1, 50.0, 49.9, 50.2, 50.0,
+      49.9, 50.1, 50.0, 49.8, 50.1,
     ];
     const result = calculatePpk(data, 52, 48);
 

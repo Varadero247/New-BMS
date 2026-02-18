@@ -21,7 +21,11 @@ const recallCreateSchema = z.object({
   reason: z.string().trim().min(1).max(2000),
   type: z.enum(['VOLUNTARY', 'MANDATORY', 'MARKET_WITHDRAWAL']),
   severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']),
-  initiatedDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  initiatedDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   unitsAffected: z.number().int().min(0).optional().nullable(),
   unitsRecovered: z.number().int().min(0).optional().nullable(),
   regulatoryNotified: z.boolean().optional().default(false),
@@ -83,8 +87,13 @@ router.get('/active', async (req: Request, res: Response) => {
 
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Error fetching active recalls', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch active recalls' } });
+    logger.error('Error fetching active recalls', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch active recalls' },
+    });
   }
 });
 
@@ -114,8 +123,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing recalls', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list recalls' } });
+    logger.error('Error listing recalls', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list recalls' },
+    });
   }
 });
 
@@ -126,7 +140,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = recallCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -145,8 +162,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Recall created', { id: recall.id, number });
     res.status(201).json({ success: true, data: recall });
   } catch (error: unknown) {
-    logger.error('Error creating recall', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create recall' } });
+    logger.error('Error creating recall', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create recall' },
+    });
   }
 });
 
@@ -160,13 +182,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!recall) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Recall not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Recall not found' } });
     }
 
     res.json({ success: true, data: recall });
   } catch (error: unknown) {
-    logger.error('Error fetching recall', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch recall' } });
+    logger.error('Error fetching recall', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch recall' },
+    });
   }
 });
 
@@ -176,16 +205,23 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const RESERVED = new Set(['complete']);
-    if (RESERVED.has(req.params.id)) return (undefined as any);
+    if (RESERVED.has(req.params.id)) return undefined as any;
 
-    const existing = await prisma.fsRecall.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsRecall.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Recall not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Recall not found' } });
     }
 
     const parsed = recallUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const recall = await prisma.fsRecall.update({
@@ -196,8 +232,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Recall updated', { id: recall.id });
     res.json({ success: true, data: recall });
   } catch (error: unknown) {
-    logger.error('Error updating recall', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update recall' } });
+    logger.error('Error updating recall', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update recall' },
+    });
   }
 });
 
@@ -206,9 +247,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsRecall.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsRecall.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Recall not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Recall not found' } });
     }
 
     await prisma.fsRecall.update({
@@ -219,8 +264,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Recall deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Recall deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting recall', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete recall' } });
+    logger.error('Error deleting recall', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete recall' },
+    });
   }
 });
 
@@ -229,18 +279,31 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsRecall.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsRecall.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Recall not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Recall not found' } });
     }
 
     if (existing.status === 'COMPLETED' || existing.status === 'CLOSED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_COMPLETED', message: 'Recall is already completed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'ALREADY_COMPLETED', message: 'Recall is already completed' },
+      });
     }
 
     const completeParsed = recallCompleteSchema.safeParse(req.body);
     if (!completeParsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: completeParsed.error.errors[0]?.message || 'Invalid completion data' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: completeParsed.error.errors[0]?.message || 'Invalid completion data',
+        },
+      });
     }
     const { unitsRecovered, rootCause } = completeParsed.data;
 
@@ -257,8 +320,13 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     logger.info('Recall completed', { id: recall.id });
     res.json({ success: true, data: recall });
   } catch (error: unknown) {
-    logger.error('Error completing recall', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete recall' } });
+    logger.error('Error completing recall', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete recall' },
+    });
   }
 });
 

@@ -11,7 +11,9 @@ test.describe('Settings Page', () => {
 
   test('should navigate to Settings module', async ({ page }) => {
     await page.goto('http://localhost:3004');
-    await expect(page.locator('text=/Settings|Organisation|Configuration/i').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=/Settings|Organisation|Configuration/i').first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should list roles via API', async ({ page }) => {
@@ -36,6 +38,8 @@ test.describe('Settings Page', () => {
 
   test('should navigate to roles management page', async ({ page }) => {
     await page.goto('http://localhost:3000/roles');
-    await expect(page.locator('text=/Role|Permission|Access/i').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=/Role|Permission|Access/i').first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 });

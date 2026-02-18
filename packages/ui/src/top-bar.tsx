@@ -36,10 +36,7 @@ export function TopBar({
 }: TopBarProps) {
   return (
     <header
-      className={cn(
-        'h-[50px] border-b flex items-center justify-between px-6 shrink-0',
-        className
-      )}
+      className={cn('h-[50px] border-b flex items-center justify-between px-6 shrink-0', className)}
     >
       {/* Left: org name + plan badge */}
       <div className="flex items-center gap-3">
@@ -62,7 +59,9 @@ export function TopBar({
               {userInitials || '?'}
             </div>
           )}
-          {userName && <span className="text-body-sm text-foreground hidden sm:block">{userName}</span>}
+          {userName && (
+            <span className="text-body-sm text-foreground hidden sm:block">{userName}</span>
+          )}
         </button>
       </div>
     </header>

@@ -71,7 +71,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List FMEAs error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list FMEAs' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list FMEAs' } });
   }
 });
 
@@ -82,12 +84,14 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
 
     const allRows = await prisma.qualFmeaRow.findMany({
       select: { rpn: true },
-      take: 1000});
+      take: 1000,
+    });
 
-    const highRpnCount = allRows.filter(r => r.rpn > 200).length;
-    const avgRpn = allRows.length > 0
-      ? Math.round(allRows.reduce((sum, r) => sum + r.rpn, 0) / allRows.length)
-      : 0;
+    const highRpnCount = allRows.filter((r) => r.rpn > 200).length;
+    const avgRpn =
+      allRows.length > 0
+        ? Math.round(allRows.reduce((sum, r) => sum + r.rpn, 0) / allRows.length)
+        : 0;
 
     res.json({
       success: true,
@@ -95,7 +99,10 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('FMEA stats error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get FMEA stats' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get FMEA stats' },
+    });
   }
 });
 
@@ -108,13 +115,17 @@ router.get('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, res
     });
 
     if (!fmea) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA not found' } });
     }
 
     res.json({ success: true, data: fmea });
   } catch (error) {
     logger.error('Get FMEA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get FMEA' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get FMEA' } });
   }
 });
 
@@ -132,7 +143,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       linkedProcess: z.string().optional(),
       status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'ACTIVE', 'ARCHIVED']).optional(),
       dateInitiated: z.string().optional(),
-      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      nextReviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       // AIAG-VDA Harmonised Format fields
       fmeaFormat: z.enum(['TRADITIONAL', 'AIAG_VDA_2024']).optional(),
       actionPriority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
@@ -181,10 +195,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: fmea });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create FMEA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create FMEA' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create FMEA' },
+    });
   }
 });
 
@@ -193,7 +217,9 @@ router.put('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, res
   try {
     const existing = await prisma.qualFmea.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA not found' } });
     }
 
     const schema = z.object({
@@ -206,7 +232,10 @@ router.put('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, res
       scopeDescription: z.string().optional(),
       linkedProcess: z.string().optional(),
       status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'ACTIVE', 'ARCHIVED']).optional(),
-      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      nextReviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       // AIAG-VDA Harmonised Format fields
       fmeaFormat: z.enum(['TRADITIONAL', 'AIAG_VDA_2024']).optional(),
       actionPriority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional().nullable(),
@@ -235,10 +264,20 @@ router.put('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, res
     res.json({ success: true, data: fmea });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update FMEA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update FMEA' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update FMEA' },
+    });
   }
 });
 
@@ -247,15 +286,23 @@ router.delete('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, 
   try {
     const existing = await prisma.qualFmea.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA not found' } });
     }
 
-    await prisma.qualFmea.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } as any });
+    await prisma.qualFmea.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() } as any,
+    });
 
     res.status(204).send();
   } catch (error) {
     logger.error('Delete FMEA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete FMEA' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete FMEA' },
+    });
   }
 });
 
@@ -268,7 +315,9 @@ router.post('/:id/rows', async (req: AuthRequest, res: Response) => {
   try {
     const fmea = await prisma.qualFmea.findUnique({ where: { id: req.params.id } });
     if (!fmea) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA not found' } });
     }
 
     const schema = z.object({
@@ -285,7 +334,10 @@ router.post('/:id/rows', async (req: AuthRequest, res: Response) => {
       detection: z.number().min(1).max(10).default(1),
       recommendedActions: z.string().optional(),
       assignedTo: z.string().optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       actionsTaken: z.string().optional(),
       status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'ACCEPTED']).optional(),
     });
@@ -334,10 +386,20 @@ router.post('/:id/rows', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: row });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create FMEA row error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create FMEA row' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create FMEA row' },
+    });
   }
 });
 
@@ -348,7 +410,9 @@ router.put('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.rowId, fmeaId: req.params.id },
     });
     if (!existingRow) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA row not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA row not found' } });
     }
 
     const schema = z.object({
@@ -365,7 +429,10 @@ router.put('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
       detection: z.number().min(1).max(10).optional(),
       recommendedActions: z.string().optional(),
       assignedTo: z.string().optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       actionsTaken: z.string().optional(),
       revisedSeverity: z.number().min(1).max(10).optional(),
       revisedOccurrence: z.number().min(1).max(10).optional(),
@@ -387,7 +454,14 @@ router.put('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
     const rs = data.revisedSeverity ?? existingRow.revisedSeverity;
     const ro = data.revisedOccurrence ?? existingRow.revisedOccurrence;
     const rd = data.revisedDetection ?? existingRow.revisedDetection;
-    if (rs !== null && ro !== null && rd !== null && rs !== undefined && ro !== undefined && rd !== undefined) {
+    if (
+      rs !== null &&
+      ro !== null &&
+      rd !== null &&
+      rs !== undefined &&
+      ro !== undefined &&
+      rd !== undefined
+    ) {
       revisedRpn = rs * ro * rd;
     }
 
@@ -405,10 +479,20 @@ router.put('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: row });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update FMEA row error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update FMEA row' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update FMEA row' },
+    });
   }
 });
 
@@ -419,15 +503,23 @@ router.delete('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.rowId, fmeaId: req.params.id },
     });
     if (!existingRow) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA row not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA row not found' } });
     }
 
-    await prisma.qualFmeaRow.update({ where: { id: req.params.rowId }, data: { deletedAt: new Date() } as any });
+    await prisma.qualFmeaRow.update({
+      where: { id: req.params.rowId },
+      data: { deletedAt: new Date() } as any,
+    });
 
     res.status(204).send();
   } catch (error) {
     logger.error('Delete FMEA row error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete FMEA row' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete FMEA row' },
+    });
   }
 });
 
@@ -435,16 +527,18 @@ router.delete('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
 router.post('/:id/rows/reorder', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      rows: z.array(z.object({
-        id: z.string(),
-        sortOrder: z.number().int().nonnegative(),
-      })),
+      rows: z.array(
+        z.object({
+          id: z.string(),
+          sortOrder: z.number().int().nonnegative(),
+        })
+      ),
     });
 
     const { rows } = schema.parse(req.body);
 
     await Promise.all(
-      rows.map(row =>
+      rows.map((row) =>
         prisma.qualFmeaRow.update({
           where: { id: row.id },
           data: { sortOrder: row.sortOrder },
@@ -460,10 +554,20 @@ router.post('/:id/rows/reorder', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: updatedFmea });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Reorder FMEA rows error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to reorder FMEA rows' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to reorder FMEA rows' },
+    });
   }
 });
 

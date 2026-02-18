@@ -1,7 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { MessageSquare, Send, BarChart3, Table, PieChart, TrendingUp, Clock, Sparkles, Lightbulb } from 'lucide-react';
+import {
+  MessageSquare,
+  Send,
+  BarChart3,
+  Table,
+  PieChart,
+  TrendingUp,
+  Clock,
+  Sparkles,
+  Lightbulb,
+} from 'lucide-react';
 
 interface QueryResult {
   id: string;
@@ -99,7 +109,9 @@ export default function NlqClient() {
         timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
         resultType: 'text',
         duration: Math.random() * 2 + 0.3,
-        data: { text: `Query processed successfully. In production, this would return real data from across all 25 IMS modules using the @ims/nlq natural language query engine.` },
+        data: {
+          text: `Query processed successfully. In production, this would return real data from across all 25 IMS modules using the @ims/nlq natural language query engine.`,
+        },
       };
       setResults([newResult, ...results]);
       setQuery('');
@@ -114,7 +126,9 @@ export default function NlqClient() {
           <Sparkles className="h-6 w-6 text-purple-600" />
           Natural Language Query
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Ask questions about your data in plain English — powered by @ims/nlq</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Ask questions about your data in plain English — powered by @ims/nlq
+        </p>
       </div>
 
       {/* Query Input */}
@@ -143,12 +157,17 @@ export default function NlqClient() {
 
         {/* Suggestions */}
         <div className="mt-3">
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1"><Lightbulb className="h-3.5 w-3.5" /> Suggested queries:</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1">
+            <Lightbulb className="h-3.5 w-3.5" /> Suggested queries:
+          </p>
           <div className="flex flex-wrap gap-2">
             {suggestedQueries.map((sq) => (
               <button
                 key={sq}
-                onClick={() => { setQuery(sq); handleSubmit(sq); }}
+                onClick={() => {
+                  setQuery(sq);
+                  handleSubmit(sq);
+                }}
                 className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs hover:bg-purple-100 transition-colors"
               >
                 {sq}
@@ -169,7 +188,10 @@ export default function NlqClient() {
       {/* Results */}
       <div className="space-y-4">
         {results.map((r) => (
-          <div key={r.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+          <div
+            key={r.id}
+            className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden"
+          >
             <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
               <div className="flex items-start justify-between">
                 <div>
@@ -183,12 +205,25 @@ export default function NlqClient() {
                   {r.resultType === 'chart' && <BarChart3 className="h-4 w-4 text-green-500" />}
                   {r.resultType === 'metric' && <TrendingUp className="h-4 w-4 text-purple-500" />}
                   {r.sql && (
-                    <button onClick={() => setShowSql((prev) => { const n = new Set(prev); n.has(r.id) ? n.delete(r.id) : n.add(r.id); return n; })} className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 font-mono">SQL</button>
+                    <button
+                      onClick={() =>
+                        setShowSql((prev) => {
+                          const n = new Set(prev);
+                          n.has(r.id) ? n.delete(r.id) : n.add(r.id);
+                          return n;
+                        })
+                      }
+                      className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 font-mono"
+                    >
+                      SQL
+                    </button>
                   )}
                 </div>
               </div>
               {showSql.has(r.id) && r.sql && (
-                <pre className="mt-2 p-2 bg-gray-900 text-green-400 rounded-lg text-xs overflow-x-auto font-mono">{r.sql}</pre>
+                <pre className="mt-2 p-2 bg-gray-900 text-green-400 rounded-lg text-xs overflow-x-auto font-mono">
+                  {r.sql}
+                </pre>
               )}
             </div>
 
@@ -196,12 +231,25 @@ export default function NlqClient() {
               {r.resultType === 'table' && (
                 <table className="w-full text-sm">
                   <thead>
-                    <tr>{(r.data.columns as string[]).map((col) => <th key={col} className="text-left px-3 py-2 font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800">{col}</th>)}</tr>
+                    <tr>
+                      {(r.data.columns as string[]).map((col) => (
+                        <th
+                          key={col}
+                          className="text-left px-3 py-2 font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800"
+                        >
+                          {col}
+                        </th>
+                      ))}
+                    </tr>
                   </thead>
                   <tbody>
                     {(r.data.rows as (string | number)[][]).map((row, i) => (
                       <tr key={i} className="border-t border-gray-100 dark:border-gray-700">
-                        {row.map((cell, j) => <td key={j} className="px-3 py-2 text-gray-700 dark:text-gray-300">{cell}</td>)}
+                        {row.map((cell, j) => (
+                          <td key={j} className="px-3 py-2 text-gray-700 dark:text-gray-300">
+                            {cell}
+                          </td>
+                        ))}
                       </tr>
                     ))}
                   </tbody>
@@ -217,8 +265,13 @@ export default function NlqClient() {
                       return (
                         <div key={i} className="flex-1 flex flex-col items-center gap-1">
                           <span className="text-xs text-gray-500 dark:text-gray-400">{val}k</span>
-                          <div className="w-full bg-purple-400 rounded-t transition-all hover:bg-purple-500" style={{ height: `${height}%` }} />
-                          <span className="text-xs text-gray-400 dark:text-gray-500">{(r.data.months as string[])[i]}</span>
+                          <div
+                            className="w-full bg-purple-400 rounded-t transition-all hover:bg-purple-500"
+                            style={{ height: `${height}%` }}
+                          />
+                          <span className="text-xs text-gray-400 dark:text-gray-500">
+                            {(r.data.months as string[])[i]}
+                          </span>
                         </div>
                       );
                     })}
@@ -229,18 +282,28 @@ export default function NlqClient() {
               {r.resultType === 'metric' && (
                 <div className="flex items-center gap-6">
                   <div>
-                    <p className="text-4xl font-bold text-purple-700">{(r.data as Record<string, unknown>).value as number}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{(r.data as Record<string, unknown>).label as string}</p>
+                    <p className="text-4xl font-bold text-purple-700">
+                      {(r.data as Record<string, unknown>).value as number}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {(r.data as Record<string, unknown>).label as string}
+                    </p>
                   </div>
                   <div className="flex items-center gap-1 text-sm">
-                    <TrendingUp className={`h-4 w-4 ${(r.data as Record<string, unknown>).trend === 'down' ? 'text-green-600 rotate-180' : 'text-red-600'}`} />
-                    <span className="text-gray-500 dark:text-gray-400">was {(r.data as Record<string, unknown>).previousValue as number} last period</span>
+                    <TrendingUp
+                      className={`h-4 w-4 ${(r.data as Record<string, unknown>).trend === 'down' ? 'text-green-600 rotate-180' : 'text-red-600'}`}
+                    />
+                    <span className="text-gray-500 dark:text-gray-400">
+                      was {(r.data as Record<string, unknown>).previousValue as number} last period
+                    </span>
                   </div>
                 </div>
               )}
 
               {r.resultType === 'text' && (
-                <p className="text-sm text-gray-600">{(r.data as Record<string, unknown>).text as string}</p>
+                <p className="text-sm text-gray-600">
+                  {(r.data as Record<string, unknown>).text as string}
+                </p>
               )}
             </div>
           </div>

@@ -6,5 +6,27 @@ import { validateIdParam } from '@ims/shared';
 const router = Router();
 router.param('id', validateIdParam());
 const logger = createLogger('incidents-timeline');
-router.get('/:id', authenticate, async (req: Request, res: Response) => { try { const orgId = ((req as any).user as any)?.orgId || 'default'; const incident = await prisma.incIncident.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any }); if (!incident) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } }); const timeline = [{ date: incident.dateOccurred, event: 'Incident occurred' }, { date: incident.reportedDate, event: 'Reported' }]; if (incident.investigationDate) timeline.push({ date: incident.investigationDate, event: 'Investigation completed' }); if (incident.closedDate) timeline.push({ date: incident.closedDate, event: 'Closed' }); res.json({ success: true, data: timeline }); } catch (error: unknown) { logger.error('Operation failed', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed' } }); } });
+router.get('/:id', authenticate, async (req: Request, res: Response) => {
+  try {
+    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const incident = await prisma.incIncident.findFirst({
+      where: { id: req.params.id, orgId, deletedAt: null } as any,
+    });
+    if (!incident)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+    const timeline = [
+      { date: incident.dateOccurred, event: 'Incident occurred' },
+      { date: incident.reportedDate, event: 'Reported' },
+    ];
+    if (incident.investigationDate)
+      timeline.push({ date: incident.investigationDate, event: 'Investigation completed' });
+    if (incident.closedDate) timeline.push({ date: incident.closedDate, event: 'Closed' });
+    res.json({ success: true, data: timeline });
+  } catch (error: unknown) {
+    logger.error('Operation failed', { error: (error as Error).message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed' } });
+  }
+});
 export default router;

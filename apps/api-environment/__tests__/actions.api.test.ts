@@ -78,9 +78,7 @@ describe('Environment Actions API Routes', () => {
       (mockPrisma.envAction.findMany as jest.Mock).mockResolvedValueOnce(mockActions);
       (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/actions')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/actions').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -111,9 +109,7 @@ describe('Environment Actions API Routes', () => {
       (mockPrisma.envAction.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/actions?status=OPEN')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/actions?status=OPEN').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envAction.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -128,9 +124,7 @@ describe('Environment Actions API Routes', () => {
       (mockPrisma.envAction.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/actions?priority=HIGH')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/actions?priority=HIGH').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envAction.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -162,9 +156,7 @@ describe('Environment Actions API Routes', () => {
       (mockPrisma.envAction.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/actions?source=AUDIT')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/actions?source=AUDIT').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envAction.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -179,9 +171,7 @@ describe('Environment Actions API Routes', () => {
       (mockPrisma.envAction.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/actions?search=filtration')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/actions?search=filtration').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envAction.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -201,9 +191,7 @@ describe('Environment Actions API Routes', () => {
       (mockPrisma.envAction.findMany as jest.Mock).mockResolvedValueOnce(mockActions);
       (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/actions')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/actions').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envAction.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -215,9 +203,7 @@ describe('Environment Actions API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.envAction.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/actions')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/actions').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -448,7 +434,9 @@ describe('Environment Actions API Routes', () => {
 
   describe('DELETE /api/actions/:id', () => {
     it('should delete action successfully', async () => {
-      (mockPrisma.envAction.findUnique as jest.Mock).mockResolvedValueOnce({ id: '13000000-0000-4000-a000-000000000001' });
+      (mockPrisma.envAction.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '13000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.envAction.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)

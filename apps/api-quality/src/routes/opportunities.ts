@@ -46,7 +46,7 @@ function calculateOpportunityFields(data: {
     data.expansionOfCurrent,
     data.satisfyingRegs,
     data.internalQmsImprovement,
-    data.reputationImprovement,
+    data.reputationImprovement
   );
   const opportunityScore = probabilityRating * benefitRating;
   const priorityLevel = calculatePriorityLevel(opportunityScore);
@@ -93,33 +93,54 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List opportunities error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list opportunities' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list opportunities' },
+    });
   }
 });
 
 // GET /:id - Get single opportunity
-router.get('/:id', checkOwnership(prisma.qualOpportunity), async (req: AuthRequest, res: Response) => {
-  try {
-    const opportunity = await prisma.qualOpportunity.findUnique({
-      where: { id: req.params.id },
-    });
+router.get(
+  '/:id',
+  checkOwnership(prisma.qualOpportunity),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const opportunity = await prisma.qualOpportunity.findUnique({
+        where: { id: req.params.id },
+      });
 
-    if (!opportunity) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Opportunity not found' } });
+      if (!opportunity) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Opportunity not found' } });
+      }
+
+      res.json({ success: true, data: opportunity });
+    } catch (error) {
+      logger.error('Get opportunity error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get opportunity' },
+      });
     }
-
-    res.json({ success: true, data: opportunity });
-  } catch (error) {
-    logger.error('Get opportunity error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get opportunity' } });
   }
-});
+);
 
 // POST / - Create opportunity
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      process: z.enum(['STRATEGIC', 'FINANCE', 'HR', 'OPERATIONS', 'MARKETING_SALES', 'IT', 'COMPLIANCE_LEGAL', 'ALL_PROCESSES']),
+      process: z.enum([
+        'STRATEGIC',
+        'FINANCE',
+        'HR',
+        'OPERATIONS',
+        'MARKETING_SALES',
+        'IT',
+        'COMPLIANCE_LEGAL',
+        'ALL_PROCESSES',
+      ]),
       interestedParties: z.string().optional(),
       opportunityDescription: z.string().trim().min(1).max(2000),
       reportedBy: z.string().optional(),
@@ -133,8 +154,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       costOfImplementation: z.number().int().min(0).default(0),
       actionToExploit: z.string().optional(),
       responsiblePerson: z.string().optional(),
-      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      status: z.enum(['IDENTIFIED', 'BEING_EXPLOITED', 'ACHIEVED', 'MISSED', 'DEFERRED']).default('IDENTIFIED'),
+      targetDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      status: z
+        .enum(['IDENTIFIED', 'BEING_EXPLOITED', 'ACHIEVED', 'MISSED', 'DEFERRED'])
+        .default('IDENTIFIED'),
     });
 
     const data = schema.parse(req.body);
@@ -170,90 +196,150 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: opportunity });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create opportunity error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create opportunity' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create opportunity' },
+    });
   }
 });
 
 // PUT /:id - Update opportunity
-router.put('/:id', checkOwnership(prisma.qualOpportunity), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.qualOpportunity.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Opportunity not found' } });
+router.put(
+  '/:id',
+  checkOwnership(prisma.qualOpportunity),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.qualOpportunity.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Opportunity not found' } });
+      }
+
+      const schema = z.object({
+        process: z
+          .enum([
+            'STRATEGIC',
+            'FINANCE',
+            'HR',
+            'OPERATIONS',
+            'MARKETING_SALES',
+            'IT',
+            'COMPLIANCE_LEGAL',
+            'ALL_PROCESSES',
+          ])
+          .optional(),
+        interestedParties: z.string().nullable().optional(),
+        opportunityDescription: z.string().trim().min(1).max(2000).optional(),
+        reportedBy: z.string().nullable().optional(),
+        likelihood: z.number().int().min(1).max(6).optional(),
+        previousOccurrences: z.string().nullable().optional(),
+        newBusiness: z.number().int().min(0).max(4).optional(),
+        expansionOfCurrent: z.number().int().min(0).max(4).optional(),
+        satisfyingRegs: z.number().int().min(0).max(4).optional(),
+        internalQmsImprovement: z.number().int().min(0).max(4).optional(),
+        reputationImprovement: z.number().int().min(0).max(4).optional(),
+        costOfImplementation: z.number().int().min(0).optional(),
+        actionToExploit: z.string().nullable().optional(),
+        responsiblePerson: z.string().nullable().optional(),
+        targetDate: z
+          .string()
+          .nullable()
+          .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        status: z
+          .enum(['IDENTIFIED', 'BEING_EXPLOITED', 'ACHIEVED', 'MISSED', 'DEFERRED'])
+          .optional(),
+      });
+
+      const data = schema.parse(req.body);
+
+      // Recalculate opportunity fields using merged values
+      const mergedForCalc = {
+        likelihood: data.likelihood ?? existing.likelihood,
+        newBusiness: data.newBusiness ?? existing.newBusiness,
+        expansionOfCurrent: data.expansionOfCurrent ?? existing.expansionOfCurrent,
+        satisfyingRegs: data.satisfyingRegs ?? existing.satisfyingRegs,
+        internalQmsImprovement: data.internalQmsImprovement ?? existing.internalQmsImprovement,
+        reputationImprovement: data.reputationImprovement ?? existing.reputationImprovement,
+      };
+      const calculated = calculateOpportunityFields(mergedForCalc);
+
+      const opportunity = await prisma.qualOpportunity.update({
+        where: { id: req.params.id },
+        data: {
+          ...data,
+          probabilityRating: calculated.probabilityRating,
+          benefitRating: calculated.benefitRating,
+          opportunityScore: calculated.opportunityScore,
+          priorityLevel: calculated.priorityLevel,
+          targetDate:
+            data.targetDate === null
+              ? null
+              : data.targetDate
+                ? new Date(data.targetDate)
+                : undefined,
+        },
+      });
+
+      res.json({ success: true, data: opportunity });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update opportunity error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update opportunity' },
+      });
     }
-
-    const schema = z.object({
-      process: z.enum(['STRATEGIC', 'FINANCE', 'HR', 'OPERATIONS', 'MARKETING_SALES', 'IT', 'COMPLIANCE_LEGAL', 'ALL_PROCESSES']).optional(),
-      interestedParties: z.string().nullable().optional(),
-      opportunityDescription: z.string().trim().min(1).max(2000).optional(),
-      reportedBy: z.string().nullable().optional(),
-      likelihood: z.number().int().min(1).max(6).optional(),
-      previousOccurrences: z.string().nullable().optional(),
-      newBusiness: z.number().int().min(0).max(4).optional(),
-      expansionOfCurrent: z.number().int().min(0).max(4).optional(),
-      satisfyingRegs: z.number().int().min(0).max(4).optional(),
-      internalQmsImprovement: z.number().int().min(0).max(4).optional(),
-      reputationImprovement: z.number().int().min(0).max(4).optional(),
-      costOfImplementation: z.number().int().min(0).optional(),
-      actionToExploit: z.string().nullable().optional(),
-      responsiblePerson: z.string().nullable().optional(),
-      targetDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      status: z.enum(['IDENTIFIED', 'BEING_EXPLOITED', 'ACHIEVED', 'MISSED', 'DEFERRED']).optional(),
-    });
-
-    const data = schema.parse(req.body);
-
-    // Recalculate opportunity fields using merged values
-    const mergedForCalc = {
-      likelihood: data.likelihood ?? existing.likelihood,
-      newBusiness: data.newBusiness ?? existing.newBusiness,
-      expansionOfCurrent: data.expansionOfCurrent ?? existing.expansionOfCurrent,
-      satisfyingRegs: data.satisfyingRegs ?? existing.satisfyingRegs,
-      internalQmsImprovement: data.internalQmsImprovement ?? existing.internalQmsImprovement,
-      reputationImprovement: data.reputationImprovement ?? existing.reputationImprovement,
-    };
-    const calculated = calculateOpportunityFields(mergedForCalc);
-
-    const opportunity = await prisma.qualOpportunity.update({
-      where: { id: req.params.id },
-      data: {
-        ...data,
-        probabilityRating: calculated.probabilityRating,
-        benefitRating: calculated.benefitRating,
-        opportunityScore: calculated.opportunityScore,
-        priorityLevel: calculated.priorityLevel,
-        targetDate: data.targetDate === null ? null : data.targetDate ? new Date(data.targetDate) : undefined,
-      },
-    });
-
-    res.json({ success: true, data: opportunity });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
-    }
-    logger.error('Update opportunity error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update opportunity' } });
   }
-});
+);
 
 // DELETE /:id - Delete opportunity
-router.delete('/:id', checkOwnership(prisma.qualOpportunity), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.qualOpportunity.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Opportunity not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.qualOpportunity),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.qualOpportunity.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Opportunity not found' } });
+      }
+
+      await prisma.qualOpportunity.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete opportunity error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete opportunity' },
+      });
     }
-
-    await prisma.qualOpportunity.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete opportunity error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete opportunity' } });
   }
-});
+);
 
 export default router;

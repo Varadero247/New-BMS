@@ -33,7 +33,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/fra', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockFra = prisma.femFireRiskAssessment as any;
 
@@ -167,10 +169,12 @@ describe('POST /api/fra', () => {
   });
 
   it('returns 400 when likelihoodRating is out of range', async () => {
-    const res = await request(app).post('/api/fra').send({
-      ...validCreateBody,
-      likelihoodRating: 6,
-    });
+    const res = await request(app)
+      .post('/api/fra')
+      .send({
+        ...validCreateBody,
+        likelihoodRating: 6,
+      });
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -194,11 +198,13 @@ describe('POST /api/fra', () => {
     mockFra.count.mockResolvedValue(0);
     mockFra.create.mockResolvedValue(highRiskFra);
 
-    const res = await request(app).post('/api/fra').send({
-      ...validCreateBody,
-      likelihoodRating: 5,
-      consequenceRating: 5,
-    });
+    const res = await request(app)
+      .post('/api/fra')
+      .send({
+        ...validCreateBody,
+        likelihoodRating: 5,
+        consequenceRating: 5,
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.data.overallRiskLevel).toBe('INTOLERABLE');
@@ -242,7 +248,9 @@ describe('PUT /api/fra/:id', () => {
   it('returns 404 when FRA does not exist on update', async () => {
     mockFra.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/fra/00000000-0000-0000-0000-000000000999').send({ assessorName: 'Test' });
+    const res = await request(app)
+      .put('/api/fra/00000000-0000-0000-0000-000000000999')
+      .send({ assessorName: 'Test' });
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');

@@ -348,15 +348,12 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
       (mockPrisma.complaint.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.complaint.create as jest.Mock).mockResolvedValueOnce(mockComplaint);
 
-      await request(app)
-        .post('/api/complaints')
-        .set('Authorization', 'Bearer token')
-        .send({
-          deviceName: 'Test Device',
-          complaintDate: '2026-02-10',
-          source: 'INTERNAL',
-          description: 'Test complaint with minimal fields',
-        });
+      await request(app).post('/api/complaints').set('Authorization', 'Bearer token').send({
+        deviceName: 'Test Device',
+        complaintDate: '2026-02-10',
+        source: 'INTERNAL',
+        description: 'Test complaint with minimal fields',
+      });
 
       expect(mockPrisma.complaint.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -482,8 +479,13 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
 
     it('should accept all valid source enum values', async () => {
       const sources = [
-        'CUSTOMER', 'FIELD_SERVICE', 'INTERNAL', 'REGULATORY',
-        'DISTRIBUTOR', 'HEALTHCARE_PROVIDER', 'PATIENT',
+        'CUSTOMER',
+        'FIELD_SERVICE',
+        'INTERNAL',
+        'REGULATORY',
+        'DISTRIBUTOR',
+        'HEALTHCARE_PROVIDER',
+        'PATIENT',
       ];
 
       for (const source of sources) {
@@ -525,7 +527,9 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
 
     it('should handle database errors gracefully', async () => {
       (mockPrisma.complaint.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.complaint.create as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.complaint.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
       const response = await request(app)
         .post('/api/complaints')
@@ -544,7 +548,10 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
   // ==========================================
   describe('GET /api/complaints', () => {
     it('should return a list of complaints with default pagination', async () => {
-      (mockPrisma.complaint.findMany as jest.Mock).mockResolvedValueOnce([mockComplaint, mockComplaint2]);
+      (mockPrisma.complaint.findMany as jest.Mock).mockResolvedValueOnce([
+        mockComplaint,
+        mockComplaint2,
+      ]);
       (mockPrisma.complaint.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app)
@@ -736,9 +743,7 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
       (mockPrisma.complaint.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.complaint.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/complaints')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/complaints').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.complaint.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -751,9 +756,7 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
       (mockPrisma.complaint.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.complaint.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/complaints')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/complaints').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.complaint.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -765,7 +768,9 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.complaint.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.complaint.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
       const response = await request(app)
         .get('/api/complaints')
@@ -866,9 +871,7 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
     it('should query for last 12 months only and exclude soft-deleted', async () => {
       (mockPrisma.complaint.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/complaints/trending')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/complaints/trending').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.complaint.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -923,20 +926,14 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
       (mockPrisma.complaint.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.complaint.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/complaints/mdr-pending')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/complaints/mdr-pending').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.complaint.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
             deletedAt: null,
             mdrReportable: null,
-            OR: [
-              { injuryOccurred: true },
-              { deathOccurred: true },
-              { malfunctionOccurred: true },
-            ],
+            OR: [{ injuryOccurred: true }, { deathOccurred: true }, { malfunctionOccurred: true }],
           },
         })
       );
@@ -979,9 +976,7 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
       (mockPrisma.complaint.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.complaint.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/complaints/mdr-pending')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/complaints/mdr-pending').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.complaint.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1375,7 +1370,9 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
   // ==========================================
   describe('POST /api/complaints/:id/close', () => {
     it('should close a complaint that has MDR decision and investigation complete', async () => {
-      (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValueOnce(mockComplaintReadyToClose);
+      (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockComplaintReadyToClose
+      );
       (mockPrisma.complaint.update as jest.Mock).mockResolvedValueOnce({
         ...mockComplaintReadyToClose,
         status: 'CLOSED',
@@ -1403,7 +1400,9 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
     });
 
     it('should append disposition to existing investigation summary', async () => {
-      (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValueOnce(mockComplaintReadyToClose);
+      (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockComplaintReadyToClose
+      );
       (mockPrisma.complaint.update as jest.Mock).mockResolvedValueOnce({
         ...mockComplaintReadyToClose,
         status: 'CLOSED',
@@ -1493,7 +1492,9 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('INVESTIGATION_INCOMPLETE');
-      expect(response.body.error.message).toContain('Root cause and corrective action must be documented');
+      expect(response.body.error.message).toContain(
+        'Root cause and corrective action must be documented'
+      );
 
       expect(mockPrisma.complaint.update).not.toHaveBeenCalled();
     });
@@ -1587,7 +1588,9 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
     });
 
     it('should close without disposition (disposition is optional)', async () => {
-      (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValueOnce(mockComplaintReadyToClose);
+      (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockComplaintReadyToClose
+      );
       (mockPrisma.complaint.update as jest.Mock).mockResolvedValueOnce({
         ...mockComplaintReadyToClose,
         status: 'CLOSED',

@@ -187,10 +187,18 @@ describe('Aerospace Configuration Management API Routes', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             OR: expect.arrayContaining([
-              expect.objectContaining({ title: expect.objectContaining({ contains: 'functional' }) }),
-              expect.objectContaining({ description: expect.objectContaining({ contains: 'functional' }) }),
-              expect.objectContaining({ refNumber: expect.objectContaining({ contains: 'functional' }) }),
-              expect.objectContaining({ program: expect.objectContaining({ contains: 'functional' }) }),
+              expect.objectContaining({
+                title: expect.objectContaining({ contains: 'functional' }),
+              }),
+              expect.objectContaining({
+                description: expect.objectContaining({ contains: 'functional' }),
+              }),
+              expect.objectContaining({
+                refNumber: expect.objectContaining({ contains: 'functional' }),
+              }),
+              expect.objectContaining({
+                program: expect.objectContaining({ contains: 'functional' }),
+              }),
             ]),
           }),
         })
@@ -198,7 +206,9 @@ describe('Aerospace Configuration Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.configBaseline.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.configBaseline.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
       const response = await request(app)
         .get('/api/configuration/baselines')
@@ -219,8 +229,22 @@ describe('Aerospace Configuration Management API Routes', () => {
       status: 'ACTIVE',
       deletedAt: null,
       items: [
-        { id: 'item-1', partNumber: 'PN-001', nomenclature: 'Wing Assembly', revision: 'A', category: 'HARDWARE', status: 'CURRENT' },
-        { id: 'item-2', partNumber: 'PN-002', nomenclature: 'Avionics Module', revision: 'B', category: 'SOFTWARE', status: 'CURRENT' },
+        {
+          id: 'item-1',
+          partNumber: 'PN-001',
+          nomenclature: 'Wing Assembly',
+          revision: 'A',
+          category: 'HARDWARE',
+          status: 'CURRENT',
+        },
+        {
+          id: 'item-2',
+          partNumber: 'PN-002',
+          nomenclature: 'Avionics Module',
+          revision: 'B',
+          category: 'SOFTWARE',
+          status: 'CURRENT',
+        },
       ],
     };
 
@@ -264,7 +288,9 @@ describe('Aerospace Configuration Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.configBaseline.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.configBaseline.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/configuration/baselines/00000000-0000-0000-0000-000000000001')
@@ -452,7 +478,9 @@ describe('Aerospace Configuration Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.configBaseline.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.configBaseline.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/configuration/baselines/00000000-0000-0000-0000-000000000001')
@@ -509,7 +537,9 @@ describe('Aerospace Configuration Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.configBaseline.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.configBaseline.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/configuration/baselines/00000000-0000-0000-0000-000000000001')
@@ -812,7 +842,9 @@ describe('Aerospace Configuration Management API Routes', () => {
 
     it('should handle database errors gracefully', async () => {
       (mockPrisma.engineeringChangeProposal.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.engineeringChangeProposal.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.engineeringChangeProposal.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/configuration/changes')
@@ -861,7 +893,9 @@ describe('Aerospace Configuration Management API Routes', () => {
     });
 
     it('should filter ECPs by status', async () => {
-      (mockPrisma.engineeringChangeProposal.findMany as jest.Mock).mockResolvedValueOnce([mockECPs[0]]);
+      (mockPrisma.engineeringChangeProposal.findMany as jest.Mock).mockResolvedValueOnce([
+        mockECPs[0],
+      ]);
       (mockPrisma.engineeringChangeProposal.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app)
@@ -878,7 +912,9 @@ describe('Aerospace Configuration Management API Routes', () => {
     });
 
     it('should filter ECPs by urgency', async () => {
-      (mockPrisma.engineeringChangeProposal.findMany as jest.Mock).mockResolvedValueOnce([mockECPs[1]]);
+      (mockPrisma.engineeringChangeProposal.findMany as jest.Mock).mockResolvedValueOnce([
+        mockECPs[1],
+      ]);
       (mockPrisma.engineeringChangeProposal.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app)
@@ -895,7 +931,9 @@ describe('Aerospace Configuration Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.engineeringChangeProposal.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.engineeringChangeProposal.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/configuration/changes')
@@ -916,7 +954,9 @@ describe('Aerospace Configuration Management API Routes', () => {
     };
 
     it('should approve an ECP via CCB with APPROVE decision', async () => {
-      (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockResolvedValueOnce(existingECP);
+      (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockResolvedValueOnce(
+        existingECP
+      );
       (mockPrisma.engineeringChangeProposal.update as jest.Mock).mockResolvedValueOnce({
         ...existingECP,
         status: 'CCB_APPROVED',
@@ -946,7 +986,9 @@ describe('Aerospace Configuration Management API Routes', () => {
     });
 
     it('should set status to CCB_REJECTED for REJECT decision', async () => {
-      (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockResolvedValueOnce(existingECP);
+      (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockResolvedValueOnce(
+        existingECP
+      );
       (mockPrisma.engineeringChangeProposal.update as jest.Mock).mockResolvedValueOnce({
         ...existingECP,
         status: 'CCB_REJECTED',
@@ -971,7 +1013,9 @@ describe('Aerospace Configuration Management API Routes', () => {
     });
 
     it('should set status to UNDER_REVIEW for DEFER decision', async () => {
-      (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockResolvedValueOnce(existingECP);
+      (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockResolvedValueOnce(
+        existingECP
+      );
       (mockPrisma.engineeringChangeProposal.update as jest.Mock).mockResolvedValueOnce({
         ...existingECP,
         status: 'UNDER_REVIEW',
@@ -996,7 +1040,9 @@ describe('Aerospace Configuration Management API Routes', () => {
     });
 
     it('should set status to CCB_APPROVED for APPROVE_WITH_CONDITIONS', async () => {
-      (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockResolvedValueOnce(existingECP);
+      (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockResolvedValueOnce(
+        existingECP
+      );
       (mockPrisma.engineeringChangeProposal.update as jest.Mock).mockResolvedValueOnce({
         ...existingECP,
         status: 'CCB_APPROVED',
@@ -1036,7 +1082,9 @@ describe('Aerospace Configuration Management API Routes', () => {
     });
 
     it('should return 400 when ccbMembers is empty', async () => {
-      (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockResolvedValueOnce(existingECP);
+      (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockResolvedValueOnce(
+        existingECP
+      );
 
       const response = await request(app)
         .put('/api/configuration/changes/00000000-0000-0000-0000-000000000001/approve')
@@ -1051,7 +1099,9 @@ describe('Aerospace Configuration Management API Routes', () => {
     });
 
     it('should return 400 for invalid ccbDecision enum', async () => {
-      (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockResolvedValueOnce(existingECP);
+      (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockResolvedValueOnce(
+        existingECP
+      );
 
       const response = await request(app)
         .put('/api/configuration/changes/00000000-0000-0000-0000-000000000001/approve')
@@ -1066,7 +1116,9 @@ describe('Aerospace Configuration Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/configuration/changes/00000000-0000-0000-0000-000000000001/approve')
@@ -1331,38 +1383,39 @@ describe('Aerospace Configuration Management API Routes', () => {
   describe('GET /api/configuration/status-accounting', () => {
     it('should return a comprehensive status accounting report', async () => {
       // Mock all 27 count calls in order
-      const countMock = jest.fn()
+      const countMock = jest
+        .fn()
         // Baselines: total, active, draft, superseded, archived
-        .mockResolvedValueOnce(10)  // totalBaselines
-        .mockResolvedValueOnce(5)   // activeBaselines
-        .mockResolvedValueOnce(3)   // draftBaselines
-        .mockResolvedValueOnce(1)   // supersededBaselines
-        .mockResolvedValueOnce(1)   // archivedBaselines
+        .mockResolvedValueOnce(10) // totalBaselines
+        .mockResolvedValueOnce(5) // activeBaselines
+        .mockResolvedValueOnce(3) // draftBaselines
+        .mockResolvedValueOnce(1) // supersededBaselines
+        .mockResolvedValueOnce(1) // archivedBaselines
         // Items: total, current, pendingChange, superseded, obsolete
-        .mockResolvedValueOnce(50)  // totalItems
-        .mockResolvedValueOnce(40)  // currentItems
-        .mockResolvedValueOnce(5)   // pendingChangeItems
-        .mockResolvedValueOnce(3)   // supersededItems
-        .mockResolvedValueOnce(2)   // obsoleteItems
+        .mockResolvedValueOnce(50) // totalItems
+        .mockResolvedValueOnce(40) // currentItems
+        .mockResolvedValueOnce(5) // pendingChangeItems
+        .mockResolvedValueOnce(3) // supersededItems
+        .mockResolvedValueOnce(2) // obsoleteItems
         // ECPs: total, proposed, underReview, approved, rejected, implementing, implemented, verified, closed
-        .mockResolvedValueOnce(20)  // totalECPs
-        .mockResolvedValueOnce(3)   // proposedECPs
-        .mockResolvedValueOnce(2)   // underReviewECPs
-        .mockResolvedValueOnce(5)   // approvedECPs
-        .mockResolvedValueOnce(1)   // rejectedECPs
-        .mockResolvedValueOnce(4)   // implementingECPs
-        .mockResolvedValueOnce(2)   // implementedECPs
-        .mockResolvedValueOnce(1)   // verifiedECPs
-        .mockResolvedValueOnce(2)   // closedECPs
+        .mockResolvedValueOnce(20) // totalECPs
+        .mockResolvedValueOnce(3) // proposedECPs
+        .mockResolvedValueOnce(2) // underReviewECPs
+        .mockResolvedValueOnce(5) // approvedECPs
+        .mockResolvedValueOnce(1) // rejectedECPs
+        .mockResolvedValueOnce(4) // implementingECPs
+        .mockResolvedValueOnce(2) // implementedECPs
+        .mockResolvedValueOnce(1) // verifiedECPs
+        .mockResolvedValueOnce(2) // closedECPs
         // Audits: total, planned, completed, fca, pca, pass, passWithFindings, fail
-        .mockResolvedValueOnce(8)   // totalAudits
-        .mockResolvedValueOnce(3)   // plannedAudits
-        .mockResolvedValueOnce(5)   // completedAudits
-        .mockResolvedValueOnce(4)   // fcaCount
-        .mockResolvedValueOnce(4)   // pcaCount
-        .mockResolvedValueOnce(3)   // passAudits
-        .mockResolvedValueOnce(1)   // passWithFindingsAudits
-        .mockResolvedValueOnce(1);  // failAudits
+        .mockResolvedValueOnce(8) // totalAudits
+        .mockResolvedValueOnce(3) // plannedAudits
+        .mockResolvedValueOnce(5) // completedAudits
+        .mockResolvedValueOnce(4) // fcaCount
+        .mockResolvedValueOnce(4) // pcaCount
+        .mockResolvedValueOnce(3) // passAudits
+        .mockResolvedValueOnce(1) // passWithFindingsAudits
+        .mockResolvedValueOnce(1); // failAudits
 
       // Replace count methods on all models with this single mock
       (mockPrisma.configBaseline.count as jest.Mock) = countMock;

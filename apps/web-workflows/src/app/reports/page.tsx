@@ -5,11 +5,36 @@ import { Card, CardContent, CardHeader, CardTitle, Button } from '@ims/ui';
 import { BarChart3, Download, Clock, CheckCircle, AlertTriangle, TrendingUp } from 'lucide-react';
 
 const reports = [
-  { id: 'completion', name: 'Workflow Completion Report', description: 'Completion rates and average duration by workflow type', icon: CheckCircle },
-  { id: 'sla', name: 'SLA Performance', description: 'Track task completion against SLA targets', icon: Clock },
-  { id: 'bottlenecks', name: 'Bottleneck Analysis', description: 'Identify slow steps and process bottlenecks', icon: AlertTriangle },
-  { id: 'volume', name: 'Volume Trends', description: 'Workflow instance volume over time', icon: TrendingUp },
-  { id: 'approvals', name: 'Approval Metrics', description: 'Average approval time and rejection rates', icon: BarChart3 },
+  {
+    id: 'completion',
+    name: 'Workflow Completion Report',
+    description: 'Completion rates and average duration by workflow type',
+    icon: CheckCircle,
+  },
+  {
+    id: 'sla',
+    name: 'SLA Performance',
+    description: 'Track task completion against SLA targets',
+    icon: Clock,
+  },
+  {
+    id: 'bottlenecks',
+    name: 'Bottleneck Analysis',
+    description: 'Identify slow steps and process bottlenecks',
+    icon: AlertTriangle,
+  },
+  {
+    id: 'volume',
+    name: 'Volume Trends',
+    description: 'Workflow instance volume over time',
+    icon: TrendingUp,
+  },
+  {
+    id: 'approvals',
+    name: 'Approval Metrics',
+    description: 'Average approval time and rejection rates',
+    icon: BarChart3,
+  },
 ];
 
 export default function ReportsPage() {
@@ -20,10 +45,18 @@ export default function ReportsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Workflow Reports</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Analytics and performance insights for workflows</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Workflow Reports
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Analytics and performance insights for workflows
+            </p>
           </div>
-          <select value={period} onChange={(e) => setPeriod(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+          <select
+            value={period}
+            onChange={(e) => setPeriod(e.target.value)}
+            className="border rounded-md px-3 py-2 text-sm"
+          >
             <option value="last7">Last 7 days</option>
             <option value="last30">Last 30 days</option>
             <option value="last90">Last 90 days</option>
@@ -43,7 +76,9 @@ export default function ReportsPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{report.description}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    {report.description}
+                  </p>
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" className="flex items-center gap-1">
                       <BarChart3 className="h-4 w-4" /> View

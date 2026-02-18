@@ -1,7 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, DollarSign, Percent, Settings, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  Plus,
+  DollarSign,
+  Percent,
+  Settings,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
 import { AIDisclosure } from '@ims/ui';
 import api, { aiApi } from '@/lib/api';
 
@@ -66,7 +74,9 @@ export default function SalaryPage() {
     try {
       await api.post('/salary/component-types', {
         ...formData,
-        defaultPercentage: formData.defaultPercentage ? parseFloat(formData.defaultPercentage) : undefined,
+        defaultPercentage: formData.defaultPercentage
+          ? parseFloat(formData.defaultPercentage)
+          : undefined,
       });
       setShowModal(false);
       setFormData({
@@ -228,7 +238,9 @@ export default function SalaryPage() {
           >
             <div className="flex items-center space-x-2">
               <Sparkles className="h-5 w-5 text-purple-600" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">AI Salary Benchmark</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                AI Salary Benchmark
+              </h3>
             </div>
             {aiExpanded ? (
               <ChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" />
@@ -238,10 +250,17 @@ export default function SalaryPage() {
           </button>
           {aiExpanded && (
             <div className="mt-4 space-y-3">
-              <AIDisclosure variant="inline" provider="claude" analysisType="Salary Analysis" confidence={0.85} />
+              <AIDisclosure
+                variant="inline"
+                provider="claude"
+                analysisType="Salary Analysis"
+                confidence={0.85}
+              />
               {aiResult.marketRange && (
                 <div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Market Range:</p>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Market Range:
+                  </p>
                   <div className="mt-1 grid grid-cols-3 gap-4">
                     <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-3 text-center">
                       <p className="text-xs text-gray-500 dark:text-gray-400">Low</p>
@@ -278,8 +297,7 @@ export default function SalaryPage() {
               )}
               {aiResult.percentile !== undefined && (
                 <p className="text-sm text-gray-700 dark:text-gray-300">
-                  <span className="font-medium">Percentile:</span>{' '}
-                  {aiResult.percentile}th
+                  <span className="font-medium">Percentile:</span> {aiResult.percentile}th
                 </p>
               )}
               {aiResult.recommendations && aiResult.recommendations.length > 0 && (
@@ -340,23 +358,31 @@ export default function SalaryPage() {
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">{component.name}</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        {component.name}
+                      </p>
                       {component.description && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{component.description}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {component.description}
+                        </p>
                       )}
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                      component.type === 'EARNING'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                        component.type === 'EARNING'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}
+                    >
                       {component.type}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getCategoryBadge(component.category)}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getCategoryBadge(component.category)}`}
+                    >
                       {component.category}
                     </span>
                   </td>
@@ -372,11 +398,13 @@ export default function SalaryPage() {
                     )}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                      component.isActive
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-800'
-                    }`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                        component.isActive
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-800'
+                      }`}
+                    >
                       {component.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
@@ -391,11 +419,15 @@ export default function SalaryPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="w-full max-w-lg rounded-lg bg-white dark:bg-gray-900 p-6 shadow-xl">
-            <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100">Add Salary Component Type</h2>
+            <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100">
+              Add Salary Component Type
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Code</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Code
+                  </label>
                   <input
                     type="text"
                     value={formData.code}
@@ -405,7 +437,9 @@ export default function SalaryPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Name
+                  </label>
                   <input
                     type="text"
                     value={formData.name}
@@ -416,7 +450,9 @@ export default function SalaryPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Description
+                </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -426,7 +462,9 @@ export default function SalaryPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Type</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Type
+                  </label>
                   <select
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
@@ -437,7 +475,9 @@ export default function SalaryPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Category
+                  </label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -456,10 +496,14 @@ export default function SalaryPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Calculation Type</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Calculation Type
+                  </label>
                   <select
                     value={formData.defaultCalculationType}
-                    onChange={(e) => setFormData({ ...formData, defaultCalculationType: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, defaultCalculationType: e.target.value })
+                    }
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
                   >
                     <option value="FIXED">Fixed Amount</option>
@@ -470,12 +514,16 @@ export default function SalaryPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Default %</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Default %
+                  </label>
                   <input
                     type="number"
                     step="0.01"
                     value={formData.defaultPercentage}
-                    onChange={(e) => setFormData({ ...formData, defaultPercentage: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, defaultPercentage: e.target.value })
+                    }
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
                   />
                 </div>

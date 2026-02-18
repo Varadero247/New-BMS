@@ -45,7 +45,10 @@ router.post('/:orgId/send-reminder', authenticate, async (req: Request, res: Res
     const { orgId } = req.params;
     const parsed = sendReminderSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { type } = parsed.data;
@@ -61,10 +64,14 @@ router.post('/:orgId/send-reminder', authenticate, async (req: Request, res: Res
       });
     }
 
-    const updateField = type === 'day90' ? 'day90Sent'
-      : type === 'day60' ? 'day60Sent'
-      : type === 'day30' ? 'day30Sent'
-      : 'day7Sent';
+    const updateField =
+      type === 'day90'
+        ? 'day90Sent'
+        : type === 'day60'
+          ? 'day60Sent'
+          : type === 'day30'
+            ? 'day30Sent'
+            : 'day7Sent';
 
     await prisma.mktRenewalSequence.update({
       where: { orgId },
@@ -97,11 +104,16 @@ router.post('/:orgId/send-reminder', authenticate, async (req: Request, res: Res
 
 function getRenewalSubject(type: string): string {
   switch (type) {
-    case 'day90': return 'Your Nexara renewal is coming up — here\'s your year in review';
-    case 'day60': return 'How your team compares — Nexara usage benchmark';
-    case 'day30': return 'A thank-you for your first year — exclusive renewal offer inside';
-    case 'day7': return 'Your renewal is in 7 days — special offer enclosed';
-    default: return 'Nexara renewal reminder';
+    case 'day90':
+      return "Your Nexara renewal is coming up — here's your year in review";
+    case 'day60':
+      return 'How your team compares — Nexara usage benchmark';
+    case 'day30':
+      return 'A thank-you for your first year — exclusive renewal offer inside';
+    case 'day7':
+      return 'Your renewal is in 7 days — special offer enclosed';
+    default:
+      return 'Nexara renewal reminder';
   }
 }
 

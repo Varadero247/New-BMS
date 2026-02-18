@@ -39,10 +39,7 @@ describe('Prometheus metrics', () => {
       expect(metricNames.length).toBeGreaterThan(0);
       // At least one default metric should be present
       expect(
-        metricNames.some(
-          (name) =>
-            name.startsWith('process_') || name.startsWith('nodejs_')
-        )
+        metricNames.some((name) => name.startsWith('process_') || name.startsWith('nodejs_'))
       ).toBe(true);
     });
   });
@@ -147,10 +144,7 @@ describe('Prometheus metrics', () => {
 
       await metricsHandler(mockReq, mockRes);
 
-      expect(mockRes.set).toHaveBeenCalledWith(
-        'Content-Type',
-        expect.stringContaining('text/')
-      );
+      expect(mockRes.set).toHaveBeenCalledWith('Content-Type', expect.stringContaining('text/'));
     });
   });
 });

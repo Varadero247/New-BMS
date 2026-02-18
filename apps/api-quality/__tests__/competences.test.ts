@@ -164,11 +164,16 @@ describe('Competences Routes', () => {
   describe('PUT /api/competences/:id', () => {
     it('should update a competence', async () => {
       (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(mockCompetence);
-      (prisma.qualCompetence.update as jest.Mock).mockResolvedValue({ ...mockCompetence, status: 'COMPETENT' });
-
-      const res = await request(app).put('/api/competences/00000000-0000-0000-0000-000000000001').send({
+      (prisma.qualCompetence.update as jest.Mock).mockResolvedValue({
+        ...mockCompetence,
         status: 'COMPETENT',
       });
+
+      const res = await request(app)
+        .put('/api/competences/00000000-0000-0000-0000-000000000001')
+        .send({
+          status: 'COMPETENT',
+        });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.status).toBe('COMPETENT');
@@ -177,9 +182,11 @@ describe('Competences Routes', () => {
     it('should return 404 if not found', async () => {
       (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/competences/00000000-0000-0000-0000-000000000099').send({
-        status: 'COMPETENT',
-      });
+      const res = await request(app)
+        .put('/api/competences/00000000-0000-0000-0000-000000000099')
+        .send({
+          status: 'COMPETENT',
+        });
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
     });
@@ -188,9 +195,11 @@ describe('Competences Routes', () => {
       (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(mockCompetence);
       (prisma.qualCompetence.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).put('/api/competences/00000000-0000-0000-0000-000000000001').send({
-        status: 'COMPETENT',
-      });
+      const res = await request(app)
+        .put('/api/competences/00000000-0000-0000-0000-000000000001')
+        .send({
+          status: 'COMPETENT',
+        });
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
@@ -199,9 +208,14 @@ describe('Competences Routes', () => {
   describe('DELETE /api/competences/:id', () => {
     it('should soft delete a competence', async () => {
       (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(mockCompetence);
-      (prisma.qualCompetence.update as jest.Mock).mockResolvedValue({ ...mockCompetence, deletedAt: new Date().toISOString() });
+      (prisma.qualCompetence.update as jest.Mock).mockResolvedValue({
+        ...mockCompetence,
+        deletedAt: new Date().toISOString(),
+      });
 
-      const res = await request(app).delete('/api/competences/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/competences/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(prisma.qualCompetence.update).toHaveBeenCalledWith(
@@ -212,7 +226,9 @@ describe('Competences Routes', () => {
     it('should return 404 if not found', async () => {
       (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/competences/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/competences/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
     });
@@ -220,7 +236,9 @@ describe('Competences Routes', () => {
     it('should handle delete errors', async () => {
       (prisma.qualCompetence.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/competences/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/competences/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });

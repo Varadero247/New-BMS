@@ -19,13 +19,7 @@ router.param('productId', validateIdParam('productId'));
 // GET /api/inventory - List inventory levels
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
-    const {
-      page = '1',
-      limit = '20',
-      warehouseId,
-      productId,
-      lowStock,
-    } = req.query;
+    const { page = '1', limit = '20', warehouseId, productId, lowStock } = req.query;
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
@@ -55,7 +49,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     ]);
 
     // Add calculated available quantity
-    const inventoryWithAvailable = inventory.map(inv => ({
+    const inventoryWithAvailable = inventory.map((inv) => ({
       ...inv,
       quantityAvailable: inv.quantityOnHand - inv.quantityReserved,
     }));
@@ -67,7 +61,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List inventory error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list inventory' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list inventory' },
+    });
   }
 });
 
@@ -75,14 +72,11 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/summary', async (req: AuthRequest, res: Response) => {
   try {
     const { warehouseId } = req.query;
-    const where: Prisma.InventoryWhereInput = warehouseId ? { warehouseId: warehouseId as string } : {};
+    const where: Prisma.InventoryWhereInput = warehouseId
+      ? { warehouseId: warehouseId as string }
+      : {};
 
-    const [
-      totalProducts,
-      inventoryStats,
-      lowStockCount,
-      recentTransactions
-    ] = await Promise.all([
+    const [totalProducts, inventoryStats, lowStockCount, recentTransactions] = await Promise.all([
       prisma.product.count({ where: { status: 'ACTIVE' } }),
       prisma.inventory.aggregate({
         where,
@@ -121,7 +115,10 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Inventory summary error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get inventory summary' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get inventory summary' },
+    });
   }
 });
 
@@ -133,7 +130,8 @@ router.get('/availability/:productId', async (req: AuthRequest, res: Response) =
       include: {
         warehouse: { select: { id: true, code: true, name: true, isActive: true } },
       },
-      take: 1000});
+      take: 1000,
+    });
 
     const product = await prisma.product.findUnique({
       where: { id: req.params.productId },
@@ -141,7 +139,9 @@ router.get('/availability/:productId', async (req: AuthRequest, res: Response) =
     });
 
     if (!product) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } });
     }
 
     const totalOnHand = inventory.reduce((sum, inv) => sum + inv.quantityOnHand, 0);
@@ -156,7 +156,7 @@ router.get('/availability/:productId', async (req: AuthRequest, res: Response) =
         totalReserved,
         totalAvailable,
         isLowStock: totalOnHand <= product.reorderPoint,
-        byWarehouse: inventory.map(inv => ({
+        byWarehouse: inventory.map((inv) => ({
           warehouse: inv.warehouse,
           quantityOnHand: inv.quantityOnHand,
           quantityReserved: inv.quantityReserved,
@@ -167,7 +167,10 @@ router.get('/availability/:productId', async (req: AuthRequest, res: Response) =
     });
   } catch (error) {
     logger.error('Check availability error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to check availability' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to check availability' },
+    });
   }
 });
 
@@ -177,7 +180,13 @@ router.post('/adjust', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       productId: z.string(),
       warehouseId: z.string(),
-      adjustmentType: z.enum(['ADJUSTMENT_IN', 'ADJUSTMENT_OUT', 'CYCLE_COUNT', 'DAMAGE', 'EXPIRED']),
+      adjustmentType: z.enum([
+        'ADJUSTMENT_IN',
+        'ADJUSTMENT_OUT',
+        'CYCLE_COUNT',
+        'DAMAGE',
+        'EXPIRED',
+      ]),
       quantity: z.number().int(),
       reason: z.string().trim().min(1).max(2000),
       notes: z.string().optional(),
@@ -207,7 +216,7 @@ router.post('/adjust', async (req: AuthRequest, res: Response) => {
       if (quantityBefore + quantityChange < 0) {
         return res.status(400).json({
           success: false,
-          error: { code: 'INSUFFICIENT_STOCK', message: 'Insufficient stock for this adjustment' }
+          error: { code: 'INSUFFICIENT_STOCK', message: 'Insufficient stock for this adjustment' },
         });
       }
     }
@@ -238,7 +247,8 @@ router.post('/adjust', async (req: AuthRequest, res: Response) => {
         data: {
           quantityOnHand: quantityAfter,
           binLocation: data.binLocation || inventory.binLocation,
-          lastCountedAt: data.adjustmentType === 'CYCLE_COUNT' ? new Date() : inventory.lastCountedAt,
+          lastCountedAt:
+            data.adjustmentType === 'CYCLE_COUNT' ? new Date() : inventory.lastCountedAt,
           version: { increment: 1 },
           updatedById: req.user?.id,
         },
@@ -276,10 +286,20 @@ router.post('/adjust', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Stock adjustment error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to adjust stock' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to adjust stock' },
+    });
   }
 });
 
@@ -302,7 +322,10 @@ router.post('/transfer', async (req: AuthRequest, res: Response) => {
     if (data.fromWarehouseId === data.toWarehouseId) {
       return res.status(400).json({
         success: false,
-        error: { code: 'SAME_WAREHOUSE', message: 'Source and destination warehouse cannot be the same' }
+        error: {
+          code: 'SAME_WAREHOUSE',
+          message: 'Source and destination warehouse cannot be the same',
+        },
       });
     }
 
@@ -319,7 +342,7 @@ router.post('/transfer', async (req: AuthRequest, res: Response) => {
     if (!sourceInventory || sourceInventory.quantityOnHand < data.quantity) {
       return res.status(400).json({
         success: false,
-        error: { code: 'INSUFFICIENT_STOCK', message: 'Insufficient stock in source warehouse' }
+        error: { code: 'INSUFFICIENT_STOCK', message: 'Insufficient stock in source warehouse' },
       });
     }
 
@@ -435,10 +458,20 @@ router.post('/transfer', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Transfer error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to transfer stock' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to transfer stock' },
+    });
   }
 });
 
@@ -454,7 +487,10 @@ router.post('/receive', async (req: AuthRequest, res: Response) => {
       referenceId: z.string().optional(),
       binLocation: z.string().optional(),
       lotNumber: z.string().optional(),
-      expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      expiryDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       notes: z.string().optional(),
     });
 
@@ -476,7 +512,8 @@ router.post('/receive', async (req: AuthRequest, res: Response) => {
     // Calculate new average cost
     const totalValueBefore = Number(inventory?.averageCost || 0) * quantityBefore;
     const newValue = data.unitCost * data.quantity;
-    const newAverageCost = quantityAfter > 0 ? (totalValueBefore + newValue) / quantityAfter : data.unitCost;
+    const newAverageCost =
+      quantityAfter > 0 ? (totalValueBefore + newValue) / quantityAfter : data.unitCost;
 
     if (!inventory) {
       inventory = await prisma.inventory.create({
@@ -542,10 +579,20 @@ router.post('/receive', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Receive goods error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to receive goods' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to receive goods' },
+    });
   }
 });
 
@@ -578,7 +625,10 @@ router.post('/issue', async (req: AuthRequest, res: Response) => {
     if (!inventory) {
       return res.status(400).json({
         success: false,
-        error: { code: 'NO_INVENTORY', message: 'No inventory record found for this product in this warehouse' }
+        error: {
+          code: 'NO_INVENTORY',
+          message: 'No inventory record found for this product in this warehouse',
+        },
       });
     }
 
@@ -586,7 +636,10 @@ router.post('/issue', async (req: AuthRequest, res: Response) => {
     if (availableQty < data.quantity) {
       return res.status(400).json({
         success: false,
-        error: { code: 'INSUFFICIENT_STOCK', message: `Insufficient available stock. Available: ${availableQty}` }
+        error: {
+          code: 'INSUFFICIENT_STOCK',
+          message: `Insufficient available stock. Available: ${availableQty}`,
+        },
       });
     }
 
@@ -635,10 +688,20 @@ router.post('/issue', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Issue goods error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to issue goods' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to issue goods' },
+    });
   }
 });
 

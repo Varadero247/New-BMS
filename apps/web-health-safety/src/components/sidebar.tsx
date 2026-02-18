@@ -39,17 +39,13 @@ interface NavGroup {
 const navGroups: NavGroup[] = [
   {
     title: 'Overview',
-    items: [
-      { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    ],
+    items: [{ name: 'Dashboard', href: '/', icon: LayoutDashboard }],
   },
   {
     title: 'Leadership (Cl. 5)',
     clause: '5',
     collapsible: true,
-    items: [
-      { name: 'Objectives', href: '/objectives', icon: Target },
-    ],
+    items: [{ name: 'Objectives', href: '/objectives', icon: Target }],
   },
   {
     title: 'Planning (Cl. 6)',
@@ -84,16 +80,12 @@ const navGroups: NavGroup[] = [
     title: 'Performance (Cl. 9)',
     clause: '9',
     collapsible: true,
-    items: [
-      { name: 'Metrics', href: '/metrics', icon: BarChart3 },
-    ],
+    items: [{ name: 'Metrics', href: '/metrics', icon: BarChart3 }],
   },
   {
     title: 'Tools',
     collapsible: true,
-    items: [
-      { name: 'Templates', href: '/templates', icon: FileText },
-    ],
+    items: [{ name: 'Templates', href: '/templates', icon: FileText }],
   },
 ];
 
@@ -104,17 +96,9 @@ const externalLinks: NavItem[] = [
   { name: 'Settings', href: `${APP_BASE}:3004`, icon: Settings, external: true },
 ];
 
-function CollapsibleSection({
-  group,
-  pathname,
-}: {
-  group: NavGroup;
-  pathname: string;
-}) {
+function CollapsibleSection({ group, pathname }: { group: NavGroup; pathname: string }) {
   const hasActive = group.items.some(
-    (item) =>
-      pathname === item.href ||
-      (item.href !== '/' && pathname.startsWith(item.href))
+    (item) => pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
   );
   const [open, setOpen] = React.useState(hasActive || !group.collapsible);
 
@@ -145,8 +129,7 @@ function CollapsibleSection({
           {group.items.map((item) => {
             const Icon = item.icon;
             const isActive =
-              pathname === item.href ||
-              (item.href !== '/' && pathname.startsWith(item.href));
+              pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
 
             return (
               <li key={item.name}>
@@ -187,9 +170,7 @@ export function Sidebar() {
         <h1 className="text-lg font-bold font-display text-brand-900 dark:text-brand-100">
           Health &amp; Safety
         </h1>
-        <p className="text-xs text-brand-600 dark:text-brand-400 mt-0.5">
-          ISO 45001:2018 OH&amp;S
-        </p>
+        <p className="text-xs text-brand-600 dark:text-brand-400 mt-0.5">ISO 45001:2018 OH&amp;S</p>
       </div>
 
       {/* Navigation */}

@@ -69,24 +69,17 @@ export interface PrismaCursorQuery {
  * - `direction` - Sort direction ('asc' or 'desc', default 'desc')
  * - `sortBy` - Field to sort by (default 'createdAt')
  */
-export function parseCursorParams(
-  query: Record<string, any>
-): CursorPaginationParams {
-  const cursor = typeof query.cursor === 'string' && query.cursor.length > 0
-    ? query.cursor
-    : undefined;
+export function parseCursorParams(query: Record<string, any>): CursorPaginationParams {
+  const cursor =
+    typeof query.cursor === 'string' && query.cursor.length > 0 ? query.cursor : undefined;
 
   const rawLimit = parseInt(query.limit as string, 10);
-  const limit = Number.isNaN(rawLimit)
-    ? 20
-    : Math.min(Math.max(1, rawLimit), 100);
+  const limit = Number.isNaN(rawLimit) ? 20 : Math.min(Math.max(1, rawLimit), 100);
 
-  const direction: 'asc' | 'desc' =
-    query.direction === 'asc' ? 'asc' : 'desc';
+  const direction: 'asc' | 'desc' = query.direction === 'asc' ? 'asc' : 'desc';
 
-  const sortBy = typeof query.sortBy === 'string' && query.sortBy.length > 0
-    ? query.sortBy
-    : 'createdAt';
+  const sortBy =
+    typeof query.sortBy === 'string' && query.sortBy.length > 0 ? query.sortBy : 'createdAt';
 
   return { cursor, limit, direction, sortBy };
 }
@@ -100,9 +93,7 @@ export function parseCursorParams(
  * We fetch `limit + 1` items to detect if there are more pages,
  * then trim the extra item in `formatCursorResult`.
  */
-export function buildCursorQuery(
-  params: CursorPaginationParams
-): PrismaCursorQuery {
+export function buildCursorQuery(params: CursorPaginationParams): PrismaCursorQuery {
   const query: PrismaCursorQuery = {
     // Fetch one extra to detect hasMore
     take: params.limit + 1,
@@ -131,9 +122,7 @@ export function formatCursorResult<T extends { id: string }>(
   const hasMore = items.length > params.limit;
   const data = hasMore ? items.slice(0, params.limit) : items;
 
-  const nextCursor = hasMore && data.length > 0
-    ? data[data.length - 1].id
-    : null;
+  const nextCursor = hasMore && data.length > 0 ? data[data.length - 1].id : null;
 
   const prevCursor = params.cursor ?? null;
 

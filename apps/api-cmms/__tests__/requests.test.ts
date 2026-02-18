@@ -3,7 +3,13 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    cmmsRequest: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    cmmsRequest: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
     cmmsWorkOrder: { create: jest.fn() },
   },
   Prisma: { Decimal: jest.fn((v: any) => v) },
@@ -145,14 +151,18 @@ describe('Requests Routes', () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue(mockRequest);
       prisma.cmmsRequest.update.mockResolvedValue({ ...mockRequest, title: 'Updated' });
 
-      const res = await request(app).put('/api/requests/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
+      const res = await request(app)
+        .put('/api/requests/00000000-0000-0000-0000-000000000001')
+        .send({ title: 'Updated' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent request', async () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/requests/00000000-0000-0000-0000-000000000099').send({ title: 'Updated' });
+      const res = await request(app)
+        .put('/api/requests/00000000-0000-0000-0000-000000000099')
+        .send({ title: 'Updated' });
       expect(res.status).toBe(404);
     });
   });
@@ -161,9 +171,15 @@ describe('Requests Routes', () => {
     it('should approve a request and create work order', async () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue(mockRequest);
       prisma.cmmsWorkOrder.create.mockResolvedValue({ id: 'wo-new', number: 'WO-2602-9999' });
-      prisma.cmmsRequest.update.mockResolvedValue({ ...mockRequest, status: 'APPROVED', workOrderId: 'wo-new' });
+      prisma.cmmsRequest.update.mockResolvedValue({
+        ...mockRequest,
+        status: 'APPROVED',
+        workOrderId: 'wo-new',
+      });
 
-      const res = await request(app).put('/api/requests/00000000-0000-0000-0000-000000000001/approve');
+      const res = await request(app).put(
+        '/api/requests/00000000-0000-0000-0000-000000000001/approve'
+      );
       expect(res.status).toBe(200);
       expect(res.body.data.request).toBeDefined();
       expect(res.body.data.workOrder).toBeDefined();
@@ -172,14 +188,18 @@ describe('Requests Routes', () => {
     it('should return 400 for non-NEW request', async () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue({ ...mockRequest, status: 'APPROVED' });
 
-      const res = await request(app).put('/api/requests/00000000-0000-0000-0000-000000000001/approve');
+      const res = await request(app).put(
+        '/api/requests/00000000-0000-0000-0000-000000000001/approve'
+      );
       expect(res.status).toBe(400);
     });
 
     it('should return 404 for non-existent request', async () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/requests/00000000-0000-0000-0000-000000000099/approve');
+      const res = await request(app).put(
+        '/api/requests/00000000-0000-0000-0000-000000000099/approve'
+      );
       expect(res.status).toBe(404);
     });
 
@@ -187,7 +207,9 @@ describe('Requests Routes', () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue(mockRequest);
       prisma.cmmsWorkOrder.create.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).put('/api/requests/00000000-0000-0000-0000-000000000001/approve');
+      const res = await request(app).put(
+        '/api/requests/00000000-0000-0000-0000-000000000001/approve'
+      );
       expect(res.status).toBe(500);
     });
   });

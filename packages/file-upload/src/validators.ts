@@ -28,13 +28,9 @@ export interface FileInfo {
 /**
  * Validate file size
  */
-export function validateFileSize(
-  size: number,
-  mimeType?: string
-): FileValidationResult {
-  const maxSize = mimeType && MAX_FILE_SIZE_BY_TYPE[mimeType]
-    ? MAX_FILE_SIZE_BY_TYPE[mimeType]
-    : MAX_FILE_SIZE;
+export function validateFileSize(size: number, mimeType?: string): FileValidationResult {
+  const maxSize =
+    mimeType && MAX_FILE_SIZE_BY_TYPE[mimeType] ? MAX_FILE_SIZE_BY_TYPE[mimeType] : MAX_FILE_SIZE;
 
   if (size > maxSize) {
     const maxMB = (maxSize / (1024 * 1024)).toFixed(1);

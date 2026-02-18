@@ -242,8 +242,10 @@ const validHazardPayload = {
 const validBenefitRiskPayload = {
   overallRiskAcceptable: true,
   benefitRiskAcceptable: true,
-  benefitRiskAnalysis: 'The benefits of cardiac pacing for life-threatening bradycardia outweigh the residual risks. All identified hazards have been reduced to acceptable levels through design controls and protective measures.',
-  reportSummary: 'Risk management file complete. 3 hazards identified, all mitigated. Residual risk acceptable per ISO 14971.',
+  benefitRiskAnalysis:
+    'The benefits of cardiac pacing for life-threatening bradycardia outweigh the residual risks. All identified hazards have been reduced to acceptable levels through design controls and protective measures.',
+  reportSummary:
+    'Risk management file complete. 3 hazards identified, all mitigated. Residual risk acceptable per ISO 14971.',
 };
 
 // ==========================================
@@ -438,7 +440,9 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
 
     it('should handle database errors gracefully', async () => {
       (mockPrisma.riskManagementFile.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.riskManagementFile.create as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.riskManagementFile.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
       const response = await request(app)
         .post('/api/risk')
@@ -457,12 +461,13 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
   // ==========================================
   describe('GET /api/risk', () => {
     it('should return a list of RMFs with default pagination', async () => {
-      (mockPrisma.riskManagementFile.findMany as jest.Mock).mockResolvedValueOnce([mockRMF, mockRMF2]);
+      (mockPrisma.riskManagementFile.findMany as jest.Mock).mockResolvedValueOnce([
+        mockRMF,
+        mockRMF2,
+      ]);
       (mockPrisma.riskManagementFile.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/risk')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/risk').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -518,9 +523,7 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
       (mockPrisma.riskManagementFile.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.riskManagementFile.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/risk?status=DRAFT')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/risk?status=DRAFT').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.riskManagementFile.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -536,9 +539,7 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
       (mockPrisma.riskManagementFile.findMany as jest.Mock).mockResolvedValueOnce([mockRMF]);
       (mockPrisma.riskManagementFile.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/risk?deviceName=pacemaker')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/risk?deviceName=pacemaker').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.riskManagementFile.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -554,9 +555,7 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
       (mockPrisma.riskManagementFile.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.riskManagementFile.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/risk')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/risk').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.riskManagementFile.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -569,9 +568,7 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
       (mockPrisma.riskManagementFile.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.riskManagementFile.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/risk')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/risk').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.riskManagementFile.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -586,9 +583,7 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
       (mockPrisma.riskManagementFile.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.riskManagementFile.count as jest.Mock).mockResolvedValueOnce(0);
 
-      const response = await request(app)
-        .get('/api/risk')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/risk').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.data).toEqual([]);
@@ -597,11 +592,11 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.riskManagementFile.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.riskManagementFile.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
-      const response = await request(app)
-        .get('/api/risk')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/risk').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -615,7 +610,9 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
   // ==========================================
   describe('GET /api/risk/:id', () => {
     it('should return an RMF with hazards and controls included', async () => {
-      (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValueOnce(mockRMFWithHazards);
+      (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockRMFWithHazards
+      );
 
       const response = await request(app)
         .get(`/api/risk/${mockRMF.id}`)
@@ -671,7 +668,9 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get(`/api/risk/${mockRMF.id}`)
@@ -849,9 +848,18 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
 
     it('should accept all valid hazard categories', async () => {
       const categories = [
-        'ENERGY', 'BIOLOGICAL', 'ENVIRONMENTAL', 'WRONG_OUTPUT',
-        'USE_ERROR', 'FUNCTIONALITY', 'CHEMICAL', 'ELECTROMAGNETIC',
-        'RADIATION', 'MECHANICAL', 'THERMAL', 'OTHER',
+        'ENERGY',
+        'BIOLOGICAL',
+        'ENVIRONMENTAL',
+        'WRONG_OUTPUT',
+        'USE_ERROR',
+        'FUNCTIONALITY',
+        'CHEMICAL',
+        'ELECTROMAGNETIC',
+        'RADIATION',
+        'MECHANICAL',
+        'THERMAL',
+        'OTHER',
       ];
 
       for (const category of categories) {
@@ -1170,7 +1178,9 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
       (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/risk/00000000-0000-4000-a000-ffffffffffff/hazards/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/risk/00000000-0000-4000-a000-ffffffffffff/hazards/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ notes: 'test' });
 
@@ -1348,7 +1358,9 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put(`/api/risk/${mockRMF.id}/hazards/${mockHazard1.id}`)
@@ -1546,7 +1558,9 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
 
     it('should handle database errors gracefully', async () => {
       (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValueOnce(mockRMF);
-      (mockPrisma.riskManagementFile.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.riskManagementFile.update as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post(`/api/risk/${mockRMF.id}/benefit-risk`)
@@ -1584,9 +1598,7 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
             riskLevelBefore: 'LOW',
             riskLevelAfter: 'NEGLIGIBLE',
             residualRiskAcceptable: true,
-            controls: [
-              { ...mockControl3, implementationStatus: 'PLANNED' },
-            ],
+            controls: [{ ...mockControl3, implementationStatus: 'PLANNED' }],
           },
           {
             ...mockHazard3,
@@ -1598,7 +1610,9 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
         ],
       };
 
-      (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValueOnce(rmfWithFullData);
+      (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValueOnce(
+        rmfWithFullData
+      );
 
       const response = await request(app)
         .get(`/api/risk/${mockRMF.id}/report`)
@@ -1663,9 +1677,27 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
       (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValueOnce({
         ...mockRMF,
         hazards: [
-          { ...mockHazard1, residualRiskAcceptable: false, riskLevelBefore: 'HIGH', riskLevelAfter: 'MEDIUM', controls: [] },
-          { ...mockHazard2, residualRiskAcceptable: false, riskLevelBefore: 'MEDIUM', riskLevelAfter: 'MEDIUM', controls: [] },
-          { ...mockHazard3, residualRiskAcceptable: true, riskLevelBefore: 'LOW', riskLevelAfter: 'NEGLIGIBLE', controls: [] },
+          {
+            ...mockHazard1,
+            residualRiskAcceptable: false,
+            riskLevelBefore: 'HIGH',
+            riskLevelAfter: 'MEDIUM',
+            controls: [],
+          },
+          {
+            ...mockHazard2,
+            residualRiskAcceptable: false,
+            riskLevelBefore: 'MEDIUM',
+            riskLevelAfter: 'MEDIUM',
+            controls: [],
+          },
+          {
+            ...mockHazard3,
+            residualRiskAcceptable: true,
+            riskLevelBefore: 'LOW',
+            riskLevelAfter: 'NEGLIGIBLE',
+            controls: [],
+          },
         ],
       });
 
@@ -1707,7 +1739,9 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
     });
 
     it('should include hazards with controls in the report', async () => {
-      (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValueOnce(mockRMFWithHazards);
+      (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockRMFWithHazards
+      );
 
       const response = await request(app)
         .get(`/api/risk/${mockRMF.id}/report`)
@@ -1728,7 +1762,9 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get(`/api/risk/${mockRMF.id}/report`)
@@ -1893,7 +1929,9 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get(`/api/risk/${mockRMF.id}/residual`)

@@ -163,7 +163,10 @@ export default function PEEPPage() {
 
   useEffect(() => {
     loadPEEPs();
-    api.get('/premises').then((r) => setPremises(r.data.data || [])).catch(() => {});
+    api
+      .get('/premises')
+      .then((r) => setPremises(r.data.data || []))
+      .catch(() => {});
   }, [loadPEEPs]);
 
   function openCreate() {
@@ -228,9 +231,7 @@ export default function PEEPPage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                PEEP Register
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">PEEP Register</h1>
               <p className="text-gray-500 dark:text-gray-400 mt-1">
                 Personal Emergency Evacuation Plans for all premises
               </p>
@@ -297,7 +298,9 @@ export default function PEEPPage() {
             </Card>
             <Card>
               <CardContent className="pt-6 text-center">
-                <p className="text-3xl font-bold" style={{ color: '#F04B5A' }}>{overdue}</p>
+                <p className="text-3xl font-bold" style={{ color: '#F04B5A' }}>
+                  {overdue}
+                </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Overdue</p>
               </CardContent>
             </Card>
@@ -362,7 +365,9 @@ export default function PEEPPage() {
                     <TableBody>
                       {peeps.map((peep) => (
                         <TableRow key={peep.id}>
-                          <TableCell className="font-mono text-xs">{peep.referenceNumber}</TableCell>
+                          <TableCell className="font-mono text-xs">
+                            {peep.referenceNumber}
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <div
@@ -402,7 +407,9 @@ export default function PEEPPage() {
                               >
                                 {new Date(peep.nextReviewDate).toLocaleDateString()}
                               </span>
-                            ) : '-'}
+                            ) : (
+                              '-'
+                            )}
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
@@ -480,7 +487,9 @@ export default function PEEPPage() {
                 >
                   <option value="">Select premises...</option>
                   {premises.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -499,7 +508,9 @@ export default function PEEPPage() {
                   onChange={(e) => setForm((f) => ({ ...f, disabilityType: e.target.value }))}
                 >
                   {DISABILITY_TYPES.map((t) => (
-                    <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
+                    <option key={t} value={t}>
+                      {t.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -518,7 +529,9 @@ export default function PEEPPage() {
                   onChange={(e) => setForm((f) => ({ ...f, evacuationMethod: e.target.value }))}
                 >
                   {EVACUATION_METHODS.map((m) => (
-                    <option key={m} value={m}>{m.replace(/_/g, ' ')}</option>
+                    <option key={m} value={m}>
+                      {m.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -550,7 +563,9 @@ export default function PEEPPage() {
             </div>
           </div>
           <ModalFooter>
-            <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
             <Button
               onClick={handleSubmit}
               disabled={saving || !form.personName || !form.premisesId}
@@ -558,8 +573,15 @@ export default function PEEPPage() {
               style={{ backgroundColor: '#F04B5A' }}
             >
               {saving ? (
-                <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</>
-              ) : editId ? 'Update PEEP' : 'Create PEEP'}
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : editId ? (
+                'Update PEEP'
+              ) : (
+                'Create PEEP'
+              )}
             </Button>
           </ModalFooter>
         </Modal>

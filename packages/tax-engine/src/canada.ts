@@ -23,19 +23,27 @@ const EI_MAX_INSURABLE = 63200;
 
 function annualize(pay: number, period: string): number {
   switch (period) {
-    case 'monthly': return pay * 12;
-    case 'weekly': return pay * 52;
-    case 'fortnightly': return pay * 26;
-    default: return pay;
+    case 'monthly':
+      return pay * 12;
+    case 'weekly':
+      return pay * 52;
+    case 'fortnightly':
+      return pay * 26;
+    default:
+      return pay;
   }
 }
 
 function deannualize(amount: number, period: string): number {
   switch (period) {
-    case 'monthly': return amount / 12;
-    case 'weekly': return amount / 52;
-    case 'fortnightly': return amount / 26;
-    default: return amount;
+    case 'monthly':
+      return amount / 12;
+    case 'weekly':
+      return amount / 52;
+    case 'fortnightly':
+      return amount / 26;
+    default:
+      return amount;
   }
 }
 
@@ -46,7 +54,7 @@ function deannualize(amount: number, period: string): number {
  */
 export function calculateCAFederal(
   grossPay: number,
-  period: string = 'annual',
+  period: string = 'annual'
 ): CAFederalTaxResult {
   const annualGross = annualize(grossPay, period);
 

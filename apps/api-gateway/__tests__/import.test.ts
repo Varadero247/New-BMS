@@ -24,11 +24,18 @@ jest.mock('@ims/monitoring', () => ({
   createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
 }));
 
-const mockParseCSV = jest.fn().mockReturnValue({ valid: [{ name: 'Test' }], errors: [], totalRows: 1 });
+const mockParseCSV = jest
+  .fn()
+  .mockReturnValue({ valid: [{ name: 'Test' }], errors: [], totalRows: 1 });
 const mockImportRecords = jest.fn().mockReturnValue({ imported: 5, skipped: 0, errors: [] });
 const mockGetTemplateHeaders = jest.fn().mockReturnValue('name,code,type,status,country,contact');
 const mockGetImportSchema = jest.fn().mockReturnValue({
-  recordType: 'suppliers', label: 'Suppliers', fields: [{ name: 'name', required: true }, { name: 'code', required: true }],
+  recordType: 'suppliers',
+  label: 'Suppliers',
+  fields: [
+    { name: 'name', required: true },
+    { name: 'code', required: true },
+  ],
 });
 
 jest.mock('@ims/csv-import', () => ({
@@ -38,7 +45,11 @@ jest.mock('@ims/csv-import', () => ({
   getImportSchema: (...args: any[]) => mockGetImportSchema(...args),
   IMPORT_SCHEMAS: [
     { recordType: 'suppliers', label: 'Suppliers', fields: [{ name: 'name', required: true }] },
-    { recordType: 'employees', label: 'Employees', fields: [{ name: 'firstName', required: true }] },
+    {
+      recordType: 'employees',
+      label: 'Employees',
+      fields: [{ name: 'firstName', required: true }],
+    },
   ],
   getImportedRecords: jest.fn().mockReturnValue([]),
 }));
@@ -101,7 +112,9 @@ describe('Import Routes', () => {
     it('returns 404 for unknown type', async () => {
       mockGetTemplateHeaders.mockReturnValueOnce(null);
       mockGetImportSchema.mockReturnValueOnce(undefined);
-      const res = await request(app).get('/api/admin/import/templates/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).get(
+        '/api/admin/import/templates/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
     });
   });

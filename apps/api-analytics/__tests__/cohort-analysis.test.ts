@@ -24,7 +24,11 @@ beforeEach(() => {
 
 describe('runCohortAnalysis', () => {
   it('creates initial cohort with 100% retention for month 1', async () => {
-    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({ cohortMonth: '2026-03', measureMonth: '2026-03', retentionPct: 100 });
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({
+      cohortMonth: '2026-03',
+      measureMonth: '2026-03',
+      retentionPct: 100,
+    });
 
     await runCohortAnalysis(1, '2026-03');
 

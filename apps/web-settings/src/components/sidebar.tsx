@@ -60,9 +60,7 @@ const navigation = [
 
 const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
 
-const externalLinks = [
-  { name: 'IMS Dashboard', href: `${APP_BASE}:3000`, icon: Home },
-];
+const externalLinks = [{ name: 'IMS Dashboard', href: `${APP_BASE}:3000`, icon: Home }];
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -71,7 +69,9 @@ export function Sidebar() {
     <aside className="w-64 bg-card border-r border-border flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-border bg-gray-50 dark:bg-gray-800/50">
-        <h1 className="text-xl font-bold font-display text-gray-900 dark:text-gray-100">Settings</h1>
+        <h1 className="text-xl font-bold font-display text-gray-900 dark:text-gray-100">
+          Settings
+        </h1>
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">System Administration</p>
       </div>
 
@@ -92,7 +92,9 @@ export function Sidebar() {
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
                 >
-                  <Icon className={`h-5 w-5 ${isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                  <Icon
+                    className={`h-5 w-5 ${isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`}
+                  />
                   <span className="text-sm font-medium">{item.name}</span>
                 </Link>
               </li>

@@ -17,7 +17,11 @@ export default function DashboardPage() {
         const r = await api.get('/dashboard/stats');
         setStats(r.data.data || {});
       } catch (e: unknown) {
-        setError(e.response?.status === 401 ? 'Session expired. Please log in again.' : 'Failed to load dashboard data.');
+        setError(
+          e.response?.status === 401
+            ? 'Session expired. Please log in again.'
+            : 'Failed to load dashboard data.'
+        );
       } finally {
         setLoading(false);
       }
@@ -25,24 +29,45 @@ export default function DashboardPage() {
   }, []);
 
   const kpis = [
-    { label: 'Total Permits', key: 'totalPermits', value: stats.totalPermits ?? 0, icon: ClipboardList, color: 'amber' },
-    { label: 'Method Statements', key: 'totalMethodStatements', value: stats.totalMethodStatements ?? 0, icon: FileText, color: 'blue' },
-    { label: 'Toolbox Talks', key: 'totalToolboxTalks', value: stats.totalToolboxTalks ?? 0, icon: Users, color: 'green' },
+    {
+      label: 'Total Permits',
+      key: 'totalPermits',
+      value: stats.totalPermits ?? 0,
+      icon: ClipboardList,
+      color: 'amber',
+    },
+    {
+      label: 'Method Statements',
+      key: 'totalMethodStatements',
+      value: stats.totalMethodStatements ?? 0,
+      icon: FileText,
+      color: 'blue',
+    },
+    {
+      label: 'Toolbox Talks',
+      key: 'totalToolboxTalks',
+      value: stats.totalToolboxTalks ?? 0,
+      icon: Users,
+      color: 'green',
+    },
   ];
 
-  if (loading) return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-      <main className="flex-1 p-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
-          <div className="grid grid-cols-3 gap-4">
-            {[...Array(3)].map((_, i) => <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />)}
+  if (loading)
+    return (
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <main className="flex-1 p-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
+            <div className="grid grid-cols-3 gap-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
+              ))}
+            </div>
           </div>
-        </div>
-      </main>
-    </div>
-  );
+        </main>
+      </div>
+    );
 
   return (
     <div className="flex min-h-screen">
@@ -50,7 +75,9 @@ export default function DashboardPage() {
       <main className="flex-1 p-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Permit to Work Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Permit to Work Dashboard
+            </h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">Overview and key metrics</p>
           </div>
 
@@ -74,7 +101,9 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-500 dark:text-gray-400">{kpi.label}</p>
-                        <p className="text-2xl font-bold mt-1 text-gray-900 dark:text-gray-100">{String(kpi.value)}</p>
+                        <p className="text-2xl font-bold mt-1 text-gray-900 dark:text-gray-100">
+                          {String(kpi.value)}
+                        </p>
                       </div>
                       <div className={`p-3 rounded-lg ${colorMap[kpi.color]}`}>
                         <Icon className="h-6 w-6" />
@@ -89,14 +118,21 @@ export default function DashboardPage() {
           {Object.keys(stats).length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {Object.entries(stats)
-                .filter(([k]) => !['totalPermits', 'totalMethodStatements', 'totalToolboxTalks'].includes(k))
+                .filter(
+                  ([k]) =>
+                    !['totalPermits', 'totalMethodStatements', 'totalToolboxTalks'].includes(k)
+                )
                 .map(([key, value]) => (
                   <Card key={key} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
-                          <p className="text-2xl font-bold mt-1 text-gray-900 dark:text-gray-100">{String(value)}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {key.replace(/([A-Z])/g, ' $1').trim()}
+                          </p>
+                          <p className="text-2xl font-bold mt-1 text-gray-900 dark:text-gray-100">
+                            {String(value)}
+                          </p>
                         </div>
                         <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20">
                           <AlertTriangle className="h-6 w-6 text-amber-600" />

@@ -55,12 +55,16 @@ describe('@ims/event-bus', () => {
 
     it('should include equipment.failure event', () => {
       expect(NEXARA_EVENTS['equipment.failure']).toBeDefined();
-      expect(NEXARA_EVENTS['equipment.failure'].triggers).toContain('health_safety.incident.prompt');
+      expect(NEXARA_EVENTS['equipment.failure'].triggers).toContain(
+        'health_safety.incident.prompt'
+      );
     });
 
     it('should include payroll.run.complete event', () => {
       expect(NEXARA_EVENTS['payroll.run.complete']).toBeDefined();
-      expect(NEXARA_EVENTS['payroll.run.complete'].triggers).toContain('esg.social.gender_pay_gap.recalculate');
+      expect(NEXARA_EVENTS['payroll.run.complete'].triggers).toContain(
+        'esg.social.gender_pay_gap.recalculate'
+      );
     });
 
     it('should include training.completed event', () => {
@@ -82,7 +86,9 @@ describe('@ims/event-bus', () => {
     it('should include anti-bribery events', () => {
       expect(NEXARA_EVENTS['antibribery.gift.reported']).toBeDefined();
       expect(NEXARA_EVENTS['antibribery.investigation.opened']).toBeDefined();
-      expect(NEXARA_EVENTS['antibribery.investigation.opened'].triggers).toContain('hr.suspension.review');
+      expect(NEXARA_EVENTS['antibribery.investigation.opened'].triggers).toContain(
+        'hr.suspension.review'
+      );
     });
   });
 
@@ -116,7 +122,7 @@ describe('@ims/event-bus', () => {
 
     it('should return strings', () => {
       const types = getAllEventTypes();
-      types.forEach(t => expect(typeof t).toBe('string'));
+      types.forEach((t) => expect(typeof t).toBe('string'));
     });
   });
 
@@ -133,11 +139,15 @@ describe('@ims/event-bus', () => {
 
     it('should publish event and return UUID id', async () => {
       const publisher = new EventPublisher('redis://localhost:6379');
-      const id = await publisher.publish('calibration.failed', { assetId: '123' }, {
-        source: 'quality-service',
-        organisationId: 'org-1',
-        userId: 'user-1',
-      });
+      const id = await publisher.publish(
+        'calibration.failed',
+        { assetId: '123' },
+        {
+          source: 'quality-service',
+          organisationId: 'org-1',
+          userId: 'user-1',
+        }
+      );
       expect(id).toBeDefined();
       expect(typeof id).toBe('string');
       expect(id.length).toBeGreaterThan(0);
@@ -149,10 +159,14 @@ describe('@ims/event-bus', () => {
       const handler = jest.fn().mockResolvedValue(undefined);
       publisher.onLocal('calibration.failed', handler);
 
-      await publisher.publish('calibration.failed', { assetId: '123' }, {
-        source: 'quality-service',
-        organisationId: 'org-1',
-      });
+      await publisher.publish(
+        'calibration.failed',
+        { assetId: '123' },
+        {
+          source: 'quality-service',
+          organisationId: 'org-1',
+        }
+      );
 
       expect(handler).toHaveBeenCalledTimes(1);
       const payload: EventPayload = handler.mock.calls[0][0];
@@ -167,10 +181,14 @@ describe('@ims/event-bus', () => {
       const handler = jest.fn().mockResolvedValue(undefined);
       publisher.onLocal('incident.reported', handler);
 
-      await publisher.publish('incident.reported', { location: 'Zone A' }, {
-        source: 'hs-service',
-        organisationId: 'org-1',
-      });
+      await publisher.publish(
+        'incident.reported',
+        { location: 'Zone A' },
+        {
+          source: 'hs-service',
+          organisationId: 'org-1',
+        }
+      );
 
       const payload: EventPayload = handler.mock.calls[0][0];
       expect(payload.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
@@ -180,10 +198,14 @@ describe('@ims/event-bus', () => {
       const publisher = new EventPublisher();
       const ids = new Set<string>();
       for (let i = 0; i < 10; i++) {
-        const id = await publisher.publish('calibration.failed', { i }, {
-          source: 'test',
-          organisationId: 'org-1',
-        });
+        const id = await publisher.publish(
+          'calibration.failed',
+          { i },
+          {
+            source: 'test',
+            organisationId: 'org-1',
+          }
+        );
         ids.add(id);
       }
       expect(ids.size).toBe(10);
@@ -194,10 +216,14 @@ describe('@ims/event-bus', () => {
       const handler = jest.fn().mockResolvedValue(undefined);
       publisher.onLocal('calibration.failed', handler);
 
-      await publisher.publish('incident.reported', { data: 'test' }, {
-        source: 'test',
-        organisationId: 'org-1',
-      });
+      await publisher.publish(
+        'incident.reported',
+        { data: 'test' },
+        {
+          source: 'test',
+          organisationId: 'org-1',
+        }
+      );
 
       expect(handler).not.toHaveBeenCalled();
     });
@@ -212,11 +238,15 @@ describe('@ims/event-bus', () => {
       const handler = jest.fn().mockResolvedValue(undefined);
       publisher.onLocal('deal.closed_won', handler);
 
-      await publisher.publish('deal.closed_won', { dealId: 'd1' }, {
-        source: 'crm-service',
-        organisationId: 'org-1',
-        userId: 'user-42',
-      });
+      await publisher.publish(
+        'deal.closed_won',
+        { dealId: 'd1' },
+        {
+          source: 'crm-service',
+          organisationId: 'org-1',
+          userId: 'user-42',
+        }
+      );
 
       const payload: EventPayload = handler.mock.calls[0][0];
       expect(payload.userId).toBe('user-42');

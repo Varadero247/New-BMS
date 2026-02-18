@@ -60,7 +60,7 @@ const TABS = [
   { id: 'contacts', label: 'Emergency Contacts', icon: Phone },
 ] as const;
 
-type TabId = typeof TABS[number]['id'];
+type TabId = (typeof TABS)[number]['id'];
 
 function FraStatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
@@ -70,7 +70,9 @@ function FraStatusBadge({ status }: { status: string }) {
     NOT_COMPLETED: 'bg-gray-100 text-gray-600',
   };
   return (
-    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${colors[status] || colors.NOT_COMPLETED}`}>
+    <span
+      className={`px-2 py-0.5 rounded-full text-xs font-medium ${colors[status] || colors.NOT_COMPLETED}`}
+    >
       {status.replace(/_/g, ' ')}
     </span>
   );
@@ -90,7 +92,9 @@ export default function PremisesDetailPage() {
         const r = await api.get(`/premises/${id}`);
         setPremises(r.data.data);
       } catch (e: any) {
-        setError(e.response?.status === 404 ? 'Premises not found.' : 'Failed to load premises details.');
+        setError(
+          e.response?.status === 404 ? 'Premises not found.' : 'Failed to load premises details.'
+        );
       } finally {
         setLoading(false);
       }
@@ -188,7 +192,11 @@ export default function PremisesDetailPage() {
                         ? 'border-current text-current'
                         : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
                     }`}
-                    style={activeTab === tab.id ? { color: '#F04B5A', borderColor: '#F04B5A' } : undefined}
+                    style={
+                      activeTab === tab.id
+                        ? { color: '#F04B5A', borderColor: '#F04B5A' }
+                        : undefined
+                    }
                   >
                     <Icon className="h-4 w-4" />
                     {tab.label}
@@ -217,11 +225,17 @@ export default function PremisesDetailPage() {
                         <dd className="mt-1 font-medium">{premises.occupants}</dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-gray-500 uppercase tracking-wide">FRA Status</dt>
-                        <dd className="mt-1"><FraStatusBadge status={premises.fraStatus} /></dd>
+                        <dt className="text-xs text-gray-500 uppercase tracking-wide">
+                          FRA Status
+                        </dt>
+                        <dd className="mt-1">
+                          <FraStatusBadge status={premises.fraStatus} />
+                        </dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-gray-500 uppercase tracking-wide">FRA Next Due</dt>
+                        <dt className="text-xs text-gray-500 uppercase tracking-wide">
+                          FRA Next Due
+                        </dt>
                         <dd className="mt-1 font-medium">
                           {premises.fraNextDue
                             ? new Date(premises.fraNextDue).toLocaleDateString()
@@ -229,7 +243,9 @@ export default function PremisesDetailPage() {
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-gray-500 uppercase tracking-wide">Last Drill</dt>
+                        <dt className="text-xs text-gray-500 uppercase tracking-wide">
+                          Last Drill
+                        </dt>
                         <dd className="mt-1 font-medium">
                           {premises.lastDrillDate
                             ? new Date(premises.lastDrillDate).toLocaleDateString()
@@ -237,14 +253,20 @@ export default function PremisesDetailPage() {
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-gray-500 uppercase tracking-wide">Active Incidents</dt>
+                        <dt className="text-xs text-gray-500 uppercase tracking-wide">
+                          Active Incidents
+                        </dt>
                         <dd className="mt-1 font-medium">{premises.activeIncidents}</dd>
                       </div>
                     </dl>
                     {premises.description && (
                       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <dt className="text-xs text-gray-500 uppercase tracking-wide mb-1">Description</dt>
-                        <dd className="text-sm text-gray-700 dark:text-gray-300">{premises.description}</dd>
+                        <dt className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                          Description
+                        </dt>
+                        <dd className="text-sm text-gray-700 dark:text-gray-300">
+                          {premises.description}
+                        </dd>
                       </div>
                     )}
                   </CardContent>
@@ -266,11 +288,14 @@ export default function PremisesDetailPage() {
                 </Card>
                 <Card>
                   <CardContent className="p-6">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Quick Actions</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                      Quick Actions
+                    </h3>
                     <div className="space-y-2">
                       <Link href={`/fra/new?premisesId=${premises.id}`}>
                         <Button variant="outline" className="w-full justify-start gap-2">
-                          <FileSearch className="h-4 w-4" />New FRA
+                          <FileSearch className="h-4 w-4" />
+                          New FRA
                         </Button>
                       </Link>
                       <Link href={`/incidents/declare?premisesId=${premises.id}`}>
@@ -278,7 +303,8 @@ export default function PremisesDetailPage() {
                           className="w-full justify-start gap-2 text-white"
                           style={{ backgroundColor: '#F04B5A' }}
                         >
-                          <AlertTriangle className="h-4 w-4" />Declare Emergency
+                          <AlertTriangle className="h-4 w-4" />
+                          Declare Emergency
                         </Button>
                       </Link>
                     </div>
@@ -306,8 +332,12 @@ export default function PremisesDetailPage() {
                         <div>
                           <p className="font-medium">{fra.referenceNumber}</p>
                           <p className="text-sm text-gray-500">
-                            Assessed: {fra.assessmentDate ? new Date(fra.assessmentDate).toLocaleDateString() : 'N/A'}
-                            {' '}· Next review: {fra.reviewDate ? new Date(fra.reviewDate).toLocaleDateString() : 'N/A'}
+                            Assessed:{' '}
+                            {fra.assessmentDate
+                              ? new Date(fra.assessmentDate).toLocaleDateString()
+                              : 'N/A'}{' '}
+                            · Next review:{' '}
+                            {fra.reviewDate ? new Date(fra.reviewDate).toLocaleDateString() : 'N/A'}
                           </p>
                         </div>
                         <div className="flex items-center gap-3">
@@ -315,7 +345,9 @@ export default function PremisesDetailPage() {
                             {fra.status?.replace(/_/g, ' ')}
                           </Badge>
                           <Link href={`/fra?id=${fra.id}`}>
-                            <Button size="sm" variant="outline">View</Button>
+                            <Button size="sm" variant="outline">
+                              View
+                            </Button>
                           </Link>
                         </div>
                       </CardContent>
@@ -327,7 +359,9 @@ export default function PremisesDetailPage() {
                   <FileSearch className="h-10 w-10 mx-auto mb-2 opacity-30" />
                   <p>No Fire Risk Assessments for this premises.</p>
                   <Link href={`/fra/new?premisesId=${premises.id}`}>
-                    <Button variant="outline" className="mt-3">Create FRA</Button>
+                    <Button variant="outline" className="mt-3">
+                      Create FRA
+                    </Button>
                   </Link>
                 </div>
               )}
@@ -343,19 +377,27 @@ export default function PremisesDetailPage() {
                     <dl className="grid grid-cols-2 gap-4">
                       <div>
                         <dt className="text-xs text-gray-500 uppercase">Assembly Points</dt>
-                        <dd className="mt-1">{premises.evacuationPlan.assemblyPoints?.join(', ') || 'Not set'}</dd>
+                        <dd className="mt-1">
+                          {premises.evacuationPlan.assemblyPoints?.join(', ') || 'Not set'}
+                        </dd>
                       </div>
                       <div>
                         <dt className="text-xs text-gray-500 uppercase">Target Evacuation Time</dt>
-                        <dd className="mt-1">{premises.evacuationPlan.targetEvacuationTime || 'Not set'}</dd>
+                        <dd className="mt-1">
+                          {premises.evacuationPlan.targetEvacuationTime || 'Not set'}
+                        </dd>
                       </div>
                       <div className="col-span-2">
                         <dt className="text-xs text-gray-500 uppercase">Evacuation Procedure</dt>
-                        <dd className="mt-1 text-sm">{premises.evacuationPlan.procedure || 'Not documented'}</dd>
+                        <dd className="mt-1 text-sm">
+                          {premises.evacuationPlan.procedure || 'Not documented'}
+                        </dd>
                       </div>
                     </dl>
                   ) : (
-                    <p className="text-gray-400 text-sm">No evacuation plan documented for this premises.</p>
+                    <p className="text-gray-400 text-sm">
+                      No evacuation plan documented for this premises.
+                    </p>
                   )}
                 </CardContent>
               </Card>
@@ -371,12 +413,18 @@ export default function PremisesDetailPage() {
                     <Card key={w.id}>
                       <CardContent className="p-4">
                         <p className="font-medium">{w.name}</p>
-                        <p className="text-sm text-gray-500">{w.role} · {w.floor || 'All floors'}</p>
+                        <p className="text-sm text-gray-500">
+                          {w.role} · {w.floor || 'All floors'}
+                        </p>
                         <p className="text-sm text-gray-500">{w.phone}</p>
                         <div className="mt-2">
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                            w.trainingCurrent ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                              w.trainingCurrent
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}
+                          >
                             {w.trainingCurrent ? 'Training Current' : 'Training Expired'}
                           </span>
                         </div>
@@ -415,14 +463,26 @@ export default function PremisesDetailPage() {
                           <td className="py-2 px-4 font-medium">{eq.name}</td>
                           <td className="py-2 px-4">{eq.type?.replace(/_/g, ' ')}</td>
                           <td className="py-2 px-4">{eq.location}</td>
-                          <td className="py-2 px-4">{eq.lastServiceDate ? new Date(eq.lastServiceDate).toLocaleDateString() : '-'}</td>
-                          <td className="py-2 px-4">{eq.nextServiceDate ? new Date(eq.nextServiceDate).toLocaleDateString() : '-'}</td>
                           <td className="py-2 px-4">
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                              eq.status === 'SERVICEABLE' ? 'bg-green-100 text-green-800' :
-                              eq.status === 'DUE_SERVICE' ? 'bg-amber-100 text-amber-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
+                            {eq.lastServiceDate
+                              ? new Date(eq.lastServiceDate).toLocaleDateString()
+                              : '-'}
+                          </td>
+                          <td className="py-2 px-4">
+                            {eq.nextServiceDate
+                              ? new Date(eq.nextServiceDate).toLocaleDateString()
+                              : '-'}
+                          </td>
+                          <td className="py-2 px-4">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                eq.status === 'SERVICEABLE'
+                                  ? 'bg-green-100 text-green-800'
+                                  : eq.status === 'DUE_SERVICE'
+                                    ? 'bg-amber-100 text-amber-800'
+                                    : 'bg-red-100 text-red-800'
+                              }`}
+                            >
                               {eq.status?.replace(/_/g, ' ')}
                             </span>
                           </td>
@@ -442,7 +502,9 @@ export default function PremisesDetailPage() {
 
           {activeTab === 'peeps' && (
             <div>
-              <h3 className="text-lg font-semibold mb-4">Personal Emergency Evacuation Plans (PEEPs)</h3>
+              <h3 className="text-lg font-semibold mb-4">
+                Personal Emergency Evacuation Plans (PEEPs)
+              </h3>
               {premises.peeps && premises.peeps.length > 0 ? (
                 <div className="space-y-3">
                   {premises.peeps.map((peep: any) => (
@@ -450,14 +512,20 @@ export default function PremisesDetailPage() {
                       <CardContent className="p-4 flex items-center justify-between">
                         <div>
                           <p className="font-medium">{peep.personName}</p>
-                          <p className="text-sm text-gray-500">{peep.disabilityType?.replace(/_/g, ' ')} · {peep.floor || 'All areas'}</p>
+                          <p className="text-sm text-gray-500">
+                            {peep.disabilityType?.replace(/_/g, ' ')} · {peep.floor || 'All areas'}
+                          </p>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                            peep.reviewStatus === 'CURRENT' ? 'bg-green-100 text-green-800' :
-                            peep.reviewStatus === 'DUE_REVIEW' ? 'bg-amber-100 text-amber-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                              peep.reviewStatus === 'CURRENT'
+                                ? 'bg-green-100 text-green-800'
+                                : peep.reviewStatus === 'DUE_REVIEW'
+                                  ? 'bg-amber-100 text-amber-800'
+                                  : 'bg-red-100 text-red-800'
+                            }`}
+                          >
                             {peep.reviewStatus?.replace(/_/g, ' ')}
                           </span>
                         </div>
@@ -470,7 +538,9 @@ export default function PremisesDetailPage() {
                   <Users className="h-10 w-10 mx-auto mb-2 opacity-30" />
                   <p>No PEEPs for this premises.</p>
                   <Link href="/peep">
-                    <Button variant="outline" className="mt-3">View PEEP Register</Button>
+                    <Button variant="outline" className="mt-3">
+                      View PEEP Register
+                    </Button>
                   </Link>
                 </div>
               )}
@@ -487,11 +557,16 @@ export default function PremisesDetailPage() {
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="font-medium">{new Date(drill.drillDate).toLocaleDateString()}</p>
-                            <p className="text-sm text-gray-500">
-                              {drill.drillType?.replace(/_/g, ' ')} · Evacuation time: {drill.evacuationTime || 'N/A'} mins
+                            <p className="font-medium">
+                              {new Date(drill.drillDate).toLocaleDateString()}
                             </p>
-                            <p className="text-sm text-gray-500">Participants: {drill.participantCount || 0}</p>
+                            <p className="text-sm text-gray-500">
+                              {drill.drillType?.replace(/_/g, ' ')} · Evacuation time:{' '}
+                              {drill.evacuationTime || 'N/A'} mins
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Participants: {drill.participantCount || 0}
+                            </p>
                           </div>
                           <Badge variant={drill.outcome === 'PASS' ? 'default' : 'destructive'}>
                             {drill.outcome}

@@ -87,7 +87,12 @@ describe('GET /api/customers', () => {
 
 describe('POST /api/customers', () => {
   it('should create a customer with generated code', async () => {
-    const created = { id: 'cust-new', name: 'New Customer', code: 'CUST-5678', address: { city: 'London' } };
+    const created = {
+      id: 'cust-new',
+      name: 'New Customer',
+      code: 'CUST-5678',
+      address: { city: 'London' },
+    };
     (prisma as any).fsSvcCustomer.create.mockResolvedValue(created);
 
     const res = await request(app)
@@ -100,9 +105,7 @@ describe('POST /api/customers', () => {
   });
 
   it('should reject invalid data', async () => {
-    const res = await request(app)
-      .post('/api/customers')
-      .send({ name: '' });
+    const res = await request(app).post('/api/customers').send({ name: '' });
 
     expect(res.status).toBe(400);
   });
@@ -110,7 +113,12 @@ describe('POST /api/customers', () => {
 
 describe('GET /api/customers/:id', () => {
   it('should return a customer with sites and contracts', async () => {
-    const customer = { id: '00000000-0000-0000-0000-000000000001', name: 'Acme', sites: [], contracts: [] };
+    const customer = {
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Acme',
+      sites: [],
+      contracts: [],
+    };
     (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue(customer);
 
     const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000001');
@@ -130,7 +138,9 @@ describe('GET /api/customers/:id', () => {
 
 describe('GET /api/customers/:id/sites', () => {
   it('should return customer sites', async () => {
-    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
     (prisma as any).fsSvcSite.findMany.mockResolvedValue([{ id: 'site-1', name: 'HQ' }]);
 
     const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000001/sites');
@@ -150,7 +160,9 @@ describe('GET /api/customers/:id/sites', () => {
 
 describe('GET /api/customers/:id/jobs', () => {
   it('should return customer jobs with pagination', async () => {
-    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
     (prisma as any).fsSvcJob.findMany.mockResolvedValue([{ id: 'job-1' }]);
     (prisma as any).fsSvcJob.count.mockResolvedValue(1);
 
@@ -164,8 +176,13 @@ describe('GET /api/customers/:id/jobs', () => {
 
 describe('PUT /api/customers/:id', () => {
   it('should update a customer', async () => {
-    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcCustomer.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcCustomer.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Updated',
+    });
 
     const res = await request(app)
       .put('/api/customers/00000000-0000-0000-0000-000000000001')
@@ -188,8 +205,13 @@ describe('PUT /api/customers/:id', () => {
 
 describe('DELETE /api/customers/:id', () => {
   it('should soft delete a customer', async () => {
-    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcCustomer.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcCustomer.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/customers/00000000-0000-0000-0000-000000000001');
 

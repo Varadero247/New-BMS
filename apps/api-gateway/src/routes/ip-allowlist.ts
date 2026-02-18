@@ -18,7 +18,8 @@ router.use(authenticate);
 // ─── Validation Schemas ─────────────────────────────────────────────────────
 
 const addCidrSchema = z.object({
-  cidr: z.string()
+  cidr: z
+    .string()
     .min(1, 'CIDR is required')
     .regex(
       /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/\d{1,2})?$/,
@@ -41,7 +42,9 @@ router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
       meta: { total: entries.length },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list IP allowlist', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list IP allowlist', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list IP allowlist' },
@@ -79,11 +82,18 @@ router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 
     addOrgAllowlistEntry(orgId, entry);
 
-    logger.info('IP allowlist entry added', { orgId, cidr: normalizedCidr, label, addedBy: req.user!.id });
+    logger.info('IP allowlist entry added', {
+      orgId,
+      cidr: normalizedCidr,
+      label,
+      addedBy: req.user!.id,
+    });
 
     res.status(201).json({ success: true, data: entry });
   } catch (error: unknown) {
-    logger.error('Failed to add IP allowlist entry', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to add IP allowlist entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to add IP allowlist entry' },
@@ -109,7 +119,9 @@ router.delete('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) =>
 
     res.json({ success: true, data: { deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to remove IP allowlist entry', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to remove IP allowlist entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to remove IP allowlist entry' },
@@ -132,7 +144,9 @@ router.get('/my-ip', authenticate, (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get client IP', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get client IP', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get client IP' },

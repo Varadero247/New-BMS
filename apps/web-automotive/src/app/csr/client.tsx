@@ -1,8 +1,29 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Label, Select, Textarea } from '@ims/ui';
-import { Search, RefreshCw, AlertTriangle, CheckCircle, AlertCircle, MinusCircle, FileText, Edit2 } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Label,
+  Select,
+  Textarea,
+} from '@ims/ui';
+import {
+  Search,
+  RefreshCw,
+  AlertTriangle,
+  CheckCircle,
+  AlertCircle,
+  MinusCircle,
+  FileText,
+  Edit2,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -148,22 +169,26 @@ export default function CsrClient() {
 
   const filtered = useMemo(() => {
     return csrs
-      .filter(c => statusFilter === 'all' || c.complianceStatus === statusFilter)
-      .filter(c =>
-        !searchQuery ||
-        c.oem?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.iatfClause?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.requirement?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.gapNotes?.toLowerCase().includes(searchQuery.toLowerCase())
+      .filter((c) => statusFilter === 'all' || c.complianceStatus === statusFilter)
+      .filter(
+        (c) =>
+          !searchQuery ||
+          c.oem?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.iatfClause?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.requirement?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.gapNotes?.toLowerCase().includes(searchQuery.toLowerCase())
       );
   }, [csrs, statusFilter, searchQuery]);
 
-  const stats = useMemo(() => ({
-    total: csrs.length,
-    compliant: csrs.filter(c => c.complianceStatus === 'COMPLIANT').length,
-    partial: csrs.filter(c => c.complianceStatus === 'PARTIAL').length,
-    nonCompliant: csrs.filter(c => c.complianceStatus === 'NON_COMPLIANT').length,
-  }), [csrs]);
+  const stats = useMemo(
+    () => ({
+      total: csrs.length,
+      compliant: csrs.filter((c) => c.complianceStatus === 'COMPLIANT').length,
+      partial: csrs.filter((c) => c.complianceStatus === 'PARTIAL').length,
+      nonCompliant: csrs.filter((c) => c.complianceStatus === 'NON_COMPLIANT').length,
+    }),
+    [csrs]
+  );
 
   // -------------------------------------------------------------------------
   // Render
@@ -176,9 +201,18 @@ export default function CsrClient() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">CSR Register</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Customer-Specific Requirements Compliance Tracker</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Customer-Specific Requirements Compliance Tracker
+            </p>
           </div>
-          <Button variant="outline" onClick={() => { setLoading(true); loadCsrs(); }} className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setLoading(true);
+              loadCsrs();
+            }}
+            className="flex items-center gap-2"
+          >
             <RefreshCw className="h-4 w-4" />
             Refresh
           </Button>
@@ -239,7 +273,16 @@ export default function CsrClient() {
               <AlertTriangle className="h-5 w-5" />
               <span>{error}</span>
             </div>
-            <Button variant="outline" size="sm" onClick={() => { setLoading(true); loadCsrs(); }}>Retry</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setLoading(true);
+                loadCsrs();
+              }}
+            >
+              Retry
+            </Button>
           </div>
         )}
 
@@ -248,12 +291,15 @@ export default function CsrClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Search</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Search
+                </Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
-                    aria-label="Search by OEM, clause, requirement, gap notes..." placeholder="Search by OEM, clause, requirement, gap notes..."
+                    aria-label="Search by OEM, clause, requirement, gap notes..."
+                    placeholder="Search by OEM, clause, requirement, gap notes..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -264,17 +310,23 @@ export default function CsrClient() {
                 <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">OEM</Label>
                 <Select value={oemFilter} onChange={(e) => setOemFilter(e.target.value)}>
                   <option value="all">All OEMs</option>
-                  {oems.map(o => (
-                    <option key={o} value={o}>{o}</option>
+                  {oems.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
                   ))}
                 </Select>
               </div>
               <div className="min-w-[160px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Compliance Status</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Compliance Status
+                </Label>
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">All Statuses</option>
-                  {COMPLIANCE_STATUSES.map(s => (
-                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                  {COMPLIANCE_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -295,7 +347,7 @@ export default function CsrClient() {
           <CardContent>
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3, 4].map(i => (
+                {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="h-16 bg-gray-200 rounded" />
                 ))}
               </div>
@@ -314,26 +366,39 @@ export default function CsrClient() {
                   </thead>
                   <tbody>
                     {filtered.map((csr) => (
-                      <tr key={csr.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 transition-colors">
+                      <tr
+                        key={csr.id}
+                        className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 transition-colors"
+                      >
                         <td className="px-4 py-3">
-                          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{csr.oem}</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {csr.oem}
+                          </span>
                         </td>
                         <td className="px-4 py-3">
                           <span className="text-sm font-mono text-gray-600">{csr.iatfClause}</span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm text-gray-700 dark:text-gray-300 max-w-[300px] block truncate" title={csr.requirement}>
+                          <span
+                            className="text-sm text-gray-700 dark:text-gray-300 max-w-[300px] block truncate"
+                            title={csr.requirement}
+                          >
                             {csr.requirement}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <Badge className={`inline-flex items-center gap-1 ${statusColors[csr.complianceStatus] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+                          <Badge
+                            className={`inline-flex items-center gap-1 ${statusColors[csr.complianceStatus] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                          >
                             {statusIcons[csr.complianceStatus]}
                             {csr.complianceStatus?.replace(/_/g, ' ')}
                           </Badge>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm text-gray-500 dark:text-gray-400 max-w-[200px] block truncate" title={csr.gapNotes || ''}>
+                          <span
+                            className="text-sm text-gray-500 dark:text-gray-400 max-w-[200px] block truncate"
+                            title={csr.gapNotes || ''}
+                          >
                             {csr.gapNotes || '-'}
                           </span>
                         </td>
@@ -355,7 +420,9 @@ export default function CsrClient() {
             ) : (
               <div className="text-center py-16">
                 <FileText className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No CSRs found</h3>
+                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">
+                  No CSRs found
+                </h3>
                 <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
                   {searchQuery || statusFilter !== 'all' || oemFilter !== 'all'
                     ? 'Try adjusting your filters or search query.'
@@ -372,7 +439,10 @@ export default function CsrClient() {
       {/* ================================================================= */}
       <Modal
         isOpen={showEditModal}
-        onClose={() => { setShowEditModal(false); setSelectedCsr(null); }}
+        onClose={() => {
+          setShowEditModal(false);
+          setSelectedCsr(null);
+        }}
         title="Update Compliance Status"
         size="lg"
       >
@@ -393,7 +463,9 @@ export default function CsrClient() {
                 </div>
                 <div className="mt-3">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Requirement</p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{selectedCsr.requirement}</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
+                    {selectedCsr.requirement}
+                  </p>
                 </div>
               </div>
 
@@ -403,10 +475,12 @@ export default function CsrClient() {
                 <Select
                   id="csr-status"
                   value={editForm.complianceStatus}
-                  onChange={e => setEditForm({ ...editForm, complianceStatus: e.target.value })}
+                  onChange={(e) => setEditForm({ ...editForm, complianceStatus: e.target.value })}
                 >
-                  {COMPLIANCE_STATUSES.map(s => (
-                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                  {COMPLIANCE_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -416,7 +490,7 @@ export default function CsrClient() {
                 <Textarea
                   id="csr-gapNotes"
                   value={editForm.gapNotes}
-                  onChange={e => setEditForm({ ...editForm, gapNotes: e.target.value })}
+                  onChange={(e) => setEditForm({ ...editForm, gapNotes: e.target.value })}
                   rows={4}
                   placeholder="Describe any gaps, action items, or notes..."
                 />
@@ -424,10 +498,21 @@ export default function CsrClient() {
             </div>
 
             <ModalFooter>
-              <Button type="button" variant="outline" onClick={() => { setShowEditModal(false); setSelectedCsr(null); }}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowEditModal(false);
+                  setSelectedCsr(null);
+                }}
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={submitting} className="bg-orange-600 hover:bg-orange-700">
+              <Button
+                type="submit"
+                disabled={submitting}
+                className="bg-orange-600 hover:bg-orange-700"
+              >
                 {submitting ? 'Saving...' : 'Update Status'}
               </Button>
             </ModalFooter>

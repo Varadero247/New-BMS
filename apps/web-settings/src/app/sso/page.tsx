@@ -96,7 +96,12 @@ export default function SsoPage() {
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to remove the SSO configuration? Users will no longer be able to sign in via SSO.')) return;
+    if (
+      !confirm(
+        'Are you sure you want to remove the SSO configuration? Users will no longer be able to sign in via SSO.'
+      )
+    )
+      return;
     setError(null);
     setSuccess(null);
     try {
@@ -162,7 +167,9 @@ export default function SsoPage() {
   return (
     <div className="p-6 space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Single Sign-On (SSO)</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Single Sign-On (SSO)
+        </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           Configure SAML 2.0 Single Sign-On for your organisation
         </p>
@@ -186,7 +193,8 @@ export default function SsoPage() {
           <div>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Enable SSO</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Once enabled, users from your organisation will be redirected to your Identity Provider
+              Once enabled, users from your organisation will be redirected to your Identity
+              Provider
             </p>
           </div>
           <button
@@ -206,13 +214,17 @@ export default function SsoPage() {
 
       {/* SP Metadata */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-6 space-y-4">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Service Provider Metadata</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Service Provider Metadata
+        </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Provide this information to your Identity Provider when configuring the SAML integration.
         </p>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Entity ID</label>
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              Entity ID
+            </label>
             <div className="flex items-center gap-2">
               <code className="flex-1 bg-gray-50 dark:bg-gray-700 rounded-md border dark:border-gray-600 px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
                 {config?.spEntityId || 'https://app.ims.local/saml/metadata'}
@@ -220,7 +232,9 @@ export default function SsoPage() {
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">ACS URL</label>
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              ACS URL
+            </label>
             <code className="block bg-gray-50 dark:bg-gray-700 rounded-md border dark:border-gray-600 px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
               {config?.spAcsUrl || 'https://app.ims.local/api/auth/saml/callback'}
             </code>
@@ -246,7 +260,9 @@ export default function SsoPage() {
 
       {/* IdP Configuration */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-6 space-y-4">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Identity Provider Configuration</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Identity Provider Configuration
+        </h2>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -270,7 +286,9 @@ export default function SsoPage() {
             placeholder="https://idp.example.com/sso/saml"
             className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
           />
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">The URL where authentication requests will be sent</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            The URL where authentication requests will be sent
+          </p>
         </div>
 
         <div>
@@ -284,7 +302,9 @@ export default function SsoPage() {
             placeholder="-----BEGIN CERTIFICATE-----&#10;MIICpDCCAYwCCQD...&#10;-----END CERTIFICATE-----"
             className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 font-mono"
           />
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Paste your IdP&apos;s X.509 certificate in PEM format</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            Paste your IdP&apos;s X.509 certificate in PEM format
+          </p>
         </div>
 
         <div>
@@ -333,10 +353,17 @@ export default function SsoPage() {
 
       {/* Info */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">About SAML SSO</h3>
+        <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">
+          About SAML SSO
+        </h3>
         <ul className="text-xs text-blue-600 dark:text-blue-400 space-y-1 list-disc list-inside">
-          <li>SAML 2.0 is supported for enterprise Identity Providers (Okta, Azure AD, OneLogin, etc.)</li>
-          <li>Once enabled, users from your organisation will be redirected to your Identity Provider for authentication</li>
+          <li>
+            SAML 2.0 is supported for enterprise Identity Providers (Okta, Azure AD, OneLogin, etc.)
+          </li>
+          <li>
+            Once enabled, users from your organisation will be redirected to your Identity Provider
+            for authentication
+          </li>
           <li>New users will be automatically provisioned on first SSO login</li>
           <li>For automated user provisioning, see the SCIM configuration page</li>
         </ul>

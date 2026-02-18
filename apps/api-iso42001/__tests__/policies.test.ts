@@ -288,9 +288,7 @@ describe('PUT /api/policies/:id', () => {
   it('should return 404 when updating non-existent policy', async () => {
     (prisma as any).aiPolicy.findFirst.mockResolvedValue(null);
 
-    const res = await request(app)
-      .put(`/api/policies/${UUID2}`)
-      .send({ title: 'Updated' });
+    const res = await request(app).put(`/api/policies/${UUID2}`).send({ title: 'Updated' });
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -309,9 +307,7 @@ describe('PUT /api/policies/:id', () => {
     (prisma as any).aiPolicy.findFirst.mockResolvedValue(mockPolicy);
     (prisma as any).aiPolicy.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app)
-      .put(`/api/policies/${UUID1}`)
-      .send({ title: 'Updated' });
+    const res = await request(app).put(`/api/policies/${UUID1}`).send({ title: 'Updated' });
 
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

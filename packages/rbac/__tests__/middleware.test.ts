@@ -15,7 +15,9 @@ function createTestApp(middlewares: any[], handler?: any) {
         id: 'user-123',
         email: 'test@test.com',
         role: req.headers['x-test-role'] as string,
-        roles: req.headers['x-test-roles'] ? (req.headers['x-test-roles'] as string).split(',') : undefined,
+        roles: req.headers['x-test-roles']
+          ? (req.headers['x-test-roles'] as string).split(',')
+          : undefined,
       };
     }
     next();
@@ -25,9 +27,13 @@ function createTestApp(middlewares: any[], handler?: any) {
     app.use(mw);
   }
 
-  app.get('/test', handler || ((_req: any, res: any) => {
-    res.json({ success: true, permissions: (_req as any).permissions });
-  }));
+  app.get(
+    '/test',
+    handler ||
+      ((_req: any, res: any) => {
+        res.json({ success: true, permissions: (_req as any).permissions });
+      })
+  );
 
   return app;
 }
@@ -39,9 +45,7 @@ describe('RBAC Middleware', () => {
         res.json({ success: true, hasPerms: !!req.permissions });
       });
 
-      const res = await request(app)
-        .get('/test')
-        .set('X-Test-Role', 'ADMIN');
+      const res = await request(app).get('/test').set('X-Test-Role', 'ADMIN');
 
       expect(res.status).toBe(200);
       expect(res.body.hasPerms).toBe(true);
@@ -74,43 +78,31 @@ describe('RBAC Middleware', () => {
 
   describe('requirePermission', () => {
     it('allows access with sufficient permission (ADMIN → org-admin → FULL)', async () => {
-      const app = createTestApp([
-        requirePermission('finance', PermissionLevel.EDIT),
-      ]);
+      const app = createTestApp([requirePermission('finance', PermissionLevel.EDIT)]);
 
-      const res = await request(app)
-        .get('/test')
-        .set('X-Test-Role', 'ADMIN');
+      const res = await request(app).get('/test').set('X-Test-Role', 'ADMIN');
 
       expect(res.status).toBe(200);
     });
 
     it('denies access with insufficient permission', async () => {
-      const app = createTestApp([
-        requirePermission('finance', PermissionLevel.EDIT),
-      ]);
+      const app = createTestApp([requirePermission('finance', PermissionLevel.EDIT)]);
 
-      const res = await request(app)
-        .get('/test')
-        .set('X-Test-Role', 'VIEWER');
+      const res = await request(app).get('/test').set('X-Test-Role', 'VIEWER');
 
       expect(res.status).toBe(403);
       expect(res.body.error.code).toBe('INSUFFICIENT_PERMISSION');
     });
 
     it('returns 401 when no user', async () => {
-      const app = createTestApp([
-        requirePermission('finance', PermissionLevel.VIEW),
-      ]);
+      const app = createTestApp([requirePermission('finance', PermissionLevel.VIEW)]);
 
       const res = await request(app).get('/test');
       expect(res.status).toBe(401);
     });
 
     it('uses multi-role for permission check', async () => {
-      const app = createTestApp([
-        requirePermission('finance', PermissionLevel.FULL),
-      ]);
+      const app = createTestApp([requirePermission('finance', PermissionLevel.FULL)]);
 
       const res = await request(app)
         .get('/test')
@@ -121,9 +113,7 @@ describe('RBAC Middleware', () => {
     });
 
     it('denies accountant for FULL finance permission', async () => {
-      const app = createTestApp([
-        requirePermission('finance', PermissionLevel.FULL),
-      ]);
+      const app = createTestApp([requirePermission('finance', PermissionLevel.FULL)]);
 
       const res = await request(app)
         .get('/test')
@@ -136,16 +126,14 @@ describe('RBAC Middleware', () => {
 
   describe('requireOwnership', () => {
     it('stores ownership context for non-privileged users', async () => {
-      const app = createTestApp([
-        attachPermissions(),
-        requireOwnership('createdBy'),
-      ], (req: any, res: any) => {
-        res.json({ success: true, ownershipCheck: req.ownershipCheck });
-      });
+      const app = createTestApp(
+        [attachPermissions(), requireOwnership('createdBy')],
+        (req: any, res: any) => {
+          res.json({ success: true, ownershipCheck: req.ownershipCheck });
+        }
+      );
 
-      const res = await request(app)
-        .get('/test')
-        .set('X-Test-Role', 'VIEWER');
+      const res = await request(app).get('/test').set('X-Test-Role', 'VIEWER');
 
       expect(res.status).toBe(200);
       expect(res.body.ownershipCheck).toEqual({ field: 'createdBy', userId: 'user-123' });
@@ -160,32 +148,22 @@ describe('RBAC Middleware', () => {
 
   describe('ownershipFilter', () => {
     it('returns empty filter for high-permission users', async () => {
-      const app = createTestApp([
-        attachPermissions(),
-        ownershipFilter(),
-      ], (req: any, res: any) => {
+      const app = createTestApp([attachPermissions(), ownershipFilter()], (req: any, res: any) => {
         res.json({ success: true, filter: req.ownerFilter });
       });
 
-      const res = await request(app)
-        .get('/test')
-        .set('X-Test-Role', 'ADMIN');
+      const res = await request(app).get('/test').set('X-Test-Role', 'ADMIN');
 
       expect(res.status).toBe(200);
       expect(res.body.filter).toEqual({});
     });
 
     it('returns user-scoped filter for basic users', async () => {
-      const app = createTestApp([
-        attachPermissions(),
-        ownershipFilter(),
-      ], (req: any, res: any) => {
+      const app = createTestApp([attachPermissions(), ownershipFilter()], (req: any, res: any) => {
         res.json({ success: true, filter: req.ownerFilter });
       });
 
-      const res = await request(app)
-        .get('/test')
-        .set('X-Test-Role', 'VIEWER');
+      const res = await request(app).get('/test').set('X-Test-Role', 'VIEWER');
 
       expect(res.status).toBe(200);
       expect(res.body.filter).toEqual({ createdBy: 'user-123' });

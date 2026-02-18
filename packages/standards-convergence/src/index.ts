@@ -8,6 +8,10 @@ export {
   getConvergenceBenefit,
 } from './convergence';
 export type {
-  ISOStandard, AnnexSLClause, RecordType, ClauseMapping,
-  ConvergentRecord, ConvergenceScore,
+  ISOStandard,
+  AnnexSLClause,
+  RecordType,
+  ClauseMapping,
+  ConvergentRecord,
+  ConvergenceScore,
 } from './types';

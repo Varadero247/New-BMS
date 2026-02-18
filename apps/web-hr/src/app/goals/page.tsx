@@ -1,7 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+} from '@ims/ui';
 import {
   Plus,
   Target,
@@ -195,7 +204,15 @@ export default function GoalsPage() {
   }
 
   async function handleCreateGoal() {
-    if (!formTitle || !formEmployeeId || !formCycleId || !formDescription || !formMeasurementCriteria || !formDueDate) return;
+    if (
+      !formTitle ||
+      !formEmployeeId ||
+      !formCycleId ||
+      !formDescription ||
+      !formMeasurementCriteria ||
+      !formDueDate
+    )
+      return;
     setCreateSubmitting(true);
     try {
       const payload: Record<string, unknown> = {
@@ -250,7 +267,7 @@ export default function GoalsPage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-24 bg-gray-200 rounded" />
             ))}
           </div>
@@ -261,9 +278,9 @@ export default function GoalsPage() {
 
   const stats = {
     total: goals.length,
-    onTrack: goals.filter(g => g.status === 'IN_PROGRESS' && g.progress >= 50).length,
-    atRisk: goals.filter(g => g.status === 'AT_RISK').length,
-    completed: goals.filter(g => g.status === 'COMPLETED' || g.status === 'EXCEEDED').length,
+    onTrack: goals.filter((g) => g.status === 'IN_PROGRESS' && g.progress >= 50).length,
+    atRisk: goals.filter((g) => g.status === 'AT_RISK').length,
+    completed: goals.filter((g) => g.status === 'COMPLETED' || g.status === 'EXCEEDED').length,
   };
 
   return (
@@ -272,8 +289,12 @@ export default function GoalsPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Performance Goals</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Track and manage employee goals and objectives</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Performance Goals
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Track and manage employee goals and objectives
+            </p>
           </div>
           <Button
             className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700"
@@ -376,18 +397,33 @@ export default function GoalsPage() {
             {goals.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {goals.map((goal) => (
-                  <div key={goal.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+                  <div
+                    key={goal.id}
+                    className="p-4 border rounded-lg hover:shadow-md transition-shadow"
+                  >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge className={categoryColors[goal.category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+                          <Badge
+                            className={
+                              categoryColors[goal.category] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
                             {categoryLabels[goal.category] || goal.category}
                           </Badge>
-                          <Badge className={statusColors[goal.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+                          <Badge
+                            className={
+                              statusColors[goal.status] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
                             {statusLabels[goal.status] || goal.status}
                           </Badge>
                         </div>
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">{goal.title}</h3>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                          {goal.title}
+                        </h3>
                       </div>
                       <button
                         onClick={() => openEditModal(goal)}
@@ -403,10 +439,13 @@ export default function GoalsPage() {
                       <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
                         <div className="h-6 w-6 bg-emerald-100 rounded-full flex items-center justify-center">
                           <span className="text-xs font-bold text-emerald-700">
-                            {goal.employee.firstName[0]}{goal.employee.lastName[0]}
+                            {goal.employee.firstName[0]}
+                            {goal.employee.lastName[0]}
                           </span>
                         </div>
-                        <span>{goal.employee.firstName} {goal.employee.lastName}</span>
+                        <span>
+                          {goal.employee.firstName} {goal.employee.lastName}
+                        </span>
                       </div>
                     )}
 
@@ -437,9 +476,7 @@ export default function GoalsPage() {
 
                     {/* Weight and Due Date */}
                     <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 pt-3 border-t">
-                      {goal.weight > 0 && (
-                        <span>Weight: {goal.weight}%</span>
-                      )}
+                      {goal.weight > 0 && <span>Weight: {goal.weight}%</span>}
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3.5 w-3.5" />
                         <span>Due: {new Date(goal.dueDate).toLocaleDateString()}</span>
@@ -466,10 +503,17 @@ export default function GoalsPage() {
         </Card>
 
         {/* Create Goal Modal */}
-        <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Create Performance Goal" size="lg">
+        <Modal
+          isOpen={createModalOpen}
+          onClose={() => setCreateModalOpen(false)}
+          title="Create Performance Goal"
+          size="lg"
+        >
           <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Title
+              </label>
               <input
                 type="text"
                 value={formTitle}
@@ -479,7 +523,9 @@ export default function GoalsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Description
+              </label>
               <textarea
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
@@ -490,7 +536,9 @@ export default function GoalsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Employee
+                </label>
                 <select
                   value={formEmployeeId}
                   onChange={(e) => setFormEmployeeId(e.target.value)}
@@ -505,7 +553,9 @@ export default function GoalsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Performance Cycle</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Performance Cycle
+                </label>
                 <select
                   value={formCycleId}
                   onChange={(e) => setFormCycleId(e.target.value)}
@@ -522,7 +572,9 @@ export default function GoalsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Category
+                </label>
                 <select
                   value={formCategory}
                   onChange={(e) => setFormCategory(e.target.value)}
@@ -536,7 +588,9 @@ export default function GoalsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Weight (%)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Weight (%)
+                </label>
                 <input
                   type="number"
                   value={formWeight}
@@ -548,7 +602,9 @@ export default function GoalsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Measurement Criteria</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Measurement Criteria
+              </label>
               <textarea
                 value={formMeasurementCriteria}
                 onChange={(e) => setFormMeasurementCriteria(e.target.value)}
@@ -559,7 +615,9 @@ export default function GoalsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Value (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Target Value (optional)
+                </label>
                 <input
                   type="text"
                   value={formTargetValue}
@@ -569,7 +627,9 @@ export default function GoalsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Unit (optional)
+                </label>
                 <input
                   type="text"
                   value={formUnit}
@@ -581,7 +641,9 @@ export default function GoalsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Start Date (optional)
+                </label>
                 <input
                   type="date"
                   value={formStartDate}
@@ -590,7 +652,9 @@ export default function GoalsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Due Date
+                </label>
                 <input
                   type="date"
                   value={formDueDate}
@@ -607,7 +671,15 @@ export default function GoalsPage() {
             <Button
               className="bg-emerald-600 hover:bg-emerald-700"
               onClick={handleCreateGoal}
-              disabled={createSubmitting || !formTitle || !formEmployeeId || !formCycleId || !formDescription || !formMeasurementCriteria || !formDueDate}
+              disabled={
+                createSubmitting ||
+                !formTitle ||
+                !formEmployeeId ||
+                !formCycleId ||
+                !formDescription ||
+                !formMeasurementCriteria ||
+                !formDueDate
+              }
             >
               {createSubmitting ? 'Creating...' : 'Create Goal'}
             </Button>
@@ -615,12 +687,22 @@ export default function GoalsPage() {
         </Modal>
 
         {/* Edit Goal Modal */}
-        <Modal isOpen={editModalOpen} onClose={() => { setEditModalOpen(false); setEditGoal(null); }} title="Update Goal" size="lg">
+        <Modal
+          isOpen={editModalOpen}
+          onClose={() => {
+            setEditModalOpen(false);
+            setEditGoal(null);
+          }}
+          title="Update Goal"
+          size="lg"
+        >
           {editGoal && (
             <>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Title
+                  </label>
                   <input
                     type="text"
                     value={editTitle}
@@ -629,7 +711,9 @@ export default function GoalsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Description
+                  </label>
                   <textarea
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
@@ -638,7 +722,9 @@ export default function GoalsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Status
+                  </label>
                   <select
                     value={editStatus}
                     onChange={(e) => setEditStatus(e.target.value)}
@@ -676,7 +762,8 @@ export default function GoalsPage() {
                 {editGoal.targetValue && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Actual Value (Target: {editGoal.targetValue}{editGoal.unit ? ` ${editGoal.unit}` : ''})
+                      Actual Value (Target: {editGoal.targetValue}
+                      {editGoal.unit ? ` ${editGoal.unit}` : ''})
                     </label>
                     <input
                       type="text"
@@ -689,7 +776,13 @@ export default function GoalsPage() {
                 )}
               </div>
               <ModalFooter>
-                <Button variant="outline" onClick={() => { setEditModalOpen(false); setEditGoal(null); }}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setEditModalOpen(false);
+                    setEditGoal(null);
+                  }}
+                >
                   Cancel
                 </Button>
                 <Button

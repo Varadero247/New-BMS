@@ -54,7 +54,13 @@ beforeEach(() => {
 describe('GET /api/monthly-review', () => {
   it('lists snapshots with pagination', async () => {
     (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
-      { id: '00000000-0000-0000-0000-000000000001', month: '2026-03', monthNumber: 1, mrr: 0, trajectory: null },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        month: '2026-03',
+        monthNumber: 1,
+        mrr: 0,
+        trajectory: null,
+      },
     ]);
     (prisma.monthlySnapshot.count as jest.Mock).mockResolvedValue(1);
 
@@ -80,10 +86,15 @@ describe('GET /api/monthly-review', () => {
 describe('GET /api/monthly-review/:snapshotId', () => {
   it('returns snapshot with plan target', async () => {
     (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({
-      id: '00000000-0000-0000-0000-000000000001', month: '2026-03', monthNumber: 1, mrr: 500,
+      id: '00000000-0000-0000-0000-000000000001',
+      month: '2026-03',
+      monthNumber: 1,
+      mrr: 500,
     });
     (prisma.planTarget.findUnique as jest.Mock).mockResolvedValue({
-      month: '2026-03', plannedMrr: 0, plannedCustomers: 0,
+      month: '2026-03',
+      plannedMrr: 0,
+      plannedCustomers: 0,
     });
 
     const res = await request(app).get('/api/monthly-review/00000000-0000-0000-0000-000000000001');
@@ -102,14 +113,19 @@ describe('GET /api/monthly-review/:snapshotId', () => {
 
 describe('POST /api/monthly-review/:snapshotId/approve', () => {
   const mockSnapshot = {
-    id: '00000000-0000-0000-0000-000000000001', month: '2026-05', monthNumber: 3,
+    id: '00000000-0000-0000-0000-000000000001',
+    month: '2026-05',
+    monthNumber: 3,
     targetsApproved: false,
     aiRecommendations: [{ metric: 'MRR', current: 1500, suggested: 2800, rationale: 'test' }],
   };
 
   it('approves with default AI targets', async () => {
     (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue(mockSnapshot);
-    (prisma.monthlySnapshot.update as jest.Mock).mockResolvedValue({ ...mockSnapshot, targetsApproved: true });
+    (prisma.monthlySnapshot.update as jest.Mock).mockResolvedValue({
+      ...mockSnapshot,
+      targetsApproved: true,
+    });
     (prisma.planTarget.findMany as jest.Mock).mockResolvedValue([
       { id: 'pt-4', monthNumber: 4, plannedMrr: 3000 },
     ]);
@@ -126,7 +142,10 @@ describe('POST /api/monthly-review/:snapshotId/approve', () => {
 
   it('approves with custom overrides', async () => {
     (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue(mockSnapshot);
-    (prisma.monthlySnapshot.update as jest.Mock).mockResolvedValue({ ...mockSnapshot, targetsApproved: true });
+    (prisma.monthlySnapshot.update as jest.Mock).mockResolvedValue({
+      ...mockSnapshot,
+      targetsApproved: true,
+    });
     (prisma.planTarget.findFirst as jest.Mock).mockResolvedValue({ id: 'pt-4', monthNumber: 4 });
     (prisma.planTarget.update as jest.Mock).mockResolvedValue({});
 
@@ -143,7 +162,10 @@ describe('POST /api/monthly-review/:snapshotId/approve', () => {
 
   it('keeps original targets', async () => {
     (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue(mockSnapshot);
-    (prisma.monthlySnapshot.update as jest.Mock).mockResolvedValue({ ...mockSnapshot, targetsApproved: true });
+    (prisma.monthlySnapshot.update as jest.Mock).mockResolvedValue({
+      ...mockSnapshot,
+      targetsApproved: true,
+    });
 
     const res = await request(app)
       .post('/api/monthly-review/00000000-0000-0000-0000-000000000001/approve')
@@ -154,7 +176,8 @@ describe('POST /api/monthly-review/:snapshotId/approve', () => {
 
   it('is idempotent — double approve returns success', async () => {
     (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({
-      ...mockSnapshot, targetsApproved: true,
+      ...mockSnapshot,
+      targetsApproved: true,
     });
 
     const res = await request(app)

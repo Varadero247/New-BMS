@@ -65,11 +65,7 @@ export function QuickAddMenu() {
           isOpen ? 'bg-gray-800 rotate-45' : 'bg-purple-600 hover:bg-purple-700'
         }`}
       >
-        {isOpen ? (
-          <X className="h-6 w-6 text-white" />
-        ) : (
-          <Plus className="h-6 w-6 text-white" />
-        )}
+        {isOpen ? <X className="h-6 w-6 text-white" /> : <Plus className="h-6 w-6 text-white" />}
       </button>
     </div>
   );

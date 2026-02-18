@@ -19,12 +19,34 @@ enum PermissionLevel {
 }
 
 type ImsModule =
-  | 'health-safety' | 'environment' | 'quality' | 'hr' | 'payroll'
-  | 'inventory' | 'workflows' | 'project-management' | 'automotive'
-  | 'medical' | 'aerospace' | 'finance' | 'crm' | 'infosec'
-  | 'esg' | 'cmms' | 'portal' | 'food-safety' | 'energy'
-  | 'analytics' | 'field-service' | 'iso42001' | 'iso37001'
-  | 'ai' | 'settings' | 'templates' | 'reports' | 'dashboard';
+  | 'health-safety'
+  | 'environment'
+  | 'quality'
+  | 'hr'
+  | 'payroll'
+  | 'inventory'
+  | 'workflows'
+  | 'project-management'
+  | 'automotive'
+  | 'medical'
+  | 'aerospace'
+  | 'finance'
+  | 'crm'
+  | 'infosec'
+  | 'esg'
+  | 'cmms'
+  | 'portal'
+  | 'food-safety'
+  | 'energy'
+  | 'analytics'
+  | 'field-service'
+  | 'iso42001'
+  | 'iso37001'
+  | 'ai'
+  | 'settings'
+  | 'templates'
+  | 'reports'
+  | 'dashboard';
 
 interface ModulePermissions {
   module: ImsModule;
@@ -40,19 +62,44 @@ interface RoleDefinition {
 }
 
 const ALL_MODULES: ImsModule[] = [
-  'health-safety', 'environment', 'quality', 'hr', 'payroll',
-  'inventory', 'workflows', 'project-management', 'automotive',
-  'medical', 'aerospace', 'finance', 'crm', 'infosec',
-  'esg', 'cmms', 'portal', 'food-safety', 'energy',
-  'analytics', 'field-service', 'iso42001', 'iso37001',
-  'ai', 'settings', 'templates', 'reports', 'dashboard',
+  'health-safety',
+  'environment',
+  'quality',
+  'hr',
+  'payroll',
+  'inventory',
+  'workflows',
+  'project-management',
+  'automotive',
+  'medical',
+  'aerospace',
+  'finance',
+  'crm',
+  'infosec',
+  'esg',
+  'cmms',
+  'portal',
+  'food-safety',
+  'energy',
+  'analytics',
+  'field-service',
+  'iso42001',
+  'iso37001',
+  'ai',
+  'settings',
+  'templates',
+  'reports',
+  'dashboard',
 ];
 
 // Lazy-load @ims/rbac at runtime (avoids compile-time type resolution issues when dist is not built)
 let _rbac: {
   PLATFORM_ROLES: RoleDefinition[];
   getRoleById: (id: string) => RoleDefinition | undefined;
-  resolvePermissions: (roleIds: string[]) => { roles: string[]; modules: Record<ImsModule, PermissionLevel> };
+  resolvePermissions: (roleIds: string[]) => {
+    roles: string[];
+    modules: Record<ImsModule, PermissionLevel>;
+  };
   mapLegacyRole: (role: string) => string[];
 } | null = null;
 
@@ -89,7 +136,9 @@ const LEVEL_NAMES: Record<number, string> = {
   [PermissionLevel.FULL]: 'FULL',
 };
 
-function formatModules(modules: Record<string, number>): Record<string, { level: number; name: string }> {
+function formatModules(
+  modules: Record<string, number>
+): Record<string, { level: number; name: string }> {
   const result: Record<string, { level: number; name: string }> = {};
   const keys = Object.keys(modules);
   for (const mod of keys) {
@@ -130,7 +179,10 @@ router.use(authenticate);
 router.get('/modules', (_req: AuthRequest, res: Response) => {
   const moduleList = ALL_MODULES.map((m: string) => ({
     id: m,
-    name: m.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+    name: m
+      .split('-')
+      .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' '),
   }));
 
   res.json({ success: true, data: moduleList });
@@ -172,7 +224,11 @@ router.post('/resolve', (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: z.ZodIssue) => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e: z.ZodIssue) => e.path.join('.')),
+        },
       });
     }
     logger.error('Resolve permissions error', { error: (error as Error).message });
@@ -201,22 +257,27 @@ router.get('/', async (_req: AuthRequest, res: Response) => {
     }));
 
     // Fetch custom roles from database
-    const customRolesDb = await prisma.customRole.findMany({ orderBy: { createdAt: 'desc' }, take: 200 });
-    const customRoles = customRolesDb.map((cr: { id: string; name: string; description: string; permissions: unknown }) => {
-      const perms = (cr.permissions as { module: string; level: number }[]) || [];
-      return {
-        id: cr.id,
-        name: cr.name,
-        description: cr.description,
-        isSystem: false,
-        permissionCount: perms.length,
-        permissions: perms.map((p: { module: string; level: number }) => ({
-          module: p.module,
-          level: p.level,
-          levelName: PermissionLevel[p.level],
-        })),
-      };
+    const customRolesDb = await prisma.customRole.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 200,
     });
+    const customRoles = customRolesDb.map(
+      (cr: { id: string; name: string; description: string; permissions: unknown }) => {
+        const perms = (cr.permissions as { module: string; level: number }[]) || [];
+        return {
+          id: cr.id,
+          name: cr.name,
+          description: cr.description,
+          isSystem: false,
+          permissionCount: perms.length,
+          permissions: perms.map((p: { module: string; level: number }) => ({
+            module: p.module,
+            level: p.level,
+            levelName: PermissionLevel[p.level],
+          })),
+        };
+      }
+    );
 
     const allRoles = [...systemRoles, ...customRoles];
 
@@ -240,20 +301,29 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
     const schema = z.object({
       name: z.string().min(2, 'Name must be at least 2 characters').max(100),
       description: z.string().max(500).optional().default(''),
-      permissions: z.array(z.object({
-        module: z.string(),
-        level: z.number().min(0).max(6),
-      })).min(1, 'At least one permission is required'),
+      permissions: z
+        .array(
+          z.object({
+            module: z.string(),
+            level: z.number().min(0).max(6),
+          })
+        )
+        .min(1, 'At least one permission is required'),
     });
 
     const data = schema.parse(req.body);
 
     // Validate module names
-    const invalidModules = data.permissions.filter((p: { module: string }) => !ALL_MODULES.includes(p.module as ImsModule));
+    const invalidModules = data.permissions.filter(
+      (p: { module: string }) => !ALL_MODULES.includes(p.module as ImsModule)
+    );
     if (invalidModules.length > 0) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: `Invalid modules: ${invalidModules.map((p: { module: string }) => p.module).join(', ')}` },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: `Invalid modules: ${invalidModules.map((p: { module: string }) => p.module).join(', ')}`,
+        },
       });
     }
 
@@ -265,7 +335,10 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
     if (systemNameConflict) {
       return res.status(409).json({
         success: false,
-        error: { code: 'DUPLICATE_NAME', message: `A system role with name "${data.name}" already exists` },
+        error: {
+          code: 'DUPLICATE_NAME',
+          message: `A system role with name "${data.name}" already exists`,
+        },
       });
     }
 
@@ -355,20 +428,30 @@ router.put('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Response)
     const schema = z.object({
       name: z.string().min(2).max(100).optional(),
       description: z.string().max(500).optional(),
-      permissions: z.array(z.object({
-        module: z.string(),
-        level: z.number().min(0).max(6),
-      })).min(1).optional(),
+      permissions: z
+        .array(
+          z.object({
+            module: z.string(),
+            level: z.number().min(0).max(6),
+          })
+        )
+        .min(1)
+        .optional(),
     });
 
     const data = schema.parse(req.body);
 
     if (data.permissions) {
-      const invalidModules = data.permissions.filter((p: { module: string }) => !ALL_MODULES.includes(p.module as ImsModule));
+      const invalidModules = data.permissions.filter(
+        (p: { module: string }) => !ALL_MODULES.includes(p.module as ImsModule)
+      );
       if (invalidModules.length > 0) {
         return res.status(400).json({
           success: false,
-          error: { code: 'VALIDATION_ERROR', message: `Invalid modules: ${invalidModules.map((p: { module: string }) => p.module).join(', ')}` },
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: `Invalid modules: ${invalidModules.map((p: { module: string }) => p.module).join(', ')}`,
+          },
         });
       }
     }
@@ -489,15 +572,7 @@ router.delete('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Respon
 // GET /access-log — List audit log entries (paginated, filterable)
 router.get('/access-log', (req: AuthRequest, res: Response) => {
   try {
-    const {
-      page = '1',
-      limit = '50',
-      userId,
-      module,
-      action,
-      startDate,
-      endDate,
-    } = req.query;
+    const { page = '1', limit = '50', userId, module, action, startDate, endDate } = req.query;
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 50), 200);
@@ -579,7 +654,11 @@ router.post('/access-log', (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: z.ZodIssue) => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e: z.ZodIssue) => e.path.join('.')),
+        },
       });
     }
     logger.error('Record access log error', { error: (error as Error).message });
@@ -675,87 +754,95 @@ router.get('/users/:userId/permissions', async (req: AuthRequest, res: Response)
 });
 
 // PATCH /users/:userId/roles — Update a user's assigned roles (Admin only)
-router.patch('/users/:userId/roles', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
-  try {
-    const { userId } = req.params;
+router.patch(
+  '/users/:userId/roles',
+  requireRole('ADMIN'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { userId } = req.params;
 
-    const schema = z.object({
-      roles: z.array(z.string()).min(1, 'At least one role is required'),
-    });
+      const schema = z.object({
+        roles: z.array(z.string()).min(1, 'At least one role is required'),
+      });
 
-    const { roles } = schema.parse(req.body);
-    const rbac = getRbac();
+      const { roles } = schema.parse(req.body);
+      const rbac = getRbac();
 
-    // Validate that all role IDs exist
-    const invalidRoles = roles.filter((id: string) => !rbac.getRoleById(id));
-    if (invalidRoles.length > 0) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'INVALID_ROLES',
-          message: `Unknown role IDs: ${invalidRoles.join(', ')}`,
+      // Validate that all role IDs exist
+      const invalidRoles = roles.filter((id: string) => !rbac.getRoleById(id));
+      if (invalidRoles.length > 0) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'INVALID_ROLES',
+            message: `Unknown role IDs: ${invalidRoles.join(', ')}`,
+          },
+        });
+      }
+
+      // Verify user exists
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, email: true, firstName: true, lastName: true, role: true },
+      });
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'User not found' },
+        });
+      }
+
+      // Resolve effective permissions from the assigned roles
+      const resolved = rbac.resolvePermissions(roles);
+
+      // Record audit entry
+      accessLog.unshift({
+        id: uuidv4(),
+        userId: req.user!.id,
+        userEmail: req.user!.email || 'unknown',
+        module: 'rbac',
+        action: 'UPDATE_ROLES',
+        resource: `user:${userId}`,
+        details: `Assigned roles [${roles.join(', ')}] to user ${user.email}`,
+        ipAddress: req.ip,
+        timestamp: new Date().toISOString(),
+      });
+
+      if (accessLog.length > MAX_LOG_ENTRIES) {
+        accessLog.length = MAX_LOG_ENTRIES;
+      }
+
+      const modulesReadable = formatModules(resolved.modules as unknown as Record<string, number>);
+
+      res.json({
+        success: true,
+        data: {
+          userId: user.id,
+          email: user.email,
+          name: `${user.firstName} ${user.lastName}`,
+          assignedRoles: roles,
+          effectivePermissions: modulesReadable,
         },
       });
-    }
-
-    // Verify user exists
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, email: true, firstName: true, lastName: true, role: true },
-    });
-
-    if (!user) {
-      return res.status(404).json({
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e: z.ZodIssue) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update user roles error', { error: (error as Error).message });
+      res.status(500).json({
         success: false,
-        error: { code: 'NOT_FOUND', message: 'User not found' },
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update user roles' },
       });
     }
-
-    // Resolve effective permissions from the assigned roles
-    const resolved = rbac.resolvePermissions(roles);
-
-    // Record audit entry
-    accessLog.unshift({
-      id: uuidv4(),
-      userId: req.user!.id,
-      userEmail: req.user!.email || 'unknown',
-      module: 'rbac',
-      action: 'UPDATE_ROLES',
-      resource: `user:${userId}`,
-      details: `Assigned roles [${roles.join(', ')}] to user ${user.email}`,
-      ipAddress: req.ip,
-      timestamp: new Date().toISOString(),
-    });
-
-    if (accessLog.length > MAX_LOG_ENTRIES) {
-      accessLog.length = MAX_LOG_ENTRIES;
-    }
-
-    const modulesReadable = formatModules(resolved.modules as unknown as Record<string, number>);
-
-    res.json({
-      success: true,
-      data: {
-        userId: user.id,
-        email: user.email,
-        name: `${user.firstName} ${user.lastName}`,
-        assignedRoles: roles,
-        effectivePermissions: modulesReadable,
-      },
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e: z.ZodIssue) => e.path.join('.')) },
-      });
-    }
-    logger.error('Update user roles error', { error: (error as Error).message });
-    res.status(500).json({
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'Failed to update user roles' },
-    });
   }
-});
+);
 
 export default router;

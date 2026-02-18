@@ -31,7 +31,17 @@ interface Template {
 }
 
 const MODULE_FILTER = 'ENVIRONMENT';
-const CATEGORIES = ['All', 'Assessment', 'Audit', 'Checklist', 'Form', 'Policy', 'Procedure', 'Register', 'Report'];
+const CATEGORIES = [
+  'All',
+  'Assessment',
+  'Audit',
+  'Checklist',
+  'Form',
+  'Policy',
+  'Procedure',
+  'Register',
+  'Report',
+];
 const STATUSES = ['All', 'ACTIVE', 'DRAFT', 'ARCHIVED'];
 
 export default function TemplatesClient() {
@@ -111,9 +121,14 @@ export default function TemplatesClient() {
   const renderFormField = (field: FieldDefinition) => {
     if (field.type === 'section') {
       return (
-        <div key={field.name} className="col-span-2 pt-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+        <div
+          key={field.name}
+          className="col-span-2 pt-4 pb-2 border-b border-gray-200 dark:border-gray-700"
+        >
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{field.label}</h3>
-          {field.description && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{field.description}</p>}
+          {field.description && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{field.description}</p>
+          )}
         </div>
       );
     }
@@ -148,7 +163,9 @@ export default function TemplatesClient() {
           >
             <option value="">Select...</option>
             {field.options?.map((opt) => (
-              <option key={opt} value={opt}>{opt}</option>
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
             ))}
           </select>
         </div>
@@ -165,7 +182,10 @@ export default function TemplatesClient() {
             checked={!!formData[field.name]}
             onChange={(e) => handleFormChange(field.name, e.target.checked)}
           />
-          <label htmlFor={field.name} className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor={field.name}
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             {field.label}
           </label>
         </div>
@@ -197,8 +217,12 @@ export default function TemplatesClient() {
               <FileText className="h-6 w-6 text-green-600" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Environmental Templates</h1>
-              <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 14001 assessment and reporting templates</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                Environmental Templates
+              </h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">
+                ISO 14001 assessment and reporting templates
+              </p>
             </div>
           </div>
         </div>
@@ -208,7 +232,8 @@ export default function TemplatesClient() {
           <div className="flex items-center gap-2 flex-1 min-w-[200px]">
             <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
-              aria-label="Search templates..." placeholder="Search templates..."
+              aria-label="Search templates..."
+              placeholder="Search templates..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1"
@@ -222,7 +247,9 @@ export default function TemplatesClient() {
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
               {CATEGORIES.map((c) => (
-                <option key={c} value={c}>{c === 'All' ? 'All Categories' : c}</option>
+                <option key={c} value={c}>
+                  {c === 'All' ? 'All Categories' : c}
+                </option>
               ))}
             </select>
           </div>
@@ -234,7 +261,9 @@ export default function TemplatesClient() {
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               {STATUSES.map((s) => (
-                <option key={s} value={s}>{s === 'All' ? 'All Statuses' : s}</option>
+                <option key={s} value={s}>
+                  {s === 'All' ? 'All Statuses' : s}
+                </option>
               ))}
             </select>
           </div>
@@ -250,23 +279,42 @@ export default function TemplatesClient() {
         ) : templates.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {templates.map((template) => (
-              <Card key={template.id} className="hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700">
+              <Card
+                key={template.id}
+                className="hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700"
+              >
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between mb-3">
-                    <Badge className="bg-green-100 text-green-700 text-xs font-mono">{template.code}</Badge>
-                    <Badge variant="outline" className="text-xs">{template.status}</Badge>
+                    <Badge className="bg-green-100 text-green-700 text-xs font-mono">
+                      {template.code}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {template.status}
+                    </Badge>
                   </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{template.name}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">{template.description}</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                    {template.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">
+                    {template.description}
+                  </p>
                   <div className="flex items-center gap-2 mb-4">
-                    <Badge variant="outline" className="text-xs">{template.category}</Badge>
-                    <span className="text-xs text-gray-400 dark:text-gray-500">{template.usageCount} uses</span>
+                    <Badge variant="outline" className="text-xs">
+                      {template.category}
+                    </Badge>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">
+                      {template.usageCount} uses
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" onClick={() => handlePreview(template)}>
                       <Eye className="h-3.5 w-3.5 mr-1" /> Preview
                     </Button>
-                    <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => handleUse(template)}>
+                    <Button
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => handleUse(template)}
+                    >
                       Use
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => handleClone(template)}>
@@ -284,7 +332,9 @@ export default function TemplatesClient() {
           <div className="text-center py-16">
             <FileText className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <p className="text-gray-500 dark:text-gray-400 text-lg">No templates found</p>
-            <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Try adjusting your search or filters</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">
+              Try adjusting your search or filters
+            </p>
           </div>
         )}
 
@@ -298,25 +348,40 @@ export default function TemplatesClient() {
           {selectedTemplate && (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Badge className="bg-green-100 text-green-700 font-mono">{selectedTemplate.code}</Badge>
+                <Badge className="bg-green-100 text-green-700 font-mono">
+                  {selectedTemplate.code}
+                </Badge>
                 <Badge variant="outline">{selectedTemplate.category}</Badge>
                 <Badge variant="outline">{selectedTemplate.status}</Badge>
               </div>
               <p className="text-sm text-gray-600">{selectedTemplate.description}</p>
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Field Definitions</h4>
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                  Field Definitions
+                </h4>
                 <div className="space-y-2">
                   {selectedTemplate.fieldDefinitions?.map((field) => (
-                    <div key={field.name} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div
+                      key={field.name}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
                       <div>
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{field.label}</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">({field.type})</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {field.label}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                          ({field.type})
+                        </span>
                         {field.description && (
-                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{field.description}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                            {field.description}
+                          </p>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        {field.required && <Badge className="bg-red-100 text-red-700 text-xs">Required</Badge>}
+                        {field.required && (
+                          <Badge className="bg-red-100 text-red-700 text-xs">Required</Badge>
+                        )}
                         {field.options && (
                           <Badge variant="outline" className="text-xs">
                             {field.options.length} options
@@ -333,8 +398,13 @@ export default function TemplatesClient() {
             </div>
           )}
           <ModalFooter>
-            <Button variant="outline" onClick={() => setSelectedTemplate(null)}>Close</Button>
-            <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={() => selectedTemplate && handleUse(selectedTemplate)}>
+            <Button variant="outline" onClick={() => setSelectedTemplate(null)}>
+              Close
+            </Button>
+            <Button
+              className="bg-green-600 hover:bg-green-700 text-white"
+              onClick={() => selectedTemplate && handleUse(selectedTemplate)}
+            >
               Use Template
             </Button>
           </ModalFooter>
@@ -343,20 +413,33 @@ export default function TemplatesClient() {
         {/* Use Template Modal */}
         <Modal
           isOpen={showUseModal}
-          onClose={() => { setShowUseModal(false); setSelectedTemplate(null); setFormData({}); }}
+          onClose={() => {
+            setShowUseModal(false);
+            setSelectedTemplate(null);
+            setFormData({});
+          }}
           title={`Use Template: ${selectedTemplate?.name || ''}`}
           size="lg"
         >
           {selectedTemplate && (
             <div className="space-y-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">{selectedTemplate.description}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {selectedTemplate.description}
+              </p>
               <div className="grid grid-cols-2 gap-4">
                 {selectedTemplate.fieldDefinitions?.map((field) => renderFormField(field))}
               </div>
             </div>
           )}
           <ModalFooter>
-            <Button variant="outline" onClick={() => { setShowUseModal(false); setSelectedTemplate(null); setFormData({}); }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowUseModal(false);
+                setSelectedTemplate(null);
+                setFormData({});
+              }}
+            >
               Cancel
             </Button>
             <Button

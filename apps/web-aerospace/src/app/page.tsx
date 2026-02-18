@@ -82,7 +82,7 @@ export default function AerospaceDashboard() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
@@ -96,14 +96,27 @@ export default function AerospaceDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Aerospace Dashboard</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">AS9100D Aerospace Quality Management System</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Aerospace Dashboard
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            AS9100D Aerospace Quality Management System
+          </p>
         </div>
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
             <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-            <button onClick={() => { setError(''); setLoading(true); loadStats(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+            <button
+              onClick={() => {
+                setError('');
+                setLoading(true);
+                loadStats();
+              }}
+              className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0"
+            >
+              Retry
+            </button>
           </div>
         )}
 
@@ -121,9 +134,13 @@ export default function AerospaceDashboard() {
                 </div>
               </div>
               <div className="mt-2 text-sm">
-                <span className="text-indigo-600 font-medium">{stats?.configurationItems.active || 0} active</span>
+                <span className="text-indigo-600 font-medium">
+                  {stats?.configurationItems.active || 0} active
+                </span>
                 <span className="text-gray-400 dark:text-gray-500 mx-1">|</span>
-                <span className="text-amber-600 font-medium">{stats?.configurationItems.underReview || 0} under review</span>
+                <span className="text-amber-600 font-medium">
+                  {stats?.configurationItems.underReview || 0} under review
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -133,7 +150,9 @@ export default function AerospaceDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Open ECPs</p>
-                  <p className="text-2xl font-bold text-amber-600">{stats?.engineeringChanges.open || 0}</p>
+                  <p className="text-2xl font-bold text-amber-600">
+                    {stats?.engineeringChanges.open || 0}
+                  </p>
                 </div>
                 <div className="p-3 bg-amber-100 dark:bg-amber-900 rounded-full">
                   <GitPullRequest className="h-6 w-6 text-amber-600" />
@@ -174,7 +193,9 @@ export default function AerospaceDashboard() {
                 </div>
               </div>
               <div className="mt-2 text-sm">
-                <span className="text-red-600 font-medium">{stats?.audits.overdue || 0} overdue</span>
+                <span className="text-red-600 font-medium">
+                  {stats?.audits.overdue || 0} overdue
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -194,7 +215,9 @@ export default function AerospaceDashboard() {
                 </div>
               </div>
               <div className="mt-2 text-sm">
-                <span className="text-amber-600 font-medium">{stats?.productSafety.openIssues || 0} open issues</span>
+                <span className="text-amber-600 font-medium">
+                  {stats?.productSafety.openIssues || 0} open issues
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -238,7 +261,9 @@ export default function AerospaceDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Counterfeit Alerts</p>
-                  <p className="text-2xl font-bold text-orange-600">{stats?.counterfeitParts.alerts || 0}</p>
+                  <p className="text-2xl font-bold text-orange-600">
+                    {stats?.counterfeitParts.alerts || 0}
+                  </p>
                 </div>
                 <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-full">
                   <AlertOctagon className="h-6 w-6 text-orange-600" />
@@ -265,25 +290,40 @@ export default function AerospaceDashboard() {
               {recentItems.length > 0 ? (
                 <div className="space-y-3">
                   {recentItems.map((item: any) => (
-                    <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
                       <div className="flex-1">
                         <p className="font-medium text-sm">{item.name}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{item.ciNumber}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            item.status === 'ACTIVE' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
-                            item.status === 'UNDER_REVIEW' ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300' :
-                            item.status === 'DRAFT' ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' :
-                            'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                          }`}>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                            {item.ciNumber}
+                          </span>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              item.status === 'ACTIVE'
+                                ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                                : item.status === 'UNDER_REVIEW'
+                                  ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300'
+                                  : item.status === 'DRAFT'
+                                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                                    : 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                            }`}
+                          >
                             {item.status?.replace(/_/g, ' ')}
                           </span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            item.type === 'HARDWARE' ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' :
-                            item.type === 'SOFTWARE' ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300' :
-                            item.type === 'DOCUMENT' ? 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300' :
-                            'bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300'
-                          }`}>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              item.type === 'HARDWARE'
+                                ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300'
+                                : item.type === 'SOFTWARE'
+                                  ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300'
+                                  : item.type === 'DOCUMENT'
+                                    ? 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300'
+                                    : 'bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300'
+                            }`}
+                          >
                             {item.type}
                           </span>
                         </div>
@@ -295,7 +335,9 @@ export default function AerospaceDashboard() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No configuration items recorded</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                  No configuration items recorded
+                </p>
               )}
             </CardContent>
           </Card>
@@ -312,26 +354,42 @@ export default function AerospaceDashboard() {
               {recentChanges.length > 0 ? (
                 <div className="space-y-3">
                   {recentChanges.map((change: any) => (
-                    <div key={change.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div
+                      key={change.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
                       <div className="flex-1">
                         <p className="font-medium text-sm">{change.title}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{change.ecpNumber}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            change.status === 'OPEN' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
-                            change.status === 'IN_REVIEW' ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300' :
-                            change.status === 'APPROVED' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
-                            change.status === 'REJECTED' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                            'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-                          }`}>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                            {change.ecpNumber}
+                          </span>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              change.status === 'OPEN'
+                                ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                                : change.status === 'IN_REVIEW'
+                                  ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300'
+                                  : change.status === 'APPROVED'
+                                    ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                                    : change.status === 'REJECTED'
+                                      ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                            }`}
+                          >
                             {change.status?.replace(/_/g, ' ')}
                           </span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            change.priority === 'CRITICAL' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                            change.priority === 'HIGH' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
-                            change.priority === 'MEDIUM' ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300' :
-                            'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-                          }`}>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              change.priority === 'CRITICAL'
+                                ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                                : change.priority === 'HIGH'
+                                  ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300'
+                                  : change.priority === 'MEDIUM'
+                                    ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300'
+                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                            }`}
+                          >
                             {change.priority}
                           </span>
                         </div>
@@ -343,7 +401,9 @@ export default function AerospaceDashboard() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No engineering changes recorded</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                  No engineering changes recorded
+                </p>
               )}
             </CardContent>
           </Card>

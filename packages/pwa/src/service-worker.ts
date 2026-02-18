@@ -22,10 +22,7 @@ const DB_VERSION = 1;
 const MAX_RETRIES = 3;
 
 // Static assets to precache on install
-const PRECACHE_URLS = [
-  '/',
-  '/manifest.json',
-];
+const PRECACHE_URLS = ['/', '/manifest.json'];
 
 // Priority URL patterns for data caching
 const PRIORITY_PATTERNS = [
@@ -77,8 +74,14 @@ async function enqueueMutation(mutation: QueuedMutation): Promise<void> {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite');
     tx.objectStore(STORE_NAME).put(mutation);
-    tx.oncomplete = () => { db.close(); resolve(); };
-    tx.onerror = () => { db.close(); reject(tx.error); };
+    tx.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+    tx.onerror = () => {
+      db.close();
+      reject(tx.error);
+    };
   });
 }
 
@@ -87,8 +90,14 @@ async function getAllMutations(): Promise<QueuedMutation[]> {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readonly');
     const req = tx.objectStore(STORE_NAME).index('timestamp').getAll();
-    req.onsuccess = () => { db.close(); resolve(req.result); };
-    req.onerror = () => { db.close(); reject(req.error); };
+    req.onsuccess = () => {
+      db.close();
+      resolve(req.result);
+    };
+    req.onerror = () => {
+      db.close();
+      reject(req.error);
+    };
   });
 }
 
@@ -97,8 +106,14 @@ async function removeMutation(id: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite');
     tx.objectStore(STORE_NAME).delete(id);
-    tx.oncomplete = () => { db.close(); resolve(); };
-    tx.onerror = () => { db.close(); reject(tx.error); };
+    tx.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+    tx.onerror = () => {
+      db.close();
+      reject(tx.error);
+    };
   });
 }
 
@@ -109,15 +124,20 @@ async function getTrackedUrls(): Promise<string[]> {
     const cache = await caches.open(DATA_CACHE);
     const metaResp = await cache.match(META_KEY);
     if (metaResp) return await metaResp.json();
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return [];
 }
 
 async function setTrackedUrls(urls: string[]): Promise<void> {
   const cache = await caches.open(DATA_CACHE);
-  await cache.put(META_KEY, new Response(JSON.stringify(urls), {
-    headers: { 'Content-Type': 'application/json' },
-  }));
+  await cache.put(
+    META_KEY,
+    new Response(JSON.stringify(urls), {
+      headers: { 'Content-Type': 'application/json' },
+    })
+  );
 }
 
 async function cacheDataResponse(url: string, response: Response): Promise<void> {
@@ -143,7 +163,10 @@ async function cacheDataResponse(url: string, response: Response): Promise<void>
 
 self.addEventListener('install', (event: ExtendableEvent) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE_URLS)).then(() => self.skipWaiting())
+    caches
+      .open(STATIC_CACHE)
+      .then((cache) => cache.addAll(PRECACHE_URLS))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -152,13 +175,14 @@ self.addEventListener('install', (event: ExtendableEvent) => {
 self.addEventListener('activate', (event: ExtendableEvent) => {
   const currentCaches = new Set([STATIC_CACHE, DATA_CACHE]);
   event.waitUntil(
-    caches.keys().then((cacheNames) =>
-      Promise.all(
-        cacheNames
-          .filter((name) => !currentCaches.has(name))
-          .map((name) => caches.delete(name))
+    caches
+      .keys()
+      .then((cacheNames) =>
+        Promise.all(
+          cacheNames.filter((name) => !currentCaches.has(name)).map((name) => caches.delete(name))
+        )
       )
-    ).then(() => self.clients.claim())
+      .then(() => self.clients.claim())
   );
 });
 
@@ -184,7 +208,10 @@ self.addEventListener('fetch', (event: FetchEvent) => {
   }
 
   // API mutations — network with offline queue fallback
-  if (url.pathname.startsWith('/api/') && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)) {
+  if (
+    url.pathname.startsWith('/api/') &&
+    ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)
+  ) {
     event.respondWith(networkWithQueue(request));
     return;
   }

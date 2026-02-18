@@ -3,7 +3,13 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    cmmsChecklist: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    cmmsChecklist: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
     cmmsChecklistResult: { findMany: jest.fn(), create: jest.fn() },
   },
   Prisma: { Decimal: jest.fn((v: any) => v) },
@@ -107,10 +113,12 @@ describe('Checklists Routes', () => {
     it('should create a checklist', async () => {
       prisma.cmmsChecklist.create.mockResolvedValue(mockChecklist);
 
-      const res = await request(app).post('/api/checklists').send({
-        name: 'Daily Equipment Check',
-        items: [{ label: 'Check oil level', type: 'boolean' }],
-      });
+      const res = await request(app)
+        .post('/api/checklists')
+        .send({
+          name: 'Daily Equipment Check',
+          items: [{ label: 'Check oil level', type: 'boolean' }],
+        });
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
     });
@@ -153,14 +161,18 @@ describe('Checklists Routes', () => {
       prisma.cmmsChecklist.findFirst.mockResolvedValue(mockChecklist);
       prisma.cmmsChecklist.update.mockResolvedValue({ ...mockChecklist, name: 'Updated' });
 
-      const res = await request(app).put('/api/checklists/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
+      const res = await request(app)
+        .put('/api/checklists/00000000-0000-0000-0000-000000000001')
+        .send({ name: 'Updated' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent checklist', async () => {
       prisma.cmmsChecklist.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/checklists/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
+      const res = await request(app)
+        .put('/api/checklists/00000000-0000-0000-0000-000000000099')
+        .send({ name: 'Updated' });
       expect(res.status).toBe(404);
     });
   });
@@ -188,31 +200,37 @@ describe('Checklists Routes', () => {
       prisma.cmmsChecklist.findFirst.mockResolvedValue(mockChecklist);
       prisma.cmmsChecklistResult.create.mockResolvedValue(mockResult);
 
-      const res = await request(app).post('/api/checklists/00000000-0000-0000-0000-000000000001/results').send({
-        assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        completedBy: 'John Smith',
-        completedAt: '2026-02-13T10:00:00Z',
-        results: [{ label: 'Check oil level', value: true }],
-        overallResult: 'PASS',
-      });
+      const res = await request(app)
+        .post('/api/checklists/00000000-0000-0000-0000-000000000001/results')
+        .send({
+          assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+          completedBy: 'John Smith',
+          completedAt: '2026-02-13T10:00:00Z',
+          results: [{ label: 'Check oil level', value: true }],
+          overallResult: 'PASS',
+        });
       expect(res.status).toBe(201);
     });
 
     it('should return 404 for non-existent checklist', async () => {
       prisma.cmmsChecklist.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).post('/api/checklists/00000000-0000-0000-0000-000000000099/results').send({
-        assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        completedBy: 'John Smith',
-        completedAt: '2026-02-13T10:00:00Z',
-        results: [],
-        overallResult: 'PASS',
-      });
+      const res = await request(app)
+        .post('/api/checklists/00000000-0000-0000-0000-000000000099/results')
+        .send({
+          assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+          completedBy: 'John Smith',
+          completedAt: '2026-02-13T10:00:00Z',
+          results: [],
+          overallResult: 'PASS',
+        });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for invalid data', async () => {
-      const res = await request(app).post('/api/checklists/00000000-0000-0000-0000-000000000001/results').send({});
+      const res = await request(app)
+        .post('/api/checklists/00000000-0000-0000-0000-000000000001/results')
+        .send({});
       expect(res.status).toBe(400);
     });
   });
@@ -222,7 +240,9 @@ describe('Checklists Routes', () => {
       prisma.cmmsChecklist.findFirst.mockResolvedValue(mockChecklist);
       prisma.cmmsChecklistResult.findMany.mockResolvedValue([mockResult]);
 
-      const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000001/results');
+      const res = await request(app).get(
+        '/api/checklists/00000000-0000-0000-0000-000000000001/results'
+      );
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(1);
     });
@@ -230,7 +250,9 @@ describe('Checklists Routes', () => {
     it('should return 404 for non-existent checklist', async () => {
       prisma.cmmsChecklist.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000099/results');
+      const res = await request(app).get(
+        '/api/checklists/00000000-0000-0000-0000-000000000099/results'
+      );
       expect(res.status).toBe(404);
     });
   });

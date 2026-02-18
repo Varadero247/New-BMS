@@ -19,9 +19,7 @@ type Story = StoryObj<typeof DropdownMenu>;
 
 export const Default: Story = {
   render: () => (
-    <DropdownMenu
-      trigger={<Button variant="outline">Menu</Button>}
-    >
+    <DropdownMenu trigger={<Button variant="outline">Menu</Button>}>
       <DropdownItem>Edit</DropdownItem>
       <DropdownItem>Delete</DropdownItem>
       <DropdownItem>Share</DropdownItem>
@@ -31,9 +29,7 @@ export const Default: Story = {
 
 export const WithIcons: Story = {
   render: () => (
-    <DropdownMenu
-      trigger={<Button variant="outline">Actions</Button>}
-    >
+    <DropdownMenu trigger={<Button variant="outline">Actions</Button>}>
       <DropdownItem icon={<span>✏️</span>}>Edit Item</DropdownItem>
       <DropdownItem icon={<span>👁️</span>}>View Details</DropdownItem>
       <DropdownItem icon={<span>📋</span>}>Duplicate</DropdownItem>
@@ -48,9 +44,7 @@ export const WithIcons: Story = {
 
 export const WithLabelsAndSeparators: Story = {
   render: () => (
-    <DropdownMenu
-      trigger={<Button variant="outline">File</Button>}
-    >
+    <DropdownMenu trigger={<Button variant="outline">File</Button>}>
       <DropdownLabel>File Operations</DropdownLabel>
       <DropdownItem icon={<span>📄</span>}>New</DropdownItem>
       <DropdownItem icon={<span>📂</span>}>Open</DropdownItem>
@@ -65,9 +59,7 @@ export const WithLabelsAndSeparators: Story = {
 
 export const WithDestructive: Story = {
   render: () => (
-    <DropdownMenu
-      trigger={<Button variant="outline">More</Button>}
-    >
+    <DropdownMenu trigger={<Button variant="outline">More</Button>}>
       <DropdownItem icon={<span>📝</span>}>Edit</DropdownItem>
       <DropdownItem icon={<span>📤</span>}>Export</DropdownItem>
       <DropdownSeparator />
@@ -80,9 +72,7 @@ export const WithDestructive: Story = {
 
 export const WithDisabled: Story = {
   render: () => (
-    <DropdownMenu
-      trigger={<Button variant="outline">Options</Button>}
-    >
+    <DropdownMenu trigger={<Button variant="outline">Options</Button>}>
       <DropdownItem icon={<span>✂️</span>}>Cut</DropdownItem>
       <DropdownItem icon={<span>📋</span>}>Copy</DropdownItem>
       <DropdownItem icon={<span>📌</span>} disabled>
@@ -100,10 +90,7 @@ export const WithDisabled: Story = {
 export const RightAligned: Story = {
   render: () => (
     <div className="flex justify-end pr-8">
-      <DropdownMenu
-        trigger={<Button variant="outline">Align Right</Button>}
-        align="right"
-      >
+      <DropdownMenu trigger={<Button variant="outline">Align Right</Button>} align="right">
         <DropdownItem icon={<span>🎨</span>}>Customize</DropdownItem>
         <DropdownItem icon={<span>⚙️</span>}>Preferences</DropdownItem>
         <DropdownItem icon={<span>👤</span>}>Profile</DropdownItem>
@@ -117,7 +104,11 @@ export const RightAligned: Story = {
 export const Compact: Story = {
   render: () => (
     <DropdownMenu
-      trigger={<Button variant="ghost" size="sm">⋯</Button>}
+      trigger={
+        <Button variant="ghost" size="sm">
+          ⋯
+        </Button>
+      }
     >
       <DropdownItem>View</DropdownItem>
       <DropdownItem>Edit</DropdownItem>
@@ -129,9 +120,7 @@ export const Compact: Story = {
 
 export const LongMenu: Story = {
   render: () => (
-    <DropdownMenu
-      trigger={<Button variant="outline">Categories</Button>}
-    >
+    <DropdownMenu trigger={<Button variant="outline">Categories</Button>}>
       <DropdownLabel>Popular</DropdownLabel>
       <DropdownItem>Recently Used</DropdownItem>
       <DropdownItem>Favorites</DropdownItem>

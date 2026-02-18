@@ -90,7 +90,8 @@ router.get('/safety/summary', authenticate, async (req, res, next) => {
     const metrics = await prisma.safetyMetric.findMany({
       where: { year: targetYear },
       orderBy: { month: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Calculate YTD totals
     const ytd = metrics.reduce(
@@ -117,7 +118,8 @@ router.get('/safety/summary', authenticate, async (req, res, next) => {
     // Get previous year for comparison
     const previousYearMetrics = await prisma.safetyMetric.findMany({
       where: { year: targetYear - 1 },
-      take: 1000});
+      take: 1000,
+    });
 
     const previousYtd = previousYearMetrics.reduce(
       (acc, m) => ({
@@ -148,12 +150,14 @@ router.get('/safety/summary', authenticate, async (req, res, next) => {
         })),
         comparison: {
           previousYear: targetYear - 1,
-          ltifrChange: previousRates.ltifr > 0
-            ? Math.round(((ytdRates.ltifr - previousRates.ltifr) / previousRates.ltifr) * 100)
-            : 0,
-          trirChange: previousRates.trir > 0
-            ? Math.round(((ytdRates.trir - previousRates.trir) / previousRates.trir) * 100)
-            : 0,
+          ltifrChange:
+            previousRates.ltifr > 0
+              ? Math.round(((ytdRates.ltifr - previousRates.ltifr) / previousRates.ltifr) * 100)
+              : 0,
+          trirChange:
+            previousRates.trir > 0
+              ? Math.round(((ytdRates.trir - previousRates.trir) / previousRates.trir) * 100)
+              : 0,
         },
       },
     });
@@ -163,32 +167,38 @@ router.get('/safety/summary', authenticate, async (req, res, next) => {
 });
 
 // POST /api/metrics/safety - Create/update safety metric
-router.post('/safety', authenticate, requireRole(['ADMIN', 'MANAGER']), validate(safetyMetricSchema), async (req, res, next) => {
-  try {
-    const rates = calculateSafetyRates(req.body);
+router.post(
+  '/safety',
+  authenticate,
+  requireRole(['ADMIN', 'MANAGER']),
+  validate(safetyMetricSchema),
+  async (req, res, next) => {
+    try {
+      const rates = calculateSafetyRates(req.body);
 
-    const metric = await prisma.safetyMetric.upsert({
-      where: {
-        year_month: {
-          year: req.body.year,
-          month: req.body.month,
+      const metric = await prisma.safetyMetric.upsert({
+        where: {
+          year_month: {
+            year: req.body.year,
+            month: req.body.month,
+          },
         },
-      },
-      create: {
-        ...req.body,
-        ...rates,
-      },
-      update: {
-        ...req.body,
-        ...rates,
-      },
-    });
+        create: {
+          ...req.body,
+          ...rates,
+        },
+        update: {
+          ...req.body,
+          ...rates,
+        },
+      });
 
-    res.json({ success: true, data: metric });
-  } catch (error) {
-    next(error);
+      res.json({ success: true, data: metric });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // ===== QUALITY METRICS (ISO 9001) =====
 
@@ -299,7 +309,8 @@ router.get('/quality/summary', authenticate, async (req, res, next) => {
     const metrics = await prisma.qualityMetric.findMany({
       where: { year: targetYear },
       orderBy: { month: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Calculate YTD totals
     const ytd = metrics.reduce(
@@ -354,32 +365,38 @@ router.get('/quality/summary', authenticate, async (req, res, next) => {
 });
 
 // POST /api/metrics/quality - Create/update quality metric
-router.post('/quality', authenticate, requireRole(['ADMIN', 'MANAGER']), validate(qualityMetricSchema), async (req, res, next) => {
-  try {
-    const calculated = calculateQualityMetrics(req.body);
+router.post(
+  '/quality',
+  authenticate,
+  requireRole(['ADMIN', 'MANAGER']),
+  validate(qualityMetricSchema),
+  async (req, res, next) => {
+    try {
+      const calculated = calculateQualityMetrics(req.body);
 
-    const metric = await prisma.qualityMetric.upsert({
-      where: {
-        year_month: {
-          year: req.body.year,
-          month: req.body.month,
+      const metric = await prisma.qualityMetric.upsert({
+        where: {
+          year_month: {
+            year: req.body.year,
+            month: req.body.month,
+          },
         },
-      },
-      create: {
-        ...req.body,
-        ...calculated,
-      },
-      update: {
-        ...req.body,
-        ...calculated,
-      },
-    });
+        create: {
+          ...req.body,
+          ...calculated,
+        },
+        update: {
+          ...req.body,
+          ...calculated,
+        },
+      });
 
-    res.json({ success: true, data: metric });
-  } catch (error) {
-    next(error);
+      res.json({ success: true, data: metric });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // ===== COMPLIANCE SCORES =====
 
@@ -388,7 +405,8 @@ router.get('/compliance', authenticate, async (req, res, next) => {
   try {
     const scores = await prisma.complianceScore.findMany({
       orderBy: { calculatedAt: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // If no scores, return defaults
     if (scores.length === 0) {
@@ -429,11 +447,15 @@ router.post('/compliance/calculate', authenticate, async (req, res, next) => {
         completedActions,
       ] = await Promise.all([
         prisma.risk.count({ where: { standard } }),
-        prisma.risk.count({ where: { standard, status: { in: ['MITIGATED', 'CLOSED', 'ACCEPTED'] } } }),
+        prisma.risk.count({
+          where: { standard, status: { in: ['MITIGATED', 'CLOSED', 'ACCEPTED'] } },
+        }),
         prisma.incident.count({ where: { standard } }),
         prisma.incident.count({ where: { standard, status: 'CLOSED' } }),
         prisma.legalRequirement.count({ where: { standard } }),
-        prisma.legalRequirement.count({ where: { standard, complianceStatus: { in: ['COMPLIANT', 'NOT_APPLICABLE'] } } }),
+        prisma.legalRequirement.count({
+          where: { standard, complianceStatus: { in: ['COMPLIANT', 'NOT_APPLICABLE'] } },
+        }),
         prisma.objective.count({ where: { standard } }),
         prisma.objective.count({ where: { standard, status: 'ACHIEVED' } }),
         prisma.action.count({ where: { standard } }),
@@ -444,7 +466,8 @@ router.post('/compliance/calculate', authenticate, async (req, res, next) => {
       const riskScore = totalRisks > 0 ? (mitigatedRisks / totalRisks) * 100 : 100;
       const incidentScore = totalIncidents > 0 ? (closedIncidents / totalIncidents) * 100 : 100;
       const legalScore = totalLegal > 0 ? (compliantLegal / totalLegal) * 100 : 100;
-      const objectiveScore = totalObjectives > 0 ? (achievedObjectives / totalObjectives) * 100 : 100;
+      const objectiveScore =
+        totalObjectives > 0 ? (achievedObjectives / totalObjectives) * 100 : 100;
       const actionScore = totalActions > 0 ? (completedActions / totalActions) * 100 : 100;
 
       // Weighted overall score
@@ -457,7 +480,8 @@ router.post('/compliance/calculate', authenticate, async (req, res, next) => {
         actionScore * weights.action;
 
       const totalItems = totalRisks + totalIncidents + totalLegal + totalObjectives + totalActions;
-      const compliantItems = mitigatedRisks + closedIncidents + compliantLegal + achievedObjectives + completedActions;
+      const compliantItems =
+        mitigatedRisks + closedIncidents + compliantLegal + achievedObjectives + completedActions;
 
       // Upsert compliance score
       const score = await prisma.complianceScore.upsert({

@@ -25,7 +25,7 @@ router.use(authenticate);
 
 // ─── Validation Schemas ─────────────────────────────────────────────────────
 
-const reportTypeValues = REPORT_TYPES.map(r => r.value) as [string, ...string[]];
+const reportTypeValues = REPORT_TYPES.map((r) => r.value) as [string, ...string[]];
 
 const createSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
@@ -52,7 +52,9 @@ router.get('/types', requireRole('ADMIN'), (_req: AuthRequest, res: Response) =>
   try {
     res.json({ success: true, data: REPORT_TYPES });
   } catch (error: unknown) {
-    logger.error('Failed to list report types', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list report types', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list report types' },
@@ -72,7 +74,9 @@ router.get('/schedules', requireRole('ADMIN'), (req: AuthRequest, res: Response)
       meta: { total: schedules.length },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list schedules', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list schedules', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list schedules' },
@@ -98,11 +102,17 @@ router.post('/schedules', requireRole('ADMIN'), (req: AuthRequest, res: Response
     const orgId = (req.user as any)?.orgId || 'default';
     const schedule = createSchedule({ ...parsed.data, orgId });
 
-    logger.info('Report schedule created', { id: schedule.id, name: schedule.name, userId: req.user?.id });
+    logger.info('Report schedule created', {
+      id: schedule.id,
+      name: schedule.name,
+      userId: req.user?.id,
+    });
 
     res.status(201).json({ success: true, data: schedule });
   } catch (error: unknown) {
-    logger.error('Failed to create schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to create schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create schedule' },
@@ -123,7 +133,9 @@ router.get('/schedules/:id', requireRole('ADMIN'), (req: AuthRequest, res: Respo
 
     res.json({ success: true, data: schedule });
   } catch (error: unknown) {
-    logger.error('Failed to get schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get schedule' },
@@ -158,7 +170,9 @@ router.put('/schedules/:id', requireRole('ADMIN'), (req: AuthRequest, res: Respo
 
     res.json({ success: true, data: schedule });
   } catch (error: unknown) {
-    logger.error('Failed to update schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to update schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to update schedule' },
@@ -181,7 +195,9 @@ router.delete('/schedules/:id', requireRole('ADMIN'), (req: AuthRequest, res: Re
 
     res.json({ success: true, data: { deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to delete schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to delete schedule' },
@@ -210,7 +226,9 @@ router.post('/schedules/:id/run', requireRole('ADMIN'), (req: AuthRequest, res: 
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to trigger schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to trigger schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to trigger schedule run' },

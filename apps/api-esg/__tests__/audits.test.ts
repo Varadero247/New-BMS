@@ -148,7 +148,9 @@ describe('PUT /api/audits/:id', () => {
     (prisma.esgAudit.findFirst as jest.Mock).mockResolvedValue(mockAudit);
     (prisma.esgAudit.update as jest.Mock).mockResolvedValue({ ...mockAudit, status: 'COMPLETED' });
 
-    const res = await request(app).put('/api/audits/00000000-0000-0000-0000-000000000001').send({ status: 'COMPLETED' });
+    const res = await request(app)
+      .put('/api/audits/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'COMPLETED' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -156,12 +158,16 @@ describe('PUT /api/audits/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgAudit.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/audits/00000000-0000-0000-0000-000000000099').send({ status: 'COMPLETED' });
+    const res = await request(app)
+      .put('/api/audits/00000000-0000-0000-0000-000000000099')
+      .send({ status: 'COMPLETED' });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid data', async () => {
-    const res = await request(app).put('/api/audits/00000000-0000-0000-0000-000000000001').send({ auditType: 'INVALID' });
+    const res = await request(app)
+      .put('/api/audits/00000000-0000-0000-0000-000000000001')
+      .send({ auditType: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
@@ -169,7 +175,10 @@ describe('PUT /api/audits/:id', () => {
 describe('DELETE /api/audits/:id', () => {
   it('should soft delete an audit', async () => {
     (prisma.esgAudit.findFirst as jest.Mock).mockResolvedValue(mockAudit);
-    (prisma.esgAudit.update as jest.Mock).mockResolvedValue({ ...mockAudit, deletedAt: new Date() });
+    (prisma.esgAudit.update as jest.Mock).mockResolvedValue({
+      ...mockAudit,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);

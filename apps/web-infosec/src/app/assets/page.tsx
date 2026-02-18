@@ -1,7 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+} from '@ims/ui';
 import { Server, Plus, Search } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -66,7 +75,14 @@ export default function AssetsPage() {
 
   function openCreateModal() {
     setEditingAsset(null);
-    setForm({ name: '', type: 'HARDWARE', classification: 'MEDIUM', owner: '', format: '', encryptionRequired: false });
+    setForm({
+      name: '',
+      type: 'HARDWARE',
+      classification: 'MEDIUM',
+      owner: '',
+      format: '',
+      encryptionRequired: false,
+    });
     setModalOpen(true);
   }
 
@@ -100,10 +116,15 @@ export default function AssetsPage() {
     }
   }
 
-  const filtered = assets.filter(a => {
+  const filtered = assets.filter((a) => {
     if (typeFilter && a.type !== typeFilter) return false;
     if (classFilter && a.classification !== classFilter) return false;
-    if (searchTerm && !a.name.toLowerCase().includes(searchTerm.toLowerCase()) && !a.referenceNumber.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+    if (
+      searchTerm &&
+      !a.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      !a.referenceNumber.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+      return false;
     return true;
   });
 
@@ -126,12 +147,19 @@ export default function AssetsPage() {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Asset Register</h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">Information assets inventory</p>
           </div>
-          <Button onClick={openCreateModal} className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700">
+          <Button
+            onClick={openCreateModal}
+            className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
+          >
             <Plus className="h-4 w-4" /> Add Asset
           </Button>
         </div>
 
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
 
         {/* Filters */}
         <Card className="mb-6">
@@ -139,15 +167,40 @@ export default function AssetsPage() {
             <div className="flex flex-wrap gap-4">
               <div className="relative flex-1 min-w-[200px]">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                <input type="text" aria-label="Search assets..." placeholder="Search assets..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                <input
+                  type="text"
+                  aria-label="Search assets..."
+                  placeholder="Search assets..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
               </div>
-              <select aria-label="Filter by type" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
+              <select
+                aria-label="Filter by type"
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
                 <option value="">All Types</option>
-                {assetTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                {assetTypes.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
               </select>
-              <select aria-label="Filter by classification" value={classFilter} onChange={(e) => setClassFilter(e.target.value)} className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
+              <select
+                aria-label="Filter by classification"
+                value={classFilter}
+                onChange={(e) => setClassFilter(e.target.value)}
+                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
                 <option value="">All Classifications</option>
-                {classifications.map(c => <option key={c} value={c}>{c}</option>)}
+                {classifications.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
               </select>
             </div>
           </CardContent>
@@ -161,24 +214,51 @@ export default function AssetsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Classification</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Owner</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Format</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Encryption</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Ref
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Name
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Type
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Classification
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Owner
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Format
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Encryption
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map((asset) => (
                       <tr key={asset.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                        <td className="py-3 px-4 font-mono text-xs text-gray-600">{asset.referenceNumber}</td>
-                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{asset.name}</td>
+                        <td className="py-3 px-4 font-mono text-xs text-gray-600">
+                          {asset.referenceNumber}
+                        </td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                          {asset.name}
+                        </td>
                         <td className="py-3 px-4 text-gray-600">{asset.type}</td>
                         <td className="py-3 px-4">
-                          <Badge className={classificationColors[asset.classification] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{asset.classification}</Badge>
+                          <Badge
+                            className={
+                              classificationColors[asset.classification] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
+                            {asset.classification}
+                          </Badge>
                         </td>
                         <td className="py-3 px-4 text-gray-600">{asset.owner}</td>
                         <td className="py-3 px-4 text-gray-600">{asset.format}</td>
@@ -190,7 +270,12 @@ export default function AssetsPage() {
                           )}
                         </td>
                         <td className="py-3 px-4">
-                          <button onClick={() => openEditModal(asset)} className="text-teal-600 hover:text-teal-700 text-sm font-medium">Edit</button>
+                          <button
+                            onClick={() => openEditModal(asset)}
+                            className="text-teal-600 hover:text-teal-700 text-sm font-medium"
+                          >
+                            Edit
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -207,43 +292,100 @@ export default function AssetsPage() {
         </Card>
       </div>
 
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingAsset ? 'Edit Asset' : 'Add Asset'} size="lg">
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingAsset ? 'Edit Asset' : 'Add Asset'}
+        size="lg"
+      >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
-            <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Name
+            </label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
-              <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
-                {assetTypes.map(t => <option key={t} value={t}>{t}</option>)}
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Type
+              </label>
+              <select
+                value={form.type}
+                onChange={(e) => setForm({ ...form, type: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                {assetTypes.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Classification</label>
-              <select value={form.classification} onChange={(e) => setForm({ ...form, classification: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
-                {classifications.map(c => <option key={c} value={c}>{c}</option>)}
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Classification
+              </label>
+              <select
+                value={form.classification}
+                onChange={(e) => setForm({ ...form, classification: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                {classifications.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Owner</label>
-              <input type="text" value={form.owner} onChange={(e) => setForm({ ...form, owner: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Owner
+              </label>
+              <input
+                type="text"
+                value={form.owner}
+                onChange={(e) => setForm({ ...form, owner: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Format</label>
-              <input type="text" value={form.format} onChange={(e) => setForm({ ...form, format: e.target.value })} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g., Digital, Physical, Cloud" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Format
+              </label>
+              <input
+                type="text"
+                value={form.format}
+                onChange={(e) => setForm({ ...form, format: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                placeholder="e.g., Digital, Physical, Cloud"
+              />
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" id="encryption" checked={form.encryptionRequired} onChange={(e) => setForm({ ...form, encryptionRequired: e.target.checked })} className="rounded text-teal-600 focus:ring-teal-500" />
-            <label htmlFor="encryption" className="text-sm text-gray-700 dark:text-gray-300">Encryption Required</label>
+            <input
+              type="checkbox"
+              id="encryption"
+              checked={form.encryptionRequired}
+              onChange={(e) => setForm({ ...form, encryptionRequired: e.target.checked })}
+              className="rounded text-teal-600 focus:ring-teal-500"
+            />
+            <label htmlFor="encryption" className="text-sm text-gray-700 dark:text-gray-300">
+              Encryption Required
+            </label>
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setModalOpen(false)}>
+            Cancel
+          </Button>
           <Button onClick={handleSave} disabled={saving} className="bg-teal-600 hover:bg-teal-700">
             {saving ? 'Saving...' : editingAsset ? 'Update Asset' : 'Create Asset'}
           </Button>

@@ -24,7 +24,13 @@ const ncrCreateSchema = z.object({
   rootCause: z.string().max(2000).optional().nullable(),
   correctiveAction: z.string().max(2000).optional().nullable(),
   preventiveAction: z.string().max(2000).optional().nullable(),
-  dueDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  dueDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
   assignedTo: z.string().max(200).optional().nullable(),
 });
 
@@ -44,7 +50,13 @@ const ncrUpdateSchema = z.object({
   rootCause: z.string().max(2000).optional().nullable(),
   correctiveAction: z.string().max(2000).optional().nullable(),
   preventiveAction: z.string().max(2000).optional().nullable(),
-  dueDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  dueDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional()
+    .nullable(),
   assignedTo: z.string().max(200).optional().nullable(),
 });
 
@@ -81,8 +93,13 @@ router.get('/open', async (req: Request, res: Response) => {
 
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Error fetching open NCRs', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch open NCRs' } });
+    logger.error('Error fetching open NCRs', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch open NCRs' },
+    });
   }
 });
 
@@ -112,8 +129,12 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing NCRs', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list NCRs' } });
+    logger.error('Error listing NCRs', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list NCRs' } });
   }
 });
 
@@ -124,7 +145,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = ncrCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -143,8 +167,12 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('NCR created', { id: ncr.id, number });
     res.status(201).json({ success: true, data: ncr });
   } catch (error: unknown) {
-    logger.error('Error creating NCR', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create NCR' } });
+    logger.error('Error creating NCR', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create NCR' } });
   }
 });
 
@@ -158,13 +186,19 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!ncr) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'NCR not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'NCR not found' } });
     }
 
     res.json({ success: true, data: ncr });
   } catch (error: unknown) {
-    logger.error('Error fetching NCR', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch NCR' } });
+    logger.error('Error fetching NCR', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch NCR' } });
   }
 });
 
@@ -174,16 +208,23 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const RESERVED = new Set(['close']);
-    if (RESERVED.has(req.params.id)) return (undefined as any);
+    if (RESERVED.has(req.params.id)) return undefined as any;
 
-    const existing = await prisma.fsNcr.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsNcr.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'NCR not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'NCR not found' } });
     }
 
     const parsed = ncrUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -198,8 +239,12 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('NCR updated', { id: ncr.id });
     res.json({ success: true, data: ncr });
   } catch (error: unknown) {
-    logger.error('Error updating NCR', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update NCR' } });
+    logger.error('Error updating NCR', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update NCR' } });
   }
 });
 
@@ -208,9 +253,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsNcr.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsNcr.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'NCR not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'NCR not found' } });
     }
 
     await prisma.fsNcr.update({
@@ -221,8 +270,12 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('NCR deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'NCR deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting NCR', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete NCR' } });
+    logger.error('Error deleting NCR', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete NCR' } });
   }
 });
 
@@ -231,18 +284,31 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id/close', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsNcr.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsNcr.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'NCR not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'NCR not found' } });
     }
 
     if (existing.status === 'CLOSED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_CLOSED', message: 'NCR is already closed' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'ALREADY_CLOSED', message: 'NCR is already closed' },
+      });
     }
 
     const closeParsed = ncrCloseSchema.safeParse(req.body);
     if (!closeParsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: closeParsed.error.errors[0]?.message || 'Invalid close data' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: closeParsed.error.errors[0]?.message || 'Invalid close data',
+        },
+      });
     }
     const { rootCause, correctiveAction, preventiveAction } = closeParsed.data;
 
@@ -260,8 +326,12 @@ router.put('/:id/close', async (req: Request, res: Response) => {
     logger.info('NCR closed', { id: ncr.id });
     res.json({ success: true, data: ncr });
   } catch (error: unknown) {
-    logger.error('Error closing NCR', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close NCR' } });
+    logger.error('Error closing NCR', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close NCR' } });
   }
 });
 

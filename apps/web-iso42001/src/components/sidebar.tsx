@@ -46,7 +46,9 @@ export function Sidebar() {
   return (
     <aside className="w-64 bg-card border-r border-border flex flex-col">
       <div className="p-6 border-b border-border bg-indigo-50 dark:bg-indigo-900/10">
-        <h1 className="text-xl font-bold font-display text-indigo-900 dark:text-indigo-100">ISO 42001</h1>
+        <h1 className="text-xl font-bold font-display text-indigo-900 dark:text-indigo-100">
+          ISO 42001
+        </h1>
         <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1">AI Management System</p>
       </div>
 
@@ -55,8 +57,7 @@ export function Sidebar() {
           {navigation.map((item) => {
             const Icon = item.icon;
             const isActive =
-              pathname === item.href ||
-              (item.href !== '/' && pathname.startsWith(item.href + '/'));
+              pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href + '/'));
             const isExactActive = pathname === item.href;
 
             return (
@@ -71,7 +72,9 @@ export function Sidebar() {
                 >
                   <Icon
                     className={`h-5 w-5 ${
-                      isExactActive || isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'
+                      isExactActive || isActive
+                        ? 'text-brand-600 dark:text-gold-400'
+                        : 'text-gray-500 dark:text-gray-400'
                     }`}
                   />
                   <span className="text-sm font-medium">{item.name}</span>

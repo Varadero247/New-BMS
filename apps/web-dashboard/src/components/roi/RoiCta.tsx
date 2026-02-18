@@ -12,12 +12,7 @@ export function RoiCta() {
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Button>
       </a>
-      <Button
-        variant="outline"
-        size="lg"
-        className="gap-2"
-        onClick={() => window.print()}
-      >
+      <Button variant="outline" size="lg" className="gap-2" onClick={() => window.print()}>
         <Printer className="h-4 w-4" aria-hidden="true" />
         Download as PDF
       </Button>

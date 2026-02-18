@@ -40,7 +40,14 @@ beforeEach(() => {
 
 describe('GET /api/contracts', () => {
   it('should return contracts with pagination', async () => {
-    const contracts = [{ id: '00000000-0000-0000-0000-000000000001', number: 'SVC-2602-1234', title: 'Maintenance SLA', status: 'ACTIVE' }];
+    const contracts = [
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        number: 'SVC-2602-1234',
+        title: 'Maintenance SLA',
+        status: 'ACTIVE',
+      },
+    ];
     (prisma as any).fsSvcContract.findMany.mockResolvedValue(contracts);
     (prisma as any).fsSvcContract.count.mockResolvedValue(1);
 
@@ -80,7 +87,9 @@ describe('GET /api/contracts', () => {
 
 describe('GET /api/contracts/expiring', () => {
   it('should return expiring contracts', async () => {
-    (prisma as any).fsSvcContract.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', endDate: new Date() }]);
+    (prisma as any).fsSvcContract.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', endDate: new Date() },
+    ]);
 
     const res = await request(app).get('/api/contracts/expiring');
 
@@ -99,26 +108,28 @@ describe('GET /api/contracts/expiring', () => {
 
 describe('POST /api/contracts', () => {
   it('should create a contract with generated number', async () => {
-    const created = { id: 'con-new', number: 'SVC-2602-5678', title: 'New Contract', type: 'SLA', status: 'PENDING' };
+    const created = {
+      id: 'con-new',
+      number: 'SVC-2602-5678',
+      title: 'New Contract',
+      type: 'SLA',
+      status: 'PENDING',
+    };
     (prisma as any).fsSvcContract.create.mockResolvedValue(created);
 
-    const res = await request(app)
-      .post('/api/contracts')
-      .send({
-        customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        title: 'New Contract',
-        type: 'SLA',
-        startDate: '2026-01-01',
-      });
+    const res = await request(app).post('/api/contracts').send({
+      customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      title: 'New Contract',
+      type: 'SLA',
+      startDate: '2026-01-01',
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });
 
   it('should reject invalid data', async () => {
-    const res = await request(app)
-      .post('/api/contracts')
-      .send({ title: '' });
+    const res = await request(app).post('/api/contracts').send({ title: '' });
 
     expect(res.status).toBe(400);
   });
@@ -126,7 +137,12 @@ describe('POST /api/contracts', () => {
 
 describe('GET /api/contracts/:id', () => {
   it('should return a contract by id', async () => {
-    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'SLA Contract', customer: {}, jobs: [] });
+    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'SLA Contract',
+      customer: {},
+      jobs: [],
+    });
 
     const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000001');
 
@@ -145,8 +161,13 @@ describe('GET /api/contracts/:id', () => {
 
 describe('PUT /api/contracts/:id', () => {
   it('should update a contract', async () => {
-    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcContract.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
+    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcContract.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Updated',
+    });
 
     const res = await request(app)
       .put('/api/contracts/00000000-0000-0000-0000-000000000001')
@@ -169,8 +190,13 @@ describe('PUT /api/contracts/:id', () => {
 
 describe('DELETE /api/contracts/:id', () => {
   it('should soft delete a contract', async () => {
-    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcContract.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcContract.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000001');
 

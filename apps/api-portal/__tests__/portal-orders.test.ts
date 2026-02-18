@@ -39,7 +39,14 @@ beforeEach(() => {
 
 describe('GET /api/portal/orders', () => {
   it('should list orders', async () => {
-    const items = [{ id: '00000000-0000-0000-0000-000000000001', orderNumber: 'PTL-ORD-2602-1234', type: 'PURCHASE', status: 'DRAFT' }];
+    const items = [
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        orderNumber: 'PTL-ORD-2602-1234',
+        type: 'PURCHASE',
+        status: 'DRAFT',
+      },
+    ];
     (prisma as any).portalOrder.findMany.mockResolvedValue(items);
     (prisma as any).portalOrder.count.mockResolvedValue(1);
 
@@ -57,7 +64,9 @@ describe('GET /api/portal/orders', () => {
 
     expect(res.status).toBe(200);
     expect((prisma as any).portalOrder.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ status: 'CONFIRMED', type: 'PURCHASE' }) })
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'CONFIRMED', type: 'PURCHASE' }),
+      })
     );
   });
 
@@ -72,7 +81,12 @@ describe('GET /api/portal/orders', () => {
 
 describe('POST /api/portal/orders', () => {
   it('should create an order', async () => {
-    const order = { id: '00000000-0000-0000-0000-000000000001', orderNumber: 'PTL-ORD-2602-1234', type: 'PURCHASE', status: 'DRAFT' };
+    const order = {
+      id: '00000000-0000-0000-0000-000000000001',
+      orderNumber: 'PTL-ORD-2602-1234',
+      type: 'PURCHASE',
+      status: 'DRAFT',
+    };
     (prisma as any).portalOrder.create.mockResolvedValue(order);
 
     const res = await request(app)
@@ -97,9 +111,12 @@ describe('POST /api/portal/orders', () => {
   });
 
   it('should return 400 for negative amount', async () => {
-    const res = await request(app)
-      .post('/api/portal/orders')
-      .send({ portalUserId: '00000000-0000-0000-0000-000000000001', type: 'PURCHASE', totalAmount: -100, items: [] });
+    const res = await request(app).post('/api/portal/orders').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      type: 'PURCHASE',
+      totalAmount: -100,
+      items: [],
+    });
 
     expect(res.status).toBe(400);
   });
@@ -107,7 +124,10 @@ describe('POST /api/portal/orders', () => {
 
 describe('GET /api/portal/orders/:id', () => {
   it('should return an order', async () => {
-    (prisma as any).portalOrder.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', orderNumber: 'PTL-ORD-2602-1234' });
+    (prisma as any).portalOrder.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      orderNumber: 'PTL-ORD-2602-1234',
+    });
 
     const res = await request(app).get('/api/portal/orders/00000000-0000-0000-0000-000000000001');
 
@@ -126,8 +146,13 @@ describe('GET /api/portal/orders/:id', () => {
 
 describe('PUT /api/portal/orders/:id', () => {
   it('should update an order', async () => {
-    (prisma as any).portalOrder.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).portalOrder.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', notes: 'Updated' });
+    (prisma as any).portalOrder.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).portalOrder.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      notes: 'Updated',
+    });
 
     const res = await request(app)
       .put('/api/portal/orders/00000000-0000-0000-0000-000000000001')
@@ -149,8 +174,13 @@ describe('PUT /api/portal/orders/:id', () => {
 
 describe('PUT /api/portal/orders/:id/status', () => {
   it('should update order status', async () => {
-    (prisma as any).portalOrder.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).portalOrder.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'SHIPPED' });
+    (prisma as any).portalOrder.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).portalOrder.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SHIPPED',
+    });
 
     const res = await request(app)
       .put('/api/portal/orders/00000000-0000-0000-0000-000000000001/status')

@@ -22,7 +22,9 @@ const createObjectiveSchema = z.object({
 });
 
 const updateObjectiveSchema = createObjectiveSchema.partial().extend({
-  status: z.enum(['NOT_STARTED', 'ON_TRACK', 'AT_RISK', 'BEHIND', 'ACHIEVED', 'CANCELLED']).optional(),
+  status: z
+    .enum(['NOT_STARTED', 'ON_TRACK', 'AT_RISK', 'BEHIND', 'ACHIEVED', 'CANCELLED'])
+    .optional(),
   currentValue: z.number().nonnegative().optional(),
   progressPercent: z.number().min(0).max(100).optional(),
 });
@@ -33,7 +35,11 @@ const progressSchema = z.object({
 });
 
 // Calculate progress percentage
-function calculateProgress(current: number | null, baseline: number | null, target: number | null): number {
+function calculateProgress(
+  current: number | null,
+  baseline: number | null,
+  target: number | null
+): number {
   if (current === null || target === null) return 0;
   const base = baseline ?? 0;
   const range = target - base;
@@ -43,11 +49,7 @@ function calculateProgress(current: number | null, baseline: number | null, targ
 }
 
 // Determine status based on progress and due date
-function calculateStatus(
-  progress: number,
-  targetDate: Date | null,
-  currentStatus: string
-): string {
+function calculateStatus(progress: number, targetDate: Date | null, currentStatus: string): string {
   if (currentStatus === 'ACHIEVED' || currentStatus === 'CANCELLED') return currentStatus;
   if (progress >= 100) return 'ACHIEVED';
 
@@ -201,36 +203,42 @@ router.get('/:id', authenticate, async (req, res, next) => {
 });
 
 // POST /api/objectives - Create new objective
-router.post('/', authenticate, requireRole(['ADMIN', 'MANAGER']), validate(createObjectiveSchema), async (req, res, next) => {
-  try {
-    const objective = await prisma.objective.create({
-      data: {
-        ...req.body,
-        startDate: req.body.startDate ? new Date(req.body.startDate) : undefined,
-        targetDate: req.body.targetDate ? new Date(req.body.targetDate) : undefined,
-        currentValue: req.body.baselineValue,
-        progressPercent: 0,
-      },
-      include: {
-        owner: { select: { id: true, firstName: true, lastName: true, email: true } },
-      },
-    });
+router.post(
+  '/',
+  authenticate,
+  requireRole(['ADMIN', 'MANAGER']),
+  validate(createObjectiveSchema),
+  async (req, res, next) => {
+    try {
+      const objective = await prisma.objective.create({
+        data: {
+          ...req.body,
+          startDate: req.body.startDate ? new Date(req.body.startDate) : undefined,
+          targetDate: req.body.targetDate ? new Date(req.body.targetDate) : undefined,
+          currentValue: req.body.baselineValue,
+          progressPercent: 0,
+        },
+        include: {
+          owner: { select: { id: true, firstName: true, lastName: true, email: true } },
+        },
+      });
 
-    await prisma.auditLog.create({
-      data: {
-        userId: req.user!.id,
-        action: 'CREATE',
-        entity: 'Objective',
-        entityId: objective.id,
-        newData: objective as any,
-      },
-    });
+      await prisma.auditLog.create({
+        data: {
+          userId: req.user!.id,
+          action: 'CREATE',
+          entity: 'Objective',
+          entityId: objective.id,
+          newData: objective as any,
+        },
+      });
 
-    res.status(201).json({ success: true, data: objective });
-  } catch (error) {
-    next(error);
+      res.status(201).json({ success: true, data: objective });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // PUT /api/objectives/:id - Update objective
 router.put('/:id', authenticate, validate(updateObjectiveSchema), async (req, res, next) => {
@@ -317,7 +325,11 @@ router.post('/:id/progress', authenticate, validate(progressSchema), async (req,
     });
 
     // Update objective with new current value and progress
-    const progressPercent = calculateProgress(value, objective.baselineValue, objective.targetValue);
+    const progressPercent = calculateProgress(
+      value,
+      objective.baselineValue,
+      objective.targetValue
+    );
     const status = calculateStatus(progressPercent, objective.targetDate, objective.status);
 
     const updatedObjective = await prisma.objective.update({

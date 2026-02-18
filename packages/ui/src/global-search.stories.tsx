@@ -53,9 +53,9 @@ export const Default: Story = {
     placeholder: 'Search across all modules...',
     onSearch: async (query: string) => {
       // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
       return mockSearchResults.filter(
-        result =>
+        (result) =>
           result.title.toLowerCase().includes(query.toLowerCase()) ||
           result.description?.toLowerCase().includes(query.toLowerCase())
       );
@@ -70,9 +70,9 @@ export const WithHints: Story = {
   args: {
     placeholder: 'Type to search (try "health", "risk", "environment")...',
     onSearch: async (query: string) => {
-      await new Promise(resolve => setTimeout(resolve, 250));
+      await new Promise((resolve) => setTimeout(resolve, 250));
       return mockSearchResults.filter(
-        result =>
+        (result) =>
           result.title.toLowerCase().includes(query.toLowerCase()) ||
           result.description?.toLowerCase().includes(query.toLowerCase())
       );
@@ -87,7 +87,7 @@ export const LotsOfResults: Story = {
   args: {
     placeholder: 'Search modules...',
     onSearch: async (query: string) => {
-      await new Promise(resolve => setTimeout(resolve, 400));
+      await new Promise((resolve) => setTimeout(resolve, 400));
       const allResults: SearchResult[] = [
         ...mockSearchResults,
         {
@@ -127,7 +127,7 @@ export const LotsOfResults: Story = {
         },
       ];
       return allResults.filter(
-        result =>
+        (result) =>
           result.title.toLowerCase().includes(query.toLowerCase()) ||
           result.description?.toLowerCase().includes(query.toLowerCase())
       );
@@ -144,9 +144,9 @@ export const SlowSearch: Story = {
     debounceMs: 500,
     onSearch: async (query: string) => {
       // Simulate slow network request
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       return mockSearchResults.filter(
-        result =>
+        (result) =>
           result.title.toLowerCase().includes(query.toLowerCase()) ||
           result.description?.toLowerCase().includes(query.toLowerCase())
       );
@@ -161,11 +161,9 @@ export const NoResults: Story = {
   args: {
     placeholder: 'Try searching for "xyz" to see no results...',
     onSearch: async (query: string) => {
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
       // Only return results if query contains "test"
-      return query.toLowerCase().includes('test')
-        ? mockSearchResults
-        : [];
+      return query.toLowerCase().includes('test') ? mockSearchResults : [];
     },
     onSelect: (result: SearchResult) => {
       console.log('Selected:', result);
@@ -177,7 +175,7 @@ export const WithIcons: Story = {
   args: {
     placeholder: 'Search with icons...',
     onSearch: async (query: string) => {
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
       const resultsWithIcons: SearchResult[] = [
         {
           id: '1',
@@ -213,7 +211,7 @@ export const WithIcons: Story = {
         },
       ];
       return resultsWithIcons.filter(
-        result =>
+        (result) =>
           result.title.toLowerCase().includes(query.toLowerCase()) ||
           result.description?.toLowerCase().includes(query.toLowerCase())
       );
@@ -229,9 +227,9 @@ export const CustomDebounce: Story = {
     placeholder: 'Fast debounce (100ms)...',
     debounceMs: 100,
     onSearch: async (query: string) => {
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 200));
       return mockSearchResults.filter(
-        result =>
+        (result) =>
           result.title.toLowerCase().includes(query.toLowerCase()) ||
           result.description?.toLowerCase().includes(query.toLowerCase())
       );
@@ -246,7 +244,7 @@ export const EmptyState: Story = {
   args: {
     placeholder: 'No results will appear...',
     onSearch: async () => {
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
       return [];
     },
     onSelect: (result: SearchResult) => {

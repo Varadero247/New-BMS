@@ -39,7 +39,10 @@ router.post('/research', authenticate, async (req: Request, res: Response) => {
       if (chKey) {
         const chResp = await fetch(
           `https://api.company-information.service.gov.uk/search/companies?q=${encodeURIComponent(data.companyName)}`,
-          { headers: { Authorization: `Basic ${Buffer.from(chKey + ':').toString('base64')}` }, signal: AbortSignal.timeout(5000) }
+          {
+            headers: { Authorization: `Basic ${Buffer.from(chKey + ':').toString('base64')}` },
+            signal: AbortSignal.timeout(5000),
+          }
         );
         if (chResp.ok) {
           companiesHouseData = await chResp.json();
@@ -90,7 +93,7 @@ Return as JSON: {"subject": "...", "body": "..."}`;
         });
 
         if (resp.ok) {
-          const aiData = await resp.json() as any;
+          const aiData = (await resp.json()) as any;
           const text = aiData.content?.[0]?.text || '';
           const jsonMatch = text.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
@@ -163,7 +166,7 @@ router.post('/:id/save-to-hubspot', authenticate, async (req: Request, res: Resp
         const resp = await fetch('https://api.hubapi.com/crm/v3/objects/deals', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${apiKey}`,
+            Authorization: `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
           },
           signal: AbortSignal.timeout(5000),
@@ -177,7 +180,7 @@ router.post('/:id/save-to-hubspot', authenticate, async (req: Request, res: Resp
         });
 
         if (resp.ok) {
-          const dealData = await resp.json() as any;
+          const dealData = (await resp.json()) as any;
           hubspotDealId = dealData.id;
         }
       } catch (err) {

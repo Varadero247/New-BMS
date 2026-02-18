@@ -44,7 +44,12 @@ function EffectivenessDot({ val }: { val?: string }) {
     NONE_EFFECTIVE: 'bg-red-500',
   };
   if (!val) return null;
-  return <span className={`inline-block w-2 h-2 rounded-full ${map[val] || 'bg-gray-400'} mr-1`} title={val} />;
+  return (
+    <span
+      className={`inline-block w-2 h-2 rounded-full ${map[val] || 'bg-gray-400'} mr-1`}
+      title={val}
+    />
+  );
 }
 
 export default function BowtiePage() {
@@ -60,16 +65,21 @@ export default function BowtiePage() {
         const r = await api.get('/risks/bowtie/all');
         setBowties(r.data.data || []);
       } catch (e: unknown) {
-        setError(e.response?.status === 401 ? 'Session expired. Please log in.' : 'Failed to load bow-tie library.');
+        setError(
+          e.response?.status === 401
+            ? 'Session expired. Please log in.'
+            : 'Failed to load bow-tie library.'
+        );
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  const filtered = bowties.filter(b => {
+  const filtered = bowties.filter((b) => {
     const q = search.toLowerCase();
-    const matchSearch = !q ||
+    const matchSearch =
+      !q ||
       b.risk?.title?.toLowerCase().includes(q) ||
       b.risk?.referenceNumber?.toLowerCase().includes(q) ||
       b.topEvent?.toLowerCase().includes(q);
@@ -99,16 +109,24 @@ export default function BowtiePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <Card>
               <CardContent className="pt-5 pb-4 text-center">
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{bowties.length}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {bowties.length}
+                </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Total Bow-Ties</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-5 pb-4 text-center">
                 <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                  {bowties.filter(b => ['CRITICAL', 'VERY_HIGH'].includes(b.risk?.residualRiskLevel)).length}
+                  {
+                    bowties.filter((b) =>
+                      ['CRITICAL', 'VERY_HIGH'].includes(b.risk?.residualRiskLevel)
+                    ).length
+                  }
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Critical / Very High</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                  Critical / Very High
+                </p>
               </CardContent>
             </Card>
             <Card>
@@ -122,7 +140,11 @@ export default function BowtiePage() {
             <Card>
               <CardContent className="pt-5 pb-4 text-center">
                 <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {bowties.reduce((a, b) => a + (b.preventionBarriers?.length || 0) + (b.mitigationBarriers?.length || 0), 0)}
+                  {bowties.reduce(
+                    (a, b) =>
+                      a + (b.preventionBarriers?.length || 0) + (b.mitigationBarriers?.length || 0),
+                    0
+                  )}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Total Barriers</p>
               </CardContent>
@@ -136,14 +158,15 @@ export default function BowtiePage() {
                 type="text"
                 placeholder="Search risks or events..."
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-4 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
               />
             </div>
             <select
               value={levelFilter}
-              onChange={e => setLevelFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
+              onChange={(e) => setLevelFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
               <option value="all">All Levels</option>
               <option value="CRITICAL">Critical</option>
               <option value="VERY_HIGH">Very High</option>
@@ -155,22 +178,28 @@ export default function BowtiePage() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="animate-pulse h-56 bg-gray-200 dark:bg-gray-700 rounded-xl" />
+                <div
+                  key={i}
+                  className="animate-pulse h-56 bg-gray-200 dark:bg-gray-700 rounded-xl"
+                />
               ))}
             </div>
           ) : filtered.length === 0 ? (
             <Card>
               <CardContent className="py-16 text-center">
                 <GitBranch className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400 font-medium">No bow-tie analyses found</p>
+                <p className="text-gray-500 dark:text-gray-400 font-medium">
+                  No bow-tie analyses found
+                </p>
                 <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-                  Bow-tie analysis is available for HIGH, VERY HIGH and CRITICAL risks from the risk detail page.
+                  Bow-tie analysis is available for HIGH, VERY HIGH and CRITICAL risks from the risk
+                  detail page.
                 </p>
               </CardContent>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filtered.map(bt => (
+              {filtered.map((bt) => (
                 <Card key={bt.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-5">
                     {/* Header */}
@@ -181,7 +210,9 @@ export default function BowtiePage() {
                             {bt.risk?.referenceNumber || '—'}
                           </span>
                           {bt.risk?.residualRiskLevel && (
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${LEVEL_COLORS[bt.risk.residualRiskLevel] || 'bg-gray-100 text-gray-700'}`}>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-xs font-medium ${LEVEL_COLORS[bt.risk.residualRiskLevel] || 'bg-gray-100 text-gray-700'}`}
+                            >
                               {bt.risk.residualRiskLevel}
                             </span>
                           )}
@@ -192,7 +223,8 @@ export default function BowtiePage() {
                       </div>
                       <Link
                         href={`/risks/${bt.riskId}`}
-                        className="ml-3 flex items-center gap-1 text-xs text-red-600 dark:text-red-400 hover:underline shrink-0">
+                        className="ml-3 flex items-center gap-1 text-xs text-red-600 dark:text-red-400 hover:underline shrink-0"
+                      >
                         View <ExternalLink className="h-3 w-3" />
                       </Link>
                     </div>
@@ -201,7 +233,9 @@ export default function BowtiePage() {
                     <div className="mb-4 p-2.5 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800/40 rounded-lg">
                       <div className="flex items-center gap-1.5">
                         <Zap className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400 shrink-0" />
-                        <span className="text-xs font-semibold text-orange-800 dark:text-orange-300 uppercase tracking-wider">Top Event</span>
+                        <span className="text-xs font-semibold text-orange-800 dark:text-orange-300 uppercase tracking-wider">
+                          Top Event
+                        </span>
                       </div>
                       <p className="text-sm text-orange-900 dark:text-orange-200 mt-0.5 leading-snug">
                         {bt.topEvent}
@@ -213,30 +247,52 @@ export default function BowtiePage() {
                       <div className="p-2.5 bg-red-50 dark:bg-red-900/20 rounded-lg">
                         <div className="flex items-center gap-1.5 mb-1">
                           <AlertTriangle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
-                          <span className="text-xs font-semibold text-red-700 dark:text-red-300">Threats</span>
+                          <span className="text-xs font-semibold text-red-700 dark:text-red-300">
+                            Threats
+                          </span>
                         </div>
-                        <p className="text-lg font-bold text-red-700 dark:text-red-300">{bt.threats?.length || 0}</p>
+                        <p className="text-lg font-bold text-red-700 dark:text-red-300">
+                          {bt.threats?.length || 0}
+                        </p>
                         <div className="mt-1 space-y-0.5">
-                          {(bt.threats || []).slice(0, 2).map(t => (
-                            <p key={t.id} className="text-xs text-red-600 dark:text-red-400 truncate">• {t.description}</p>
+                          {(bt.threats || []).slice(0, 2).map((t) => (
+                            <p
+                              key={t.id}
+                              className="text-xs text-red-600 dark:text-red-400 truncate"
+                            >
+                              • {t.description}
+                            </p>
                           ))}
                           {(bt.threats?.length || 0) > 2 && (
-                            <p className="text-xs text-red-400 dark:text-red-500">+{bt.threats.length - 2} more</p>
+                            <p className="text-xs text-red-400 dark:text-red-500">
+                              +{bt.threats.length - 2} more
+                            </p>
                           )}
                         </div>
                       </div>
                       <div className="p-2.5 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                         <div className="flex items-center gap-1.5 mb-1">
                           <ArrowRight className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
-                          <span className="text-xs font-semibold text-purple-700 dark:text-purple-300">Consequences</span>
+                          <span className="text-xs font-semibold text-purple-700 dark:text-purple-300">
+                            Consequences
+                          </span>
                         </div>
-                        <p className="text-lg font-bold text-purple-700 dark:text-purple-300">{bt.consequences?.length || 0}</p>
+                        <p className="text-lg font-bold text-purple-700 dark:text-purple-300">
+                          {bt.consequences?.length || 0}
+                        </p>
                         <div className="mt-1 space-y-0.5">
-                          {(bt.consequences || []).slice(0, 2).map(c => (
-                            <p key={c.id} className="text-xs text-purple-600 dark:text-purple-400 truncate">• {c.description}</p>
+                          {(bt.consequences || []).slice(0, 2).map((c) => (
+                            <p
+                              key={c.id}
+                              className="text-xs text-purple-600 dark:text-purple-400 truncate"
+                            >
+                              • {c.description}
+                            </p>
                           ))}
                           {(bt.consequences?.length || 0) > 2 && (
-                            <p className="text-xs text-purple-400 dark:text-purple-500">+{bt.consequences.length - 2} more</p>
+                            <p className="text-xs text-purple-400 dark:text-purple-500">
+                              +{bt.consequences.length - 2} more
+                            </p>
                           )}
                         </div>
                       </div>
@@ -246,17 +302,23 @@ export default function BowtiePage() {
                     <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                       <Shield className="h-3.5 w-3.5" />
                       <span>
-                        {(bt.preventionBarriers?.length || 0)} prevention + {(bt.mitigationBarriers?.length || 0)} mitigation barriers
+                        {bt.preventionBarriers?.length || 0} prevention +{' '}
+                        {bt.mitigationBarriers?.length || 0} mitigation barriers
                       </span>
                     </div>
 
                     {/* Prevention Barriers */}
                     {(bt.preventionBarriers?.length || 0) > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1">
-                        {bt.preventionBarriers.slice(0, 3).map(bar => (
-                          <span key={bar.id} className="inline-flex items-center px-2 py-0.5 rounded bg-green-50 dark:bg-green-900/20 text-xs text-green-700 dark:text-green-300">
+                        {bt.preventionBarriers.slice(0, 3).map((bar) => (
+                          <span
+                            key={bar.id}
+                            className="inline-flex items-center px-2 py-0.5 rounded bg-green-50 dark:bg-green-900/20 text-xs text-green-700 dark:text-green-300"
+                          >
                             <EffectivenessDot val={bar.effectiveness} />
-                            {bar.description.length > 28 ? bar.description.slice(0, 28) + '…' : bar.description}
+                            {bar.description.length > 28
+                              ? bar.description.slice(0, 28) + '…'
+                              : bar.description}
                           </span>
                         ))}
                         {bt.preventionBarriers.length > 3 && (

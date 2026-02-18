@@ -54,7 +54,9 @@ export class AccountLockoutManager {
   /**
    * Record a failed login attempt
    */
-  async recordFailedAttempt(email: string): Promise<{ locked: boolean; remainingAttempts: number }> {
+  async recordFailedAttempt(
+    email: string
+  ): Promise<{ locked: boolean; remainingAttempts: number }> {
     const key = this.getKey(email);
 
     if (this.redis) {

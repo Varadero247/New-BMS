@@ -2,12 +2,7 @@ import { Router, Response } from 'express';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
-import {
-  getActiveDpa,
-  acceptDpa,
-  hasAcceptedDpa,
-  getDpaAcceptance,
-} from '@ims/dpa';
+import { getActiveDpa, acceptDpa, hasAcceptedDpa, getDpaAcceptance } from '@ims/dpa';
 
 const logger = createLogger('api-gateway:dpa');
 const router = Router();
@@ -47,7 +42,9 @@ router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get DPA', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get DPA', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get DPA' },
@@ -75,7 +72,10 @@ router.post('/accept', requireRole('ADMIN'), (req: AuthRequest, res: Response) =
     if (hasAcceptedDpa(orgId)) {
       return res.status(409).json({
         success: false,
-        error: { code: 'ALREADY_ACCEPTED', message: 'DPA has already been accepted for this organisation' },
+        error: {
+          code: 'ALREADY_ACCEPTED',
+          message: 'DPA has already been accepted for this organisation',
+        },
       });
     }
 
@@ -99,7 +99,9 @@ router.post('/accept', requireRole('ADMIN'), (req: AuthRequest, res: Response) =
 
     res.status(201).json({ success: true, data: acceptance });
   } catch (error: unknown) {
-    logger.error('Failed to accept DPA', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to accept DPA', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to accept DPA' },
@@ -121,7 +123,9 @@ router.get('/acceptance', requireRole('ADMIN'), (req: AuthRequest, res: Response
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get DPA acceptance', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get DPA acceptance', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get DPA acceptance status' },

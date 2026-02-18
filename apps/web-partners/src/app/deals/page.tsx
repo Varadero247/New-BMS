@@ -156,7 +156,9 @@ export default function DealsPage() {
 
               <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Company Name</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                    Company Name
+                  </label>
                   <input
                     type="text"
                     value={form.companyName}
@@ -168,7 +170,9 @@ export default function DealsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Contact Name</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                    Contact Name
+                  </label>
                   <input
                     type="text"
                     value={form.contactName}
@@ -180,7 +184,9 @@ export default function DealsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Contact Email</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                    Contact Email
+                  </label>
                   <input
                     type="email"
                     value={form.contactEmail}
@@ -192,7 +198,9 @@ export default function DealsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Estimated Deal Value</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                    Estimated Deal Value
+                  </label>
                   <input
                     type="number"
                     value={form.value}
@@ -246,7 +254,9 @@ export default function DealsPage() {
                       >
                         Company <SortIcon field="companyName" />
                       </th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Contact</th>
+                      <th className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                        Contact
+                      </th>
                       <th
                         onClick={() => handleSort('value')}
                         className="text-left py-3 px-6 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-200"
@@ -276,15 +286,25 @@ export default function DealsPage() {
                   <tbody className="divide-y divide-gray-800">
                     {sortedDeals.map((deal) => (
                       <tr key={deal.id} className="hover:bg-gray-800/50 transition-colors">
-                        <td className="py-3 px-6 text-sm text-white font-medium">{deal.companyName}</td>
+                        <td className="py-3 px-6 text-sm text-white font-medium">
+                          {deal.companyName}
+                        </td>
                         <td className="py-3 px-6">
                           <div className="text-sm text-white">{deal.contactName}</div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">{deal.contactEmail}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {deal.contactEmail}
+                          </div>
                         </td>
-                        <td className="py-3 px-6 text-sm text-white">{formatCurrency(deal.value)}</td>
-                        <td className="py-3 px-6 text-sm text-green-400">{formatCurrency(deal.commission)}</td>
+                        <td className="py-3 px-6 text-sm text-white">
+                          {formatCurrency(deal.value)}
+                        </td>
+                        <td className="py-3 px-6 text-sm text-green-400">
+                          {formatCurrency(deal.commission)}
+                        </td>
                         <td className="py-3 px-6">
-                          <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor[deal.status] || 'bg-gray-500/20 text-gray-400'}`}>
+                          <span
+                            className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor[deal.status] || 'bg-gray-500/20 text-gray-400'}`}
+                          >
                             {deal.status.replace(/_/g, ' ')}
                           </span>
                         </td>

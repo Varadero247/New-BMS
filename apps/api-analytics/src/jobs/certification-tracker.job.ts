@@ -40,7 +40,11 @@ export async function runCertificationTrackerJob(): Promise<void> {
             where: { id: deadline.id },
             data: { status: 'OVERDUE' },
           });
-          logger.warn('Compliance deadline overdue', { id: deadline.id, name: deadline.name, dueDate: deadline.dueDate });
+          logger.warn('Compliance deadline overdue', {
+            id: deadline.id,
+            name: deadline.name,
+            dueDate: deadline.dueDate,
+          });
           overdueCount++;
         }
       } else if (dueDate <= thirtyDaysFromNow) {
@@ -49,8 +53,14 @@ export async function runCertificationTrackerJob(): Promise<void> {
             where: { id: deadline.id },
             data: { status: 'DUE_SOON' },
           });
-          const daysRemaining = Math.ceil((dueDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
-          logger.warn('Compliance deadline due soon', { id: deadline.id, name: deadline.name, daysRemaining });
+          const daysRemaining = Math.ceil(
+            (dueDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)
+          );
+          logger.warn('Compliance deadline due soon', {
+            id: deadline.id,
+            name: deadline.name,
+            daysRemaining,
+          });
           dueSoonCount++;
         }
       }

@@ -36,9 +36,7 @@ export default function LoginScreen() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">{error}</div>
-            )}
+            {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">{error}</div>}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>

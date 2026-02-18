@@ -65,12 +65,10 @@ describe('POST /webhooks/github', () => {
   });
 
   it('handles push with empty commits array', async () => {
-    const res = await request(app)
-      .post('/webhooks/github')
-      .send({
-        ref: 'refs/heads/main',
-        commits: [],
-      });
+    const res = await request(app).post('/webhooks/github').send({
+      ref: 'refs/heads/main',
+      commits: [],
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.data.skipped).toBe(true);

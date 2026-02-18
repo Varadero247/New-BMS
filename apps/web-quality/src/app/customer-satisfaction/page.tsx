@@ -1,14 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Modal,
-  Badge,
-} from '@ims/ui';
+import { Card, CardContent, CardHeader, CardTitle, Modal, Badge } from '@ims/ui';
 import {
   Star,
   TrendingUp,
@@ -80,9 +73,17 @@ const SEED_SURVEYS: Survey[] = [
     isPromoter: true,
     isDetractor: false,
     responses: [
-      { question: 'How satisfied are you with our product quality?', score: 5, comment: 'Excellent quality, zero defects in last 6 months.' },
+      {
+        question: 'How satisfied are you with our product quality?',
+        score: 5,
+        comment: 'Excellent quality, zero defects in last 6 months.',
+      },
       { question: 'How would you rate our delivery performance?', score: 4 },
-      { question: 'How satisfied are you with our customer service?', score: 5, comment: 'Very responsive team.' },
+      {
+        question: 'How satisfied are you with our customer service?',
+        score: 5,
+        comment: 'Very responsive team.',
+      },
       { question: 'How do you rate our pricing?', score: 4 },
       { question: 'How would you rate our communication?', score: 5 },
     ],
@@ -99,10 +100,18 @@ const SEED_SURVEYS: Survey[] = [
     isDetractor: true,
     responses: [
       { question: 'How satisfied are you with our product quality?', score: 3 },
-      { question: 'How would you rate our delivery performance?', score: 1, comment: 'Multiple late deliveries this quarter, causing production delays.' },
+      {
+        question: 'How would you rate our delivery performance?',
+        score: 1,
+        comment: 'Multiple late deliveries this quarter, causing production delays.',
+      },
       { question: 'How satisfied are you with our customer service?', score: 3 },
       { question: 'How do you rate our pricing?', score: 3 },
-      { question: 'How would you rate our communication?', score: 2, comment: 'Poor updates on order status.' },
+      {
+        question: 'How would you rate our communication?',
+        score: 2,
+        comment: 'Poor updates on order status.',
+      },
     ],
   },
   {
@@ -116,7 +125,11 @@ const SEED_SURVEYS: Survey[] = [
     isPromoter: true,
     isDetractor: false,
     responses: [
-      { question: 'How satisfied are you with our product quality?', score: 4, comment: 'Consistent quality, minor variations in tolerances.' },
+      {
+        question: 'How satisfied are you with our product quality?',
+        score: 4,
+        comment: 'Consistent quality, minor variations in tolerances.',
+      },
       { question: 'How would you rate our delivery performance?', score: 5 },
       { question: 'How satisfied are you with our customer service?', score: 4 },
       { question: 'How do you rate our pricing?', score: 3 },
@@ -136,7 +149,11 @@ const SEED_SURVEYS: Survey[] = [
     responses: [
       { question: 'How satisfied are you with our product quality?', score: 3 },
       { question: 'How would you rate our delivery performance?', score: 3 },
-      { question: 'How satisfied are you with our customer service?', score: 2, comment: 'Long wait times on support tickets.' },
+      {
+        question: 'How satisfied are you with our customer service?',
+        score: 2,
+        comment: 'Long wait times on support tickets.',
+      },
       { question: 'How do you rate our pricing?', score: 4 },
       { question: 'How would you rate our communication?', score: 3 },
     ],
@@ -152,7 +169,11 @@ const SEED_SURVEYS: Survey[] = [
     isPromoter: true,
     isDetractor: false,
     responses: [
-      { question: 'How satisfied are you with our product quality?', score: 5, comment: 'World-class quality management. AS9100 compliance is evident.' },
+      {
+        question: 'How satisfied are you with our product quality?',
+        score: 5,
+        comment: 'World-class quality management. AS9100 compliance is evident.',
+      },
       { question: 'How would you rate our delivery performance?', score: 5 },
       { question: 'How satisfied are you with our customer service?', score: 5 },
       { question: 'How do you rate our pricing?', score: 4 },
@@ -171,7 +192,11 @@ const SEED_SURVEYS: Survey[] = [
     isDetractor: false,
     responses: [
       { question: 'How satisfied are you with our product quality?', score: 4 },
-      { question: 'How would you rate our delivery performance?', score: 4, comment: 'On time, well packaged.' },
+      {
+        question: 'How would you rate our delivery performance?',
+        score: 4,
+        comment: 'On time, well packaged.',
+      },
       { question: 'How satisfied are you with our customer service?', score: 4 },
       { question: 'How do you rate our pricing?', score: 3 },
       { question: 'How would you rate our communication?', score: 5 },
@@ -188,11 +213,19 @@ const SEED_SURVEYS: Survey[] = [
     isPromoter: false,
     isDetractor: true,
     responses: [
-      { question: 'How satisfied are you with our product quality?', score: 1, comment: 'Three batches with out-of-spec dimensions. NCR raised.' },
+      {
+        question: 'How satisfied are you with our product quality?',
+        score: 1,
+        comment: 'Three batches with out-of-spec dimensions. NCR raised.',
+      },
       { question: 'How would you rate our delivery performance?', score: 2 },
       { question: 'How satisfied are you with our customer service?', score: 2 },
       { question: 'How do you rate our pricing?', score: 3 },
-      { question: 'How would you rate our communication?', score: 1, comment: 'No proactive communication about quality issues.' },
+      {
+        question: 'How would you rate our communication?',
+        score: 1,
+        comment: 'No proactive communication about quality issues.',
+      },
     ],
   },
   {
@@ -238,7 +271,11 @@ const SEED_SURVEYS: Survey[] = [
     responses: [
       { question: 'How satisfied are you with our product quality?', score: 4 },
       { question: 'How would you rate our delivery performance?', score: 4 },
-      { question: 'How satisfied are you with our customer service?', score: 5, comment: 'Account manager is very proactive and knowledgeable.' },
+      {
+        question: 'How satisfied are you with our customer service?',
+        score: 5,
+        comment: 'Account manager is very proactive and knowledgeable.',
+      },
       { question: 'How do you rate our pricing?', score: 3 },
       { question: 'How would you rate our communication?', score: 4 },
     ],
@@ -254,7 +291,8 @@ const SEED_ACTIONS: ActionItem[] = [
     priority: 'High',
     owner: 'Logistics Manager',
     dueDate: '2024-04-30',
-    description: 'Implement real-time delivery tracking and automated customer notifications to address late delivery complaints.',
+    description:
+      'Implement real-time delivery tracking and automated customer notifications to address late delivery complaints.',
   },
   {
     id: 'CA-002',
@@ -264,7 +302,8 @@ const SEED_ACTIONS: ActionItem[] = [
     priority: 'High',
     owner: 'Quality Engineer',
     dueDate: '2024-04-15',
-    description: 'Investigate and resolve root cause of three batches with out-of-spec dimensions reported by Northern Medical Devices.',
+    description:
+      'Investigate and resolve root cause of three batches with out-of-spec dimensions reported by Northern Medical Devices.',
   },
   {
     id: 'CA-003',
@@ -274,7 +313,8 @@ const SEED_ACTIONS: ActionItem[] = [
     priority: 'Medium',
     owner: 'Customer Service Lead',
     dueDate: '2024-05-01',
-    description: 'Target <4 hour first response time on all support tickets. Current average is 48+ hours.',
+    description:
+      'Target <4 hour first response time on all support tickets. Current average is 48+ hours.',
   },
   {
     id: 'CA-004',
@@ -284,7 +324,8 @@ const SEED_ACTIONS: ActionItem[] = [
     priority: 'High',
     owner: 'Quality Manager',
     dueDate: '2024-04-20',
-    description: 'Establish mandatory communication procedure within 24h of identifying any out-of-spec product dispatched to customers.',
+    description:
+      'Establish mandatory communication procedure within 24h of identifying any out-of-spec product dispatched to customers.',
   },
   {
     id: 'CA-005',
@@ -294,7 +335,8 @@ const SEED_ACTIONS: ActionItem[] = [
     priority: 'Low',
     owner: 'Sales Director',
     dueDate: '2024-06-30',
-    description: 'Multiple customers rated pricing below 4/5. Conduct market analysis and review pricing tiers.',
+    description:
+      'Multiple customers rated pricing below 4/5. Conduct market analysis and review pricing tiers.',
   },
   {
     id: 'CA-006',
@@ -304,7 +346,8 @@ const SEED_ACTIONS: ActionItem[] = [
     priority: 'Medium',
     owner: 'Quality Coordinator',
     dueDate: '2024-03-01',
-    description: 'Increase survey response rate by introducing digital survey format and follow-up reminders.',
+    description:
+      'Increase survey response rate by introducing digital survey format and follow-up reminders.',
   },
 ];
 
@@ -323,14 +366,20 @@ const MONTHLY_SCORES = [
   { month: 'Feb', score: 4.3 },
 ];
 
-const CATEGORIES: Category[] = ['Product Quality', 'Delivery', 'Customer Service', 'Price', 'Communication'];
+const CATEGORIES: Category[] = [
+  'Product Quality',
+  'Delivery',
+  'Customer Service',
+  'Price',
+  'Communication',
+];
 
 const CATEGORY_COLORS: Record<Category, string> = {
   'Product Quality': 'bg-blue-500',
-  'Delivery': 'bg-purple-500',
+  Delivery: 'bg-purple-500',
   'Customer Service': 'bg-green-500',
-  'Price': 'bg-amber-500',
-  'Communication': 'bg-pink-500',
+  Price: 'bg-amber-500',
+  Communication: 'bg-pink-500',
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -360,9 +409,7 @@ function StarRating({ score, max = 5 }: { score: number; max?: number }) {
           }`}
         />
       ))}
-      <span className={`ml-1 text-sm font-medium ${getScoreColor(score)}`}>
-        {score.toFixed(1)}
-      </span>
+      <span className={`ml-1 text-sm font-medium ${getScoreColor(score)}`}>{score.toFixed(1)}</span>
     </div>
   );
 }
@@ -373,8 +420,7 @@ function ScoreGauge({ score, max = 5 }: { score: number; max?: number }) {
   const circ = Math.PI * radius; // half circle
   const dash = (pct / 100) * circ;
 
-  const color =
-    score >= 4 ? '#10B981' : score >= 3 ? '#F59E0B' : '#DC2626';
+  const color = score >= 4 ? '#10B981' : score >= 3 ? '#F59E0B' : '#DC2626';
 
   return (
     <div className="relative flex flex-col items-center">
@@ -409,12 +455,25 @@ function ScoreGauge({ score, max = 5 }: { score: number; max?: number }) {
 
 function StatusBadge({ status }: { status: ResponseStatus }) {
   const map: Record<ResponseStatus, { cls: string; label: string }> = {
-    Responded: { cls: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300', label: 'Responded' },
-    Pending: { cls: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300', label: 'Pending' },
-    'No Response': { cls: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-800 dark:text-gray-400', label: 'No Response' },
+    Responded: {
+      cls: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+      label: 'Responded',
+    },
+    Pending: {
+      cls: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+      label: 'Pending',
+    },
+    'No Response': {
+      cls: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-800 dark:text-gray-400',
+      label: 'No Response',
+    },
   };
   const { cls, label } = map[status];
-  return <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${cls}`}>{label}</span>;
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
+      {label}
+    </span>
+  );
 }
 
 function ActionStatusBadge({ status }: { status: ActionStatus }) {
@@ -434,7 +493,9 @@ function ActionStatusBadge({ status }: { status: ActionStatus }) {
   };
   const { cls, icon } = map[status];
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${cls}`}
+    >
       {icon}
       {status}
     </span>
@@ -448,7 +509,9 @@ function PriorityBadge({ priority }: { priority: ActionPriority }) {
     Low: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-800 dark:text-gray-400',
   };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${map[priority]}`}>
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${map[priority]}`}
+    >
       {priority}
     </span>
   );
@@ -543,16 +606,15 @@ export default function CustomerSatisfactionPage() {
   const responseRate = surveys.length > 0 ? (responded.length / surveys.length) * 100 : 0;
   const promoters = surveys.filter((s) => s.isPromoter).length;
   const detractors = surveys.filter((s) => s.isDetractor).length;
-  const nps = surveys.length > 0
-    ? Math.round(((promoters - detractors) / surveys.length) * 100)
-    : 0;
+  const nps =
+    surveys.length > 0 ? Math.round(((promoters - detractors) / surveys.length) * 100) : 0;
 
   const categoryStats: Record<Category, { total: number; scoreSum: number; count: number }> = {
     'Product Quality': { total: 0, scoreSum: 0, count: 0 },
-    'Delivery': { total: 0, scoreSum: 0, count: 0 },
+    Delivery: { total: 0, scoreSum: 0, count: 0 },
     'Customer Service': { total: 0, scoreSum: 0, count: 0 },
-    'Price': { total: 0, scoreSum: 0, count: 0 },
-    'Communication': { total: 0, scoreSum: 0, count: 0 },
+    Price: { total: 0, scoreSum: 0, count: 0 },
+    Communication: { total: 0, scoreSum: 0, count: 0 },
   };
   surveys.forEach((s) => {
     categoryStats[s.category].total += 1;
@@ -622,11 +684,27 @@ export default function CustomerSatisfactionPage() {
       isPromoter: overall >= 4,
       isDetractor: overall <= 2,
       responses: [
-        { question: 'How satisfied are you with our product quality?', score: form.q1, comment: form.c1 || undefined },
-        { question: 'How would you rate our delivery performance?', score: form.q2, comment: form.c2 || undefined },
-        { question: 'How satisfied are you with our customer service?', score: form.q3, comment: form.c3 || undefined },
+        {
+          question: 'How satisfied are you with our product quality?',
+          score: form.q1,
+          comment: form.c1 || undefined,
+        },
+        {
+          question: 'How would you rate our delivery performance?',
+          score: form.q2,
+          comment: form.c2 || undefined,
+        },
+        {
+          question: 'How satisfied are you with our customer service?',
+          score: form.q3,
+          comment: form.c3 || undefined,
+        },
         { question: 'How do you rate our pricing?', score: form.q4, comment: form.c4 || undefined },
-        { question: 'How would you rate our communication?', score: form.q5, comment: form.c5 || undefined },
+        {
+          question: 'How would you rate our communication?',
+          score: form.q5,
+          comment: form.c5 || undefined,
+        },
       ],
     };
 
@@ -634,7 +712,21 @@ export default function CustomerSatisfactionPage() {
     setSurveys(updated);
     saveSurveys(updated);
     setAddSurveyOpen(false);
-    setForm({ customer: '', email: '', category: 'Product Quality', q1: 3, q2: 3, q3: 3, q4: 3, q5: 3, c1: '', c2: '', c3: '', c4: '', c5: '' });
+    setForm({
+      customer: '',
+      email: '',
+      category: 'Product Quality',
+      q1: 3,
+      q2: 3,
+      q3: 3,
+      q4: 3,
+      q5: 3,
+      c1: '',
+      c2: '',
+      c3: '',
+      c4: '',
+      c5: '',
+    });
   }
 
   function handleViewSurvey(survey: Survey) {
@@ -677,7 +769,6 @@ export default function CustomerSatisfactionPage() {
   return (
     <div className="p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
-
         {/* ── Header ──────────────────────────────────────────────────────────── */}
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
@@ -702,7 +793,6 @@ export default function CustomerSatisfactionPage() {
 
         {/* ── Summary Cards ───────────────────────────────────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
           {/* Overall Score */}
           <Card className="overflow-hidden">
             <CardContent className="pt-5 pb-4">
@@ -712,7 +802,11 @@ export default function CustomerSatisfactionPage() {
                 </p>
                 <ScoreGauge score={overallScore} />
                 <p className={`text-xs font-medium mt-1 ${getScoreColor(overallScore)}`}>
-                  {overallScore >= 4 ? 'Very Satisfied' : overallScore >= 3 ? 'Satisfied' : 'Unsatisfied'}
+                  {overallScore >= 4
+                    ? 'Very Satisfied'
+                    : overallScore >= 3
+                      ? 'Satisfied'
+                      : 'Unsatisfied'}
                 </p>
               </div>
             </CardContent>
@@ -755,7 +849,8 @@ export default function CustomerSatisfactionPage() {
                 </div>
               </div>
               <p className={`text-3xl font-bold ${npsInfo.cls}`}>
-                {nps > 0 ? '+' : ''}{nps}
+                {nps > 0 ? '+' : ''}
+                {nps}
               </p>
               <p className={`text-xs font-medium mt-1 ${npsInfo.cls}`}>{npsInfo.label}</p>
               <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
@@ -786,7 +881,9 @@ export default function CustomerSatisfactionPage() {
               <p className="text-xs text-muted-foreground mt-1">Surveys sent this period</p>
               <div className="mt-3 grid grid-cols-3 gap-1 text-xs text-center">
                 <div className="bg-green-50 dark:bg-green-900/20 rounded p-1">
-                  <p className="font-semibold text-green-700 dark:text-green-400">{responded.length}</p>
+                  <p className="font-semibold text-green-700 dark:text-green-400">
+                    {responded.length}
+                  </p>
                   <p className="text-green-600 dark:text-green-500">Done</p>
                 </div>
                 <div className="bg-amber-50 dark:bg-amber-900/20 rounded p-1">
@@ -820,7 +917,10 @@ export default function CustomerSatisfactionPage() {
                 const heightPct = (d.score / 5) * 100;
                 return (
                   <div key={d.month} className="flex-1 flex flex-col items-center gap-1 group">
-                    <div className="relative w-full flex flex-col items-center justify-end" style={{ height: '160px' }}>
+                    <div
+                      className="relative w-full flex flex-col items-center justify-end"
+                      style={{ height: '160px' }}
+                    >
                       {/* Tooltip */}
                       <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded px-2 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
                         {d.score.toFixed(1)}/5.0
@@ -838,9 +938,15 @@ export default function CustomerSatisfactionPage() {
             </div>
             {/* Legend */}
             <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><span className="h-2 w-3 rounded-sm bg-green-500 inline-block" /> ≥4.0 Excellent</span>
-              <span className="flex items-center gap-1"><span className="h-2 w-3 rounded-sm bg-amber-500 inline-block" /> ≥3.0 Good</span>
-              <span className="flex items-center gap-1"><span className="h-2 w-3 rounded-sm bg-red-500 inline-block" /> &lt;3.0 Needs Work</span>
+              <span className="flex items-center gap-1">
+                <span className="h-2 w-3 rounded-sm bg-green-500 inline-block" /> ≥4.0 Excellent
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="h-2 w-3 rounded-sm bg-amber-500 inline-block" /> ≥3.0 Good
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="h-2 w-3 rounded-sm bg-red-500 inline-block" /> &lt;3.0 Needs Work
+              </span>
               <span className="ml-auto">Scale: 1–5</span>
             </div>
           </CardContent>
@@ -848,7 +954,6 @@ export default function CustomerSatisfactionPage() {
 
         {/* ── Two-column: Categories + Actions summary ────────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
           {/* Feedback Categories */}
           <Card>
             <CardHeader className="pb-2">
@@ -861,7 +966,8 @@ export default function CustomerSatisfactionPage() {
               {CATEGORIES.map((cat) => {
                 const stat = categoryStats[cat];
                 const avg = stat.count > 0 ? stat.scoreSum / stat.count : 0;
-                const pct = totalCategorySurveys > 0 ? (stat.total / totalCategorySurveys) * 100 : 0;
+                const pct =
+                  totalCategorySurveys > 0 ? (stat.total / totalCategorySurveys) * 100 : 0;
                 const dotColor = CATEGORY_COLORS[cat];
                 return (
                   <div key={cat} className="space-y-1">
@@ -1000,7 +1106,11 @@ export default function CustomerSatisfactionPage() {
                   className="text-xs border border-border rounded px-2 py-1.5 bg-background text-foreground"
                 >
                   <option value="All">All Categories</option>
-                  {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
                 </select>
                 {/* Status filter */}
                 <select
@@ -1021,7 +1131,11 @@ export default function CustomerSatisfactionPage() {
                     onChange={(e) => setFilterMinScore(Number(e.target.value))}
                     className="border border-border rounded px-1.5 py-1.5 bg-background text-foreground text-xs"
                   >
-                    {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
                   </select>
                   –
                   <select
@@ -1029,7 +1143,11 @@ export default function CustomerSatisfactionPage() {
                     onChange={(e) => setFilterMaxScore(Number(e.target.value))}
                     className="border border-border rounded px-1.5 py-1.5 bg-background text-foreground text-xs"
                   >
-                    {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -1067,16 +1185,16 @@ export default function CustomerSatisfactionPage() {
                 <tbody className="divide-y divide-border">
                   {filteredSurveys.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                      <td
+                        colSpan={7}
+                        className="px-4 py-8 text-center text-sm text-muted-foreground"
+                      >
                         No surveys match the current filters.
                       </td>
                     </tr>
                   ) : (
                     filteredSurveys.map((survey) => (
-                      <tr
-                        key={survey.id}
-                        className="hover:bg-muted/30 transition-colors"
-                      >
+                      <tr key={survey.id} className="hover:bg-muted/30 transition-colors">
                         <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
                           {survey.id}
                         </td>
@@ -1107,7 +1225,9 @@ export default function CustomerSatisfactionPage() {
                         </td>
                         <td className="px-4 py-3">
                           <span className="inline-flex items-center gap-1.5 text-xs">
-                            <span className={`h-2 w-2 rounded-full ${CATEGORY_COLORS[survey.category]}`} />
+                            <span
+                              className={`h-2 w-2 rounded-full ${CATEGORY_COLORS[survey.category]}`}
+                            />
                             {survey.category}
                           </span>
                         </td>
@@ -1146,33 +1266,59 @@ export default function CustomerSatisfactionPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/40">
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">ID</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Action</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Source</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Priority</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Owner</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Due</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Update Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      ID
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Action
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Source
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Priority
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Owner
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Due
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Update Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {filteredActions.map((action) => (
                     <tr key={action.id} className="hover:bg-muted/30 transition-colors">
-                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{action.id}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                        {action.id}
+                      </td>
                       <td className="px-4 py-3">
                         <p className="font-medium text-foreground">{action.title}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5 max-w-xs truncate">{action.description}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 max-w-xs truncate">
+                          {action.description}
+                        </p>
                       </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">{action.source}</td>
-                      <td className="px-4 py-3"><PriorityBadge priority={action.priority} /></td>
-                      <td className="px-4 py-3"><ActionStatusBadge status={action.status} /></td>
+                      <td className="px-4 py-3">
+                        <PriorityBadge priority={action.priority} />
+                      </td>
+                      <td className="px-4 py-3">
+                        <ActionStatusBadge status={action.status} />
+                      </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">{action.owner}</td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">{action.dueDate}</td>
                       <td className="px-4 py-3">
                         <select
                           value={action.status}
-                          onChange={(e) => handleUpdateActionStatus(action.id, e.target.value as ActionStatus)}
+                          onChange={(e) =>
+                            handleUpdateActionStatus(action.id, e.target.value as ActionStatus)
+                          }
                           className="text-xs border border-border rounded px-2 py-1 bg-background text-foreground"
                         >
                           <option value="Open">Open</option>
@@ -1187,7 +1333,6 @@ export default function CustomerSatisfactionPage() {
             </div>
           </CardContent>
         </Card>
-
       </div>
 
       {/* ── Add Survey Modal ─────────────────────────────────────────────────── */}
@@ -1201,7 +1346,9 @@ export default function CustomerSatisfactionPage() {
           {/* Customer info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-foreground mb-1">Customer Name *</label>
+              <label className="block text-xs font-medium text-foreground mb-1">
+                Customer Name *
+              </label>
               <input
                 type="text"
                 value={form.customer}
@@ -1222,25 +1369,49 @@ export default function CustomerSatisfactionPage() {
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium text-foreground mb-1">Primary Category</label>
+            <label className="block text-xs font-medium text-foreground mb-1">
+              Primary Category
+            </label>
             <select
               value={form.category}
               onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as Category }))}
               className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
-              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
             </select>
           </div>
 
           {/* Questions */}
           <div className="space-y-3">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Survey Questions (1–5)</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Survey Questions (1–5)
+            </p>
             {[
-              { key: 'q1' as const, ck: 'c1' as const, label: 'How satisfied are you with our product quality?' },
-              { key: 'q2' as const, ck: 'c2' as const, label: 'How would you rate our delivery performance?' },
-              { key: 'q3' as const, ck: 'c3' as const, label: 'How satisfied are you with our customer service?' },
+              {
+                key: 'q1' as const,
+                ck: 'c1' as const,
+                label: 'How satisfied are you with our product quality?',
+              },
+              {
+                key: 'q2' as const,
+                ck: 'c2' as const,
+                label: 'How would you rate our delivery performance?',
+              },
+              {
+                key: 'q3' as const,
+                ck: 'c3' as const,
+                label: 'How satisfied are you with our customer service?',
+              },
               { key: 'q4' as const, ck: 'c4' as const, label: 'How do you rate our pricing?' },
-              { key: 'q5' as const, ck: 'c5' as const, label: 'How would you rate our communication?' },
+              {
+                key: 'q5' as const,
+                ck: 'c5' as const,
+                label: 'How would you rate our communication?',
+              },
             ].map(({ key, ck, label }) => (
               <div key={key} className="p-3 rounded-lg bg-muted/40 space-y-2">
                 <div className="flex items-center justify-between gap-4">
@@ -1320,35 +1491,56 @@ export default function CustomerSatisfactionPage() {
             {/* Overall score */}
             <div className="flex items-center gap-4 p-3 rounded-lg border border-border">
               <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Overall Score</p>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                  Overall Score
+                </p>
                 <StarRating score={selectedSurvey.overallScore} />
               </div>
               <div className="h-10 w-px bg-border" />
               <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Category</p>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                  Category
+                </p>
                 <span className="flex items-center gap-1.5 text-sm">
-                  <span className={`h-2 w-2 rounded-full ${CATEGORY_COLORS[selectedSurvey.category]}`} />
+                  <span
+                    className={`h-2 w-2 rounded-full ${CATEGORY_COLORS[selectedSurvey.category]}`}
+                  />
                   {selectedSurvey.category}
                 </span>
               </div>
               <div className="h-10 w-px bg-border" />
               <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">NPS Type</p>
-                <span className={`text-sm font-medium ${
-                  selectedSurvey.isPromoter ? 'text-green-600 dark:text-green-400' :
-                  selectedSurvey.isDetractor ? 'text-red-600 dark:text-red-400' :
-                  'text-amber-600 dark:text-amber-400'
-                }`}>
-                  {selectedSurvey.isPromoter ? 'Promoter' : selectedSurvey.isDetractor ? 'Detractor' : 'Passive'}
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                  NPS Type
+                </p>
+                <span
+                  className={`text-sm font-medium ${
+                    selectedSurvey.isPromoter
+                      ? 'text-green-600 dark:text-green-400'
+                      : selectedSurvey.isDetractor
+                        ? 'text-red-600 dark:text-red-400'
+                        : 'text-amber-600 dark:text-amber-400'
+                  }`}
+                >
+                  {selectedSurvey.isPromoter
+                    ? 'Promoter'
+                    : selectedSurvey.isDetractor
+                      ? 'Detractor'
+                      : 'Passive'}
                 </span>
               </div>
             </div>
 
             {/* Individual responses */}
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Individual Responses</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Individual Responses
+              </p>
               {selectedSurvey.responses.map((r, i) => (
-                <div key={i} className="p-3 rounded-lg border border-border hover:bg-muted/30 transition-colors">
+                <div
+                  key={i}
+                  className="p-3 rounded-lg border border-border hover:bg-muted/30 transition-colors"
+                >
                   <div className="flex items-start justify-between gap-4">
                     <p className="text-sm text-foreground flex-1">{r.question}</p>
                     <StarRating score={r.score} />

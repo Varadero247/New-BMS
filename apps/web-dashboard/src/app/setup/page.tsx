@@ -117,9 +117,7 @@ export default function SetupWizardPage() {
     );
   }
 
-  const canProceed =
-    currentStep === 0 ? (stepData.selectedStandards?.length > 0) :
-    true;
+  const canProceed = currentStep === 0 ? stepData.selectedStandards?.length > 0 : true;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
@@ -143,23 +141,29 @@ export default function SetupWizardPage() {
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           {STEPS.map((step, i) => (
             <div key={i} className="flex items-center gap-3">
-              <div className={`h-9 w-9 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
-                i < currentStep
-                  ? 'bg-green-500 text-white'
-                  : i === currentStep
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-              }`}>
+              <div
+                className={`h-9 w-9 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
+                  i < currentStep
+                    ? 'bg-green-500 text-white'
+                    : i === currentStep
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                }`}
+              >
                 {i < currentStep ? <Check className="h-5 w-5" /> : i + 1}
               </div>
               <div className="hidden md:block">
-                <p className={`text-sm font-medium ${i === currentStep ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
+                <p
+                  className={`text-sm font-medium ${i === currentStep ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}
+                >
                   {step.title}
                 </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500">{step.description}</p>
               </div>
               {i < STEPS.length - 1 && (
-                <div className={`w-12 h-0.5 mx-2 ${i < currentStep ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'}`} />
+                <div
+                  className={`w-12 h-0.5 mx-2 ${i < currentStep ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'}`}
+                />
               )}
             </div>
           ))}
@@ -169,18 +173,10 @@ export default function SetupWizardPage() {
       {/* Content */}
       <main className="flex-1 overflow-auto">
         <div className="max-w-3xl mx-auto py-8 px-6">
-          {currentStep === 0 && (
-            <Step1ISOSelection data={stepData} onUpdate={updateStepData} />
-          )}
-          {currentStep === 1 && (
-            <Step2DocumentSeed data={stepData} onUpdate={updateStepData} />
-          )}
-          {currentStep === 2 && (
-            <Step3TeamInvite data={stepData} onUpdate={updateStepData} />
-          )}
-          {currentStep === 3 && (
-            <Step4PreAudit data={stepData} />
-          )}
+          {currentStep === 0 && <Step1ISOSelection data={stepData} onUpdate={updateStepData} />}
+          {currentStep === 1 && <Step2DocumentSeed data={stepData} onUpdate={updateStepData} />}
+          {currentStep === 2 && <Step3TeamInvite data={stepData} onUpdate={updateStepData} />}
+          {currentStep === 3 && <Step4PreAudit data={stepData} />}
         </div>
       </main>
 

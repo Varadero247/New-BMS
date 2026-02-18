@@ -1,7 +1,17 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Plus, TrendingUp, TrendingDown, Award, AlertTriangle, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import {
+  Search,
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  Award,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  Clock,
+} from 'lucide-react';
 
 interface Supplier {
   id: string;
@@ -20,42 +30,145 @@ interface Supplier {
 }
 
 const MOCK_SUPPLIERS: Supplier[] = [
-  { id: '1', name: 'TechSeal GmbH', tier: 1, rating: 'A', ppm: 12, onTimeDelivery: 98.5, qualityScore: 96, developmentPlan: 'Maintain current performance; annual IATF renewal Q3', status: 'approved', location: 'Stuttgart, Germany', category: 'Seals & Gaskets', lastAudit: '2025-11-10', trend: 'stable' },
-  { id: '2', name: 'PrecisionCast Ltd.', tier: 1, rating: 'B', ppm: 145, onTimeDelivery: 91.2, qualityScore: 82, developmentPlan: 'Improvement plan active: reduce PPM to <50 by Q2 2026; OTD target 95%. Monthly review cadence.', status: 'conditional', location: 'Birmingham, UK', category: 'Die Casting', lastAudit: '2026-01-15', trend: 'improving' },
-  { id: '3', name: 'FastenPro Korea', tier: 2, rating: 'A', ppm: 8, onTimeDelivery: 99.1, qualityScore: 97, developmentPlan: 'Preferred supplier status. Explore dual-sourcing arrangement.', status: 'approved', location: 'Busan, South Korea', category: 'Fasteners', lastAudit: '2025-09-22', trend: 'stable' },
-  { id: '4', name: 'ElectroComp Poland', tier: 1, rating: 'C', ppm: 892, onTimeDelivery: 78.4, qualityScore: 65, developmentPlan: '90-day development plan issued 2026-01-20. Onsite support team assigned. Weekly escalation calls with supply chain director.', status: 'development', location: 'Wroclaw, Poland', category: 'Electronic Components', lastAudit: '2026-01-20', trend: 'declining' },
-  { id: '5', name: 'RubberTech Mexico', tier: 2, rating: 'B', ppm: 67, onTimeDelivery: 93.8, qualityScore: 88, developmentPlan: 'Targeting A-rating by Q4 2026. Process audit scheduled March 2026.', status: 'approved', location: 'Monterrey, Mexico', category: 'Rubber Components', lastAudit: '2025-10-05', trend: 'improving' },
-  { id: '6', name: 'MetalForm India', tier: 3, rating: 'D', ppm: 2140, onTimeDelivery: 62.0, qualityScore: 41, developmentPlan: 'Suspended pending containment verification. Replacement supplier qualification in progress. Target: qualify StructalParts Ltd. as alternative by 2026-03-31.', status: 'suspended', location: 'Pune, India', category: 'Metal Stampings', lastAudit: '2026-02-01', trend: 'declining' },
+  {
+    id: '1',
+    name: 'TechSeal GmbH',
+    tier: 1,
+    rating: 'A',
+    ppm: 12,
+    onTimeDelivery: 98.5,
+    qualityScore: 96,
+    developmentPlan: 'Maintain current performance; annual IATF renewal Q3',
+    status: 'approved',
+    location: 'Stuttgart, Germany',
+    category: 'Seals & Gaskets',
+    lastAudit: '2025-11-10',
+    trend: 'stable',
+  },
+  {
+    id: '2',
+    name: 'PrecisionCast Ltd.',
+    tier: 1,
+    rating: 'B',
+    ppm: 145,
+    onTimeDelivery: 91.2,
+    qualityScore: 82,
+    developmentPlan:
+      'Improvement plan active: reduce PPM to <50 by Q2 2026; OTD target 95%. Monthly review cadence.',
+    status: 'conditional',
+    location: 'Birmingham, UK',
+    category: 'Die Casting',
+    lastAudit: '2026-01-15',
+    trend: 'improving',
+  },
+  {
+    id: '3',
+    name: 'FastenPro Korea',
+    tier: 2,
+    rating: 'A',
+    ppm: 8,
+    onTimeDelivery: 99.1,
+    qualityScore: 97,
+    developmentPlan: 'Preferred supplier status. Explore dual-sourcing arrangement.',
+    status: 'approved',
+    location: 'Busan, South Korea',
+    category: 'Fasteners',
+    lastAudit: '2025-09-22',
+    trend: 'stable',
+  },
+  {
+    id: '4',
+    name: 'ElectroComp Poland',
+    tier: 1,
+    rating: 'C',
+    ppm: 892,
+    onTimeDelivery: 78.4,
+    qualityScore: 65,
+    developmentPlan:
+      '90-day development plan issued 2026-01-20. Onsite support team assigned. Weekly escalation calls with supply chain director.',
+    status: 'development',
+    location: 'Wroclaw, Poland',
+    category: 'Electronic Components',
+    lastAudit: '2026-01-20',
+    trend: 'declining',
+  },
+  {
+    id: '5',
+    name: 'RubberTech Mexico',
+    tier: 2,
+    rating: 'B',
+    ppm: 67,
+    onTimeDelivery: 93.8,
+    qualityScore: 88,
+    developmentPlan: 'Targeting A-rating by Q4 2026. Process audit scheduled March 2026.',
+    status: 'approved',
+    location: 'Monterrey, Mexico',
+    category: 'Rubber Components',
+    lastAudit: '2025-10-05',
+    trend: 'improving',
+  },
+  {
+    id: '6',
+    name: 'MetalForm India',
+    tier: 3,
+    rating: 'D',
+    ppm: 2140,
+    onTimeDelivery: 62.0,
+    qualityScore: 41,
+    developmentPlan:
+      'Suspended pending containment verification. Replacement supplier qualification in progress. Target: qualify StructalParts Ltd. as alternative by 2026-03-31.',
+    status: 'suspended',
+    location: 'Pune, India',
+    category: 'Metal Stampings',
+    lastAudit: '2026-02-01',
+    trend: 'declining',
+  },
 ];
 
 const STATUS_CONFIG = {
-  approved:    { label: 'Approved',    bg: 'bg-green-100',  text: 'text-green-700',  icon: CheckCircle2 },
-  conditional: { label: 'Conditional', bg: 'bg-yellow-100', text: 'text-yellow-700', icon: AlertTriangle },
-  development: { label: 'Development', bg: 'bg-blue-100',   text: 'text-blue-700',   icon: Clock },
-  suspended:   { label: 'Suspended',   bg: 'bg-red-100',    text: 'text-red-700',    icon: XCircle },
+  approved: { label: 'Approved', bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircle2 },
+  conditional: {
+    label: 'Conditional',
+    bg: 'bg-yellow-100',
+    text: 'text-yellow-700',
+    icon: AlertTriangle,
+  },
+  development: { label: 'Development', bg: 'bg-blue-100', text: 'text-blue-700', icon: Clock },
+  suspended: { label: 'Suspended', bg: 'bg-red-100', text: 'text-red-700', icon: XCircle },
 };
 
 const RATING_CONFIG = {
-  A: { bg: 'bg-green-100',  text: 'text-green-800',  border: 'border-green-300' },
-  B: { bg: 'bg-blue-100',   text: 'text-blue-800',   border: 'border-blue-300' },
+  A: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-300' },
+  B: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-300' },
   C: { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-300' },
-  D: { bg: 'bg-red-100',    text: 'text-red-800',    border: 'border-red-300' },
+  D: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-300' },
 };
 
 const TIER_CONFIG: Record<number, { bg: string; text: string }> = {
   1: { bg: 'bg-purple-100', text: 'text-purple-700' },
   2: { bg: 'bg-indigo-100', text: 'text-indigo-700' },
-  3: { bg: 'bg-gray-100 dark:bg-gray-800',   text: 'text-gray-600' },
+  3: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-600' },
 };
 
 function PPMGauge({ value, max = 2500 }: { value: number; max?: number }) {
   const pct = Math.min((value / max) * 100, 100);
-  const color = value > 500 ? 'bg-red-500' : value > 100 ? 'bg-orange-400' : value > 30 ? 'bg-yellow-400' : 'bg-green-500';
+  const color =
+    value > 500
+      ? 'bg-red-500'
+      : value > 100
+        ? 'bg-orange-400'
+        : value > 30
+          ? 'bg-yellow-400'
+          : 'bg-green-500';
   return (
     <div>
       <div className="flex justify-between text-xs mb-1">
         <span className="text-gray-500 dark:text-gray-400">PPM</span>
-        <span className={`font-bold ${value > 500 ? 'text-red-700' : value > 100 ? 'text-orange-600' : 'text-green-700'}`}>{value.toLocaleString()}</span>
+        <span
+          className={`font-bold ${value > 500 ? 'text-red-700' : value > 100 ? 'text-orange-600' : 'text-green-700'}`}
+        >
+          {value.toLocaleString()}
+        </span>
       </div>
       <div className="h-2 bg-gray-200 rounded-full">
         <div className={`h-2 rounded-full ${color}`} style={{ width: `${pct}%` }} />
@@ -64,7 +177,15 @@ function PPMGauge({ value, max = 2500 }: { value: number; max?: number }) {
   );
 }
 
-function PercentGauge({ label, value, reverse = false }: { label: string; value: number; reverse?: boolean }) {
+function PercentGauge({
+  label,
+  value,
+  reverse = false,
+}: {
+  label: string;
+  value: number;
+  reverse?: boolean;
+}) {
   const isGood = reverse ? value <= 30 : value >= 85;
   const isMed = reverse ? value <= 60 : value >= 70;
   const color = isGood ? 'bg-green-500' : isMed ? 'bg-yellow-400' : 'bg-red-500';
@@ -88,8 +209,11 @@ export default function SupplierDevClient() {
   const [tierFilter, setTierFilter] = useState('all');
 
   const filtered = useMemo(() => {
-    return MOCK_SUPPLIERS.filter(s => {
-      const matchSearch = s.name.toLowerCase().includes(search.toLowerCase()) || s.category.toLowerCase().includes(search.toLowerCase()) || s.location.toLowerCase().includes(search.toLowerCase());
+    return MOCK_SUPPLIERS.filter((s) => {
+      const matchSearch =
+        s.name.toLowerCase().includes(search.toLowerCase()) ||
+        s.category.toLowerCase().includes(search.toLowerCase()) ||
+        s.location.toLowerCase().includes(search.toLowerCase());
       const matchStatus = statusFilter === 'all' || s.status === statusFilter;
       const matchTier = tierFilter === 'all' || String(s.tier) === tierFilter;
       return matchSearch && matchStatus && matchTier;
@@ -97,10 +221,10 @@ export default function SupplierDevClient() {
   }, [search, statusFilter, tierFilter]);
 
   const counts = {
-    approved: MOCK_SUPPLIERS.filter(s => s.status === 'approved').length,
-    conditional: MOCK_SUPPLIERS.filter(s => s.status === 'conditional').length,
-    development: MOCK_SUPPLIERS.filter(s => s.status === 'development').length,
-    suspended: MOCK_SUPPLIERS.filter(s => s.status === 'suspended').length,
+    approved: MOCK_SUPPLIERS.filter((s) => s.status === 'approved').length,
+    conditional: MOCK_SUPPLIERS.filter((s) => s.status === 'conditional').length,
+    development: MOCK_SUPPLIERS.filter((s) => s.status === 'development').length,
+    suspended: MOCK_SUPPLIERS.filter((s) => s.status === 'suspended').length,
   };
 
   return (
@@ -108,8 +232,12 @@ export default function SupplierDevClient() {
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Supplier Development</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">IATF 16949 Clause 8.4 — Supplier Performance & Development</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              Supplier Development
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              IATF 16949 Clause 8.4 — Supplier Performance & Development
+            </p>
           </div>
           <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Plus className="w-4 h-4" />
@@ -126,7 +254,9 @@ export default function SupplierDevClient() {
             <p className="text-3xl font-bold text-green-700 mt-1">{counts.approved}</p>
           </div>
           <div className="bg-yellow-50 rounded-lg border border-yellow-200 p-4">
-            <p className="text-xs text-yellow-700 uppercase tracking-wide font-medium">Conditional</p>
+            <p className="text-xs text-yellow-700 uppercase tracking-wide font-medium">
+              Conditional
+            </p>
             <p className="text-3xl font-bold text-yellow-700 mt-1">{counts.conditional}</p>
           </div>
           <div className="bg-blue-50 rounded-lg border border-blue-200 p-4">
@@ -145,20 +275,31 @@ export default function SupplierDevClient() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              aria-label="Search supplier name, category, location..." placeholder="Search supplier name, category, location..."
+              aria-label="Search supplier name, category, location..."
+              placeholder="Search supplier name, category, location..."
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
-          <select aria-label="Filter by status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+          <select
+            aria-label="Filter by status"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
             <option value="all">All Statuses</option>
             <option value="approved">Approved</option>
             <option value="conditional">Conditional</option>
             <option value="development">Development</option>
             <option value="suspended">Suspended</option>
           </select>
-          <select aria-label="Filter by tier" value={tierFilter} onChange={e => setTierFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+          <select
+            aria-label="Filter by tier"
+            value={tierFilter}
+            onChange={(e) => setTierFilter(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
             <option value="all">All Tiers</option>
             <option value="1">Tier 1</option>
             <option value="2">Tier 2</option>
@@ -168,39 +309,73 @@ export default function SupplierDevClient() {
 
         {/* Supplier Cards */}
         <div className="grid grid-cols-2 gap-4">
-          {filtered.map(supplier => {
+          {filtered.map((supplier) => {
             const sc = STATUS_CONFIG[supplier.status];
             const rc = RATING_CONFIG[supplier.rating];
             const tc = TIER_CONFIG[supplier.tier];
             const StatusIcon = sc.icon;
             return (
-              <div key={supplier.id} className={`bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow ${supplier.status === 'suspended' ? 'border-red-200 bg-red-50' : ''}`}>
+              <div
+                key={supplier.id}
+                className={`bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow ${supplier.status === 'suspended' ? 'border-red-200 bg-red-50' : ''}`}
+              >
                 <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${tc.bg} ${tc.text}`}>Tier {supplier.tier}</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{supplier.category}</span>
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${tc.bg} ${tc.text}`}
+                        >
+                          Tier {supplier.tier}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {supplier.category}
+                        </span>
                       </div>
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">{supplier.name}</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{supplier.location}</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                        {supplier.name}
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {supplier.location}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-black border-2 ${rc.bg} ${rc.text} ${rc.border}`}>
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-black border-2 ${rc.bg} ${rc.text} ${rc.border}`}
+                      >
                         {supplier.rating}
                       </div>
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${sc.bg} ${sc.text}`}>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${sc.bg} ${sc.text}`}
+                      >
                         <StatusIcon className="w-3 h-3" />
                         {sc.label}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 mt-2">
-                    {supplier.trend === 'improving' && <span className="flex items-center gap-1 text-xs text-green-600"><TrendingUp className="w-3 h-3" />Improving</span>}
-                    {supplier.trend === 'stable' && <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"><Award className="w-3 h-3" />Stable</span>}
-                    {supplier.trend === 'declining' && <span className="flex items-center gap-1 text-xs text-red-600"><TrendingDown className="w-3 h-3" />Declining</span>}
+                    {supplier.trend === 'improving' && (
+                      <span className="flex items-center gap-1 text-xs text-green-600">
+                        <TrendingUp className="w-3 h-3" />
+                        Improving
+                      </span>
+                    )}
+                    {supplier.trend === 'stable' && (
+                      <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                        <Award className="w-3 h-3" />
+                        Stable
+                      </span>
+                    )}
+                    {supplier.trend === 'declining' && (
+                      <span className="flex items-center gap-1 text-xs text-red-600">
+                        <TrendingDown className="w-3 h-3" />
+                        Declining
+                      </span>
+                    )}
                     <span className="text-xs text-gray-400 dark:text-gray-500">&bull;</span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Last audit: {supplier.lastAudit}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      Last audit: {supplier.lastAudit}
+                    </span>
                   </div>
                 </div>
                 <div className="px-5 py-4 space-y-3">
@@ -209,7 +384,9 @@ export default function SupplierDevClient() {
                   <PercentGauge label="Quality Score" value={supplier.qualityScore} />
                   <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
                     <p className="text-xs font-medium text-gray-600 mb-1">Development Plan</p>
-                    <p className="text-xs text-gray-600 leading-relaxed">{supplier.developmentPlan}</p>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                      {supplier.developmentPlan}
+                    </p>
                   </div>
                 </div>
               </div>

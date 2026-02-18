@@ -13,9 +13,22 @@ const createIncidentSchema = z.object({
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().min(1).max(2000),
   type: z.enum([
-    'INJURY', 'NEAR_MISS', 'DANGEROUS_OCCURRENCE', 'OCCUPATIONAL_ILLNESS', 'PROPERTY_DAMAGE',
-    'SPILL', 'EMISSION', 'WASTE_INCIDENT', 'ENVIRONMENTAL_COMPLAINT', 'REGULATORY_BREACH',
-    'NON_CONFORMANCE', 'CUSTOMER_COMPLAINT', 'SUPPLIER_ISSUE', 'PROCESS_DEVIATION', 'PRODUCT_DEFECT', 'AUDIT_FINDING',
+    'INJURY',
+    'NEAR_MISS',
+    'DANGEROUS_OCCURRENCE',
+    'OCCUPATIONAL_ILLNESS',
+    'PROPERTY_DAMAGE',
+    'SPILL',
+    'EMISSION',
+    'WASTE_INCIDENT',
+    'ENVIRONMENTAL_COMPLAINT',
+    'REGULATORY_BREACH',
+    'NON_CONFORMANCE',
+    'CUSTOMER_COMPLAINT',
+    'SUPPLIER_ISSUE',
+    'PROCESS_DEVIATION',
+    'PRODUCT_DEFECT',
+    'AUDIT_FINDING',
   ]),
   severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL', 'CATASTROPHIC']).default('MINOR'),
   category: z.string().optional(),
@@ -37,7 +50,16 @@ const createIncidentSchema = z.object({
 });
 
 const updateIncidentSchema = createIncidentSchema.partial().extend({
-  status: z.enum(['OPEN', 'UNDER_INVESTIGATION', 'AWAITING_ACTIONS', 'ACTIONS_IN_PROGRESS', 'VERIFICATION', 'CLOSED']).optional(),
+  status: z
+    .enum([
+      'OPEN',
+      'UNDER_INVESTIGATION',
+      'AWAITING_ACTIONS',
+      'ACTIONS_IN_PROGRESS',
+      'VERIFICATION',
+      'CLOSED',
+    ])
+    .optional(),
   investigatorId: z.string().optional(),
   immediateCause: z.string().optional(),
   rootCauses: z.string().optional(),
@@ -46,11 +68,12 @@ const updateIncidentSchema = createIncidentSchema.partial().extend({
 
 // Generate reference number
 function generateReferenceNumber(standard: string): string {
-  const prefix = {
-    ISO_45001: 'HS',
-    ISO_14001: 'ENV',
-    ISO_9001: 'QA',
-  }[standard] || 'INC';
+  const prefix =
+    {
+      ISO_45001: 'HS',
+      ISO_14001: 'ENV',
+      ISO_9001: 'QA',
+    }[standard] || 'INC';
   const date = new Date();
   const year = date.getFullYear().toString().slice(-2);
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -140,8 +163,16 @@ router.get('/stats', authenticate, async (req, res, next) => {
 
     // Filter by date if provided
     if (year) {
-      const startDate = new Date(parseInt(year as string, 10), month ? parseInt(month as string, 10) - 1 : 0, 1);
-      const endDate = new Date(parseInt(year as string, 10), month ? parseInt(month as string, 10) : 12, 0);
+      const startDate = new Date(
+        parseInt(year as string, 10),
+        month ? parseInt(month as string, 10) - 1 : 0,
+        1
+      );
+      const endDate = new Date(
+        parseInt(year as string, 10),
+        month ? parseInt(month as string, 10) : 12,
+        0
+      );
       where.dateOccurred = { gte: startDate, lte: endDate };
     }
 
@@ -172,8 +203,14 @@ router.get('/stats', authenticate, async (req, res, next) => {
         open,
         closed: total - open,
         byType: byType.reduce((acc, item) => ({ ...acc, [item.type]: item._count.id }), {}),
-        bySeverity: bySeverity.reduce((acc, item) => ({ ...acc, [item.severity]: item._count.id }), {}),
-        byStandard: byStandard.reduce((acc, item) => ({ ...acc, [item.standard]: item._count.id }), {}),
+        bySeverity: bySeverity.reduce(
+          (acc, item) => ({ ...acc, [item.severity]: item._count.id }),
+          {}
+        ),
+        byStandard: byStandard.reduce(
+          (acc, item) => ({ ...acc, [item.standard]: item._count.id }),
+          {}
+        ),
       },
     });
   } catch (error) {

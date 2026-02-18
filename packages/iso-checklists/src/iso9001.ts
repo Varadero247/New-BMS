@@ -84,7 +84,7 @@ export const iso9001Checklist: StandardChecklist = {
       questions: [
         'Can top management demonstrate accountability for the effectiveness of the QMS?',
         'Has top management ensured that the quality policy and quality objectives are established and compatible with the strategic direction and context of the organization?',
-        'Has top management ensured the integration of QMS requirements into the organization\'s business processes?',
+        "Has top management ensured the integration of QMS requirements into the organization's business processes?",
         'Does top management promote the use of the process approach and risk-based thinking throughout the organization?',
         'Does top management engage, direct, and support persons to contribute to the effectiveness of the QMS?',
       ],
@@ -267,7 +267,7 @@ export const iso9001Checklist: StandardChecklist = {
       clause: '7.3',
       title: 'Awareness',
       questions: [
-        'Are persons doing work under the organization\'s control aware of the quality policy?',
+        "Are persons doing work under the organization's control aware of the quality policy?",
         'Are they aware of relevant quality objectives?',
         'Are they aware of their contribution to the effectiveness of the QMS, including the benefits of improved performance?',
         'Are they aware of the implications of not conforming with the QMS requirements?',
@@ -392,7 +392,7 @@ export const iso9001Checklist: StandardChecklist = {
         'Has the organization implemented production and service provision under controlled conditions, including availability of documented information defining product characteristics, activities, and results to be achieved?',
         'Has the organization implemented the use of suitable monitoring and measuring resources at appropriate stages?',
         'Has the organization implemented activities for the identification and traceability of outputs to ensure conformity of products and services?',
-        'Does the organization exercise care with property belonging to customers or external providers while it is under the organization\'s control?',
+        "Does the organization exercise care with property belonging to customers or external providers while it is under the organization's control?",
         'Does the organization meet requirements for post-delivery activities associated with products and services?',
       ],
       evidence: [
@@ -459,7 +459,7 @@ export const iso9001Checklist: StandardChecklist = {
       clause: '9.1.2',
       title: 'Customer satisfaction',
       questions: [
-        'Does the organization monitor customers\' perceptions of the degree to which their needs and expectations have been fulfilled?',
+        "Does the organization monitor customers' perceptions of the degree to which their needs and expectations have been fulfilled?",
         'Has the organization determined the methods for obtaining, monitoring, and reviewing customer satisfaction information?',
         'Are customer satisfaction results analysed and used to identify areas for improvement?',
       ],
@@ -489,7 +489,7 @@ export const iso9001Checklist: StandardChecklist = {
       clause: '9.2',
       title: 'Internal audit',
       questions: [
-        'Does the organization conduct internal audits at planned intervals to provide information on whether the QMS conforms to the organization\'s own requirements and to ISO 9001:2015?',
+        "Does the organization conduct internal audits at planned intervals to provide information on whether the QMS conforms to the organization's own requirements and to ISO 9001:2015?",
         'Has the organization established an audit programme that considers the importance of the processes, changes affecting the organization, and results of previous audits?',
         'Are audit criteria, scope, frequency, and methods defined for each audit?',
         'Are auditors selected to ensure objectivity and impartiality of the audit process?',

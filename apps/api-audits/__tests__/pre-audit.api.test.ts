@@ -5,13 +5,24 @@ jest.mock('../src/prisma', () => ({
   prisma: { audAudit: { findFirst: jest.fn() } },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/pre-audit';
 import { prisma } from '../src/prisma';
-const app = express(); app.use(express.json()); app.use('/api/pre-audit', router);
-beforeEach(() => { jest.clearAllMocks(); });
+const app = express();
+app.use(express.json());
+app.use('/api/pre-audit', router);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('POST /api/pre-audit/:id/generate', () => {
   it('should generate a pre-audit report for a valid audit', async () => {
@@ -22,7 +33,9 @@ describe('POST /api/pre-audit/:id/generate', () => {
       scope: 'Quality Management',
       standard: 'ISO 9001:2015',
     });
-    const res = await request(app).post('/api/pre-audit/00000000-0000-0000-0000-000000000001/generate');
+    const res = await request(app).post(
+      '/api/pre-audit/00000000-0000-0000-0000-000000000001/generate'
+    );
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toBeDefined();
@@ -40,7 +53,9 @@ describe('POST /api/pre-audit/:id/generate', () => {
 
   it('should return 404 when audit not found', async () => {
     (prisma as any).audAudit.findFirst.mockResolvedValue(null);
-    const res = await request(app).post('/api/pre-audit/00000000-0000-0000-0000-000000000099/generate');
+    const res = await request(app).post(
+      '/api/pre-audit/00000000-0000-0000-0000-000000000099/generate'
+    );
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -49,7 +64,9 @@ describe('POST /api/pre-audit/:id/generate', () => {
 
   it('should return 500 on database error', async () => {
     (prisma as any).audAudit.findFirst.mockRejectedValue(new Error('DB connection failed'));
-    const res = await request(app).post('/api/pre-audit/00000000-0000-0000-0000-000000000001/generate');
+    const res = await request(app).post(
+      '/api/pre-audit/00000000-0000-0000-0000-000000000001/generate'
+    );
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

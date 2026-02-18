@@ -58,9 +58,8 @@ router.get('/stats', authenticate, async (req: AuthRequest, res, next) => {
 
     const currentMonth = monthEnergy._sum.value || 0;
     const previousMonth = prevMonthEnergy._sum.value || 0;
-    const energyTrend = previousMonth > 0
-      ? ((currentMonth - previousMonth) / previousMonth) * 100
-      : 0;
+    const energyTrend =
+      previousMonth > 0 ? ((currentMonth - previousMonth) / previousMonth) * 100 : 0;
 
     res.json({
       success: true,

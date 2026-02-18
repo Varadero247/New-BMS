@@ -19,63 +19,168 @@ const DATA_MAP = [
     module: 'core',
     description: 'Core user management and authentication',
     personalFields: [
-      { field: 'email', table: 'users', purpose: 'Account identification and communication', legalBasis: 'Contract performance (Art 6(1)(b))' },
-      { field: 'firstName', table: 'users', purpose: 'User identification', legalBasis: 'Contract performance (Art 6(1)(b))' },
-      { field: 'lastName', table: 'users', purpose: 'User identification', legalBasis: 'Contract performance (Art 6(1)(b))' },
-      { field: 'phone', table: 'users', purpose: 'Contact information', legalBasis: 'Legitimate interest (Art 6(1)(f))' },
-      { field: 'department', table: 'users', purpose: 'Organizational assignment', legalBasis: 'Legitimate interest (Art 6(1)(f))' },
-      { field: 'jobTitle', table: 'users', purpose: 'Role identification', legalBasis: 'Legitimate interest (Art 6(1)(f))' },
-      { field: 'ipAddress', table: 'sessions', purpose: 'Security auditing', legalBasis: 'Legitimate interest (Art 6(1)(f))' },
-      { field: 'userAgent', table: 'sessions', purpose: 'Security auditing', legalBasis: 'Legitimate interest (Art 6(1)(f))' },
+      {
+        field: 'email',
+        table: 'users',
+        purpose: 'Account identification and communication',
+        legalBasis: 'Contract performance (Art 6(1)(b))',
+      },
+      {
+        field: 'firstName',
+        table: 'users',
+        purpose: 'User identification',
+        legalBasis: 'Contract performance (Art 6(1)(b))',
+      },
+      {
+        field: 'lastName',
+        table: 'users',
+        purpose: 'User identification',
+        legalBasis: 'Contract performance (Art 6(1)(b))',
+      },
+      {
+        field: 'phone',
+        table: 'users',
+        purpose: 'Contact information',
+        legalBasis: 'Legitimate interest (Art 6(1)(f))',
+      },
+      {
+        field: 'department',
+        table: 'users',
+        purpose: 'Organizational assignment',
+        legalBasis: 'Legitimate interest (Art 6(1)(f))',
+      },
+      {
+        field: 'jobTitle',
+        table: 'users',
+        purpose: 'Role identification',
+        legalBasis: 'Legitimate interest (Art 6(1)(f))',
+      },
+      {
+        field: 'ipAddress',
+        table: 'sessions',
+        purpose: 'Security auditing',
+        legalBasis: 'Legitimate interest (Art 6(1)(f))',
+      },
+      {
+        field: 'userAgent',
+        table: 'sessions',
+        purpose: 'Security auditing',
+        legalBasis: 'Legitimate interest (Art 6(1)(f))',
+      },
     ],
   },
   {
     module: 'audit',
     description: 'Audit logging and compliance trail',
     personalFields: [
-      { field: 'userId', table: 'audit_logs', purpose: 'Accountability and traceability', legalBasis: 'Legal obligation (Art 6(1)(c))' },
-      { field: 'ipAddress', table: 'audit_logs', purpose: 'Security auditing', legalBasis: 'Legitimate interest (Art 6(1)(f))' },
-      { field: 'userEmail', table: 'enhanced_audit_trail', purpose: 'Regulatory compliance (21 CFR Part 11)', legalBasis: 'Legal obligation (Art 6(1)(c))' },
-      { field: 'userFullName', table: 'enhanced_audit_trail', purpose: 'Regulatory compliance (21 CFR Part 11)', legalBasis: 'Legal obligation (Art 6(1)(c))' },
+      {
+        field: 'userId',
+        table: 'audit_logs',
+        purpose: 'Accountability and traceability',
+        legalBasis: 'Legal obligation (Art 6(1)(c))',
+      },
+      {
+        field: 'ipAddress',
+        table: 'audit_logs',
+        purpose: 'Security auditing',
+        legalBasis: 'Legitimate interest (Art 6(1)(f))',
+      },
+      {
+        field: 'userEmail',
+        table: 'enhanced_audit_trail',
+        purpose: 'Regulatory compliance (21 CFR Part 11)',
+        legalBasis: 'Legal obligation (Art 6(1)(c))',
+      },
+      {
+        field: 'userFullName',
+        table: 'enhanced_audit_trail',
+        purpose: 'Regulatory compliance (21 CFR Part 11)',
+        legalBasis: 'Legal obligation (Art 6(1)(c))',
+      },
     ],
   },
   {
     module: 'health-safety',
     description: 'Health & Safety incident management (ISO 45001)',
     personalFields: [
-      { field: 'reporterId', table: 'incidents', purpose: 'Incident accountability', legalBasis: 'Legal obligation (Art 6(1)(c))' },
-      { field: 'investigatorId', table: 'incidents', purpose: 'Investigation assignment', legalBasis: 'Legitimate interest (Art 6(1)(f))' },
-      { field: 'personsInvolved', table: 'incidents', purpose: 'Incident investigation', legalBasis: 'Legal obligation (Art 6(1)(c))' },
+      {
+        field: 'reporterId',
+        table: 'incidents',
+        purpose: 'Incident accountability',
+        legalBasis: 'Legal obligation (Art 6(1)(c))',
+      },
+      {
+        field: 'investigatorId',
+        table: 'incidents',
+        purpose: 'Investigation assignment',
+        legalBasis: 'Legitimate interest (Art 6(1)(f))',
+      },
+      {
+        field: 'personsInvolved',
+        table: 'incidents',
+        purpose: 'Incident investigation',
+        legalBasis: 'Legal obligation (Art 6(1)(c))',
+      },
     ],
   },
   {
     module: 'environment',
     description: 'Environmental management (ISO 14001)',
     personalFields: [
-      { field: 'createdBy', table: 'env_aspects', purpose: 'Record ownership', legalBasis: 'Legitimate interest (Art 6(1)(f))' },
-      { field: 'assignedTo', table: 'env_actions', purpose: 'Task assignment', legalBasis: 'Legitimate interest (Art 6(1)(f))' },
+      {
+        field: 'createdBy',
+        table: 'env_aspects',
+        purpose: 'Record ownership',
+        legalBasis: 'Legitimate interest (Art 6(1)(f))',
+      },
+      {
+        field: 'assignedTo',
+        table: 'env_actions',
+        purpose: 'Task assignment',
+        legalBasis: 'Legitimate interest (Art 6(1)(f))',
+      },
     ],
   },
   {
     module: 'quality',
     description: 'Quality management (ISO 9001)',
     personalFields: [
-      { field: 'ownerId', table: 'actions', purpose: 'Action ownership', legalBasis: 'Legitimate interest (Art 6(1)(f))' },
-      { field: 'createdById', table: 'actions', purpose: 'Record accountability', legalBasis: 'Legitimate interest (Art 6(1)(f))' },
+      {
+        field: 'ownerId',
+        table: 'actions',
+        purpose: 'Action ownership',
+        legalBasis: 'Legitimate interest (Art 6(1)(f))',
+      },
+      {
+        field: 'createdById',
+        table: 'actions',
+        purpose: 'Record accountability',
+        legalBasis: 'Legitimate interest (Art 6(1)(f))',
+      },
     ],
   },
   {
     module: 'hr',
     description: 'Human Resources management',
     personalFields: [
-      { field: 'employee records', table: 'hr_employees', purpose: 'Employment management', legalBasis: 'Contract performance (Art 6(1)(b))' },
+      {
+        field: 'employee records',
+        table: 'hr_employees',
+        purpose: 'Employment management',
+        legalBasis: 'Contract performance (Art 6(1)(b))',
+      },
     ],
   },
   {
     module: 'payroll',
     description: 'Payroll processing',
     personalFields: [
-      { field: 'salary data', table: 'payroll_records', purpose: 'Compensation processing', legalBasis: 'Contract performance (Art 6(1)(b))' },
+      {
+        field: 'salary data',
+        table: 'payroll_records',
+        purpose: 'Compensation processing',
+        legalBasis: 'Contract performance (Art 6(1)(b))',
+      },
     ],
   },
 ];
@@ -161,7 +266,8 @@ router.get('/data-export/:userId', async (req: AuthRequest, res: Response) => {
         createdAt: true,
         expiresAt: true,
       },
-      take: 1000});
+      take: 1000,
+    });
 
     const exportData = {
       exportDate: new Date().toISOString(),
@@ -185,7 +291,9 @@ router.get('/data-export/:userId', async (req: AuthRequest, res: Response) => {
 
     res.json({ success: true, data: exportData });
   } catch (error) {
-    logger.error('Failed to export user data', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to export user data', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to export user data' },
@@ -240,7 +348,9 @@ router.post('/erasure-request', async (req: AuthRequest, res: Response) => {
         },
       });
     }
-    logger.error('Failed to create erasure request', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to create erasure request', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create erasure request' },
@@ -285,7 +395,9 @@ router.get('/erasure-request', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Failed to list erasure requests', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to list erasure requests', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list erasure requests' },
@@ -312,7 +424,10 @@ router.put('/erasure-request/:id', async (req: AuthRequest, res: Response) => {
     if (existing.status === 'COMPLETED') {
       return res.status(400).json({
         success: false,
-        error: { code: 'ALREADY_PROCESSED', message: 'This erasure request has already been completed' },
+        error: {
+          code: 'ALREADY_PROCESSED',
+          message: 'This erasure request has already been completed',
+        },
       });
     }
 
@@ -349,7 +464,9 @@ router.put('/erasure-request/:id', async (req: AuthRequest, res: Response) => {
         },
       });
     }
-    logger.error('Failed to process erasure request', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to process erasure request', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to process erasure request' },
@@ -397,7 +514,9 @@ router.get('/retention-policies', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Failed to list retention policies', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to list retention policies', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list retention policies' },
@@ -454,7 +573,9 @@ router.post('/retention-policies', async (req: AuthRequest, res: Response) => {
         },
       });
     }
-    logger.error('Failed to upsert retention policy', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to upsert retention policy', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create/update retention policy' },
@@ -470,7 +591,8 @@ router.get('/data-map', async (_req: AuthRequest, res: Response) => {
     // Enrich with retention policies from database
     const policies = await (prisma as any).dataRetentionPolicy.findMany({
       where: { isActive: true },
-      take: 1000});
+      take: 1000,
+    });
 
     const policyMap = new Map(
       policies.map((p: Record<string, unknown>) => [`${p.module}:${p.dataCategory}`, p])
@@ -494,14 +616,13 @@ router.get('/data-map', async (_req: AuthRequest, res: Response) => {
         lastUpdated: new Date().toISOString(),
         modules: enrichedMap,
         totalModules: enrichedMap.length,
-        totalPersonalFields: enrichedMap.reduce(
-          (sum, m) => sum + m.personalFields.length,
-          0
-        ),
+        totalPersonalFields: enrichedMap.reduce((sum, m) => sum + m.personalFields.length, 0),
       },
     });
   } catch (error) {
-    logger.error('Failed to generate data map', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to generate data map', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to generate data map' },

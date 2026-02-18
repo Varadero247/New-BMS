@@ -86,14 +86,23 @@ export default function ScopePage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">ISMS Scope</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Information Security Management System scope definition</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Information Security Management System scope definition
+            </p>
           </div>
-          <Button onClick={openEditModal} className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700">
+          <Button
+            onClick={openEditModal}
+            className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
+          >
             <Edit className="h-4 w-4" /> Edit Scope
           </Button>
         </div>
 
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
 
         {scope ? (
           <div className="space-y-6">
@@ -102,7 +111,9 @@ export default function ScopePage() {
                 <CardTitle>{scope.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{scope.description}</p>
+                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                  {scope.description}
+                </p>
               </CardContent>
             </Card>
 
@@ -111,7 +122,9 @@ export default function ScopePage() {
                 <CardTitle>Boundaries</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{scope.boundaries}</p>
+                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                  {scope.boundaries}
+                </p>
               </CardContent>
             </Card>
 
@@ -120,7 +133,9 @@ export default function ScopePage() {
                 <CardTitle>Exclusions</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{scope.exclusions}</p>
+                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                  {scope.exclusions}
+                </p>
               </CardContent>
             </Card>
 
@@ -143,10 +158,17 @@ export default function ScopePage() {
         )}
       </div>
 
-      <Modal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} title="Edit ISMS Scope" size="lg">
+      <Modal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        title="Edit ISMS Scope"
+        size="lg"
+      >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Title
+            </label>
             <input
               type="text"
               value={form.title}
@@ -156,7 +178,9 @@ export default function ScopePage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Description
+            </label>
             <textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -166,7 +190,9 @@ export default function ScopePage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Boundaries</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Boundaries
+            </label>
             <textarea
               value={form.boundaries}
               onChange={(e) => setForm({ ...form, boundaries: e.target.value })}
@@ -176,7 +202,9 @@ export default function ScopePage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Exclusions</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Exclusions
+            </label>
             <textarea
               value={form.exclusions}
               onChange={(e) => setForm({ ...form, exclusions: e.target.value })}
@@ -187,7 +215,9 @@ export default function ScopePage() {
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setEditModalOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setEditModalOpen(false)}>
+            Cancel
+          </Button>
           <Button onClick={handleSave} disabled={saving} className="bg-teal-600 hover:bg-teal-700">
             {saving ? 'Saving...' : 'Save Scope'}
           </Button>

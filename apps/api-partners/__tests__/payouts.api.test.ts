@@ -23,10 +23,15 @@ import { prisma } from '../src/prisma';
 
 const app = express();
 app.use(express.json());
-app.use((req: any, _res: any, next: any) => { req.partner = { id: 'partner-1' }; next(); });
+app.use((req: any, _res: any, next: any) => {
+  req.partner = { id: 'partner-1' };
+  next();
+});
 app.use('/api/payouts', payoutsRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('GET /api/payouts', () => {
   it('returns payouts with available balance', async () => {
@@ -76,7 +81,9 @@ describe('POST /api/payouts/request', () => {
     ];
     (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue(deals);
     (prisma.mktPartnerPayout.create as jest.Mock).mockResolvedValue({
-      id: 'p-1', amount: 500, status: 'PENDING',
+      id: 'p-1',
+      amount: 500,
+      status: 'PENDING',
     });
     (prisma.mktPartnerDeal.updateMany as jest.Mock).mockResolvedValue({ count: 2 });
 

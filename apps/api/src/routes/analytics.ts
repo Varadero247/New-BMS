@@ -91,19 +91,24 @@ router.post('/five-why', authenticate, validate(fiveWhySchema), async (req, res,
 });
 
 // PUT /api/analytics/five-why/:id
-router.put('/five-why/:id', authenticate, validate(fiveWhySchema.partial()), async (req, res, next) => {
-  try {
-    const analysis = await prisma.fiveWhyAnalysis.update({
-      where: { id: req.params.id },
-      data: req.body,
-      include: { incident: { select: { id: true, title: true, referenceNumber: true } } },
-    });
+router.put(
+  '/five-why/:id',
+  authenticate,
+  validate(fiveWhySchema.partial()),
+  async (req, res, next) => {
+    try {
+      const analysis = await prisma.fiveWhyAnalysis.update({
+        where: { id: req.params.id },
+        data: req.body,
+        include: { incident: { select: { id: true, title: true, referenceNumber: true } } },
+      });
 
-    res.json({ success: true, data: analysis });
-  } catch (error) {
-    next(error);
+      res.json({ success: true, data: analysis });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // DELETE /api/analytics/five-why/:id
 router.delete('/five-why/:id', authenticate, async (req, res, next) => {
@@ -199,19 +204,24 @@ router.post('/fishbone', authenticate, validate(fishboneSchema), async (req, res
 });
 
 // PUT /api/analytics/fishbone/:id
-router.put('/fishbone/:id', authenticate, validate(fishboneSchema.partial()), async (req, res, next) => {
-  try {
-    const analysis = await prisma.fishboneAnalysis.update({
-      where: { id: req.params.id },
-      data: req.body,
-      include: { incident: { select: { id: true, title: true, referenceNumber: true } } },
-    });
+router.put(
+  '/fishbone/:id',
+  authenticate,
+  validate(fishboneSchema.partial()),
+  async (req, res, next) => {
+    try {
+      const analysis = await prisma.fishboneAnalysis.update({
+        where: { id: req.params.id },
+        data: req.body,
+        include: { incident: { select: { id: true, title: true, referenceNumber: true } } },
+      });
 
-    res.json({ success: true, data: analysis });
-  } catch (error) {
-    next(error);
+      res.json({ success: true, data: analysis });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // DELETE /api/analytics/fishbone/:id
 router.delete('/fishbone/:id', authenticate, async (req, res, next) => {
@@ -347,22 +357,27 @@ router.post('/pareto', authenticate, validate(paretoSchema), async (req, res, ne
 });
 
 // PUT /api/analytics/pareto/:id
-router.put('/pareto/:id', authenticate, validate(paretoSchema.partial()), async (req, res, next) => {
-  try {
-    const updateData: Record<string, unknown> = { ...req.body };
-    if (req.body.periodStart) updateData.periodStart = new Date(req.body.periodStart);
-    if (req.body.periodEnd) updateData.periodEnd = new Date(req.body.periodEnd);
+router.put(
+  '/pareto/:id',
+  authenticate,
+  validate(paretoSchema.partial()),
+  async (req, res, next) => {
+    try {
+      const updateData: Record<string, unknown> = { ...req.body };
+      if (req.body.periodStart) updateData.periodStart = new Date(req.body.periodStart);
+      if (req.body.periodEnd) updateData.periodEnd = new Date(req.body.periodEnd);
 
-    const analysis = await prisma.paretoAnalysis.update({
-      where: { id: req.params.id },
-      data: updateData,
-    });
+      const analysis = await prisma.paretoAnalysis.update({
+        where: { id: req.params.id },
+        data: updateData,
+      });
 
-    res.json({ success: true, data: analysis });
-  } catch (error) {
-    next(error);
+      res.json({ success: true, data: analysis });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // DELETE /api/analytics/pareto/:id
 router.delete('/pareto/:id', authenticate, async (req, res, next) => {
@@ -379,33 +394,45 @@ router.delete('/pareto/:id', authenticate, async (req, res, next) => {
 const bowTieSchema = z.object({
   riskId: z.string(),
   topEvent: z.string(),
-  threats: z.array(z.object({
-    id: z.string().optional(),
-    description: z.string(),
-    likelihood: z.number().min(1).max(5).optional(),
-  })),
-  consequences: z.array(z.object({
-    id: z.string().optional(),
-    description: z.string(),
-    severity: z.number().min(1).max(5).optional(),
-  })),
-  preventiveControls: z.array(z.object({
-    id: z.string().optional(),
-    description: z.string(),
-    effectiveness: z.number().min(1).max(5).optional(),
-    threatId: z.string().optional(),
-  })),
-  mitigatingControls: z.array(z.object({
-    id: z.string().optional(),
-    description: z.string(),
-    effectiveness: z.number().min(1).max(5).optional(),
-    consequenceId: z.string().optional(),
-  })),
-  escalationFactors: z.array(z.object({
-    id: z.string().optional(),
-    description: z.string(),
-    controlId: z.string().optional(),
-  })).optional(),
+  threats: z.array(
+    z.object({
+      id: z.string().optional(),
+      description: z.string(),
+      likelihood: z.number().min(1).max(5).optional(),
+    })
+  ),
+  consequences: z.array(
+    z.object({
+      id: z.string().optional(),
+      description: z.string(),
+      severity: z.number().min(1).max(5).optional(),
+    })
+  ),
+  preventiveControls: z.array(
+    z.object({
+      id: z.string().optional(),
+      description: z.string(),
+      effectiveness: z.number().min(1).max(5).optional(),
+      threatId: z.string().optional(),
+    })
+  ),
+  mitigatingControls: z.array(
+    z.object({
+      id: z.string().optional(),
+      description: z.string(),
+      effectiveness: z.number().min(1).max(5).optional(),
+      consequenceId: z.string().optional(),
+    })
+  ),
+  escalationFactors: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        description: z.string(),
+        controlId: z.string().optional(),
+      })
+    )
+    .optional(),
   notes: z.string().optional(),
 });
 
@@ -468,11 +495,27 @@ router.get('/bow-tie/:id', authenticate, async (req, res, next) => {
 router.post('/bow-tie', authenticate, validate(bowTieSchema), async (req, res, next) => {
   try {
     // Add IDs to items if not provided
-    const threats = req.body.threats.map((t: Record<string, unknown>) => ({ ...t, id: t.id || uuidv4() }));
-    const consequences = req.body.consequences.map((c: Record<string, unknown>) => ({ ...c, id: c.id || uuidv4() }));
-    const preventiveControls = req.body.preventiveControls.map((c: Record<string, unknown>) => ({ ...c, id: c.id || uuidv4() }));
-    const mitigatingControls = req.body.mitigatingControls.map((c: Record<string, unknown>) => ({ ...c, id: c.id || uuidv4() }));
-    const escalationFactors = req.body.escalationFactors?.map((e: Record<string, unknown>) => ({ ...e, id: e.id || uuidv4() })) || [];
+    const threats = req.body.threats.map((t: Record<string, unknown>) => ({
+      ...t,
+      id: t.id || uuidv4(),
+    }));
+    const consequences = req.body.consequences.map((c: Record<string, unknown>) => ({
+      ...c,
+      id: c.id || uuidv4(),
+    }));
+    const preventiveControls = req.body.preventiveControls.map((c: Record<string, unknown>) => ({
+      ...c,
+      id: c.id || uuidv4(),
+    }));
+    const mitigatingControls = req.body.mitigatingControls.map((c: Record<string, unknown>) => ({
+      ...c,
+      id: c.id || uuidv4(),
+    }));
+    const escalationFactors =
+      req.body.escalationFactors?.map((e: Record<string, unknown>) => ({
+        ...e,
+        id: e.id || uuidv4(),
+      })) || [];
 
     const analysis = await prisma.bowTieAnalysis.create({
       data: {
@@ -495,38 +538,55 @@ router.post('/bow-tie', authenticate, validate(bowTieSchema), async (req, res, n
 });
 
 // PUT /api/analytics/bow-tie/:id
-router.put('/bow-tie/:id', authenticate, validate(bowTieSchema.partial()), async (req, res, next) => {
-  try {
-    const updateData: Record<string, unknown> = { ...req.body };
+router.put(
+  '/bow-tie/:id',
+  authenticate,
+  validate(bowTieSchema.partial()),
+  async (req, res, next) => {
+    try {
+      const updateData: Record<string, unknown> = { ...req.body };
 
-    // Add IDs to new items
-    if (req.body.threats) {
-      updateData.threats = req.body.threats.map((t: Record<string, unknown>) => ({ ...t, id: t.id || uuidv4() }));
-    }
-    if (req.body.consequences) {
-      updateData.consequences = req.body.consequences.map((c: Record<string, unknown>) => ({ ...c, id: c.id || uuidv4() }));
-    }
-    if (req.body.preventiveControls) {
-      updateData.preventiveControls = req.body.preventiveControls.map((c: Record<string, unknown>) => ({ ...c, id: c.id || uuidv4() }));
-    }
-    if (req.body.mitigatingControls) {
-      updateData.mitigatingControls = req.body.mitigatingControls.map((c: Record<string, unknown>) => ({ ...c, id: c.id || uuidv4() }));
-    }
-    if (req.body.escalationFactors) {
-      updateData.escalationFactors = req.body.escalationFactors.map((e: Record<string, unknown>) => ({ ...e, id: e.id || uuidv4() }));
-    }
+      // Add IDs to new items
+      if (req.body.threats) {
+        updateData.threats = req.body.threats.map((t: Record<string, unknown>) => ({
+          ...t,
+          id: t.id || uuidv4(),
+        }));
+      }
+      if (req.body.consequences) {
+        updateData.consequences = req.body.consequences.map((c: Record<string, unknown>) => ({
+          ...c,
+          id: c.id || uuidv4(),
+        }));
+      }
+      if (req.body.preventiveControls) {
+        updateData.preventiveControls = req.body.preventiveControls.map(
+          (c: Record<string, unknown>) => ({ ...c, id: c.id || uuidv4() })
+        );
+      }
+      if (req.body.mitigatingControls) {
+        updateData.mitigatingControls = req.body.mitigatingControls.map(
+          (c: Record<string, unknown>) => ({ ...c, id: c.id || uuidv4() })
+        );
+      }
+      if (req.body.escalationFactors) {
+        updateData.escalationFactors = req.body.escalationFactors.map(
+          (e: Record<string, unknown>) => ({ ...e, id: e.id || uuidv4() })
+        );
+      }
 
-    const analysis = await prisma.bowTieAnalysis.update({
-      where: { id: req.params.id },
-      data: updateData,
-      include: { risk: { select: { id: true, title: true, standard: true } } },
-    });
+      const analysis = await prisma.bowTieAnalysis.update({
+        where: { id: req.params.id },
+        data: updateData,
+        include: { risk: { select: { id: true, title: true, standard: true } } },
+      });
 
-    res.json({ success: true, data: analysis });
-  } catch (error) {
-    next(error);
+      res.json({ success: true, data: analysis });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // DELETE /api/analytics/bow-tie/:id
 router.delete('/bow-tie/:id', authenticate, async (req, res, next) => {
@@ -611,7 +671,16 @@ router.get('/lean-waste/:id', authenticate, async (req, res, next) => {
 router.post('/lean-waste', authenticate, validate(leanWasteSchema), async (req, res, next) => {
   try {
     // Calculate totals
-    const wastes = ['defects', 'overproduction', 'waiting', 'nonUtilizedTalent', 'transportation', 'inventory', 'motion', 'extraProcessing'];
+    const wastes = [
+      'defects',
+      'overproduction',
+      'waiting',
+      'nonUtilizedTalent',
+      'transportation',
+      'inventory',
+      'motion',
+      'extraProcessing',
+    ];
     let totalEstimatedCost = 0;
     let totalIdentifiedWastes = 0;
 
@@ -638,46 +707,60 @@ router.post('/lean-waste', authenticate, validate(leanWasteSchema), async (req, 
 });
 
 // PUT /api/analytics/lean-waste/:id
-router.put('/lean-waste/:id', authenticate, validate(leanWasteSchema.partial()), async (req, res, next) => {
-  try {
-    const existing = await prisma.leanWasteAnalysis.findUnique({
-      where: { id: req.params.id },
-    });
-
-    if (!existing) {
-      return res.status(404).json({
-        success: false,
-        error: { code: 'NOT_FOUND', message: 'Analysis not found' },
+router.put(
+  '/lean-waste/:id',
+  authenticate,
+  validate(leanWasteSchema.partial()),
+  async (req, res, next) => {
+    try {
+      const existing = await prisma.leanWasteAnalysis.findUnique({
+        where: { id: req.params.id },
       });
-    }
 
-    // Merge with existing and recalculate
-    const wastes = ['defects', 'overproduction', 'waiting', 'nonUtilizedTalent', 'transportation', 'inventory', 'motion', 'extraProcessing'];
-    let totalEstimatedCost = 0;
-    let totalIdentifiedWastes = 0;
-
-    wastes.forEach((waste) => {
-      const item = req.body[waste] || (existing as any)[waste];
-      if (item?.identified) {
-        totalIdentifiedWastes++;
-        totalEstimatedCost += item.estimatedCost || 0;
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Analysis not found' },
+        });
       }
-    });
 
-    const analysis = await prisma.leanWasteAnalysis.update({
-      where: { id: req.params.id },
-      data: {
-        ...req.body,
-        totalEstimatedCost,
-        totalIdentifiedWastes,
-      },
-    });
+      // Merge with existing and recalculate
+      const wastes = [
+        'defects',
+        'overproduction',
+        'waiting',
+        'nonUtilizedTalent',
+        'transportation',
+        'inventory',
+        'motion',
+        'extraProcessing',
+      ];
+      let totalEstimatedCost = 0;
+      let totalIdentifiedWastes = 0;
 
-    res.json({ success: true, data: analysis });
-  } catch (error) {
-    next(error);
+      wastes.forEach((waste) => {
+        const item = req.body[waste] || (existing as any)[waste];
+        if (item?.identified) {
+          totalIdentifiedWastes++;
+          totalEstimatedCost += item.estimatedCost || 0;
+        }
+      });
+
+      const analysis = await prisma.leanWasteAnalysis.update({
+        where: { id: req.params.id },
+        data: {
+          ...req.body,
+          totalEstimatedCost,
+          totalIdentifiedWastes,
+        },
+      });
+
+      res.json({ success: true, data: analysis });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // DELETE /api/analytics/lean-waste/:id
 router.delete('/lean-waste/:id', authenticate, async (req, res, next) => {
@@ -704,7 +787,8 @@ router.get('/trends', authenticate, async (req, res, next) => {
     const trends = await prisma.monthlyTrend.findMany({
       where,
       orderBy: [{ year: 'asc' }, { month: 'asc' }],
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: trends });
   } catch (error) {

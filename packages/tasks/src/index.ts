@@ -138,8 +138,14 @@ export async function getTasks(
 
   result.sort((a, b) => {
     // Overdue tasks first
-    const aOverdue = a.dueDate && a.dueDate.getTime() < now && a.status !== 'COMPLETE' && a.status !== 'CANCELLED' ? 0 : 1;
-    const bOverdue = b.dueDate && b.dueDate.getTime() < now && b.status !== 'COMPLETE' && b.status !== 'CANCELLED' ? 0 : 1;
+    const aOverdue =
+      a.dueDate && a.dueDate.getTime() < now && a.status !== 'COMPLETE' && a.status !== 'CANCELLED'
+        ? 0
+        : 1;
+    const bOverdue =
+      b.dueDate && b.dueDate.getTime() < now && b.status !== 'COMPLETE' && b.status !== 'CANCELLED'
+        ? 0
+        : 1;
     if (aOverdue !== bOverdue) return aOverdue - bOverdue;
 
     // Then by priority
@@ -164,7 +170,11 @@ export async function getTasks(
 
 export async function getMyTasks(orgId: string, userId: string): Promise<GroupedTasks> {
   const allTasks = Array.from(tasks.values()).filter(
-    (t) => t.orgId === orgId && t.assigneeId === userId && t.status !== 'COMPLETE' && t.status !== 'CANCELLED'
+    (t) =>
+      t.orgId === orgId &&
+      t.assigneeId === userId &&
+      t.status !== 'COMPLETE' &&
+      t.status !== 'CANCELLED'
   );
 
   const now = new Date();
@@ -216,7 +226,12 @@ export async function getMyTasks(orgId: string, userId: string): Promise<Grouped
 
 export async function updateTask(
   id: string,
-  updates: Partial<Pick<Task, 'title' | 'description' | 'assigneeId' | 'assigneeName' | 'priority' | 'dueDate' | 'status'>>
+  updates: Partial<
+    Pick<
+      Task,
+      'title' | 'description' | 'assigneeId' | 'assigneeName' | 'priority' | 'dueDate' | 'status'
+    >
+  >
 ): Promise<Task> {
   const task = tasks.get(id);
   if (!task) {

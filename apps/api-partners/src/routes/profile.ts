@@ -4,7 +4,6 @@ import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { type AuthRequest } from '@ims/auth';
 
-
 const logger = createLogger('api-partners:profile');
 const router = Router();
 

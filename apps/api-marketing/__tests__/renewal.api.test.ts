@@ -32,7 +32,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/renewal', renewalRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('GET /api/renewal/upcoming', () => {
   it('returns upcoming renewals within 90 days by default', async () => {

@@ -74,7 +74,7 @@ export function createMockRequest(overrides: Record<string, unknown> = {}) {
     path: '/',
     url: '/',
     get: jest.fn((header: string) => {
-      const headers: Record<string, string> = overrides.headers as Record<string, string> || {};
+      const headers: Record<string, string> = (overrides.headers as Record<string, string>) || {};
       return headers[header.toLowerCase()];
     }),
     ...overrides,
@@ -186,7 +186,9 @@ export function createMockFile(overrides: Partial<Express.Multer.File> = {}): Ex
 /**
  * Create a mock image file
  */
-export function createMockImageFile(overrides: Partial<Express.Multer.File> = {}): Express.Multer.File {
+export function createMockImageFile(
+  overrides: Partial<Express.Multer.File> = {}
+): Express.Multer.File {
   // PNG magic bytes
   const pngHeader = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
@@ -201,7 +203,9 @@ export function createMockImageFile(overrides: Partial<Express.Multer.File> = {}
 /**
  * Create a mock PDF file
  */
-export function createMockPdfFile(overrides: Partial<Express.Multer.File> = {}): Express.Multer.File {
+export function createMockPdfFile(
+  overrides: Partial<Express.Multer.File> = {}
+): Express.Multer.File {
   // PDF magic bytes
   const pdfHeader = Buffer.from('%PDF-1.4');
 

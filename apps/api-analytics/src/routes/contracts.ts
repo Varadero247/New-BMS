@@ -9,8 +9,14 @@ const createContractSchema = z.object({
   name: z.string().min(1, 'name is required'),
   vendor: z.string().min(1, 'vendor is required'),
   category: z.string().min(1, 'category is required'),
-  startDate: z.string().min(1, 'startDate is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  endDate: z.string().min(1, 'endDate is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  startDate: z
+    .string()
+    .min(1, 'startDate is required')
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  endDate: z
+    .string()
+    .min(1, 'endDate is required')
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   annualCost: z.number().nonnegative().optional(),
   status: z.string().optional(),
   notes: z.string().nullable().optional(),
@@ -57,7 +63,10 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Failed to list contracts', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list contracts' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list contracts' },
+    });
   }
 });
 
@@ -67,14 +76,78 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/seed', async (_req: Request, res: Response) => {
   try {
     const seeds = [
-      { name: 'DMCC Licence', vendor: 'DMCC', category: 'LICENCE', startDate: new Date('2025-06-01'), endDate: new Date('2026-06-01'), annualCost: 15000, status: 'ACTIVE' },
-      { name: 'HubSpot CRM', vendor: 'HubSpot', category: 'SOFTWARE', startDate: new Date('2025-03-01'), endDate: new Date('2026-03-01'), annualCost: 9600, status: 'ACTIVE' },
-      { name: 'Stripe Payment Processing', vendor: 'Stripe', category: 'SOFTWARE', startDate: new Date('2025-01-01'), endDate: new Date('2026-01-01'), annualCost: 0, status: 'ACTIVE' },
-      { name: 'Intercom Support', vendor: 'Intercom', category: 'SOFTWARE', startDate: new Date('2025-04-01'), endDate: new Date('2026-04-01'), annualCost: 7200, status: 'ACTIVE' },
-      { name: 'AWS Infrastructure', vendor: 'Amazon Web Services', category: 'INFRASTRUCTURE', startDate: new Date('2025-01-01'), endDate: new Date('2026-01-01'), annualCost: 36000, status: 'ACTIVE' },
-      { name: 'Sentry Error Monitoring', vendor: 'Sentry', category: 'SOFTWARE', startDate: new Date('2025-02-01'), endDate: new Date('2026-02-01'), annualCost: 3600, status: 'ACTIVE' },
-      { name: 'SOC 2 Type II Audit', vendor: 'Prescient Assurance', category: 'COMPLIANCE', startDate: new Date('2025-09-01'), endDate: new Date('2026-09-01'), annualCost: 25000, status: 'ACTIVE' },
-      { name: 'ISO 27001 Certification', vendor: 'BSI Group', category: 'COMPLIANCE', startDate: new Date('2025-07-01'), endDate: new Date('2026-07-01'), annualCost: 18000, status: 'ACTIVE' },
+      {
+        name: 'DMCC Licence',
+        vendor: 'DMCC',
+        category: 'LICENCE',
+        startDate: new Date('2025-06-01'),
+        endDate: new Date('2026-06-01'),
+        annualCost: 15000,
+        status: 'ACTIVE',
+      },
+      {
+        name: 'HubSpot CRM',
+        vendor: 'HubSpot',
+        category: 'SOFTWARE',
+        startDate: new Date('2025-03-01'),
+        endDate: new Date('2026-03-01'),
+        annualCost: 9600,
+        status: 'ACTIVE',
+      },
+      {
+        name: 'Stripe Payment Processing',
+        vendor: 'Stripe',
+        category: 'SOFTWARE',
+        startDate: new Date('2025-01-01'),
+        endDate: new Date('2026-01-01'),
+        annualCost: 0,
+        status: 'ACTIVE',
+      },
+      {
+        name: 'Intercom Support',
+        vendor: 'Intercom',
+        category: 'SOFTWARE',
+        startDate: new Date('2025-04-01'),
+        endDate: new Date('2026-04-01'),
+        annualCost: 7200,
+        status: 'ACTIVE',
+      },
+      {
+        name: 'AWS Infrastructure',
+        vendor: 'Amazon Web Services',
+        category: 'INFRASTRUCTURE',
+        startDate: new Date('2025-01-01'),
+        endDate: new Date('2026-01-01'),
+        annualCost: 36000,
+        status: 'ACTIVE',
+      },
+      {
+        name: 'Sentry Error Monitoring',
+        vendor: 'Sentry',
+        category: 'SOFTWARE',
+        startDate: new Date('2025-02-01'),
+        endDate: new Date('2026-02-01'),
+        annualCost: 3600,
+        status: 'ACTIVE',
+      },
+      {
+        name: 'SOC 2 Type II Audit',
+        vendor: 'Prescient Assurance',
+        category: 'COMPLIANCE',
+        startDate: new Date('2025-09-01'),
+        endDate: new Date('2026-09-01'),
+        annualCost: 25000,
+        status: 'ACTIVE',
+      },
+      {
+        name: 'ISO 27001 Certification',
+        vendor: 'BSI Group',
+        category: 'COMPLIANCE',
+        startDate: new Date('2025-07-01'),
+        endDate: new Date('2026-07-01'),
+        annualCost: 18000,
+        status: 'ACTIVE',
+      },
     ];
 
     const result = await prisma.contract.createMany({
@@ -86,7 +159,10 @@ router.get('/seed', async (_req: Request, res: Response) => {
     res.json({ success: true, data: { created: result.count, total: seeds.length } });
   } catch (err) {
     logger.error('Failed to seed contracts', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to seed contracts' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to seed contracts' },
+    });
   }
 });
 
@@ -97,12 +173,17 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const contract = await prisma.contract.findUnique({ where: { id: req.params.id } });
     if (!contract) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contract not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Contract not found' } });
     }
     res.json({ success: true, data: { contract } });
   } catch (err) {
     logger.error('Failed to get contract', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get contract' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get contract' },
+    });
   }
 });
 
@@ -113,7 +194,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createContractSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { name, vendor, category, startDate, endDate, annualCost, status, notes } = parsed.data;
@@ -135,7 +219,10 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: { contract } });
   } catch (err) {
     logger.error('Failed to create contract', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create contract' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create contract' },
+    });
   }
 });
 
@@ -146,12 +233,17 @@ router.patch('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.contract.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contract not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Contract not found' } });
     }
 
     const parsed = updateContractSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { name, vendor, category, startDate, endDate, annualCost, status, notes } = parsed.data;
@@ -174,7 +266,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { contract } });
   } catch (err) {
     logger.error('Failed to update contract', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update contract' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update contract' },
+    });
   }
 });
 
@@ -185,7 +280,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.contract.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contract not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Contract not found' } });
     }
 
     await prisma.contract.delete({
@@ -196,7 +293,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { message: 'Contract deleted' } });
   } catch (err) {
     logger.error('Failed to delete contract', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete contract' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete contract' },
+    });
   }
 });
 

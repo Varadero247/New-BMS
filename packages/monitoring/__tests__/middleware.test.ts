@@ -1,4 +1,8 @@
-import { correlationIdMiddleware, getCorrelationId, CORRELATION_ID_HEADER } from '../src/correlationId';
+import {
+  correlationIdMiddleware,
+  getCorrelationId,
+  CORRELATION_ID_HEADER,
+} from '../src/correlationId';
 import { createHealthCheck } from '../src/healthCheck';
 
 // UUID v4 pattern
@@ -60,10 +64,7 @@ describe('correlationIdMiddleware', () => {
 
     middleware(mockReq, mockRes, mockNext);
 
-    expect(mockRes.setHeader).toHaveBeenCalledWith(
-      CORRELATION_ID_HEADER,
-      expect.any(String)
-    );
+    expect(mockRes.setHeader).toHaveBeenCalledWith(CORRELATION_ID_HEADER, expect.any(String));
   });
 
   it('sets req.correlationId to the same value as the response header', () => {
@@ -95,8 +96,8 @@ describe('createHealthCheck', () => {
   beforeEach(() => {
     // Mock memory usage to return safe values (well under 90% threshold)
     process.memoryUsage = jest.fn().mockReturnValue({
-      heapUsed: 50 * 1024 * 1024,   // 50MB
-      heapTotal: 200 * 1024 * 1024,  // 200MB
+      heapUsed: 50 * 1024 * 1024, // 50MB
+      heapTotal: 200 * 1024 * 1024, // 200MB
       rss: 250 * 1024 * 1024,
       external: 10 * 1024 * 1024,
       arrayBuffers: 5 * 1024 * 1024,

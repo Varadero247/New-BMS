@@ -210,17 +210,23 @@ export default function AutomationPage() {
                 <tr key={rule.id} className="hover:bg-gray-50 dark:bg-gray-800">
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center space-x-3">
-                      <Zap className={`h-5 w-5 ${rule.isActive ? 'text-indigo-500' : 'text-gray-400'}`} />
+                      <Zap
+                        className={`h-5 w-5 ${rule.isActive ? 'text-indigo-500' : 'text-gray-400'}`}
+                      />
                       <div>
                         <p className="font-medium text-gray-900 dark:text-gray-100">{rule.name}</p>
                         {rule.description && (
-                          <p className="max-w-xs truncate text-sm text-gray-500 dark:text-gray-400">{rule.description}</p>
+                          <p className="max-w-xs truncate text-sm text-gray-500 dark:text-gray-400">
+                            {rule.description}
+                          </p>
                         )}
                       </div>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getTriggerBadge(rule.triggerType)}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getTriggerBadge(rule.triggerType)}`}
+                    >
                       {rule.triggerType.replace(/_/g, ' ')}
                     </span>
                   </td>
@@ -231,14 +237,16 @@ export default function AutomationPage() {
                     {rule._count.executions}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                    {rule.lastExecutedAt
-                      ? new Date(rule.lastExecutedAt).toLocaleString()
-                      : 'Never'}
+                    {rule.lastExecutedAt ? new Date(rule.lastExecutedAt).toLocaleString() : 'Never'}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                      rule.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-800'
-                    }`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                        rule.isActive
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-800'
+                      }`}
+                    >
                       {rule.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
@@ -280,7 +288,9 @@ export default function AutomationPage() {
       {/* Recent Executions */}
       {stats?.recentExecutions && stats.recentExecutions.length > 0 && (
         <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Executions</h2>
+          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Recent Executions
+          </h2>
           <div className="space-y-3">
             {stats.recentExecutions.map((execution: any) => (
               <div
@@ -288,11 +298,15 @@ export default function AutomationPage() {
                 className="flex items-center justify-between rounded-lg border p-3"
               >
                 <div className="flex items-center space-x-3">
-                  <div className={`rounded-full p-2 ${
-                    execution.status === 'COMPLETED' ? 'bg-green-100' :
-                    execution.status === 'FAILED' ? 'bg-red-100' :
-                    'bg-yellow-100'
-                  }`}>
+                  <div
+                    className={`rounded-full p-2 ${
+                      execution.status === 'COMPLETED'
+                        ? 'bg-green-100'
+                        : execution.status === 'FAILED'
+                          ? 'bg-red-100'
+                          : 'bg-yellow-100'
+                    }`}
+                  >
                     {execution.status === 'COMPLETED' ? (
                       <CheckCircle className="h-4 w-4 text-green-600" />
                     ) : execution.status === 'FAILED' ? (
@@ -302,17 +316,23 @@ export default function AutomationPage() {
                     )}
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">{execution.rule?.name}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      {execution.rule?.name}
+                    </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {new Date(execution.executedAt).toLocaleString()}
                     </p>
                   </div>
                 </div>
-                <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                  execution.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                  execution.status === 'FAILED' ? 'bg-red-100 text-red-800' :
-                  'bg-yellow-100 text-yellow-800'
-                }`}>
+                <span
+                  className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                    execution.status === 'COMPLETED'
+                      ? 'bg-green-100 text-green-800'
+                      : execution.status === 'FAILED'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                  }`}
+                >
                   {execution.status}
                 </span>
               </div>

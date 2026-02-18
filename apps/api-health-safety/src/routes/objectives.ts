@@ -16,8 +16,25 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 router.param('mid', validateIdParam('mid'));
 
-const OBJECTIVE_CATEGORIES = ['INCIDENT_REDUCTION', 'HAZARD_ELIMINATION', 'TRAINING', 'AUDIT', 'LEGAL_COMPLIANCE', 'HEALTH_WELLBEING', 'RISK_REDUCTION', 'CONTRACTOR_MANAGEMENT', 'OTHER'] as const;
-const OBJECTIVE_STATUSES = ['ACTIVE', 'ON_TRACK', 'AT_RISK', 'BEHIND', 'ACHIEVED', 'CANCELLED'] as const;
+const OBJECTIVE_CATEGORIES = [
+  'INCIDENT_REDUCTION',
+  'HAZARD_ELIMINATION',
+  'TRAINING',
+  'AUDIT',
+  'LEGAL_COMPLIANCE',
+  'HEALTH_WELLBEING',
+  'RISK_REDUCTION',
+  'CONTRACTOR_MANAGEMENT',
+  'OTHER',
+] as const;
+const OBJECTIVE_STATUSES = [
+  'ACTIVE',
+  'ON_TRACK',
+  'AT_RISK',
+  'BEHIND',
+  'ACHIEVED',
+  'CANCELLED',
+] as const;
 
 // Generate reference number OBJ-001, OBJ-002, etc.
 async function generateReferenceNumber(): Promise<string> {
@@ -39,7 +56,7 @@ async function generateReferenceNumber(): Promise<string> {
 // Calculate progress percent from milestones
 function calculateProgress(milestones: { completed: boolean }[]): number {
   if (milestones.length === 0) return 0;
-  const completed = milestones.filter(m => m.completed).length;
+  const completed = milestones.filter((m) => m.completed).length;
   return Math.round((completed / milestones.length) * 100);
 }
 
@@ -80,7 +97,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List objectives error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list objectives' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list objectives' },
+    });
   }
 });
 
@@ -93,13 +113,18 @@ router.get('/:id', checkOwnership(prisma.ohsObjective), async (req: AuthRequest,
     });
 
     if (!objective || (objective as any).deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
     }
 
     res.json({ success: true, data: objective });
   } catch (error) {
     logger.error('Get objective error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get objective' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get objective' },
+    });
   }
 });
 
@@ -108,7 +133,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const milestoneSchema = z.object({
       title: z.string().trim().min(1).max(200),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      dueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
     });
 
     const schema = z.object({
@@ -118,8 +143,11 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       ohsPolicyLink: z.string().optional(),
       department: z.string().optional(),
       owner: z.string().optional(),
-      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      startDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      targetDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       kpiDescription: z.string().optional(),
       baselineValue: z.number().optional(),
       targetValue: z.number().nonnegative().optional(),
@@ -161,14 +189,16 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         aiRecommendations: data.aiRecommendations,
         aiGenerated: data.aiGenerated ?? false,
         status: data.status || 'ACTIVE',
-        milestones: data.milestones ? {
-          create: data.milestones.map((m, i) => ({
-            id: uuidv4(),
-            title: m.title,
-            dueDate: new Date(m.dueDate),
-            sortOrder: i,
-          })),
-        } : undefined,
+        milestones: data.milestones
+          ? {
+              create: data.milestones.map((m, i) => ({
+                id: uuidv4(),
+                title: m.title,
+                dueDate: new Date(m.dueDate),
+                sortOrder: i,
+              })),
+            }
+          : undefined,
       },
       include: { milestones: { orderBy: { sortOrder: 'asc' } } },
     });
@@ -176,92 +206,136 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: objective });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create objective error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create objective' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create objective' },
+    });
   }
 });
 
 // PATCH /api/objectives/:id - Update objective
-router.patch('/:id', checkOwnership(prisma.ohsObjective), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.ohsObjective.findUnique({
-      where: { id: req.params.id },
-      include: { milestones: true },
-    });
-    if (!existing || (existing as any).deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
+router.patch(
+  '/:id',
+  checkOwnership(prisma.ohsObjective),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.ohsObjective.findUnique({
+        where: { id: req.params.id },
+        include: { milestones: true },
+      });
+      if (!existing || (existing as any).deletedAt) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
+      }
+
+      const schema = z.object({
+        title: z.string().trim().min(1).max(200).optional(),
+        objectiveStatement: z.string().optional(),
+        category: z.enum(OBJECTIVE_CATEGORIES).optional(),
+        ohsPolicyLink: z.string().optional(),
+        department: z.string().optional(),
+        owner: z.string().optional(),
+        startDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        targetDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        kpiDescription: z.string().optional(),
+        baselineValue: z.number().optional(),
+        targetValue: z.number().nonnegative().optional(),
+        currentValue: z.number().nonnegative().optional(),
+        unit: z.string().optional(),
+        monitoringFrequency: z.string().optional(),
+        resourcesRequired: z.string().optional(),
+        progressNotes: z.string().optional(),
+        aiRecommendations: z.string().optional(),
+        aiGenerated: z.boolean().optional(),
+        status: z.enum(OBJECTIVE_STATUSES).optional(),
+      });
+
+      const data = schema.parse(req.body);
+
+      const updateData: any = { ...data };
+      if (data.startDate) updateData.startDate = new Date(data.startDate);
+      if (data.targetDate) updateData.targetDate = new Date(data.targetDate);
+
+      // Recalculate progress from milestones
+      const progress = calculateProgress(existing.milestones);
+      updateData.progressPercent = progress;
+
+      if (data.status === 'ACHIEVED') {
+        updateData.completedDate = new Date();
+        updateData.progressPercent = 100;
+      }
+
+      const objective = await prisma.ohsObjective.update({
+        where: { id: req.params.id },
+        data: updateData,
+        include: { milestones: { orderBy: { sortOrder: 'asc' } } },
+      });
+
+      res.json({ success: true, data: objective });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update objective error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update objective' },
+      });
     }
-
-    const schema = z.object({
-      title: z.string().trim().min(1).max(200).optional(),
-      objectiveStatement: z.string().optional(),
-      category: z.enum(OBJECTIVE_CATEGORIES).optional(),
-      ohsPolicyLink: z.string().optional(),
-      department: z.string().optional(),
-      owner: z.string().optional(),
-      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      kpiDescription: z.string().optional(),
-      baselineValue: z.number().optional(),
-      targetValue: z.number().nonnegative().optional(),
-      currentValue: z.number().nonnegative().optional(),
-      unit: z.string().optional(),
-      monitoringFrequency: z.string().optional(),
-      resourcesRequired: z.string().optional(),
-      progressNotes: z.string().optional(),
-      aiRecommendations: z.string().optional(),
-      aiGenerated: z.boolean().optional(),
-      status: z.enum(OBJECTIVE_STATUSES).optional(),
-    });
-
-    const data = schema.parse(req.body);
-
-    const updateData: any = { ...data };
-    if (data.startDate) updateData.startDate = new Date(data.startDate);
-    if (data.targetDate) updateData.targetDate = new Date(data.targetDate);
-
-    // Recalculate progress from milestones
-    const progress = calculateProgress(existing.milestones);
-    updateData.progressPercent = progress;
-
-    if (data.status === 'ACHIEVED') {
-      updateData.completedDate = new Date();
-      updateData.progressPercent = 100;
-    }
-
-    const objective = await prisma.ohsObjective.update({
-      where: { id: req.params.id },
-      data: updateData,
-      include: { milestones: { orderBy: { sortOrder: 'asc' } } },
-    });
-
-    res.json({ success: true, data: objective });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
-    }
-    logger.error('Update objective error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update objective' } });
   }
-});
+);
 
 // DELETE /api/objectives/:id - Delete objective (cascades milestones)
-router.delete('/:id', checkOwnership(prisma.ohsObjective), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.ohsObjective.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
-    }
+router.delete(
+  '/:id',
+  checkOwnership(prisma.ohsObjective),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.ohsObjective.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
+      }
 
-    await prisma.ohsObjective.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete objective error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete objective' } });
+      await prisma.ohsObjective.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete objective error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete objective' },
+      });
+    }
   }
-});
+);
 
 // POST /api/objectives/:id/milestones - Add milestone
 router.post('/:id/milestones', async (req: AuthRequest, res: Response) => {
@@ -271,12 +345,14 @@ router.post('/:id/milestones', async (req: AuthRequest, res: Response) => {
       include: { milestones: true },
     });
     if (!objective || (objective as any).deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
     }
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      dueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
     });
 
     const data = schema.parse(req.body);
@@ -295,10 +371,20 @@ router.post('/:id/milestones', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: milestone });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Add milestone error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add milestone' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add milestone' },
+    });
   }
 });
 
@@ -307,12 +393,17 @@ router.patch('/:id/milestones/:mid', async (req: AuthRequest, res: Response) => 
   try {
     const milestone = await prisma.objectiveMilestone.findUnique({ where: { id: req.params.mid } });
     if (!milestone || milestone.objectiveId !== req.params.id) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Milestone not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Milestone not found' } });
     }
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200).optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       completed: z.boolean().optional(),
     });
 
@@ -343,10 +434,20 @@ router.patch('/:id/milestones/:mid', async (req: AuthRequest, res: Response) => 
     res.json({ success: true, data: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update milestone error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update milestone' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update milestone' },
+    });
   }
 });
 

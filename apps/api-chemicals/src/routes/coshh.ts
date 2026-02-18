@@ -10,8 +10,22 @@ const router = Router();
 router.param('id', validateIdParam());
 const logger = createLogger('chem-coshh');
 
-const exposureRouteEnum = z.enum(['INHALATION', 'SKIN_ABSORPTION', 'INGESTION', 'INJECTION', 'EYE_CONTACT']);
-const rpeClassEnum = z.enum(['FFP1', 'FFP2', 'FFP3', 'HALF_MASK', 'FULL_FACE', 'SUPPLIED_AIR', 'NONE_REQUIRED']);
+const exposureRouteEnum = z.enum([
+  'INHALATION',
+  'SKIN_ABSORPTION',
+  'INGESTION',
+  'INJECTION',
+  'EYE_CONTACT',
+]);
+const rpeClassEnum = z.enum([
+  'FFP1',
+  'FFP2',
+  'FFP3',
+  'HALF_MASK',
+  'FULL_FACE',
+  'SUPPLIED_AIR',
+  'NONE_REQUIRED',
+]);
 
 const createCoshhSchema = z.object({
   chemicalId: z.string().trim().min(1).max(200),
@@ -59,8 +73,16 @@ const createCoshhSchema = z.object({
   substitutionOutcome: z.string().optional(),
   assessorName: z.string().optional(),
   assessorJobTitle: z.string().optional(),
-  assessmentDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime({ offset: true })),
-  reviewDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime({ offset: true })),
+  assessmentDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().trim().datetime({ offset: true })),
+  reviewDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().trim().datetime({ offset: true })),
   reviewTriggers: z.array(z.string()).optional(),
 });
 
@@ -68,7 +90,9 @@ const updateCoshhSchema = createCoshhSchema.partial();
 
 async function generateCoshhRef(orgId: string): Promise<string> {
   const year = new Date().getFullYear();
-  const count = await prisma.chemCoshh.count({ where: { orgId, referenceNumber: { startsWith: `COSHH-${year}` } } });
+  const count = await prisma.chemCoshh.count({
+    where: { orgId, referenceNumber: { startsWith: `COSHH-${year}` } },
+  });
   return `COSHH-${year}-${String(count + 1).padStart(4, '0')}`;
 }
 
@@ -83,11 +107,15 @@ router.get('/due-review', authenticate, async (req: Request, res: Response) => {
       where: { orgId, status: 'ACTIVE', reviewDate: { lte: futureDate }, deletedAt: null },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
       orderBy: { reviewDate: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to fetch due reviews', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch due reviews' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch due reviews' },
+    });
   }
 });
 
@@ -95,7 +123,13 @@ router.get('/due-review', authenticate, async (req: Request, res: Response) => {
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
-    const { status, riskLevel, search, page = '1', limit = '20' } = req.query as Record<string, string>;
+    const {
+      status,
+      riskLevel,
+      search,
+      page = '1',
+      limit = '20',
+    } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { orgId, deletedAt: null };
     if (status) where.status = status as any;
     if (riskLevel) where.residualRiskLevel = riskLevel as any;
@@ -106,19 +140,44 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
         { chemical: { productName: { contains: search, mode: 'insensitive' } } },
       ];
     }
-    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
     const [data, total] = await Promise.all([
       prisma.chemCoshh.findMany({
-        where, skip, take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100),
+        where,
+        skip,
+        take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100),
         orderBy: { createdAt: 'desc' },
-        include: { chemical: { select: { id: true, productName: true, casNumber: true, signalWord: true, pictograms: true } } },
+        include: {
+          chemical: {
+            select: {
+              id: true,
+              productName: true,
+              casNumber: true,
+              signalWord: true,
+              pictograms: true,
+            },
+          },
+        },
       }),
       prisma.chemCoshh.count({ where }),
     ]);
-    res.json({ success: true, data, pagination: { page: Math.max(1, parseInt(page, 10) || 1), limit: Math.max(1, parseInt(limit, 10) || 20), total, totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)) } });
+    res.json({
+      success: true,
+      data,
+      pagination: {
+        page: Math.max(1, parseInt(page, 10) || 1),
+        limit: Math.max(1, parseInt(limit, 10) || 20),
+        total,
+        totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)),
+      },
+    });
   } catch (error: unknown) {
     logger.error('Failed to fetch COSHH assessments', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch COSHH assessments' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch COSHH assessments' },
+    });
   }
 });
 
@@ -130,11 +189,18 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
       where: { id: req.params.id, orgId, deletedAt: null } as any,
       include: { chemical: true, exposureMonitoring: true },
     });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'COSHH assessment not found' } });
+    if (!item)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'COSHH assessment not found' },
+      });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
     logger.error('Failed to fetch COSHH assessment', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch COSHH assessment' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch COSHH assessment' },
+    });
   }
 });
 
@@ -142,12 +208,21 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
 router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createCoshhSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const d = parsed.data;
 
-    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, orgId, deletedAt: null } as any });
-    if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
+    const chemical = await prisma.chemRegister.findFirst({
+      where: { id: d.chemicalId, orgId, deletedAt: null } as any,
+    });
+    if (!chemical)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
 
     const referenceNumber = await generateCoshhRef(orgId);
     const inherentRiskScore = calculateRiskScore(d.inherentLikelihood, d.inherentSeverity);
@@ -157,7 +232,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 
     // Auto-set health surveillance for CMR substances
     const healthSurveillanceReq = d.healthSurveillanceReq || chemical.isCmr;
-    const recordRetentionYears = chemical.isCmr ? 40 : (d.recordRetentionYears || null);
+    const recordRetentionYears = chemical.isCmr ? 40 : d.recordRetentionYears || null;
 
     const data = await prisma.chemCoshh.create({
       data: {
@@ -176,7 +251,10 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to create COSHH assessment', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' },
+    });
   }
 });
 
@@ -184,10 +262,20 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateCoshhSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
-    const existing = await prisma.chemCoshh.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'COSHH assessment not found' } });
+    const existing = await prisma.chemCoshh.findFirst({
+      where: { id: req.params.id, orgId, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'COSHH assessment not found' },
+      });
 
     const d = parsed.data;
     const updates: Record<string, unknown> = { ...d };
@@ -206,20 +294,36 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to update COSHH assessment', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' },
+    });
   }
 });
 
 // POST /api/coshh/:id/sign-off — assessor/supervisor sign-off
 router.post('/:id/sign-off', authenticate, async (req: Request, res: Response) => {
   try {
-    const signOffSchema = z.object({ role: z.enum(['assessor', 'supervisor']), name: z.string().min(1, 'name is required') });
+    const signOffSchema = z.object({
+      role: z.enum(['assessor', 'supervisor']),
+      name: z.string().min(1, 'name is required'),
+    });
     const parsed = signOffSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const { role, name } = parsed.data;
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
-    const existing = await prisma.chemCoshh.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'COSHH assessment not found' } });
+    const existing = await prisma.chemCoshh.findFirst({
+      where: { id: req.params.id, orgId, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'COSHH assessment not found' },
+      });
 
     const updates: Record<string, unknown> = {};
     if (role === 'assessor') {
@@ -234,7 +338,10 @@ router.post('/:id/sign-off', authenticate, async (req: Request, res: Response) =
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to sign off COSHH', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' },
+    });
   }
 });
 

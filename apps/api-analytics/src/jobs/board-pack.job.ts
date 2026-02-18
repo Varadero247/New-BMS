@@ -25,22 +25,34 @@ export async function runBoardPackJob(): Promise<string> {
 
     // Aggregate metrics from snapshots
     const latestSnapshot = snapshots[0] || null;
-    const avgMrr = snapshots.length > 0
-      ? snapshots.reduce((sum: number, s: Record<string, unknown>) => sum + Number(s.mrr || 0), 0) / snapshots.length
-      : 0;
-    const avgCustomers = snapshots.length > 0
-      ? Math.round(snapshots.reduce((sum: number, s: Record<string, unknown>) => sum + Number(s.customers || 0), 0) / snapshots.length)
-      : 0;
+    const avgMrr =
+      snapshots.length > 0
+        ? snapshots.reduce(
+            (sum: number, s: Record<string, unknown>) => sum + Number(s.mrr || 0),
+            0
+          ) / snapshots.length
+        : 0;
+    const avgCustomers =
+      snapshots.length > 0
+        ? Math.round(
+            snapshots.reduce(
+              (sum: number, s: Record<string, unknown>) => sum + Number(s.customers || 0),
+              0
+            ) / snapshots.length
+          )
+        : 0;
 
     const sections = {
       executiveSummary: {
         title: 'Executive Summary',
         content: `Q${quarter} ${year} performance overview. ${snapshots.length} months of data analyzed.`,
-        highlights: latestSnapshot ? [
-          `Current MRR: £${Number(latestSnapshot.mrr || 0).toLocaleString()}`,
-          `Active customers: ${latestSnapshot.customers || 0}`,
-          `Trajectory: ${latestSnapshot.trajectory || 'N/A'}`,
-        ] : ['No snapshot data available'],
+        highlights: latestSnapshot
+          ? [
+              `Current MRR: £${Number(latestSnapshot.mrr || 0).toLocaleString()}`,
+              `Active customers: ${latestSnapshot.customers || 0}`,
+              `Trajectory: ${latestSnapshot.trajectory || 'N/A'}`,
+            ]
+          : ['No snapshot data available'],
       },
       revenueMetrics: {
         title: 'Revenue Metrics',

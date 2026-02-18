@@ -39,10 +39,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     // Build hierarchical structure
-    const categoryMap = new Map(categories.map(c => [c.id, { ...c, children: [] as unknown[] }]));
+    const categoryMap = new Map(categories.map((c) => [c.id, { ...c, children: [] as unknown[] }]));
     const rootCategories: unknown[] = [];
 
-    categories.forEach(category => {
+    categories.forEach((category) => {
       const categoryWithChildren = categoryMap.get(category.id)!;
       if (category.parentId && categoryMap.has(category.parentId)) {
         categoryMap.get(category.parentId)!.children.push(categoryWithChildren);
@@ -54,36 +54,48 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: rootCategories });
   } catch (error) {
     logger.error('List categories error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list categories' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list categories' },
+    });
   }
 });
 
 // GET /api/categories/:id - Get single category with products
-router.get('/:id', checkOwnership(prisma.productCategory), async (req: AuthRequest, res: Response) => {
-  try {
-    const category = await prisma.productCategory.findUnique({
-      where: { id: req.params.id },
-      include: {
-        parent: { select: { id: true, name: true } },
-        children: { select: { id: true, name: true, code: true } },
-        products: {
-          take: 10,
-          select: { id: true, sku: true, name: true, status: true },
+router.get(
+  '/:id',
+  checkOwnership(prisma.productCategory),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const category = await prisma.productCategory.findUnique({
+        where: { id: req.params.id },
+        include: {
+          parent: { select: { id: true, name: true } },
+          children: { select: { id: true, name: true, code: true } },
+          products: {
+            take: 10,
+            select: { id: true, sku: true, name: true, status: true },
+          },
+          _count: { select: { products: true } },
         },
-        _count: { select: { products: true } },
-      },
-    });
+      });
 
-    if (!category) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Category not found' } });
+      if (!category) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Category not found' } });
+      }
+
+      res.json({ success: true, data: category });
+    } catch (error) {
+      logger.error('Get category error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get category' },
+      });
     }
-
-    res.json({ success: true, data: category });
-  } catch (error) {
-    logger.error('Get category error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get category' } });
   }
-});
+);
 
 // POST /api/categories - Create category
 router.post('/', async (req: AuthRequest, res: Response) => {
@@ -102,7 +114,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (data.parentId) {
       const parent = await prisma.productCategory.findUnique({ where: { id: data.parentId } });
       if (!parent) {
-        return res.status(400).json({ success: false, error: { code: 'INVALID_PARENT', message: 'Parent category not found' } });
+        return res.status(400).json({
+          success: false,
+          error: { code: 'INVALID_PARENT', message: 'Parent category not found' },
+        });
       }
     }
 
@@ -110,7 +125,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (data.code) {
       const existingCode = await prisma.productCategory.findUnique({ where: { code: data.code } });
       if (existingCode) {
-        return res.status(400).json({ success: false, error: { code: 'DUPLICATE_CODE', message: 'Category code already exists' } });
+        return res.status(400).json({
+          success: false,
+          error: { code: 'DUPLICATE_CODE', message: 'Category code already exists' },
+        });
       }
     }
 
@@ -128,129 +146,182 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: category });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create category error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create category' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create category' },
+    });
   }
 });
 
 // PATCH /api/categories/:id - Update category
-router.patch('/:id', checkOwnership(prisma.productCategory), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.productCategory.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Category not found' } });
-    }
-
-    const schema = z.object({
-      name: z.string().trim().min(1).max(200).optional(),
-      description: z.string().optional().nullable(),
-      parentId: z.string().optional().nullable(),
-      code: z.string().optional().nullable(),
-      sortOrder: z.number().int().optional(),
-      isActive: z.boolean().optional(),
-    });
-
-    const data = schema.parse(req.body);
-
-    // Prevent circular reference
-    if (data.parentId === req.params.id) {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'CIRCULAR_REFERENCE', message: 'Category cannot be its own parent' }
-      });
-    }
-
-    // Validate parent exists if provided
-    if (data.parentId) {
-      const parent = await prisma.productCategory.findUnique({ where: { id: data.parentId } });
-      if (!parent) {
-        return res.status(400).json({ success: false, error: { code: 'INVALID_PARENT', message: 'Parent category not found' } });
+router.patch(
+  '/:id',
+  checkOwnership(prisma.productCategory),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.productCategory.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Category not found' } });
       }
 
-      // Check if the new parent is a descendant (would create circular reference)
-      const isDescendant = await checkIsDescendant(req.params.id, data.parentId);
-      if (isDescendant) {
+      const schema = z.object({
+        name: z.string().trim().min(1).max(200).optional(),
+        description: z.string().optional().nullable(),
+        parentId: z.string().optional().nullable(),
+        code: z.string().optional().nullable(),
+        sortOrder: z.number().int().optional(),
+        isActive: z.boolean().optional(),
+      });
+
+      const data = schema.parse(req.body);
+
+      // Prevent circular reference
+      if (data.parentId === req.params.id) {
         return res.status(400).json({
           success: false,
-          error: { code: 'CIRCULAR_REFERENCE', message: 'Cannot set a descendant as parent' }
+          error: { code: 'CIRCULAR_REFERENCE', message: 'Category cannot be its own parent' },
         });
       }
-    }
 
-    // Check for duplicate code if changing
-    if (data.code && data.code !== existing.code) {
-      const existingCode = await prisma.productCategory.findUnique({ where: { code: data.code } });
-      if (existingCode) {
-        return res.status(400).json({ success: false, error: { code: 'DUPLICATE_CODE', message: 'Category code already exists' } });
+      // Validate parent exists if provided
+      if (data.parentId) {
+        const parent = await prisma.productCategory.findUnique({ where: { id: data.parentId } });
+        if (!parent) {
+          return res.status(400).json({
+            success: false,
+            error: { code: 'INVALID_PARENT', message: 'Parent category not found' },
+          });
+        }
+
+        // Check if the new parent is a descendant (would create circular reference)
+        const isDescendant = await checkIsDescendant(req.params.id, data.parentId);
+        if (isDescendant) {
+          return res.status(400).json({
+            success: false,
+            error: { code: 'CIRCULAR_REFERENCE', message: 'Cannot set a descendant as parent' },
+          });
+        }
       }
-    }
 
-    const category = await prisma.productCategory.update({
-      where: { id: req.params.id },
-      data,
-      include: {
-        parent: { select: { id: true, name: true } },
-      },
-    });
+      // Check for duplicate code if changing
+      if (data.code && data.code !== existing.code) {
+        const existingCode = await prisma.productCategory.findUnique({
+          where: { code: data.code },
+        });
+        if (existingCode) {
+          return res.status(400).json({
+            success: false,
+            error: { code: 'DUPLICATE_CODE', message: 'Category code already exists' },
+          });
+        }
+      }
 
-    res.json({ success: true, data: category });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      const category = await prisma.productCategory.update({
+        where: { id: req.params.id },
+        data,
+        include: {
+          parent: { select: { id: true, name: true } },
+        },
+      });
+
+      res.json({ success: true, data: category });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update category error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update category' },
+      });
     }
-    logger.error('Update category error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update category' } });
   }
-});
+);
 
 // DELETE /api/categories/:id - Delete category
-router.delete('/:id', checkOwnership(prisma.productCategory), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.productCategory.findUnique({
-      where: { id: req.params.id },
-      include: {
-        children: { take: 1 },
-        products: { take: 1 },
-      },
-    });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.productCategory),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.productCategory.findUnique({
+        where: { id: req.params.id },
+        include: {
+          children: { take: 1 },
+          products: { take: 1 },
+        },
+      });
 
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Category not found' } });
-    }
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Category not found' } });
+      }
 
-    // Check for children
-    if (existing.children.length > 0) {
-      return res.status(400).json({
+      // Check for children
+      if (existing.children.length > 0) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'HAS_CHILDREN',
+            message: 'Cannot delete category with subcategories. Remove subcategories first.',
+          },
+        });
+      }
+
+      // Check for products
+      if (existing.products.length > 0) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'HAS_PRODUCTS',
+            message: 'Cannot delete category with products. Reassign products first.',
+          },
+        });
+      }
+
+      await prisma.productCategory.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete category error', { error: (error as Error).message });
+      res.status(500).json({
         success: false,
-        error: { code: 'HAS_CHILDREN', message: 'Cannot delete category with subcategories. Remove subcategories first.' }
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete category' },
       });
     }
-
-    // Check for products
-    if (existing.products.length > 0) {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'HAS_PRODUCTS', message: 'Cannot delete category with products. Reassign products first.' }
-      });
-    }
-
-    await prisma.productCategory.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete category error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete category' } });
   }
-});
+);
 
 // Helper function to check if targetId is a descendant of categoryId
 async function checkIsDescendant(categoryId: string, targetId: string): Promise<boolean> {
   const children = await prisma.productCategory.findMany({
     where: { parentId: categoryId },
     select: { id: true },
-    take: 1000});
+    take: 1000,
+  });
 
   for (const child of children) {
     if (child.id === targetId) return true;

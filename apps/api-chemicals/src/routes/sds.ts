@@ -13,9 +13,22 @@ const sdsStatusEnum = z.enum(['CURRENT', 'UNDER_REVIEW', 'SUPERSEDED', 'MISSING'
 
 const createSdsSchema = z.object({
   version: z.string().trim().min(1).max(200),
-  issueDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime({ offset: true })),
-  revisionDate: z.string().trim().datetime({ offset: true }).optional().or(z.string().trim().datetime({ offset: true }).optional()),
-  nextReviewDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime({ offset: true })),
+  issueDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().trim().datetime({ offset: true })),
+  revisionDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .optional()
+    .or(z.string().trim().datetime({ offset: true }).optional()),
+  nextReviewDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().trim().datetime({ offset: true })),
   status: sdsStatusEnum.optional(),
   documentRef: z.string().optional(),
   productUseDescription: z.string().optional(),
@@ -92,24 +105,52 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
     if (status) where.status = status as any;
     if (search) {
-      where.chemical = { ...(where.chemical as any || {}), OR: [
-        { productName: { contains: search, mode: 'insensitive' } },
-        { casNumber: { contains: search, mode: 'insensitive' } },
-      ]};
+      where.chemical = {
+        ...((where.chemical as any) || {}),
+        OR: [
+          { productName: { contains: search, mode: 'insensitive' } },
+          { casNumber: { contains: search, mode: 'insensitive' } },
+        ],
+      };
     }
-    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
     const [data, total] = await Promise.all([
       prisma.chemSds.findMany({
-        where, skip, take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100),
+        where,
+        skip,
+        take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100),
         orderBy: { issueDate: 'desc' },
-        include: { chemical: { select: { id: true, productName: true, casNumber: true, signalWord: true, pictograms: true } } },
+        include: {
+          chemical: {
+            select: {
+              id: true,
+              productName: true,
+              casNumber: true,
+              signalWord: true,
+              pictograms: true,
+            },
+          },
+        },
       }),
       prisma.chemSds.count({ where }),
     ]);
-    res.json({ success: true, data, pagination: { page: Math.max(1, parseInt(page, 10) || 1), limit: Math.max(1, parseInt(limit, 10) || 20), total, totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)) } });
+    res.json({
+      success: true,
+      data,
+      pagination: {
+        page: Math.max(1, parseInt(page, 10) || 1),
+        limit: Math.max(1, parseInt(limit, 10) || 20),
+        total,
+        totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)),
+      },
+    });
   } catch (error: unknown) {
     logger.error('Failed to fetch SDS records', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch SDS records' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch SDS records' },
+    });
   }
 });
 
@@ -118,14 +159,22 @@ router.get('/overdue', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const data = await prisma.chemSds.findMany({
-      where: { status: 'CURRENT', nextReviewDate: { lte: new Date() }, chemical: { orgId, deletedAt: null } },
+      where: {
+        status: 'CURRENT',
+        nextReviewDate: { lte: new Date() },
+        chemical: { orgId, deletedAt: null },
+      },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
       orderBy: { nextReviewDate: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to fetch overdue SDS', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue SDS' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue SDS' },
+    });
   }
 });
 
@@ -137,31 +186,57 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
       where: { id: req.params.id, chemical: { orgId, deletedAt: null } },
       include: { chemical: true },
     });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'SDS not found' } });
+    if (!item)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'SDS not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
     logger.error('Failed to fetch SDS', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch SDS' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch SDS' } });
   }
 });
 
 // POST /api/sds — create SDS for a chemical
 router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const _schema = z.object({ chemicalId: z.string({ required_error: 'chemicalId is required' }).trim().uuid({ message: 'chemicalId must be a valid UUID' }) });
+    const _schema = z.object({
+      chemicalId: z
+        .string({ required_error: 'chemicalId is required' })
+        .trim()
+        .uuid({ message: 'chemicalId must be a valid UUID' }),
+    });
     const _parsedId = _schema.safeParse(req.body);
-    if (!_parsedId.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsedId.error.errors[0].message } });
+    if (!_parsedId.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: _parsedId.error.errors[0].message },
+      });
     const { chemicalId, ...rest } = req.body;
     // chemicalId validated above
     const parsed = createSdsSchema.safeParse(rest);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
 
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
-    const chemical = await prisma.chemRegister.findFirst({ where: { id: chemicalId, orgId, deletedAt: null } as any });
-    if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
+    const chemical = await prisma.chemRegister.findFirst({
+      where: { id: chemicalId, orgId, deletedAt: null } as any,
+    });
+    if (!chemical)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
 
     // Supersede existing current SDS
-    await prisma.chemSds.updateMany({ where: { chemicalId, status: 'CURRENT' }, data: { status: 'SUPERSEDED' } });
+    await prisma.chemSds.updateMany({
+      where: { chemicalId, status: 'CURRENT' },
+      data: { status: 'SUPERSEDED' },
+    });
 
     const data = await prisma.chemSds.create({
       data: { ...(parsed.data as any), chemicalId, createdBy: (req as AuthRequest).user?.id },
@@ -169,7 +244,10 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to create SDS', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' },
+    });
   }
 });
 
@@ -177,15 +255,27 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateSdsSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
-    const existing = await prisma.chemSds.findFirst({ where: { id: req.params.id, chemical: { orgId, deletedAt: null } } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'SDS not found' } });
+    const existing = await prisma.chemSds.findFirst({
+      where: { id: req.params.id, chemical: { orgId, deletedAt: null } },
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'SDS not found' } });
     const data = await prisma.chemSds.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to update SDS', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' },
+    });
   }
 });
 

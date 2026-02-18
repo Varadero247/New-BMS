@@ -97,8 +97,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list requests', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list requests' } });
+    logger.error('Failed to list requests', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list requests' },
+    });
   }
 });
 
@@ -107,7 +112,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = requestCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -129,8 +137,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: request });
   } catch (error: unknown) {
-    logger.error('Failed to create request', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create request' } });
+    logger.error('Failed to create request', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create request' },
+    });
   }
 });
 
@@ -146,13 +159,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!request) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Request not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Request not found' } });
     }
 
     res.json({ success: true, data: request });
   } catch (error: unknown) {
-    logger.error('Failed to get request', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get request' } });
+    logger.error('Failed to get request', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get request' },
+    });
   }
 });
 
@@ -161,32 +181,54 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = requestUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
-    const existing = await prisma.cmmsRequest.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsRequest.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Request not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Request not found' } });
     }
 
-    const request = await prisma.cmmsRequest.update({ where: { id: req.params.id }, data: parsed.data });
+    const request = await prisma.cmmsRequest.update({
+      where: { id: req.params.id },
+      data: parsed.data,
+    });
     res.json({ success: true, data: request });
   } catch (error: unknown) {
-    logger.error('Failed to update request', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update request' } });
+    logger.error('Failed to update request', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update request' },
+    });
   }
 });
 
 // PUT /:id/approve — Approve request and convert to work order
 router.put('/:id/approve', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsRequest.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsRequest.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Request not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Request not found' } });
     }
 
     if (existing.status !== 'NEW') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Only NEW requests can be approved' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Only NEW requests can be approved' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -224,24 +266,41 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { request, workOrder } });
   } catch (error: unknown) {
-    logger.error('Failed to approve request', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve request' } });
+    logger.error('Failed to approve request', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve request' },
+    });
   }
 });
 
 // DELETE /:id — Soft delete request
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsRequest.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsRequest.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Request not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Request not found' } });
     }
 
-    await prisma.cmmsRequest.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.cmmsRequest.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Request deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete request', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete request' } });
+    logger.error('Failed to delete request', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete request' },
+    });
   }
 });
 

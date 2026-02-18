@@ -21,7 +21,10 @@ const enpiCreateSchema = z.object({
   unit: z.string().trim().min(1).max(50),
   baselineValue: z.number().optional().nullable(),
   targetValue: z.number().nonnegative().optional().nullable(),
-  frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY']).optional().default('MONTHLY'),
+  frequency: z
+    .enum(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY'])
+    .optional()
+    .default('MONTHLY'),
 });
 
 const enpiUpdateSchema = z.object({
@@ -37,8 +40,16 @@ const enpiUpdateSchema = z.object({
 
 const dataPointCreateSchema = z.object({
   value: z.number(),
-  periodStart: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-  periodEnd: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  periodStart: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  periodEnd: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   variables: z.any().optional().nullable(),
 });
 
@@ -87,8 +98,12 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list EnPIs', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list EnPIs' } });
+    logger.error('Failed to list EnPIs', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list EnPIs' } });
   }
 });
 
@@ -100,7 +115,11 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = enpiCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -122,8 +141,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('EnPI created', { enpiId: enpi.id });
     res.status(201).json({ success: true, data: enpi });
   } catch (error: unknown) {
-    logger.error('Failed to create EnPI', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create EnPI' } });
+    logger.error('Failed to create EnPI', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create EnPI' },
+    });
   }
 });
 
@@ -143,13 +167,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!enpi) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
     }
 
     res.json({ success: true, data: enpi });
   } catch (error: unknown) {
-    logger.error('Failed to get EnPI', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get EnPI' } });
+    logger.error('Failed to get EnPI', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get EnPI' } });
   }
 });
 
@@ -162,12 +193,18 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = enpiUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const existing = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -189,8 +226,14 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('EnPI updated', { enpiId: id });
     res.json({ success: true, data: enpi });
   } catch (error: unknown) {
-    logger.error('Failed to update EnPI', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update EnPI' } });
+    logger.error('Failed to update EnPI', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update EnPI' },
+    });
   }
 });
 
@@ -204,7 +247,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
     }
 
     await prisma.energyEnpi.update({
@@ -215,8 +260,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('EnPI soft-deleted', { enpiId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete EnPI', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete EnPI' } });
+    logger.error('Failed to delete EnPI', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete EnPI' },
+    });
   }
 });
 
@@ -229,12 +280,18 @@ router.post('/:id/data-points', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = dataPointCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed' },
+        details: parsed.error.flatten(),
+      });
     }
 
     const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!enpi) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -263,8 +320,14 @@ router.post('/:id/data-points', async (req: Request, res: Response) => {
     logger.info('EnPI data point added', { enpiId: id, dataPointId: dataPoint.id });
     res.status(201).json({ success: true, data: dataPoint });
   } catch (error: unknown) {
-    logger.error('Failed to add EnPI data point', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add data point' } });
+    logger.error('Failed to add EnPI data point', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add data point' },
+    });
   }
 });
 
@@ -281,7 +344,9 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
 
     const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!enpi) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
     }
 
     const where: Record<string, unknown> = { enpiId: id, deletedAt: null };
@@ -302,8 +367,14 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list EnPI data points', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list data points' } });
+    logger.error('Failed to list EnPI data points', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list data points' },
+    });
   }
 });
 
@@ -319,7 +390,9 @@ router.get('/:id/trend', async (req: Request, res: Response) => {
 
     const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!enpi) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
     }
 
     const dataPoints = await prisma.energyEnpiData.findMany({
@@ -328,7 +401,7 @@ router.get('/:id/trend', async (req: Request, res: Response) => {
       take: numPeriods,
     });
 
-    const values = dataPoints.map(dp => Number(dp.value));
+    const values = dataPoints.map((dp) => Number(dp.value));
     const avg = values.length > 0 ? values.reduce((s, v) => s + v, 0) / values.length : 0;
     const min = values.length > 0 ? Math.min(...values) : 0;
     const max = values.length > 0 ? Math.max(...values) : 0;
@@ -355,7 +428,7 @@ router.get('/:id/trend', async (req: Request, res: Response) => {
         current: Number(enpi.currentValue || 0),
         trend,
         statistics: { average: avg, min, max, count: values.length },
-        dataPoints: dataPoints.reverse().map(dp => ({
+        dataPoints: dataPoints.reverse().map((dp) => ({
           periodStart: dp.periodStart,
           periodEnd: dp.periodEnd,
           value: Number(dp.value),
@@ -363,8 +436,14 @@ router.get('/:id/trend', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get EnPI trend', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get EnPI trend' } });
+    logger.error('Failed to get EnPI trend', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get EnPI trend' },
+    });
   }
 });
 

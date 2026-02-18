@@ -3,7 +3,13 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    spcChart: { findMany: jest.fn(), findUnique: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    spcChart: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
     spcDataPoint: { findMany: jest.fn(), create: jest.fn(), update: jest.fn() },
   },
   Prisma: { SpcChartWhereInput: {} },
@@ -31,25 +37,42 @@ jest.mock('@ims/shared', () => ({
 
 jest.mock('@ims/spc-engine', () => ({
   xbarRChart: jest.fn().mockReturnValue({
-    type: 'XBAR_R', centerLine: 50, ucl: 55, lcl: 45,
+    type: 'XBAR_R',
+    centerLine: 50,
+    ucl: 55,
+    lcl: 45,
     dataPoints: [{ value: 50, outOfControl: false, violationRules: [] }],
     outOfControl: [],
   }),
   iMrChart: jest.fn().mockReturnValue({
-    type: 'IMR', centerLine: 50, ucl: 55, lcl: 45,
+    type: 'IMR',
+    centerLine: 50,
+    ucl: 55,
+    lcl: 45,
     dataPoints: [{ value: 50, outOfControl: false, violationRules: [] }],
     outOfControl: [],
   }),
   pChart: jest.fn().mockReturnValue({
-    type: 'P', centerLine: 0.05, ucl: 0.1, lcl: 0,
+    type: 'P',
+    centerLine: 0.05,
+    ucl: 0.1,
+    lcl: 0,
     dataPoints: [{ value: 0.05, outOfControl: false, violationRules: [] }],
     outOfControl: [],
   }),
   calculateCpk: jest.fn().mockReturnValue({
-    cp: 1.5, cpk: 1.33, mean: 50, sigma: 1, status: 'CAPABLE',
+    cp: 1.5,
+    cpk: 1.33,
+    mean: 50,
+    sigma: 1,
+    status: 'CAPABLE',
   }),
   calculatePpk: jest.fn().mockReturnValue({
-    pp: 1.4, ppk: 1.2, mean: 50, sigma: 1.1, status: 'CAPABLE',
+    pp: 1.4,
+    ppk: 1.2,
+    mean: 50,
+    sigma: 1.1,
+    status: 'CAPABLE',
   }),
   detectWesternElectricRules: jest.fn().mockReturnValue([]),
 }));
@@ -76,7 +99,10 @@ describe('SPC Routes', () => {
     it('should create an SPC chart', async () => {
       (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.spcChart.create as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', refNumber: 'SPC-2602-0001', ...validBody, status: 'ACTIVE',
+        id: '00000000-0000-0000-0000-000000000001',
+        refNumber: 'SPC-2602-0001',
+        ...validBody,
+        status: 'ACTIVE',
       });
 
       const res = await request(app).post('/api/spc').send(validBody);
@@ -97,9 +123,12 @@ describe('SPC Routes', () => {
     });
 
     it('should return 400 for invalid chartType', async () => {
-      const res = await request(app).post('/api/spc').send({
-        ...validBody, chartType: 'INVALID',
-      });
+      const res = await request(app)
+        .post('/api/spc')
+        .send({
+          ...validBody,
+          chartType: 'INVALID',
+        });
       expect(res.status).toBe(400);
     });
 
@@ -107,9 +136,12 @@ describe('SPC Routes', () => {
       (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.spcChart.create as jest.Mock).mockResolvedValue({ id: 'spc-2' });
 
-      const res = await request(app).post('/api/spc').send({
-        ...validBody, chartType: 'IMR',
-      });
+      const res = await request(app)
+        .post('/api/spc')
+        .send({
+          ...validBody,
+          chartType: 'IMR',
+        });
       expect(res.status).toBe(201);
     });
 
@@ -117,9 +149,12 @@ describe('SPC Routes', () => {
       (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.spcChart.create as jest.Mock).mockResolvedValue({ id: 'spc-3' });
 
-      const res = await request(app).post('/api/spc').send({
-        ...validBody, chartType: 'P',
-      });
+      const res = await request(app)
+        .post('/api/spc')
+        .send({
+          ...validBody,
+          chartType: 'P',
+        });
       expect(res.status).toBe(201);
     });
 
@@ -127,9 +162,14 @@ describe('SPC Routes', () => {
       (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.spcChart.create as jest.Mock).mockResolvedValue({ id: 'spc-4' });
 
-      const res = await request(app).post('/api/spc').send({
-        ...validBody, usl: 55, lsl: 45, target: 50,
-      });
+      const res = await request(app)
+        .post('/api/spc')
+        .send({
+          ...validBody,
+          usl: 55,
+          lsl: 45,
+          target: 50,
+        });
       expect(res.status).toBe(201);
     });
 
@@ -144,7 +184,9 @@ describe('SPC Routes', () => {
 
   describe('GET /api/spc', () => {
     it('should list SPC charts', async () => {
-      (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
+      (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValue([
+        { id: '00000000-0000-0000-0000-000000000001' },
+      ]);
       (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/spc');
@@ -205,7 +247,10 @@ describe('SPC Routes', () => {
   describe('GET /api/spc/:id', () => {
     it('should get chart with data points', async () => {
       (mockPrisma.spcChart.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, chartType: 'XBAR_R', subgroupSize: 5,
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
+        chartType: 'XBAR_R',
+        subgroupSize: 5,
         dataPoints: [],
       });
 
@@ -222,7 +267,8 @@ describe('SPC Routes', () => {
 
     it('should return 404 for soft-deleted', async () => {
       (mockPrisma.spcChart.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date(),
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: new Date(),
       });
 
       const res = await request(app).get('/api/spc/00000000-0000-0000-0000-000000000001');
@@ -233,47 +279,64 @@ describe('SPC Routes', () => {
   describe('POST /api/spc/:id/data', () => {
     it('should add a data point', async () => {
       (mockPrisma.spcChart.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, status: 'ACTIVE', chartType: 'IMR', refNumber: 'SPC-1', subgroupSize: 1,
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
+        status: 'ACTIVE',
+        chartType: 'IMR',
+        refNumber: 'SPC-1',
+        subgroupSize: 1,
       });
       (mockPrisma.spcDataPoint.findMany as jest.Mock).mockResolvedValue([]);
       (mockPrisma.spcDataPoint.create as jest.Mock).mockResolvedValue({
-        id: 'dp-1', value: 50.1,
+        id: 'dp-1',
+        value: 50.1,
       });
       (mockPrisma.spcChart.update as jest.Mock).mockResolvedValue({});
 
-      const res = await request(app).post('/api/spc/00000000-0000-0000-0000-000000000001/data').send({ value: 50.1 });
+      const res = await request(app)
+        .post('/api/spc/00000000-0000-0000-0000-000000000001/data')
+        .send({ value: 50.1 });
       expect(res.status).toBe(201);
     });
 
     it('should return 404 if chart not found', async () => {
       (mockPrisma.spcChart.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/spc/00000000-0000-0000-0000-000000000099/data').send({ value: 50 });
+      const res = await request(app)
+        .post('/api/spc/00000000-0000-0000-0000-000000000099/data')
+        .send({ value: 50 });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 if chart is inactive', async () => {
       (mockPrisma.spcChart.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, status: 'INACTIVE',
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
+        status: 'INACTIVE',
       });
 
-      const res = await request(app).post('/api/spc/00000000-0000-0000-0000-000000000001/data').send({ value: 50 });
+      const res = await request(app)
+        .post('/api/spc/00000000-0000-0000-0000-000000000001/data')
+        .send({ value: 50 });
       expect(res.status).toBe(400);
     });
 
     it('should accept array of data points', async () => {
       (mockPrisma.spcChart.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, status: 'ACTIVE', chartType: 'XBAR_R', refNumber: 'SPC-1', subgroupSize: 5,
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
+        status: 'ACTIVE',
+        chartType: 'XBAR_R',
+        refNumber: 'SPC-1',
+        subgroupSize: 5,
       });
       (mockPrisma.spcDataPoint.findMany as jest.Mock).mockResolvedValue([]);
       (mockPrisma.spcDataPoint.create as jest.Mock).mockResolvedValue({ id: 'dp-1', value: 50 });
       (mockPrisma.spcChart.update as jest.Mock).mockResolvedValue({});
 
-      const res = await request(app).post('/api/spc/00000000-0000-0000-0000-000000000001/data').send([
-        { value: 50.1 },
-        { value: 50.2 },
-        { value: 50.3 },
-      ]);
+      const res = await request(app)
+        .post('/api/spc/00000000-0000-0000-0000-000000000001/data')
+        .send([{ value: 50.1 }, { value: 50.2 }, { value: 50.3 }]);
       expect(res.status).toBe(201);
     });
   });
@@ -281,14 +344,24 @@ describe('SPC Routes', () => {
   describe('GET /api/spc/:id/capability', () => {
     it('should return capability indices', async () => {
       (mockPrisma.spcChart.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, usl: 55, lsl: 45, target: 50,
-        refNumber: 'SPC-1', partNumber: 'BRG-001', characteristic: 'OD',
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
+        usl: 55,
+        lsl: 45,
+        target: 50,
+        refNumber: 'SPC-1',
+        partNumber: 'BRG-001',
+        characteristic: 'OD',
       });
       (mockPrisma.spcDataPoint.findMany as jest.Mock).mockResolvedValue([
-        { value: 50 }, { value: 51 }, { value: 49 },
+        { value: 50 },
+        { value: 51 },
+        { value: 49 },
       ]);
 
-      const res = await request(app).get('/api/spc/00000000-0000-0000-0000-000000000001/capability');
+      const res = await request(app).get(
+        '/api/spc/00000000-0000-0000-0000-000000000001/capability'
+      );
       expect(res.status).toBe(200);
       expect(res.body.data.cpk).toBeDefined();
       expect(res.body.data.ppk).toBeDefined();
@@ -297,26 +370,38 @@ describe('SPC Routes', () => {
     it('should return 404 if chart not found', async () => {
       (mockPrisma.spcChart.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/spc/00000000-0000-0000-0000-000000000099/capability');
+      const res = await request(app).get(
+        '/api/spc/00000000-0000-0000-0000-000000000099/capability'
+      );
       expect(res.status).toBe(404);
     });
 
     it('should return 400 if no spec limits', async () => {
       (mockPrisma.spcChart.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, usl: null, lsl: null,
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
+        usl: null,
+        lsl: null,
       });
 
-      const res = await request(app).get('/api/spc/00000000-0000-0000-0000-000000000001/capability');
+      const res = await request(app).get(
+        '/api/spc/00000000-0000-0000-0000-000000000001/capability'
+      );
       expect(res.status).toBe(400);
     });
 
     it('should return 400 if insufficient data', async () => {
       (mockPrisma.spcChart.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, usl: 55, lsl: 45,
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
+        usl: 55,
+        lsl: 45,
       });
       (mockPrisma.spcDataPoint.findMany as jest.Mock).mockResolvedValue([{ value: 50 }]);
 
-      const res = await request(app).get('/api/spc/00000000-0000-0000-0000-000000000001/capability');
+      const res = await request(app).get(
+        '/api/spc/00000000-0000-0000-0000-000000000001/capability'
+      );
       expect(res.status).toBe(400);
     });
   });

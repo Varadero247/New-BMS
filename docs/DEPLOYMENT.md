@@ -2,23 +2,23 @@
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `JWT_SECRET` | Secret for signing JWT tokens | Yes |
-| `REDIS_URL` | Redis connection (default: `redis://localhost:6379`) | Yes |
-| `NODE_ENV` | `production` or `development` | Yes |
-| `PORT` | Gateway port (default: `4000`) | No |
-| `ALLOWED_ORIGINS` | Comma-separated CORS origins | Production |
-| `CSRF_ENABLED` | Enable CSRF protection (`true`/`false`) | No |
-| `PLATFORM_URL` | Public platform URL (e.g. `https://app.nexara.io`) | Production |
-| `FOUNDER_EMAIL` | Email for digest notifications | No |
-| `SERVICE_*_URL` | URLs for downstream services | Docker/K8s |
-| `HEALTH_SAFETY_DATABASE_URL` | Domain-specific DB URL | Yes |
-| `ENVIRONMENT_DATABASE_URL` | Domain-specific DB URL | Yes |
-| `ISO42001_DATABASE_URL` | Domain-specific DB URL | Yes |
-| `ISO37001_DATABASE_URL` | Domain-specific DB URL | Yes |
-| `INVENTORY_DATABASE_URL` | Domain-specific DB URL | Yes |
+| Variable                     | Description                                          | Required   |
+| ---------------------------- | ---------------------------------------------------- | ---------- |
+| `DATABASE_URL`               | PostgreSQL connection string                         | Yes        |
+| `JWT_SECRET`                 | Secret for signing JWT tokens                        | Yes        |
+| `REDIS_URL`                  | Redis connection (default: `redis://localhost:6379`) | Yes        |
+| `NODE_ENV`                   | `production` or `development`                        | Yes        |
+| `PORT`                       | Gateway port (default: `4000`)                       | No         |
+| `ALLOWED_ORIGINS`            | Comma-separated CORS origins                         | Production |
+| `CSRF_ENABLED`               | Enable CSRF protection (`true`/`false`)              | No         |
+| `PLATFORM_URL`               | Public platform URL (e.g. `https://app.nexara.io`)   | Production |
+| `FOUNDER_EMAIL`              | Email for digest notifications                       | No         |
+| `SERVICE_*_URL`              | URLs for downstream services                         | Docker/K8s |
+| `HEALTH_SAFETY_DATABASE_URL` | Domain-specific DB URL                               | Yes        |
+| `ENVIRONMENT_DATABASE_URL`   | Domain-specific DB URL                               | Yes        |
+| `ISO42001_DATABASE_URL`      | Domain-specific DB URL                               | Yes        |
+| `ISO37001_DATABASE_URL`      | Domain-specific DB URL                               | Yes        |
+| `INVENTORY_DATABASE_URL`     | Domain-specific DB URL                               | Yes        |
 
 ---
 
@@ -41,13 +41,13 @@ module.exports = {
       name: 'api-gateway',
       script: 'dist/index.js',
       cwd: './apps/api-gateway',
-      env: { PORT: 4000, NODE_ENV: 'production' }
+      env: { PORT: 4000, NODE_ENV: 'production' },
     },
     {
       name: 'api-health-safety',
       script: 'dist/index.js',
       cwd: './apps/api-health-safety',
-      env: { PORT: 4001, NODE_ENV: 'production' }
+      env: { PORT: 4001, NODE_ENV: 'production' },
     },
     // ... repeat for all 27 API services (ports 4000-4026)
     {
@@ -55,10 +55,10 @@ module.exports = {
       script: 'node_modules/.bin/next',
       args: 'start -p 3000',
       cwd: './apps/web-dashboard',
-      env: { NODE_ENV: 'production' }
+      env: { NODE_ENV: 'production' },
     },
     // ... repeat for all 30 web apps (ports 3000-3030)
-  ]
+  ],
 };
 ```
 
@@ -196,6 +196,7 @@ docker compose up -d
 ```
 
 **Container requirements:**
+
 - All Prisma schemas include `binaryTargets = ["native", "linux-musl-openssl-3.0.x"]` for Alpine
 - Docker API version: `DOCKER_API_VERSION=1.41` required for exec commands
 - Individual Dockerfiles in `apps/api-*/Dockerfile` with `entrypoint.sh`
@@ -212,14 +213,14 @@ docker compose up -d
 
 ## Scaling Considerations
 
-| Component | Stateless? | Notes |
-|-----------|-----------|-------|
-| API services | Yes | Can horizontally scale freely |
-| Web apps | Yes | Static after build, serve from CDN |
-| Gateway | Mostly | Rate limiting uses shared Redis state |
-| WebSockets | No | Use sticky sessions or Redis pub/sub |
-| PostgreSQL | No | Single primary, consider read replicas |
-| Redis | No | Single instance, consider Sentinel for HA |
+| Component    | Stateless? | Notes                                     |
+| ------------ | ---------- | ----------------------------------------- |
+| API services | Yes        | Can horizontally scale freely             |
+| Web apps     | Yes        | Static after build, serve from CDN        |
+| Gateway      | Mostly     | Rate limiting uses shared Redis state     |
+| WebSockets   | No         | Use sticky sessions or Redis pub/sub      |
+| PostgreSQL   | No         | Single primary, consider read replicas    |
+| Redis        | No         | Single instance, consider Sentinel for HA |
 
 ---
 

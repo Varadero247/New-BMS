@@ -11,7 +11,11 @@ interface Props {
 }
 
 const formatGBP = (value: number) =>
-  new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 }).format(value);
+  new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP',
+    maximumFractionDigits: 0,
+  }).format(value);
 
 export function RoiInputs({ inputs, onChange }: Props) {
   const [dailyRateManual, setDailyRateManual] = useState(false);
@@ -70,9 +74,10 @@ export function RoiInputs({ inputs, onChange }: Props) {
                 aria-checked={inputs.numberOfAudits === n}
                 onClick={() => update({ numberOfAudits: n })}
                 className={`flex-1 rounded-md border px-4 py-2 text-sm font-medium transition-colors
-                  ${inputs.numberOfAudits === n
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border bg-card text-foreground hover:border-primary/50'
+                  ${
+                    inputs.numberOfAudits === n
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border bg-card text-foreground hover:border-primary/50'
                   }`}
               >
                 {n === 4 ? '4+' : n}
@@ -149,9 +154,10 @@ export function RoiInputs({ inputs, onChange }: Props) {
                 aria-checked={inputs.enterpriseContractPursuit === val}
                 onClick={() => update({ enterpriseContractPursuit: val })}
                 className={`flex-1 rounded-md border px-4 py-2 text-sm font-medium transition-colors
-                  ${inputs.enterpriseContractPursuit === val
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border bg-card text-foreground hover:border-primary/50'
+                  ${
+                    inputs.enterpriseContractPursuit === val
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border bg-card text-foreground hover:border-primary/50'
                   }`}
               >
                 {val ? 'Yes' : 'No'}

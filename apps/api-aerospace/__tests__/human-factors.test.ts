@@ -267,7 +267,9 @@ describe('Aerospace Human Factors API Routes', () => {
 
     it('should return 500 on database error', async () => {
       (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.humanFactorIncident.create as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.humanFactorIncident.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
       const response = await request(app)
         .post('/api/human-factors/incidents')
@@ -285,7 +287,10 @@ describe('Aerospace Human Factors API Routes', () => {
   // ==========================================
   describe('GET /api/human-factors/incidents', () => {
     it('should list incidents with pagination metadata', async () => {
-      (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValueOnce([mockIncident, mockIncident2]);
+      (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValueOnce([
+        mockIncident,
+        mockIncident2,
+      ]);
       (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app)
@@ -313,7 +318,7 @@ describe('Aerospace Human Factors API Routes', () => {
       expect(mockPrisma.humanFactorIncident.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ category: 'DISTRACTION' }),
-        }),
+        })
       );
     });
 
@@ -329,7 +334,7 @@ describe('Aerospace Human Factors API Routes', () => {
       expect(mockPrisma.humanFactorIncident.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ severity: 'CRITICAL' }),
-        }),
+        })
       );
     });
 
@@ -349,7 +354,7 @@ describe('Aerospace Human Factors API Routes', () => {
               expect.objectContaining({ title: { contains: 'engine', mode: 'insensitive' } }),
             ]),
           }),
-        }),
+        })
       );
     });
 
@@ -369,12 +374,14 @@ describe('Aerospace Human Factors API Routes', () => {
         expect.objectContaining({
           skip: 20,
           take: 10,
-        }),
+        })
       );
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/human-factors/incidents')
@@ -391,7 +398,9 @@ describe('Aerospace Human Factors API Routes', () => {
   // ==========================================
   describe('POST /api/human-factors/fatigue', () => {
     it('should create a fatigue assessment successfully', async () => {
-      (mockPrisma.fatigueAssessment.create as jest.Mock).mockResolvedValueOnce(mockFatigueAssessment);
+      (mockPrisma.fatigueAssessment.create as jest.Mock).mockResolvedValueOnce(
+        mockFatigueAssessment
+      );
 
       const response = await request(app)
         .post('/api/human-factors/fatigue')
@@ -463,7 +472,9 @@ describe('Aerospace Human Factors API Routes', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.fatigueAssessment.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.fatigueAssessment.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/human-factors/fatigue')
@@ -519,7 +530,9 @@ describe('Aerospace Human Factors API Routes', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/human-factors/dirty-dozen')
@@ -537,18 +550,20 @@ describe('Aerospace Human Factors API Routes', () => {
   describe('GET /api/human-factors/dashboard', () => {
     it('should return full dashboard data with incident and fatigue stats', async () => {
       (mockPrisma.humanFactorIncident.count as jest.Mock)
-        .mockResolvedValueOnce(25)   // totalIncidents
-        .mockResolvedValueOnce(8)    // openIncidents
-        .mockResolvedValueOnce(5);   // recentIncidents
+        .mockResolvedValueOnce(25) // totalIncidents
+        .mockResolvedValueOnce(8) // openIncidents
+        .mockResolvedValueOnce(5); // recentIncidents
 
       (mockPrisma.humanFactorIncident.groupBy as jest.Mock)
-        .mockResolvedValueOnce([     // bySeverity
+        .mockResolvedValueOnce([
+          // bySeverity
           { severity: 'LOW', _count: { id: 10 } },
           { severity: 'MEDIUM', _count: { id: 8 } },
           { severity: 'HIGH', _count: { id: 5 } },
           { severity: 'CRITICAL', _count: { id: 2 } },
         ])
-        .mockResolvedValueOnce([     // byCategory (top 5)
+        .mockResolvedValueOnce([
+          // byCategory (top 5)
           { category: 'DISTRACTION', _count: { id: 7 } },
           { category: 'FATIGUE', _count: { id: 5 } },
           { category: 'COMPLACENCY', _count: { id: 4 } },
@@ -610,7 +625,9 @@ describe('Aerospace Human Factors API Routes', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.humanFactorIncident.count as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.humanFactorIncident.count as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/human-factors/dashboard')

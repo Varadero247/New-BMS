@@ -36,6 +36,7 @@ Use the provided script to generate secure secrets:
 ```
 
 This generates cryptographically secure values for:
+
 - `JWT_SECRET` - 64+ character secret for signing access tokens
 - `JWT_REFRESH_SECRET` - 64+ character secret for signing refresh tokens
 - `POSTGRES_PASSWORD` - Secure database password
@@ -56,16 +57,17 @@ Verify your secrets are properly configured:
 
 ### Secret Requirements
 
-| Secret | Minimum Length | Additional Requirements |
-|--------|---------------|------------------------|
-| JWT_SECRET | 64 chars | No placeholder values |
-| JWT_REFRESH_SECRET | 64 chars | Optional but recommended |
-| POSTGRES_PASSWORD | 16 chars | Mixed case, numbers |
-| REDIS_PASSWORD | 16 chars | Any characters |
+| Secret             | Minimum Length | Additional Requirements  |
+| ------------------ | -------------- | ------------------------ |
+| JWT_SECRET         | 64 chars       | No placeholder values    |
+| JWT_REFRESH_SECRET | 64 chars       | Optional but recommended |
+| POSTGRES_PASSWORD  | 16 chars       | Mixed case, numbers      |
+| REDIS_PASSWORD     | 16 chars       | Any characters           |
 
 ### Startup Validation
 
 The API Gateway validates secrets on startup:
+
 - In **development**: Warnings are logged, service continues
 - In **production**: Invalid secrets cause immediate exit (exit code 1)
 
@@ -108,16 +110,17 @@ The API Gateway validates secrets on startup:
 
 ### Endpoints
 
-| Endpoint | Limit | Window | Notes |
-|----------|-------|--------|-------|
-| `/api/auth/login` | 5 requests | 15 minutes | Per IP + email |
-| `/api/auth/register` | 3 requests | 1 hour | Per IP |
-| `/api/auth/forgot-password` | 3 requests | 15 minutes | Per IP + email |
-| `/api/*` (general) | 100 requests | 15 minutes | Per IP |
+| Endpoint                    | Limit        | Window     | Notes          |
+| --------------------------- | ------------ | ---------- | -------------- |
+| `/api/auth/login`           | 5 requests   | 15 minutes | Per IP + email |
+| `/api/auth/register`        | 3 requests   | 1 hour     | Per IP         |
+| `/api/auth/forgot-password` | 3 requests   | 15 minutes | Per IP + email |
+| `/api/*` (general)          | 100 requests | 15 minutes | Per IP         |
 
 ### Account Lockout
 
 After 5 failed login attempts:
+
 - Account is locked for 30 minutes
 - HTTP 423 (Locked) response returned
 - Lockout counter resets on successful login
@@ -125,6 +128,7 @@ After 5 failed login attempts:
 ### Response Headers
 
 Rate-limited responses include:
+
 - `X-RateLimit-Limit`: Maximum requests allowed
 - `X-RateLimit-Remaining`: Remaining requests in window
 - `X-RateLimit-Reset`: Time when limit resets
@@ -133,6 +137,7 @@ Rate-limited responses include:
 ### Storage
 
 Rate limiting uses Redis when available, falling back to in-memory storage:
+
 - **Redis**: Distributed, persists across restarts
 - **In-memory**: Single-instance only, clears on restart
 
@@ -158,6 +163,7 @@ model Session {
 ### Session Validation
 
 Every authenticated request:
+
 1. Validates JWT signature and expiry
 2. Checks session exists in database
 3. Verifies session hasn't expired
@@ -182,6 +188,7 @@ DELETE /api/sessions
 ### Session Cleanup
 
 Expired sessions are automatically cleaned up:
+
 - Cleanup job runs every hour
 - Removes sessions where `expiresAt < now()`
 
@@ -239,7 +246,13 @@ All user input is validated and sanitized before processing to prevent XSS, SQL 
 ### Sanitization Package (`@ims/validation`)
 
 ```typescript
-import { sanitizeString, sanitizeHtml, sanitizeEmail, containsXss, containsSqlInjection } from '@ims/validation';
+import {
+  sanitizeString,
+  sanitizeHtml,
+  sanitizeEmail,
+  containsXss,
+  containsSqlInjection,
+} from '@ims/validation';
 
 // Basic string sanitization (removes HTML, null bytes)
 const clean = sanitizeString(userInput, { maxLength: 255 });
@@ -251,8 +264,12 @@ const safeHtml = sanitizeHtml(richText, { allowedTags: ['b', 'i', 'p'] });
 const email = sanitizeEmail('USER@Example.COM'); // 'user@example.com'
 
 // Threat detection
-if (containsXss(input)) { /* reject request */ }
-if (containsSqlInjection(input)) { /* reject request */ }
+if (containsXss(input)) {
+  /* reject request */
+}
+if (containsSqlInjection(input)) {
+  /* reject request */
+}
 ```
 
 ### Middleware
@@ -270,6 +287,7 @@ app.post('/api/users', validateMiddleware(createUserSchema), handler);
 ### XSS Detection Patterns
 
 The following patterns are detected and blocked:
+
 - `<script>` tags
 - `javascript:` URLs
 - Event handlers (`onclick`, `onerror`, etc.)
@@ -279,6 +297,7 @@ The following patterns are detected and blocked:
 ### SQL Injection Detection
 
 Common SQL injection patterns are detected:
+
 - `UNION SELECT`
 - `OR 1=1`, `AND 1=1`
 - Comment attacks (`--`, `/**/`)
@@ -330,6 +349,7 @@ await fetch('/api/users', {
 ### Excluded Methods
 
 Safe methods are excluded from CSRF validation:
+
 - GET
 - HEAD
 - OPTIONS
@@ -368,6 +388,7 @@ app.post('/api/documents', uploadSingle('file'), handler);
 ### Dangerous File Detection
 
 The following signatures are blocked:
+
 - Windows executables (MZ header: `0x4D5A`)
 - Linux executables (ELF header: `0x7F454C46`)
 - Shell scripts (`#!/`, `#!`)
@@ -375,6 +396,7 @@ The following signatures are blocked:
 ### Secure Filename Generation
 
 Uploaded files are renamed to prevent path traversal:
+
 - Original: `../../../etc/passwd`
 - Secure: `a3b2c1d4e5f6.png`
 
@@ -406,6 +428,7 @@ await auditService.logAuth('LOGIN_FAILED', undefined, { ipAddress, reason: 'Inva
 ### Automatic Redaction
 
 The following fields are automatically redacted in audit logs:
+
 - `password`, `passwordHash`
 - `token`, `accessToken`, `refreshToken`
 - `secret`, `apiKey`, `privateKey`
@@ -451,16 +474,16 @@ The API Gateway uses Helmet.js with strict security headers plus additional cust
 
 ### Helmet Configuration
 
-| Header | Value | Purpose |
-|--------|-------|---------|
-| `X-Content-Type-Options` | `nosniff` | Prevent MIME type sniffing |
-| `X-Frame-Options` | `DENY` | Prevent clickjacking |
-| `X-XSS-Protection` | `1; mode=block` | Legacy XSS protection |
-| `X-DNS-Prefetch-Control` | `off` | Prevent DNS prefetch leakage |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` | Control referrer information |
-| `Cross-Origin-Opener-Policy` | `same-origin` | Isolate browsing context |
-| `Cross-Origin-Resource-Policy` | `cross-origin` | Allow cross-origin resource loads (required for multi-port microservices) |
-| `X-Permitted-Cross-Domain-Policies` | `none` | Block Adobe cross-domain policies |
+| Header                              | Value                             | Purpose                                                                   |
+| ----------------------------------- | --------------------------------- | ------------------------------------------------------------------------- |
+| `X-Content-Type-Options`            | `nosniff`                         | Prevent MIME type sniffing                                                |
+| `X-Frame-Options`                   | `DENY`                            | Prevent clickjacking                                                      |
+| `X-XSS-Protection`                  | `1; mode=block`                   | Legacy XSS protection                                                     |
+| `X-DNS-Prefetch-Control`            | `off`                             | Prevent DNS prefetch leakage                                              |
+| `Referrer-Policy`                   | `strict-origin-when-cross-origin` | Control referrer information                                              |
+| `Cross-Origin-Opener-Policy`        | `same-origin`                     | Isolate browsing context                                                  |
+| `Cross-Origin-Resource-Policy`      | `cross-origin`                    | Allow cross-origin resource loads (required for multi-port microservices) |
+| `X-Permitted-Cross-Domain-Policies` | `none`                            | Block Adobe cross-domain policies                                         |
 
 ### HSTS (Production Only)
 
@@ -513,11 +536,13 @@ Surrogate-Control: no-store
 If you suspect a security breach:
 
 1. **Immediate**: Revoke all sessions
+
    ```sql
    DELETE FROM sessions;
    ```
 
 2. **Reset secrets**:
+
    ```bash
    ./scripts/generate-secrets.sh --force
    ```
@@ -539,7 +564,11 @@ Microservices authenticate with each other using short-lived JWT tokens to preve
 ### Package (`@ims/service-auth`)
 
 ```typescript
-import { generateServiceToken, requireServiceAuth, addServiceTokenToProxy } from '@ims/service-auth';
+import {
+  generateServiceToken,
+  requireServiceAuth,
+  addServiceTokenToProxy,
+} from '@ims/service-auth';
 
 // Generate token for outbound requests
 const token = generateServiceToken('api-hr', ['hr:read', 'hr:write']);
@@ -556,13 +585,13 @@ createProxyMiddleware({
 
 ### Token Structure
 
-| Field | Description |
-|-------|-------------|
-| `serviceId` | Unique service identifier |
-| `serviceName` | Human-readable service name |
-| `permissions` | Array of allowed operations |
-| `iat` | Issued at timestamp |
-| `exp` | Expiration (5 minutes default) |
+| Field         | Description                    |
+| ------------- | ------------------------------ |
+| `serviceId`   | Unique service identifier      |
+| `serviceName` | Human-readable service name    |
+| `permissions` | Array of allowed operations    |
+| `iat`         | Issued at timestamp            |
+| `exp`         | Expiration (5 minutes default) |
 
 ### Configuration
 
@@ -581,10 +610,10 @@ APIs use URL-based versioning with deprecation headers to support graceful migra
 
 ### Current Versions
 
-| Version | Status | Endpoints |
-|---------|--------|-----------|
-| v1 | Current | `/api/v1/*` |
-| (none) | Deprecated | `/api/*` (legacy) |
+| Version | Status     | Endpoints         |
+| ------- | ---------- | ----------------- |
+| v1      | Current    | `/api/v1/*`       |
+| (none)  | Deprecated | `/api/*` (legacy) |
 
 ### Deprecation Headers
 
@@ -618,9 +647,9 @@ The `@ims/resilience` package provides circuit breakers, retries, and bulkhead p
 import { createCircuitBreaker } from '@ims/resilience';
 
 const breaker = createCircuitBreaker(fetchUserData, {
-  timeout: 5000,           // 5 second timeout
-  errorThresholdPercentage: 50,  // Open at 50% errors
-  resetTimeout: 30000,     // Try again after 30 seconds
+  timeout: 5000, // 5 second timeout
+  errorThresholdPercentage: 50, // Open at 50% errors
+  resetTimeout: 30000, // Try again after 30 seconds
 });
 
 const result = await breaker.fire(userId);
@@ -628,26 +657,23 @@ const result = await breaker.fire(userId);
 
 ### Circuit States
 
-| State | Description |
-|-------|-------------|
-| Closed | Normal operation, requests pass through |
-| Open | Failures exceeded threshold, requests fail fast |
-| Half-Open | Testing if service recovered |
+| State     | Description                                     |
+| --------- | ----------------------------------------------- |
+| Closed    | Normal operation, requests pass through         |
+| Open      | Failures exceeded threshold, requests fail fast |
+| Half-Open | Testing if service recovered                    |
 
 ### Retry with Backoff
 
 ```typescript
 import { withRetry } from '@ims/resilience';
 
-const result = await withRetry(
-  () => callExternalApi(),
-  {
-    maxRetries: 3,
-    baseDelay: 100,     // 100ms
-    maxDelay: 5000,     // Max 5 second delay
-    backoffFactor: 2,   // Exponential backoff
-  }
-);
+const result = await withRetry(() => callExternalApi(), {
+  maxRetries: 3,
+  baseDelay: 100, // 100ms
+  maxDelay: 5000, // Max 5 second delay
+  backoffFactor: 2, // Exponential backoff
+});
 ```
 
 ### Bulkhead Pattern
@@ -774,11 +800,13 @@ Hard deletes have been replaced with soft deletes across 46 route files. Records
 ### Implementation
 
 All list/get queries filter out soft-deleted records by default:
+
 ```typescript
 where: { deletedAt: null, ...otherFilters }
 ```
 
 Delete endpoints now set the timestamp rather than removing the row:
+
 ```typescript
 await prisma.model.update({ where: { id }, data: { deletedAt: new Date() } });
 ```

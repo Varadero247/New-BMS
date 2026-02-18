@@ -10,8 +10,8 @@ export default function ApiDocsPage() {
 
   useEffect(() => {
     fetch('http://localhost:4000/api/docs/openapi.json')
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setSpec(data);
         setLoading(false);
       })
@@ -88,11 +88,15 @@ export default function ApiDocsPage() {
           <div className="grid grid-cols-4 gap-4">
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
               <p className="text-sm text-gray-500 dark:text-gray-400">Version</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{(spec as any).openapi}</p>
+              <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                {(spec as any).openapi}
+              </p>
             </div>
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
               <p className="text-sm text-gray-500 dark:text-gray-400">API Version</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{(spec as any).info?.version}</p>
+              <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                {(spec as any).info?.version}
+              </p>
             </div>
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
               <p className="text-sm text-gray-500 dark:text-gray-400">Services</p>
@@ -106,12 +110,16 @@ export default function ApiDocsPage() {
 
           {/* Tags (Services) */}
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Services</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              Services
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {((spec as any).tags || []).map((tag: any) => (
                 <div key={tag.name} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{tag.name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{tag.description}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    {tag.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -120,8 +128,12 @@ export default function ApiDocsPage() {
           {/* Raw Spec */}
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Raw Specification</h2>
-              <span className="text-xs text-gray-400 dark:text-gray-400 font-mono">openapi.json</span>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Raw Specification
+              </h2>
+              <span className="text-xs text-gray-400 dark:text-gray-400 font-mono">
+                openapi.json
+              </span>
             </div>
             <pre className="p-6 overflow-auto max-h-[600px] text-xs font-mono text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-950">
               {JSON.stringify(spec, null, 2)}

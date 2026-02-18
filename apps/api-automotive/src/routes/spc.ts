@@ -115,18 +115,29 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       },
     });
 
-    logger.info('SPC chart created', { refNumber, chartType: data.chartType, partNumber: data.partNumber });
+    logger.info('SPC chart created', {
+      refNumber,
+      chartType: data.chartType,
+      partNumber: data.partNumber,
+    });
 
     res.status(201).json({ success: true, data: chart });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e) => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create SPC chart error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create SPC chart' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create SPC chart' },
+    });
   }
 });
 
@@ -138,7 +149,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const parsedQuery = listQuerySchema.safeParse(req.query);
     if (!parsedQuery.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsedQuery.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsedQuery.error.errors[0].message },
+      });
     }
     const query = parsedQuery.data;
     const pageNum = Math.min(10000, Math.max(1, parseInt(query.page, 10) || 1));
@@ -177,7 +191,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List SPC charts error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list SPC charts' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list SPC charts' },
+    });
   }
 });
 
@@ -229,7 +246,10 @@ router.get('/alerts', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: alerts });
   } catch (error) {
     logger.error('Get SPC alerts error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get SPC alerts' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get SPC alerts' },
+    });
   }
 });
 
@@ -250,7 +270,9 @@ router.get('/:id', checkOwnership(prisma.spcChart), async (req: AuthRequest, res
     });
 
     if (!chart || chart.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'SPC chart not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'SPC chart not found' } });
     }
 
     // Reverse the data points so they are in chronological order
@@ -301,7 +323,10 @@ router.get('/:id', checkOwnership(prisma.spcChart), async (req: AuthRequest, res
     });
   } catch (error) {
     logger.error('Get SPC chart error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get SPC chart' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get SPC chart' },
+    });
   }
 });
 
@@ -319,7 +344,9 @@ router.post('/:id/data', async (req: AuthRequest, res: Response) => {
     });
 
     if (!chart || chart.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'SPC chart not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'SPC chart not found' } });
     }
 
     if (chart.status !== 'ACTIVE') {
@@ -341,18 +368,20 @@ router.post('/:id/data', async (req: AuthRequest, res: Response) => {
 
     // Create data points in parallel
     const createdPoints = await Promise.all(
-      pointsInput.map(pt => prisma.spcDataPoint.create({
-        data: {
-          chartId,
-          value: pt.value,
-          timestamp: pt.timestamp ? new Date(pt.timestamp) : new Date(),
-          subgroup: pt.subgroup,
-          defectives: pt.defectives,
-          sampleSize: pt.sampleSize,
-          outOfControl: false, // Will be updated below
-          violationRules: [],
-        },
-      }))
+      pointsInput.map((pt) =>
+        prisma.spcDataPoint.create({
+          data: {
+            chartId,
+            value: pt.value,
+            timestamp: pt.timestamp ? new Date(pt.timestamp) : new Date(),
+            subgroup: pt.subgroup,
+            defectives: pt.defectives,
+            sampleSize: pt.sampleSize,
+            outOfControl: false, // Will be updated below
+            violationRules: [],
+          },
+        })
+      )
     );
 
     // Re-fetch all points including newly added ones for chart computation
@@ -372,7 +401,11 @@ router.post('/:id/data', async (req: AuthRequest, res: Response) => {
       }));
 
       let computedChart = null;
-      if (chart.chartType === 'XBAR_R' && chart.subgroupSize >= 2 && dataPoints.length >= chart.subgroupSize * 2) {
+      if (
+        chart.chartType === 'XBAR_R' &&
+        chart.subgroupSize >= 2 &&
+        dataPoints.length >= chart.subgroupSize * 2
+      ) {
         computedChart = xbarRChart(dataPoints, chart.subgroupSize);
       } else if (chart.chartType === 'IMR' && dataPoints.length >= 2) {
         computedChart = iMrChart(dataPoints);
@@ -392,9 +425,7 @@ router.post('/:id/data', async (req: AuthRequest, res: Response) => {
         const oocIndices = new Set(computedChart.outOfControl.map((o) => o.index));
         for (let i = 0; i < allPoints.length && i < computedChart.dataPoints.length; i++) {
           const isOOC = oocIndices.has(i) || computedChart.dataPoints[i].outOfControl;
-          const pointViolations = violations
-            .filter((v) => v.pointIndex === i)
-            .map((v) => v.rule);
+          const pointViolations = violations.filter((v) => v.pointIndex === i).map((v) => v.rule);
 
           if (isOOC || pointViolations.length > 0) {
             await prisma.spcDataPoint.update({
@@ -436,11 +467,18 @@ router.post('/:id/data', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e) => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Add SPC data error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add data points' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add data points' },
+    });
   }
 });
 
@@ -457,14 +495,19 @@ router.get('/:id/capability', async (req: AuthRequest, res: Response) => {
     });
 
     if (!chart || chart.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'SPC chart not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'SPC chart not found' } });
     }
 
     // Capability analysis requires USL and LSL
     if (chart.usl == null || chart.lsl == null) {
       return res.status(400).json({
         success: false,
-        error: { code: 'MISSING_SPEC_LIMITS', message: 'USL and LSL are required for capability analysis' },
+        error: {
+          code: 'MISSING_SPEC_LIMITS',
+          message: 'USL and LSL are required for capability analysis',
+        },
       });
     }
 
@@ -479,7 +522,10 @@ router.get('/:id/capability', async (req: AuthRequest, res: Response) => {
     if (dataPoints.length < 2) {
       return res.status(400).json({
         success: false,
-        error: { code: 'INSUFFICIENT_DATA', message: 'Need at least 2 data points for capability analysis' },
+        error: {
+          code: 'INSUFFICIENT_DATA',
+          message: 'Need at least 2 data points for capability analysis',
+        },
       });
     }
 
@@ -510,7 +556,10 @@ router.get('/:id/capability', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: capability });
   } catch (error) {
     logger.error('Get SPC capability error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to calculate capability' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to calculate capability' },
+    });
   }
 });
 

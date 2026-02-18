@@ -80,7 +80,16 @@ export default function DashboardPage() {
       {error && (
         <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
           <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-          <button onClick={() => { setError(''); setLoading(true); fetchDashboardData(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+          <button
+            onClick={() => {
+              setError('');
+              setLoading(true);
+              fetchDashboardData();
+            }}
+            className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0"
+          >
+            Retry
+          </button>
         </div>
       )}
 
@@ -89,7 +98,9 @@ export default function DashboardPage() {
         <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Active Workflows</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Active Workflows
+              </p>
               <p className="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">
                 {getStatusCount(stats?.instances.byStatus || [], 'ACTIVE')}
               </p>
@@ -131,7 +142,9 @@ export default function DashboardPage() {
         <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Completed Today</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Completed Today
+              </p>
               <p className="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">
                 {getStatusCount(stats?.instances.byStatus || [], 'COMPLETED')}
               </p>
@@ -146,7 +159,9 @@ export default function DashboardPage() {
       {/* Quick Actions & Recent */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h2>
+          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Quick Actions
+          </h2>
           <div className="grid grid-cols-2 gap-4">
             <Link
               href="/templates"
@@ -193,7 +208,9 @@ export default function DashboardPage() {
 
         {/* Recent Active Workflows */}
         <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Active Workflows</h2>
+          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Recent Active Workflows
+          </h2>
           {!stats?.instances.recentActive?.length ? (
             <p className="text-gray-500 dark:text-gray-400">No active workflows</p>
           ) : (
@@ -205,27 +222,43 @@ export default function DashboardPage() {
                   className="flex items-center justify-between rounded-lg border p-3 hover:bg-gray-50 dark:bg-gray-800"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className={`rounded-full p-2 ${
-                      instance.priority === 'URGENT' ? 'bg-red-100 dark:bg-red-900' :
-                      instance.priority === 'HIGH' ? 'bg-orange-100 dark:bg-orange-900' :
-                      'bg-blue-100 dark:bg-blue-900'
-                    }`}>
-                      <Play className={`h-4 w-4 ${
-                        instance.priority === 'URGENT' ? 'text-red-600' :
-                        instance.priority === 'HIGH' ? 'text-orange-600' :
-                        'text-blue-600'
-                      }`} />
+                    <div
+                      className={`rounded-full p-2 ${
+                        instance.priority === 'URGENT'
+                          ? 'bg-red-100 dark:bg-red-900'
+                          : instance.priority === 'HIGH'
+                            ? 'bg-orange-100 dark:bg-orange-900'
+                            : 'bg-blue-100 dark:bg-blue-900'
+                      }`}
+                    >
+                      <Play
+                        className={`h-4 w-4 ${
+                          instance.priority === 'URGENT'
+                            ? 'text-red-600'
+                            : instance.priority === 'HIGH'
+                              ? 'text-orange-600'
+                              : 'text-blue-600'
+                        }`}
+                      />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">{instance.title}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{instance.instanceNumber}</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        {instance.title}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {instance.instanceNumber}
+                      </p>
                     </div>
                   </div>
-                  <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                    instance.priority === 'URGENT' ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300' :
-                    instance.priority === 'HIGH' ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300' :
-                    'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300'
-                  }`}>
+                  <span
+                    className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                      instance.priority === 'URGENT'
+                        ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300'
+                        : instance.priority === 'HIGH'
+                          ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300'
+                          : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300'
+                    }`}
+                  >
                     {instance.priority}
                   </span>
                 </Link>
@@ -237,14 +270,46 @@ export default function DashboardPage() {
 
       {/* Workflow Status Summary */}
       <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Workflow Status Summary</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Workflow Status Summary
+        </h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
           {[
-            { status: 'ACTIVE', label: 'Active', bgColor: 'bg-blue-100 dark:bg-blue-900', textColor: 'text-blue-600', icon: Play },
-            { status: 'COMPLETED', label: 'Completed', bgColor: 'bg-green-100 dark:bg-green-900', textColor: 'text-green-600', icon: CheckCircle },
-            { status: 'CANCELLED', label: 'Cancelled', bgColor: 'bg-gray-100 dark:bg-gray-800', textColor: 'text-gray-600', icon: XCircle },
-            { status: 'SUSPENDED', label: 'Suspended', bgColor: 'bg-yellow-100 dark:bg-yellow-900', textColor: 'text-yellow-600', icon: Clock },
-            { status: 'FAILED', label: 'Failed', bgColor: 'bg-red-100 dark:bg-red-900', textColor: 'text-red-600', icon: AlertTriangle },
+            {
+              status: 'ACTIVE',
+              label: 'Active',
+              bgColor: 'bg-blue-100 dark:bg-blue-900',
+              textColor: 'text-blue-600',
+              icon: Play,
+            },
+            {
+              status: 'COMPLETED',
+              label: 'Completed',
+              bgColor: 'bg-green-100 dark:bg-green-900',
+              textColor: 'text-green-600',
+              icon: CheckCircle,
+            },
+            {
+              status: 'CANCELLED',
+              label: 'Cancelled',
+              bgColor: 'bg-gray-100 dark:bg-gray-800',
+              textColor: 'text-gray-600',
+              icon: XCircle,
+            },
+            {
+              status: 'SUSPENDED',
+              label: 'Suspended',
+              bgColor: 'bg-yellow-100 dark:bg-yellow-900',
+              textColor: 'text-yellow-600',
+              icon: Clock,
+            },
+            {
+              status: 'FAILED',
+              label: 'Failed',
+              bgColor: 'bg-red-100 dark:bg-red-900',
+              textColor: 'text-red-600',
+              icon: AlertTriangle,
+            },
           ].map(({ status, label, bgColor, textColor, icon: Icon }) => (
             <div key={status} className="rounded-lg border p-4 text-center">
               <div className={`mx-auto mb-2 w-fit rounded-full ${bgColor} p-2`}>

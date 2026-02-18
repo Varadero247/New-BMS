@@ -153,7 +153,9 @@ describe('PUT /api/energy/:id', () => {
     (prisma.esgEnergy.findFirst as jest.Mock).mockResolvedValue(mockEnergy);
     (prisma.esgEnergy.update as jest.Mock).mockResolvedValue({ ...mockEnergy, quantity: 60000 });
 
-    const res = await request(app).put('/api/energy/00000000-0000-0000-0000-000000000001').send({ quantity: 60000 });
+    const res = await request(app)
+      .put('/api/energy/00000000-0000-0000-0000-000000000001')
+      .send({ quantity: 60000 });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -161,12 +163,16 @@ describe('PUT /api/energy/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgEnergy.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/energy/00000000-0000-0000-0000-000000000099').send({ quantity: 60000 });
+    const res = await request(app)
+      .put('/api/energy/00000000-0000-0000-0000-000000000099')
+      .send({ quantity: 60000 });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid data', async () => {
-    const res = await request(app).put('/api/energy/00000000-0000-0000-0000-000000000001').send({ energyType: 'INVALID' });
+    const res = await request(app)
+      .put('/api/energy/00000000-0000-0000-0000-000000000001')
+      .send({ energyType: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
@@ -174,7 +180,10 @@ describe('PUT /api/energy/:id', () => {
 describe('DELETE /api/energy/:id', () => {
   it('should soft delete an energy record', async () => {
     (prisma.esgEnergy.findFirst as jest.Mock).mockResolvedValue(mockEnergy);
-    (prisma.esgEnergy.update as jest.Mock).mockResolvedValue({ ...mockEnergy, deletedAt: new Date() });
+    (prisma.esgEnergy.update as jest.Mock).mockResolvedValue({
+      ...mockEnergy,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/energy/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);

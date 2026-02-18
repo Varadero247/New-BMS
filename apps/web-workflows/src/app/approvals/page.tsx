@@ -249,7 +249,10 @@ export default function ApprovalsPage() {
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
                 {requests.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={7}
+                      className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
+                    >
                       No approval requests found.
                     </td>
                   </tr>
@@ -258,8 +261,12 @@ export default function ApprovalsPage() {
                     <tr key={request.id} className="hover:bg-gray-50 dark:bg-gray-800">
                       <td className="whitespace-nowrap px-6 py-4">
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">{request.title}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{request.requestNumber}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
+                            {request.title}
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {request.requestNumber}
+                          </p>
                         </div>
                       </td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
@@ -275,7 +282,9 @@ export default function ApprovalsPage() {
                         Level {request.currentLevel}
                       </td>
                       <td className="whitespace-nowrap px-6 py-4">
-                        <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(request.status)}`}>
+                        <span
+                          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(request.status)}`}
+                        >
                           {request.status}
                         </span>
                       </td>
@@ -310,8 +319,12 @@ export default function ApprovalsPage() {
           {chains.length === 0 ? (
             <div className="col-span-full rounded-lg bg-white dark:bg-gray-900 p-12 text-center shadow">
               <Users className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
-              <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">No approval chains</h3>
-              <p className="mt-2 text-gray-500 dark:text-gray-400">Create an approval chain to get started.</p>
+              <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">
+                No approval chains
+              </h3>
+              <p className="mt-2 text-gray-500 dark:text-gray-400">
+                Create an approval chain to get started.
+              </p>
             </div>
           ) : (
             chains.map((chain) => (
@@ -321,9 +334,13 @@ export default function ApprovalsPage() {
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100">{chain.name}</h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400">{chain.entityType}</p>
                   </div>
-                  <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                    chain.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-800'
-                  }`}>
+                  <span
+                    className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                      chain.isActive
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-800'
+                    }`}
+                  >
                     {chain.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </div>
@@ -333,15 +350,21 @@ export default function ApprovalsPage() {
                 )}
 
                 <div className="mt-4">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">APPROVAL LEVELS</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                    APPROVAL LEVELS
+                  </p>
                   <div className="mt-2 space-y-2">
                     {chain.levels.map((level) => (
                       <div key={level.id} className="flex items-center space-x-2">
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-600">
                           {level.levelOrder}
                         </span>
-                        <span className="text-sm text-gray-700 dark:text-gray-300">{level.name}</span>
-                        <span className="text-xs text-gray-400 dark:text-gray-500">({level.approverType})</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          {level.name}
+                        </span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">
+                          ({level.approverType})
+                        </span>
                       </div>
                     ))}
                   </div>

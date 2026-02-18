@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate , type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 import {
@@ -47,7 +47,11 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message, details: parsed.error.errors },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.errors[0].message,
+          details: parsed.error.errors,
+        },
       });
     }
 
@@ -115,7 +119,10 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     if (!recordType || !recordId) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'recordType and recordId query parameters are required' },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'recordType and recordId query parameters are required',
+        },
       });
     }
 
@@ -129,7 +136,9 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: unknown) {
-    logger.error('Failed to list comments', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list comments', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list comments' },
@@ -149,7 +158,11 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message, details: parsed.error.errors },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.errors[0].message,
+          details: parsed.error.errors,
+        },
       });
     }
 
@@ -171,7 +184,11 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         error: { code: 'NOT_FOUND', message },
       });
     }
-    if (message.includes('Only the author') || message.includes('Edit window') || message.includes('deleted')) {
+    if (
+      message.includes('Only the author') ||
+      message.includes('Edit window') ||
+      message.includes('deleted')
+    ) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message },
@@ -193,7 +210,8 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
     const user = (req as AuthRequest).user;
     const commentId = req.params.id;
     const roles: string[] = (user as any).roles || [(user as any).role] || [];
-    const isAdmin = roles.includes('SUPER_ADMIN') || roles.includes('ORG_ADMIN') || roles.includes('ADMIN');
+    const isAdmin =
+      roles.includes('SUPER_ADMIN') || roles.includes('ORG_ADMIN') || roles.includes('ADMIN');
 
     await deleteComment(commentId, user!.id, isAdmin);
 
@@ -239,7 +257,11 @@ router.post('/:id/reactions', authenticate, async (req: Request, res: Response) 
     if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message, details: parsed.error.errors },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.errors[0].message,
+          details: parsed.error.errors,
+        },
       });
     }
 

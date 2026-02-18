@@ -59,16 +59,26 @@ const createIncidentSchema = z.object({
   rootCause: z.string().optional(),
   correctiveAction: z.string().optional(),
   capaRef: z.string().optional(),
-  incidentDate: z.string().trim().datetime({ offset: true, message: 'Valid ISO date required for incidentDate' }),
+  incidentDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true, message: 'Valid ISO date required for incidentDate' }),
 });
 
 const createFatigueSchema = z.object({
   personnelId: z.string().min(1, 'Personnel ID is required'),
   personnelName: z.string().min(1, 'Personnel name is required'),
-  assessmentDate: z.string().trim().datetime({ offset: true, message: 'Valid ISO date required for assessmentDate' }),
+  assessmentDate: z
+    .string()
+    .trim()
+    .datetime({ offset: true, message: 'Valid ISO date required for assessmentDate' }),
   hoursWorked: z.number().min(0, 'Hours worked must be non-negative'),
   restHours: z.number().min(0, 'Rest hours must be non-negative'),
-  fatigueScore: z.number().int().min(1, 'Fatigue score must be at least 1').max(10, 'Fatigue score must be at most 10'),
+  fatigueScore: z
+    .number()
+    .int()
+    .min(1, 'Fatigue score must be at least 1')
+    .max(10, 'Fatigue score must be at most 10'),
   riskLevel: z.enum(['LOW', 'MODERATE', 'HIGH', 'CRITICAL']),
   mitigations: z.string().optional(),
   fitForDuty: z.boolean(),
@@ -104,24 +114,44 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
       },
     });
 
-    logger.info('Human factor incident reported', { refNumber, category: data.category, severity: data.severity });
+    logger.info('Human factor incident reported', {
+      refNumber,
+      category: data.category,
+      severity: data.severity,
+    });
     res.status(201).json({ success: true, data: incident });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create HF incident error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to report human factor incident' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to report human factor incident' },
+    });
   }
 });
 
 // GET /incidents — List HF incidents with filters
 router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
-    const { page = '1', limit = '20', category, severity, status, dateFrom, dateTo, search } = req.query;
+    const {
+      page = '1',
+      limit = '20',
+      category,
+      severity,
+      status,
+      dateFrom,
+      dateTo,
+      search,
+    } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
@@ -161,7 +191,10 @@ router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) =>
     });
   } catch (error) {
     logger.error('List HF incidents error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list human factor incidents' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list human factor incidents' },
+    });
   }
 });
 
@@ -190,17 +223,29 @@ router.post('/fatigue', async (req: AuthRequest, res: Response) => {
       },
     });
 
-    logger.info('Fatigue assessment logged', { personnelId: data.personnelId, fatigueScore: data.fatigueScore, riskLevel: data.riskLevel, fitForDuty: data.fitForDuty });
+    logger.info('Fatigue assessment logged', {
+      personnelId: data.personnelId,
+      fatigueScore: data.fatigueScore,
+      riskLevel: data.riskLevel,
+      fitForDuty: data.fitForDuty,
+    });
     res.status(201).json({ success: true, data: assessment });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create fatigue assessment error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log fatigue assessment' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to log fatigue assessment' },
+    });
   }
 });
 
@@ -264,7 +309,10 @@ router.get('/dirty-dozen', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Dirty dozen trending error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate dirty dozen trending' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate dirty dozen trending' },
+    });
   }
 });
 
@@ -319,16 +367,23 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
 
     const fatigueStats = {
       totalAssessments: recentFatigueAssessments.length,
-      averageScore: recentFatigueAssessments.length > 0
-        ? Math.round((recentFatigueAssessments.reduce((sum, a) => sum + a.fatigueScore, 0) / recentFatigueAssessments.length) * 10) / 10
-        : 0,
-      highRiskCount: recentFatigueAssessments.filter(a => a.riskLevel === 'HIGH' || a.riskLevel === 'CRITICAL').length,
-      notFitForDuty: recentFatigueAssessments.filter(a => !a.fitForDuty).length,
+      averageScore:
+        recentFatigueAssessments.length > 0
+          ? Math.round(
+              (recentFatigueAssessments.reduce((sum, a) => sum + a.fatigueScore, 0) /
+                recentFatigueAssessments.length) *
+                10
+            ) / 10
+          : 0,
+      highRiskCount: recentFatigueAssessments.filter(
+        (a) => a.riskLevel === 'HIGH' || a.riskLevel === 'CRITICAL'
+      ).length,
+      notFitForDuty: recentFatigueAssessments.filter((a) => !a.fitForDuty).length,
       byRiskLevel: {
-        LOW: recentFatigueAssessments.filter(a => a.riskLevel === 'LOW').length,
-        MODERATE: recentFatigueAssessments.filter(a => a.riskLevel === 'MODERATE').length,
-        HIGH: recentFatigueAssessments.filter(a => a.riskLevel === 'HIGH').length,
-        CRITICAL: recentFatigueAssessments.filter(a => a.riskLevel === 'CRITICAL').length,
+        LOW: recentFatigueAssessments.filter((a) => a.riskLevel === 'LOW').length,
+        MODERATE: recentFatigueAssessments.filter((a) => a.riskLevel === 'MODERATE').length,
+        HIGH: recentFatigueAssessments.filter((a) => a.riskLevel === 'HIGH').length,
+        CRITICAL: recentFatigueAssessments.filter((a) => a.riskLevel === 'CRITICAL').length,
       },
     };
 
@@ -338,14 +393,20 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
         totalIncidents,
         openIncidents,
         recentIncidents,
-        bySeverity: bySeverity.map(s => ({ severity: s.severity, count: (s as any)._count.id })),
-        topCategories: byCategory.map(c => ({ category: c.category, count: (c as any)._count.id })),
+        bySeverity: bySeverity.map((s) => ({ severity: s.severity, count: (s as any)._count.id })),
+        topCategories: byCategory.map((c) => ({
+          category: c.category,
+          count: (c as any)._count.id,
+        })),
         fatigueStats,
       },
     });
   } catch (error) {
     logger.error('HF dashboard error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate human factors dashboard' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate human factors dashboard' },
+    });
   }
 });
 

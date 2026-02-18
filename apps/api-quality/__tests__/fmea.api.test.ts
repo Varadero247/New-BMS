@@ -84,9 +84,7 @@ describe('Quality FMEA API Routes', () => {
       (mockPrisma.qualFmea.findMany as jest.Mock).mockResolvedValueOnce(mockFmeas);
       (mockPrisma.qualFmea.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/fmea')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/fmea').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -115,9 +113,7 @@ describe('Quality FMEA API Routes', () => {
       (mockPrisma.qualFmea.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualFmea.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/fmea?status=ACTIVE')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/fmea?status=ACTIVE').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualFmea.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -132,9 +128,7 @@ describe('Quality FMEA API Routes', () => {
       (mockPrisma.qualFmea.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualFmea.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/fmea?fmeaType=PFMEA')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/fmea?fmeaType=PFMEA').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualFmea.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -166,9 +160,7 @@ describe('Quality FMEA API Routes', () => {
       (mockPrisma.qualFmea.findMany as jest.Mock).mockResolvedValueOnce(mockFmeas);
       (mockPrisma.qualFmea.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/fmea')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/fmea').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualFmea.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -181,9 +173,7 @@ describe('Quality FMEA API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.qualFmea.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/fmea')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/fmea').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -586,7 +576,9 @@ describe('Quality FMEA API Routes', () => {
   // ============================================
   describe('DELETE /api/fmea/:id', () => {
     it('should delete FMEA successfully', async () => {
-      (mockPrisma.qualFmea.findUnique as jest.Mock).mockResolvedValueOnce({ id: '1f000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualFmea.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '1f000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualFmea.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
@@ -637,7 +629,9 @@ describe('Quality FMEA API Routes', () => {
     };
 
     it('should create a row with auto-calculated RPN', async () => {
-      (mockPrisma.qualFmea.findUnique as jest.Mock).mockResolvedValueOnce({ id: '1f000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualFmea.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '1f000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualFmeaRow.findFirst as jest.Mock).mockResolvedValueOnce({ sortOrder: 2 });
       (mockPrisma.qualFmeaRow.create as jest.Mock).mockResolvedValueOnce({
         id: '4e000000-0000-4000-a000-000000000001',
@@ -670,7 +664,9 @@ describe('Quality FMEA API Routes', () => {
         detection: 5,
       };
 
-      (mockPrisma.qualFmea.findUnique as jest.Mock).mockResolvedValueOnce({ id: '1f000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualFmea.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '1f000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualFmeaRow.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.qualFmeaRow.create as jest.Mock).mockResolvedValueOnce({
         id: 'row-2',
@@ -708,7 +704,9 @@ describe('Quality FMEA API Routes', () => {
     });
 
     it('should return 400 for missing failureMode', async () => {
-      (mockPrisma.qualFmea.findUnique as jest.Mock).mockResolvedValueOnce({ id: '1f000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualFmea.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '1f000000-0000-4000-a000-000000000001',
+      });
 
       const response = await request(app)
         .post('/api/fmea/1f000000-0000-4000-a000-000000000001/rows')
@@ -720,7 +718,9 @@ describe('Quality FMEA API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualFmea.findUnique as jest.Mock).mockResolvedValueOnce({ id: '1f000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualFmea.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '1f000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualFmeaRow.findFirst as jest.Mock).mockResolvedValueOnce(null);
       (mockPrisma.qualFmeaRow.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
@@ -761,7 +761,9 @@ describe('Quality FMEA API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/fmea/1f000000-0000-4000-a000-000000000001/rows/4e000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/fmea/1f000000-0000-4000-a000-000000000001/rows/4e000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ severity: 5 });
 
@@ -780,7 +782,9 @@ describe('Quality FMEA API Routes', () => {
       (mockPrisma.qualFmeaRow.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/fmea/1f000000-0000-4000-a000-000000000001/rows/00000000-0000-4000-a000-ffffffffffff')
+        .put(
+          '/api/fmea/1f000000-0000-4000-a000-000000000001/rows/00000000-0000-4000-a000-ffffffffffff'
+        )
         .set('Authorization', 'Bearer token')
         .send({ severity: 5 });
 
@@ -792,7 +796,9 @@ describe('Quality FMEA API Routes', () => {
       (mockPrisma.qualFmeaRow.findFirst as jest.Mock).mockResolvedValueOnce(existingRow);
 
       const response = await request(app)
-        .put('/api/fmea/1f000000-0000-4000-a000-000000000001/rows/4e000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/fmea/1f000000-0000-4000-a000-000000000001/rows/4e000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -804,7 +810,9 @@ describe('Quality FMEA API Routes', () => {
       (mockPrisma.qualFmeaRow.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/fmea/1f000000-0000-4000-a000-000000000001/rows/4e000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/fmea/1f000000-0000-4000-a000-000000000001/rows/4e000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ severity: 5 });
 
@@ -818,11 +826,16 @@ describe('Quality FMEA API Routes', () => {
   // ============================================
   describe('DELETE /api/fmea/:id/rows/:rowId', () => {
     it('should delete row successfully', async () => {
-      (mockPrisma.qualFmeaRow.findFirst as jest.Mock).mockResolvedValueOnce({ id: '4e000000-0000-4000-a000-000000000001', fmeaId: '1f000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualFmeaRow.findFirst as jest.Mock).mockResolvedValueOnce({
+        id: '4e000000-0000-4000-a000-000000000001',
+        fmeaId: '1f000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualFmeaRow.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/fmea/1f000000-0000-4000-a000-000000000001/rows/4e000000-0000-4000-a000-000000000001')
+        .delete(
+          '/api/fmea/1f000000-0000-4000-a000-000000000001/rows/4e000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
@@ -836,7 +849,9 @@ describe('Quality FMEA API Routes', () => {
       (mockPrisma.qualFmeaRow.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/fmea/1f000000-0000-4000-a000-000000000001/rows/00000000-0000-4000-a000-ffffffffffff')
+        .delete(
+          '/api/fmea/1f000000-0000-4000-a000-000000000001/rows/00000000-0000-4000-a000-ffffffffffff'
+        )
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -847,7 +862,9 @@ describe('Quality FMEA API Routes', () => {
       (mockPrisma.qualFmeaRow.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/fmea/1f000000-0000-4000-a000-000000000001/rows/4e000000-0000-4000-a000-000000000001')
+        .delete(
+          '/api/fmea/1f000000-0000-4000-a000-000000000001/rows/4e000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

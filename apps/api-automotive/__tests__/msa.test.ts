@@ -143,7 +143,7 @@ const generateGrrMeasurements = () => {
   for (const op of operators) {
     for (const part of parts) {
       for (const trial of trials) {
-        const noise = (idx % 3 - 1) * 0.005; // Small variation
+        const noise = ((idx % 3) - 1) * 0.005; // Small variation
         measurements.push({
           id: `meas-grr-${String(idx).padStart(4, '0')}`,
           studyId: '20000000-0000-4000-a000-000000000001',
@@ -162,11 +162,51 @@ const generateGrrMeasurements = () => {
 
 // Generate measurements for a non-GRR (BIAS) study
 const generateBiasMeasurements = () => [
-  { id: 'meas-bias-01', studyId: '20000000-0000-4000-a000-000000000002', operator: 'Operator A', partNumber: 1, trial: 1, value: 0.82, createdAt: new Date() },
-  { id: 'meas-bias-02', studyId: '20000000-0000-4000-a000-000000000002', operator: 'Operator A', partNumber: 1, trial: 2, value: 0.79, createdAt: new Date() },
-  { id: 'meas-bias-03', studyId: '20000000-0000-4000-a000-000000000002', operator: 'Operator A', partNumber: 1, trial: 3, value: 0.81, createdAt: new Date() },
-  { id: 'meas-bias-04', studyId: '20000000-0000-4000-a000-000000000002', operator: 'Operator A', partNumber: 2, trial: 1, value: 0.85, createdAt: new Date() },
-  { id: 'meas-bias-05', studyId: '20000000-0000-4000-a000-000000000002', operator: 'Operator A', partNumber: 2, trial: 2, value: 0.83, createdAt: new Date() },
+  {
+    id: 'meas-bias-01',
+    studyId: '20000000-0000-4000-a000-000000000002',
+    operator: 'Operator A',
+    partNumber: 1,
+    trial: 1,
+    value: 0.82,
+    createdAt: new Date(),
+  },
+  {
+    id: 'meas-bias-02',
+    studyId: '20000000-0000-4000-a000-000000000002',
+    operator: 'Operator A',
+    partNumber: 1,
+    trial: 2,
+    value: 0.79,
+    createdAt: new Date(),
+  },
+  {
+    id: 'meas-bias-03',
+    studyId: '20000000-0000-4000-a000-000000000002',
+    operator: 'Operator A',
+    partNumber: 1,
+    trial: 3,
+    value: 0.81,
+    createdAt: new Date(),
+  },
+  {
+    id: 'meas-bias-04',
+    studyId: '20000000-0000-4000-a000-000000000002',
+    operator: 'Operator A',
+    partNumber: 2,
+    trial: 1,
+    value: 0.85,
+    createdAt: new Date(),
+  },
+  {
+    id: 'meas-bias-05',
+    studyId: '20000000-0000-4000-a000-000000000002',
+    operator: 'Operator A',
+    partNumber: 2,
+    trial: 2,
+    value: 0.83,
+    createdAt: new Date(),
+  },
 ];
 
 const validCreatePayload = {
@@ -402,7 +442,14 @@ describe('Automotive MSA API Routes', () => {
     });
 
     it('should accept all valid studyType enum values', async () => {
-      const studyTypes = ['GRR_CROSSED', 'GRR_NESTED', 'BIAS', 'LINEARITY', 'STABILITY', 'ATTRIBUTE'];
+      const studyTypes = [
+        'GRR_CROSSED',
+        'GRR_NESTED',
+        'BIAS',
+        'LINEARITY',
+        'STABILITY',
+        'ATTRIBUTE',
+      ];
 
       for (const studyType of studyTypes) {
         jest.clearAllMocks();
@@ -423,7 +470,9 @@ describe('Automotive MSA API Routes', () => {
 
     it('should handle database errors during creation', async () => {
       (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.msaStudy.create as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.msaStudy.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
       const response = await request(app)
         .post('/api/msa')
@@ -445,9 +494,7 @@ describe('Automotive MSA API Routes', () => {
       (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValueOnce([mockStudy, mockStudy2]);
       (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/msa')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/msa').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -503,9 +550,7 @@ describe('Automotive MSA API Routes', () => {
       (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/msa?status=COMPLETED')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/msa?status=COMPLETED').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.msaStudy.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -521,9 +566,7 @@ describe('Automotive MSA API Routes', () => {
       (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValueOnce([mockStudy]);
       (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValueOnce(1);
 
-      await request(app)
-        .get('/api/msa?studyType=GRR_CROSSED')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/msa?studyType=GRR_CROSSED').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.msaStudy.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -539,9 +582,7 @@ describe('Automotive MSA API Routes', () => {
       (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/msa?result=ACCEPTABLE')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/msa?result=ACCEPTABLE').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.msaStudy.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -577,9 +618,7 @@ describe('Automotive MSA API Routes', () => {
       (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/msa')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/msa').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.msaStudy.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -601,11 +640,11 @@ describe('Automotive MSA API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.msaStudy.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.msaStudy.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
-      const response = await request(app)
-        .get('/api/msa')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/msa').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -826,9 +865,7 @@ describe('Automotive MSA API Routes', () => {
         .post('/api/msa/20000000-0000-4000-a000-000000000001/data')
         .set('Authorization', 'Bearer token')
         .send({
-          measurements: [
-            { operator: '', partNumber: 1, trial: 1, value: 25.01 },
-          ],
+          measurements: [{ operator: '', partNumber: 1, trial: 1, value: 25.01 }],
         });
 
       expect(response.status).toBe(400);
@@ -842,9 +879,7 @@ describe('Automotive MSA API Routes', () => {
         .post('/api/msa/20000000-0000-4000-a000-000000000001/data')
         .set('Authorization', 'Bearer token')
         .send({
-          measurements: [
-            { operator: 'Operator A', partNumber: 0, trial: 1, value: 25.01 },
-          ],
+          measurements: [{ operator: 'Operator A', partNumber: 0, trial: 1, value: 25.01 }],
         });
 
       expect(response.status).toBe(400);
@@ -858,9 +893,7 @@ describe('Automotive MSA API Routes', () => {
         .post('/api/msa/20000000-0000-4000-a000-000000000001/data')
         .set('Authorization', 'Bearer token')
         .send({
-          measurements: [
-            { operator: 'Operator A', partNumber: 1, trial: 0, value: 25.01 },
-          ],
+          measurements: [{ operator: 'Operator A', partNumber: 1, trial: 0, value: 25.01 }],
         });
 
       expect(response.status).toBe(400);
@@ -907,9 +940,7 @@ describe('Automotive MSA API Routes', () => {
         .post('/api/msa/20000000-0000-4000-a000-000000000001/data')
         .set('Authorization', 'Bearer token')
         .send({
-          measurements: [
-            { operator: 'Operator A', partNumber: 1, trial: 1, value: -0.005 },
-          ],
+          measurements: [{ operator: 'Operator A', partNumber: 1, trial: 1, value: -0.005 }],
         });
 
       expect(response.status).toBe(201);

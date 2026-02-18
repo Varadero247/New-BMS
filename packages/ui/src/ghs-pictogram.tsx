@@ -30,16 +30,19 @@ function DiamondFrame({ size, children }: { size: number; children: React.ReactN
   const half = size / 2;
   const inset = 2;
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <polygon
         points={`${half},${inset} ${size - inset},${half} ${half},${size - inset} ${inset},${half}`}
         fill="white"
         stroke="#CC0000"
         strokeWidth="2"
       />
-      <g transform={`translate(${size * 0.2}, ${size * 0.2}) scale(${size * 0.006})`}>
-        {children}
-      </g>
+      <g transform={`translate(${size * 0.2}, ${size * 0.2}) scale(${size * 0.006})`}>{children}</g>
     </svg>
   );
 }

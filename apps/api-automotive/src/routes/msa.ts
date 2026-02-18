@@ -32,7 +32,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      studyType: z.enum(['GRR_CROSSED', 'GRR_NESTED', 'BIAS', 'LINEARITY', 'STABILITY', 'ATTRIBUTE']),
+      studyType: z.enum([
+        'GRR_CROSSED',
+        'GRR_NESTED',
+        'BIAS',
+        'LINEARITY',
+        'STABILITY',
+        'ATTRIBUTE',
+      ]),
       gageName: z.string().trim().min(1).max(200),
       gageId: z.string().optional(),
       characteristic: z.string().trim().min(1).max(200),
@@ -67,10 +74,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: study });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create MSA study error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create MSA study' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create MSA study' },
+    });
   }
 });
 
@@ -105,7 +122,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List MSA studies error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list MSA studies' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list MSA studies' },
+    });
   }
 });
 
@@ -120,13 +140,18 @@ router.get('/:id', checkOwnership(prisma.msaStudy), async (req: AuthRequest, res
     });
 
     if (!study) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'MSA study not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'MSA study not found' } });
     }
 
     res.json({ success: true, data: study });
   } catch (error) {
     logger.error('Get MSA study error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get MSA study' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get MSA study' },
+    });
   }
 });
 
@@ -138,16 +163,22 @@ router.post('/:id/data', async (req: AuthRequest, res: Response) => {
     // Verify study exists
     const study = await prisma.msaStudy.findUnique({ where: { id } });
     if (!study || study.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'MSA study not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'MSA study not found' } });
     }
 
     const schema = z.object({
-      measurements: z.array(z.object({
-        operator: z.string().trim().min(1).max(200),
-        partNumber: z.number().int().min(1),
-        trial: z.number().int().min(1),
-        value: z.number(),
-      })).min(1),
+      measurements: z
+        .array(
+          z.object({
+            operator: z.string().trim().min(1).max(200),
+            partNumber: z.number().int().min(1),
+            trial: z.number().int().min(1),
+            value: z.number(),
+          })
+        )
+        .min(1),
     });
 
     const data = schema.parse(req.body);
@@ -180,10 +211,20 @@ router.post('/:id/data', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: measurements });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Enter MSA data error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to enter measurement data' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to enter measurement data' },
+    });
   }
 });
 
@@ -200,11 +241,16 @@ router.get('/:id/results', async (req: AuthRequest, res: Response) => {
     });
 
     if (!study || study.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'MSA study not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'MSA study not found' } });
     }
 
     if (study.measurements.length === 0) {
-      return res.status(400).json({ success: false, error: { code: 'NO_DATA', message: 'No measurement data available for analysis' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'NO_DATA', message: 'No measurement data available for analysis' },
+      });
     }
 
     // For GRR_CROSSED type, perform full Gage R&R analysis
@@ -243,9 +289,9 @@ router.get('/:id/results', async (req: AuthRequest, res: Response) => {
 
       for (const op of operators) {
         for (const part of parts) {
-          const trials = measurements.filter(m => m.operator === op && m.partNumber === part);
+          const trials = measurements.filter((m) => m.operator === op && m.partNumber === part);
           if (trials.length > 1) {
-            const values = trials.map(t => t.value);
+            const values = trials.map((t) => t.value);
             const range = Math.max(...values) - Math.min(...values);
             totalRange += range;
             rangeCount++;
@@ -269,7 +315,7 @@ router.get('/:id/results', async (req: AuthRequest, res: Response) => {
       }
 
       const xDiff = Math.max(...operatorAverages) - Math.min(...operatorAverages);
-      const avSquared = Math.max(0, (xDiff * k2) ** 2 - (ev ** 2 / (numParts * numTrials)));
+      const avSquared = Math.max(0, (xDiff * k2) ** 2 - ev ** 2 / (numParts * numTrials));
       const av = Math.sqrt(avSquared); // Appraiser Variation (Reproducibility)
 
       // Total GR&R
@@ -277,8 +323,15 @@ router.get('/:id/results', async (req: AuthRequest, res: Response) => {
 
       // Part Variation (PV)
       const k3Table: Record<number, number> = {
-        2: 0.7071, 3: 0.5231, 4: 0.4467, 5: 0.4030,
-        6: 0.3742, 7: 0.3534, 8: 0.3375, 9: 0.3249, 10: 0.3146,
+        2: 0.7071,
+        3: 0.5231,
+        4: 0.4467,
+        5: 0.403,
+        6: 0.3742,
+        7: 0.3534,
+        8: 0.3375,
+        9: 0.3249,
+        10: 0.3146,
       };
       const k3 = k3Table[numParts] || 0.3146;
 
@@ -360,7 +413,7 @@ router.get('/:id/results', async (req: AuthRequest, res: Response) => {
       });
     } else {
       // For other study types, return a simpler analysis
-      const values = study.measurements.map(m => m.value);
+      const values = study.measurements.map((m) => m.value);
       const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
       const variance = values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / (values.length - 1);
       const stdDev = Math.sqrt(variance);
@@ -392,7 +445,10 @@ router.get('/:id/results', async (req: AuthRequest, res: Response) => {
     }
   } catch (error) {
     logger.error('Calculate MSA results error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to calculate MSA results' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to calculate MSA results' },
+    });
   }
 });
 

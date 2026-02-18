@@ -8,7 +8,12 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: 'user-123', email: 'admin@test.com', role: 'ADMIN', permissions: { quality: 3, analytics: 3 } };
+    req.user = {
+      id: 'user-123',
+      email: 'admin@test.com',
+      role: 'ADMIN',
+      permissions: { quality: 3, analytics: 3 },
+    };
     next();
   }),
 }));
@@ -56,9 +61,7 @@ describe('NLQ API', () => {
     });
 
     it('returns results for overdue actions query', async () => {
-      const res = await request(app)
-        .post('/api/nlq/query')
-        .send({ query: 'show overdue actions' });
+      const res = await request(app).post('/api/nlq/query').send({ query: 'show overdue actions' });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -80,27 +83,21 @@ describe('NLQ API', () => {
     });
 
     it('returns 400 for empty query', async () => {
-      const res = await request(app)
-        .post('/api/nlq/query')
-        .send({ query: '' });
+      const res = await request(app).post('/api/nlq/query').send({ query: '' });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
     });
 
     it('returns 400 for query too short', async () => {
-      const res = await request(app)
-        .post('/api/nlq/query')
-        .send({ query: 'ab' });
+      const res = await request(app).post('/api/nlq/query').send({ query: 'ab' });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
     });
 
     it('returns 400 for missing query field', async () => {
-      const res = await request(app)
-        .post('/api/nlq/query')
-        .send({});
+      const res = await request(app).post('/api/nlq/query').send({});
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -169,16 +166,12 @@ describe('NLQ API', () => {
     it('records a query in history after successful execution', async () => {
       const uniqueQuery = 'show me all open CAPAs';
 
-      await request(app)
-        .post('/api/nlq/query')
-        .send({ query: uniqueQuery });
+      await request(app).post('/api/nlq/query').send({ query: uniqueQuery });
 
       const historyRes = await request(app).get('/api/nlq/history');
 
       expect(historyRes.status).toBe(200);
-      const matchingEntries = historyRes.body.data.filter(
-        (h: any) => h.query === uniqueQuery
-      );
+      const matchingEntries = historyRes.body.data.filter((h: any) => h.query === uniqueQuery);
       expect(matchingEntries.length).toBeGreaterThanOrEqual(1);
       expect(matchingEntries[0]).toHaveProperty('confidence');
       expect(matchingEntries[0].resultCount).toBeGreaterThanOrEqual(0);
@@ -187,16 +180,12 @@ describe('NLQ API', () => {
     it('records zero-result queries in history too', async () => {
       const unknownQuery = 'what is the meaning of life';
 
-      await request(app)
-        .post('/api/nlq/query')
-        .send({ query: unknownQuery });
+      await request(app).post('/api/nlq/query').send({ query: unknownQuery });
 
       const historyRes = await request(app).get('/api/nlq/history');
 
       expect(historyRes.status).toBe(200);
-      const entry = historyRes.body.data.find(
-        (h: any) => h.query === unknownQuery
-      );
+      const entry = historyRes.body.data.find((h: any) => h.query === unknownQuery);
       expect(entry).toBeDefined();
       expect(entry.resultCount).toBe(0);
       expect(entry.confidence).toBe(0);
@@ -259,9 +248,7 @@ describe('NLQ API', () => {
       process.env.OPENAI_API_KEY = 'sk-test-fake-key';
 
       const aiQuery = 'list all equipment with maintenance overdue by more than 30 days';
-      await request(app)
-        .post('/api/nlq/query')
-        .send({ query: aiQuery });
+      await request(app).post('/api/nlq/query').send({ query: aiQuery });
 
       const historyRes = await request(app).get('/api/nlq/history');
       const entry = historyRes.body.data.find((h: any) => h.query === aiQuery);

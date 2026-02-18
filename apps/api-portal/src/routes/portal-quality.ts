@@ -71,7 +71,12 @@ router.get('/', async (req: Request, res: Response) => {
     if (severity) where.severity = severity;
 
     const [items, total] = await Promise.all([
-      prisma.portalQualityReport.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.portalQualityReport.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
       prisma.portalQualityReport.count({ where }),
     ]);
 
@@ -81,8 +86,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing quality reports', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list quality reports' } });
+    logger.error('Error listing quality reports', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list quality reports' },
+    });
   }
 });
 
@@ -95,7 +105,10 @@ router.post('/', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = qualityReportCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const data = parsed.data;
@@ -117,8 +130,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Quality report created', { id: report.id, referenceNumber });
     return res.status(201).json({ success: true, data: report });
   } catch (error: unknown) {
-    logger.error('Error creating quality report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create quality report' } });
+    logger.error('Error creating quality report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create quality report' },
+    });
   }
 });
 
@@ -133,13 +151,21 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!report) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Quality report not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Quality report not found' },
+      });
     }
 
     return res.json({ success: true, data: report });
   } catch (error: unknown) {
-    logger.error('Error fetching quality report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch quality report' } });
+    logger.error('Error fetching quality report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch quality report' },
+    });
   }
 });
 
@@ -151,14 +177,20 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = qualityReportUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const existing = await prisma.portalQualityReport.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Quality report not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Quality report not found' },
+      });
     }
 
     const updated = await prisma.portalQualityReport.update({
@@ -169,8 +201,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Quality report updated', { id: updated.id });
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Error updating quality report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update quality report' } });
+    logger.error('Error updating quality report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update quality report' },
+    });
   }
 });
 

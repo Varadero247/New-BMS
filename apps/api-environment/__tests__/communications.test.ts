@@ -21,7 +21,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000099', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000099',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -251,7 +255,9 @@ describe('Environment Communications API Routes', () => {
 
     it('should handle database errors gracefully', async () => {
       (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.envCommunication.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envCommunication.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/communications')
@@ -269,7 +275,10 @@ describe('Environment Communications API Routes', () => {
   // ==========================================
   describe('GET /api/communications', () => {
     it('should return a list with default pagination', async () => {
-      (mockPrisma.envCommunication.findMany as jest.Mock).mockResolvedValueOnce([mockCommunication, mockCommunication2]);
+      (mockPrisma.envCommunication.findMany as jest.Mock).mockResolvedValueOnce([
+        mockCommunication,
+        mockCommunication2,
+      ]);
       (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app)
@@ -282,7 +291,9 @@ describe('Environment Communications API Routes', () => {
     });
 
     it('should filter by direction', async () => {
-      (mockPrisma.envCommunication.findMany as jest.Mock).mockResolvedValueOnce([mockCommunication]);
+      (mockPrisma.envCommunication.findMany as jest.Mock).mockResolvedValueOnce([
+        mockCommunication,
+      ]);
       (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app)
@@ -328,7 +339,9 @@ describe('Environment Communications API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.envCommunication.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envCommunication.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/communications')
@@ -346,10 +359,25 @@ describe('Environment Communications API Routes', () => {
     it('should return participation summary', async () => {
       (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(4);
       (mockPrisma.envCommunication.findMany as jest.Mock).mockResolvedValueOnce([
-        { type: 'WORKER_CONSULTATION', direction: 'INTERNAL', status: 'CLOSED', createdAt: new Date() },
+        {
+          type: 'WORKER_CONSULTATION',
+          direction: 'INTERNAL',
+          status: 'CLOSED',
+          createdAt: new Date(),
+        },
         { type: 'TOOLBOX_TALK', direction: 'INTERNAL', status: 'CLOSED', createdAt: new Date() },
-        { type: 'EXTERNAL_STAKEHOLDER', direction: 'EXTERNAL', status: 'SENT', createdAt: new Date() },
-        { type: 'REGULATORY', direction: 'EXTERNAL', status: 'ACKNOWLEDGED', createdAt: new Date() },
+        {
+          type: 'EXTERNAL_STAKEHOLDER',
+          direction: 'EXTERNAL',
+          status: 'SENT',
+          createdAt: new Date(),
+        },
+        {
+          type: 'REGULATORY',
+          direction: 'EXTERNAL',
+          status: 'ACKNOWLEDGED',
+          createdAt: new Date(),
+        },
       ]);
 
       const response = await request(app)
@@ -382,7 +410,9 @@ describe('Environment Communications API Routes', () => {
   // ==========================================
   describe('GET /api/communications/:id', () => {
     it('should return a communication by ID', async () => {
-      (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(mockCommunication);
+      (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockCommunication
+      );
 
       const response = await request(app)
         .get('/api/communications/50000000-0000-4000-a000-000000000001')
@@ -422,7 +452,9 @@ describe('Environment Communications API Routes', () => {
   // ==========================================
   describe('PUT /api/communications/:id', () => {
     it('should update a communication', async () => {
-      (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(mockCommunication);
+      (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockCommunication
+      );
       (mockPrisma.envCommunication.update as jest.Mock).mockResolvedValueOnce({
         ...mockCommunication,
         status: 'SENT',
@@ -449,7 +481,9 @@ describe('Environment Communications API Routes', () => {
     });
 
     it('should return 400 for invalid status', async () => {
-      (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(mockCommunication);
+      (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockCommunication
+      );
 
       const response = await request(app)
         .put('/api/communications/50000000-0000-4000-a000-000000000001')
@@ -466,7 +500,9 @@ describe('Environment Communications API Routes', () => {
   // ==========================================
   describe('DELETE /api/communications/:id', () => {
     it('should soft-delete a communication', async () => {
-      (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(mockCommunication);
+      (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockCommunication
+      );
       (mockPrisma.envCommunication.update as jest.Mock).mockResolvedValueOnce({
         ...mockCommunication,
         deletedAt: new Date(),
@@ -491,7 +527,9 @@ describe('Environment Communications API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.envCommunication.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.envCommunication.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/communications/50000000-0000-4000-a000-000000000001')

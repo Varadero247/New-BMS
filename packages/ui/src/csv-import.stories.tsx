@@ -17,7 +17,15 @@ export const Default: Story = {
     return (
       <div>
         {result && (
-          <div style={{ marginBottom: '16px', padding: '12px', background: '#f0fdf4', borderRadius: '8px', fontSize: '14px' }}>
+          <div
+            style={{
+              marginBottom: '16px',
+              padding: '12px',
+              background: '#f0fdf4',
+              borderRadius: '8px',
+              fontSize: '14px',
+            }}
+          >
             Imported {result.imported} {result.recordType} records successfully.
           </div>
         )}
@@ -31,9 +39,24 @@ export const CustomRecordTypes: Story = {
   render: () => (
     <BulkImportWizard
       recordTypes={[
-        { recordType: 'risks', label: 'Risks', fieldCount: 5, requiredFields: ['title', 'severity', 'likelihood'] },
-        { recordType: 'incidents', label: 'Incidents', fieldCount: 6, requiredFields: ['title', 'dateOccurred', 'severity'] },
-        { recordType: 'assets', label: 'Assets', fieldCount: 4, requiredFields: ['name', 'type', 'location'] },
+        {
+          recordType: 'risks',
+          label: 'Risks',
+          fieldCount: 5,
+          requiredFields: ['title', 'severity', 'likelihood'],
+        },
+        {
+          recordType: 'incidents',
+          label: 'Incidents',
+          fieldCount: 6,
+          requiredFields: ['title', 'dateOccurred', 'severity'],
+        },
+        {
+          recordType: 'assets',
+          label: 'Assets',
+          fieldCount: 4,
+          requiredFields: ['name', 'type', 'location'],
+        },
       ]}
       onComplete={(result) => console.log('Import complete:', result)}
     />

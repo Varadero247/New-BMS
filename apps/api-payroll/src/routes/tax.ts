@@ -18,7 +18,10 @@ router.get('/filings', scopeToUser, async (req: Request, res: Response) => {
     const { taxYear, filingType, status } = req.query;
 
     const where: any = { deletedAt: null };
-    if (taxYear) { const n = parseInt(taxYear as string, 10); if (!isNaN(n)) where.taxYear = n; }
+    if (taxYear) {
+      const n = parseInt(taxYear as string, 10);
+      if (!isNaN(n)) where.taxYear = n;
+    }
     if (filingType) where.filingType = filingType as any;
     if (status) where.status = status as any;
 
@@ -34,7 +37,10 @@ router.get('/filings', scopeToUser, async (req: Request, res: Response) => {
     res.json({ success: true, data: filings });
   } catch (error) {
     logger.error('Error fetching tax filings', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch filings' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch filings' },
+    });
   }
 });
 
@@ -43,7 +49,16 @@ router.post('/filings', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       payrollRunId: z.string().trim().uuid().optional(),
-      filingType: z.enum(['WITHHOLDING', 'QUARTERLY', 'ANNUAL', 'AMENDMENT', 'SOCIAL_SECURITY', 'MEDICARE', 'STATE', 'LOCAL']),
+      filingType: z.enum([
+        'WITHHOLDING',
+        'QUARTERLY',
+        'ANNUAL',
+        'AMENDMENT',
+        'SOCIAL_SECURITY',
+        'MEDICARE',
+        'STATE',
+        'LOCAL',
+      ]),
       taxPeriod: z.string(),
       taxYear: z.number().nonnegative(),
       grossWages: z.number().nonnegative(),
@@ -68,62 +83,92 @@ router.post('/filings', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: filing });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating filing', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create filing' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create filing' },
+    });
   }
 });
 
 // PUT /api/tax/filings/:id/file - Submit tax filing
-router.put('/filings/:id/file', checkOwnership(prisma.taxFiling), async (req: Request, res: Response) => {
-  try {
-    const _schema = z.object({ filedById: z.string().trim().optional(), confirmationNumber: z.string().trim().optional(), filingDocumentUrl: z.string().trim().url().optional() });
-    const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
-    const { filedById, confirmationNumber, filingDocumentUrl } = _parsed.data;
+router.put(
+  '/filings/:id/file',
+  checkOwnership(prisma.taxFiling),
+  async (req: Request, res: Response) => {
+    try {
+      const _schema = z.object({
+        filedById: z.string().trim().optional(),
+        confirmationNumber: z.string().trim().optional(),
+        filingDocumentUrl: z.string().trim().url().optional(),
+      });
+      const _parsed = _schema.safeParse(req.body);
+      if (!_parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+        });
+      const { filedById, confirmationNumber, filingDocumentUrl } = _parsed.data;
 
-    const filing = await prisma.taxFiling.update({
-      where: { id: req.params.id },
-      data: {
-        status: 'FILED',
-        filedAt: new Date(),
-        filedById,
-        confirmationNumber,
-        filingDocumentUrl,
-      },
-    });
+      const filing = await prisma.taxFiling.update({
+        where: { id: req.params.id },
+        data: {
+          status: 'FILED',
+          filedAt: new Date(),
+          filedById,
+          confirmationNumber,
+          filingDocumentUrl,
+        },
+      });
 
-    res.json({ success: true, data: filing });
-  } catch (error) {
-    logger.error('Error filing tax', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to file tax' } });
+      res.json({ success: true, data: filing });
+    } catch (error) {
+      logger.error('Error filing tax', { error: (error as Error).message });
+      res
+        .status(500)
+        .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to file tax' } });
+    }
   }
-});
+);
 
 // PUT /api/tax/filings/:id/pay - Record tax payment
-router.put('/filings/:id/pay', checkOwnership(prisma.taxFiling), async (req: Request, res: Response) => {
-  try {
-    const _schema = z.object({ paymentReference: z.string().trim().optional() });
-    const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
-    const { paymentReference } = _parsed.data;
+router.put(
+  '/filings/:id/pay',
+  checkOwnership(prisma.taxFiling),
+  async (req: Request, res: Response) => {
+    try {
+      const _schema = z.object({ paymentReference: z.string().trim().optional() });
+      const _parsed = _schema.safeParse(req.body);
+      if (!_parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+        });
+      const { paymentReference } = _parsed.data;
 
-    const filing = await prisma.taxFiling.update({
-      where: { id: req.params.id },
-      data: {
-        paymentStatus: 'COMPLETED',
-        paymentDate: new Date(),
-        paymentReference,
-      },
-    });
+      const filing = await prisma.taxFiling.update({
+        where: { id: req.params.id },
+        data: {
+          paymentStatus: 'COMPLETED',
+          paymentDate: new Date(),
+          paymentReference,
+        },
+      });
 
-    res.json({ success: true, data: filing });
-  } catch (error) {
-    logger.error('Error recording tax payment', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to record payment' } });
+      res.json({ success: true, data: filing });
+    } catch (error) {
+      logger.error('Error recording tax payment', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to record payment' },
+      });
+    }
   }
-});
+);
 
 // GET /api/tax/brackets - Get tax brackets
 router.get('/brackets', async (req: Request, res: Response) => {
@@ -131,7 +176,10 @@ router.get('/brackets', async (req: Request, res: Response) => {
     const { taxYear, country } = req.query;
 
     const where: any = { isActive: true, deletedAt: null };
-    if (taxYear) { const n = parseInt(taxYear as string, 10); if (!isNaN(n)) where.taxYear = n; }
+    if (taxYear) {
+      const n = parseInt(taxYear as string, 10);
+      if (!isNaN(n)) where.taxYear = n;
+    }
     if (country) where.country = country as any;
 
     const brackets = await prisma.taxBracket.findMany({
@@ -143,7 +191,10 @@ router.get('/brackets', async (req: Request, res: Response) => {
     res.json({ success: true, data: brackets });
   } catch (error) {
     logger.error('Error fetching tax brackets', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch brackets' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch brackets' },
+    });
   }
 });
 
@@ -168,10 +219,15 @@ router.post('/brackets', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: bracket });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating bracket', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create bracket' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create bracket' },
+    });
   }
 });
 
@@ -214,7 +270,10 @@ router.get('/summary', async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching tax summary', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch summary' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch summary' },
+    });
   }
 });
 

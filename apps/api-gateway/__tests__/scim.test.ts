@@ -40,7 +40,9 @@ describe('SCIM Routes', () => {
       const res = await request(app).get('/scim/v2/ServiceProviderConfig');
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('schemas');
-      expect(res.body.schemas).toContain('urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig');
+      expect(res.body.schemas).toContain(
+        'urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig'
+      );
     });
 
     it('includes patch support information', async () => {
@@ -449,11 +451,13 @@ describe('SCIM Routes', () => {
         .set('Authorization', `Bearer ${scimToken}`)
         .send({
           schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
-          Operations: [{
-            op: 'add',
-            path: 'members',
-            value: [{ value: memberUserId, display: 'Group Member Test' }],
-          }],
+          Operations: [
+            {
+              op: 'add',
+              path: 'members',
+              value: [{ value: memberUserId, display: 'Group Member Test' }],
+            },
+          ],
         });
 
       expect(res.status).toBe(200);
@@ -468,11 +472,13 @@ describe('SCIM Routes', () => {
         .set('Authorization', `Bearer ${scimToken}`)
         .send({
           schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
-          Operations: [{
-            op: 'add',
-            path: 'members',
-            value: [{ value: memberUserId, display: 'Group Member Test' }],
-          }],
+          Operations: [
+            {
+              op: 'add',
+              path: 'members',
+              value: [{ value: memberUserId, display: 'Group Member Test' }],
+            },
+          ],
         });
 
       // Now remove the member
@@ -481,10 +487,12 @@ describe('SCIM Routes', () => {
         .set('Authorization', `Bearer ${scimToken}`)
         .send({
           schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
-          Operations: [{
-            op: 'remove',
-            path: `members[value eq "${memberUserId}"]`,
-          }],
+          Operations: [
+            {
+              op: 'remove',
+              path: `members[value eq "${memberUserId}"]`,
+            },
+          ],
         });
 
       expect(res.status).toBe(200);
@@ -498,11 +506,13 @@ describe('SCIM Routes', () => {
         .set('Authorization', `Bearer ${scimToken}`)
         .send({
           schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
-          Operations: [{
-            op: 'replace',
-            path: 'displayName',
-            value: 'Operator Renamed',
-          }],
+          Operations: [
+            {
+              op: 'replace',
+              path: 'displayName',
+              value: 'Operator Renamed',
+            },
+          ],
         });
 
       expect(res.status).toBe(200);
@@ -540,22 +550,26 @@ describe('SCIM Routes', () => {
         .patch('/scim/v2/Groups/role-viewer')
         .set('Authorization', `Bearer ${scimToken}`)
         .send({
-          Operations: [{
-            op: 'add',
-            path: 'members',
-            value: [{ value: memberUserId, display: 'Group Member Test' }],
-          }],
+          Operations: [
+            {
+              op: 'add',
+              path: 'members',
+              value: [{ value: memberUserId, display: 'Group Member Test' }],
+            },
+          ],
         });
 
       const res = await request(app)
         .patch('/scim/v2/Groups/role-viewer')
         .set('Authorization', `Bearer ${scimToken}`)
         .send({
-          Operations: [{
-            op: 'add',
-            path: 'members',
-            value: [{ value: memberUserId, display: 'Group Member Test' }],
-          }],
+          Operations: [
+            {
+              op: 'add',
+              path: 'members',
+              value: [{ value: memberUserId, display: 'Group Member Test' }],
+            },
+          ],
         });
 
       expect(res.status).toBe(200);

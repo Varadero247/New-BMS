@@ -18,8 +18,14 @@ router.param('id', validateIdParam());
 // ============================================
 
 const DESIGN_STAGE_ORDER: string[] = [
-  'PLANNING', 'INPUTS', 'OUTPUTS', 'REVIEW',
-  'VERIFICATION', 'VALIDATION', 'TRANSFER', 'COMPLETE',
+  'PLANNING',
+  'INPUTS',
+  'OUTPUTS',
+  'REVIEW',
+  'VERIFICATION',
+  'VALIDATION',
+  'TRANSFER',
+  'COMPLETE',
 ];
 
 async function generateRefNumber(): Promise<string> {
@@ -75,38 +81,51 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List design projects error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list design projects' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list design projects' },
+    });
   }
 });
 
 // ============================================
 // 2. GET /:id - Get project with all relations
 // ============================================
-router.get('/:id', checkOwnership(prisma.designProject), async (req: AuthRequest, res: Response) => {
-  try {
-    const project = await prisma.designProject.findUnique({
-      where: { id: req.params.id },
-      include: {
-        inputs: true,
-        outputs: true,
-        reviews: { orderBy: { reviewDate: 'desc' } },
-        verifications: true,
-        validations: true,
-        transfers: true,
-        historyFiles: { orderBy: { createdAt: 'desc' } },
-      },
-    });
+router.get(
+  '/:id',
+  checkOwnership(prisma.designProject),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const project = await prisma.designProject.findUnique({
+        where: { id: req.params.id },
+        include: {
+          inputs: true,
+          outputs: true,
+          reviews: { orderBy: { reviewDate: 'desc' } },
+          verifications: true,
+          validations: true,
+          transfers: true,
+          historyFiles: { orderBy: { createdAt: 'desc' } },
+        },
+      });
 
-    if (!project) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+      if (!project) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Design project not found' },
+        });
+      }
+
+      res.json({ success: true, data: project });
+    } catch (error) {
+      logger.error('Get design project error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get design project' },
+      });
     }
-
-    res.json({ success: true, data: project });
-  } catch (error) {
-    logger.error('Get design project error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get design project' } });
   }
-});
+);
 
 // ============================================
 // 3. POST / - Create design project
@@ -122,8 +141,16 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       regulatoryPathway: z.string().optional(),
       projectLead: z.string().trim().min(1).max(200),
       teamMembers: z.array(z.string()).optional().default([]),
-      startDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      startDate: z
+        .string()
+        .trim()
+        .min(1)
+        .max(200)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      targetDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       status: z.enum(['ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
     });
 
@@ -152,82 +179,141 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: project });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create design project error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create design project' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create design project' },
+    });
   }
 });
 
 // ============================================
 // 4. PUT /:id - Update project
 // ============================================
-router.put('/:id', checkOwnership(prisma.designProject), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.designProject.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+router.put(
+  '/:id',
+  checkOwnership(prisma.designProject),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.designProject.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Design project not found' },
+        });
+      }
+
+      const schema = z.object({
+        title: z.string().trim().min(1).max(200).optional(),
+        deviceName: z.string().trim().min(1).max(200).optional(),
+        deviceClass: z
+          .enum(['CLASS_I', 'CLASS_II', 'CLASS_III', 'CLASS_IIA', 'CLASS_IIB'])
+          .optional(),
+        intendedUse: z.string().trim().min(1).max(200).optional(),
+        patientPopulation: z.string().optional(),
+        regulatoryPathway: z.string().optional(),
+        currentStage: z
+          .enum([
+            'PLANNING',
+            'INPUTS',
+            'OUTPUTS',
+            'REVIEW',
+            'VERIFICATION',
+            'VALIDATION',
+            'TRANSFER',
+            'COMPLETE',
+          ])
+          .optional(),
+        status: z.enum(['ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
+        projectLead: z.string().trim().min(1).max(200).optional(),
+        teamMembers: z.array(z.string()).optional(),
+        startDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        targetDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        completedDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+      });
+
+      const data = schema.parse(req.body);
+
+      const updateData: Record<string, unknown> = { ...data };
+      if (data.startDate) updateData.startDate = new Date(data.startDate);
+      if (data.targetDate) updateData.targetDate = new Date(data.targetDate);
+      if (data.completedDate) updateData.completedDate = new Date(data.completedDate);
+
+      const project = await prisma.designProject.update({
+        where: { id: req.params.id },
+        data: updateData,
+      });
+
+      res.json({ success: true, data: project });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update design project error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update design project' },
+      });
     }
-
-    const schema = z.object({
-      title: z.string().trim().min(1).max(200).optional(),
-      deviceName: z.string().trim().min(1).max(200).optional(),
-      deviceClass: z.enum(['CLASS_I', 'CLASS_II', 'CLASS_III', 'CLASS_IIA', 'CLASS_IIB']).optional(),
-      intendedUse: z.string().trim().min(1).max(200).optional(),
-      patientPopulation: z.string().optional(),
-      regulatoryPathway: z.string().optional(),
-      currentStage: z.enum(['PLANNING', 'INPUTS', 'OUTPUTS', 'REVIEW', 'VERIFICATION', 'VALIDATION', 'TRANSFER', 'COMPLETE']).optional(),
-      status: z.enum(['ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
-      projectLead: z.string().trim().min(1).max(200).optional(),
-      teamMembers: z.array(z.string()).optional(),
-      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-    });
-
-    const data = schema.parse(req.body);
-
-    const updateData: Record<string, unknown> = { ...data };
-    if (data.startDate) updateData.startDate = new Date(data.startDate);
-    if (data.targetDate) updateData.targetDate = new Date(data.targetDate);
-    if (data.completedDate) updateData.completedDate = new Date(data.completedDate);
-
-    const project = await prisma.designProject.update({
-      where: { id: req.params.id },
-      data: updateData,
-    });
-
-    res.json({ success: true, data: project });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
-    }
-    logger.error('Update design project error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update design project' } });
   }
-});
+);
 
 // ============================================
 // 5. DELETE /:id - Soft delete project
 // ============================================
-router.delete('/:id', checkOwnership(prisma.designProject), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.designProject.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.designProject),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.designProject.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Design project not found' },
+        });
+      }
+
+      await prisma.designProject.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete design project error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete design project' },
+      });
     }
-
-    await prisma.designProject.update({
-      where: { id: req.params.id },
-      data: { deletedAt: new Date() },
-    });
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete design project error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete design project' } });
   }
-});
+);
 
 // ============================================
 // 6. POST /:id/inputs - Add design input
@@ -236,11 +322,23 @@ router.post('/:id/inputs', async (req: AuthRequest, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design project not found' },
+      });
     }
 
     const schema = z.object({
-      category: z.enum(['FUNCTIONAL', 'PERFORMANCE', 'SAFETY', 'REGULATORY', 'USER_NEED', 'ENVIRONMENTAL', 'INTERFACE', 'STANDARDS']),
+      category: z.enum([
+        'FUNCTIONAL',
+        'PERFORMANCE',
+        'SAFETY',
+        'REGULATORY',
+        'USER_NEED',
+        'ENVIRONMENTAL',
+        'INTERFACE',
+        'STANDARDS',
+      ]),
       requirement: z.string().trim().min(1).max(200),
       source: z.string().trim().min(1).max(200),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
@@ -265,10 +363,20 @@ router.post('/:id/inputs', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: input });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create design input error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create design input' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create design input' },
+    });
   }
 });
 
@@ -279,11 +387,23 @@ router.post('/:id/outputs', async (req: AuthRequest, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design project not found' },
+      });
     }
 
     const schema = z.object({
-      category: z.enum(['DRAWING', 'SPECIFICATION', 'SOFTWARE', 'LABELLING', 'MANUFACTURING', 'ACCEPTANCE_CRITERIA', 'PACKAGING', 'RISK_ANALYSIS']),
+      category: z.enum([
+        'DRAWING',
+        'SPECIFICATION',
+        'SOFTWARE',
+        'LABELLING',
+        'MANUFACTURING',
+        'ACCEPTANCE_CRITERIA',
+        'PACKAGING',
+        'RISK_ANALYSIS',
+      ]),
       description: z.string().trim().min(1).max(2000),
       documentRef: z.string().optional(),
       acceptanceCriteria: z.string().trim().min(1).max(200),
@@ -308,10 +428,20 @@ router.post('/:id/outputs', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: output });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create design output error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create design output' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create design output' },
+    });
   }
 });
 
@@ -322,17 +452,37 @@ router.post('/:id/reviews', async (req: AuthRequest, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design project not found' },
+      });
     }
 
     const schema = z.object({
-      stage: z.enum(['PLANNING', 'INPUTS', 'OUTPUTS', 'REVIEW', 'VERIFICATION', 'VALIDATION', 'TRANSFER', 'COMPLETE']),
-      reviewDate: z.string().trim().min(1).max(2000).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      stage: z.enum([
+        'PLANNING',
+        'INPUTS',
+        'OUTPUTS',
+        'REVIEW',
+        'VERIFICATION',
+        'VALIDATION',
+        'TRANSFER',
+        'COMPLETE',
+      ]),
+      reviewDate: z
+        .string()
+        .trim()
+        .min(1)
+        .max(2000)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       reviewers: z.array(z.string()).min(1),
       decision: z.enum(['APPROVED', 'APPROVED_WITH_CONDITIONS', 'NEEDS_REWORK', 'REJECTED']),
       minutes: z.string().optional(),
       actionItems: z.string().optional(),
-      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      nextReviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const data = schema.parse(req.body);
@@ -353,10 +503,20 @@ router.post('/:id/reviews', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: review });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create design review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create design review' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create design review' },
+    });
   }
 });
 
@@ -367,7 +527,10 @@ router.post('/:id/verifications', async (req: AuthRequest, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design project not found' },
+      });
     }
 
     const schema = z.object({
@@ -377,7 +540,10 @@ router.post('/:id/verifications', async (req: AuthRequest, res: Response) => {
       acceptanceCriteria: z.string().trim().min(1).max(200),
       results: z.string().optional(),
       pass: z.boolean().optional(),
-      completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      completedDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       completedBy: z.string().optional(),
       traceToInput: z.string().optional(),
       traceToOutput: z.string().optional(),
@@ -404,10 +570,20 @@ router.post('/:id/verifications', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: verification });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create design verification error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create design verification' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create design verification' },
+    });
   }
 });
 
@@ -418,7 +594,10 @@ router.post('/:id/validations', async (req: AuthRequest, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design project not found' },
+      });
     }
 
     const schema = z.object({
@@ -428,7 +607,10 @@ router.post('/:id/validations', async (req: AuthRequest, res: Response) => {
       intendedUseConfirmed: z.boolean().optional(),
       results: z.string().optional(),
       pass: z.boolean().optional(),
-      completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      completedDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       completedBy: z.string().optional(),
     });
 
@@ -451,10 +633,20 @@ router.post('/:id/validations', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: validation });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create design validation error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create design validation' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create design validation' },
+    });
   }
 });
 
@@ -467,12 +659,18 @@ router.post('/:id/stages/:stage/review', async (req: AuthRequest, res: Response)
 
     const project = await prisma.designProject.findUnique({ where: { id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design project not found' },
+      });
     }
 
     // Validate stage is a valid DesignStage
     if (!DESIGN_STAGE_ORDER.includes(stage)) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: `Invalid stage: ${stage}` } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: `Invalid stage: ${stage}` },
+      });
     }
 
     const schema = z.object({
@@ -527,10 +725,20 @@ router.post('/:id/stages/:stage/review', async (req: AuthRequest, res: Response)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Stage gate review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to perform stage gate review' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to perform stage gate review' },
+    });
   }
 });
 
@@ -550,17 +758,18 @@ router.get('/:id/traceability-matrix', async (req: AuthRequest, res: Response) =
     });
 
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design project not found' },
+      });
     }
 
     // Build traceability matrix: input -> output -> verification -> validation
-    const matrix = project.inputs.map(input => {
-      const linkedOutputs = project.outputs.filter(
-        o => o.traceToInput === input.id
-      );
+    const matrix = project.inputs.map((input) => {
+      const linkedOutputs = project.outputs.filter((o) => o.traceToInput === input.id);
 
       const linkedVerifications = project.verifications.filter(
-        v => v.traceToInput === input.id || linkedOutputs.some(o => v.traceToOutput === o.id)
+        (v) => v.traceToInput === input.id || linkedOutputs.some((o) => v.traceToOutput === o.id)
       );
 
       const linkedValidations = project.validations;
@@ -574,20 +783,20 @@ router.get('/:id/traceability-matrix', async (req: AuthRequest, res: Response) =
           priority: input.priority,
           verified: input.verified,
         },
-        outputs: linkedOutputs.map(o => ({
+        outputs: linkedOutputs.map((o) => ({
           id: o.id,
           category: o.category,
           description: o.description,
           status: o.status,
         })),
-        verifications: linkedVerifications.map(v => ({
+        verifications: linkedVerifications.map((v) => ({
           id: v.id,
           title: v.title,
           testMethod: v.testMethod,
           pass: v.pass,
           completedDate: v.completedDate,
         })),
-        validations: linkedValidations.map(v => ({
+        validations: linkedValidations.map((v) => ({
           id: v.id,
           title: v.title,
           testMethod: v.testMethod,
@@ -599,7 +808,10 @@ router.get('/:id/traceability-matrix', async (req: AuthRequest, res: Response) =
           hasOutput: linkedOutputs.length > 0,
           hasVerification: linkedVerifications.length > 0,
           hasValidation: linkedValidations.length > 0,
-          isComplete: linkedOutputs.length > 0 && linkedVerifications.length > 0 && linkedValidations.length > 0,
+          isComplete:
+            linkedOutputs.length > 0 &&
+            linkedVerifications.length > 0 &&
+            linkedValidations.length > 0,
         },
       };
     });
@@ -610,15 +822,18 @@ router.get('/:id/traceability-matrix', async (req: AuthRequest, res: Response) =
       totalOutputs: project.outputs.length,
       totalVerifications: project.verifications.length,
       totalValidations: project.validations.length,
-      inputsCovered: matrix.filter(m => m.coverage.isComplete).length,
-      inputsPartial: matrix.filter(m => !m.coverage.isComplete && (m.coverage.hasOutput || m.coverage.hasVerification)).length,
-      inputsUncovered: matrix.filter(m => !m.coverage.hasOutput && !m.coverage.hasVerification).length,
-      verificationsPassed: project.verifications.filter(v => v.pass === true).length,
-      verificationsFailed: project.verifications.filter(v => v.pass === false).length,
-      verificationsPending: project.verifications.filter(v => v.pass === null).length,
-      validationsPassed: project.validations.filter(v => v.pass === true).length,
-      validationsFailed: project.validations.filter(v => v.pass === false).length,
-      validationsPending: project.validations.filter(v => v.pass === null).length,
+      inputsCovered: matrix.filter((m) => m.coverage.isComplete).length,
+      inputsPartial: matrix.filter(
+        (m) => !m.coverage.isComplete && (m.coverage.hasOutput || m.coverage.hasVerification)
+      ).length,
+      inputsUncovered: matrix.filter((m) => !m.coverage.hasOutput && !m.coverage.hasVerification)
+        .length,
+      verificationsPassed: project.verifications.filter((v) => v.pass === true).length,
+      verificationsFailed: project.verifications.filter((v) => v.pass === false).length,
+      verificationsPending: project.verifications.filter((v) => v.pass === null).length,
+      validationsPassed: project.validations.filter((v) => v.pass === true).length,
+      validationsFailed: project.validations.filter((v) => v.pass === false).length,
+      validationsPending: project.validations.filter((v) => v.pass === null).length,
     };
 
     res.json({
@@ -634,7 +849,10 @@ router.get('/:id/traceability-matrix', async (req: AuthRequest, res: Response) =
     });
   } catch (error) {
     logger.error('Traceability matrix error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to build traceability matrix' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to build traceability matrix' },
+    });
   }
 });
 
@@ -645,7 +863,10 @@ router.post('/:id/transfer', async (req: AuthRequest, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design project not found' },
+      });
     }
 
     const schema = z.object({
@@ -698,10 +919,20 @@ router.post('/:id/transfer', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Design transfer error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create design transfer' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create design transfer' },
+    });
   }
 });
 
@@ -712,16 +943,28 @@ router.post('/:id/dhf', async (req: AuthRequest, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design project not found' },
+      });
     }
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
       category: z.enum([
-        'DESIGN_PLAN', 'USER_NEEDS', 'DESIGN_INPUT', 'DESIGN_OUTPUT',
-        'DESIGN_REVIEW', 'VERIFICATION_PROTOCOL', 'VERIFICATION_RESULT',
-        'VALIDATION_PROTOCOL', 'VALIDATION_RESULT', 'RISK_MANAGEMENT',
-        'TRANSFER_RECORD', 'CHANGE_ORDER', 'OTHER',
+        'DESIGN_PLAN',
+        'USER_NEEDS',
+        'DESIGN_INPUT',
+        'DESIGN_OUTPUT',
+        'DESIGN_REVIEW',
+        'VERIFICATION_PROTOCOL',
+        'VERIFICATION_RESULT',
+        'VALIDATION_PROTOCOL',
+        'VALIDATION_RESULT',
+        'RISK_MANAGEMENT',
+        'TRANSFER_RECORD',
+        'CHANGE_ORDER',
+        'OTHER',
       ]),
       documentRef: z.string().trim().min(1).max(200),
       version: z.string().optional(),
@@ -743,10 +986,20 @@ router.post('/:id/dhf', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: dhf });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create DHF entry error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create design history file entry' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create design history file entry' },
+    });
   }
 });
 

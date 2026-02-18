@@ -37,7 +37,10 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Failed to list snapshots', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list snapshots' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list snapshots' },
+    });
   }
 });
 
@@ -50,7 +53,9 @@ router.get('/:snapshotId', async (req: Request, res: Response) => {
 
     const snapshot = await prisma.monthlySnapshot.findUnique({ where: { id: snapshotId } });
     if (!snapshot) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Snapshot not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Snapshot not found' } });
     }
 
     const planTarget = await prisma.planTarget.findUnique({ where: { month: snapshot.month } });
@@ -58,7 +63,10 @@ router.get('/:snapshotId', async (req: Request, res: Response) => {
     res.json({ success: true, data: { snapshot, planTarget } });
   } catch (err) {
     logger.error('Failed to get snapshot', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get snapshot' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get snapshot' },
+    });
   }
 });
 
@@ -67,10 +75,12 @@ router.get('/:snapshotId', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 const approveSchema = z.object({
   action: z.enum(['approve', 'override', 'keep-original']),
-  overrides: z.object({
-    revisedMrr: z.number().optional(),
-    revisedCustomers: z.number().int().optional(),
-  }).optional(),
+  overrides: z
+    .object({
+      revisedMrr: z.number().optional(),
+      revisedCustomers: z.number().int().optional(),
+    })
+    .optional(),
 });
 
 router.post('/:snapshotId/approve', async (req: Request, res: Response) => {
@@ -78,12 +88,17 @@ router.post('/:snapshotId/approve', async (req: Request, res: Response) => {
     const { snapshotId } = req.params;
     const parsed = approveSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const snapshot = await prisma.monthlySnapshot.findUnique({ where: { id: snapshotId } });
     if (!snapshot) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Snapshot not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Snapshot not found' } });
     }
 
     // Idempotency: if already approved, return success
@@ -112,7 +127,8 @@ router.post('/:snapshotId/approve', async (req: Request, res: Response) => {
       const nextTargets = await prisma.planTarget.findMany({
         where: { monthNumber: { gt: snapshot.monthNumber, lte: snapshot.monthNumber + 3 } },
         orderBy: { monthNumber: 'asc' },
-        take: 1000});
+        take: 1000,
+      });
 
       for (let i = 0; i < nextTargets.length; i++) {
         const rec = mrrRecs[i];
@@ -144,7 +160,10 @@ router.post('/:snapshotId/approve', async (req: Request, res: Response) => {
     res.json({ success: true, data: { snapshot: updatedSnapshot } });
   } catch (err) {
     logger.error('Failed to approve snapshot', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve snapshot' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve snapshot' },
+    });
   }
 });
 
@@ -154,10 +173,16 @@ router.post('/:snapshotId/approve', async (req: Request, res: Response) => {
 router.post('/trigger', async (_req: Request, res: Response) => {
   try {
     const snapshotId = await runMonthlySnapshot();
-    res.json({ success: true, data: { snapshotId, message: 'Monthly snapshot triggered successfully' } });
+    res.json({
+      success: true,
+      data: { snapshotId, message: 'Monthly snapshot triggered successfully' },
+    });
   } catch (err) {
     logger.error('Failed to trigger snapshot', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to trigger snapshot' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to trigger snapshot' },
+    });
   }
 });
 
@@ -167,15 +192,16 @@ router.post('/trigger', async (_req: Request, res: Response) => {
 router.post('/seed-targets', async (_req: Request, res: Response) => {
   try {
     const existingMonths = new Set(
-      (await prisma.planTarget.findMany({ select: { month: true },
-      take: 1000})).map(t => t.month)
+      (await prisma.planTarget.findMany({ select: { month: true }, take: 1000 })).map(
+        (t) => t.month
+      )
     );
-    const toCreate = PLAN_TARGETS.filter(t => !existingMonths.has(t.month));
+    const toCreate = PLAN_TARGETS.filter((t) => !existingMonths.has(t.month));
     const skipped = PLAN_TARGETS.length - toCreate.length;
 
     if (toCreate.length > 0) {
       await prisma.planTarget.createMany({
-        data: toCreate.map(target => ({
+        data: toCreate.map((target) => ({
           month: target.month,
           monthNumber: target.monthNumber,
           plannedMrr: target.plannedMrr,
@@ -198,7 +224,10 @@ router.post('/seed-targets', async (_req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Failed to seed targets', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to seed targets' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to seed targets' },
+    });
   }
 });
 

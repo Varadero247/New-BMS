@@ -34,8 +34,8 @@ router.get('/', async (_req: Request, res: Response) => {
     // Build hierarchical tree
     const buildTree = (managerId: string | null): unknown[] => {
       return employees
-        .filter(e => e.managerId === managerId)
-        .map(e => ({
+        .filter((e) => e.managerId === managerId)
+        .map((e) => ({
           ...e,
           fullName: `${e.firstName} ${e.lastName}`,
           children: buildTree(e.id),
@@ -53,7 +53,10 @@ router.get('/', async (_req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching org chart', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch org chart' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch org chart' },
+    });
   }
 });
 
@@ -79,7 +82,7 @@ router.get('/flat', async (_req: Request, res: Response) => {
       take: 1000,
     });
 
-    const flat = employees.map(e => ({
+    const flat = employees.map((e) => ({
       ...e,
       fullName: `${e.firstName} ${e.lastName}`,
       directReports: e._count.subordinates,
@@ -88,7 +91,10 @@ router.get('/flat', async (_req: Request, res: Response) => {
     res.json({ success: true, data: flat });
   } catch (error) {
     logger.error('Error fetching flat org chart', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch flat org chart' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch flat org chart' },
+    });
   }
 });
 
@@ -114,7 +120,8 @@ router.get('/by-department', async (_req: Request, res: Response) => {
         manager: { select: { id: true, firstName: true, lastName: true, jobTitle: true } },
       } as any,
       orderBy: { name: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     const result = departments.map((d: any) => ({
       id: d.id,
@@ -131,7 +138,10 @@ router.get('/by-department', async (_req: Request, res: Response) => {
     res.json({ success: true, data: result });
   } catch (error) {
     logger.error('Error fetching org chart by department', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch org chart by department' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch org chart by department' },
+    });
   }
 });
 
@@ -169,7 +179,10 @@ router.get('/reporting-chain/:employeeId', async (req: Request, res: Response) =
     res.json({ success: true, data: chain });
   } catch (error) {
     logger.error('Error fetching reporting chain', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch reporting chain' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch reporting chain' },
+    });
   }
 });
 

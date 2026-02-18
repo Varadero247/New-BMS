@@ -157,7 +157,9 @@ describe('PUT /api/targets/:id', () => {
     (prisma.esgTarget.findFirst as jest.Mock).mockResolvedValue(mockTarget);
     (prisma.esgTarget.update as jest.Mock).mockResolvedValue({ ...mockTarget, status: 'ACHIEVED' });
 
-    const res = await request(app).put('/api/targets/00000000-0000-0000-0000-000000000001').send({ status: 'ACHIEVED' });
+    const res = await request(app)
+      .put('/api/targets/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'ACHIEVED' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -165,12 +167,16 @@ describe('PUT /api/targets/:id', () => {
   it('should return 404 when updating non-existent target', async () => {
     (prisma.esgTarget.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/targets/00000000-0000-0000-0000-000000000099').send({ status: 'ACHIEVED' });
+    const res = await request(app)
+      .put('/api/targets/00000000-0000-0000-0000-000000000099')
+      .send({ status: 'ACHIEVED' });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid update data', async () => {
-    const res = await request(app).put('/api/targets/00000000-0000-0000-0000-000000000001').send({ status: 'INVALID' });
+    const res = await request(app)
+      .put('/api/targets/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
@@ -178,7 +184,10 @@ describe('PUT /api/targets/:id', () => {
 describe('DELETE /api/targets/:id', () => {
   it('should soft delete a target', async () => {
     (prisma.esgTarget.findFirst as jest.Mock).mockResolvedValue(mockTarget);
-    (prisma.esgTarget.update as jest.Mock).mockResolvedValue({ ...mockTarget, deletedAt: new Date() });
+    (prisma.esgTarget.update as jest.Mock).mockResolvedValue({
+      ...mockTarget,
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/targets/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
@@ -206,7 +215,9 @@ describe('GET /api/targets/:id/trajectory', () => {
       },
     });
 
-    const res = await request(app).get('/api/targets/00000000-0000-0000-0000-000000000001/trajectory');
+    const res = await request(app).get(
+      '/api/targets/00000000-0000-0000-0000-000000000001/trajectory'
+    );
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.target).toBeDefined();
@@ -216,7 +227,9 @@ describe('GET /api/targets/:id/trajectory', () => {
   it('should return 404 for non-existent target trajectory', async () => {
     (prisma.esgTarget.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/targets/00000000-0000-0000-0000-000000000099/trajectory');
+    const res = await request(app).get(
+      '/api/targets/00000000-0000-0000-0000-000000000099/trajectory'
+    );
     expect(res.status).toBe(404);
   });
 });

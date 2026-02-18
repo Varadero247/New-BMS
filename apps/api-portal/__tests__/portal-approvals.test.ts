@@ -38,7 +38,9 @@ beforeEach(() => {
 
 describe('GET /api/portal/approvals', () => {
   it('should list approvals', async () => {
-    const items = [{ id: '00000000-0000-0000-0000-000000000001', type: 'ORDER', status: 'PENDING' }];
+    const items = [
+      { id: '00000000-0000-0000-0000-000000000001', type: 'ORDER', status: 'PENDING' },
+    ];
     (prisma as any).portalApproval.findMany.mockResolvedValue(items);
     (prisma as any).portalApproval.count.mockResolvedValue(1);
 
@@ -77,7 +79,12 @@ describe('GET /api/portal/approvals', () => {
 
 describe('POST /api/portal/approvals', () => {
   it('should create an approval request', async () => {
-    const approval = { id: '00000000-0000-0000-0000-000000000001', type: 'ORDER', referenceId: 'ord-1', status: 'PENDING' };
+    const approval = {
+      id: '00000000-0000-0000-0000-000000000001',
+      type: 'ORDER',
+      referenceId: 'ord-1',
+      status: 'PENDING',
+    };
     (prisma as any).portalApproval.create.mockResolvedValue(approval);
 
     const res = await request(app)
@@ -89,9 +96,7 @@ describe('POST /api/portal/approvals', () => {
   });
 
   it('should return 400 for missing type', async () => {
-    const res = await request(app)
-      .post('/api/portal/approvals')
-      .send({ referenceId: 'ord-1' });
+    const res = await request(app).post('/api/portal/approvals').send({ referenceId: 'ord-1' });
 
     expect(res.status).toBe(400);
   });
@@ -119,7 +124,10 @@ describe('PUT /api/portal/approvals/:id/approve', () => {
   });
 
   it('should return 400 if not pending', async () => {
-    (prisma as any).portalApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'APPROVED' });
+    (prisma as any).portalApproval.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'APPROVED',
+    });
 
     const res = await request(app)
       .put('/api/portal/approvals/00000000-0000-0000-0000-000000000001/approve')
@@ -154,7 +162,10 @@ describe('PUT /api/portal/approvals/:id/reject', () => {
   });
 
   it('should return 400 if not pending for reject', async () => {
-    (prisma as any).portalApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'REJECTED' });
+    (prisma as any).portalApproval.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'REJECTED',
+    });
 
     const res = await request(app)
       .put('/api/portal/approvals/00000000-0000-0000-0000-000000000001/reject')

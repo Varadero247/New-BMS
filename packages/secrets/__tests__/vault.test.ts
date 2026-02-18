@@ -392,9 +392,9 @@ describe('Vault Integration', () => {
       process.env.USE_VAULT = 'true';
       delete process.env.VAULT_ADDR;
 
-      await expect(
-        initializeSecretsFromVault({ required: true })
-      ).rejects.toThrow('Vault is required');
+      await expect(initializeSecretsFromVault({ required: true })).rejects.toThrow(
+        'Vault is required'
+      );
     });
 
     it('should return false when Vault not healthy', async () => {

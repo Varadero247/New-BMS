@@ -44,7 +44,14 @@ beforeEach(() => {
 
 describe('GET /api/checklists', () => {
   it('should return checklists with pagination', async () => {
-    const checklists = [{ id: '00000000-0000-0000-0000-000000000001', name: 'Safety Checklist', category: 'safety', items: [] }];
+    const checklists = [
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        name: 'Safety Checklist',
+        category: 'safety',
+        items: [],
+      },
+    ];
     (prisma as any).fsSvcChecklist.findMany.mockResolvedValue(checklists);
     (prisma as any).fsSvcChecklist.count.mockResolvedValue(1);
 
@@ -84,7 +91,12 @@ describe('GET /api/checklists', () => {
 
 describe('POST /api/checklists', () => {
   it('should create a checklist', async () => {
-    const created = { id: 'cl-new', name: 'New Checklist', category: 'maintenance', items: [{ question: 'OK?' }] };
+    const created = {
+      id: 'cl-new',
+      name: 'New Checklist',
+      category: 'maintenance',
+      items: [{ question: 'OK?' }],
+    };
     (prisma as any).fsSvcChecklist.create.mockResolvedValue(created);
 
     const res = await request(app)
@@ -96,9 +108,7 @@ describe('POST /api/checklists', () => {
   });
 
   it('should reject invalid data', async () => {
-    const res = await request(app)
-      .post('/api/checklists')
-      .send({ name: '' });
+    const res = await request(app).post('/api/checklists').send({ name: '' });
 
     expect(res.status).toBe(400);
   });
@@ -106,7 +116,10 @@ describe('POST /api/checklists', () => {
 
 describe('GET /api/checklists/:id', () => {
   it('should return a checklist', async () => {
-    (prisma as any).fsSvcChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Safety' });
+    (prisma as any).fsSvcChecklist.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Safety',
+    });
 
     const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000001');
 
@@ -125,8 +138,13 @@ describe('GET /api/checklists/:id', () => {
 
 describe('PUT /api/checklists/:id', () => {
   it('should update a checklist', async () => {
-    (prisma as any).fsSvcChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcChecklist.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    (prisma as any).fsSvcChecklist.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcChecklist.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Updated',
+    });
 
     const res = await request(app)
       .put('/api/checklists/00000000-0000-0000-0000-000000000001')
@@ -148,8 +166,13 @@ describe('PUT /api/checklists/:id', () => {
 
 describe('DELETE /api/checklists/:id', () => {
   it('should soft delete a checklist', async () => {
-    (prisma as any).fsSvcChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcChecklist.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    (prisma as any).fsSvcChecklist.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcChecklist.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/checklists/00000000-0000-0000-0000-000000000001');
 
@@ -168,7 +191,9 @@ describe('DELETE /api/checklists/:id', () => {
 
 describe('POST /api/checklists/:id/results', () => {
   it('should submit checklist results', async () => {
-    (prisma as any).fsSvcChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcChecklist.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
     const created = { id: 'cr-new', checklistId: 'cl-1', overallResult: 'PASS' };
     (prisma as any).fsSvcChecklistResult.create.mockResolvedValue(created);
 
@@ -201,7 +226,9 @@ describe('POST /api/checklists/:id/results', () => {
   });
 
   it('should reject invalid data', async () => {
-    (prisma as any).fsSvcChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcChecklist.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
 
     const res = await request(app)
       .post('/api/checklists/00000000-0000-0000-0000-000000000001/results')
@@ -213,10 +240,16 @@ describe('POST /api/checklists/:id/results', () => {
 
 describe('GET /api/checklists/:id/results', () => {
   it('should return checklist results', async () => {
-    (prisma as any).fsSvcChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcChecklistResult.findMany.mockResolvedValue([{ id: 'cr-1', overallResult: 'PASS' }]);
+    (prisma as any).fsSvcChecklist.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcChecklistResult.findMany.mockResolvedValue([
+      { id: 'cr-1', overallResult: 'PASS' },
+    ]);
 
-    const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000001/results');
+    const res = await request(app).get(
+      '/api/checklists/00000000-0000-0000-0000-000000000001/results'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(1);
@@ -225,7 +258,9 @@ describe('GET /api/checklists/:id/results', () => {
   it('should return 404 if checklist not found', async () => {
     (prisma as any).fsSvcChecklist.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000099/results');
+    const res = await request(app).get(
+      '/api/checklists/00000000-0000-0000-0000-000000000099/results'
+    );
 
     expect(res.status).toBe(404);
   });

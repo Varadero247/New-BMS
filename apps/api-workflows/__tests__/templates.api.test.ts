@@ -134,7 +134,9 @@ describe('Workflows Templates API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.workflowTemplate.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.workflowTemplate.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app).get('/api/templates');
 
@@ -158,7 +160,9 @@ describe('Workflows Templates API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.workflowTemplate.groupBy as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.workflowTemplate.groupBy as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app).get('/api/templates/categories/list');
 
@@ -178,7 +182,9 @@ describe('Workflows Templates API Routes', () => {
     it('should return single template', async () => {
       (mockPrisma.workflowTemplate.findUnique as jest.Mock).mockResolvedValueOnce(mockTemplate);
 
-      const response = await request(app).get('/api/templates/41000000-0000-4000-a000-000000000001');
+      const response = await request(app).get(
+        '/api/templates/41000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -188,16 +194,22 @@ describe('Workflows Templates API Routes', () => {
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff template', async () => {
       (mockPrisma.workflowTemplate.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/templates/00000000-0000-4000-a000-ffffffffffff');
+      const response = await request(app).get(
+        '/api/templates/00000000-0000-4000-a000-ffffffffffff'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.workflowTemplate.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.workflowTemplate.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
-      const response = await request(app).get('/api/templates/41000000-0000-4000-a000-000000000001');
+      const response = await request(app).get(
+        '/api/templates/41000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -219,9 +231,7 @@ describe('Workflows Templates API Routes', () => {
         isActive: true,
       });
 
-      const response = await request(app)
-        .post('/api/templates')
-        .send(createPayload);
+      const response = await request(app).post('/api/templates').send(createPayload);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -273,11 +283,11 @@ describe('Workflows Templates API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.workflowTemplate.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.workflowTemplate.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
-      const response = await request(app)
-        .post('/api/templates')
-        .send(createPayload);
+      const response = await request(app).post('/api/templates').send(createPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -323,7 +333,9 @@ describe('Workflows Templates API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.workflowTemplate.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.workflowTemplate.update as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/templates/41000000-0000-4000-a000-000000000001')
@@ -341,8 +353,9 @@ describe('Workflows Templates API Routes', () => {
         isActive: true,
       });
 
-      const response = await request(app)
-        .put('/api/templates/41000000-0000-4000-a000-000000000001/publish');
+      const response = await request(app).put(
+        '/api/templates/41000000-0000-4000-a000-000000000001/publish'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -355,10 +368,13 @@ describe('Workflows Templates API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.workflowTemplate.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.workflowTemplate.update as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
-      const response = await request(app)
-        .put('/api/templates/41000000-0000-4000-a000-000000000001/publish');
+      const response = await request(app).put(
+        '/api/templates/41000000-0000-4000-a000-000000000001/publish'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');

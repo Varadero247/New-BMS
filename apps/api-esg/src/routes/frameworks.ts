@@ -49,8 +49,16 @@ const metricCreateSchema = z.object({
 });
 
 const dataPointCreateSchema = z.object({
-  periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodStart: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodEnd: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   value: z.number(),
   unit: z.string().trim().min(1).max(50),
   source: z.string().max(200).optional().nullable(),
@@ -62,24 +70,42 @@ const dataPointCreateSchema = z.object({
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20' } = req.query;
-    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * Math.max(1, parseInt(limit as string, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page as string, 10) || 1) - 1) *
+      Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
     const where: Record<string, any> = { deletedAt: null };
 
     const [data, total] = await Promise.all([
-      prisma.esgFramework.findMany({ where, skip, take, orderBy: { createdAt: 'desc' }, include: { metrics: { where: { deletedAt: null } as any } } }),
+      prisma.esgFramework.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: { metrics: { where: { deletedAt: null } as any } },
+      }),
       prisma.esgFramework.count({ where }),
     ]);
 
     res.json({
       success: true,
       data,
-      pagination: { page: Math.max(1, parseInt(page as string, 10) || 1), limit: take, total, totalPages: Math.ceil(total / take) },
+      pagination: {
+        page: Math.max(1, parseInt(page as string, 10) || 1),
+        limit: take,
+        total,
+        totalPages: Math.ceil(total / take),
+      },
     });
   } catch (error: unknown) {
-    logger.error('Error listing frameworks', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list frameworks' } });
+    logger.error('Error listing frameworks', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list frameworks' },
+    });
   }
 });
 
@@ -89,7 +115,14 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = frameworkCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.issues,
+        },
+      });
     }
 
     const data = parsed.data;
@@ -107,31 +140,54 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: framework });
   } catch (error: unknown) {
-    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Framework code already exists' } });
+    if (
+      error != null &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as any).code === 'P2002'
+    ) {
+      return res.status(409).json({
+        success: false,
+        error: { code: 'CONFLICT', message: 'Framework code already exists' },
+      });
     }
-    logger.error('Error creating framework', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create framework' } });
+    logger.error('Error creating framework', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create framework' },
+    });
   }
 });
 
 // GET /api/frameworks/:id/metrics
 router.get('/:id/metrics', async (req: Request, res: Response) => {
   try {
-    const framework = await prisma.esgFramework.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const framework = await prisma.esgFramework.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!framework) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
     }
 
     const metrics = await prisma.esgMetric.findMany({
       where: { frameworkId: req.params.id, deletedAt: null } as any,
       orderBy: { code: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: metrics });
   } catch (error: unknown) {
-    logger.error('Error fetching framework metrics', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch metrics' } });
+    logger.error('Error fetching framework metrics', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch metrics' },
+    });
   }
 });
 
@@ -139,14 +195,25 @@ router.get('/:id/metrics', async (req: Request, res: Response) => {
 router.post('/:id/metrics', async (req: Request, res: Response) => {
   try {
     const authReq = req as AuthRequest;
-    const framework = await prisma.esgFramework.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const framework = await prisma.esgFramework.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!framework) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
     }
 
     const parsed = metricCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.issues,
+        },
+      });
     }
 
     const data = parsed.data;
@@ -168,11 +235,24 @@ router.post('/:id/metrics', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: metric });
   } catch (error: unknown) {
-    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Metric code already exists' } });
+    if (
+      error != null &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as any).code === 'P2002'
+    ) {
+      return res.status(409).json({
+        success: false,
+        error: { code: 'CONFLICT', message: 'Metric code already exists' },
+      });
     }
-    logger.error('Error creating metric', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create metric' } });
+    logger.error('Error creating metric', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create metric' },
+    });
   }
 });
 
@@ -184,12 +264,19 @@ router.get('/:id', async (req: Request, res: Response) => {
       include: { metrics: { where: { deletedAt: null } as any } },
     });
     if (!framework) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
     }
     res.json({ success: true, data: framework });
   } catch (error: unknown) {
-    logger.error('Error fetching framework', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch framework' } });
+    logger.error('Error fetching framework', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch framework' },
+    });
   }
 });
 
@@ -198,35 +285,66 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = frameworkUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.issues,
+        },
+      });
     }
 
-    const existing = await prisma.esgFramework.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.esgFramework.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
     }
 
-    const framework = await prisma.esgFramework.update({ where: { id: req.params.id }, data: parsed.data });
+    const framework = await prisma.esgFramework.update({
+      where: { id: req.params.id },
+      data: parsed.data,
+    });
     res.json({ success: true, data: framework });
   } catch (error: unknown) {
-    logger.error('Error updating framework', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update framework' } });
+    logger.error('Error updating framework', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update framework' },
+    });
   }
 });
 
 // DELETE /api/frameworks/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgFramework.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.esgFramework.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
     }
 
-    await prisma.esgFramework.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.esgFramework.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Framework deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting framework', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete framework' } });
+    logger.error('Error deleting framework', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete framework' },
+    });
   }
 });
 

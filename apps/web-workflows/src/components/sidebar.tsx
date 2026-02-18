@@ -56,8 +56,8 @@ export default function Sidebar() {
       <nav className="flex-1 overflow-y-auto p-4" aria-label="Module navigation">
         <ul className="space-y-1">
           {navigation.map((item) => {
-            const isActive = pathname === item.href ||
-              (item.href !== '/' && pathname.startsWith(item.href));
+            const isActive =
+              pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
 
             return (
               <li key={item.name}>
@@ -79,9 +79,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="border-t border-gray-800 p-4">
-        <div className="text-xs text-gray-500 dark:text-gray-400">
-          IMS Workflows Module v0.1.0
-        </div>
+        <div className="text-xs text-gray-500 dark:text-gray-400">IMS Workflows Module v0.1.0</div>
       </div>
     </div>
   );

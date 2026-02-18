@@ -34,7 +34,14 @@ export default function MeetingsPage() {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ title: '', type: 'TEAM', date: '', attendees: '', summary: '', actionItems: '' });
+  const [form, setForm] = useState({
+    title: '',
+    type: 'TEAM',
+    date: '',
+    attendees: '',
+    summary: '',
+    actionItems: '',
+  });
 
   useEffect(() => {
     loadMeetings();
@@ -62,7 +69,10 @@ export default function MeetingsPage() {
         title: form.title,
         type: form.type,
         date: form.date,
-        attendees: form.attendees.split(',').map((a) => a.trim()).filter(Boolean),
+        attendees: form.attendees
+          .split(',')
+          .map((a) => a.trim())
+          .filter(Boolean),
         summary: form.summary,
         actionItems,
       });
@@ -105,26 +115,37 @@ export default function MeetingsPage() {
         </div>
 
         {loading ? (
-          <div className="text-gray-400 dark:text-gray-500 text-center py-12">Loading meetings...</div>
+          <div className="text-gray-400 dark:text-gray-500 text-center py-12">
+            Loading meetings...
+          </div>
         ) : meetings.length === 0 ? (
-          <div className="text-gray-400 dark:text-gray-500 text-center py-12">No meetings recorded yet.</div>
+          <div className="text-gray-400 dark:text-gray-500 text-center py-12">
+            No meetings recorded yet.
+          </div>
         ) : (
           <div className="space-y-3">
             {meetings.map((meeting) => {
               const expanded = expandedId === meeting.id;
               const badge = TYPE_BADGES[meeting.type] || TYPE_BADGES.TEAM;
               return (
-                <div key={meeting.id} className="bg-[#112240] border border-[#1B3A6B]/30 rounded-xl overflow-hidden">
+                <div
+                  key={meeting.id}
+                  className="bg-[#112240] border border-[#1B3A6B]/30 rounded-xl overflow-hidden"
+                >
                   <button
                     onClick={() => setExpandedId(expanded ? null : meeting.id)}
                     className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-[#1B3A6B]/20 transition-colors"
                   >
                     <div className="flex items-center gap-4">
-                      <span className={`px-2.5 py-0.5 rounded text-xs font-medium ${badge.bg} ${badge.text}`}>
+                      <span
+                        className={`px-2.5 py-0.5 rounded text-xs font-medium ${badge.bg} ${badge.text}`}
+                      >
                         {meeting.type}
                       </span>
                       <span className="text-white font-medium">{meeting.title}</span>
-                      <span className="text-gray-500 dark:text-gray-400 text-sm">{formatDate(meeting.date)}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">
+                        {formatDate(meeting.date)}
+                      </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400 text-sm">
@@ -143,17 +164,26 @@ export default function MeetingsPage() {
                     <div className="px-6 pb-5 border-t border-[#1B3A6B]/20">
                       {meeting.summary && (
                         <div className="mt-4">
-                          <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-1">Summary</h3>
-                          <p className="text-gray-300 text-sm whitespace-pre-wrap">{meeting.summary}</p>
+                          <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-1">
+                            Summary
+                          </h3>
+                          <p className="text-gray-300 text-sm whitespace-pre-wrap">
+                            {meeting.summary}
+                          </p>
                         </div>
                       )}
 
                       {(meeting.attendees || []).length > 0 && (
                         <div className="mt-4">
-                          <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-1">Attendees</h3>
+                          <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-1">
+                            Attendees
+                          </h3>
                           <div className="flex flex-wrap gap-2">
                             {meeting.attendees.map((a, i) => (
-                              <span key={i} className="px-2 py-0.5 bg-[#1B3A6B]/40 text-gray-300 rounded text-xs">
+                              <span
+                                key={i}
+                                className="px-2 py-0.5 bg-[#1B3A6B]/40 text-gray-300 rounded text-xs"
+                              >
                                 {a}
                               </span>
                             ))}
@@ -163,7 +193,9 @@ export default function MeetingsPage() {
 
                       {(meeting.actionItems || []).length > 0 && (
                         <div className="mt-4">
-                          <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-2">Action Items</h3>
+                          <h3 className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-2">
+                            Action Items
+                          </h3>
                           <div className="space-y-2">
                             {meeting.actionItems.map((item, idx) => (
                               <button
@@ -178,13 +210,17 @@ export default function MeetingsPage() {
                                 )}
                                 <span
                                   className={`text-sm ${
-                                    item.completed ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-300'
+                                    item.completed
+                                      ? 'text-gray-500 dark:text-gray-400 line-through'
+                                      : 'text-gray-300'
                                   }`}
                                 >
                                   {item.text}
                                 </span>
                                 {item.assignee && (
-                                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto">{item.assignee}</span>
+                                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto">
+                                    {item.assignee}
+                                  </span>
                                 )}
                               </button>
                             ))}
@@ -206,7 +242,9 @@ export default function MeetingsPage() {
               <h2 className="text-lg font-bold text-white mb-4">New Meeting</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Title</label>
+                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">
+                    Title
+                  </label>
                   <input
                     value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -216,7 +254,9 @@ export default function MeetingsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Type</label>
+                    <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">
+                      Type
+                    </label>
                     <select
                       value={form.type}
                       onChange={(e) => setForm({ ...form, type: e.target.value })}
@@ -229,7 +269,9 @@ export default function MeetingsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Date</label>
+                    <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">
+                      Date
+                    </label>
                     <input
                       type="date"
                       value={form.date}
@@ -239,7 +281,9 @@ export default function MeetingsPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Attendees (comma separated)</label>
+                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">
+                    Attendees (comma separated)
+                  </label>
                   <input
                     value={form.attendees}
                     onChange={(e) => setForm({ ...form, attendees: e.target.value })}
@@ -248,7 +292,9 @@ export default function MeetingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Summary</label>
+                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">
+                    Summary
+                  </label>
                   <textarea
                     value={form.summary}
                     onChange={(e) => setForm({ ...form, summary: e.target.value })}
@@ -258,7 +304,9 @@ export default function MeetingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">Action Items (one per line)</label>
+                  <label className="text-sm text-gray-400 dark:text-gray-500 block mb-1">
+                    Action Items (one per line)
+                  </label>
                   <textarea
                     value={form.actionItems}
                     onChange={(e) => setForm({ ...form, actionItems: e.target.value })}

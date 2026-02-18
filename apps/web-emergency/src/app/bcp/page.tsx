@@ -52,7 +52,13 @@ const STATUS_STYLES: Record<string, { style: string; label: string }> = {
   ARCHIVED: { style: 'bg-gray-100 text-gray-500', label: 'Archived' },
 };
 
-function TestStatusBadge({ lastTested, nextDue }: { lastTested: string | null; nextDue: string | null }) {
+function TestStatusBadge({
+  lastTested,
+  nextDue,
+}: {
+  lastTested: string | null;
+  nextDue: string | null;
+}) {
   if (!lastTested) {
     return (
       <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -73,9 +79,7 @@ function TestStatusBadge({ lastTested, nextDue }: { lastTested: string | null; n
       <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
         Tested
       </span>
-      <p className="text-xs text-gray-400 mt-0.5">
-        {new Date(lastTested).toLocaleDateString()}
-      </p>
+      <p className="text-xs text-gray-400 mt-0.5">{new Date(lastTested).toLocaleDateString()}</p>
     </div>
   );
 }
@@ -101,11 +105,13 @@ export default function BCPPage() {
     }
   }, [searchTerm, statusFilter]);
 
-  useEffect(() => { loadBCPs(); }, [loadBCPs]);
+  useEffect(() => {
+    loadBCPs();
+  }, [loadBCPs]);
 
   const neverTested = bcps.filter((b) => !b.lastTestedDate).length;
   const testOverdue = bcps.filter(
-    (b) => b.nextTestDue && new Date(b.nextTestDue) < new Date(),
+    (b) => b.nextTestDue && new Date(b.nextTestDue) < new Date()
   ).length;
   const approved = bcps.filter((b) => b.status === 'APPROVED' || b.status === 'ACTIVE').length;
 
@@ -162,7 +168,9 @@ export default function BCPPage() {
             </Card>
             <Card>
               <CardContent className="pt-6 text-center">
-                <p className="text-3xl font-bold" style={{ color: '#F04B5A' }}>{neverTested}</p>
+                <p className="text-3xl font-bold" style={{ color: '#F04B5A' }}>
+                  {neverTested}
+                </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Never Tested</p>
               </CardContent>
             </Card>
@@ -228,30 +236,47 @@ export default function BCPPage() {
                         const statusInfo = STATUS_STYLES[bcp.status] || STATUS_STYLES.DRAFT;
                         return (
                           <TableRow key={bcp.id}>
-                            <TableCell className="font-mono text-xs">{bcp.referenceNumber}</TableCell>
+                            <TableCell className="font-mono text-xs">
+                              {bcp.referenceNumber}
+                            </TableCell>
                             <TableCell>
                               <p className="font-medium">{bcp.title}</p>
                               {bcp.scope && (
-                                <p className="text-xs text-gray-500 truncate max-w-[200px]">{bcp.scope}</p>
+                                <p className="text-xs text-gray-500 truncate max-w-[200px]">
+                                  {bcp.scope}
+                                </p>
                               )}
                             </TableCell>
                             <TableCell className="text-sm">{bcp.premisesName || 'All'}</TableCell>
                             <TableCell className="text-sm">{bcp.ownerName}</TableCell>
                             <TableCell className="text-sm">v{bcp.version}</TableCell>
                             <TableCell>
-                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.style}`}>
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.style}`}
+                              >
                                 {statusInfo.label}
                               </span>
                             </TableCell>
                             <TableCell>
-                              <TestStatusBadge lastTested={bcp.lastTestedDate} nextDue={bcp.nextTestDue} />
+                              <TestStatusBadge
+                                lastTested={bcp.lastTestedDate}
+                                nextDue={bcp.nextTestDue}
+                              />
                             </TableCell>
                             <TableCell className="text-sm">
                               {bcp.reviewDate ? (
-                                <span className={new Date(bcp.reviewDate) < new Date() ? 'text-red-600 font-medium' : ''}>
+                                <span
+                                  className={
+                                    new Date(bcp.reviewDate) < new Date()
+                                      ? 'text-red-600 font-medium'
+                                      : ''
+                                  }
+                                >
                                   {new Date(bcp.reviewDate).toLocaleDateString()}
                                 </span>
-                              ) : '-'}
+                              ) : (
+                                '-'
+                              )}
                             </TableCell>
                             <TableCell>
                               <Button size="sm" variant="outline" className="gap-1">
@@ -267,7 +292,9 @@ export default function BCPPage() {
               ) : (
                 <div className="text-center py-12">
                   <BookOpen className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-500 dark:text-gray-400">No business continuity plans found</p>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    No business continuity plans found
+                  </p>
                   <Link href="/bcp/new">
                     <Button variant="outline" className="mt-4">
                       <Plus className="h-4 w-4 mr-2" />

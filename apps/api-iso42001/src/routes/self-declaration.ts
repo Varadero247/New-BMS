@@ -30,7 +30,7 @@ const declarationCreateSchema = z.object({
   scope: z.string().trim().min(1).max(4000),
   conformanceStatement: z.string().trim().min(1).max(10000),
   standard: z.string().max(100).optional().default('ISO 42001:2023'),
-  declarationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  declarationDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   validUntil: z.string().optional().nullable(),
   signedBy: z.string().max(200).optional().nullable(),
   exclusions: z.string().max(4000).optional().nullable(),
@@ -44,7 +44,10 @@ const declarationUpdateSchema = z.object({
   conformanceStatement: z.string().trim().min(1).max(10000).optional(),
   standard: z.string().max(100).optional(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'EXPIRED']).optional(),
-  declarationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  declarationDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   validUntil: z.string().optional().nullable(),
   signedBy: z.string().max(200).optional().nullable(),
   exclusions: z.string().max(4000).optional().nullable(),
@@ -106,8 +109,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list self-declarations', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list self-declarations' } });
+    logger.error('Failed to list self-declarations', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list self-declarations' },
+    });
   }
 });
 
@@ -116,7 +124,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = declarationCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -143,8 +158,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Self-declaration created', { declarationId: declaration.id, reference });
     res.status(201).json({ success: true, data: declaration });
   } catch (error: unknown) {
-    logger.error('Failed to create self-declaration', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create self-declaration' } });
+    logger.error('Failed to create self-declaration', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create self-declaration' },
+    });
   }
 });
 
@@ -153,13 +173,21 @@ router.put('/:id/publish', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.aiSelfDeclaration.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiSelfDeclaration.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Self-declaration not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Self-declaration not found' },
+      });
     }
 
     if (existing.status === 'PUBLISHED') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_PUBLISHED', message: 'Self-declaration is already published' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'ALREADY_PUBLISHED', message: 'Self-declaration is already published' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -167,7 +195,12 @@ router.put('/:id/publish', async (req: Request, res: Response) => {
       where: { id },
       data: {
         status: 'PUBLISHED',
-        signedBy: (z.string().trim().uuid().safeParse(req.body?.signedBy).success ? req.body.signedBy : null) || authReq.user?.id || existing.signedBy,
+        signedBy:
+          (z.string().trim().uuid().safeParse(req.body?.signedBy).success
+            ? req.body.signedBy
+            : null) ||
+          authReq.user?.id ||
+          existing.signedBy,
         publishedAt: new Date(),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
@@ -177,8 +210,14 @@ router.put('/:id/publish', async (req: Request, res: Response) => {
     logger.info('Self-declaration published', { declarationId: id });
     res.json({ success: true, data: declaration });
   } catch (error: unknown) {
-    logger.error('Failed to publish self-declaration', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to publish self-declaration' } });
+    logger.error('Failed to publish self-declaration', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to publish self-declaration' },
+    });
   }
 });
 
@@ -194,13 +233,22 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!declaration) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Self-declaration not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Self-declaration not found' },
+      });
     }
 
     res.json({ success: true, data: declaration });
   } catch (error: unknown) {
-    logger.error('Failed to get self-declaration', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get self-declaration' } });
+    logger.error('Failed to get self-declaration', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get self-declaration' },
+    });
   }
 });
 
@@ -211,12 +259,24 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = declarationUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.aiSelfDeclaration.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiSelfDeclaration.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Self-declaration not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Self-declaration not found' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -224,10 +284,15 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       where: { id },
       data: {
         ...parsed.data,
-        declarationDate: parsed.data.declarationDate ? new Date(parsed.data.declarationDate) : undefined,
-        validUntil: parsed.data.validUntil !== undefined
-          ? (parsed.data.validUntil ? new Date(parsed.data.validUntil) : null)
+        declarationDate: parsed.data.declarationDate
+          ? new Date(parsed.data.declarationDate)
           : undefined,
+        validUntil:
+          parsed.data.validUntil !== undefined
+            ? parsed.data.validUntil
+              ? new Date(parsed.data.validUntil)
+              : null
+            : undefined,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
       } as any,
@@ -236,8 +301,14 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     logger.info('Self-declaration updated', { declarationId: id });
     res.json({ success: true, data: declaration });
   } catch (error: unknown) {
-    logger.error('Failed to update self-declaration', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update self-declaration' } });
+    logger.error('Failed to update self-declaration', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update self-declaration' },
+    });
   }
 });
 
@@ -247,9 +318,14 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.aiSelfDeclaration.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiSelfDeclaration.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Self-declaration not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Self-declaration not found' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -264,8 +340,14 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     logger.info('Self-declaration soft-deleted', { declarationId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete self-declaration', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete self-declaration' } });
+    logger.error('Failed to delete self-declaration', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete self-declaration' },
+    });
   }
 });
 

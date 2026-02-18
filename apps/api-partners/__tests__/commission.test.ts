@@ -18,15 +18,53 @@ import { prisma } from '../src/prisma';
 
 const app = express();
 app.use(express.json());
-app.use((req: any, _res: any, next: any) => { req.partner = { id: 'partner-1' }; next(); });
+app.use((req: any, _res: any, next: any) => {
+  req.partner = { id: 'partner-1' };
+  next();
+});
 app.use('/api/commission', commissionRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockDeals = [
-  { id: 'd1', partnerId: 'partner-1', status: 'CLOSED_WON', commissionValue: 3000, commissionPaid: true, commissionRate: 0.25, estimatedACV: 12000, actualACV: 12000, companyName: 'Co A', closedAt: new Date() },
-  { id: 'd2', partnerId: 'partner-1', status: 'CLOSED_WON', commissionValue: 5000, commissionPaid: false, commissionRate: 0.25, estimatedACV: 20000, actualACV: 20000, companyName: 'Co B', closedAt: new Date() },
-  { id: 'd3', partnerId: 'partner-1', status: 'NEGOTIATING', commissionValue: null, commissionPaid: false, commissionRate: 0.25, estimatedACV: 10000, actualACV: null, companyName: 'Co C', closedAt: null },
+  {
+    id: 'd1',
+    partnerId: 'partner-1',
+    status: 'CLOSED_WON',
+    commissionValue: 3000,
+    commissionPaid: true,
+    commissionRate: 0.25,
+    estimatedACV: 12000,
+    actualACV: 12000,
+    companyName: 'Co A',
+    closedAt: new Date(),
+  },
+  {
+    id: 'd2',
+    partnerId: 'partner-1',
+    status: 'CLOSED_WON',
+    commissionValue: 5000,
+    commissionPaid: false,
+    commissionRate: 0.25,
+    estimatedACV: 20000,
+    actualACV: 20000,
+    companyName: 'Co B',
+    closedAt: new Date(),
+  },
+  {
+    id: 'd3',
+    partnerId: 'partner-1',
+    status: 'NEGOTIATING',
+    commissionValue: null,
+    commissionPaid: false,
+    commissionRate: 0.25,
+    estimatedACV: 10000,
+    actualACV: null,
+    companyName: 'Co C',
+    closedAt: null,
+  },
 ];
 
 describe('GET /api/commission/summary', () => {

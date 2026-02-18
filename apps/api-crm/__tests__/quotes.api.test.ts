@@ -39,7 +39,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/quotes', quotesRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockQuote = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -87,12 +89,14 @@ describe('POST /api/quotes', () => {
     (prisma as any).crmQuote.count.mockResolvedValue(0);
     (prisma as any).crmQuote.create.mockResolvedValue(mockQuote);
 
-    const res = await request(app).post('/api/quotes').send({
-      title: 'Enterprise Proposal',
-      lines: [
-        { description: 'Consulting', quantity: 10, unitPrice: 100, discount: 0, taxRate: 20 },
-      ],
-    });
+    const res = await request(app)
+      .post('/api/quotes')
+      .send({
+        title: 'Enterprise Proposal',
+        lines: [
+          { description: 'Consulting', quantity: 10, unitPrice: 100, discount: 0, taxRate: 20 },
+        ],
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -126,22 +130,26 @@ describe('POST /api/quotes', () => {
       total: 3000,
     });
 
-    const res = await request(app).post('/api/quotes').send({
-      title: 'Multi-line Proposal',
-      lines: [
-        { description: 'Item 1', quantity: 5, unitPrice: 200, discount: 0, taxRate: 20 },
-        { description: 'Item 2', quantity: 10, unitPrice: 150, discount: 0, taxRate: 20 },
-      ],
-    });
+    const res = await request(app)
+      .post('/api/quotes')
+      .send({
+        title: 'Multi-line Proposal',
+        lines: [
+          { description: 'Item 1', quantity: 5, unitPrice: 200, discount: 0, taxRate: 20 },
+          { description: 'Item 2', quantity: 10, unitPrice: 150, discount: 0, taxRate: 20 },
+        ],
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 400 for missing title', async () => {
-    const res = await request(app).post('/api/quotes').send({
-      lines: [{ description: 'Item', quantity: 1, unitPrice: 100, discount: 0, taxRate: 20 }],
-    });
+    const res = await request(app)
+      .post('/api/quotes')
+      .send({
+        lines: [{ description: 'Item', quantity: 1, unitPrice: 100, discount: 0, taxRate: 20 }],
+      });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
@@ -157,10 +165,12 @@ describe('POST /api/quotes', () => {
   });
 
   it('should return 400 for invalid line data', async () => {
-    const res = await request(app).post('/api/quotes').send({
-      title: 'Test',
-      lines: [{ description: '', quantity: -1, unitPrice: 100, discount: 0, taxRate: 20 }],
-    });
+    const res = await request(app)
+      .post('/api/quotes')
+      .send({
+        title: 'Test',
+        lines: [{ description: '', quantity: -1, unitPrice: 100, discount: 0, taxRate: 20 }],
+      });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
@@ -324,7 +334,9 @@ describe('PUT /api/quotes/:id', () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
     (prisma as any).crmQuote.update.mockResolvedValue({ ...mockQuote, notes: 'Updated' });
 
-    const res = await request(app).put('/api/quotes/00000000-0000-0000-0000-000000000001').send({ notes: 'Updated' });
+    const res = await request(app)
+      .put('/api/quotes/00000000-0000-0000-0000-000000000001')
+      .send({ notes: 'Updated' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -333,7 +345,9 @@ describe('PUT /api/quotes/:id', () => {
   it('should return 400 when not in DRAFT status', async () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue({ ...mockQuote, status: 'SENT' });
 
-    const res = await request(app).put('/api/quotes/00000000-0000-0000-0000-000000000001').send({ notes: 'Updated' });
+    const res = await request(app)
+      .put('/api/quotes/00000000-0000-0000-0000-000000000001')
+      .send({ notes: 'Updated' });
 
     expect(res.status).toBe(400);
     expect(res.body.error.message).toContain('DRAFT');
@@ -342,7 +356,9 @@ describe('PUT /api/quotes/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/quotes/00000000-0000-0000-0000-000000000099').send({ notes: 'Updated' });
+    const res = await request(app)
+      .put('/api/quotes/00000000-0000-0000-0000-000000000099')
+      .send({ notes: 'Updated' });
 
     expect(res.status).toBe(404);
   });
@@ -357,9 +373,11 @@ describe('PUT /api/quotes/:id', () => {
       lines: [{ description: 'New item', quantity: 5, unitPrice: 100 }],
     });
 
-    const res = await request(app).put('/api/quotes/00000000-0000-0000-0000-000000000001').send({
-      lines: [{ description: 'New item', quantity: 5, unitPrice: 100, discount: 0, taxRate: 20 }],
-    });
+    const res = await request(app)
+      .put('/api/quotes/00000000-0000-0000-0000-000000000001')
+      .send({
+        lines: [{ description: 'New item', quantity: 5, unitPrice: 100, discount: 0, taxRate: 20 }],
+      });
 
     expect(res.status).toBe(200);
   });
@@ -368,7 +386,9 @@ describe('PUT /api/quotes/:id', () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
     (prisma as any).crmQuote.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/quotes/00000000-0000-0000-0000-000000000001').send({ notes: 'Test' });
+    const res = await request(app)
+      .put('/api/quotes/00000000-0000-0000-0000-000000000001')
+      .send({ notes: 'Test' });
 
     expect(res.status).toBe(500);
   });
@@ -381,7 +401,11 @@ describe('PUT /api/quotes/:id', () => {
 describe('POST /api/quotes/:id/send', () => {
   it('should mark as sent', async () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
-    (prisma as any).crmQuote.update.mockResolvedValue({ ...mockQuote, status: 'SENT', sentAt: new Date() });
+    (prisma as any).crmQuote.update.mockResolvedValue({
+      ...mockQuote,
+      status: 'SENT',
+      sentAt: new Date(),
+    });
 
     const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000001/send');
 
@@ -478,7 +502,9 @@ describe('GET /api/quotes/:id/pdf', () => {
     expect(res.headers['content-type']).toMatch(/application\/pdf/);
     expect(res.headers['content-disposition']).toMatch(/attachment/);
     // PDF binary starts with %PDF-1.4
-    const bodyStr = Buffer.isBuffer(res.body) ? res.body.toString('ascii', 0, 8) : String(res.body ?? '');
+    const bodyStr = Buffer.isBuffer(res.body)
+      ? res.body.toString('ascii', 0, 8)
+      : String(res.body ?? '');
     expect(bodyStr.startsWith('%PDF-1.4')).toBe(true);
   });
 

@@ -3,7 +3,18 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
+} from '@ims/ui';
 import { Plus, Search, RefreshCw, Users, Building2, Globe, FileText } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -24,7 +35,13 @@ interface InterestedParty {
 
 const PARTY_TYPES = ['INTERNAL', 'EXTERNAL'] as const;
 const STATUSES = ['ACTIVE', 'INACTIVE', 'ARCHIVED'] as const;
-const REVIEW_FREQUENCIES = ['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'] as const;
+const REVIEW_FREQUENCIES = [
+  'MONTHLY',
+  'QUARTERLY',
+  'ANNUALLY',
+  'BI_ANNUALLY',
+  'ON_CHANGE',
+] as const;
 
 const statusColors: Record<string, string> = {
   ACTIVE: 'success',
@@ -74,7 +91,7 @@ export default function InterestedPartiesPage() {
         setItems(data);
       } else if (data?.items) {
         setItems(data.items);
-        setPagination(p => ({ ...p, total: data.total || 0, totalPages: data.totalPages || 0 }));
+        setPagination((p) => ({ ...p, total: data.total || 0, totalPages: data.totalPages || 0 }));
       }
     } catch {
       setItems([]);
@@ -82,7 +99,9 @@ export default function InterestedPartiesPage() {
     setLoading(false);
   }, [pagination.page, search, filterStatus, filterType]);
 
-  useEffect(() => { fetchItems(); }, [fetchItems]);
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
 
   const openCreate = () => {
     setEditItem(null);
@@ -142,19 +161,27 @@ export default function InterestedPartiesPage() {
     }
   };
 
-  const internalCount = items.filter(i => i.partyType === 'INTERNAL').length;
-  const externalCount = items.filter(i => i.partyType === 'EXTERNAL').length;
-  const activeCount = items.filter(i => i.status === 'ACTIVE').length;
+  const internalCount = items.filter((i) => i.partyType === 'INTERNAL').length;
+  const externalCount = items.filter((i) => i.partyType === 'EXTERNAL').length;
+  const activeCount = items.filter((i) => i.status === 'ACTIVE').length;
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Interested Parties</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 &sect;4.2 &mdash; Understanding needs and expectations of interested parties</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Interested Parties
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            ISO 9001:2015 &sect;4.2 &mdash; Understanding needs and expectations of interested
+            parties
+          </p>
         </div>
-        <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Interested Party</Button>
+        <Button onClick={openCreate}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Interested Party
+        </Button>
       </div>
 
       {/* Stats */}
@@ -163,7 +190,9 @@ export default function InterestedPartiesPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl font-bold text-blue-600">{pagination.total || items.length}</div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {pagination.total || items.length}
+                </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">Total Parties</div>
               </div>
               <div className="p-3 bg-blue-100 rounded-full">
@@ -218,21 +247,47 @@ export default function InterestedPartiesPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <Input
-            aria-label="Search parties..." placeholder="Search parties..."
+            aria-label="Search parties..."
+            placeholder="Search parties..."
             value={search}
-            onChange={e => { setSearch(e.target.value); setPagination(p => ({ ...p, page: 1 })); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPagination((p) => ({ ...p, page: 1 }));
+            }}
             className="pl-10"
           />
         </div>
-        <Select value={filterType} onChange={e => { setFilterType(e.target.value); setPagination(p => ({ ...p, page: 1 })); }}>
+        <Select
+          value={filterType}
+          onChange={(e) => {
+            setFilterType(e.target.value);
+            setPagination((p) => ({ ...p, page: 1 }));
+          }}
+        >
           <option value="">All Types</option>
-          {PARTY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+          {PARTY_TYPES.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
         </Select>
-        <Select value={filterStatus} onChange={e => { setFilterStatus(e.target.value); setPagination(p => ({ ...p, page: 1 })); }}>
+        <Select
+          value={filterStatus}
+          onChange={(e) => {
+            setFilterStatus(e.target.value);
+            setPagination((p) => ({ ...p, page: 1 }));
+          }}
+        >
           <option value="">All Statuses</option>
-          {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+          {STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
         </Select>
-        <Button variant="outline" onClick={fetchItems}><RefreshCw className="h-4 w-4" /></Button>
+        <Button variant="outline" onClick={fetchItems}>
+          <RefreshCw className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Table */}
@@ -242,49 +297,93 @@ export default function InterestedPartiesPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 dark:bg-gray-800 border-b">
                 <tr>
-                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Reference</th>
-                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Party Name</th>
-                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Type</th>
-                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Review Frequency</th>
-                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Status</th>
-                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Issues</th>
-                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Actions</th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                    Reference
+                  </th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                    Party Name
+                  </th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                    Type
+                  </th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                    Review Frequency
+                  </th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                    Status
+                  </th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                    Issues
+                  </th>
+                  <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {loading ? (
-                  <tr><td colSpan={7} className="p-8 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
+                  <tr>
+                    <td colSpan={7} className="p-8 text-center text-gray-500 dark:text-gray-400">
+                      Loading...
+                    </td>
+                  </tr>
                 ) : items.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="p-8 text-center">
                       <Users className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                      <p className="text-gray-500 dark:text-gray-400">No interested parties found</p>
-                      <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Start by identifying the interested parties relevant to your QMS.</p>
+                      <p className="text-gray-500 dark:text-gray-400">
+                        No interested parties found
+                      </p>
+                      <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                        Start by identifying the interested parties relevant to your QMS.
+                      </p>
                     </td>
                   </tr>
-                ) : items.map(item => (
-                  <tr key={item.id} className="hover:bg-gray-50 dark:bg-gray-800 cursor-pointer" onClick={() => openEdit(item)}>
-                    <td className="p-3 font-mono text-xs text-blue-600">{item.referenceNumber}</td>
-                    <td className="p-3">
-                      <div className="font-medium text-gray-900 dark:text-gray-100">{item.partyName}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{item.reasonForInclusion}</div>
-                    </td>
-                    <td className="p-3">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${typeColors[item.partyType] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
-                        {item.partyType}
-                      </span>
-                    </td>
-                    <td className="p-3 text-gray-600">{item.reviewFrequency.replace(/_/g, ' ')}</td>
-                    <td className="p-3"><Badge variant={statusColors[item.status] as any}>{item.status}</Badge></td>
-                    <td className="p-3 text-gray-600">{item._count?.issues ?? 0}</td>
-                    <td className="p-3">
-                      <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                        <Button variant="outline" size="sm" onClick={() => openEdit(item)}>Edit</Button>
-                        <Button variant="outline" size="sm" onClick={() => handleDelete(item.id)}>Delete</Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                ) : (
+                  items.map((item) => (
+                    <tr
+                      key={item.id}
+                      className="hover:bg-gray-50 dark:bg-gray-800 cursor-pointer"
+                      onClick={() => openEdit(item)}
+                    >
+                      <td className="p-3 font-mono text-xs text-blue-600">
+                        {item.referenceNumber}
+                      </td>
+                      <td className="p-3">
+                        <div className="font-medium text-gray-900 dark:text-gray-100">
+                          {item.partyName}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">
+                          {item.reasonForInclusion}
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${typeColors[item.partyType] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                        >
+                          {item.partyType}
+                        </span>
+                      </td>
+                      <td className="p-3 text-gray-600">
+                        {item.reviewFrequency.replace(/_/g, ' ')}
+                      </td>
+                      <td className="p-3">
+                        <Badge variant={statusColors[item.status] as any}>{item.status}</Badge>
+                      </td>
+                      <td className="p-3 text-gray-600">{item._count?.issues ?? 0}</td>
+                      <td className="p-3">
+                        <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                          <Button variant="outline" size="sm" onClick={() => openEdit(item)}>
+                            Edit
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleDelete(item.id)}>
+                            Delete
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -294,50 +393,94 @@ export default function InterestedPartiesPage() {
       {/* Pagination */}
       {pagination.totalPages > 1 && (
         <div className="flex justify-center gap-2">
-          <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}>Previous</Button>
-          <span className="text-sm text-gray-500 dark:text-gray-400 py-2">Page {pagination.page} of {pagination.totalPages}</span>
-          <Button variant="outline" size="sm" disabled={pagination.page >= pagination.totalPages} onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}>Next</Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={pagination.page <= 1}
+            onClick={() => setPagination((p) => ({ ...p, page: p.page - 1 }))}
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-gray-500 dark:text-gray-400 py-2">
+            Page {pagination.page} of {pagination.totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={pagination.page >= pagination.totalPages}
+            onClick={() => setPagination((p) => ({ ...p, page: p.page + 1 }))}
+          >
+            Next
+          </Button>
         </div>
       )}
 
       {/* Create/Edit Modal */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editItem ? 'Edit Interested Party' : 'Add Interested Party'} size="lg">
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editItem ? 'Edit Interested Party' : 'Add Interested Party'}
+        size="lg"
+      >
         <div className="space-y-4">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+              {error}
+            </div>
           )}
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
               <Label>Party Name *</Label>
               <Input
                 value={form.partyName}
-                onChange={e => setForm(f => ({ ...f, partyName: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, partyName: e.target.value }))}
                 placeholder="e.g. Customers, Regulatory Bodies, Employees"
               />
             </div>
             <div>
               <Label>Party Type *</Label>
-              <Select value={form.partyType} onChange={e => setForm(f => ({ ...f, partyType: e.target.value }))}>
-                {PARTY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              <Select
+                value={form.partyType}
+                onChange={(e) => setForm((f) => ({ ...f, partyType: e.target.value }))}
+              >
+                {PARTY_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
               </Select>
             </div>
             <div>
               <Label>Review Frequency</Label>
-              <Select value={form.reviewFrequency} onChange={e => setForm(f => ({ ...f, reviewFrequency: e.target.value }))}>
-                {REVIEW_FREQUENCIES.map(f => <option key={f} value={f}>{f.replace(/_/g, ' ')}</option>)}
+              <Select
+                value={form.reviewFrequency}
+                onChange={(e) => setForm((f) => ({ ...f, reviewFrequency: e.target.value }))}
+              >
+                {REVIEW_FREQUENCIES.map((f) => (
+                  <option key={f} value={f}>
+                    {f.replace(/_/g, ' ')}
+                  </option>
+                ))}
               </Select>
             </div>
             <div>
               <Label>Status</Label>
-              <Select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
-                {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+              <Select
+                value={form.status}
+                onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+              >
+                {STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
               </Select>
             </div>
             <div>
               <Label>Communication Method</Label>
               <Input
                 value={form.communicationMethod}
-                onChange={e => setForm(f => ({ ...f, communicationMethod: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, communicationMethod: e.target.value }))}
                 placeholder="e.g. Email, Meeting, Survey"
               />
             </div>
@@ -345,7 +488,7 @@ export default function InterestedPartiesPage() {
               <Label>Reason for Inclusion *</Label>
               <Textarea
                 value={form.reasonForInclusion}
-                onChange={e => setForm(f => ({ ...f, reasonForInclusion: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, reasonForInclusion: e.target.value }))}
                 placeholder="Why is this party relevant to the QMS?"
                 rows={2}
               />
@@ -354,7 +497,7 @@ export default function InterestedPartiesPage() {
               <Label>Needs and Expectations</Label>
               <Textarea
                 value={form.needsExpectations}
-                onChange={e => setForm(f => ({ ...f, needsExpectations: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, needsExpectations: e.target.value }))}
                 placeholder="What are the needs and expectations of this interested party?"
                 rows={3}
               />
@@ -363,7 +506,7 @@ export default function InterestedPartiesPage() {
               <Label>Notes</Label>
               <Textarea
                 value={form.notes}
-                onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
                 placeholder="Additional notes..."
                 rows={2}
               />
@@ -371,8 +514,12 @@ export default function InterestedPartiesPage() {
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
-          <Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : editItem ? 'Update' : 'Create'}</Button>
+          <Button variant="outline" onClick={() => setModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? 'Saving...' : editItem ? 'Update' : 'Create'}
+          </Button>
         </ModalFooter>
       </Modal>
     </div>

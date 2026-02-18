@@ -15,7 +15,10 @@ export function calculateFireRiskLevel(likelihood: number, consequence: number):
   return 'INTOLERABLE';
 }
 
-export function isDrillOverdue(lastDrillDate: Date | null, requiredFrequencyMonths: number = 6): boolean {
+export function isDrillOverdue(
+  lastDrillDate: Date | null,
+  requiredFrequencyMonths: number = 6
+): boolean {
   if (!lastDrillDate) return true;
   const now = new Date();
   const dueDate = new Date(lastDrillDate);
@@ -27,7 +30,11 @@ export function isFraOverdue(nextReviewDate: Date): boolean {
   return new Date() > new Date(nextReviewDate);
 }
 
-export function isWardenCoverageAdequate(wardenCount: number, floorCount: number, occupancy: number): boolean {
+export function isWardenCoverageAdequate(
+  wardenCount: number,
+  floorCount: number,
+  occupancy: number
+): boolean {
   // FSO guidance: minimum 1 warden per floor, plus 1 per 50 occupants
   const minWardensByFloors = floorCount;
   const minWardensByOccupancy = Math.ceil(occupancy / 50);

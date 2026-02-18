@@ -14,7 +14,9 @@ test.describe('Health & Safety CRUD', () => {
   });
 
   test('should display H&S dashboard', async ({ page }) => {
-    await expect(page.locator('text=/Health.*Safety|Risk|Incident/i').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=/Health.*Safety|Risk|Incident/i').first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should list risks via API', async ({ page }) => {

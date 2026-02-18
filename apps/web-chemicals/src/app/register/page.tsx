@@ -145,7 +145,9 @@ export default function RegisterPage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Chemical Register</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                Chemical Register
+              </h1>
               <p className="text-gray-500 dark:text-gray-400 mt-1">
                 Manage all registered chemicals and their classifications
               </p>
@@ -206,19 +208,36 @@ export default function RegisterPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Chemical Name</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">CAS No.</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Signal Word</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Pictograms</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Risk Level</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">SDS Status</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Actions</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">
+                        Chemical Name
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">
+                        CAS No.
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">
+                        Signal Word
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">
+                        Pictograms
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">
+                        Risk Level
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">
+                        SDS Status
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {chemicals.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-12 text-gray-500 dark:text-gray-400">
+                        <td
+                          colSpan={7}
+                          className="text-center py-12 text-gray-500 dark:text-gray-400"
+                        >
                           No chemicals found. Add your first chemical to get started.
                         </td>
                       </tr>
@@ -232,7 +251,9 @@ export default function RegisterPage() {
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
                               <FlaskConical className="h-4 w-4 text-red-500" />
-                              <span className="font-medium text-gray-900 dark:text-gray-100">{chem.name}</span>
+                              <span className="font-medium text-gray-900 dark:text-gray-100">
+                                {chem.name}
+                              </span>
                               {chem.cmrFlag && (
                                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
                                   CMR
@@ -245,7 +266,9 @@ export default function RegisterPage() {
                           </td>
                           <td className="px-4 py-3">
                             {chem.signalWord ? (
-                              <span className={`text-xs font-medium px-2 py-1 rounded-full ${signalBadgeClass[chem.signalWord] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'}`}>
+                              <span
+                                className={`text-xs font-medium px-2 py-1 rounded-full ${signalBadgeClass[chem.signalWord] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'}`}
+                              >
                                 {chem.signalWord}
                               </span>
                             ) : (
@@ -266,7 +289,9 @@ export default function RegisterPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${riskBadgeClass[chem.riskLevel] || 'bg-gray-100 text-gray-800'}`}>
+                            <span
+                              className={`text-xs font-medium px-2 py-1 rounded-full ${riskBadgeClass[chem.riskLevel] || 'bg-gray-100 text-gray-800'}`}
+                            >
                               {chem.riskLevel?.replace('_', ' ')}
                             </span>
                           </td>
@@ -276,8 +301,8 @@ export default function RegisterPage() {
                                 chem.sdsStatus === 'CURRENT'
                                   ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
                                   : chem.sdsStatus === 'OVERDUE'
-                                  ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                                  : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
+                                    ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                                    : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
                               }`}
                             >
                               {chem.sdsStatus || 'NONE'}
@@ -297,11 +322,18 @@ export default function RegisterPage() {
         </div>
       </main>
 
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Add New Chemical" size="lg">
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="Add New Chemical"
+        size="lg"
+      >
         <div className="space-y-4 p-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Chemical Name *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Chemical Name *
+              </label>
               <input
                 type="text"
                 value={form.name}
@@ -311,7 +343,9 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CAS Number</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                CAS Number
+              </label>
               <input
                 type="text"
                 value={form.casNumber}
@@ -324,7 +358,9 @@ export default function RegisterPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Signal Word</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Signal Word
+              </label>
               <select
                 value={form.signalWord}
                 onChange={(e) => setForm({ ...form, signalWord: e.target.value })}
@@ -335,7 +371,9 @@ export default function RegisterPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Risk Level</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Risk Level
+              </label>
               <select
                 value={form.riskLevel}
                 onChange={(e) => setForm({ ...form, riskLevel: e.target.value })}
@@ -351,7 +389,9 @@ export default function RegisterPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Physical Form</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Physical Form
+              </label>
               <select
                 value={form.physicalForm}
                 onChange={(e) => setForm({ ...form, physicalForm: e.target.value })}
@@ -365,7 +405,9 @@ export default function RegisterPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">WEL Limit (mg/m3)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                WEL Limit (mg/m3)
+              </label>
               <input
                 type="text"
                 value={form.welLimit}
@@ -377,7 +419,9 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">GHS Pictograms</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              GHS Pictograms
+            </label>
             <div className="flex flex-wrap gap-2">
               {Object.entries(GHS_PICTOGRAM_LABELS).map(([code, label]) => (
                 <button
@@ -397,7 +441,9 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Storage Class</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Storage Class
+            </label>
             <input
               type="text"
               value={form.storageClass}
@@ -418,7 +464,9 @@ export default function RegisterPage() {
           </label>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Description
+            </label>
             <textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}

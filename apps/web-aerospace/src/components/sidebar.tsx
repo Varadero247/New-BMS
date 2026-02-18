@@ -50,7 +50,15 @@ const externalLinks = [
   { name: 'Settings', href: `${APP_BASE}:3004`, icon: Settings },
 ];
 
-function NavSection({ title, items, pathname }: { title?: string; items: typeof aerospaceNavigation; pathname: string }) {
+function NavSection({
+  title,
+  items,
+  pathname,
+}: {
+  title?: string;
+  items: typeof aerospaceNavigation;
+  pathname: string;
+}) {
   return (
     <div className={title ? 'mt-4 pt-4 border-t border-border' : ''}>
       {title && (
@@ -61,7 +69,8 @@ function NavSection({ title, items, pathname }: { title?: string; items: typeof 
       <ul className="space-y-1">
         {items.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+          const isActive =
+            pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
 
           return (
             <li key={item.name}>
@@ -73,7 +82,9 @@ function NavSection({ title, items, pathname }: { title?: string; items: typeof 
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
               >
-                <Icon className={`h-5 w-5 ${isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                <Icon
+                  className={`h-5 w-5 ${isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`}
+                />
                 <span className="text-sm font-medium">{item.name}</span>
               </Link>
             </li>
@@ -91,8 +102,12 @@ export function Sidebar() {
     <aside className="w-64 bg-card border-r border-border flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-border bg-indigo-50 dark:bg-indigo-900/10">
-        <h1 className="text-xl font-bold font-display text-indigo-900 dark:text-indigo-100">Aerospace</h1>
-        <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1">AS9100D Quality Management</p>
+        <h1 className="text-xl font-bold font-display text-indigo-900 dark:text-indigo-100">
+          Aerospace
+        </h1>
+        <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1">
+          AS9100D Quality Management
+        </p>
       </div>
 
       {/* Navigation */}

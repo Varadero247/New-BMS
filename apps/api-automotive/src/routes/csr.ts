@@ -28,12 +28,14 @@ router.get('/oems', scopeToUser, async (req: AuthRequest, res: Response) => {
       take: 200,
     });
 
-    const oems = results.map(r => r.oem);
+    const oems = results.map((r) => r.oem);
 
     res.json({ success: true, data: oems });
   } catch (error) {
     logger.error('List OEMs error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list OEMs' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list OEMs' } });
   }
 });
 
@@ -69,7 +71,10 @@ router.get('/gaps', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List CSR gaps error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list CSR gaps' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list CSR gaps' },
+    });
   }
 });
 
@@ -106,7 +111,10 @@ router.get('/oems/:oem', scopeToUser, async (req: AuthRequest, res: Response) =>
     });
   } catch (error) {
     logger.error('List CSRs for OEM error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list CSRs for OEM' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list CSRs for OEM' },
+    });
   }
 });
 
@@ -117,7 +125,10 @@ router.put('/:id/status', async (req: AuthRequest, res: Response) => {
 
     const existing = await prisma.csrRequirement.findUnique({ where: { id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CSR requirement not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'CSR requirement not found' },
+      });
     }
 
     const schema = z.object({
@@ -142,10 +153,20 @@ router.put('/:id/status', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update CSR status error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update CSR status' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update CSR status' },
+    });
   }
 });
 

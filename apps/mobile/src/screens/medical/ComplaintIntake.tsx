@@ -18,7 +18,9 @@ export interface ComplaintDraft {
   synced: boolean;
 }
 
-export function createComplaintDraft(data: Omit<ComplaintDraft, 'id' | 'createdAt' | 'synced' | 'photoUris'>): ComplaintDraft {
+export function createComplaintDraft(
+  data: Omit<ComplaintDraft, 'id' | 'createdAt' | 'synced' | 'photoUris'>
+): ComplaintDraft {
   return {
     ...data,
     id: `complaint_${Date.now()}`,

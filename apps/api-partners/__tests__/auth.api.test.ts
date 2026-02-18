@@ -40,7 +40,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/auth', authRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockPartner = {
   id: 'partner-1',
@@ -60,14 +62,12 @@ describe('POST /api/auth/register', () => {
     (prisma.mktPartner.create as jest.Mock).mockResolvedValue(mockPartner);
     (prisma.mktPartner.update as jest.Mock).mockResolvedValue(mockPartner);
 
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send({
-        email: 'new@partner.com',
-        password: 'securepass123',
-        name: 'New Partner',
-        company: 'NewCo',
-      });
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'new@partner.com',
+      password: 'securepass123',
+      name: 'New Partner',
+      company: 'NewCo',
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -78,48 +78,40 @@ describe('POST /api/auth/register', () => {
   it('returns 409 for existing email', async () => {
     (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
 
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send({
-        email: 'partner@test.com',
-        password: 'securepass123',
-        name: 'Partner',
-        company: 'Co',
-      });
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'partner@test.com',
+      password: 'securepass123',
+      name: 'Partner',
+      company: 'Co',
+    });
 
     expect(res.status).toBe(409);
   });
 
   it('returns 400 for invalid email', async () => {
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send({
-        email: 'not-email',
-        password: 'securepass123',
-        name: 'Partner',
-        company: 'Co',
-      });
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'not-email',
+      password: 'securepass123',
+      name: 'Partner',
+      company: 'Co',
+    });
 
     expect(res.status).toBe(400);
   });
 
   it('returns 400 for short password', async () => {
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send({
-        email: 'test@test.com',
-        password: '123',
-        name: 'Partner',
-        company: 'Co',
-      });
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'test@test.com',
+      password: '123',
+      name: 'Partner',
+      company: 'Co',
+    });
 
     expect(res.status).toBe(400);
   });
 
   it('returns 400 for missing required fields', async () => {
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send({ email: 'test@test.com' });
+    const res = await request(app).post('/api/auth/register').send({ email: 'test@test.com' });
 
     expect(res.status).toBe(400);
   });
@@ -129,14 +121,12 @@ describe('POST /api/auth/register', () => {
     (prisma.mktPartner.create as jest.Mock).mockResolvedValue(mockPartner);
     (prisma.mktPartner.update as jest.Mock).mockResolvedValue(mockPartner);
 
-    await request(app)
-      .post('/api/auth/register')
-      .send({
-        email: 'new@partner.com',
-        password: 'securepass123',
-        name: 'Partner',
-        company: 'Co',
-      });
+    await request(app).post('/api/auth/register').send({
+      email: 'new@partner.com',
+      password: 'securepass123',
+      name: 'Partner',
+      company: 'Co',
+    });
 
     expect(bcrypt.hash).toHaveBeenCalledWith('securepass123', 12);
   });
@@ -177,7 +167,10 @@ describe('POST /api/auth/login', () => {
   });
 
   it('returns 403 for suspended partner', async () => {
-    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ ...mockPartner, status: 'SUSPENDED' });
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({
+      ...mockPartner,
+      status: 'SUSPENDED',
+    });
 
     const res = await request(app)
       .post('/api/auth/login')

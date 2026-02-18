@@ -1,19 +1,48 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate , type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
-import { notifyEmergencyDeclared, notifyIncidentStatusChange } from '../services/notificationTriggers';
+import {
+  notifyEmergencyDeclared,
+  notifyIncidentStatusChange,
+} from '../services/notificationTriggers';
 
 const router = Router();
 router.param('id', validateIdParam());
 const logger = createLogger('emergency-incidents');
 
-const emergencyTypeEnum = z.enum(['FIRE', 'EXPLOSION', 'CHEMICAL_SPILL', 'GAS_LEAK', 'FLOOD', 'STRUCTURAL_FAILURE', 'POWER_FAILURE', 'CYBER_ATTACK', 'BOMB_THREAT', 'CIVIL_UNREST', 'PANDEMIC', 'SEVERE_WEATHER', 'UTILITY_FAILURE', 'MEDICAL_MASS_CASUALTY', 'TERRORISM', 'ENVIRONMENTAL_RELEASE', 'SUPPLY_CHAIN_DISRUPTION', 'OTHER']);
+const emergencyTypeEnum = z.enum([
+  'FIRE',
+  'EXPLOSION',
+  'CHEMICAL_SPILL',
+  'GAS_LEAK',
+  'FLOOD',
+  'STRUCTURAL_FAILURE',
+  'POWER_FAILURE',
+  'CYBER_ATTACK',
+  'BOMB_THREAT',
+  'CIVIL_UNREST',
+  'PANDEMIC',
+  'SEVERE_WEATHER',
+  'UTILITY_FAILURE',
+  'MEDICAL_MASS_CASUALTY',
+  'TERRORISM',
+  'ENVIRONMENTAL_RELEASE',
+  'SUPPLY_CHAIN_DISRUPTION',
+  'OTHER',
+]);
 const severityEnum = z.enum(['MINOR', 'SIGNIFICANT', 'MAJOR', 'CRITICAL', 'CATASTROPHIC']);
 const statusEnum = z.enum(['STANDBY', 'ELEVATED', 'ACTIVE', 'CONTAINED', 'CLOSED']);
-const evacuationTypeEnum = z.enum(['FULL_EVACUATION', 'PARTIAL_EVACUATION', 'HORIZONTAL_EVACUATION', 'PHASED_EVACUATION', 'STAY_PUT', 'SHELTER_IN_PLACE']);
+const evacuationTypeEnum = z.enum([
+  'FULL_EVACUATION',
+  'PARTIAL_EVACUATION',
+  'HORIZONTAL_EVACUATION',
+  'PHASED_EVACUATION',
+  'STAY_PUT',
+  'SHELTER_IN_PLACE',
+]);
 
 // Quick declaration schema — optimised for speed (cardinal rule #4)
 const declareIncidentSchema = z.object({
@@ -75,13 +104,38 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { organisationId: orgId };
     if (status) where.status = status as any;
     if (emergencyType) where.emergencyType = emergencyType as any;
-    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
     const [data, total] = await Promise.all([
-      prisma.femEmergencyIncident.findMany({ where, skip, take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100), orderBy: { reportedAt: 'desc' }, include: { premises: { select: { name: true } }, _count: { select: { decisions: true, timeline: true } } } }),
+      prisma.femEmergencyIncident.findMany({
+        where,
+        skip,
+        take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100),
+        orderBy: { reportedAt: 'desc' },
+        include: {
+          premises: { select: { name: true } },
+          _count: { select: { decisions: true, timeline: true } },
+        },
+      }),
       prisma.femEmergencyIncident.count({ where }),
     ]);
-    res.json({ success: true, data, pagination: { page: Math.max(1, parseInt(page, 10) || 1), limit: Math.max(1, parseInt(limit, 10) || 20), total, totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)) } });
-  } catch (error: unknown) { logger.error('Failed to fetch incidents', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch incidents' } }); }
+    res.json({
+      success: true,
+      data,
+      pagination: {
+        page: Math.max(1, parseInt(page, 10) || 1),
+        limit: Math.max(1, parseInt(limit, 10) || 20),
+        total,
+        totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)),
+      },
+    });
+  } catch (error: unknown) {
+    logger.error('Failed to fetch incidents', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch incidents' },
+    });
+  }
 });
 
 // GET /api/incidents/active — currently active incidents ONLY (before /:id)
@@ -90,18 +144,32 @@ router.get('/active', authenticate, async (req: Request, res: Response) => {
     const orgId = (req as any).user?.orgId || 'default';
     const data = await prisma.femEmergencyIncident.findMany({
       where: { organisationId: orgId, status: { in: ['ACTIVE', 'ELEVATED', 'CONTAINED'] } },
-      include: { premises: { select: { name: true } }, _count: { select: { decisions: true, timeline: true } } },
+      include: {
+        premises: { select: { name: true } },
+        _count: { select: { decisions: true, timeline: true } },
+      },
       orderBy: { reportedAt: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch active incidents', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch active incidents' } }); }
+  } catch (error: unknown) {
+    logger.error('Failed to fetch active incidents', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch active incidents' },
+    });
+  }
 });
 
 // POST /api/incidents — declare new emergency incident (FAST — cardinal rule #4)
 router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = declareIncidentSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const orgId = (req as any).user?.orgId || 'default';
     const incidentNumber = await generateIncidentNumber(orgId);
     const data = await prisma.femEmergencyIncident.create({
@@ -123,12 +191,28 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     });
     // Add initial timeline event
     await prisma.femIncidentTimelineEvent.create({
-      data: { incidentId: data.id, eventType: 'DECLARED', description: `Emergency declared: ${parsed.data.emergencyType} - ${parsed.data.severity}`, recordedBy: (req as AuthRequest).user?.id },
+      data: {
+        incidentId: data.id,
+        eventType: 'DECLARED',
+        description: `Emergency declared: ${parsed.data.emergencyType} - ${parsed.data.severity}`,
+        recordedBy: (req as AuthRequest).user?.id,
+      },
     });
     // Trigger notifications
-    notifyEmergencyDeclared(incidentNumber, parsed.data.emergencyType, parsed.data.severity, data.premises?.name);
+    notifyEmergencyDeclared(
+      incidentNumber,
+      parsed.data.emergencyType,
+      parsed.data.severity,
+      data.premises?.name
+    );
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to declare incident', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to declare incident' } }); }
+  } catch (error: unknown) {
+    logger.error('Failed to declare incident', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to declare incident' },
+    });
+  }
 });
 
 // GET /api/incidents/:id — full incident with all logs
@@ -145,57 +229,122 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
         timeline: { orderBy: { timestamp: 'desc' } },
       },
     });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+    if (!item)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     res.json({ success: true, data: item });
-  } catch (error: unknown) { logger.error('Failed to fetch incident', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch incident' } }); }
+  } catch (error: unknown) {
+    logger.error('Failed to fetch incident', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch incident' },
+    });
+  }
 });
 
 // PUT /api/incidents/:id — update incident
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateIncidentSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const orgId = (req as any).user?.orgId || 'default';
-    const existing = await prisma.femEmergencyIncident.findFirst({ where: { id: req.params.id, organisationId: orgId } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+    const existing = await prisma.femEmergencyIncident.findFirst({
+      where: { id: req.params.id, organisationId: orgId },
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     const updateData: Record<string, unknown> = { ...parsed.data };
-    if (parsed.data.fireServiceNotified && !existing.fireServiceNotifiedAt) updateData.fireServiceNotifiedAt = new Date();
-    if (parsed.data.regulatorNotified && !existing.regulatorNotifiedAt) updateData.regulatorNotifiedAt = new Date();
-    if (parsed.data.status === 'CONTAINED' && !existing.containedAt) updateData.containedAt = new Date();
-    const data = await prisma.femEmergencyIncident.update({ where: { id: req.params.id }, data: updateData });
+    if (parsed.data.fireServiceNotified && !existing.fireServiceNotifiedAt)
+      updateData.fireServiceNotifiedAt = new Date();
+    if (parsed.data.regulatorNotified && !existing.regulatorNotifiedAt)
+      updateData.regulatorNotifiedAt = new Date();
+    if (parsed.data.status === 'CONTAINED' && !existing.containedAt)
+      updateData.containedAt = new Date();
+    const data = await prisma.femEmergencyIncident.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
     if (parsed.data.status && parsed.data.status !== existing.status) {
       await prisma.femIncidentTimelineEvent.create({
-        data: { incidentId: data.id, eventType: 'STATUS_CHANGE', description: `Status changed from ${existing.status} to ${parsed.data.status}`, recordedBy: (req as AuthRequest).user?.id },
+        data: {
+          incidentId: data.id,
+          eventType: 'STATUS_CHANGE',
+          description: `Status changed from ${existing.status} to ${parsed.data.status}`,
+          recordedBy: (req as AuthRequest).user?.id,
+        },
       });
       notifyIncidentStatusChange(existing.incidentNumber, parsed.data.status);
     }
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update incident', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update incident' } }); }
+  } catch (error: unknown) {
+    logger.error('Failed to update incident', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update incident' },
+    });
+  }
 });
 
 // POST /api/incidents/:id/close — close incident and trigger review
 router.post('/:id/close', authenticate, async (req: Request, res: Response) => {
   try {
-    const _schema = z.object({ lessonsLearned: z.string().trim().optional(), rootCauseCategory: z.string().trim().optional(), riddorReportable: z.boolean().optional(), riddorCategory: z.string().trim().optional() });
+    const _schema = z.object({
+      lessonsLearned: z.string().trim().optional(),
+      rootCauseCategory: z.string().trim().optional(),
+      riddorReportable: z.boolean().optional(),
+      riddorCategory: z.string().trim().optional(),
+    });
     const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    if (!_parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+      });
     const { lessonsLearned, rootCauseCategory, riddorReportable, riddorCategory } = _parsed.data;
     const orgId = (req as any).user?.orgId || 'default';
-    const existing = await prisma.femEmergencyIncident.findFirst({ where: { id: req.params.id, organisationId: orgId } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+    const existing = await prisma.femEmergencyIncident.findFirst({
+      where: { id: req.params.id, organisationId: orgId },
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     const data = await prisma.femEmergencyIncident.update({
       where: { id: req.params.id },
       data: {
-        status: 'CLOSED', closedAt: new Date(), lessonsLearned, rootCauseCategory,
-        riddorReportable: riddorReportable || false, riddorCategory,
-        reviewCompletedAt: new Date(), reviewedBy: (req as AuthRequest).user?.id,
+        status: 'CLOSED',
+        closedAt: new Date(),
+        lessonsLearned,
+        rootCauseCategory,
+        riddorReportable: riddorReportable || false,
+        riddorCategory,
+        reviewCompletedAt: new Date(),
+        reviewedBy: (req as AuthRequest).user?.id,
       },
     });
     await prisma.femIncidentTimelineEvent.create({
-      data: { incidentId: data.id, eventType: 'CLOSED', description: 'Incident closed and review completed', recordedBy: (req as AuthRequest).user?.id },
+      data: {
+        incidentId: data.id,
+        eventType: 'CLOSED',
+        description: 'Incident closed and review completed',
+        recordedBy: (req as AuthRequest).user?.id,
+      },
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to close incident', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CLOSE_ERROR', message: 'Failed to close incident' } }); }
+  } catch (error: unknown) {
+    logger.error('Failed to close incident', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'CLOSE_ERROR', message: 'Failed to close incident' },
+    });
+  }
 });
 
 // POST /api/incidents/:id/decision — log decision (ISO 22320, append-only)
@@ -210,16 +359,38 @@ router.post('/:id/decision', authenticate, async (req: Request, res: Response) =
       resourcesAllocated: z.string().optional(),
     });
     const parsed = schema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const existingOrgId = (req as any).user?.orgId || 'default';
-    const existing = await prisma.femEmergencyIncident.findFirst({ where: { id: req.params.id, organisationId: existingOrgId } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
-    const data = await prisma.femIncidentDecisionLog.create({ data: { incidentId: req.params.id, ...parsed.data } });
+    const existing = await prisma.femEmergencyIncident.findFirst({
+      where: { id: req.params.id, organisationId: existingOrgId },
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+    const data = await prisma.femIncidentDecisionLog.create({
+      data: { incidentId: req.params.id, ...parsed.data },
+    });
     await prisma.femIncidentTimelineEvent.create({
-      data: { incidentId: req.params.id, eventType: 'DECISION', description: `Decision: ${parsed.data.decisionMade}`, recordedBy: (req as AuthRequest).user?.id },
+      data: {
+        incidentId: req.params.id,
+        eventType: 'DECISION',
+        description: `Decision: ${parsed.data.decisionMade}`,
+        recordedBy: (req as AuthRequest).user?.id,
+      },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to log decision', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log decision' } }); }
+  } catch (error: unknown) {
+    logger.error('Failed to log decision', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to log decision' },
+    });
+  }
 });
 
 // POST /api/incidents/:id/resource — log resource deployment
@@ -233,16 +404,38 @@ router.post('/:id/resource', authenticate, async (req: Request, res: Response) =
       notes: z.string().optional(),
     });
     const parsed = schema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const existingOrgId = (req as any).user?.orgId || 'default';
-    const existing = await prisma.femEmergencyIncident.findFirst({ where: { id: req.params.id, organisationId: existingOrgId } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
-    const data = await prisma.femIncidentResourceLog.create({ data: { incidentId: req.params.id, ...parsed.data } });
+    const existing = await prisma.femEmergencyIncident.findFirst({
+      where: { id: req.params.id, organisationId: existingOrgId },
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+    const data = await prisma.femIncidentResourceLog.create({
+      data: { incidentId: req.params.id, ...parsed.data },
+    });
     await prisma.femIncidentTimelineEvent.create({
-      data: { incidentId: req.params.id, eventType: 'RESOURCE', description: `Resource deployed: ${parsed.data.resourceType} - ${parsed.data.resourceName}`, recordedBy: (req as AuthRequest).user?.id },
+      data: {
+        incidentId: req.params.id,
+        eventType: 'RESOURCE',
+        description: `Resource deployed: ${parsed.data.resourceType} - ${parsed.data.resourceName}`,
+        recordedBy: (req as AuthRequest).user?.id,
+      },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to log resource', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log resource' } }); }
+  } catch (error: unknown) {
+    logger.error('Failed to log resource', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to log resource' },
+    });
+  }
 });
 
 // POST /api/incidents/:id/communication — log communication
@@ -256,30 +449,80 @@ router.post('/:id/communication', authenticate, async (req: Request, res: Respon
       sentBy: z.string().optional(),
     });
     const parsed = schema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const existingOrgId = (req as any).user?.orgId || 'default';
-    const existing = await prisma.femEmergencyIncident.findFirst({ where: { id: req.params.id, organisationId: existingOrgId } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
-    const data = await prisma.femIncidentCommunicationLog.create({ data: { incidentId: req.params.id, ...parsed.data, sentBy: parsed.data.sentBy || (req as AuthRequest).user?.id } });
+    const existing = await prisma.femEmergencyIncident.findFirst({
+      where: { id: req.params.id, organisationId: existingOrgId },
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+    const data = await prisma.femIncidentCommunicationLog.create({
+      data: {
+        incidentId: req.params.id,
+        ...parsed.data,
+        sentBy: parsed.data.sentBy || (req as AuthRequest).user?.id,
+      },
+    });
     await prisma.femIncidentTimelineEvent.create({
-      data: { incidentId: req.params.id, eventType: 'COMMUNICATION', description: `${parsed.data.communicationType} to ${parsed.data.recipient} via ${parsed.data.method}`, recordedBy: (req as AuthRequest).user?.id },
+      data: {
+        incidentId: req.params.id,
+        eventType: 'COMMUNICATION',
+        description: `${parsed.data.communicationType} to ${parsed.data.recipient} via ${parsed.data.method}`,
+        recordedBy: (req as AuthRequest).user?.id,
+      },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to log communication', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log communication' } }); }
+  } catch (error: unknown) {
+    logger.error('Failed to log communication', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to log communication' },
+    });
+  }
 });
 
 // POST /api/incidents/:id/timeline — add timeline event
 router.post('/:id/timeline', authenticate, async (req: Request, res: Response) => {
   try {
-    const schema = z.object({ eventType: z.string().trim().min(1).max(2000), description: z.string().trim().min(1).max(2000) });
+    const schema = z.object({
+      eventType: z.string().trim().min(1).max(2000),
+      description: z.string().trim().min(1).max(2000),
+    });
     const parsed = schema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     const existingOrgId = (req as any).user?.orgId || 'default';
-    const existing = await prisma.femEmergencyIncident.findFirst({ where: { id: req.params.id, organisationId: existingOrgId } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
-    const data = await prisma.femIncidentTimelineEvent.create({ data: { incidentId: req.params.id, ...parsed.data, recordedBy: (req as AuthRequest).user?.id } });
+    const existing = await prisma.femEmergencyIncident.findFirst({
+      where: { id: req.params.id, organisationId: existingOrgId },
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
+    const data = await prisma.femIncidentTimelineEvent.create({
+      data: {
+        incidentId: req.params.id,
+        ...parsed.data,
+        recordedBy: (req as AuthRequest).user?.id,
+      },
+    });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to add timeline event', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add timeline event' } }); }
+  } catch (error: unknown) {
+    logger.error('Failed to add timeline event', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add timeline event' },
+    });
+  }
 });
 
 // GET /api/incidents/:id/timeline — full chronological log
@@ -288,9 +531,16 @@ router.get('/:id/timeline', authenticate, async (req: Request, res: Response) =>
     const data = await prisma.femIncidentTimelineEvent.findMany({
       where: { incidentId: req.params.id },
       orderBy: { timestamp: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch timeline', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch timeline' } }); }
+  } catch (error: unknown) {
+    logger.error('Failed to fetch timeline', { error: (error as Error).message });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch timeline' },
+    });
+  }
 });
 
 export default router;

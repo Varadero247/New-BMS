@@ -77,7 +77,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
   }, [theme, mounted]);
 
   const toggle = useCallback(() => {
-    setTheme(t => (t === 'light' ? 'dark' : 'light'));
+    setTheme((t) => (t === 'light' ? 'dark' : 'light'));
   }, []);
 
   // Render a placeholder with matching dimensions until mounted to avoid hydration mismatch
@@ -100,18 +100,14 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
         <SunIcon
           className={cn(
             'h-5 w-5 absolute inset-0 transition-all duration-200',
-            theme === 'light'
-              ? 'opacity-100 rotate-0 scale-100'
-              : 'opacity-0 -rotate-90 scale-50'
+            theme === 'light' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-50'
           )}
         />
         {/* Moon icon — visible in dark mode */}
         <MoonIcon
           className={cn(
             'h-5 w-5 absolute inset-0 transition-all duration-200',
-            theme === 'dark'
-              ? 'opacity-100 rotate-0 scale-100'
-              : 'opacity-0 rotate-90 scale-50'
+            theme === 'dark' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-50'
           )}
         />
       </span>

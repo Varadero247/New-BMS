@@ -34,7 +34,10 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Failed to list changelogs', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list changelogs' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list changelogs' },
+    });
   }
 });
 
@@ -46,12 +49,17 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const changelog = await prisma.changelog.findUnique({ where: { id } });
     if (!changelog) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Changelog not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Changelog not found' } });
     }
     res.json({ success: true, data: { changelog } });
   } catch (err) {
     logger.error('Failed to get changelog', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get changelog' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get changelog' },
+    });
   }
 });
 

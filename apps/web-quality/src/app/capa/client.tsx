@@ -2,15 +2,35 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
 } from '@ims/ui';
 import {
-  Plus, Target, Search, Loader2, Sparkles,
-  AlertCircle, Clock, CheckCircle, Shield,
-  Trash2, Edit3, ChevronDown, ChevronUp,
-  BarChart3, AlertTriangle,
+  Plus,
+  Target,
+  Search,
+  Loader2,
+  Sparkles,
+  AlertCircle,
+  Clock,
+  CheckCircle,
+  Shield,
+  Trash2,
+  Edit3,
+  ChevronDown,
+  ChevronUp,
+  BarChart3,
+  AlertTriangle,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -25,7 +45,11 @@ const CAPA_TYPES = [
 const CAPA_STATUSES = [
   { value: 'OPEN', label: 'Open', color: 'bg-blue-100 text-blue-800' },
   { value: 'CONTAINMENT', label: 'Containment', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'ROOT_CAUSE_ANALYSIS', label: 'Root Cause Analysis', color: 'bg-orange-100 text-orange-800' },
+  {
+    value: 'ROOT_CAUSE_ANALYSIS',
+    label: 'Root Cause Analysis',
+    color: 'bg-orange-100 text-orange-800',
+  },
   { value: 'ACTION_PLANNING', label: 'Action Planning', color: 'bg-indigo-100 text-indigo-800' },
   { value: 'IMPLEMENTATION', label: 'Implementation', color: 'bg-purple-100 text-purple-800' },
   { value: 'VERIFICATION', label: 'Verification', color: 'bg-cyan-100 text-cyan-800' },
@@ -326,21 +350,21 @@ export default function CapaClient() {
   // ─── Helpers ──────────────────────────────────────────────────────
 
   const getSeverityBadge = (severity: string) => {
-    const s = SEVERITIES.find(sv => sv.value === severity);
+    const s = SEVERITIES.find((sv) => sv.value === severity);
     return s ? (
-      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${s.color}`}>
-        {s.label}
-      </span>
-    ) : <Badge variant="outline">{severity}</Badge>;
+      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${s.color}`}>{s.label}</span>
+    ) : (
+      <Badge variant="outline">{severity}</Badge>
+    );
   };
 
   const getStatusBadge = (status: string) => {
-    const s = CAPA_STATUSES.find(cs => cs.value === status);
+    const s = CAPA_STATUSES.find((cs) => cs.value === status);
     return s ? (
-      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${s.color}`}>
-        {s.label}
-      </span>
-    ) : <Badge variant="outline">{status?.replace(/_/g, ' ')}</Badge>;
+      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${s.color}`}>{s.label}</span>
+    ) : (
+      <Badge variant="outline">{status?.replace(/_/g, ' ')}</Badge>
+    );
   };
 
   const today = new Date();
@@ -348,20 +372,19 @@ export default function CapaClient() {
 
   const counts = {
     total: capas.length,
-    open: capas.filter(c =>
-      !['CLOSED', 'CANCELLED'].includes(c.status)
-    ).length,
-    inVerification: capas.filter(c => c.status === 'VERIFICATION').length,
-    closedThisMonth: capas.filter(c =>
-      c.status === 'CLOSED' &&
-      c.actualClosureDate &&
-      new Date(c.actualClosureDate) >= startOfMonth
+    open: capas.filter((c) => !['CLOSED', 'CANCELLED'].includes(c.status)).length,
+    inVerification: capas.filter((c) => c.status === 'VERIFICATION').length,
+    closedThisMonth: capas.filter(
+      (c) =>
+        c.status === 'CLOSED' &&
+        c.actualClosureDate &&
+        new Date(c.actualClosureDate) >= startOfMonth
     ).length,
   };
 
   // ─── Filtering ────────────────────────────────────────────────────
 
-  const filteredCapas = capas.filter(c => {
+  const filteredCapas = capas.filter((c) => {
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       return (
@@ -386,24 +409,22 @@ export default function CapaClient() {
   }
 
   function updateForm(field: keyof CapaForm, value: string | number | boolean) {
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   // ─── CAPA Actions CRUD ────────────────────────────────────────────
 
   function addCapaAction() {
-    setCapaActions(prev => [...prev, { ...emptyAction }]);
+    setCapaActions((prev) => [...prev, { ...emptyAction }]);
     setEditingActionIdx(capaActions.length);
   }
 
   function updateCapaAction(index: number, field: keyof CapaAction, value: string) {
-    setCapaActions(prev =>
-      prev.map((a, i) => (i === index ? { ...a, [field]: value } : a))
-    );
+    setCapaActions((prev) => prev.map((a, i) => (i === index ? { ...a, [field]: value } : a)));
   }
 
   function removeCapaAction(index: number) {
-    setCapaActions(prev => prev.filter((_, i) => i !== index));
+    setCapaActions((prev) => prev.filter((_, i) => i !== index));
     if (editingActionIdx === index) setEditingActionIdx(null);
   }
 
@@ -476,14 +497,16 @@ export default function CapaClient() {
         linkedDocument: form.linkedDocument || undefined,
         linkedHsCapa: form.linkedHsCapa || undefined,
         linkedEnvCapa: form.linkedEnvCapa || undefined,
-        actions: capaActions.filter(a => a.action.trim()).map(a => ({
-          action: a.action,
-          assignedTo: a.assignedTo || undefined,
-          dueDate: a.dueDate || undefined,
-          priority: a.priority,
-          status: a.status,
-          notes: a.notes || undefined,
-        })),
+        actions: capaActions
+          .filter((a) => a.action.trim())
+          .map((a) => ({
+            action: a.action,
+            assignedTo: a.assignedTo || undefined,
+            dueDate: a.dueDate || undefined,
+            priority: a.priority,
+            status: a.status,
+            notes: a.notes || undefined,
+          })),
       };
       await api.post('/capa', payload);
       setModalOpen(false);
@@ -549,7 +572,8 @@ export default function CapaClient() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">CAPA Management</h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">
-              Corrective and Preventive Actions with root cause analysis and effectiveness verification
+              Corrective and Preventive Actions with root cause analysis and effectiveness
+              verification
             </p>
           </div>
           <Button onClick={openCreateModal} className="flex items-center gap-2">
@@ -614,50 +638,59 @@ export default function CapaClient() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
-                  aria-label="Search CAPAs by title, reference, description..." placeholder="Search CAPAs by title, reference, description..."
+                  aria-label="Search CAPAs by title, reference, description..."
+                  placeholder="Search CAPAs by title, reference, description..."
                   value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <select
                 value={capaTypeFilter}
-                onChange={e => setCapaTypeFilter(e.target.value)}
+                onChange={(e) => setCapaTypeFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Types</option>
-                {CAPA_TYPES.map(t => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
+                {CAPA_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
                 ))}
               </select>
               <select
                 value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
+                onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Statuses</option>
-                {CAPA_STATUSES.map(s => (
-                  <option key={s.value} value={s.value}>{s.label}</option>
+                {CAPA_STATUSES.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
                 ))}
               </select>
               <select
                 value={severityFilter}
-                onChange={e => setSeverityFilter(e.target.value)}
+                onChange={(e) => setSeverityFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Severities</option>
-                {SEVERITIES.map(s => (
-                  <option key={s.value} value={s.value}>{s.label}</option>
+                {SEVERITIES.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
                 ))}
               </select>
               <select
                 value={triggerFilter}
-                onChange={e => setTriggerFilter(e.target.value)}
+                onChange={(e) => setTriggerFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Triggers</option>
-                {TRIGGER_SOURCES.map(t => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
+                {TRIGGER_SOURCES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
                 ))}
               </select>
             </div>
@@ -683,13 +716,13 @@ export default function CapaClient() {
           <CardContent>
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3, 4, 5].map(i => (
+                {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="h-28 bg-gray-100 dark:bg-gray-800 rounded-lg" />
                 ))}
               </div>
             ) : filteredCapas.length > 0 ? (
               <div className="space-y-4">
-                {filteredCapas.map(capa => {
+                {filteredCapas.map((capa) => {
                   const isOverdue =
                     capa.targetClosureDate &&
                     new Date(capa.targetClosureDate) < new Date() &&
@@ -710,7 +743,8 @@ export default function CapaClient() {
                               {capa.referenceNumber}
                             </span>
                             <Badge variant="outline">
-                              {CAPA_TYPES.find(t => t.value === capa.capaType)?.label || capa.capaType}
+                              {CAPA_TYPES.find((t) => t.value === capa.capaType)?.label ||
+                                capa.capaType}
                             </Badge>
                             {getSeverityBadge(capa.severity)}
                             {getStatusBadge(capa.status)}
@@ -721,7 +755,9 @@ export default function CapaClient() {
                               </Badge>
                             )}
                           </div>
-                          <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">{capa.title}</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                            {capa.title}
+                          </h3>
                           {capa.description && (
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                               {capa.description}
@@ -730,7 +766,9 @@ export default function CapaClient() {
                           <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 dark:text-gray-500">
                             {capa.triggerSource && (
                               <span>
-                                Trigger: {TRIGGER_SOURCES.find(t => t.value === capa.triggerSource)?.label || capa.triggerSource}
+                                Trigger:{' '}
+                                {TRIGGER_SOURCES.find((t) => t.value === capa.triggerSource)
+                                  ?.label || capa.triggerSource}
                               </span>
                             )}
                             {capa._count?.actions !== undefined && (
@@ -750,8 +788,8 @@ export default function CapaClient() {
                                     capa.percentComplete >= 100
                                       ? 'bg-green-500'
                                       : capa.percentComplete >= 50
-                                      ? 'bg-blue-500'
-                                      : 'bg-yellow-500'
+                                        ? 'bg-blue-500'
+                                        : 'bg-yellow-500'
                                   }`}
                                   style={{ width: `${Math.min(capa.percentComplete, 100)}%` }}
                                 />
@@ -761,12 +799,16 @@ export default function CapaClient() {
                         </div>
                         <div className="ml-4 text-right flex-shrink-0">
                           {capa.targetClosureDate && (
-                            <div className={`text-sm flex items-center gap-1 ${isOverdue ? 'text-red-600 font-medium' : 'text-gray-400'}`}>
+                            <div
+                              className={`text-sm flex items-center gap-1 ${isOverdue ? 'text-red-600 font-medium' : 'text-gray-400'}`}
+                            >
                               <Clock className="h-4 w-4" />
                               {new Date(capa.targetClosureDate).toLocaleDateString()}
                             </div>
                           )}
-                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Target Close</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                            Target Close
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -778,7 +820,8 @@ export default function CapaClient() {
                 <Target className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-600 mb-1">No CAPAs found</h3>
                 <p className="text-sm text-gray-400 dark:text-gray-500 mb-4">
-                  Create your first CAPA to start tracking corrective and preventive actions with root cause analysis.
+                  Create your first CAPA to start tracking corrective and preventive actions with
+                  root cause analysis.
                 </p>
                 <Button onClick={openCreateModal} className="flex items-center gap-2 mx-auto">
                   <Plus className="h-4 w-4" />
@@ -791,16 +834,11 @@ export default function CapaClient() {
       </div>
 
       {/* ─── Create CAPA Modal ───────────────────────────────────────── */}
-      <Modal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="Create CAPA"
-        size="full"
-      >
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Create CAPA" size="full">
         <form onSubmit={handleSubmit}>
           {/* Section Tabs */}
           <div className="flex gap-1 mb-6 border-b overflow-x-auto">
-            {sections.map(s => (
+            {sections.map((s) => (
               <button
                 key={s.key}
                 type="button"
@@ -836,10 +874,12 @@ export default function CapaClient() {
                     <Select
                       id="capa-type"
                       value={form.capaType}
-                      onChange={e => updateForm('capaType', e.target.value)}
+                      onChange={(e) => updateForm('capaType', e.target.value)}
                     >
-                      {CAPA_TYPES.map(t => (
-                        <option key={t.value} value={t.value}>{t.label}</option>
+                      {CAPA_TYPES.map((t) => (
+                        <option key={t.value} value={t.value}>
+                          {t.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -848,10 +888,12 @@ export default function CapaClient() {
                     <Select
                       id="capa-severity"
                       value={form.severity}
-                      onChange={e => updateForm('severity', e.target.value)}
+                      onChange={(e) => updateForm('severity', e.target.value)}
                     >
-                      {SEVERITIES.map(s => (
-                        <option key={s.value} value={s.value}>{s.label}</option>
+                      {SEVERITIES.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          {s.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -861,7 +903,7 @@ export default function CapaClient() {
                   <Input
                     id="capa-title"
                     value={form.title}
-                    onChange={e => updateForm('title', e.target.value)}
+                    onChange={(e) => updateForm('title', e.target.value)}
                     required
                     placeholder="Brief description of the issue requiring CAPA"
                   />
@@ -872,10 +914,12 @@ export default function CapaClient() {
                     <Select
                       id="capa-trigger"
                       value={form.triggerSource}
-                      onChange={e => updateForm('triggerSource', e.target.value)}
+                      onChange={(e) => updateForm('triggerSource', e.target.value)}
                     >
-                      {TRIGGER_SOURCES.map(t => (
-                        <option key={t.value} value={t.value}>{t.label}</option>
+                      {TRIGGER_SOURCES.map((t) => (
+                        <option key={t.value} value={t.value}>
+                          {t.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -884,7 +928,7 @@ export default function CapaClient() {
                     <Input
                       id="capa-sourceRef"
                       value={form.sourceReference}
-                      onChange={e => updateForm('sourceReference', e.target.value)}
+                      onChange={(e) => updateForm('sourceReference', e.target.value)}
                       placeholder="e.g., NC-2024-0012, AUD-001"
                     />
                   </div>
@@ -894,7 +938,7 @@ export default function CapaClient() {
                   <Textarea
                     id="capa-description"
                     value={form.description}
-                    onChange={e => updateForm('description', e.target.value)}
+                    onChange={(e) => updateForm('description', e.target.value)}
                     rows={4}
                     placeholder="Detailed description of the nonconformance or problem triggering this CAPA"
                   />
@@ -904,7 +948,7 @@ export default function CapaClient() {
                   <Input
                     id="capa-isoClause"
                     value={form.isoClause}
-                    onChange={e => updateForm('isoClause', e.target.value)}
+                    onChange={(e) => updateForm('isoClause', e.target.value)}
                     placeholder="e.g., 10.2.1, 8.7"
                   />
                 </div>
@@ -922,13 +966,14 @@ export default function CapaClient() {
                     <input
                       type="checkbox"
                       checked={form.immediateActionRequired}
-                      onChange={e => updateForm('immediateActionRequired', e.target.checked)}
+                      onChange={(e) => updateForm('immediateActionRequired', e.target.checked)}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     Immediate Action Required
                   </Label>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Toggle on if containment actions must be taken immediately to prevent further impact.
+                    Toggle on if containment actions must be taken immediately to prevent further
+                    impact.
                   </p>
                 </div>
                 <div>
@@ -936,7 +981,7 @@ export default function CapaClient() {
                   <Textarea
                     id="capa-actionsTaken"
                     value={form.actionsTaken}
-                    onChange={e => updateForm('actionsTaken', e.target.value)}
+                    onChange={(e) => updateForm('actionsTaken', e.target.value)}
                     rows={4}
                     placeholder="Describe immediate containment actions that have been or will be taken"
                   />
@@ -947,7 +992,7 @@ export default function CapaClient() {
                     <Input
                       id="capa-containmentVerifiedBy"
                       value={form.containmentVerifiedBy}
-                      onChange={e => updateForm('containmentVerifiedBy', e.target.value)}
+                      onChange={(e) => updateForm('containmentVerifiedBy', e.target.value)}
                       placeholder="Person who verified containment effectiveness"
                     />
                   </div>
@@ -957,7 +1002,7 @@ export default function CapaClient() {
                       id="capa-containmentDate"
                       type="date"
                       value={form.containmentDate}
-                      onChange={e => updateForm('containmentDate', e.target.value)}
+                      onChange={(e) => updateForm('containmentDate', e.target.value)}
                     />
                   </div>
                 </div>
@@ -976,10 +1021,12 @@ export default function CapaClient() {
                     <Select
                       id="capa-rcaMethod"
                       value={form.rcaMethod}
-                      onChange={e => updateForm('rcaMethod', e.target.value)}
+                      onChange={(e) => updateForm('rcaMethod', e.target.value)}
                     >
-                      {RCA_METHODS.map(m => (
-                        <option key={m.value} value={m.value}>{m.label}</option>
+                      {RCA_METHODS.map((m) => (
+                        <option key={m.value} value={m.value}>
+                          {m.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -988,10 +1035,12 @@ export default function CapaClient() {
                     <Select
                       id="capa-rootCauseCat"
                       value={form.rootCauseCategory}
-                      onChange={e => updateForm('rootCauseCategory', e.target.value)}
+                      onChange={(e) => updateForm('rootCauseCategory', e.target.value)}
                     >
-                      {ROOT_CAUSE_CATEGORIES.map(c => (
-                        <option key={c.value} value={c.value}>{c.label}</option>
+                      {ROOT_CAUSE_CATEGORIES.map((c) => (
+                        <option key={c.value} value={c.value}>
+                          {c.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -1006,7 +1055,7 @@ export default function CapaClient() {
                       <Textarea
                         id="capa-problemStatement"
                         value={form.problemStatement}
-                        onChange={e => updateForm('problemStatement', e.target.value)}
+                        onChange={(e) => updateForm('problemStatement', e.target.value)}
                         rows={2}
                         placeholder="Clearly state the problem"
                       />
@@ -1016,7 +1065,7 @@ export default function CapaClient() {
                       <Input
                         id="capa-why1"
                         value={form.why1}
-                        onChange={e => updateForm('why1', e.target.value)}
+                        onChange={(e) => updateForm('why1', e.target.value)}
                         placeholder="First why..."
                       />
                     </div>
@@ -1025,7 +1074,7 @@ export default function CapaClient() {
                       <Input
                         id="capa-why2"
                         value={form.why2}
-                        onChange={e => updateForm('why2', e.target.value)}
+                        onChange={(e) => updateForm('why2', e.target.value)}
                         placeholder="Second why..."
                       />
                     </div>
@@ -1034,7 +1083,7 @@ export default function CapaClient() {
                       <Input
                         id="capa-why3"
                         value={form.why3}
-                        onChange={e => updateForm('why3', e.target.value)}
+                        onChange={(e) => updateForm('why3', e.target.value)}
                         placeholder="Third why..."
                       />
                     </div>
@@ -1043,7 +1092,7 @@ export default function CapaClient() {
                       <Input
                         id="capa-why4"
                         value={form.why4}
-                        onChange={e => updateForm('why4', e.target.value)}
+                        onChange={(e) => updateForm('why4', e.target.value)}
                         placeholder="Fourth why..."
                       />
                     </div>
@@ -1052,7 +1101,7 @@ export default function CapaClient() {
                       <Input
                         id="capa-why5"
                         value={form.why5}
-                        onChange={e => updateForm('why5', e.target.value)}
+                        onChange={(e) => updateForm('why5', e.target.value)}
                         placeholder="Fifth why..."
                       />
                     </div>
@@ -1061,7 +1110,7 @@ export default function CapaClient() {
                       <Textarea
                         id="capa-rootCause"
                         value={form.rootCauseStatement}
-                        onChange={e => updateForm('rootCauseStatement', e.target.value)}
+                        onChange={(e) => updateForm('rootCauseStatement', e.target.value)}
                         rows={2}
                         placeholder="Summarize the root cause identified through the 5 Whys"
                       />
@@ -1072,14 +1121,16 @@ export default function CapaClient() {
                 {/* ── Fishbone Fields ──────────────────────────────── */}
                 {form.rcaMethod === 'FISHBONE' && (
                   <div className="space-y-4 bg-green-50 border border-green-200 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-green-800">Fishbone / Ishikawa Analysis (6M)</h4>
+                    <h4 className="text-sm font-medium text-green-800">
+                      Fishbone / Ishikawa Analysis (6M)
+                    </h4>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="capa-fbPeople">People (Man)</Label>
                         <Textarea
                           id="capa-fbPeople"
                           value={form.fishbonePeople}
-                          onChange={e => updateForm('fishbonePeople', e.target.value)}
+                          onChange={(e) => updateForm('fishbonePeople', e.target.value)}
                           rows={2}
                           placeholder="People-related causes (skills, training, fatigue, etc.)"
                         />
@@ -1089,7 +1140,7 @@ export default function CapaClient() {
                         <Textarea
                           id="capa-fbMethod"
                           value={form.fishboneMethod}
-                          onChange={e => updateForm('fishboneMethod', e.target.value)}
+                          onChange={(e) => updateForm('fishboneMethod', e.target.value)}
                           rows={2}
                           placeholder="Method/process-related causes"
                         />
@@ -1101,7 +1152,7 @@ export default function CapaClient() {
                         <Textarea
                           id="capa-fbMachine"
                           value={form.fishboneMachine}
-                          onChange={e => updateForm('fishboneMachine', e.target.value)}
+                          onChange={(e) => updateForm('fishboneMachine', e.target.value)}
                           rows={2}
                           placeholder="Equipment/machine-related causes"
                         />
@@ -1111,7 +1162,7 @@ export default function CapaClient() {
                         <Textarea
                           id="capa-fbMaterial"
                           value={form.fishboneMaterial}
-                          onChange={e => updateForm('fishboneMaterial', e.target.value)}
+                          onChange={(e) => updateForm('fishboneMaterial', e.target.value)}
                           rows={2}
                           placeholder="Material/supply-related causes"
                         />
@@ -1123,7 +1174,7 @@ export default function CapaClient() {
                         <Textarea
                           id="capa-fbMeasurement"
                           value={form.fishboneMeasurement}
-                          onChange={e => updateForm('fishboneMeasurement', e.target.value)}
+                          onChange={(e) => updateForm('fishboneMeasurement', e.target.value)}
                           rows={2}
                           placeholder="Measurement/inspection-related causes"
                         />
@@ -1133,7 +1184,7 @@ export default function CapaClient() {
                         <Textarea
                           id="capa-fbEnvironment"
                           value={form.fishboneEnvironment}
-                          onChange={e => updateForm('fishboneEnvironment', e.target.value)}
+                          onChange={(e) => updateForm('fishboneEnvironment', e.target.value)}
                           rows={2}
                           placeholder="Environmental causes (temperature, humidity, etc.)"
                         />
@@ -1148,55 +1199,111 @@ export default function CapaClient() {
                     <h4 className="text-sm font-medium text-orange-800">8D Problem Solving</h4>
                     <div>
                       <Label htmlFor="capa-d0">D0: Emergency Response / Planning</Label>
-                      <Textarea id="capa-d0" value={form.d0} onChange={e => updateForm('d0', e.target.value)} rows={2} placeholder="Awareness of problem; emergency actions" />
+                      <Textarea
+                        id="capa-d0"
+                        value={form.d0}
+                        onChange={(e) => updateForm('d0', e.target.value)}
+                        rows={2}
+                        placeholder="Awareness of problem; emergency actions"
+                      />
                     </div>
                     <div>
                       <Label htmlFor="capa-d1">D1: Establish the Team</Label>
-                      <Textarea id="capa-d1" value={form.d1} onChange={e => updateForm('d1', e.target.value)} rows={2} placeholder="Team members and roles" />
+                      <Textarea
+                        id="capa-d1"
+                        value={form.d1}
+                        onChange={(e) => updateForm('d1', e.target.value)}
+                        rows={2}
+                        placeholder="Team members and roles"
+                      />
                     </div>
                     <div>
                       <Label htmlFor="capa-d2">D2: Describe the Problem</Label>
-                      <Textarea id="capa-d2" value={form.d2} onChange={e => updateForm('d2', e.target.value)} rows={2} placeholder="5W2H problem description" />
+                      <Textarea
+                        id="capa-d2"
+                        value={form.d2}
+                        onChange={(e) => updateForm('d2', e.target.value)}
+                        rows={2}
+                        placeholder="5W2H problem description"
+                      />
                     </div>
                     <div>
                       <Label htmlFor="capa-d3">D3: Interim Containment Actions</Label>
-                      <Textarea id="capa-d3" value={form.d3} onChange={e => updateForm('d3', e.target.value)} rows={2} placeholder="Containment to protect customer" />
+                      <Textarea
+                        id="capa-d3"
+                        value={form.d3}
+                        onChange={(e) => updateForm('d3', e.target.value)}
+                        rows={2}
+                        placeholder="Containment to protect customer"
+                      />
                     </div>
                     <div>
                       <Label htmlFor="capa-d4">D4: Root Cause Analysis</Label>
-                      <Textarea id="capa-d4" value={form.d4} onChange={e => updateForm('d4', e.target.value)} rows={2} placeholder="Identify all potential causes and verify root cause" />
+                      <Textarea
+                        id="capa-d4"
+                        value={form.d4}
+                        onChange={(e) => updateForm('d4', e.target.value)}
+                        rows={2}
+                        placeholder="Identify all potential causes and verify root cause"
+                      />
                     </div>
                     <div>
                       <Label htmlFor="capa-d5">D5: Permanent Corrective Actions</Label>
-                      <Textarea id="capa-d5" value={form.d5} onChange={e => updateForm('d5', e.target.value)} rows={2} placeholder="Define and verify corrective actions" />
+                      <Textarea
+                        id="capa-d5"
+                        value={form.d5}
+                        onChange={(e) => updateForm('d5', e.target.value)}
+                        rows={2}
+                        placeholder="Define and verify corrective actions"
+                      />
                     </div>
                     <div>
                       <Label htmlFor="capa-d6">D6: Implement Permanent Actions</Label>
-                      <Textarea id="capa-d6" value={form.d6} onChange={e => updateForm('d6', e.target.value)} rows={2} placeholder="Implementation plan and verification" />
+                      <Textarea
+                        id="capa-d6"
+                        value={form.d6}
+                        onChange={(e) => updateForm('d6', e.target.value)}
+                        rows={2}
+                        placeholder="Implementation plan and verification"
+                      />
                     </div>
                     <div>
                       <Label htmlFor="capa-d7">D7: Prevent Recurrence</Label>
-                      <Textarea id="capa-d7" value={form.d7} onChange={e => updateForm('d7', e.target.value)} rows={2} placeholder="Systemic changes to prevent recurrence" />
+                      <Textarea
+                        id="capa-d7"
+                        value={form.d7}
+                        onChange={(e) => updateForm('d7', e.target.value)}
+                        rows={2}
+                        placeholder="Systemic changes to prevent recurrence"
+                      />
                     </div>
                     <div>
                       <Label htmlFor="capa-d8">D8: Congratulate the Team</Label>
-                      <Textarea id="capa-d8" value={form.d8} onChange={e => updateForm('d8', e.target.value)} rows={2} placeholder="Recognition and lessons learned" />
+                      <Textarea
+                        id="capa-d8"
+                        value={form.d8}
+                        onChange={(e) => updateForm('d8', e.target.value)}
+                        rows={2}
+                        placeholder="Recognition and lessons learned"
+                      />
                     </div>
                   </div>
                 )}
 
                 {/* ── IS/IS NOT, FAULT_TREE, OTHER ─────────────────── */}
-                {(form.rcaMethod === 'IS_IS_NOT' || form.rcaMethod === 'FAULT_TREE' || form.rcaMethod === 'OTHER') && (
+                {(form.rcaMethod === 'IS_IS_NOT' ||
+                  form.rcaMethod === 'FAULT_TREE' ||
+                  form.rcaMethod === 'OTHER') && (
                   <div className="space-y-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                     <h4 className="text-sm font-medium text-gray-800">
-                      {RCA_METHODS.find(m => m.value === form.rcaMethod)?.label} Analysis
+                      {RCA_METHODS.find((m) => m.value === form.rcaMethod)?.label} Analysis
                     </h4>
                     <div>
                       <Label htmlFor="capa-ps">Problem Statement</Label>
                       <Textarea
                         id="capa-ps"
                         value={form.problemStatement}
-                        onChange={e => updateForm('problemStatement', e.target.value)}
+                        onChange={(e) => updateForm('problemStatement', e.target.value)}
                         rows={3}
                         placeholder="Describe the problem being analysed"
                       />
@@ -1206,7 +1313,7 @@ export default function CapaClient() {
                       <Textarea
                         id="capa-rcs"
                         value={form.rootCauseStatement}
-                        onChange={e => updateForm('rootCauseStatement', e.target.value)}
+                        onChange={(e) => updateForm('rootCauseStatement', e.target.value)}
                         rows={3}
                         placeholder="Summarize the identified root cause(s)"
                       />
@@ -1267,7 +1374,7 @@ export default function CapaClient() {
                           <Label>Action Description *</Label>
                           <Textarea
                             value={action.action}
-                            onChange={e => updateCapaAction(idx, 'action', e.target.value)}
+                            onChange={(e) => updateCapaAction(idx, 'action', e.target.value)}
                             rows={2}
                             placeholder="What action needs to be taken?"
                           />
@@ -1280,7 +1387,9 @@ export default function CapaClient() {
                                 <Label>Assigned To</Label>
                                 <Input
                                   value={action.assignedTo}
-                                  onChange={e => updateCapaAction(idx, 'assignedTo', e.target.value)}
+                                  onChange={(e) =>
+                                    updateCapaAction(idx, 'assignedTo', e.target.value)
+                                  }
                                   placeholder="Responsible person"
                                 />
                               </div>
@@ -1289,7 +1398,7 @@ export default function CapaClient() {
                                 <Input
                                   type="date"
                                   value={action.dueDate}
-                                  onChange={e => updateCapaAction(idx, 'dueDate', e.target.value)}
+                                  onChange={(e) => updateCapaAction(idx, 'dueDate', e.target.value)}
                                 />
                               </div>
                             </div>
@@ -1298,11 +1407,15 @@ export default function CapaClient() {
                                 <Label>Priority</Label>
                                 <select
                                   value={action.priority}
-                                  onChange={e => updateCapaAction(idx, 'priority', e.target.value)}
+                                  onChange={(e) =>
+                                    updateCapaAction(idx, 'priority', e.target.value)
+                                  }
                                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
                                 >
-                                  {ACTION_PRIORITIES.map(p => (
-                                    <option key={p.value} value={p.value}>{p.label}</option>
+                                  {ACTION_PRIORITIES.map((p) => (
+                                    <option key={p.value} value={p.value}>
+                                      {p.label}
+                                    </option>
                                   ))}
                                 </select>
                               </div>
@@ -1310,11 +1423,13 @@ export default function CapaClient() {
                                 <Label>Status</Label>
                                 <select
                                   value={action.status}
-                                  onChange={e => updateCapaAction(idx, 'status', e.target.value)}
+                                  onChange={(e) => updateCapaAction(idx, 'status', e.target.value)}
                                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
                                 >
-                                  {ACTION_STATUSES.map(s => (
-                                    <option key={s.value} value={s.value}>{s.label}</option>
+                                  {ACTION_STATUSES.map((s) => (
+                                    <option key={s.value} value={s.value}>
+                                      {s.label}
+                                    </option>
                                   ))}
                                 </select>
                               </div>
@@ -1323,7 +1438,7 @@ export default function CapaClient() {
                               <Label>Notes</Label>
                               <Textarea
                                 value={action.notes}
-                                onChange={e => updateCapaAction(idx, 'notes', e.target.value)}
+                                onChange={(e) => updateCapaAction(idx, 'notes', e.target.value)}
                                 rows={2}
                                 placeholder="Additional notes, updates, or observations"
                               />
@@ -1355,7 +1470,7 @@ export default function CapaClient() {
                   <Textarea
                     id="capa-effectCriteria"
                     value={form.effectivenessCriteria}
-                    onChange={e => updateForm('effectivenessCriteria', e.target.value)}
+                    onChange={(e) => updateForm('effectivenessCriteria', e.target.value)}
                     rows={3}
                     placeholder="How will you determine if the CAPA was effective?"
                   />
@@ -1366,7 +1481,7 @@ export default function CapaClient() {
                     <Input
                       id="capa-effectKpi"
                       value={form.effectivenessKpi}
-                      onChange={e => updateForm('effectivenessKpi', e.target.value)}
+                      onChange={(e) => updateForm('effectivenessKpi', e.target.value)}
                       placeholder="e.g., Defect rate, reject %, downtime"
                     />
                   </div>
@@ -1375,7 +1490,7 @@ export default function CapaClient() {
                     <Input
                       id="capa-effectTarget"
                       value={form.effectivenessTarget}
-                      onChange={e => updateForm('effectivenessTarget', e.target.value)}
+                      onChange={(e) => updateForm('effectivenessTarget', e.target.value)}
                       placeholder="e.g., < 1% reject rate, zero recurrence"
                     />
                   </div>
@@ -1385,7 +1500,7 @@ export default function CapaClient() {
                   <Textarea
                     id="capa-effectMethod"
                     value={form.effectivenessMeasureMethod}
-                    onChange={e => updateForm('effectivenessMeasureMethod', e.target.value)}
+                    onChange={(e) => updateForm('effectivenessMeasureMethod', e.target.value)}
                     rows={2}
                     placeholder="How and when will the KPI be measured?"
                   />
@@ -1405,10 +1520,12 @@ export default function CapaClient() {
                     <Select
                       id="capa-status"
                       value={form.status}
-                      onChange={e => updateForm('status', e.target.value)}
+                      onChange={(e) => updateForm('status', e.target.value)}
                     >
-                      {CAPA_STATUSES.map(s => (
-                        <option key={s.value} value={s.value}>{s.label}</option>
+                      {CAPA_STATUSES.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          {s.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -1423,7 +1540,7 @@ export default function CapaClient() {
                       max={100}
                       step={5}
                       value={form.percentComplete}
-                      onChange={e => updateForm('percentComplete', parseInt(e.target.value))}
+                      onChange={(e) => updateForm('percentComplete', parseInt(e.target.value))}
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                     />
                     <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
@@ -1440,7 +1557,7 @@ export default function CapaClient() {
                   <Textarea
                     id="capa-progressNotes"
                     value={form.progressNotes}
-                    onChange={e => updateForm('progressNotes', e.target.value)}
+                    onChange={(e) => updateForm('progressNotes', e.target.value)}
                     rows={4}
                     placeholder="Log of progress updates, milestones reached, and blockers"
                   />
@@ -1452,7 +1569,7 @@ export default function CapaClient() {
                       id="capa-targetClose"
                       type="date"
                       value={form.targetClosureDate}
-                      onChange={e => updateForm('targetClosureDate', e.target.value)}
+                      onChange={(e) => updateForm('targetClosureDate', e.target.value)}
                     />
                   </div>
                   <div>
@@ -1461,9 +1578,11 @@ export default function CapaClient() {
                       id="capa-actualClose"
                       type="date"
                       value={form.actualClosureDate}
-                      onChange={e => updateForm('actualClosureDate', e.target.value)}
+                      onChange={(e) => updateForm('actualClosureDate', e.target.value)}
                     />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Leave blank until CAPA is actually closed.</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Leave blank until CAPA is actually closed.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1482,7 +1601,7 @@ export default function CapaClient() {
                       id="capa-reviewDate"
                       type="date"
                       value={form.reviewDate}
-                      onChange={e => updateForm('reviewDate', e.target.value)}
+                      onChange={(e) => updateForm('reviewDate', e.target.value)}
                     />
                   </div>
                   <div>
@@ -1490,7 +1609,7 @@ export default function CapaClient() {
                     <Input
                       id="capa-verifiedBy"
                       value={form.verifiedBy}
-                      onChange={e => updateForm('verifiedBy', e.target.value)}
+                      onChange={(e) => updateForm('verifiedBy', e.target.value)}
                       placeholder="Person who verified CAPA effectiveness"
                     />
                   </div>
@@ -1500,7 +1619,7 @@ export default function CapaClient() {
                   <Textarea
                     id="capa-effectAssess"
                     value={form.effectivenessAssessment}
-                    onChange={e => updateForm('effectivenessAssessment', e.target.value)}
+                    onChange={(e) => updateForm('effectivenessAssessment', e.target.value)}
                     rows={3}
                     placeholder="Assessment of whether the CAPA achieved its intended result"
                   />
@@ -1510,7 +1629,7 @@ export default function CapaClient() {
                   <Textarea
                     id="capa-recurrence"
                     value={form.recurrenceCheck}
-                    onChange={e => updateForm('recurrenceCheck', e.target.value)}
+                    onChange={(e) => updateForm('recurrenceCheck', e.target.value)}
                     rows={2}
                     placeholder="Has the problem recurred since implementation? Evidence of no recurrence."
                   />
@@ -1520,13 +1639,14 @@ export default function CapaClient() {
                     <input
                       type="checkbox"
                       checked={form.actionsEffective}
-                      onChange={e => updateForm('actionsEffective', e.target.checked)}
+                      onChange={(e) => updateForm('actionsEffective', e.target.checked)}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     Actions verified as effective
                   </Label>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Confirm that all actions have been verified and are effectively addressing the root cause.
+                    Confirm that all actions have been verified and are effectively addressing the
+                    root cause.
                   </p>
                 </div>
                 <div>
@@ -1534,7 +1654,7 @@ export default function CapaClient() {
                   <Textarea
                     id="capa-lessonsLearned"
                     value={form.lessonsLearned}
-                    onChange={e => updateForm('lessonsLearned', e.target.value)}
+                    onChange={(e) => updateForm('lessonsLearned', e.target.value)}
                     rows={3}
                     placeholder="Key lessons from this CAPA that should be shared across the organization"
                   />
@@ -1557,7 +1677,7 @@ export default function CapaClient() {
                     <Input
                       id="capa-linkedNc"
                       value={form.linkedNc}
-                      onChange={e => updateForm('linkedNc', e.target.value)}
+                      onChange={(e) => updateForm('linkedNc', e.target.value)}
                       placeholder="NC reference, e.g., NC-2024-0012"
                     />
                   </div>
@@ -1566,7 +1686,7 @@ export default function CapaClient() {
                     <Input
                       id="capa-linkedProcess"
                       value={form.linkedProcess}
-                      onChange={e => updateForm('linkedProcess', e.target.value)}
+                      onChange={(e) => updateForm('linkedProcess', e.target.value)}
                       placeholder="Process name or reference"
                     />
                   </div>
@@ -1577,7 +1697,7 @@ export default function CapaClient() {
                     <Input
                       id="capa-linkedFmea"
                       value={form.linkedFmea}
-                      onChange={e => updateForm('linkedFmea', e.target.value)}
+                      onChange={(e) => updateForm('linkedFmea', e.target.value)}
                       placeholder="FMEA reference"
                     />
                   </div>
@@ -1586,7 +1706,7 @@ export default function CapaClient() {
                     <Input
                       id="capa-linkedDocument"
                       value={form.linkedDocument}
-                      onChange={e => updateForm('linkedDocument', e.target.value)}
+                      onChange={(e) => updateForm('linkedDocument', e.target.value)}
                       placeholder="Document number or title"
                     />
                   </div>
@@ -1597,7 +1717,7 @@ export default function CapaClient() {
                     <Input
                       id="capa-linkedHsCapa"
                       value={form.linkedHsCapa}
-                      onChange={e => updateForm('linkedHsCapa', e.target.value)}
+                      onChange={(e) => updateForm('linkedHsCapa', e.target.value)}
                       placeholder="H&S CAPA reference"
                     />
                   </div>
@@ -1606,7 +1726,7 @@ export default function CapaClient() {
                     <Input
                       id="capa-linkedEnvCapa"
                       value={form.linkedEnvCapa}
-                      onChange={e => updateForm('linkedEnvCapa', e.target.value)}
+                      onChange={(e) => updateForm('linkedEnvCapa', e.target.value)}
                       placeholder="Environmental CAPA reference"
                     />
                   </div>
@@ -1644,26 +1764,31 @@ export default function CapaClient() {
                     </Button>
                   </div>
                   <p className="text-xs text-purple-600 mb-3">
-                    Complete the identification and root cause sections (title 10+ chars), then click
-                    to generate AI-powered root cause suggestions, action recommendations, and
+                    Complete the identification and root cause sections (title 10+ chars), then
+                    click to generate AI-powered root cause suggestions, action recommendations, and
                     effectiveness guidance.
                   </p>
 
                   {aiAnalysis && (
                     <div className="space-y-3 mt-4">
-                      {aiAnalysis.suggestedRootCauses && aiAnalysis.suggestedRootCauses.length > 0 && (
-                        <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Suggested Root Causes</p>
-                          <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
-                            {aiAnalysis.suggestedRootCauses.map((cause, idx) => (
-                              <li key={idx}>{cause}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                      {aiAnalysis.suggestedRootCauses &&
+                        aiAnalysis.suggestedRootCauses.length > 0 && (
+                          <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                              Suggested Root Causes
+                            </p>
+                            <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
+                              {aiAnalysis.suggestedRootCauses.map((cause, idx) => (
+                                <li key={idx}>{cause}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       {aiAnalysis.suggestedActions && aiAnalysis.suggestedActions.length > 0 && (
                         <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Suggested Actions</p>
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                            Suggested Actions
+                          </p>
                           <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
                             {aiAnalysis.suggestedActions.map((act, idx) => (
                               <li key={idx}>{act}</li>
@@ -1672,20 +1797,30 @@ export default function CapaClient() {
                         </div>
                       )}
                       <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Risk Assessment</p>
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                          Risk Assessment
+                        </p>
                         <p className="text-sm text-gray-800">{aiAnalysis.riskAssessment}</p>
                       </div>
                       <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effectiveness Recommendations</p>
-                        <p className="text-sm text-gray-800">{aiAnalysis.effectivenessRecommendations}</p>
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                          Effectiveness Recommendations
+                        </p>
+                        <p className="text-sm text-gray-800">
+                          {aiAnalysis.effectivenessRecommendations}
+                        </p>
                       </div>
                       <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Compliance Notes</p>
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                          Compliance Notes
+                        </p>
                         <p className="text-sm text-gray-800">{aiAnalysis.complianceNotes}</p>
                       </div>
                       {aiAnalysis.bestPractices && aiAnalysis.bestPractices.length > 0 && (
                         <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Best Practices</p>
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                            Best Practices
+                          </p>
                           <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
                             {aiAnalysis.bestPractices.map((bp, idx) => (
                               <li key={idx}>{bp}</li>
@@ -1708,7 +1843,7 @@ export default function CapaClient() {
                     type="button"
                     variant="outline"
                     onClick={() => {
-                      const idx = sections.findIndex(s => s.key === activeSection);
+                      const idx = sections.findIndex((s) => s.key === activeSection);
                       if (idx > 0) setActiveSection(sections[idx - 1].key);
                     }}
                   >
@@ -1724,7 +1859,7 @@ export default function CapaClient() {
                   <Button
                     type="button"
                     onClick={() => {
-                      const idx = sections.findIndex(s => s.key === activeSection);
+                      const idx = sections.findIndex((s) => s.key === activeSection);
                       if (idx < sections.length - 1) setActiveSection(sections[idx + 1].key);
                     }}
                   >

@@ -2,9 +2,21 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Card, CardContent, Button, Badge, Modal, ModalFooter,
-  Input, Label, Textarea,
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  Card,
+  CardContent,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Textarea,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
 } from '@ims/ui';
 import { Plus, Users, Loader2, Search } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -69,7 +81,9 @@ export default function ToolboxTalksClient() {
     }
   }, [searchTerm]);
 
-  useEffect(() => { loadItems(); }, [loadItems]);
+  useEffect(() => {
+    loadItems();
+  }, [loadItems]);
 
   function openCreate() {
     setForm({ ...emptyForm });
@@ -132,17 +146,39 @@ export default function ToolboxTalksClient() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Toolbox Talks</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Safety briefings and toolbox talk records</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Safety briefings and toolbox talk records
+            </p>
           </div>
           <Button onClick={openCreate} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />Add Toolbox Talk
+            <Plus className="h-4 w-4" />
+            Add Toolbox Talk
           </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card><CardContent className="pt-6 text-center"><p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{items.length}</p><p className="text-sm text-gray-500 dark:text-gray-400">Total Talks</p></CardContent></Card>
-          <Card><CardContent className="pt-6 text-center"><p className="text-3xl font-bold text-green-600">{items.filter(i => i.conductedDate).length}</p><p className="text-sm text-gray-500 dark:text-gray-400">Conducted</p></CardContent></Card>
-          <Card><CardContent className="pt-6 text-center"><p className="text-3xl font-bold text-amber-600">{items.filter(i => i.scheduledDate && !i.conductedDate).length}</p><p className="text-sm text-gray-500 dark:text-gray-400">Scheduled</p></CardContent></Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{items.length}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Talks</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <p className="text-3xl font-bold text-green-600">
+                {items.filter((i) => i.conductedDate).length}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Conducted</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <p className="text-3xl font-bold text-amber-600">
+                {items.filter((i) => i.scheduledDate && !i.conductedDate).length}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Scheduled</p>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="flex gap-4 mb-6 flex-wrap items-center">
@@ -153,7 +189,7 @@ export default function ToolboxTalksClient() {
               aria-label="Search toolbox talks"
               placeholder="Search toolbox talks..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
             />
           </div>
@@ -163,7 +199,9 @@ export default function ToolboxTalksClient() {
           <CardContent className="p-0">
             {loading ? (
               <div className="animate-pulse space-y-4 p-6">
-                {[1, 2, 3].map(i => <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded" />)}
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded" />
+                ))}
               </div>
             ) : items.length > 0 ? (
               <div className="overflow-x-auto">
@@ -180,17 +218,25 @@ export default function ToolboxTalksClient() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {items.map(item => (
+                    {items.map((item) => (
                       <TableRow key={item.id}>
                         <TableCell className="font-mono text-xs">{item.referenceNumber}</TableCell>
-                        <TableCell className="font-medium text-gray-900 dark:text-gray-100">{item.topic}</TableCell>
-                        <TableCell className="text-sm text-gray-600 dark:text-gray-400">{item.presenterName || '-'}</TableCell>
+                        <TableCell className="font-medium text-gray-900 dark:text-gray-100">
+                          {item.topic}
+                        </TableCell>
                         <TableCell className="text-sm text-gray-600 dark:text-gray-400">
-                          {item.scheduledDate ? new Date(item.scheduledDate).toLocaleDateString() : '-'}
+                          {item.presenterName || '-'}
+                        </TableCell>
+                        <TableCell className="text-sm text-gray-600 dark:text-gray-400">
+                          {item.scheduledDate
+                            ? new Date(item.scheduledDate).toLocaleDateString()
+                            : '-'}
                         </TableCell>
                         <TableCell className="text-sm">
                           {item.conductedDate ? (
-                            <span className="text-green-600 dark:text-green-400">{new Date(item.conductedDate).toLocaleDateString()}</span>
+                            <span className="text-green-600 dark:text-green-400">
+                              {new Date(item.conductedDate).toLocaleDateString()}
+                            </span>
                           ) : (
                             <Badge variant="outline">Pending</Badge>
                           )}
@@ -200,8 +246,17 @@ export default function ToolboxTalksClient() {
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => openEdit(item)}>Edit</Button>
-                            <Button size="sm" variant="outline" onClick={() => handleDelete(item.id)} className="text-red-600 hover:bg-red-50">Delete</Button>
+                            <Button size="sm" variant="outline" onClick={() => openEdit(item)}>
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDelete(item.id)}
+                              className="text-red-600 hover:bg-red-50"
+                            >
+                              Delete
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -213,61 +268,117 @@ export default function ToolboxTalksClient() {
               <div className="text-center py-12">
                 <Users className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">No toolbox talks found</p>
-                <Button variant="outline" className="mt-4" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add First Toolbox Talk</Button>
+                <Button variant="outline" className="mt-4" onClick={openCreate}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add First Toolbox Talk
+                </Button>
               </div>
             )}
           </CardContent>
         </Card>
 
         {modalOpen && (
-          <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editId ? 'Edit Toolbox Talk' : 'Add Toolbox Talk'} size="lg">
+          <Modal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            title={editId ? 'Edit Toolbox Talk' : 'Add Toolbox Talk'}
+            size="lg"
+          >
             <div className="space-y-4">
               <div>
                 <Label>Topic *</Label>
-                <Input value={form.topic} onChange={e => setForm(p => ({ ...p, topic: e.target.value }))} placeholder="Toolbox talk topic" />
+                <Input
+                  value={form.topic}
+                  onChange={(e) => setForm((p) => ({ ...p, topic: e.target.value }))}
+                  placeholder="Toolbox talk topic"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Permit ID (optional)</Label>
-                  <Input value={form.permitId} onChange={e => setForm(p => ({ ...p, permitId: e.target.value }))} placeholder="Link to permit ID" />
+                  <Input
+                    value={form.permitId}
+                    onChange={(e) => setForm((p) => ({ ...p, permitId: e.target.value }))}
+                    placeholder="Link to permit ID"
+                  />
                 </div>
                 <div>
                   <Label>Presenter Name</Label>
-                  <Input value={form.presenterName} onChange={e => setForm(p => ({ ...p, presenterName: e.target.value }))} placeholder="Presenter name" />
+                  <Input
+                    value={form.presenterName}
+                    onChange={(e) => setForm((p) => ({ ...p, presenterName: e.target.value }))}
+                    placeholder="Presenter name"
+                  />
                 </div>
               </div>
 
               <div>
                 <Label>Content</Label>
-                <Textarea value={form.content} onChange={e => setForm(p => ({ ...p, content: e.target.value }))} rows={4} placeholder="Talk content and key points..." />
+                <Textarea
+                  value={form.content}
+                  onChange={(e) => setForm((p) => ({ ...p, content: e.target.value }))}
+                  rows={4}
+                  placeholder="Talk content and key points..."
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Scheduled Date</Label>
-                  <Input type="date" value={form.scheduledDate} onChange={e => setForm(p => ({ ...p, scheduledDate: e.target.value }))} />
+                  <Input
+                    type="date"
+                    value={form.scheduledDate}
+                    onChange={(e) => setForm((p) => ({ ...p, scheduledDate: e.target.value }))}
+                  />
                 </div>
                 <div>
                   <Label>Conducted Date</Label>
-                  <Input type="date" value={form.conductedDate} onChange={e => setForm(p => ({ ...p, conductedDate: e.target.value }))} />
+                  <Input
+                    type="date"
+                    value={form.conductedDate}
+                    onChange={(e) => setForm((p) => ({ ...p, conductedDate: e.target.value }))}
+                  />
                 </div>
               </div>
 
               <div>
                 <Label>Attendee Count</Label>
-                <Input type="number" value={form.attendeeCount} onChange={e => setForm(p => ({ ...p, attendeeCount: parseInt(e.target.value) || 0 }))} min={0} />
+                <Input
+                  type="number"
+                  value={form.attendeeCount}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, attendeeCount: parseInt(e.target.value) || 0 }))
+                  }
+                  min={0}
+                />
               </div>
 
               <div>
                 <Label>Notes</Label>
-                <Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} rows={2} placeholder="Additional notes..." />
+                <Textarea
+                  value={form.notes}
+                  onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
+                  rows={2}
+                  placeholder="Additional notes..."
+                />
               </div>
             </div>
             <ModalFooter>
-              <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setModalOpen(false)}>
+                Cancel
+              </Button>
               <Button onClick={handleSubmit} disabled={saving || !form.topic}>
-                {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</> : editId ? 'Update Talk' : 'Create Talk'}
+                {saving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Saving...
+                  </>
+                ) : editId ? (
+                  'Update Talk'
+                ) : (
+                  'Create Talk'
+                )}
               </Button>
             </ModalFooter>
           </Modal>

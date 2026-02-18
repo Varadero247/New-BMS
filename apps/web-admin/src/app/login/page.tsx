@@ -49,7 +49,10 @@ export default function LoginPage() {
           <p className="text-gray-400 dark:text-gray-500 mt-1">Super Admin Console</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6 space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-[#112240] rounded-xl border border-[#1B3A6B]/30 p-6 space-y-5"
+        >
           {error && (
             <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg text-sm">
               {error}

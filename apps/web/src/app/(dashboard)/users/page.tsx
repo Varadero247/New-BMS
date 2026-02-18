@@ -1,17 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Users,
-  Search,
-  Plus,
-  MoreVertical,
-  Mail,
-  Phone,
-  Shield,
-  Edit,
-  Trash2,
-} from 'lucide-react';
+import { Users, Search, Plus, MoreVertical, Mail, Phone, Shield, Edit, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -179,8 +169,12 @@ export default function UsersPage() {
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">Contact</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">Role</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Last Active</th>
-                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">Actions</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">
+                    Last Active
+                  </th>
+                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -214,7 +208,9 @@ export default function UsersPage() {
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${roleColors[user.role]}`}>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${roleColors[user.role]}`}
+                      >
                         {user.role}
                       </span>
                     </td>

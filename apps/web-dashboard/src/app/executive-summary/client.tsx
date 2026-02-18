@@ -2,8 +2,18 @@
 
 import { useState } from 'react';
 import {
-  LayoutDashboard, Shield, Leaf, Award, DollarSign, Users, TrendingUp,
-  TrendingDown, AlertTriangle, CheckCircle, BarChart3, Activity
+  LayoutDashboard,
+  Shield,
+  Leaf,
+  Award,
+  DollarSign,
+  Users,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  CheckCircle,
+  BarChart3,
+  Activity,
 } from 'lucide-react';
 
 interface ModuleKPI {
@@ -97,12 +107,48 @@ const modules: ModuleKPI[] = [
 ];
 
 const recentAlerts = [
-  { id: 1, severity: 'critical', module: 'CMMS', message: 'CNC Mill #3 unplanned downtime — bearing failure', time: '2 hours ago' },
-  { id: 2, severity: 'warning', module: 'H&S', message: 'Near-miss rate increased 15% vs. last month', time: '4 hours ago' },
-  { id: 3, severity: 'critical', module: 'CMMS', message: 'Compressor #1 oil pressure alarm — maintenance dispatched', time: '6 hours ago' },
-  { id: 4, severity: 'warning', module: 'ESG', message: 'Water consumption 12% above monthly target', time: '8 hours ago' },
-  { id: 5, severity: 'info', module: 'Quality', message: 'ISO 9001 surveillance audit scheduled for March 15', time: '1 day ago' },
-  { id: 6, severity: 'critical', module: 'CMMS', message: 'Packaging line conveyor belt replacement overdue', time: '1 day ago' },
+  {
+    id: 1,
+    severity: 'critical',
+    module: 'CMMS',
+    message: 'CNC Mill #3 unplanned downtime — bearing failure',
+    time: '2 hours ago',
+  },
+  {
+    id: 2,
+    severity: 'warning',
+    module: 'H&S',
+    message: 'Near-miss rate increased 15% vs. last month',
+    time: '4 hours ago',
+  },
+  {
+    id: 3,
+    severity: 'critical',
+    module: 'CMMS',
+    message: 'Compressor #1 oil pressure alarm — maintenance dispatched',
+    time: '6 hours ago',
+  },
+  {
+    id: 4,
+    severity: 'warning',
+    module: 'ESG',
+    message: 'Water consumption 12% above monthly target',
+    time: '8 hours ago',
+  },
+  {
+    id: 5,
+    severity: 'info',
+    module: 'Quality',
+    message: 'ISO 9001 surveillance audit scheduled for March 15',
+    time: '1 day ago',
+  },
+  {
+    id: 6,
+    severity: 'critical',
+    module: 'CMMS',
+    message: 'Packaging line conveyor belt replacement overdue',
+    time: '1 day ago',
+  },
 ];
 
 export default function ExecutiveSummaryClient() {
@@ -118,7 +164,15 @@ export default function ExecutiveSummaryClient() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Executive Summary</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Cross-module performance overview — {new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Cross-module performance overview —{' '}
+            {new Date().toLocaleDateString('en-GB', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
@@ -135,7 +189,9 @@ export default function ExecutiveSummaryClient() {
 
       {/* RAG Status Overview */}
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Module Health Status</h3>
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+          Module Health Status
+        </h3>
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           {modules.map((m) => (
             <button
@@ -147,7 +203,9 @@ export default function ExecutiveSummaryClient() {
             >
               <div className="flex items-center justify-between mb-2">
                 {m.icon}
-                <div className={`w-3 h-3 rounded-full ${m.status === 'green' ? 'bg-green-500' : m.status === 'amber' ? 'bg-amber-500' : 'bg-red-500'}`} />
+                <div
+                  className={`w-3 h-3 rounded-full ${m.status === 'green' ? 'bg-green-500' : m.status === 'amber' ? 'bg-amber-500' : 'bg-red-500'}`}
+                />
               </div>
               <p className="text-sm font-semibold">{m.module}</p>
               {m.alerts > 0 && (
@@ -165,20 +223,37 @@ export default function ExecutiveSummaryClient() {
         {modules
           .filter((m) => !selectedModule || m.module === selectedModule)
           .map((m) => (
-            <div key={m.module} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+            <div
+              key={m.module}
+              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4"
+            >
               <div className="flex items-center gap-2 mb-3">
-                <div className={`p-1.5 rounded-lg ${m.color.split(' ').slice(1).join(' ')}`}>{m.icon}</div>
+                <div className={`p-1.5 rounded-lg ${m.color.split(' ').slice(1).join(' ')}`}>
+                  {m.icon}
+                </div>
                 <h3 className="text-sm font-semibold text-gray-800">{m.module}</h3>
-                <div className={`ml-auto w-2.5 h-2.5 rounded-full ${m.status === 'green' ? 'bg-green-500' : m.status === 'amber' ? 'bg-amber-500' : 'bg-red-500'}`} />
+                <div
+                  className={`ml-auto w-2.5 h-2.5 rounded-full ${m.status === 'green' ? 'bg-green-500' : m.status === 'amber' ? 'bg-amber-500' : 'bg-red-500'}`}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {m.kpis.map((kpi) => (
                   <div key={kpi.label} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2.5">
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">{kpi.label}</p>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{kpi.value}</span>
-                      {kpi.trend === 'up' && <TrendingUp className={`h-3.5 w-3.5 ${kpi.good ? 'text-green-500' : 'text-red-500'}`} />}
-                      {kpi.trend === 'down' && <TrendingDown className={`h-3.5 w-3.5 ${kpi.good ? 'text-green-500' : 'text-red-500'}`} />}
+                      <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {kpi.value}
+                      </span>
+                      {kpi.trend === 'up' && (
+                        <TrendingUp
+                          className={`h-3.5 w-3.5 ${kpi.good ? 'text-green-500' : 'text-red-500'}`}
+                        />
+                      )}
+                      {kpi.trend === 'down' && (
+                        <TrendingDown
+                          className={`h-3.5 w-3.5 ${kpi.good ? 'text-green-500' : 'text-red-500'}`}
+                        />
+                      )}
                     </div>
                   </div>
                 ))}
@@ -195,11 +270,20 @@ export default function ExecutiveSummaryClient() {
         </h3>
         <div className="space-y-2">
           {recentAlerts.map((alert) => (
-            <div key={alert.id} className={`flex items-start gap-3 p-3 rounded-lg ${alert.severity === 'critical' ? 'bg-red-50' : alert.severity === 'warning' ? 'bg-amber-50' : 'bg-blue-50'}`}>
-              <div className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${alert.severity === 'critical' ? 'bg-red-500' : alert.severity === 'warning' ? 'bg-amber-500' : 'bg-blue-500'}`} />
+            <div
+              key={alert.id}
+              className={`flex items-start gap-3 p-3 rounded-lg ${alert.severity === 'critical' ? 'bg-red-50' : alert.severity === 'warning' ? 'bg-amber-50' : 'bg-blue-50'}`}
+            >
+              <div
+                className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${alert.severity === 'critical' ? 'bg-red-500' : alert.severity === 'warning' ? 'bg-amber-500' : 'bg-blue-500'}`}
+              />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${alert.severity === 'critical' ? 'bg-red-100 text-red-700' : alert.severity === 'warning' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>{alert.module}</span>
+                  <span
+                    className={`text-xs font-medium px-1.5 py-0.5 rounded ${alert.severity === 'critical' ? 'bg-red-100 text-red-700' : alert.severity === 'warning' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}
+                  >
+                    {alert.module}
+                  </span>
                   <span className="text-xs text-gray-400 dark:text-gray-500">{alert.time}</span>
                 </div>
                 <p className="text-sm text-gray-700 dark:text-gray-300 mt-0.5">{alert.message}</p>

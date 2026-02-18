@@ -47,11 +47,17 @@ const createCounterfeitReportSchema = z.object({
   supplier: z.string().optional(),
   poNumber: z.string().optional(),
   quantity: z.number().int().positive().optional(),
-  dateDiscovered: z.string().min(1, 'Date discovered is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  dateDiscovered: z
+    .string()
+    .min(1, 'Date discovered is required')
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   discoveredBy: z.string().optional(),
   discrepancyDescription: z.string().min(1, 'Discrepancy description is required'),
   suspicionIndicators: z.array(z.string()).optional().default([]),
-  disposition: z.enum(['QUARANTINE', 'RETURN_TO_SUPPLIER', 'DESTROY', 'PENDING_INVESTIGATION']).optional().default('QUARANTINE'),
+  disposition: z
+    .enum(['QUARANTINE', 'RETURN_TO_SUPPLIER', 'DESTROY', 'PENDING_INVESTIGATION'])
+    .optional()
+    .default('QUARANTINE'),
   reportedToGidep: z.boolean().optional().default(false),
   safetyImpact: z.boolean().optional().default(false),
   notes: z.string().optional(),
@@ -61,7 +67,9 @@ const updateCounterfeitReportSchema = z.object({
   title: z.string().optional(),
   discrepancyDescription: z.string().optional(),
   suspicionIndicators: z.array(z.string()).optional(),
-  disposition: z.enum(['QUARANTINE', 'RETURN_TO_SUPPLIER', 'DESTROY', 'PENDING_INVESTIGATION']).optional(),
+  disposition: z
+    .enum(['QUARANTINE', 'RETURN_TO_SUPPLIER', 'DESTROY', 'PENDING_INVESTIGATION'])
+    .optional(),
   status: z.enum(['OPEN', 'INVESTIGATING', 'CONFIRMED', 'CLEARED', 'CLOSED']).optional(),
   investigationFindings: z.string().optional(),
   correctiveAction: z.string().optional(),
@@ -124,7 +132,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List counterfeit reports error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list counterfeit reports' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list counterfeit reports' },
+    });
   }
 });
 
@@ -164,7 +175,10 @@ router.get('/suspect-parts', scopeToUser, async (req: AuthRequest, res: Response
     });
   } catch (error) {
     logger.error('List suspect parts error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list suspect parts' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list suspect parts' },
+    });
   }
 });
 
@@ -176,13 +190,19 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!report || report.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Counterfeit report not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Counterfeit report not found' },
+      });
     }
 
     res.json({ success: true, data: report });
   } catch (error) {
     logger.error('Get counterfeit report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get counterfeit report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get counterfeit report' },
+    });
   }
 });
 
@@ -220,20 +240,32 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create counterfeit report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create counterfeit report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create counterfeit report' },
+    });
   }
 });
 
 // PUT /:id - Update counterfeit report
 router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.aeroCounterfeitReport.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroCounterfeitReport.findUnique({
+      where: { id: req.params.id },
+    });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Counterfeit report not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Counterfeit report not found' },
+      });
     }
 
     const data = updateCounterfeitReportSchema.parse(req.body);
@@ -248,20 +280,32 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update counterfeit report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update counterfeit report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update counterfeit report' },
+    });
   }
 });
 
 // DELETE /:id - Soft delete counterfeit report
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.aeroCounterfeitReport.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroCounterfeitReport.findUnique({
+      where: { id: req.params.id },
+    });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Counterfeit report not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Counterfeit report not found' },
+      });
     }
 
     await prisma.aeroCounterfeitReport.update({
@@ -272,7 +316,10 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     res.status(204).send();
   } catch (error) {
     logger.error('Delete counterfeit report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete counterfeit report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete counterfeit report' },
+    });
   }
 });
 
@@ -306,11 +353,18 @@ router.post('/suspect-parts', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create suspect part error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add suspect part' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add suspect part' },
+    });
   }
 });
 

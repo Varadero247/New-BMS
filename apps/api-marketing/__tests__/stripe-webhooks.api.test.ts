@@ -35,7 +35,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/webhooks', stripeWebhooksRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('POST /api/webhooks/stripe', () => {
   it('handles customer.subscription.deleted event', async () => {
@@ -89,9 +91,7 @@ describe('POST /api/webhooks/stripe', () => {
   });
 
   it('returns 400 for invalid event', async () => {
-    const res = await request(app)
-      .post('/api/webhooks/stripe')
-      .send({});
+    const res = await request(app).post('/api/webhooks/stripe').send({});
 
     expect(res.status).toBe(400);
   });
@@ -151,13 +151,18 @@ describe('Stripe signature verification', () => {
 
   it('returns 400 when signature is invalid', async () => {
     const verifyApp = express();
-    verifyApp.use('/api/webhooks', express.raw({ type: 'application/json' }), (req: any, _res: any, next: any) => {
-      if (Buffer.isBuffer(req.body)) {
-        req.rawBody = req.body;
-        req.body = JSON.parse(req.body.toString());
-      }
-      next();
-    }, stripeWebhooksRouter);
+    verifyApp.use(
+      '/api/webhooks',
+      express.raw({ type: 'application/json' }),
+      (req: any, _res: any, next: any) => {
+        if (Buffer.isBuffer(req.body)) {
+          req.rawBody = req.body;
+          req.body = JSON.parse(req.body.toString());
+        }
+        next();
+      },
+      stripeWebhooksRouter
+    );
 
     const res = await request(verifyApp)
       .post('/api/webhooks/stripe')
@@ -171,13 +176,18 @@ describe('Stripe signature verification', () => {
 
   it('processes event when signature is valid', async () => {
     const verifyApp = express();
-    verifyApp.use('/api/webhooks', express.raw({ type: 'application/json' }), (req: any, _res: any, next: any) => {
-      if (Buffer.isBuffer(req.body)) {
-        req.rawBody = req.body;
-        req.body = JSON.parse(req.body.toString());
-      }
-      next();
-    }, stripeWebhooksRouter);
+    verifyApp.use(
+      '/api/webhooks',
+      express.raw({ type: 'application/json' }),
+      (req: any, _res: any, next: any) => {
+        if (Buffer.isBuffer(req.body)) {
+          req.rawBody = req.body;
+          req.body = JSON.parse(req.body.toString());
+        }
+        next();
+      },
+      stripeWebhooksRouter
+    );
 
     const payload = JSON.stringify({ type: 'invoice.paid', data: { object: { id: 'inv-1' } } });
     const sig = generateStripeSignature(payload, testSecret);
@@ -194,13 +204,18 @@ describe('Stripe signature verification', () => {
 
   it('returns 400 for malformed signature header', async () => {
     const verifyApp = express();
-    verifyApp.use('/api/webhooks', express.raw({ type: 'application/json' }), (req: any, _res: any, next: any) => {
-      if (Buffer.isBuffer(req.body)) {
-        req.rawBody = req.body;
-        req.body = JSON.parse(req.body.toString());
-      }
-      next();
-    }, stripeWebhooksRouter);
+    verifyApp.use(
+      '/api/webhooks',
+      express.raw({ type: 'application/json' }),
+      (req: any, _res: any, next: any) => {
+        if (Buffer.isBuffer(req.body)) {
+          req.rawBody = req.body;
+          req.body = JSON.parse(req.body.toString());
+        }
+        next();
+      },
+      stripeWebhooksRouter
+    );
 
     const res = await request(verifyApp)
       .post('/api/webhooks/stripe')

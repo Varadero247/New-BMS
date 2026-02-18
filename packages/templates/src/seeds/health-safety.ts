@@ -34,7 +34,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Activity Description',
         type: 'textarea',
         required: true,
-        placeholder: 'Provide a detailed description of the work activity, including location, equipment, and frequency.',
+        placeholder:
+          'Provide a detailed description of the work activity, including location, equipment, and frequency.',
         helpText: 'Include enough detail so someone unfamiliar with the task can understand it.',
         validation: { maxLength: 2000 },
         width: 'full',
@@ -71,12 +72,28 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Identified Hazards',
         type: 'table',
         required: true,
-        helpText: 'Add one row per hazard. Describe the hazard, its source, and the potential harm.',
+        helpText:
+          'Add one row per hazard. Describe the hazard, its source, and the potential harm.',
         columns: [
           { id: 'hazard_ref', label: 'Ref #', type: 'text', placeholder: 'H1' },
-          { id: 'hazard_description', label: 'Hazard', type: 'text', placeholder: 'e.g. Manual lifting of heavy loads' },
-          { id: 'hazard_source', label: 'Source / Cause', type: 'text', placeholder: 'e.g. Pallets weighing >25 kg' },
-          { id: 'potential_harm', label: 'Potential Harm', type: 'text', placeholder: 'e.g. Musculoskeletal injury' },
+          {
+            id: 'hazard_description',
+            label: 'Hazard',
+            type: 'text',
+            placeholder: 'e.g. Manual lifting of heavy loads',
+          },
+          {
+            id: 'hazard_source',
+            label: 'Source / Cause',
+            type: 'text',
+            placeholder: 'e.g. Pallets weighing >25 kg',
+          },
+          {
+            id: 'potential_harm',
+            label: 'Potential Harm',
+            type: 'text',
+            placeholder: 'e.g. Musculoskeletal injury',
+          },
         ],
         section: 'section_hazards',
       },
@@ -111,7 +128,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Existing Controls',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe existing engineering controls, safe systems of work, PPE, training, etc.',
+        placeholder:
+          'Describe existing engineering controls, safe systems of work, PPE, training, etc.',
         helpText: 'List all current measures that reduce the risk.',
         validation: { maxLength: 3000 },
         width: 'full',
@@ -193,7 +211,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Additional Controls Required',
         type: 'textarea',
         required: false,
-        placeholder: 'Describe additional controls to be implemented, following the hierarchy of controls.',
+        placeholder:
+          'Describe additional controls to be implemented, following the hierarchy of controls.',
         helpText: 'Elimination > Substitution > Engineering > Administrative > PPE.',
         validation: { maxLength: 3000 },
         width: 'full',
@@ -307,8 +326,10 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Task Description',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the manual handling task including what is lifted/carried/pushed/pulled, start and end points, and frequency.',
-        helpText: 'Include enough detail for someone unfamiliar with the task to understand what is involved.',
+        placeholder:
+          'Describe the manual handling task including what is lifted/carried/pushed/pulled, start and end points, and frequency.',
+        helpText:
+          'Include enough detail for someone unfamiliar with the task to understand what is involved.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_task',
@@ -532,8 +553,10 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Control Measures',
         type: 'textarea',
         required: true,
-        placeholder: 'e.g. Introduce mechanical aids (pallet truck), reduce load weight, provide manual handling training.',
-        helpText: 'Apply the hierarchy: Eliminate > Automate > Mechanical aids > Reduce load > Improve environment > Training.',
+        placeholder:
+          'e.g. Introduce mechanical aids (pallet truck), reduce load weight, provide manual handling training.',
+        helpText:
+          'Apply the hierarchy: Eliminate > Automate > Mechanical aids > Reduce load > Improve environment > Training.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_controls',
@@ -773,7 +796,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Controls Hierarchy',
         type: 'table',
         required: true,
-        helpText: 'For each level of the hierarchy, record the control measures in place or planned.',
+        helpText:
+          'For each level of the hierarchy, record the control measures in place or planned.',
         columns: [
           {
             id: 'hierarchy_level',
@@ -789,7 +813,12 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
               { label: '7 — PPE (last resort)', value: 'ppe' },
             ],
           },
-          { id: 'control_measure', label: 'Control Measure', type: 'text', placeholder: 'Describe the control' },
+          {
+            id: 'control_measure',
+            label: 'Control Measure',
+            type: 'text',
+            placeholder: 'Describe the control',
+          },
           {
             id: 'status',
             label: 'Status',
@@ -823,7 +852,10 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
           { label: 'Chemical-resistant gloves (neoprene)', value: 'gloves_neoprene' },
           { label: 'Chemical-resistant gloves (PVC)', value: 'gloves_pvc' },
           { label: 'Respiratory protection — FFP2 / FFP3 mask', value: 'resp_ffp' },
-          { label: 'Respiratory protection — half-face respirator with cartridge', value: 'resp_half' },
+          {
+            label: 'Respiratory protection — half-face respirator with cartridge',
+            value: 'resp_half',
+          },
           { label: 'Respiratory protection — full-face respirator', value: 'resp_full' },
           { label: 'Chemical-resistant apron', value: 'apron' },
           { label: 'Chemical-resistant suit', value: 'suit' },
@@ -843,8 +875,10 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Emergency & First Aid Procedures',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe spill response, first aid measures (inhalation, skin, eye, ingestion), and fire-fighting measures.',
-        helpText: 'Reference the SDS sections 4 (First Aid), 5 (Fire-fighting), and 6 (Accidental Release).',
+        placeholder:
+          'Describe spill response, first aid measures (inhalation, skin, eye, ingestion), and fire-fighting measures.',
+        helpText:
+          'Reference the SDS sections 4 (First Aid), 5 (Fire-fighting), and 6 (Accidental Release).',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_emergency',
@@ -901,7 +935,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Review Date',
         type: 'date',
         required: true,
-        helpText: 'COSHH assessments must be reviewed at least annually or when circumstances change.',
+        helpText:
+          'COSHH assessments must be reviewed at least annually or when circumstances change.',
         width: 'half',
         section: 'section_signoff',
       },
@@ -986,7 +1021,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         type: 'textarea',
         required: true,
         placeholder: 'Provide a factual, chronological account of what happened.',
-        helpText: 'Include what happened, in what order, what equipment was involved, and what the outcome was.',
+        helpText:
+          'Include what happened, in what order, what equipment was involved, and what the outcome was.',
         validation: { maxLength: 5000 },
         width: 'full',
         section: 'section_incident',
@@ -1031,7 +1067,12 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
               { label: 'Member of Public', value: 'public' },
             ],
           },
-          { id: 'injury_type', label: 'Injury / Condition', type: 'text', placeholder: 'e.g. Laceration to right hand' },
+          {
+            id: 'injury_type',
+            label: 'Injury / Condition',
+            type: 'text',
+            placeholder: 'e.g. Laceration to right hand',
+          },
           { id: 'body_part', label: 'Body Part', type: 'text', placeholder: 'e.g. Right hand' },
           {
             id: 'treatment',
@@ -1072,8 +1113,10 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Root Cause(s)',
         type: 'textarea',
         required: true,
-        placeholder: 'Use 5-Why or fishbone analysis. What underlying system failures allowed this to happen?',
-        helpText: 'The fundamental organisational or system failures that allowed the immediate cause to exist.',
+        placeholder:
+          'Use 5-Why or fishbone analysis. What underlying system failures allowed this to happen?',
+        helpText:
+          'The fundamental organisational or system failures that allowed the immediate cause to exist.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_causes',
@@ -1115,7 +1158,12 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         columns: [
           { id: 'witness_name', label: 'Witness Name', type: 'text' },
           { id: 'witness_role', label: 'Role / Job Title', type: 'text' },
-          { id: 'statement', label: 'Statement Summary', type: 'text', placeholder: 'Key points from the witness account' },
+          {
+            id: 'statement',
+            label: 'Statement Summary',
+            type: 'text',
+            placeholder: 'Key points from the witness account',
+          },
           { id: 'statement_date', label: 'Date Taken', type: 'date' },
         ],
         section: 'section_witnesses',
@@ -1264,7 +1312,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'What happened?',
         type: 'textarea',
         required: true,
-        placeholder: 'Describe the near miss event. What were you doing? What went wrong? Who or what could have been harmed?',
+        placeholder:
+          'Describe the near miss event. What were you doing? What went wrong? Who or what could have been harmed?',
         helpText: 'Be as specific as possible — include equipment, materials, and conditions.',
         validation: { maxLength: 3000 },
         width: 'full',
@@ -1276,7 +1325,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         id: 'section_risk',
         label: 'Potential Risk Assessment',
         type: 'section',
-        helpText: 'Evaluate what could have happened if the near miss had resulted in an actual incident.',
+        helpText:
+          'Evaluate what could have happened if the near miss had resulted in an actual incident.',
       },
       {
         id: 'potential_consequence',
@@ -1346,7 +1396,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         id: 'immediate_action',
         label: 'Immediate Action Taken',
         type: 'textarea',
-        placeholder: 'Describe any immediate steps taken to make the area safe (e.g. isolated equipment, cleaned spill, cordoned area).',
+        placeholder:
+          'Describe any immediate steps taken to make the area safe (e.g. isolated equipment, cleaned spill, cordoned area).',
         helpText: 'What did you or others do immediately to prevent harm?',
         validation: { maxLength: 2000 },
         width: 'full',
@@ -1470,7 +1521,12 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         helpText: 'One row per clause or sub-clause assessed.',
         columns: [
           { id: 'clause_ref', label: 'Clause', type: 'text', placeholder: 'e.g. 6.1.2.1' },
-          { id: 'requirement', label: 'Requirement Summary', type: 'text', placeholder: 'e.g. Hazard identification' },
+          {
+            id: 'requirement',
+            label: 'Requirement Summary',
+            type: 'text',
+            placeholder: 'e.g. Hazard identification',
+          },
           {
             id: 'conformity',
             label: 'Conformity',
@@ -1484,8 +1540,18 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
               { label: 'Not Applicable', value: 'na' },
             ],
           },
-          { id: 'evidence', label: 'Objective Evidence', type: 'text', placeholder: 'Records, interviews, observations' },
-          { id: 'finding', label: 'Finding / Notes', type: 'text', placeholder: 'Details of conformity or non-conformity' },
+          {
+            id: 'evidence',
+            label: 'Objective Evidence',
+            type: 'text',
+            placeholder: 'Records, interviews, observations',
+          },
+          {
+            id: 'finding',
+            label: 'Finding / Notes',
+            type: 'text',
+            placeholder: 'Details of conformity or non-conformity',
+          },
         ],
         section: 'section_clauses',
       },
@@ -1532,8 +1598,10 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         id: 'opportunities',
         label: 'Opportunities for Improvement (OFI)',
         type: 'textarea',
-        placeholder: 'List any opportunities to improve the OHS management system, even where requirements are being met.',
-        helpText: 'OFIs are not non-conformities but represent areas where performance could be enhanced.',
+        placeholder:
+          'List any opportunities to improve the OHS management system, even where requirements are being met.',
+        helpText:
+          'OFIs are not non-conformities but represent areas where performance could be enhanced.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_ofi',
@@ -1550,7 +1618,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Audit Conclusion',
         type: 'textarea',
         required: true,
-        placeholder: 'Summarise the overall audit findings, number of NCs raised, and overall opinion on OHS management system effectiveness.',
+        placeholder:
+          'Summarise the overall audit findings, number of NCs raised, and overall opinion on OHS management system effectiveness.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_conclusion',
@@ -1838,7 +1907,12 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         columns: [
           { id: 'observation_ref', label: 'Ref', type: 'text', placeholder: 'OBS-01' },
           { id: 'location', label: 'Location', type: 'text', placeholder: 'Specific area' },
-          { id: 'observation', label: 'Observation', type: 'text', placeholder: 'What was observed' },
+          {
+            id: 'observation',
+            label: 'Observation',
+            type: 'text',
+            placeholder: 'What was observed',
+          },
           {
             id: 'type',
             label: 'Type',
@@ -1928,7 +2002,13 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
       'Structured management review agenda and minutes template for the OH&S management system, aligned with ISO 45001 Clause 9.3. Covers all required inputs, outputs, decisions, and action items.',
     module: 'HEALTH_SAFETY',
     category: 'MANAGEMENT_REVIEW',
-    tags: ['management review', 'ISO 45001', 'clause 9.3', 'continual improvement', 'top management'],
+    tags: [
+      'management review',
+      'ISO 45001',
+      'clause 9.3',
+      'continual improvement',
+      'top management',
+    ],
     isoClause: '9.3',
     fields: [
       // ── Section: Meeting Details ──
@@ -1967,7 +2047,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Attendees',
         type: 'textarea',
         required: true,
-        placeholder: 'List all attendees with their roles (e.g. John Smith — Operations Director, Jane Doe — H&S Manager).',
+        placeholder:
+          'List all attendees with their roles (e.g. John Smith — Operations Director, Jane Doe — H&S Manager).',
         helpText: 'Top management must be represented to satisfy ISO 45001 Clause 9.3.',
         validation: { maxLength: 2000 },
         width: 'full',
@@ -1986,7 +2067,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Status of Actions from Previous Review',
         type: 'textarea',
         required: true,
-        placeholder: 'Summarise the status of actions raised in the previous management review. How many are complete, in progress, or overdue?',
+        placeholder:
+          'Summarise the status of actions raised in the previous management review. How many are complete, in progress, or overdue?',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_input_audit',
@@ -1996,7 +2078,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Internal Audit Results Summary',
         type: 'textarea',
         required: true,
-        placeholder: 'Summarise key findings from internal audits conducted since the last review. Include number of NCs raised, trends, and areas of concern.',
+        placeholder:
+          'Summarise key findings from internal audits conducted since the last review. Include number of NCs raised, trends, and areas of concern.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_input_audit',
@@ -2014,7 +2097,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Incident Statistics',
         type: 'textarea',
         required: true,
-        placeholder: 'Provide incident metrics: total incidents, RIDDOR reports, lost time injuries, LTI frequency rate, severity rate, near miss reports, and trends compared to previous period.',
+        placeholder:
+          'Provide incident metrics: total incidents, RIDDOR reports, lost time injuries, LTI frequency rate, severity rate, near miss reports, and trends compared to previous period.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_input_incidents',
@@ -2032,7 +2116,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Compliance Status',
         type: 'textarea',
         required: true,
-        placeholder: 'Summarise compliance evaluation results, any regulatory changes, enforcement actions, or compliance gaps identified.',
+        placeholder:
+          'Summarise compliance evaluation results, any regulatory changes, enforcement actions, or compliance gaps identified.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_input_compliance',
@@ -2050,7 +2135,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Objectives Progress',
         type: 'textarea',
         required: true,
-        placeholder: 'Review progress against each OH&S objective set for this period. Include KPI data and any objectives not on track.',
+        placeholder:
+          'Review progress against each OH&S objective set for this period. Include KPI data and any objectives not on track.',
         validation: { maxLength: 3000 },
         width: 'full',
         section: 'section_input_objectives',
@@ -2061,13 +2147,15 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         id: 'section_input_consultation',
         label: 'Input: Worker Consultation & Participation',
         type: 'section',
-        helpText: 'ISO 45001 Clause 9.3 (e) — Relevant information on worker consultation and participation.',
+        helpText:
+          'ISO 45001 Clause 9.3 (e) — Relevant information on worker consultation and participation.',
       },
       {
         id: 'consultation_summary',
         label: 'Worker Consultation & Participation Summary',
         type: 'textarea',
-        placeholder: 'Summarise worker consultation activities, safety committee outcomes, feedback from safety representatives, and worker participation in risk assessments.',
+        placeholder:
+          'Summarise worker consultation activities, safety committee outcomes, feedback from safety representatives, and worker participation in risk assessments.',
         validation: { maxLength: 2000 },
         width: 'full',
         section: 'section_input_consultation',
@@ -2090,7 +2178,12 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
           { id: 'decision_ref', label: 'Ref', type: 'text', placeholder: 'D-01' },
           { id: 'decision', label: 'Decision / Direction', type: 'text' },
           { id: 'rationale', label: 'Rationale', type: 'text' },
-          { id: 'resources', label: 'Resources Required', type: 'text', placeholder: 'Budget, personnel, equipment' },
+          {
+            id: 'resources',
+            label: 'Resources Required',
+            type: 'text',
+            placeholder: 'Budget, personnel, equipment',
+          },
           { id: 'owner', label: 'Owner', type: 'text' },
         ],
         section: 'section_output_decisions',
@@ -2148,7 +2241,8 @@ export const healthSafetyTemplates: TemplateDefinition[] = [
         label: 'Next Management Review Date',
         type: 'date',
         required: true,
-        helpText: 'Management reviews must be conducted at planned intervals (typically quarterly or semi-annually).',
+        helpText:
+          'Management reviews must be conducted at planned intervals (typically quarterly or semi-annually).',
         width: 'half',
         section: 'section_next_review',
       },

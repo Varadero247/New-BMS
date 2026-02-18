@@ -76,9 +76,7 @@ describe('Environment Events API Routes', () => {
       (mockPrisma.envEvent.findMany as jest.Mock).mockResolvedValueOnce(mockEvents);
       (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/events')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/events').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -109,9 +107,7 @@ describe('Environment Events API Routes', () => {
       (mockPrisma.envEvent.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/events?status=REPORTED')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/events?status=REPORTED').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envEvent.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -126,9 +122,7 @@ describe('Environment Events API Routes', () => {
       (mockPrisma.envEvent.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/events?eventType=SPILL')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/events?eventType=SPILL').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envEvent.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -143,9 +137,7 @@ describe('Environment Events API Routes', () => {
       (mockPrisma.envEvent.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/events?severity=MAJOR')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/events?severity=MAJOR').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envEvent.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -160,9 +152,7 @@ describe('Environment Events API Routes', () => {
       (mockPrisma.envEvent.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/events?search=warehouse')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/events?search=warehouse').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envEvent.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -182,9 +172,7 @@ describe('Environment Events API Routes', () => {
       (mockPrisma.envEvent.findMany as jest.Mock).mockResolvedValueOnce(mockEvents);
       (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/events')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/events').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.envEvent.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -196,9 +184,7 @@ describe('Environment Events API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.envEvent.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/events')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/events').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -304,7 +290,14 @@ describe('Environment Events API Routes', () => {
       const response = await request(app)
         .post('/api/events')
         .set('Authorization', 'Bearer token')
-        .send({ severity: 'MAJOR', dateOfEvent: '2026-01-15', location: 'A', department: 'Ops', reportedBy: 'John', description: 'A valid description here' });
+        .send({
+          severity: 'MAJOR',
+          dateOfEvent: '2026-01-15',
+          location: 'A',
+          department: 'Ops',
+          reportedBy: 'John',
+          description: 'A valid description here',
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -419,7 +412,9 @@ describe('Environment Events API Routes', () => {
 
   describe('DELETE /api/events/:id', () => {
     it('should delete event successfully', async () => {
-      (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce({ id: '17000000-0000-4000-a000-000000000001' });
+      (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '17000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.envEvent.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)

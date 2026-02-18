@@ -66,8 +66,17 @@ describe('Inventory API Routes', () => {
         warehouseId: '28000000-0000-4000-a000-000000000001',
         quantityOnHand: 100,
         quantityReserved: 10,
-        product: { id: '27000000-0000-4000-a000-000000000001', sku: 'SKU001', name: 'Widget A', reorderPoint: 20 },
-        warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main Warehouse' },
+        product: {
+          id: '27000000-0000-4000-a000-000000000001',
+          sku: 'SKU001',
+          name: 'Widget A',
+          reorderPoint: 20,
+        },
+        warehouse: {
+          id: '28000000-0000-4000-a000-000000000001',
+          code: 'WH1',
+          name: 'Main Warehouse',
+        },
       },
       {
         id: 'inv-2',
@@ -76,7 +85,11 @@ describe('Inventory API Routes', () => {
         quantityOnHand: 50,
         quantityReserved: 5,
         product: { id: 'prod-2', sku: 'SKU002', name: 'Widget B', reorderPoint: 10 },
-        warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main Warehouse' },
+        warehouse: {
+          id: '28000000-0000-4000-a000-000000000001',
+          code: 'WH1',
+          name: 'Main Warehouse',
+        },
       },
     ];
 
@@ -163,9 +176,7 @@ describe('Inventory API Routes', () => {
       (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.inventory.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/inventory')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/inventory').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.inventory.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -193,7 +204,12 @@ describe('Inventory API Routes', () => {
           quantityOnHand: 100,
           quantityReserved: 10,
           binLocation: 'A1',
-          warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main', isActive: true },
+          warehouse: {
+            id: '28000000-0000-4000-a000-000000000001',
+            code: 'WH1',
+            name: 'Main',
+            isActive: true,
+          },
         },
         {
           quantityOnHand: 50,
@@ -239,7 +255,12 @@ describe('Inventory API Routes', () => {
           quantityOnHand: 5,
           quantityReserved: 0,
           binLocation: 'A1',
-          warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main', isActive: true },
+          warehouse: {
+            id: '28000000-0000-4000-a000-000000000001',
+            code: 'WH1',
+            name: 'Main',
+            isActive: true,
+          },
         },
       ]);
       (mockPrisma.product.findUnique as jest.Mock).mockResolvedValueOnce({

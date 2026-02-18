@@ -209,12 +209,10 @@ describe('PUT /api/controls/:id/status', () => {
       justification: 'RACI matrix completed and approved',
     });
 
-    const res = await request(app)
-      .put(`/api/controls/${UUID2}/status`)
-      .send({
-        implementationStatus: 'FULLY_IMPLEMENTED',
-        justification: 'RACI matrix completed and approved',
-      });
+    const res = await request(app).put(`/api/controls/${UUID2}/status`).send({
+      implementationStatus: 'FULLY_IMPLEMENTED',
+      justification: 'RACI matrix completed and approved',
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -229,12 +227,10 @@ describe('PUT /api/controls/:id/status', () => {
       justification: 'Not relevant for our AI use cases',
     });
 
-    const res = await request(app)
-      .put(`/api/controls/${UUID1}/status`)
-      .send({
-        implementationStatus: 'NOT_APPLICABLE',
-        justification: 'Not relevant for our AI use cases',
-      });
+    const res = await request(app).put(`/api/controls/${UUID1}/status`).send({
+      implementationStatus: 'NOT_APPLICABLE',
+      justification: 'Not relevant for our AI use cases',
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -286,12 +282,10 @@ describe('PUT /api/controls/:id/implementation', () => {
       evidence: 'https://sharepoint/docs/raci-v1.xlsx',
     });
 
-    const res = await request(app)
-      .put(`/api/controls/${UUID2}/implementation`)
-      .send({
-        implementationNotes: 'RACI matrix finalized, roles assigned',
-        evidence: 'https://sharepoint/docs/raci-v1.xlsx',
-      });
+    const res = await request(app).put(`/api/controls/${UUID2}/implementation`).send({
+      implementationNotes: 'RACI matrix finalized, roles assigned',
+      evidence: 'https://sharepoint/docs/raci-v1.xlsx',
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -306,12 +300,10 @@ describe('PUT /api/controls/:id/implementation', () => {
       targetDate: new Date('2026-08-01'),
     });
 
-    const res = await request(app)
-      .put(`/api/controls/${UUID2}/implementation`)
-      .send({
-        responsiblePerson: 'Jane Doe',
-        targetDate: '2026-08-01',
-      });
+    const res = await request(app).put(`/api/controls/${UUID2}/implementation`).send({
+      responsiblePerson: 'Jane Doe',
+      targetDate: '2026-08-01',
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);

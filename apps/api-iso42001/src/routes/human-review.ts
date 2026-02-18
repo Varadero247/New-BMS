@@ -95,8 +95,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list human reviews', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list human reviews' } });
+    logger.error('Failed to list human reviews', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list human reviews' },
+    });
   }
 });
 
@@ -108,10 +113,7 @@ router.get('/pending', async (req: Request, res: Response) => {
       where: {
         deletedAt: null,
         status: 'PENDING',
-        OR: [
-          { reviewerUserId: authReq.user?.id } as any,
-          { reviewerUserId: null },
-        ],
+        OR: [{ reviewerUserId: authReq.user?.id } as any, { reviewerUserId: null }],
       },
       orderBy: { createdAt: 'asc' },
       take: 50,
@@ -119,8 +121,13 @@ router.get('/pending', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: reviews });
   } catch (error: unknown) {
-    logger.error('Failed to list pending reviews', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list pending reviews' } });
+    logger.error('Failed to list pending reviews', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list pending reviews' },
+    });
   }
 });
 
@@ -129,7 +136,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = reviewCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -152,8 +166,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Human review created', { reviewId: review.id, systemId: parsed.data.systemId });
     res.status(201).json({ success: true, data: review });
   } catch (error: unknown) {
-    logger.error('Failed to create human review', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create human review' } });
+    logger.error('Failed to create human review', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create human review' },
+    });
   }
 });
 
@@ -163,26 +182,46 @@ router.put('/:id/decide', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = reviewDecisionSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.aiHumanReview.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiHumanReview.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Human review not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Human review not found' } });
     }
 
     if (existing.status !== 'PENDING') {
-      return res.status(400).json({ success: false, error: { code: 'ALREADY_DECIDED', message: 'Review has already been decided' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'ALREADY_DECIDED', message: 'Review has already been decided' },
+      });
     }
 
     // Check expiry
     if (existing.expiresAt && new Date() > existing.expiresAt) {
       await prisma.aiHumanReview.update({ where: { id }, data: { status: 'EXPIRED' } });
-      return res.status(400).json({ success: false, error: { code: 'EXPIRED', message: 'Review has expired' } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'EXPIRED', message: 'Review has expired' } });
     }
 
     const authReq = req as AuthRequest;
-    const statusMap: Record<string, string> = { APPROVED: 'APPROVED', REJECTED: 'REJECTED', ESCALATED: 'ESCALATED' };
+    const statusMap: Record<string, string> = {
+      APPROVED: 'APPROVED',
+      REJECTED: 'REJECTED',
+      ESCALATED: 'ESCALATED',
+    };
 
     const review = await prisma.aiHumanReview.update({
       where: { id },
@@ -199,8 +238,14 @@ router.put('/:id/decide', async (req: Request, res: Response) => {
     logger.info('Human review decided', { reviewId: id, decision: parsed.data.decision });
     res.json({ success: true, data: review });
   } catch (error: unknown) {
-    logger.error('Failed to decide human review', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to submit review decision' } });
+    logger.error('Failed to decide human review', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to submit review decision' },
+    });
   }
 });
 
@@ -213,13 +258,21 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!review) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Human review not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Human review not found' } });
     }
 
     res.json({ success: true, data: review });
   } catch (error: unknown) {
-    logger.error('Failed to get human review', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get human review' } });
+    logger.error('Failed to get human review', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get human review' },
+    });
   }
 });
 
@@ -227,9 +280,13 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const existing = await prisma.aiHumanReview.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiHumanReview.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Human review not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Human review not found' } });
     }
 
     await prisma.aiHumanReview.update({
@@ -240,8 +297,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Human review soft-deleted', { reviewId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete human review', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete human review' } });
+    logger.error('Failed to delete human review', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete human review' },
+    });
   }
 });
 

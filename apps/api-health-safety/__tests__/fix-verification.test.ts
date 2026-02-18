@@ -26,7 +26,11 @@ jest.mock('@ims/monitoring', () => ({
 // Mock @ims/auth
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '20000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -138,7 +142,9 @@ describe('Architecture Fix Verification', () => {
 
   describe('F-026: DELETE Returns 204 No Content', () => {
     it('should return 204 with no body on successful delete', async () => {
-      mockPrisma.risk.findUnique.mockResolvedValueOnce({ id: '10000000-0000-4000-a000-000000000123' } as any);
+      mockPrisma.risk.findUnique.mockResolvedValueOnce({
+        id: '10000000-0000-4000-a000-000000000123',
+      } as any);
       mockPrisma.risk.delete.mockResolvedValueOnce({} as any);
 
       const response = await request(app).delete('/api/risks/10000000-0000-4000-a000-000000000123');
@@ -169,7 +175,9 @@ describe('Architecture Fix Verification', () => {
 
   describe('F-032: Error Response Masking', () => {
     it('should return generic error message on 500 (no stack traces)', async () => {
-      mockPrisma.risk.findMany.mockRejectedValueOnce(new Error('SENSITIVE: database password leaked'));
+      mockPrisma.risk.findMany.mockRejectedValueOnce(
+        new Error('SENSITIVE: database password leaked')
+      );
 
       const response = await request(app).get('/api/risks');
 

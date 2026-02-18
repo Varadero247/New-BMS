@@ -81,7 +81,12 @@ const mockIncident = {
   createdAt: new Date('2026-02-01'),
   updatedAt: new Date('2026-02-01'),
   deletedAt: null,
-  system: { id: UUID1, name: 'Recommendation Engine', reference: 'AI42-SYS-2602-1111', riskTier: 'HIGH' },
+  system: {
+    id: UUID1,
+    name: 'Recommendation Engine',
+    reference: 'AI42-SYS-2602-1111',
+    riskTier: 'HIGH',
+  },
 };
 
 // ===================================================================
@@ -224,20 +229,24 @@ describe('POST /api/incidents', () => {
   });
 
   it('should return 400 for invalid systemId', async () => {
-    const res = await request(app).post('/api/incidents').send({
-      ...validPayload,
-      systemId: 'not-a-uuid',
-    });
+    const res = await request(app)
+      .post('/api/incidents')
+      .send({
+        ...validPayload,
+        systemId: 'not-a-uuid',
+      });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
   });
 
   it('should return 400 for invalid severity', async () => {
-    const res = await request(app).post('/api/incidents').send({
-      ...validPayload,
-      severity: 'EXTREMELY_BAD',
-    });
+    const res = await request(app)
+      .post('/api/incidents')
+      .send({
+        ...validPayload,
+        severity: 'EXTREMELY_BAD',
+      });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
@@ -308,9 +317,7 @@ describe('PUT /api/incidents/:id', () => {
       system: { id: UUID1, name: 'Recommendation Engine', reference: 'AI42-SYS-2602-1111' },
     });
 
-    const res = await request(app)
-      .put(`/api/incidents/${UUID2}`)
-      .send({ severity: 'CRITICAL' });
+    const res = await request(app).put(`/api/incidents/${UUID2}`).send({ severity: 'CRITICAL' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -319,9 +326,7 @@ describe('PUT /api/incidents/:id', () => {
   it('should return 404 when updating non-existent incident', async () => {
     (prisma as any).aiIncident.findFirst.mockResolvedValue(null);
 
-    const res = await request(app)
-      .put(`/api/incidents/${UUID1}`)
-      .send({ title: 'Updated' });
+    const res = await request(app).put(`/api/incidents/${UUID1}`).send({ title: 'Updated' });
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -351,13 +356,11 @@ describe('PUT /api/incidents/:id/investigate', () => {
       system: { id: UUID1, name: 'Recommendation Engine', reference: 'AI42-SYS-2602-1111' },
     });
 
-    const res = await request(app)
-      .put(`/api/incidents/${UUID2}/investigate`)
-      .send({
-        investigator: 'Dr. Smith',
-        rootCause: 'Training data imbalance',
-        findings: 'Demographic disparity in training data',
-      });
+    const res = await request(app).put(`/api/incidents/${UUID2}/investigate`).send({
+      investigator: 'Dr. Smith',
+      rootCause: 'Training data imbalance',
+      findings: 'Demographic disparity in training data',
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -419,12 +422,10 @@ describe('PUT /api/incidents/:id/close', () => {
       system: { id: UUID1, name: 'Recommendation Engine', reference: 'AI42-SYS-2602-1111' },
     });
 
-    const res = await request(app)
-      .put(`/api/incidents/${UUID2}/close`)
-      .send({
-        resolution: 'Retrained model with balanced dataset',
-        lessonsLearned: 'Need regular bias audits',
-      });
+    const res = await request(app).put(`/api/incidents/${UUID2}/close`).send({
+      resolution: 'Retrained model with balanced dataset',
+      lessonsLearned: 'Need regular bias audits',
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -434,9 +435,7 @@ describe('PUT /api/incidents/:id/close', () => {
   it('should return 400 when resolution is missing', async () => {
     (prisma as any).aiIncident.findFirst.mockResolvedValue(mockIncident);
 
-    const res = await request(app)
-      .put(`/api/incidents/${UUID2}/close`)
-      .send({});
+    const res = await request(app).put(`/api/incidents/${UUID2}/close`).send({});
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');

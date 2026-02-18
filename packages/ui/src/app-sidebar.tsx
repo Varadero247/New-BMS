@@ -70,9 +70,7 @@ export function AppSidebar({ items, activeId, moduleColor, className }: AppSideb
                       )}
                       style={{
                         background: isActive ? 'rgba(59,120,245,0.12)' : undefined,
-                        color: isActive
-                          ? 'var(--blue-hi, #5B94FF)'
-                          : 'var(--steel, #5A7099)',
+                        color: isActive ? 'var(--blue-hi, #5B94FF)' : 'var(--steel, #5A7099)',
                         borderRadius: 6,
                       }}
                     >

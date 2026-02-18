@@ -24,25 +24,39 @@ const createSchema = z.object({
   employeeId: z.string().trim().uuid(),
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().min(1).max(2000),
-  category: z.enum(['PERFORMANCE', 'DEVELOPMENT', 'BEHAVIORAL', 'TEAM', 'STRATEGIC', 'OPERATIONAL', 'INNOVATION']),
+  category: z.enum([
+    'PERFORMANCE',
+    'DEVELOPMENT',
+    'BEHAVIORAL',
+    'TEAM',
+    'STRATEGIC',
+    'OPERATIONAL',
+    'INNOVATION',
+  ]),
   weight: z.number().min(0).max(100).optional(),
   measurementCriteria: z.string().trim().min(1).max(200),
   targetValue: z.string().optional(),
   unit: z.string().optional(),
-  startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  startDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  dueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   alignedToObjective: z.string().optional(),
 });
 
-const updateSchema = createSchema.partial().omit({ cycleId: true, employeeId: true }).extend({
-  status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'ON_HOLD']).optional(),
-  progress: z.number().int().min(0).max(100).optional(),
-  actualValue: z.string().optional(),
-  selfRating: z.number().min(0).max(5).optional(),
-  managerRating: z.number().min(0).max(5).optional(),
-  finalRating: z.number().min(0).max(5).optional(),
-  ratingComments: z.string().optional(),
-});
+const updateSchema = createSchema
+  .partial()
+  .omit({ cycleId: true, employeeId: true })
+  .extend({
+    status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'ON_HOLD']).optional(),
+    progress: z.number().int().min(0).max(100).optional(),
+    actualValue: z.string().optional(),
+    selfRating: z.number().min(0).max(5).optional(),
+    managerRating: z.number().min(0).max(5).optional(),
+    finalRating: z.number().min(0).max(5).optional(),
+    ratingComments: z.string().optional(),
+  });
 
 const updateSchema_ = updateSchema;
 
@@ -67,7 +81,15 @@ router.get('/', async (req: Request, res: Response) => {
         take: limit,
         orderBy: { dueDate: 'asc' },
         include: {
-          employee: { select: { id: true, employeeNumber: true, firstName: true, lastName: true, jobTitle: true } },
+          employee: {
+            select: {
+              id: true,
+              employeeNumber: true,
+              firstName: true,
+              lastName: true,
+              jobTitle: true,
+            },
+          },
           cycle: { select: { id: true, name: true, status: true } },
           _count: { select: { updates: true } },
         },
@@ -82,7 +104,10 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching goals', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch goals' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch goals' },
+    });
   }
 });
 
@@ -96,7 +121,15 @@ router.get('/overdue', async (_req: Request, res: Response) => {
       },
       orderBy: { dueDate: 'asc' },
       include: {
-        employee: { select: { id: true, employeeNumber: true, firstName: true, lastName: true, workEmail: true } },
+        employee: {
+          select: {
+            id: true,
+            employeeNumber: true,
+            firstName: true,
+            lastName: true,
+            workEmail: true,
+          },
+        },
         cycle: { select: { id: true, name: true } },
       },
       take: 100,
@@ -105,7 +138,10 @@ router.get('/overdue', async (_req: Request, res: Response) => {
     res.json({ success: true, data: goals });
   } catch (error) {
     logger.error('Error fetching overdue goals', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue goals' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue goals' },
+    });
   }
 });
 
@@ -128,13 +164,16 @@ router.get('/stats', async (req: Request, res: Response) => {
       data: {
         total,
         avgProgress: Math.round(avgProgress._avg.progress || 0),
-        byStatus: byStatus.map(s => ({ status: s.status, count: s._count.id })),
-        byCategory: byCategory.map(c => ({ category: c.category, count: c._count.id })),
+        byStatus: byStatus.map((s) => ({ status: s.status, count: s._count.id })),
+        byCategory: byCategory.map((c) => ({ category: c.category, count: c._count.id })),
       },
     });
   } catch (error) {
     logger.error('Error fetching goal stats', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch goal stats' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch goal stats' },
+    });
   }
 });
 
@@ -144,20 +183,32 @@ router.get('/:id', async (req: Request, res: Response) => {
     const goal = await prisma.performanceGoal.findUnique({
       where: { id: req.params.id },
       include: {
-        employee: { select: { id: true, employeeNumber: true, firstName: true, lastName: true, jobTitle: true } },
+        employee: {
+          select: {
+            id: true,
+            employeeNumber: true,
+            firstName: true,
+            lastName: true,
+            jobTitle: true,
+          },
+        },
         cycle: { select: { id: true, name: true, status: true } },
         updates: { orderBy: { createdAt: 'desc' } },
       },
     });
 
     if (!goal) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Goal not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Goal not found' } });
     }
 
     res.json({ success: true, data: goal });
   } catch (error) {
     logger.error('Error fetching goal', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch goal' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch goal' } });
   }
 });
 
@@ -172,8 +223,15 @@ router.post('/', async (req: Request, res: Response) => {
       prisma.performanceCycle.findUnique({ where: { id: data.cycleId } }),
     ]);
 
-    if (!employee) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Employee not found' } });
-    if (!cycle) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Performance cycle not found' } });
+    if (!employee)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Employee not found' } });
+    if (!cycle)
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Performance cycle not found' },
+      });
 
     const goal = await prisma.performanceGoal.create({
       data: {
@@ -201,10 +259,15 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: goal });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating goal', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create goal' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create goal' },
+    });
   }
 });
 
@@ -213,7 +276,9 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.performanceGoal.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Goal not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Goal not found' } });
     }
 
     const data = updateSchema_.parse(req.body);
@@ -233,10 +298,15 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: goal });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error updating goal', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update goal' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update goal' },
+    });
   }
 });
 
@@ -245,14 +315,19 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.performanceGoal.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Goal not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Goal not found' } });
     }
 
     await prisma.performanceGoal.delete({ where: { id: req.params.id } });
     res.status(204).send();
   } catch (error) {
     logger.error('Error deleting goal', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete goal' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete goal' },
+    });
   }
 });
 
@@ -261,7 +336,9 @@ router.post('/:id/updates', async (req: Request, res: Response) => {
   try {
     const goal = await prisma.performanceGoal.findUnique({ where: { id: req.params.id } });
     if (!goal) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Goal not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Goal not found' } });
     }
 
     const schema = z.object({
@@ -297,10 +374,15 @@ router.post('/:id/updates', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: update });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error adding goal update', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add goal update' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add goal update' },
+    });
   }
 });
 

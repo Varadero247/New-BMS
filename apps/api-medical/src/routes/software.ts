@@ -19,9 +19,15 @@ router.param('id', validateIdParam());
 const SOFTWARE_SAFETY_CLASSES = ['CLASS_A', 'CLASS_B', 'CLASS_C'] as const;
 
 const SOFTWARE_PHASES = [
-  'PLANNING', 'REQUIREMENTS', 'ARCHITECTURE', 'DETAILED_DESIGN',
-  'IMPLEMENTATION', 'UNIT_TESTING', 'INTEGRATION_TESTING',
-  'SYSTEM_TESTING', 'RELEASE',
+  'PLANNING',
+  'REQUIREMENTS',
+  'ARCHITECTURE',
+  'DETAILED_DESIGN',
+  'IMPLEMENTATION',
+  'UNIT_TESTING',
+  'INTEGRATION_TESTING',
+  'SYSTEM_TESTING',
+  'RELEASE',
 ] as const;
 
 const SOFTWARE_PROJECT_STATUSES = ['ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED'] as const;
@@ -97,11 +103,18 @@ router.post('/projects', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create software project error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create software project' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create software project' },
+    });
   }
 });
 
@@ -110,9 +123,7 @@ router.post('/projects', async (req: AuthRequest, res: Response) => {
 // ============================================
 router.get('/projects', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
-    const {
-      page = '1', limit = '20', status, safetyClass, currentPhase,
-    } = req.query;
+    const { page = '1', limit = '20', status, safetyClass, currentPhase } = req.query;
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
@@ -141,34 +152,47 @@ router.get('/projects', scopeToUser, async (req: AuthRequest, res: Response) => 
     });
   } catch (error) {
     logger.error('List software projects error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list software projects' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list software projects' },
+    });
   }
 });
 
 // ============================================
 // 3. GET /projects/:id - Get with SOUP items, anomalies, phase docs
 // ============================================
-router.get('/projects/:id', checkOwnership(prisma.softwareProject), async (req: AuthRequest, res: Response) => {
-  try {
-    const project = await prisma.softwareProject.findUnique({
-      where: { id: req.params.id },
-      include: {
-        soupItems: { orderBy: { createdAt: 'desc' } },
-        anomalies: { orderBy: { createdAt: 'desc' } },
-        phases: { orderBy: { phase: 'asc' } },
-      },
-    });
+router.get(
+  '/projects/:id',
+  checkOwnership(prisma.softwareProject),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const project = await prisma.softwareProject.findUnique({
+        where: { id: req.params.id },
+        include: {
+          soupItems: { orderBy: { createdAt: 'desc' } },
+          anomalies: { orderBy: { createdAt: 'desc' } },
+          phases: { orderBy: { phase: 'asc' } },
+        },
+      });
 
-    if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Software project not found' } });
+      if (!project || project.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Software project not found' },
+        });
+      }
+
+      res.json({ success: true, data: project });
+    } catch (error) {
+      logger.error('Get software project error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get software project' },
+      });
     }
-
-    res.json({ success: true, data: project });
-  } catch (error) {
-    logger.error('Get software project error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get software project' } });
   }
-});
+);
 
 // ============================================
 // 4. POST /projects/:id/soup - Add SOUP item
@@ -177,7 +201,10 @@ router.post('/projects/:id/soup', async (req: AuthRequest, res: Response) => {
   try {
     const project = await prisma.softwareProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Software project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Software project not found' },
+      });
     }
 
     const schema = z.object({
@@ -187,7 +214,10 @@ router.post('/projects/:id/soup', async (req: AuthRequest, res: Response) => {
       intendedUse: z.string().optional(),
       knownAnomalies: z.string().optional(),
       riskAcceptable: z.boolean().optional(),
-      verifiedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      verifiedDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const data = schema.parse(req.body);
@@ -210,11 +240,18 @@ router.post('/projects/:id/soup', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create SOUP item error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create SOUP item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create SOUP item' },
+    });
   }
 });
 
@@ -225,7 +262,10 @@ router.put('/projects/:id/phase/:phase', async (req: AuthRequest, res: Response)
   try {
     const project = await prisma.softwareProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Software project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Software project not found' },
+      });
     }
 
     const phaseParam = req.params.phase;
@@ -239,7 +279,10 @@ router.put('/projects/:id/phase/:phase', async (req: AuthRequest, res: Response)
       content: z.string().optional(),
       status: z.enum(PHASE_DOC_STATUSES).optional(),
       reviewedBy: z.string().optional(),
-      reviewedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      reviewedDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const data = schema.parse(req.body);
@@ -275,11 +318,18 @@ router.put('/projects/:id/phase/:phase', async (req: AuthRequest, res: Response)
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update phase doc error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update phase document' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update phase document' },
+    });
   }
 });
 
@@ -290,7 +340,10 @@ router.post('/projects/:id/anomalies', async (req: AuthRequest, res: Response) =
   try {
     const project = await prisma.softwareProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Software project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Software project not found' },
+      });
     }
 
     const schema = z.object({
@@ -322,11 +375,18 @@ router.post('/projects/:id/anomalies', async (req: AuthRequest, res: Response) =
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create software anomaly error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create software anomaly' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create software anomaly' },
+    });
   }
 });
 
@@ -337,12 +397,13 @@ router.get('/projects/:id/anomalies', async (req: AuthRequest, res: Response) =>
   try {
     const project = await prisma.softwareProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Software project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Software project not found' },
+      });
     }
 
-    const {
-      page = '1', limit = '20', severity, status,
-    } = req.query;
+    const { page = '1', limit = '20', severity, status } = req.query;
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
@@ -370,7 +431,10 @@ router.get('/projects/:id/anomalies', async (req: AuthRequest, res: Response) =>
     });
   } catch (error) {
     logger.error('List software anomalies error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list software anomalies' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list software anomalies' },
+    });
   }
 });
 

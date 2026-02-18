@@ -24,7 +24,9 @@ router.get('/', requirePermission('analytics', 1), async (req: Request, res: Res
     let snapshot: Record<string, unknown> | null = null;
     try {
       snapshot = await (prisma as any).monthlySnapshot.findFirst({ orderBy: { month: 'desc' } });
-    } catch { /* DB unavailable — fall through to defaults */ }
+    } catch {
+      /* DB unavailable — fall through to defaults */
+    }
 
     // Pull pre-computed KPIs if available
     let storedKpis: Record<string, unknown>[] = [];
@@ -34,7 +36,9 @@ router.get('/', requirePermission('analytics', 1), async (req: Request, res: Res
         orderBy: { lastCalculated: 'desc' },
         take: 100,
       });
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
 
     const kpiMap = new Map(storedKpis.map((k) => [k.name as string, Number(k.currentValue ?? 0)]));
 
@@ -80,24 +84,122 @@ router.get('/', requirePermission('analytics', 1), async (req: Request, res: Res
 
       // Section 4: Recent activity
       recentActivity: [
-        { id: '1', type: 'CAPA_CLOSED', module: 'quality', description: 'CAPA-2026-0034 closed by Carol Davis', timestamp: new Date(now.getTime() - 25 * 60000).toISOString(), user: 'Carol Davis' },
-        { id: '2', type: 'INCIDENT_REPORTED', module: 'health_safety', description: 'Near-miss reported in Warehouse B', timestamp: new Date(now.getTime() - 48 * 60000).toISOString(), user: 'Mike Johnson' },
-        { id: '3', type: 'AUDIT_SCHEDULED', module: 'quality', description: 'Internal audit ISO 9001 Clause 8 scheduled for March', timestamp: new Date(now.getTime() - 120 * 60000).toISOString(), user: 'Alice Thompson' },
-        { id: '4', type: 'RISK_UPDATED', module: 'environment', description: 'ENV-RSK-2026-012 risk score updated from 15 to 12', timestamp: new Date(now.getTime() - 180 * 60000).toISOString(), user: 'Eve Green' },
-        { id: '5', type: 'NCR_RAISED', module: 'quality', description: 'NCR-2026-0089 raised against supplier batch #4421', timestamp: new Date(now.getTime() - 300 * 60000).toISOString(), user: 'Ivan Quality' },
-        { id: '6', type: 'TRAINING_COMPLETED', module: 'hr', description: '12 employees completed fire safety refresher', timestamp: new Date(now.getTime() - 420 * 60000).toISOString(), user: 'Jane HR' },
-        { id: '7', type: 'WORK_ORDER_CLOSED', module: 'cmms', description: 'WO-2026-0156 preventive maintenance on CNC Mill #3', timestamp: new Date(now.getTime() - 600 * 60000).toISOString(), user: 'Karl Maintenance' },
-        { id: '8', type: 'ENERGY_ALERT', module: 'energy', description: 'Electricity consumption 12% above baseline for Building A', timestamp: new Date(now.getTime() - 720 * 60000).toISOString(), user: 'System' },
+        {
+          id: '1',
+          type: 'CAPA_CLOSED',
+          module: 'quality',
+          description: 'CAPA-2026-0034 closed by Carol Davis',
+          timestamp: new Date(now.getTime() - 25 * 60000).toISOString(),
+          user: 'Carol Davis',
+        },
+        {
+          id: '2',
+          type: 'INCIDENT_REPORTED',
+          module: 'health_safety',
+          description: 'Near-miss reported in Warehouse B',
+          timestamp: new Date(now.getTime() - 48 * 60000).toISOString(),
+          user: 'Mike Johnson',
+        },
+        {
+          id: '3',
+          type: 'AUDIT_SCHEDULED',
+          module: 'quality',
+          description: 'Internal audit ISO 9001 Clause 8 scheduled for March',
+          timestamp: new Date(now.getTime() - 120 * 60000).toISOString(),
+          user: 'Alice Thompson',
+        },
+        {
+          id: '4',
+          type: 'RISK_UPDATED',
+          module: 'environment',
+          description: 'ENV-RSK-2026-012 risk score updated from 15 to 12',
+          timestamp: new Date(now.getTime() - 180 * 60000).toISOString(),
+          user: 'Eve Green',
+        },
+        {
+          id: '5',
+          type: 'NCR_RAISED',
+          module: 'quality',
+          description: 'NCR-2026-0089 raised against supplier batch #4421',
+          timestamp: new Date(now.getTime() - 300 * 60000).toISOString(),
+          user: 'Ivan Quality',
+        },
+        {
+          id: '6',
+          type: 'TRAINING_COMPLETED',
+          module: 'hr',
+          description: '12 employees completed fire safety refresher',
+          timestamp: new Date(now.getTime() - 420 * 60000).toISOString(),
+          user: 'Jane HR',
+        },
+        {
+          id: '7',
+          type: 'WORK_ORDER_CLOSED',
+          module: 'cmms',
+          description: 'WO-2026-0156 preventive maintenance on CNC Mill #3',
+          timestamp: new Date(now.getTime() - 600 * 60000).toISOString(),
+          user: 'Karl Maintenance',
+        },
+        {
+          id: '8',
+          type: 'ENERGY_ALERT',
+          module: 'energy',
+          description: 'Electricity consumption 12% above baseline for Building A',
+          timestamp: new Date(now.getTime() - 720 * 60000).toISOString(),
+          user: 'System',
+        },
       ],
 
       // Section 5: Certification status
       certifications: [
-        { standard: 'ISO 9001:2015', status: 'ACTIVE', readinessScore: 87, daysToExpiry: 847, lastAudit: '2025-09-15', nextAudit: '2026-03-15' },
-        { standard: 'ISO 14001:2015', status: 'ACTIVE', readinessScore: 82, daysToExpiry: 512, lastAudit: '2025-06-20', nextAudit: '2026-06-20' },
-        { standard: 'ISO 45001:2018', status: 'ACTIVE', readinessScore: 79, daysToExpiry: 623, lastAudit: '2025-08-10', nextAudit: '2026-02-28' },
-        { standard: 'ISO 27001:2022', status: 'ACTIVE', readinessScore: 74, daysToExpiry: 410, lastAudit: '2025-11-01', nextAudit: '2026-05-01' },
-        { standard: 'ISO 42001:2023', status: 'IN_PROGRESS', readinessScore: 62, daysToExpiry: null, lastAudit: null, nextAudit: '2026-09-01' },
-        { standard: 'ISO 37001:2016', status: 'IN_PROGRESS', readinessScore: 55, daysToExpiry: null, lastAudit: null, nextAudit: '2026-10-15' },
+        {
+          standard: 'ISO 9001:2015',
+          status: 'ACTIVE',
+          readinessScore: 87,
+          daysToExpiry: 847,
+          lastAudit: '2025-09-15',
+          nextAudit: '2026-03-15',
+        },
+        {
+          standard: 'ISO 14001:2015',
+          status: 'ACTIVE',
+          readinessScore: 82,
+          daysToExpiry: 512,
+          lastAudit: '2025-06-20',
+          nextAudit: '2026-06-20',
+        },
+        {
+          standard: 'ISO 45001:2018',
+          status: 'ACTIVE',
+          readinessScore: 79,
+          daysToExpiry: 623,
+          lastAudit: '2025-08-10',
+          nextAudit: '2026-02-28',
+        },
+        {
+          standard: 'ISO 27001:2022',
+          status: 'ACTIVE',
+          readinessScore: 74,
+          daysToExpiry: 410,
+          lastAudit: '2025-11-01',
+          nextAudit: '2026-05-01',
+        },
+        {
+          standard: 'ISO 42001:2023',
+          status: 'IN_PROGRESS',
+          readinessScore: 62,
+          daysToExpiry: null,
+          lastAudit: null,
+          nextAudit: '2026-09-01',
+        },
+        {
+          standard: 'ISO 37001:2016',
+          status: 'IN_PROGRESS',
+          readinessScore: 55,
+          daysToExpiry: null,
+          lastAudit: null,
+          nextAudit: '2026-10-15',
+        },
       ],
 
       generatedAt,
@@ -106,8 +208,13 @@ router.get('/', requirePermission('analytics', 1), async (req: Request, res: Res
     logger.info('Executive summary generated', { userId });
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to generate executive summary', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate executive summary' } });
+    logger.error('Failed to generate executive summary', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate executive summary' },
+    });
   }
 });
 

@@ -9,10 +9,12 @@ const router = Router();
 
 const expansionCheckSchema = z.object({
   orgId: z.string().optional(),
-  thresholds: z.object({
-    userLimit: z.number().optional(),
-    moduleLimit: z.number().optional(),
-  }).optional(),
+  thresholds: z
+    .object({
+      userLimit: z.number().optional(),
+      moduleLimit: z.number().optional(),
+    })
+    .optional(),
 });
 
 // GET /api/expansion/triggers
@@ -42,7 +44,13 @@ router.post('/check', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = expansionCheckSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.errors[0]?.message || 'Invalid input',
+        },
+      });
     }
 
     const { orgId, thresholds } = parsed.data;
@@ -61,7 +69,9 @@ router.post('/check', authenticate, async (req: Request, res: Response) => {
         take: userLimit,
       });
       userLimitApproaching = (atRisk || []).map((s: any) => s.userId);
-    } catch { /* DB unavailable — default to [] */ }
+    } catch {
+      /* DB unavailable — default to [] */
+    }
 
     // Users who received onboarding emails >30 days ago (module adoption nudge)
     try {
@@ -72,7 +82,9 @@ router.post('/check', authenticate, async (req: Request, res: Response) => {
         orderBy: { createdAt: 'desc' },
       });
       unusedModuleNudge = (stale || []).map((e: any) => e.email);
-    } catch { /* DB unavailable — default to [] */ }
+    } catch {
+      /* DB unavailable — default to [] */
+    }
 
     // Users with IMPROVING health score trend — expansion opportunity
     try {
@@ -82,7 +94,9 @@ router.post('/check', authenticate, async (req: Request, res: Response) => {
         orderBy: { createdAt: 'desc' },
       });
       growthFlag = (improving || []).map((s: any) => s.userId);
-    } catch { /* DB unavailable — default to [] */ }
+    } catch {
+      /* DB unavailable — default to [] */
+    }
 
     res.json({
       success: true,

@@ -59,7 +59,11 @@ describe('Inventory Transactions API Routes', () => {
         quantityChange: 50,
         transactionDate: '2024-01-15T10:00:00Z',
         product: { id: '27000000-0000-4000-a000-000000000001', sku: 'SKU001', name: 'Widget A' },
-        warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main Warehouse' },
+        warehouse: {
+          id: '28000000-0000-4000-a000-000000000001',
+          code: 'WH1',
+          name: 'Main Warehouse',
+        },
         fromWarehouse: null,
       },
       {
@@ -73,13 +77,19 @@ describe('Inventory Transactions API Routes', () => {
         quantityChange: -20,
         transactionDate: '2024-01-15T12:00:00Z',
         product: { id: 'prod-2', sku: 'SKU002', name: 'Widget B' },
-        warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main Warehouse' },
+        warehouse: {
+          id: '28000000-0000-4000-a000-000000000001',
+          code: 'WH1',
+          name: 'Main Warehouse',
+        },
         fromWarehouse: null,
       },
     ];
 
     it('should return list of transactions with pagination', async () => {
-      (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce(mockTransactions);
+      (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce(
+        mockTransactions
+      );
       (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app)
@@ -98,7 +108,9 @@ describe('Inventory Transactions API Routes', () => {
     });
 
     it('should support pagination parameters', async () => {
-      (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([mockTransactions[0]]);
+      (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([
+        mockTransactions[0],
+      ]);
       (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(200);
 
       const response = await request(app)
@@ -203,9 +215,7 @@ describe('Inventory Transactions API Routes', () => {
       (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/inventory/transactions')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/inventory/transactions').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.inventoryTransaction.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -215,7 +225,9 @@ describe('Inventory Transactions API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/inventory/transactions')
@@ -229,7 +241,11 @@ describe('Inventory Transactions API Routes', () => {
   describe('GET /api/inventory/transactions/product/:productId', () => {
     it('should return transaction history for a product', async () => {
       const mockTxns = [
-        { id: '29000000-0000-4000-a000-000000000001', transactionType: 'RECEIPT', quantityChange: 50 },
+        {
+          id: '29000000-0000-4000-a000-000000000001',
+          transactionType: 'RECEIPT',
+          quantityChange: 50,
+        },
       ];
       (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce(mockTxns);
       (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(1);
@@ -269,7 +285,9 @@ describe('Inventory Transactions API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/inventory/transactions/product/27000000-0000-4000-a000-000000000001')
@@ -290,13 +308,24 @@ describe('Inventory Transactions API Routes', () => {
       quantityBefore: 100,
       quantityAfter: 150,
       quantityChange: 50,
-      product: { id: '27000000-0000-4000-a000-000000000001', sku: 'SKU001', name: 'Widget A', barcode: '123456' },
-      warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main Warehouse' },
+      product: {
+        id: '27000000-0000-4000-a000-000000000001',
+        sku: 'SKU001',
+        name: 'Widget A',
+        barcode: '123456',
+      },
+      warehouse: {
+        id: '28000000-0000-4000-a000-000000000001',
+        code: 'WH1',
+        name: 'Main Warehouse',
+      },
       fromWarehouse: null,
     };
 
     it('should return single transaction', async () => {
-      (mockPrisma.inventoryTransaction.findUnique as jest.Mock).mockResolvedValueOnce(mockTransaction);
+      (mockPrisma.inventoryTransaction.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockTransaction
+      );
 
       const response = await request(app)
         .get('/api/inventory/transactions/29000000-0000-4000-a000-000000000001')
@@ -320,7 +349,9 @@ describe('Inventory Transactions API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.inventoryTransaction.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.inventoryTransaction.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/inventory/transactions/29000000-0000-4000-a000-000000000001')

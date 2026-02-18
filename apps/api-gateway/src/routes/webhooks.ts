@@ -45,7 +45,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
     const endpoints = listEndpoints(orgId);
 
     // Strip secrets from response
-    const safe = endpoints.map(ep => ({
+    const safe = endpoints.map((ep) => ({
       ...ep,
       secret: ep.secret.substring(0, 10) + '...',
     }));
@@ -92,7 +92,11 @@ router.post('/', (req: AuthRequest, res: Response) => {
       ...parsed.data,
     });
 
-    logger.info('Created webhook endpoint', { orgId, endpointId: endpoint.id, name: endpoint.name });
+    logger.info('Created webhook endpoint', {
+      orgId,
+      endpointId: endpoint.id,
+      name: endpoint.name,
+    });
 
     // Return full secret only on creation
     return res.status(201).json({

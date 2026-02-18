@@ -100,8 +100,8 @@ describe('xbarRChart — comprehensive', () => {
 
       const rBar = 10;
       const xBarBar = 15;
-      expect(chart.ucl).toBeCloseTo(xBarBar + 1.880 * rBar, 2);
-      expect(chart.lcl).toBeCloseTo(xBarBar - 1.880 * rBar, 2);
+      expect(chart.ucl).toBeCloseTo(xBarBar + 1.88 * rBar, 2);
+      expect(chart.lcl).toBeCloseTo(xBarBar - 1.88 * rBar, 2);
     });
   });
 
@@ -122,7 +122,9 @@ describe('xbarRChart — comprehensive', () => {
 
   describe('subgroup size 10', () => {
     it('should work with maximum subgroup size 10', () => {
-      const values = Array(20).fill(0).map((_, i) => 100 + (i % 10));
+      const values = Array(20)
+        .fill(0)
+        .map((_, i) => 100 + (i % 10));
       const data = makeDataPoints(values);
       const chart = xbarRChart(data, 10);
 
@@ -158,40 +160,51 @@ describe('xbarRChart — comprehensive', () => {
     it('should flag point above UCL', () => {
       // Stable at 10, then one subgroup way above
       const values = [
-        10, 10, 10, 10, 10,
-        10, 10, 10, 10, 10,
-        10, 10, 10, 10, 10,
-        50, 50, 50, 50, 50,
+        10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 50, 50, 50, 50, 50,
       ];
       const data = makeDataPoints(values);
       const chart = xbarRChart(data, 5);
-      const ooc = chart.outOfControl.filter(p => !p.rules[0]?.startsWith('Range:'));
+      const ooc = chart.outOfControl.filter((p) => !p.rules[0]?.startsWith('Range:'));
       expect(ooc.length).toBeGreaterThan(0);
     });
 
     it('should not flag in-control points', () => {
       const values = [
-        10.1, 10.0, 9.9, 10.0, 10.1,
-        10.0, 10.1, 9.9, 10.0, 10.0,
-        10.0, 9.9, 10.1, 10.0, 10.0,
-        10.1, 10.0, 10.0, 9.9, 10.1,
+        10.1, 10.0, 9.9, 10.0, 10.1, 10.0, 10.1, 9.9, 10.0, 10.0, 10.0, 9.9, 10.1, 10.0, 10.0, 10.1,
+        10.0, 10.0, 9.9, 10.1,
       ];
       const data = makeDataPoints(values);
       const chart = xbarRChart(data, 5);
-      const oocXbar = chart.outOfControl.filter(p => !p.rules[0]?.startsWith('Range:'));
+      const oocXbar = chart.outOfControl.filter((p) => !p.rules[0]?.startsWith('Range:'));
       expect(oocXbar).toHaveLength(0);
     });
 
     it('should flag range out-of-control points with Range: prefix', () => {
       const values = [
-        10, 10, 10, 10, 10,
-        10, 10, 10, 10, 10,
-        10, 10, 10, 10, 10,
-        1, 99, 1, 99, 1,  // huge range
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        1,
+        99,
+        1,
+        99,
+        1, // huge range
       ];
       const data = makeDataPoints(values);
       const chart = xbarRChart(data, 5);
-      const oocRange = chart.outOfControl.filter(p => p.rules[0]?.startsWith('Range:'));
+      const oocRange = chart.outOfControl.filter((p) => p.rules[0]?.startsWith('Range:'));
       expect(oocRange.length).toBeGreaterThan(0);
     });
   });
@@ -219,7 +232,7 @@ describe('xbarRChart — comprehensive', () => {
       const values = Array(20).fill(10);
       const data = makeDataPoints(values);
       const chart = xbarRChart(data, 5);
-      chart.dataPoints.forEach(p => {
+      chart.dataPoints.forEach((p) => {
         expect(p.outOfControl).toBe(false);
         expect(p.violationRules).toHaveLength(0);
       });
@@ -230,9 +243,18 @@ describe('xbarRChart — comprehensive', () => {
     it('should compute correct UCL and LCL for subgroup size 4', () => {
       // 3 subgroups of 4
       const values = [
-        10, 20, 30, 40,  // mean=25, range=30
-        15, 25, 35, 45,  // mean=30, range=30
-        12, 22, 32, 42,  // mean=27, range=30
+        10,
+        20,
+        30,
+        40, // mean=25, range=30
+        15,
+        25,
+        35,
+        45, // mean=30, range=30
+        12,
+        22,
+        32,
+        42, // mean=27, range=30
       ];
       const data = makeDataPoints(values);
       const chart = xbarRChart(data, 4);
@@ -277,7 +299,9 @@ describe('xbarRChart — comprehensive', () => {
     });
 
     it('should produce D3 > 0 range LCL for subgroup size 7+', () => {
-      const values = Array(14).fill(0).map((_, i) => 100 + (i % 7) * 2);
+      const values = Array(14)
+        .fill(0)
+        .map((_, i) => 100 + (i % 7) * 2);
       const data = makeDataPoints(values);
       const chart = xbarRChart(data, 7);
 

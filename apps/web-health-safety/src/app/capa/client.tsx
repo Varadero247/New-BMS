@@ -2,23 +2,61 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
   AIDisclosure,
 } from '@ims/ui';
-import { Plus, Loader2, Search, Sparkles, ShieldCheck, ChevronDown, ChevronRight } from 'lucide-react';
+import {
+  Plus,
+  Loader2,
+  Search,
+  Sparkles,
+  ShieldCheck,
+  ChevronDown,
+  ChevronRight,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ─── Constants ────────────────────────────────────────────────────
 
 const CAPA_TYPES = ['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT'] as const;
-const CAPA_SOURCES = ['INCIDENT', 'NEAR_MISS', 'AUDIT', 'RISK_ASSESSMENT', 'LEGAL', 'MANAGEMENT_REVIEW', 'WORKER_SUGGESTION', 'OTHER'] as const;
+const CAPA_SOURCES = [
+  'INCIDENT',
+  'NEAR_MISS',
+  'AUDIT',
+  'RISK_ASSESSMENT',
+  'LEGAL',
+  'MANAGEMENT_REVIEW',
+  'WORKER_SUGGESTION',
+  'OTHER',
+] as const;
 const CAPA_PRIORITIES = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'] as const;
 const CAPA_STATUSES = ['OPEN', 'IN_PROGRESS', 'PENDING_VERIFICATION', 'CLOSED', 'OVERDUE'] as const;
 const CAPA_ACTION_TYPES = ['IMMEDIATE', 'CORRECTIVE', 'PREVENTIVE'] as const;
-const CAPA_ACTION_STATUSES = ['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED'] as const;
+const CAPA_ACTION_STATUSES = [
+  'OPEN',
+  'IN_PROGRESS',
+  'COMPLETED',
+  'VERIFIED',
+  'OVERDUE',
+  'CANCELLED',
+] as const;
 
 // ─── Types ────────────────────────────────────────────────────────
 
@@ -94,29 +132,42 @@ const emptyForm: CAPAForm = {
 
 function getStatusBadgeVariant(status: string) {
   switch (status) {
-    case 'OPEN': return 'info' as const;
-    case 'IN_PROGRESS': return 'warning' as const;
-    case 'PENDING_VERIFICATION': return 'default' as const;
-    case 'CLOSED': return 'success' as const;
-    case 'OVERDUE': return 'destructive' as const;
-    default: return 'outline' as const;
+    case 'OPEN':
+      return 'info' as const;
+    case 'IN_PROGRESS':
+      return 'warning' as const;
+    case 'PENDING_VERIFICATION':
+      return 'default' as const;
+    case 'CLOSED':
+      return 'success' as const;
+    case 'OVERDUE':
+      return 'destructive' as const;
+    default:
+      return 'outline' as const;
   }
 }
 
 function getPriorityBadgeVariant(priority: string) {
   switch (priority) {
-    case 'CRITICAL': return 'destructive' as const;
-    case 'HIGH': return 'warning' as const;
-    case 'MEDIUM': return 'default' as const;
-    case 'LOW': return 'success' as const;
-    default: return 'outline' as const;
+    case 'CRITICAL':
+      return 'destructive' as const;
+    case 'HIGH':
+      return 'warning' as const;
+    case 'MEDIUM':
+      return 'default' as const;
+    case 'LOW':
+      return 'success' as const;
+    default:
+      return 'outline' as const;
   }
 }
 
 function formatDate(dateStr?: string): string {
   if (!dateStr) return '-';
   return new Date(dateStr).toLocaleDateString('en-GB', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   });
 }
 
@@ -181,7 +232,7 @@ export default function CAPAClient() {
 
       if (response.ok) {
         const data = await response.json();
-        setForm(prev => ({
+        setForm((prev) => ({
           ...prev,
           rootCauseAnalysis: data.rootCauseAnalysis || prev.rootCauseAnalysis,
           containmentActions: data.containmentActions || prev.containmentActions,
@@ -200,7 +251,7 @@ export default function CAPAClient() {
   // ── Form helpers ──
 
   function updateForm(field: keyof CAPAForm, value: string) {
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   function openModal() {
@@ -243,7 +294,7 @@ export default function CAPAClient() {
   // ── Row expand toggle ──
 
   function toggleRow(id: string) {
-    setExpandedRows(prev => {
+    setExpandedRows((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -253,7 +304,7 @@ export default function CAPAClient() {
 
   // ── Filtering ──
 
-  const filteredCAPAs = capas.filter(c => {
+  const filteredCAPAs = capas.filter((c) => {
     if (statusFilter !== 'all' && c.status !== statusFilter) return false;
     if (typeFilter !== 'all' && c.capaType !== typeFilter) return false;
     if (priorityFilter !== 'all' && c.priority !== priorityFilter) return false;
@@ -273,10 +324,10 @@ export default function CAPAClient() {
 
   const counts = {
     total: capas.length,
-    open: capas.filter(c => c.status === 'OPEN').length,
-    inProgress: capas.filter(c => c.status === 'IN_PROGRESS').length,
-    overdue: capas.filter(c => c.status === 'OVERDUE').length,
-    closed: capas.filter(c => c.status === 'CLOSED').length,
+    open: capas.filter((c) => c.status === 'OPEN').length,
+    inProgress: capas.filter((c) => c.status === 'IN_PROGRESS').length,
+    overdue: capas.filter((c) => c.status === 'OVERDUE').length,
+    closed: capas.filter((c) => c.status === 'CLOSED').length,
   };
 
   const isFormValid = form.title.length > 0 && form.capaType && form.source;
@@ -290,7 +341,9 @@ export default function CAPAClient() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">CAPA Management</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 45001:2018 — Corrective & Preventive Actions</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              ISO 45001:2018 — Corrective & Preventive Actions
+            </p>
           </div>
           <Button onClick={openModal} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
@@ -337,42 +390,75 @@ export default function CAPAClient() {
           <CardContent className="p-4">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label htmlFor="search" className="text-xs text-gray-500 dark:text-gray-400">Search</Label>
+                <Label htmlFor="search" className="text-xs text-gray-500 dark:text-gray-400">
+                  Search
+                </Label>
                 <div className="relative mt-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <Input
                     id="search"
-                    aria-label="Search by reference, title, responsible..." placeholder="Search by reference, title, responsible..."
+                    aria-label="Search by reference, title, responsible..."
+                    placeholder="Search by reference, title, responsible..."
                     value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
                   />
                 </div>
               </div>
               <div>
-                <Label htmlFor="statusFilter" className="text-xs text-gray-500 dark:text-gray-400">Status</Label>
-                <Select id="statusFilter" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="mt-1">
+                <Label htmlFor="statusFilter" className="text-xs text-gray-500 dark:text-gray-400">
+                  Status
+                </Label>
+                <Select
+                  id="statusFilter"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="mt-1"
+                >
                   <option value="all">All Statuses</option>
-                  {CAPA_STATUSES.map(s => (
-                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                  {CAPA_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
               <div>
-                <Label htmlFor="typeFilter" className="text-xs text-gray-500 dark:text-gray-400">Type</Label>
-                <Select id="typeFilter" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="mt-1">
+                <Label htmlFor="typeFilter" className="text-xs text-gray-500 dark:text-gray-400">
+                  Type
+                </Label>
+                <Select
+                  id="typeFilter"
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="mt-1"
+                >
                   <option value="all">All Types</option>
-                  {CAPA_TYPES.map(t => (
-                    <option key={t} value={t}>{t}</option>
+                  {CAPA_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
                   ))}
                 </Select>
               </div>
               <div>
-                <Label htmlFor="priorityFilter" className="text-xs text-gray-500 dark:text-gray-400">Priority</Label>
-                <Select id="priorityFilter" value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)} className="mt-1">
+                <Label
+                  htmlFor="priorityFilter"
+                  className="text-xs text-gray-500 dark:text-gray-400"
+                >
+                  Priority
+                </Label>
+                <Select
+                  id="priorityFilter"
+                  value={priorityFilter}
+                  onChange={(e) => setPriorityFilter(e.target.value)}
+                  className="mt-1"
+                >
                   <option value="all">All Priorities</option>
-                  {CAPA_PRIORITIES.map(p => (
-                    <option key={p} value={p}>{p}</option>
+                  {CAPA_PRIORITIES.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -388,7 +474,7 @@ export default function CAPAClient() {
           <CardContent>
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3].map(i => (
+                {[1, 2, 3].map((i) => (
                   <div key={i} className="h-16 bg-gray-200 rounded" />
                 ))}
               </div>
@@ -410,9 +496,12 @@ export default function CAPAClient() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredCAPAs.map(capa => {
+                    {filteredCAPAs.map((capa) => {
                       const isExpanded = expandedRows.has(capa.id);
-                      const isOverdue = capa.targetCompletionDate && new Date(capa.targetCompletionDate) < new Date() && capa.status !== 'CLOSED';
+                      const isOverdue =
+                        capa.targetCompletionDate &&
+                        new Date(capa.targetCompletionDate) < new Date() &&
+                        capa.status !== 'CLOSED';
 
                       return (
                         <>
@@ -422,28 +511,43 @@ export default function CAPAClient() {
                             onClick={() => toggleRow(capa.id)}
                           >
                             <TableCell>
-                              {capa.actions?.length > 0 && (
-                                isExpanded
-                                  ? <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                                  : <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                              )}
+                              {capa.actions?.length > 0 &&
+                                (isExpanded ? (
+                                  <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                                ))}
                             </TableCell>
-                            <TableCell className="text-xs font-mono text-gray-500 dark:text-gray-400">{capa.referenceNumber}</TableCell>
+                            <TableCell className="text-xs font-mono text-gray-500 dark:text-gray-400">
+                              {capa.referenceNumber}
+                            </TableCell>
                             <TableCell>
-                              <p className="font-medium text-sm truncate max-w-[250px]">{capa.title}</p>
+                              <p className="font-medium text-sm truncate max-w-[250px]">
+                                {capa.title}
+                              </p>
                               {capa.problemStatement && (
-                                <p className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-[250px]">{capa.problemStatement}</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-[250px]">
+                                  {capa.problemStatement}
+                                </p>
                               )}
                             </TableCell>
                             <TableCell>
                               <Badge variant="outline">{capa.capaType}</Badge>
                             </TableCell>
-                            <TableCell className="text-sm">{capa.source?.replace(/_/g, ' ')}</TableCell>
-                            <TableCell>
-                              <Badge variant={getPriorityBadgeVariant(capa.priority)}>{capa.priority}</Badge>
+                            <TableCell className="text-sm">
+                              {capa.source?.replace(/_/g, ' ')}
                             </TableCell>
-                            <TableCell className="text-sm">{capa.responsiblePerson || '-'}</TableCell>
-                            <TableCell className={`text-xs ${isOverdue ? 'text-red-600 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
+                            <TableCell>
+                              <Badge variant={getPriorityBadgeVariant(capa.priority)}>
+                                {capa.priority}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {capa.responsiblePerson || '-'}
+                            </TableCell>
+                            <TableCell
+                              className={`text-xs ${isOverdue ? 'text-red-600 font-medium' : 'text-gray-500 dark:text-gray-400'}`}
+                            >
                               {formatDate(capa.targetCompletionDate)}
                             </TableCell>
                             <TableCell>
@@ -451,7 +555,13 @@ export default function CAPAClient() {
                                 {capa.actions?.length || 0}
                                 {capa.actions?.length > 0 && (
                                   <span className="text-xs text-gray-400 dark:text-gray-500 ml-1">
-                                    ({capa.actions.filter(a => a.status === 'COMPLETED' || a.status === 'VERIFIED').length} done)
+                                    (
+                                    {
+                                      capa.actions.filter(
+                                        (a) => a.status === 'COMPLETED' || a.status === 'VERIFIED'
+                                      ).length
+                                    }{' '}
+                                    done)
                                   </span>
                                 )}
                               </span>
@@ -467,17 +577,33 @@ export default function CAPAClient() {
                             <TableRow key={`${capa.id}-actions`}>
                               <TableCell colSpan={10} className="bg-gray-50 dark:bg-gray-800 p-4">
                                 <div className="ml-8">
-                                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">CAPA Actions</p>
+                                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+                                    CAPA Actions
+                                  </p>
                                   <div className="space-y-2">
-                                    {capa.actions.map(action => (
-                                      <div key={action.id} className="flex items-center gap-4 p-2 bg-white dark:bg-gray-900 rounded border">
-                                        <Badge variant={getStatusBadgeVariant(action.status)} className="text-[10px]">
+                                    {capa.actions.map((action) => (
+                                      <div
+                                        key={action.id}
+                                        className="flex items-center gap-4 p-2 bg-white dark:bg-gray-900 rounded border"
+                                      >
+                                        <Badge
+                                          variant={getStatusBadgeVariant(action.status)}
+                                          className="text-[10px]"
+                                        >
                                           {action.status}
                                         </Badge>
-                                        <span className="text-sm font-medium flex-1">{action.title}</span>
-                                        <Badge variant="outline" className="text-[10px]">{action.type}</Badge>
-                                        <span className="text-xs text-gray-500 dark:text-gray-400">{action.owner || '-'}</span>
-                                        <span className="text-xs text-gray-400 dark:text-gray-500">{formatDate(action.dueDate)}</span>
+                                        <span className="text-sm font-medium flex-1">
+                                          {action.title}
+                                        </span>
+                                        <Badge variant="outline" className="text-[10px]">
+                                          {action.type}
+                                        </Badge>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                          {action.owner || '-'}
+                                        </span>
+                                        <span className="text-xs text-gray-400 dark:text-gray-500">
+                                          {formatDate(action.dueDate)}
+                                        </span>
                                       </div>
                                     ))}
                                   </div>
@@ -495,7 +621,9 @@ export default function CAPAClient() {
               <div className="text-center py-16">
                 <ShieldCheck className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-gray-400 mb-2">No CAPAs found</p>
-                <p className="text-sm text-gray-400 dark:text-gray-500">Click &quot;New CAPA&quot; to create your first corrective/preventive action</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500">
+                  Click &quot;New CAPA&quot; to create your first corrective/preventive action
+                </p>
               </div>
             )}
           </CardContent>
@@ -512,7 +640,6 @@ export default function CAPAClient() {
         >
           <form onSubmit={handleSubmit}>
             <div className="max-h-[70vh] overflow-y-auto px-1 space-y-8">
-
               {/* ── Section A: CAPA Classification ── */}
               <section>
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4 flex items-center gap-2">
@@ -526,7 +653,7 @@ export default function CAPAClient() {
                       id="title"
                       placeholder="Short descriptive title for this CAPA"
                       value={form.title}
-                      onChange={e => updateForm('title', e.target.value)}
+                      onChange={(e) => updateForm('title', e.target.value)}
                       className="mt-1"
                     />
                   </div>
@@ -536,11 +663,13 @@ export default function CAPAClient() {
                       <Select
                         id="capaType"
                         value={form.capaType}
-                        onChange={e => updateForm('capaType', e.target.value)}
+                        onChange={(e) => updateForm('capaType', e.target.value)}
                         className="mt-1"
                       >
-                        {CAPA_TYPES.map(t => (
-                          <option key={t} value={t}>{t}</option>
+                        {CAPA_TYPES.map((t) => (
+                          <option key={t} value={t}>
+                            {t}
+                          </option>
                         ))}
                       </Select>
                     </div>
@@ -549,12 +678,14 @@ export default function CAPAClient() {
                       <Select
                         id="source"
                         value={form.source}
-                        onChange={e => updateForm('source', e.target.value)}
+                        onChange={(e) => updateForm('source', e.target.value)}
                         className="mt-1"
                       >
                         <option value="">Select source...</option>
-                        {CAPA_SOURCES.map(s => (
-                          <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                        {CAPA_SOURCES.map((s) => (
+                          <option key={s} value={s}>
+                            {s.replace(/_/g, ' ')}
+                          </option>
                         ))}
                       </Select>
                     </div>
@@ -563,11 +694,13 @@ export default function CAPAClient() {
                       <Select
                         id="priority"
                         value={form.priority}
-                        onChange={e => updateForm('priority', e.target.value)}
+                        onChange={(e) => updateForm('priority', e.target.value)}
                         className="mt-1"
                       >
-                        {CAPA_PRIORITIES.map(p => (
-                          <option key={p} value={p}>{p}</option>
+                        {CAPA_PRIORITIES.map((p) => (
+                          <option key={p} value={p}>
+                            {p}
+                          </option>
                         ))}
                       </Select>
                     </div>
@@ -579,7 +712,7 @@ export default function CAPAClient() {
                         id="sourceReference"
                         placeholder="e.g. INC-001, AUDIT-2024-03"
                         value={form.sourceReference}
-                        onChange={e => updateForm('sourceReference', e.target.value)}
+                        onChange={(e) => updateForm('sourceReference', e.target.value)}
                         className="mt-1"
                       />
                     </div>
@@ -589,7 +722,7 @@ export default function CAPAClient() {
                         id="department"
                         placeholder="e.g. Operations"
                         value={form.department}
-                        onChange={e => updateForm('department', e.target.value)}
+                        onChange={(e) => updateForm('department', e.target.value)}
                         className="mt-1"
                       />
                     </div>
@@ -599,7 +732,7 @@ export default function CAPAClient() {
                         id="responsiblePerson"
                         placeholder="Name or role"
                         value={form.responsiblePerson}
-                        onChange={e => updateForm('responsiblePerson', e.target.value)}
+                        onChange={(e) => updateForm('responsiblePerson', e.target.value)}
                         className="mt-1"
                       />
                     </div>
@@ -610,7 +743,9 @@ export default function CAPAClient() {
               {/* ── Section B: Problem Statement & AI Analysis ── */}
               <section>
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4 flex items-center gap-2">
-                  <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-xs">B</span>
+                  <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-xs">
+                    B
+                  </span>
                   Problem Statement & Root Cause
                 </h3>
                 <div className="space-y-4">
@@ -621,7 +756,7 @@ export default function CAPAClient() {
                       placeholder="Describe the problem in detail (minimum 20 characters for AI analysis)..."
                       rows={3}
                       value={form.problemStatement}
-                      onChange={e => updateForm('problemStatement', e.target.value)}
+                      onChange={(e) => updateForm('problemStatement', e.target.value)}
                       onBlur={handleAnalyse}
                       className="mt-1"
                     />
@@ -640,7 +775,12 @@ export default function CAPAClient() {
                   </div>
 
                   {aiGenerated && (
-                    <AIDisclosure variant="inline" provider="claude" analysisType="CAPA Recommendation" confidence={0.85} />
+                    <AIDisclosure
+                      variant="inline"
+                      provider="claude"
+                      analysisType="CAPA Recommendation"
+                      confidence={0.85}
+                    />
                   )}
 
                   {aiLoading && (
@@ -648,7 +788,9 @@ export default function CAPAClient() {
                       <Loader2 className="h-5 w-5 text-purple-600 animate-spin" />
                       <div>
                         <p className="text-sm font-medium text-purple-700">AI is analysing...</p>
-                        <p className="text-xs text-purple-500">Performing 5-Why root cause analysis</p>
+                        <p className="text-xs text-purple-500">
+                          Performing 5-Why root cause analysis
+                        </p>
                       </div>
                     </div>
                   )}
@@ -657,7 +799,9 @@ export default function CAPAClient() {
                     <div className="flex items-center justify-between mb-1">
                       <Label htmlFor="rootCauseAnalysis">Root Cause Analysis</Label>
                       {aiGenerated && form.rootCauseAnalysis && (
-                        <Badge variant="info" className="text-[10px]">AI Suggested</Badge>
+                        <Badge variant="info" className="text-[10px]">
+                          AI Suggested
+                        </Badge>
                       )}
                     </div>
                     <Textarea
@@ -665,7 +809,7 @@ export default function CAPAClient() {
                       placeholder="5-Why or other root cause analysis..."
                       rows={3}
                       value={form.rootCauseAnalysis}
-                      onChange={e => updateForm('rootCauseAnalysis', e.target.value)}
+                      onChange={(e) => updateForm('rootCauseAnalysis', e.target.value)}
                       disabled={aiLoading}
                       className="mt-1"
                     />
@@ -675,7 +819,9 @@ export default function CAPAClient() {
                     <div className="flex items-center justify-between mb-1">
                       <Label htmlFor="containmentActions">Containment Actions</Label>
                       {aiGenerated && form.containmentActions && (
-                        <Badge variant="info" className="text-[10px]">AI Suggested</Badge>
+                        <Badge variant="info" className="text-[10px]">
+                          AI Suggested
+                        </Badge>
                       )}
                     </div>
                     <Textarea
@@ -683,7 +829,7 @@ export default function CAPAClient() {
                       placeholder="Immediate containment actions to prevent further harm..."
                       rows={2}
                       value={form.containmentActions}
-                      onChange={e => updateForm('containmentActions', e.target.value)}
+                      onChange={(e) => updateForm('containmentActions', e.target.value)}
                       disabled={aiLoading}
                       className="mt-1"
                     />
@@ -702,7 +848,9 @@ export default function CAPAClient() {
                     <div className="flex items-center justify-between mb-1">
                       <Label htmlFor="successCriteria">Success Criteria</Label>
                       {aiGenerated && form.successCriteria && (
-                        <Badge variant="info" className="text-[10px]">AI Suggested</Badge>
+                        <Badge variant="info" className="text-[10px]">
+                          AI Suggested
+                        </Badge>
                       )}
                     </div>
                     <Textarea
@@ -710,7 +858,7 @@ export default function CAPAClient() {
                       placeholder="How will you measure success?"
                       rows={2}
                       value={form.successCriteria}
-                      onChange={e => updateForm('successCriteria', e.target.value)}
+                      onChange={(e) => updateForm('successCriteria', e.target.value)}
                       disabled={aiLoading}
                       className="mt-1"
                     />
@@ -719,7 +867,9 @@ export default function CAPAClient() {
                     <div className="flex items-center justify-between mb-1">
                       <Label htmlFor="verificationMethod">Verification Method</Label>
                       {aiGenerated && form.verificationMethod && (
-                        <Badge variant="info" className="text-[10px]">AI Suggested</Badge>
+                        <Badge variant="info" className="text-[10px]">
+                          AI Suggested
+                        </Badge>
                       )}
                     </div>
                     <Textarea
@@ -727,7 +877,7 @@ export default function CAPAClient() {
                       placeholder="How will effectiveness be verified?"
                       rows={2}
                       value={form.verificationMethod}
-                      onChange={e => updateForm('verificationMethod', e.target.value)}
+                      onChange={(e) => updateForm('verificationMethod', e.target.value)}
                       disabled={aiLoading}
                       className="mt-1"
                     />
@@ -739,10 +889,12 @@ export default function CAPAClient() {
                     id="targetCompletionDate"
                     type="date"
                     value={form.targetCompletionDate}
-                    onChange={e => updateForm('targetCompletionDate', e.target.value)}
+                    onChange={(e) => updateForm('targetCompletionDate', e.target.value)}
                     className="mt-1 w-auto"
                   />
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Auto-calculated from priority if left blank</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                    Auto-calculated from priority if left blank
+                  </p>
                 </div>
               </section>
             </div>

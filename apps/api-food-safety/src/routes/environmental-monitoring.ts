@@ -23,7 +23,11 @@ const envMonCreateSchema = z.object({
   limit: z.string().max(200).optional().nullable(),
   withinSpec: z.boolean(),
   testedBy: z.string().max(200).optional().nullable(),
-  testedAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  testedAt: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   notes: z.string().max(2000).optional().nullable(),
 });
 
@@ -36,7 +40,12 @@ const envMonUpdateSchema = z.object({
   limit: z.string().max(200).optional().nullable(),
   withinSpec: z.boolean().optional(),
   testedBy: z.string().max(200).optional().nullable(),
-  testedAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  testedAt: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional(),
   notes: z.string().max(2000).optional().nullable(),
 });
 
@@ -61,7 +70,12 @@ router.get('/out-of-spec', async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { deletedAt: null, withinSpec: false };
 
     const [data, total] = await Promise.all([
-      prisma.fsEnvironmentalMonitoring.findMany({ where, skip, take: limit, orderBy: { testedAt: 'desc' } }),
+      prisma.fsEnvironmentalMonitoring.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { testedAt: 'desc' },
+      }),
       prisma.fsEnvironmentalMonitoring.count({ where }),
     ]);
 
@@ -71,8 +85,13 @@ router.get('/out-of-spec', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error fetching out-of-spec records', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch out-of-spec records' } });
+    logger.error('Error fetching out-of-spec records', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch out-of-spec records' },
+    });
   }
 });
 
@@ -92,7 +111,12 @@ router.get('/', async (req: Request, res: Response) => {
     if (withinSpec !== undefined) where.withinSpec = withinSpec === 'true';
 
     const [data, total] = await Promise.all([
-      prisma.fsEnvironmentalMonitoring.findMany({ where, skip, take: limit, orderBy: { testedAt: 'desc' } }),
+      prisma.fsEnvironmentalMonitoring.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { testedAt: 'desc' },
+      }),
       prisma.fsEnvironmentalMonitoring.count({ where }),
     ]);
 
@@ -102,8 +126,16 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing environmental monitoring records', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list environmental monitoring records' } });
+    logger.error('Error listing environmental monitoring records', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to list environmental monitoring records',
+      },
+    });
   }
 });
 
@@ -114,7 +146,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = envMonCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -131,8 +166,16 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Environmental monitoring record created', { id: record.id });
     res.status(201).json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Error creating environmental monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create environmental monitoring record' } });
+    logger.error('Error creating environmental monitoring record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to create environmental monitoring record',
+      },
+    });
   }
 });
 
@@ -146,13 +189,24 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!record) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Environmental monitoring record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Environmental monitoring record not found' },
+      });
     }
 
     res.json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Error fetching environmental monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch environmental monitoring record' } });
+    logger.error('Error fetching environmental monitoring record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to fetch environmental monitoring record',
+      },
+    });
   }
 });
 
@@ -161,14 +215,22 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsEnvironmentalMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsEnvironmentalMonitoring.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Environmental monitoring record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Environmental monitoring record not found' },
+      });
     }
 
     const parsed = envMonUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -183,8 +245,16 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Environmental monitoring record updated', { id: record.id });
     res.json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Error updating environmental monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update environmental monitoring record' } });
+    logger.error('Error updating environmental monitoring record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to update environmental monitoring record',
+      },
+    });
   }
 });
 
@@ -193,9 +263,14 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsEnvironmentalMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsEnvironmentalMonitoring.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Environmental monitoring record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Environmental monitoring record not found' },
+      });
     }
 
     await prisma.fsEnvironmentalMonitoring.update({
@@ -204,10 +279,21 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     logger.info('Environmental monitoring record deleted', { id: req.params.id });
-    res.json({ success: true, data: { message: 'Environmental monitoring record deleted successfully' } });
+    res.json({
+      success: true,
+      data: { message: 'Environmental monitoring record deleted successfully' },
+    });
   } catch (error: unknown) {
-    logger.error('Error deleting environmental monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete environmental monitoring record' } });
+    logger.error('Error deleting environmental monitoring record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to delete environmental monitoring record',
+      },
+    });
   }
 });
 

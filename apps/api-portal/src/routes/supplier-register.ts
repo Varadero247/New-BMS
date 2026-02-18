@@ -28,7 +28,10 @@ router.post('/', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
     const parsed = registerSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const data = parsed.data;
@@ -38,7 +41,9 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     if (existing) {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Email already registered' } });
+      return res
+        .status(409)
+        .json({ success: false, error: { code: 'CONFLICT', message: 'Email already registered' } });
     }
 
     const user = await prisma.portalUser.create({
@@ -56,10 +61,17 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     logger.info('Supplier registration submitted', { id: user.id, email: user.email });
-    return res.status(201).json({ success: true, data: { id: user.id, email: user.email, status: user.status } });
+    return res
+      .status(201)
+      .json({ success: true, data: { id: user.id, email: user.email, status: user.status } });
   } catch (error: unknown) {
-    logger.error('Error registering supplier', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to register supplier' } });
+    logger.error('Error registering supplier', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to register supplier' },
+    });
   }
 });
 
@@ -75,7 +87,9 @@ router.get('/status', async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
     }
 
     return res.json({
@@ -91,8 +105,13 @@ router.get('/status', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Error fetching registration status', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch status' } });
+    logger.error('Error fetching registration status', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch status' },
+    });
   }
 });
 

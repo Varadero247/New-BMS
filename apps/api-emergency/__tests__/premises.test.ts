@@ -38,7 +38,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/premises', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockPremises = prisma.femPremises as any;
 const mockFra = prisma.femFireRiskAssessment as any;
@@ -175,7 +177,12 @@ describe('POST /api/premises', () => {
 
 describe('GET /api/premises/:id', () => {
   it('returns a single premises by id', async () => {
-    mockPremises.findFirst.mockResolvedValue({ ...fakePremises, fireRiskAssessments: [], wardens: [], activeIncidents: [] });
+    mockPremises.findFirst.mockResolvedValue({
+      ...fakePremises,
+      fireRiskAssessments: [],
+      wardens: [],
+      activeIncidents: [],
+    });
 
     const res = await request(app).get(`/api/premises/${PREMISES_ID}`);
 
@@ -210,7 +217,9 @@ describe('PUT /api/premises/:id', () => {
     mockPremises.findFirst.mockResolvedValue(fakePremises);
     mockPremises.update.mockResolvedValue(updated);
 
-    const res = await request(app).put(`/api/premises/${PREMISES_ID}`).send({ name: 'Updated Office' });
+    const res = await request(app)
+      .put(`/api/premises/${PREMISES_ID}`)
+      .send({ name: 'Updated Office' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -220,7 +229,9 @@ describe('PUT /api/premises/:id', () => {
   it('returns 404 when premises does not exist on update', async () => {
     mockPremises.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/premises/00000000-0000-0000-0000-000000000999').send({ name: 'Ghost' });
+    const res = await request(app)
+      .put('/api/premises/00000000-0000-0000-0000-000000000999')
+      .send({ name: 'Ghost' });
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -229,7 +240,10 @@ describe('PUT /api/premises/:id', () => {
 
 describe('GET /api/premises/:id/dashboard', () => {
   it('returns dashboard data for a premises', async () => {
-    const recentDrill = { id: 'drill-1', drillDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10) };
+    const recentDrill = {
+      id: 'drill-1',
+      drillDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10),
+    };
     mockPremises.findUnique.mockResolvedValue(fakePremises);
     mockFra.count.mockResolvedValue(2);
     mockIncident.count.mockResolvedValue(1);
@@ -258,7 +272,9 @@ describe('GET /api/premises/:id/dashboard', () => {
     mockPeep.count.mockResolvedValue(0);
     mockDrill.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/premises/00000000-0000-0000-0000-000000000999/dashboard');
+    const res = await request(app).get(
+      '/api/premises/00000000-0000-0000-0000-000000000999/dashboard'
+    );
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');

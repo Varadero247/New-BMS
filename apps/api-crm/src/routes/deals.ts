@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { randomUUID } from 'crypto';
-import { authenticate , type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { z } from 'zod';
@@ -24,20 +24,28 @@ const RESERVED_PATHS = new Set(['pipelines', 'forecast', 'board']);
 const createPipelineSchema = z.object({
   name: z.string().min(1, 'Pipeline name is required'),
   description: z.string().optional(),
-  stages: z.array(z.object({
-    name: z.string().trim().min(1).max(200),
-    order: z.number().int().min(0),
-    probability: z.number().min(0).max(100).optional(),
-  })).min(1, 'At least one stage is required'),
+  stages: z
+    .array(
+      z.object({
+        name: z.string().trim().min(1).max(200),
+        order: z.number().int().min(0),
+        probability: z.number().min(0).max(100).optional(),
+      })
+    )
+    .min(1, 'At least one stage is required'),
 });
 
 const updateStagesSchema = z.object({
-  stages: z.array(z.object({
-    id: z.string().trim().uuid().optional(),
-    name: z.string().trim().min(1).max(200),
-    order: z.number().int().min(0),
-    probability: z.number().min(0).max(100).optional(),
-  })).min(1, 'At least one stage is required'),
+  stages: z
+    .array(
+      z.object({
+        id: z.string().trim().uuid().optional(),
+        name: z.string().trim().min(1).max(200),
+        order: z.number().int().min(0),
+        probability: z.number().min(0).max(100).optional(),
+      })
+    )
+    .min(1, 'At least one stage is required'),
 });
 
 const createDealSchema = z.object({
@@ -64,12 +72,18 @@ router.get('/pipelines', async (_req: Request, res: Response) => {
     const pipelines = await prisma.crmPipeline.findMany({
       include: { stages: { orderBy: { order: 'asc' } } },
       orderBy: { createdAt: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     return res.json({ success: true, data: pipelines });
   } catch (error: unknown) {
-    logger.error('Failed to list pipelines', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list pipelines' } });
+    logger.error('Failed to list pipelines', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list pipelines' },
+    });
   }
 });
 
@@ -80,7 +94,10 @@ router.post('/pipelines', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -104,8 +121,13 @@ router.post('/pipelines', async (req: Request, res: Response) => {
     logger.info('Pipeline created', { pipelineId: pipeline.id });
     return res.status(201).json({ success: true, data: pipeline });
   } catch (error: unknown) {
-    logger.error('Failed to create pipeline', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create pipeline' } });
+    logger.error('Failed to create pipeline', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create pipeline' },
+    });
   }
 });
 
@@ -116,7 +138,10 @@ router.put('/pipelines/:id/stages', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -125,7 +150,9 @@ router.put('/pipelines/:id/stages', async (req: Request, res: Response) => {
     });
 
     if (!pipeline) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Pipeline not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Pipeline not found' } });
     }
 
     // Delete existing stages and recreate
@@ -151,8 +178,13 @@ router.put('/pipelines/:id/stages', async (req: Request, res: Response) => {
     logger.info('Pipeline stages updated', { pipelineId: req.params.id });
     return res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Failed to update pipeline stages', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update pipeline stages' } });
+    logger.error('Failed to update pipeline stages', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update pipeline stages' },
+    });
   }
 });
 
@@ -162,7 +194,8 @@ router.get('/forecast', async (_req: Request, res: Response) => {
     const deals = await prisma.crmDeal.findMany({
       where: { status: 'OPEN', deletedAt: null } as any,
       select: { value: true, probability: true, currency: true },
-      take: 1000});
+      take: 1000,
+    });
 
     const forecast = deals.reduce(
       (acc, deal) => {
@@ -178,8 +211,13 @@ router.get('/forecast', async (_req: Request, res: Response) => {
 
     return res.json({ success: true, data: forecast });
   } catch (error: unknown) {
-    logger.error('Failed to get forecast', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get forecast' } });
+    logger.error('Failed to get forecast', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get forecast' },
+    });
   }
 });
 
@@ -196,7 +234,8 @@ router.get('/board', async (req: Request, res: Response) => {
     const deals = await prisma.crmDeal.findMany({
       where,
       orderBy: { updatedAt: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Group by stageId
     const board: Record<string, any[]> = {};
@@ -210,8 +249,13 @@ router.get('/board', async (req: Request, res: Response) => {
 
     return res.json({ success: true, data: board });
   } catch (error: unknown) {
-    logger.error('Failed to get board data', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get board data' } });
+    logger.error('Failed to get board data', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get board data' },
+    });
   }
 });
 
@@ -222,7 +266,10 @@ router.post('/', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -243,8 +290,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Deal created', { dealId: deal.id, refNumber: deal.refNumber });
     return res.status(201).json({ success: true, data: deal });
   } catch (error: unknown) {
-    logger.error('Failed to create deal', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create deal' } });
+    logger.error('Failed to create deal', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create deal' },
+    });
   }
 });
 
@@ -287,8 +339,12 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list deals', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list deals' } });
+    logger.error('Failed to list deals', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list deals' } });
   }
 });
 
@@ -301,7 +357,9 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!deal) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
     }
 
     // Fetch related activities and contacts
@@ -314,7 +372,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       (deal as any).contactId
         ? prisma.crmContact.findMany({
             where: { id: (deal as any).contactId, deletedAt: null } as any,
-            take: 1000})
+            take: 1000,
+          })
         : Promise.resolve([]),
     ]);
 
@@ -323,8 +382,12 @@ router.get('/:id', async (req: Request, res: Response) => {
       data: { ...deal, activities, contacts },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get deal', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get deal' } });
+    logger.error('Failed to get deal', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get deal' } });
   }
 });
 
@@ -335,7 +398,10 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -344,10 +410,15 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
     }
 
-    const data: Record<string, unknown> = { ...validation.data, updatedBy: (req as AuthRequest).user?.id || 'system' };
+    const data: Record<string, unknown> = {
+      ...validation.data,
+      updatedBy: (req as AuthRequest).user?.id || 'system',
+    };
     if (data.expectedCloseDate) {
       data.expectedCloseDate = new Date(data.expectedCloseDate as string);
     }
@@ -360,20 +431,37 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Deal updated', { dealId: deal.id });
     return res.json({ success: true, data: deal });
   } catch (error: unknown) {
-    logger.error('Failed to update deal', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update deal' } });
+    logger.error('Failed to update deal', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update deal' },
+    });
   }
 });
 
 // PUT /:id/stage — Move to stage
 router.put('/:id/stage', async (req: Request, res: Response) => {
   try {
-    const _schema = z.object({ stageId: z.string({ required_error: 'stageId is required' }).trim().min(1, { message: 'stageId is required' }) });
+    const _schema = z.object({
+      stageId: z
+        .string({ required_error: 'stageId is required' })
+        .trim()
+        .min(1, { message: 'stageId is required' }),
+    });
     const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    if (!_parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+      });
     const { stageId } = _parsed.data;
     if (!stageId) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'stageId is required' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'stageId is required' },
+      });
     }
 
     const existing = await prisma.crmDeal.findFirst({
@@ -381,7 +469,9 @@ router.put('/:id/stage', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
     }
 
     const deal = await prisma.crmDeal.update({
@@ -408,8 +498,13 @@ router.put('/:id/stage', async (req: Request, res: Response) => {
     logger.info('Deal stage updated', { dealId: deal.id, stageId });
     return res.json({ success: true, data: deal });
   } catch (error: unknown) {
-    logger.error('Failed to update deal stage', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update deal stage' } });
+    logger.error('Failed to update deal stage', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update deal stage' },
+    });
   }
 });
 
@@ -421,7 +516,9 @@ router.put('/:id/won', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
     }
 
     const deal = await prisma.crmDeal.update({
@@ -448,20 +545,38 @@ router.put('/:id/won', async (req: Request, res: Response) => {
     logger.info('Deal closed won', { dealId: deal.id });
     return res.json({ success: true, data: deal });
   } catch (error: unknown) {
-    logger.error('Failed to close deal as won', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close deal as won' } });
+    logger.error('Failed to close deal as won', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to close deal as won' },
+    });
   }
 });
 
 // PUT /:id/lost — Close lost
 router.put('/:id/lost', async (req: Request, res: Response) => {
   try {
-    const _schema = z.object({ lostReason: z.string({ required_error: 'lostReason is required' }).trim().min(1, { message: 'lostReason is required' }).max(2000) });
+    const _schema = z.object({
+      lostReason: z
+        .string({ required_error: 'lostReason is required' })
+        .trim()
+        .min(1, { message: 'lostReason is required' })
+        .max(2000),
+    });
     const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    if (!_parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+      });
     const { lostReason } = _parsed.data;
     if (!lostReason) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'lostReason is required' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'lostReason is required' },
+      });
     }
 
     const existing = await prisma.crmDeal.findFirst({
@@ -469,7 +584,9 @@ router.put('/:id/lost', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
     }
 
     const deal = await prisma.crmDeal.update({
@@ -497,8 +614,13 @@ router.put('/:id/lost', async (req: Request, res: Response) => {
     logger.info('Deal closed lost', { dealId: deal.id, lostReason });
     return res.json({ success: true, data: deal });
   } catch (error: unknown) {
-    logger.error('Failed to close deal as lost', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close deal as lost' } });
+    logger.error('Failed to close deal as lost', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to close deal as lost' },
+    });
   }
 });
 

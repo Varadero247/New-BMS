@@ -15,18 +15,10 @@ export {
 } from './jwt';
 
 // Password utilities
-export {
-  hashPassword,
-  comparePassword,
-  validatePasswordStrength,
-} from './password';
+export { hashPassword, comparePassword, validatePasswordStrength } from './password';
 
 // Express middleware
-export {
-  authenticate,
-  requireRole,
-  optionalAuth,
-} from './middleware';
+export { authenticate, requireRole, optionalAuth } from './middleware';
 
 // RBAC (re-exported from @ims/rbac)
 export {

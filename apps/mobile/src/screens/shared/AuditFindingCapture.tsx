@@ -17,7 +17,9 @@ export interface AuditFinding {
   synced: boolean;
 }
 
-export function createAuditFinding(data: Omit<AuditFinding, 'id' | 'timestamp' | 'synced' | 'photoUris'>): AuditFinding {
+export function createAuditFinding(
+  data: Omit<AuditFinding, 'id' | 'timestamp' | 'synced' | 'photoUris'>
+): AuditFinding {
   return {
     ...data,
     id: `finding_${Date.now()}`,

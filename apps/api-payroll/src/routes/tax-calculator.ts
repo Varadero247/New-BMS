@@ -20,14 +20,14 @@ const UK_PERSONAL_ALLOWANCE = 12570;
 const UK_PA_TAPER_THRESHOLD = 100000;
 
 const UK_BANDS = [
-  { name: 'Basic', rate: 0.20, from: 0, to: 37700 },
-  { name: 'Higher', rate: 0.40, from: 37700, to: 125140 },
+  { name: 'Basic', rate: 0.2, from: 0, to: 37700 },
+  { name: 'Higher', rate: 0.4, from: 37700, to: 125140 },
   { name: 'Additional', rate: 0.45, from: 125140, to: Infinity },
 ];
 
 const SCOTTISH_BANDS = [
   { name: 'Starter', rate: 0.19, from: 0, to: 2162 },
-  { name: 'Basic', rate: 0.20, from: 2162, to: 13118 },
+  { name: 'Basic', rate: 0.2, from: 2162, to: 13118 },
   { name: 'Intermediate', rate: 0.21, from: 13118, to: 31092 },
   { name: 'Higher', rate: 0.42, from: 31092, to: 125140 },
   { name: 'Top', rate: 0.47, from: 125140, to: Infinity },
@@ -38,7 +38,10 @@ const UK_NI_THRESHOLD = 12570;
 const UK_NI_UPPER_LIMIT = 50270;
 const UK_NI_UPPER_RATE = 0.02;
 
-function calculateBandedTax(taxableIncome: number, bands: Array<{ name: string; rate: number; from: number; to: number }>): { total: number; breakdown: Array<{ description: string; amount: number }> } {
+function calculateBandedTax(
+  taxableIncome: number,
+  bands: Array<{ name: string; rate: number; from: number; to: number }>
+): { total: number; breakdown: Array<{ description: string; amount: number }> } {
   let remaining = taxableIncome;
   let total = 0;
   const breakdown: Array<{ description: string; amount: number }> = [];
@@ -50,7 +53,10 @@ function calculateBandedTax(taxableIncome: number, bands: Array<{ name: string; 
     const tax = taxableInBand * band.rate;
     total += tax;
     if (taxableInBand > 0) {
-      breakdown.push({ description: `${band.name} rate (${(band.rate * 100).toFixed(0)}%)`, amount: Math.round(tax * 100) / 100 });
+      breakdown.push({
+        description: `${band.name} rate (${(band.rate * 100).toFixed(0)}%)`,
+        amount: Math.round(tax * 100) / 100,
+      });
     }
     remaining -= taxableInBand;
   }
@@ -64,7 +70,10 @@ function getUKPersonalAllowance(grossAnnual: number): number {
   return Math.max(0, UK_PERSONAL_ALLOWANCE - reduction);
 }
 
-function calculateUKNI(grossAnnual: number): { total: number; breakdown: Array<{ description: string; amount: number }> } {
+function calculateUKNI(grossAnnual: number): {
+  total: number;
+  breakdown: Array<{ description: string; amount: number }>;
+} {
   const breakdown: Array<{ description: string; amount: number }> = [];
   let total = 0;
 
@@ -72,12 +81,18 @@ function calculateUKNI(grossAnnual: number): { total: number; breakdown: Array<{
     const mainNI = Math.min(grossAnnual, UK_NI_UPPER_LIMIT) - UK_NI_THRESHOLD;
     const mainAmount = mainNI * UK_NI_EMPLOYEE_RATE;
     total += mainAmount;
-    breakdown.push({ description: 'NI (8% main rate)', amount: Math.round(mainAmount * 100) / 100 });
+    breakdown.push({
+      description: 'NI (8% main rate)',
+      amount: Math.round(mainAmount * 100) / 100,
+    });
 
     if (grossAnnual > UK_NI_UPPER_LIMIT) {
       const upperNI = (grossAnnual - UK_NI_UPPER_LIMIT) * UK_NI_UPPER_RATE;
       total += upperNI;
-      breakdown.push({ description: 'NI (2% upper rate)', amount: Math.round(upperNI * 100) / 100 });
+      breakdown.push({
+        description: 'NI (2% upper rate)',
+        amount: Math.round(upperNI * 100) / 100,
+      });
     }
   }
 
@@ -111,7 +126,7 @@ export function calculateUKTax(grossAnnual: number, isScottish: boolean = false)
 // ---------------------------------------------------------------------------
 
 const US_FEDERAL_BRACKETS = [
-  { rate: 0.10, from: 0, to: 11600 },
+  { rate: 0.1, from: 0, to: 11600 },
   { rate: 0.12, from: 11600, to: 47150 },
   { rate: 0.22, from: 47150, to: 100525 },
   { rate: 0.24, from: 100525, to: 191950 },
@@ -141,7 +156,10 @@ export function calculateUSFederalTax(grossAnnual: number): TaxBreakdown {
     const tax = taxableInBracket * bracket.rate;
     incomeTax += tax;
     if (taxableInBracket > 0) {
-      breakdown.push({ description: `Federal ${(bracket.rate * 100).toFixed(0)}% bracket`, amount: Math.round(tax * 100) / 100 });
+      breakdown.push({
+        description: `Federal ${(bracket.rate * 100).toFixed(0)}% bracket`,
+        amount: Math.round(tax * 100) / 100,
+      });
     }
     remaining -= taxableInBracket;
   }
@@ -163,7 +181,10 @@ export function calculateUSFederalTax(grossAnnual: number): TaxBreakdown {
 
   // Additional Medicare
   if (grossAnnual > US_ADDITIONAL_MEDICARE_THRESHOLD) {
-    const additionalMedicare = Math.round((grossAnnual - US_ADDITIONAL_MEDICARE_THRESHOLD) * US_ADDITIONAL_MEDICARE_RATE * 100) / 100;
+    const additionalMedicare =
+      Math.round(
+        (grossAnnual - US_ADDITIONAL_MEDICARE_THRESHOLD) * US_ADDITIONAL_MEDICARE_RATE * 100
+      ) / 100;
     socialContributions += additionalMedicare;
     breakdown.push({ description: 'Additional Medicare (0.9%)', amount: additionalMedicare });
   }
@@ -206,11 +227,15 @@ export function calculateAUTax(grossAnnual: number): TaxBreakdown {
   let incomeTax = 0;
   for (const band of AU_BANDS) {
     if (grossAnnual <= band.from) break;
-    const taxableInBand = Math.min(grossAnnual, band.to === Infinity ? grossAnnual : band.to) - band.from;
+    const taxableInBand =
+      Math.min(grossAnnual, band.to === Infinity ? grossAnnual : band.to) - band.from;
     if (taxableInBand > 0 && band.rate > 0) {
       const tax = taxableInBand * band.rate;
       incomeTax += tax;
-      breakdown.push({ description: `${band.name} band (${(band.rate * 100).toFixed(1)}%)`, amount: Math.round(tax * 100) / 100 });
+      breakdown.push({
+        description: `${band.name} band (${(band.rate * 100).toFixed(1)}%)`,
+        amount: Math.round(tax * 100) / 100,
+      });
     }
   }
   incomeTax = Math.round(incomeTax * 100) / 100;
@@ -261,13 +286,17 @@ export function calculateCAFederalTax(grossAnnual: number): TaxBreakdown {
   const breakdown: Array<{ description: string; amount: number }> = [];
 
   // Federal income tax
-  const taxResult = calculateBandedTax(taxableIncome, CA_FEDERAL_BANDS.map(b => ({ ...b, to: b.to === Infinity ? Infinity : b.to })));
+  const taxResult = calculateBandedTax(
+    taxableIncome,
+    CA_FEDERAL_BANDS.map((b) => ({ ...b, to: b.to === Infinity ? Infinity : b.to }))
+  );
   const incomeTax = taxResult.total;
   breakdown.push(...taxResult.breakdown);
 
   // CPP
   const cppPensionableEarnings = Math.min(grossAnnual, CA_CPP_YMPE) - CA_CPP_BASIC_EXEMPTION;
-  const cpp = cppPensionableEarnings > 0 ? Math.round(cppPensionableEarnings * CA_CPP_RATE * 100) / 100 : 0;
+  const cpp =
+    cppPensionableEarnings > 0 ? Math.round(cppPensionableEarnings * CA_CPP_RATE * 100) / 100 : 0;
   breakdown.push({ description: 'CPP (5.95%)', amount: cpp });
 
   // EI
@@ -364,17 +393,27 @@ export function calculateDETax(grossAnnual: number): TaxBreakdown {
   const incomeTax = Math.round((baseTax + solidaritySurcharge) * 100) / 100;
 
   // Social insurance (employee half)
-  const pensionEmployee = Math.round(grossAnnual * DE_PENSION_RATE / 2 * 100) / 100;
-  const healthEmployee = Math.round(grossAnnual * (DE_HEALTH_RATE + DE_HEALTH_ADDITIONAL) / 2 * 100) / 100;
-  const unemploymentEmployee = Math.round(grossAnnual * DE_UNEMPLOYMENT_RATE / 2 * 100) / 100;
-  const nursingCareEmployee = Math.round(grossAnnual * DE_NURSING_CARE_RATE / 2 * 100) / 100;
+  const pensionEmployee = Math.round(((grossAnnual * DE_PENSION_RATE) / 2) * 100) / 100;
+  const healthEmployee =
+    Math.round(((grossAnnual * (DE_HEALTH_RATE + DE_HEALTH_ADDITIONAL)) / 2) * 100) / 100;
+  const unemploymentEmployee = Math.round(((grossAnnual * DE_UNEMPLOYMENT_RATE) / 2) * 100) / 100;
+  const nursingCareEmployee = Math.round(((grossAnnual * DE_NURSING_CARE_RATE) / 2) * 100) / 100;
 
   breakdown.push({ description: 'Pension insurance (9.3% employee)', amount: pensionEmployee });
   breakdown.push({ description: 'Health insurance (8.15% employee)', amount: healthEmployee });
-  breakdown.push({ description: 'Unemployment insurance (1.3% employee)', amount: unemploymentEmployee });
-  breakdown.push({ description: 'Nursing care insurance (1.7% employee)', amount: nursingCareEmployee });
+  breakdown.push({
+    description: 'Unemployment insurance (1.3% employee)',
+    amount: unemploymentEmployee,
+  });
+  breakdown.push({
+    description: 'Nursing care insurance (1.7% employee)',
+    amount: nursingCareEmployee,
+  });
 
-  const socialContributions = Math.round((pensionEmployee + healthEmployee + unemploymentEmployee + nursingCareEmployee) * 100) / 100;
+  const socialContributions =
+    Math.round(
+      (pensionEmployee + healthEmployee + unemploymentEmployee + nursingCareEmployee) * 100
+    ) / 100;
   const netPay = Math.round((grossAnnual - incomeTax - socialContributions) * 100) / 100;
 
   return {
@@ -393,7 +432,7 @@ export function calculateDETax(grossAnnual: number): TaxBreakdown {
 
 const NL_BANDS = [
   { name: 'Band 1', rate: 0.3693, from: 0, to: 73031 },
-  { name: 'Band 2', rate: 0.4950, from: 73031, to: Infinity },
+  { name: 'Band 2', rate: 0.495, from: 73031, to: Infinity },
 ];
 
 const NL_ZVW_RATE = 0.0657; // employer-paid health insurance

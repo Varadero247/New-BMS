@@ -82,8 +82,22 @@ export default function QualityScreen() {
         },
       });
       setRecentNCs([
-        { id: '1', referenceNumber: 'NC-2024-001', title: 'Product defect - batch 4521', severity: 'MAJOR', status: 'OPEN', dateOccurred: '2024-01-15' },
-        { id: '2', referenceNumber: 'NC-2024-002', title: 'Process deviation', severity: 'MINOR', status: 'CLOSED', dateOccurred: '2024-01-13' },
+        {
+          id: '1',
+          referenceNumber: 'NC-2024-001',
+          title: 'Product defect - batch 4521',
+          severity: 'MAJOR',
+          status: 'OPEN',
+          dateOccurred: '2024-01-15',
+        },
+        {
+          id: '2',
+          referenceNumber: 'NC-2024-002',
+          title: 'Process deviation',
+          severity: 'MINOR',
+          status: 'CLOSED',
+          dateOccurred: '2024-01-13',
+        },
       ]);
     } finally {
       setLoading(false);
@@ -153,15 +167,10 @@ export default function QualityScreen() {
         {/* Quick Links */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           {quickLinks.map((link) => (
-            <div
-              key={link.label}
-              className="bg-gray-50 rounded-xl p-3 flex flex-col items-center"
-            >
+            <div key={link.label} className="bg-gray-50 rounded-xl p-3 flex flex-col items-center">
               <link.icon className={`w-5 h-5 ${link.color} mb-1`} />
               <span className="text-xs font-medium">{link.label}</span>
-              {link.count !== null && (
-                <span className="text-lg font-bold">{link.count}</span>
-              )}
+              {link.count !== null && <span className="text-lg font-bold">{link.count}</span>}
             </div>
           ))}
         </div>
@@ -195,7 +204,9 @@ export default function QualityScreen() {
           </div>
           <div className="bg-gray-50 rounded-xl p-4">
             <p className="text-xs text-gray-500 mb-1">COPQ (YTD)</p>
-            <p className="text-2xl font-bold">${(stats?.metrics.copqTotal || 0 / 1000).toFixed(0)}k</p>
+            <p className="text-2xl font-bold">
+              ${(stats?.metrics.copqTotal || 0 / 1000).toFixed(0)}k
+            </p>
             <p className="text-xs text-gray-500">Cost of Poor Quality</p>
           </div>
         </div>
@@ -234,10 +245,7 @@ export default function QualityScreen() {
         <div className="space-y-2 pb-4">
           {recentNCs.length > 0 ? (
             recentNCs.map((nc) => (
-              <div
-                key={nc.id}
-                className="bg-gray-50 rounded-xl p-4"
-              >
+              <div key={nc.id} className="bg-gray-50 rounded-xl p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <p className="font-medium text-sm">{nc.title}</p>
@@ -245,7 +253,9 @@ export default function QualityScreen() {
                       {nc.referenceNumber} • {new Date(nc.dateOccurred).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(nc.severity)}`}>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(nc.severity)}`}
+                  >
                     {nc.severity}
                   </span>
                 </div>

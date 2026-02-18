@@ -33,7 +33,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/roi', roiRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 // ===================================================================
 // ROI Calculation Logic
@@ -94,15 +96,13 @@ describe('POST /api/roi/calculate', () => {
   it('returns ROI calculation for valid input', async () => {
     (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: 'lead-1' });
 
-    const res = await request(app)
-      .post('/api/roi/calculate')
-      .send({
-        companyName: 'TechCorp',
-        name: 'Jane Smith',
-        email: 'jane@techcorp.com',
-        isoCount: 3,
-        industry: 'Manufacturing',
-      });
+    const res = await request(app).post('/api/roi/calculate').send({
+      companyName: 'TechCorp',
+      name: 'Jane Smith',
+      email: 'jane@techcorp.com',
+      isoCount: 3,
+      industry: 'Manufacturing',
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -113,14 +113,12 @@ describe('POST /api/roi/calculate', () => {
   it('saves lead to database', async () => {
     (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: 'lead-1' });
 
-    await request(app)
-      .post('/api/roi/calculate')
-      .send({
-        companyName: 'TechCorp',
-        name: 'Jane Smith',
-        email: 'jane@techcorp.com',
-        isoCount: 2,
-      });
+    await request(app).post('/api/roi/calculate').send({
+      companyName: 'TechCorp',
+      name: 'Jane Smith',
+      email: 'jane@techcorp.com',
+      isoCount: 2,
+    });
 
     expect(prisma.mktLead.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -133,22 +131,18 @@ describe('POST /api/roi/calculate', () => {
   });
 
   it('returns 400 for missing required fields', async () => {
-    const res = await request(app)
-      .post('/api/roi/calculate')
-      .send({ companyName: 'Test' });
+    const res = await request(app).post('/api/roi/calculate').send({ companyName: 'Test' });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
   });
 
   it('returns 400 for invalid email', async () => {
-    const res = await request(app)
-      .post('/api/roi/calculate')
-      .send({
-        companyName: 'Test',
-        name: 'Test User',
-        email: 'not-an-email',
-      });
+    const res = await request(app).post('/api/roi/calculate').send({
+      companyName: 'Test',
+      name: 'Test User',
+      email: 'not-an-email',
+    });
 
     expect(res.status).toBe(400);
   });
@@ -156,13 +150,11 @@ describe('POST /api/roi/calculate', () => {
   it('still returns success even if DB save fails', async () => {
     (prisma.mktLead.create as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app)
-      .post('/api/roi/calculate')
-      .send({
-        companyName: 'TechCorp',
-        name: 'Jane Smith',
-        email: 'jane@techcorp.com',
-      });
+    const res = await request(app).post('/api/roi/calculate').send({
+      companyName: 'TechCorp',
+      name: 'Jane Smith',
+      email: 'jane@techcorp.com',
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);

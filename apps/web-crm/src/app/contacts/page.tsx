@@ -1,7 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+} from '@ims/ui';
 import { Plus, Search, Users, Edit, Trash2, Mail, Phone } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -69,9 +80,11 @@ export default function ContactsPage() {
     }
   }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
   function openCreateModal() {
@@ -97,9 +110,18 @@ export default function ContactsPage() {
 
   async function handleCreate() {
     setFormError('');
-    if (!formData.firstName.trim()) { setFormError('First name is required'); return; }
-    if (!formData.lastName.trim()) { setFormError('Last name is required'); return; }
-    if (!formData.email.trim()) { setFormError('Email is required'); return; }
+    if (!formData.firstName.trim()) {
+      setFormError('First name is required');
+      return;
+    }
+    if (!formData.lastName.trim()) {
+      setFormError('Last name is required');
+      return;
+    }
+    if (!formData.email.trim()) {
+      setFormError('Email is required');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -117,8 +139,14 @@ export default function ContactsPage() {
 
   async function handleUpdate() {
     setFormError('');
-    if (!formData.firstName.trim()) { setFormError('First name is required'); return; }
-    if (!formData.lastName.trim()) { setFormError('Last name is required'); return; }
+    if (!formData.firstName.trim()) {
+      setFormError('First name is required');
+      return;
+    }
+    if (!formData.lastName.trim()) {
+      setFormError('Last name is required');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -144,8 +172,9 @@ export default function ContactsPage() {
     }
   }
 
-  const filteredContacts = contacts.filter(c => {
-    const matchesSearch = !searchTerm ||
+  const filteredContacts = contacts.filter((c) => {
+    const matchesSearch =
+      !searchTerm ||
       `${c.firstName} ${c.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSource = !sourceFilter || c.source === sourceFilter;
@@ -177,7 +206,9 @@ export default function ContactsPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
         )}
 
         <Card className="mb-6">
@@ -186,10 +217,22 @@ export default function ContactsPage() {
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  <input type="text" aria-label="Search contacts..." placeholder="Search contacts..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500" />
+                  <input
+                    type="text"
+                    aria-label="Search contacts..."
+                    placeholder="Search contacts..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  />
                 </div>
               </div>
-              <select aria-label="Filter by source" value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+              <select
+                aria-label="Filter by source"
+                value={sourceFilter}
+                onChange={(e) => setSourceFilter(e.target.value)}
+                className="border rounded-md px-3 py-2 text-sm"
+              >
                 <option value="">All Sources</option>
                 <option value="WEBSITE">Website</option>
                 <option value="REFERRAL">Referral</option>
@@ -216,34 +259,81 @@ export default function ContactsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Email</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Phone</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Account</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Source</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Created</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Name
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Email
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Phone
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Account
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Source
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Created
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredContacts.map((contact) => (
                       <tr key={contact.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{contact.firstName} {contact.lastName}</td>
-                        <td className="py-3 px-4 text-gray-600">
-                          <div className="flex items-center gap-1"><Mail className="h-3 w-3" />{contact.email}</div>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                          {contact.firstName} {contact.lastName}
                         </td>
                         <td className="py-3 px-4 text-gray-600">
-                          {contact.phone ? <div className="flex items-center gap-1"><Phone className="h-3 w-3" />{contact.phone}</div> : '-'}
+                          <div className="flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            {contact.email}
+                          </div>
                         </td>
-                        <td className="py-3 px-4 text-gray-600">{contact.account?.name || contact.accountName || '-'}</td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {contact.phone ? (
+                            <div className="flex items-center gap-1">
+                              <Phone className="h-3 w-3" />
+                              {contact.phone}
+                            </div>
+                          ) : (
+                            '-'
+                          )}
+                        </td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {contact.account?.name || contact.accountName || '-'}
+                        </td>
                         <td className="py-3 px-4">
-                          <Badge className={sourceColors[contact.source] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{contact.source?.replace('_', ' ') || 'N/A'}</Badge>
+                          <Badge
+                            className={
+                              sourceColors[contact.source] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
+                            {contact.source?.replace('_', ' ') || 'N/A'}
+                          </Badge>
                         </td>
-                        <td className="py-3 px-4 text-gray-600">{new Date(contact.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {new Date(contact.createdAt).toLocaleDateString()}
+                        </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openEditModal(contact)} className="text-gray-400 dark:text-gray-500 hover:text-violet-600"><Edit className="h-4 w-4" /></button>
-                            <button onClick={() => handleDelete(contact.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+                            <button
+                              onClick={() => openEditModal(contact)}
+                              className="text-gray-400 dark:text-gray-500 hover:text-violet-600"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(contact.id)}
+                              className="text-gray-400 dark:text-gray-500 hover:text-red-600"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -262,22 +352,83 @@ export default function ContactsPage() {
       </div>
 
       {/* Create Modal */}
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Add Contact" size="lg">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Add Contact"
+        size="lg"
+      >
         <div className="space-y-4">
-          {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>}
+          {formError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="firstName">First Name *</Label><Input id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="John" /></div>
-            <div><Label htmlFor="lastName">Last Name *</Label><Input id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Doe" /></div>
+            <div>
+              <Label htmlFor="firstName">First Name *</Label>
+              <Input
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                placeholder="John"
+              />
+            </div>
+            <div>
+              <Label htmlFor="lastName">Last Name *</Label>
+              <Input
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                placeholder="Doe"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="email">Email *</Label><Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="john@company.com" /></div>
-            <div><Label htmlFor="phone">Phone</Label><Input id="phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="+1 234 567 890" /></div>
+            <div>
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="john@company.com"
+              />
+            </div>
+            <div>
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="+1 234 567 890"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="title">Job Title</Label><Input id="title" name="title" value={formData.title} onChange={handleChange} placeholder="VP of Sales" /></div>
+            <div>
+              <Label htmlFor="title">Job Title</Label>
+              <Input
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="VP of Sales"
+              />
+            </div>
             <div>
               <Label htmlFor="source">Source</Label>
-              <select id="source" name="source" value={formData.source} onChange={handleChange} className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500">
+              <select
+                id="source"
+                name="source"
+                value={formData.source}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500"
+              >
                 <option value="WEBSITE">Website</option>
                 <option value="REFERRAL">Referral</option>
                 <option value="LINKEDIN">LinkedIn</option>
@@ -290,28 +441,78 @@ export default function ContactsPage() {
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleCreate} disabled={submitting}>{submitting ? 'Creating...' : 'Create Contact'}</Button>
+          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleCreate} disabled={submitting}>
+            {submitting ? 'Creating...' : 'Create Contact'}
+          </Button>
         </ModalFooter>
       </Modal>
 
       {/* Edit Modal */}
-      <Modal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} title="Edit Contact" size="lg">
+      <Modal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        title="Edit Contact"
+        size="lg"
+      >
         <div className="space-y-4">
-          {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>}
+          {formError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="e-firstName">First Name *</Label><Input id="e-firstName" name="firstName" value={formData.firstName} onChange={handleChange} /></div>
-            <div><Label htmlFor="e-lastName">Last Name *</Label><Input id="e-lastName" name="lastName" value={formData.lastName} onChange={handleChange} /></div>
+            <div>
+              <Label htmlFor="e-firstName">First Name *</Label>
+              <Input
+                id="e-firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="e-lastName">Last Name *</Label>
+              <Input
+                id="e-lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+              />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="e-email">Email *</Label><Input id="e-email" name="email" type="email" value={formData.email} onChange={handleChange} /></div>
-            <div><Label htmlFor="e-phone">Phone</Label><Input id="e-phone" name="phone" value={formData.phone} onChange={handleChange} /></div>
+            <div>
+              <Label htmlFor="e-email">Email *</Label>
+              <Input
+                id="e-email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="e-phone">Phone</Label>
+              <Input id="e-phone" name="phone" value={formData.phone} onChange={handleChange} />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="e-title">Job Title</Label><Input id="e-title" name="title" value={formData.title} onChange={handleChange} /></div>
+            <div>
+              <Label htmlFor="e-title">Job Title</Label>
+              <Input id="e-title" name="title" value={formData.title} onChange={handleChange} />
+            </div>
             <div>
               <Label htmlFor="e-source">Source</Label>
-              <select id="e-source" name="source" value={formData.source} onChange={handleChange} className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500">
+              <select
+                id="e-source"
+                name="source"
+                value={formData.source}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500"
+              >
                 <option value="WEBSITE">Website</option>
                 <option value="REFERRAL">Referral</option>
                 <option value="LINKEDIN">LinkedIn</option>
@@ -324,8 +525,12 @@ export default function ContactsPage() {
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setEditModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleUpdate} disabled={submitting}>{submitting ? 'Saving...' : 'Save Changes'}</Button>
+          <Button variant="outline" onClick={() => setEditModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleUpdate} disabled={submitting}>
+            {submitting ? 'Saving...' : 'Save Changes'}
+          </Button>
         </ModalFooter>
       </Modal>
     </div>

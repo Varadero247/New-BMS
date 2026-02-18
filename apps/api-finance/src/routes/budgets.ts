@@ -37,9 +37,18 @@ router.get('/', async (req: Request, res: Response) => {
 
     const where: any = { deletedAt: null };
     if (accountId && typeof accountId === 'string') where.accountId = accountId;
-    if (fiscalYear) { const n = parseInt(String(fiscalYear), 10); if (!isNaN(n)) where.fiscalYear = n; }
-    if (month) { const n = parseInt(String(month), 10); if (!isNaN(n)) where.month = n; }
-    if (quarter) { const n = parseInt(String(quarter), 10); if (!isNaN(n)) where.quarter = n; }
+    if (fiscalYear) {
+      const n = parseInt(String(fiscalYear), 10);
+      if (!isNaN(n)) where.fiscalYear = n;
+    }
+    if (month) {
+      const n = parseInt(String(month), 10);
+      if (!isNaN(n)) where.month = n;
+    }
+    if (quarter) {
+      const n = parseInt(String(quarter), 10);
+      if (!isNaN(n)) where.quarter = n;
+    }
 
     const [budgets, total] = await Promise.all([
       prisma.finBudget.findMany({
@@ -60,8 +69,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list budgets', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list budgets' } });
+    logger.error('Failed to list budgets', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list budgets' },
+    });
   }
 });
 
@@ -71,7 +85,10 @@ router.get('/variance-report', async (req: Request, res: Response) => {
     const { fiscalYear } = req.query;
 
     if (!fiscalYear) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'fiscalYear query parameter is required' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'fiscalYear query parameter is required' },
+      });
     }
 
     const budgets = await prisma.finBudget.findMany({
@@ -80,18 +97,20 @@ router.get('/variance-report', async (req: Request, res: Response) => {
         account: { select: { id: true, code: true, name: true, type: true } },
       },
       orderBy: [{ account: { code: 'asc' } }, { month: 'asc' }],
-      take: 1000});
+      take: 1000,
+    });
 
     const totalBudget = budgets.reduce((s, b) => s + Number(b.budgetAmount), 0);
     const totalActual = budgets.reduce((s, b) => s + Number(b.actualAmount), 0);
     const totalVariance = totalActual - totalBudget;
     const variancePct = totalBudget !== 0 ? (totalVariance / totalBudget) * 100 : 0;
 
-    const rows = budgets.map(b => ({
+    const rows = budgets.map((b) => ({
       ...b,
-      variancePct: Number(b.budgetAmount) !== 0
-        ? ((Number(b.actualAmount) - Number(b.budgetAmount)) / Number(b.budgetAmount)) * 100
-        : 0,
+      variancePct:
+        Number(b.budgetAmount) !== 0
+          ? ((Number(b.actualAmount) - Number(b.budgetAmount)) / Number(b.budgetAmount)) * 100
+          : 0,
     }));
 
     res.json({
@@ -103,8 +122,13 @@ router.get('/variance-report', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to generate variance report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate variance report' } });
+    logger.error('Failed to generate variance report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate variance report' },
+    });
   }
 });
 
@@ -122,13 +146,20 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!budget) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
     }
 
     res.json({ success: true, data: budget });
   } catch (error: unknown) {
-    logger.error('Failed to get budget', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get budget' } });
+    logger.error('Failed to get budget', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get budget' } });
   }
 });
 
@@ -137,15 +168,26 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const { accountId, fiscalYear, month, budgetAmount, name, notes, quarter } = parsed.data;
     const authReq = req as AuthRequest;
 
-    const account = await prisma.finAccount.findFirst({ where: { id: accountId, deletedAt: null } as any });
+    const account = await prisma.finAccount.findFirst({
+      where: { id: accountId, deletedAt: null } as any,
+    });
     if (!account) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     const budget = await prisma.finBudget.create({
@@ -169,11 +211,27 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Budget created', { budgetId: budget.id });
     res.status(201).json({ success: true, data: budget });
   } catch (error: unknown) {
-    logger.error('Failed to create budget', { error: error instanceof Error ? error.message : 'Unknown error' });
-    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Budget entry already exists for this account/year/month combination' } });
+    logger.error('Failed to create budget', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    if (
+      error != null &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as any).code === 'P2002'
+    ) {
+      return res.status(409).json({
+        success: false,
+        error: {
+          code: 'CONFLICT',
+          message: 'Budget entry already exists for this account/year/month combination',
+        },
+      });
     }
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create budget' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create budget' },
+    });
   }
 });
 
@@ -184,18 +242,29 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const existing = await prisma.finBudget.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
     }
 
     const { budgetAmount, actualAmount, ...rest } = parsed.data;
 
-    const newBudget = budgetAmount !== undefined ? new Prisma.Decimal(budgetAmount) : existing.budgetAmount;
-    const newActual = actualAmount !== undefined ? new Prisma.Decimal(actualAmount) : existing.actualAmount;
+    const newBudget =
+      budgetAmount !== undefined ? new Prisma.Decimal(budgetAmount) : existing.budgetAmount;
+    const newActual =
+      actualAmount !== undefined ? new Prisma.Decimal(actualAmount) : existing.actualAmount;
     const variance = new Prisma.Decimal(Number(newActual) - Number(newBudget));
 
     const budget = await prisma.finBudget.update({
@@ -215,8 +284,14 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     logger.info('Budget updated', { budgetId: id });
     res.json({ success: true, data: budget });
   } catch (error: unknown) {
-    logger.error('Failed to update budget', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update budget' } });
+    logger.error('Failed to update budget', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update budget' },
+    });
   }
 });
 
@@ -228,7 +303,9 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.finBudget.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
     }
 
     await prisma.finBudget.update({ where: { id }, data: { deletedAt: new Date() } });
@@ -236,8 +313,14 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     logger.info('Budget soft-deleted', { budgetId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete budget', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete budget' } });
+    logger.error('Failed to delete budget', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete budget' },
+    });
   }
 });
 

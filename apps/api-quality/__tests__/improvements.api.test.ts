@@ -99,7 +99,9 @@ describe('Quality Improvements API Routes', () => {
     });
 
     it('should support pagination parameters', async () => {
-      (mockPrisma.qualImprovement.findMany as jest.Mock).mockResolvedValueOnce([mockImprovements[0]]);
+      (mockPrisma.qualImprovement.findMany as jest.Mock).mockResolvedValueOnce([
+        mockImprovements[0],
+      ]);
       (mockPrisma.qualImprovement.count as jest.Mock).mockResolvedValueOnce(100);
 
       const response = await request(app)
@@ -150,9 +152,7 @@ describe('Quality Improvements API Routes', () => {
       (mockPrisma.qualImprovement.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualImprovement.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/improvements?pdcaStage=DO')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/improvements?pdcaStage=DO').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualImprovement.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -167,9 +167,7 @@ describe('Quality Improvements API Routes', () => {
       (mockPrisma.qualImprovement.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.qualImprovement.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/improvements?source=AUDIT')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/improvements?source=AUDIT').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualImprovement.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -201,9 +199,7 @@ describe('Quality Improvements API Routes', () => {
       (mockPrisma.qualImprovement.findMany as jest.Mock).mockResolvedValueOnce(mockImprovements);
       (mockPrisma.qualImprovement.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/improvements')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/improvements').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.qualImprovement.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -213,7 +209,9 @@ describe('Quality Improvements API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualImprovement.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualImprovement.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/improvements')
@@ -264,7 +262,9 @@ describe('Quality Improvements API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/improvements/21000000-0000-4000-a000-000000000001')
@@ -430,7 +430,9 @@ describe('Quality Improvements API Routes', () => {
     };
 
     it('should update improvement successfully', async () => {
-      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce(existingImprovement);
+      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce(
+        existingImprovement
+      );
       (mockPrisma.qualImprovement.update as jest.Mock).mockResolvedValueOnce({
         ...existingImprovement,
         title: 'Updated Improvement',
@@ -447,7 +449,9 @@ describe('Quality Improvements API Routes', () => {
     });
 
     it('should recalculate priority score when impacts change', async () => {
-      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce(existingImprovement);
+      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce(
+        existingImprovement
+      );
       (mockPrisma.qualImprovement.update as jest.Mock).mockResolvedValueOnce({
         ...existingImprovement,
         qualityImpact: 'HIGH',
@@ -480,7 +484,9 @@ describe('Quality Improvements API Routes', () => {
     });
 
     it('should return 400 for invalid status value', async () => {
-      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce(existingImprovement);
+      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce(
+        existingImprovement
+      );
 
       const response = await request(app)
         .put('/api/improvements/21000000-0000-4000-a000-000000000001')
@@ -492,7 +498,9 @@ describe('Quality Improvements API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/improvements/21000000-0000-4000-a000-000000000001')
@@ -509,7 +517,9 @@ describe('Quality Improvements API Routes', () => {
   // ============================================
   describe('DELETE /api/improvements/:id', () => {
     it('should delete improvement successfully', async () => {
-      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce({ id: '21000000-0000-4000-a000-000000000001' });
+      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '21000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.qualImprovement.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
@@ -535,7 +545,9 @@ describe('Quality Improvements API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.qualImprovement.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .delete('/api/improvements/21000000-0000-4000-a000-000000000001')

@@ -44,7 +44,15 @@ beforeEach(() => {
 describe('GET /api/jobs', () => {
   it('should return jobs with pagination', async () => {
     const jobs = [
-      { id: '00000000-0000-0000-0000-000000000001', number: 'JOB-2602-1234', title: 'Repair', status: 'UNASSIGNED', customer: {}, site: {}, technician: null },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        number: 'JOB-2602-1234',
+        title: 'Repair',
+        status: 'UNASSIGNED',
+        customer: {},
+        site: {},
+        technician: null,
+      },
     ];
     (prisma as any).fsSvcJob.findMany.mockResolvedValue(jobs);
     (prisma as any).fsSvcJob.count.mockResolvedValue(1);
@@ -106,7 +114,9 @@ describe('GET /api/jobs/dispatch-board', () => {
 
 describe('GET /api/jobs/unassigned', () => {
   it('should return unassigned jobs', async () => {
-    (prisma as any).fsSvcJob.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', status: 'UNASSIGNED' }]);
+    (prisma as any).fsSvcJob.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', status: 'UNASSIGNED' },
+    ]);
 
     const res = await request(app).get('/api/jobs/unassigned');
 
@@ -117,17 +127,20 @@ describe('GET /api/jobs/unassigned', () => {
 
 describe('POST /api/jobs', () => {
   it('should create a job with generated number', async () => {
-    const created = { id: 'job-new', number: 'JOB-2602-5678', title: 'Install AC', status: 'UNASSIGNED' };
+    const created = {
+      id: 'job-new',
+      number: 'JOB-2602-5678',
+      title: 'Install AC',
+      status: 'UNASSIGNED',
+    };
     (prisma as any).fsSvcJob.create.mockResolvedValue(created);
 
-    const res = await request(app)
-      .post('/api/jobs')
-      .send({
-        title: 'Install AC',
-        customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        siteId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        type: 'INSTALLATION',
-      });
+    const res = await request(app).post('/api/jobs').send({
+      title: 'Install AC',
+      customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      siteId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      type: 'INSTALLATION',
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -136,15 +149,13 @@ describe('POST /api/jobs', () => {
   it('should set status to ASSIGNED if technicianId provided', async () => {
     (prisma as any).fsSvcJob.create.mockResolvedValue({ id: 'job-new', status: 'ASSIGNED' });
 
-    await request(app)
-      .post('/api/jobs')
-      .send({
-        title: 'Install AC',
-        customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        siteId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        technicianId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        type: 'INSTALLATION',
-      });
+    await request(app).post('/api/jobs').send({
+      title: 'Install AC',
+      customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      siteId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      technicianId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      type: 'INSTALLATION',
+    });
 
     expect((prisma as any).fsSvcJob.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -154,9 +165,7 @@ describe('POST /api/jobs', () => {
   });
 
   it('should reject invalid data', async () => {
-    const res = await request(app)
-      .post('/api/jobs')
-      .send({ title: '' });
+    const res = await request(app).post('/api/jobs').send({ title: '' });
 
     expect(res.status).toBe(400);
   });
@@ -164,7 +173,16 @@ describe('POST /api/jobs', () => {
 
 describe('GET /api/jobs/:id', () => {
   it('should return a job with relations', async () => {
-    const job = { id: '00000000-0000-0000-0000-000000000001', title: 'Repair', customer: {}, site: {}, technician: null, timeEntries: [], partsUsed: [], jobNotes: [] };
+    const job = {
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Repair',
+      customer: {},
+      site: {},
+      technician: null,
+      timeEntries: [],
+      partsUsed: [],
+      jobNotes: [],
+    };
     (prisma as any).fsSvcJob.findFirst.mockResolvedValue(job);
 
     const res = await request(app).get('/api/jobs/00000000-0000-0000-0000-000000000001');
@@ -184,9 +202,16 @@ describe('GET /api/jobs/:id', () => {
 
 describe('PUT /api/jobs/:id/assign', () => {
   it('should assign a technician to a job', async () => {
-    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'UNASSIGNED' });
+    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'UNASSIGNED',
+    });
     (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({ id: 'tech-1' });
-    (prisma as any).fsSvcJob.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'ASSIGNED', technicianId: 'tech-1' });
+    (prisma as any).fsSvcJob.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'ASSIGNED',
+      technicianId: 'tech-1',
+    });
 
     const res = await request(app)
       .put('/api/jobs/00000000-0000-0000-0000-000000000001/assign')
@@ -197,7 +222,9 @@ describe('PUT /api/jobs/:id/assign', () => {
   });
 
   it('should reject if no technicianId', async () => {
-    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
 
     const res = await request(app)
       .put('/api/jobs/00000000-0000-0000-0000-000000000001/assign')
@@ -207,7 +234,9 @@ describe('PUT /api/jobs/:id/assign', () => {
   });
 
   it('should return 404 if technician not found', async () => {
-    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
     (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
@@ -220,8 +249,14 @@ describe('PUT /api/jobs/:id/assign', () => {
 
 describe('PUT /api/jobs/:id/dispatch', () => {
   it('should dispatch an assigned job', async () => {
-    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', technicianId: 'tech-1' });
-    (prisma as any).fsSvcJob.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'ASSIGNED' });
+    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      technicianId: 'tech-1',
+    });
+    (prisma as any).fsSvcJob.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'ASSIGNED',
+    });
 
     const res = await request(app).put('/api/jobs/00000000-0000-0000-0000-000000000001/dispatch');
 
@@ -229,7 +264,10 @@ describe('PUT /api/jobs/:id/dispatch', () => {
   });
 
   it('should reject if job has no technician', async () => {
-    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', technicianId: null });
+    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      technicianId: null,
+    });
 
     const res = await request(app).put('/api/jobs/00000000-0000-0000-0000-000000000001/dispatch');
 
@@ -239,8 +277,13 @@ describe('PUT /api/jobs/:id/dispatch', () => {
 
 describe('PUT /api/jobs/:id/en-route', () => {
   it('should set job status to EN_ROUTE', async () => {
-    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcJob.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'EN_ROUTE' });
+    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcJob.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'EN_ROUTE',
+    });
 
     const res = await request(app).put('/api/jobs/00000000-0000-0000-0000-000000000001/en-route');
 
@@ -250,8 +293,14 @@ describe('PUT /api/jobs/:id/en-route', () => {
 
 describe('PUT /api/jobs/:id/on-site', () => {
   it('should set job status to ON_SITE with timestamp', async () => {
-    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcJob.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'ON_SITE', actualStart: new Date() });
+    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcJob.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'ON_SITE',
+      actualStart: new Date(),
+    });
 
     const res = await request(app).put('/api/jobs/00000000-0000-0000-0000-000000000001/on-site');
 
@@ -261,8 +310,15 @@ describe('PUT /api/jobs/:id/on-site', () => {
 
 describe('PUT /api/jobs/:id/complete', () => {
   it('should complete a job', async () => {
-    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', notes: null });
-    (prisma as any).fsSvcJob.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED', actualEnd: new Date() });
+    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      notes: null,
+    });
+    (prisma as any).fsSvcJob.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'COMPLETED',
+      actualEnd: new Date(),
+    });
 
     const res = await request(app)
       .put('/api/jobs/00000000-0000-0000-0000-000000000001/complete')
@@ -274,8 +330,14 @@ describe('PUT /api/jobs/:id/complete', () => {
 
 describe('PUT /api/jobs/:id/cancel', () => {
   it('should cancel a job', async () => {
-    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', notes: '' });
-    (prisma as any).fsSvcJob.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'CANCELLED' });
+    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      notes: '',
+    });
+    (prisma as any).fsSvcJob.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'CANCELLED',
+    });
 
     const res = await request(app)
       .put('/api/jobs/00000000-0000-0000-0000-000000000001/cancel')
@@ -287,8 +349,13 @@ describe('PUT /api/jobs/:id/cancel', () => {
 
 describe('PUT /api/jobs/:id', () => {
   it('should update a job', async () => {
-    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcJob.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
+    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcJob.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Updated',
+    });
 
     const res = await request(app)
       .put('/api/jobs/00000000-0000-0000-0000-000000000001')
@@ -310,8 +377,13 @@ describe('PUT /api/jobs/:id', () => {
 
 describe('DELETE /api/jobs/:id', () => {
   it('should soft delete a job', async () => {
-    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcJob.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    (prisma as any).fsSvcJob.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcJob.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/jobs/00000000-0000-0000-0000-000000000001');
 

@@ -2,14 +2,32 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
 } from '@ims/ui';
 import {
-  Plus, ClipboardList, Search, Loader2, Sparkles,
-  AlertCircle, Clock, CheckCircle, Target,
-  ChevronDown, ChevronUp, CalendarDays,
+  Plus,
+  ClipboardList,
+  Search,
+  Loader2,
+  Sparkles,
+  AlertCircle,
+  Clock,
+  CheckCircle,
+  Target,
+  ChevronDown,
+  ChevronUp,
+  CalendarDays,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -36,7 +54,11 @@ const ACTION_PRIORITIES = [
 const ACTION_STATUSES = [
   { value: 'OPEN', label: 'Open', color: 'bg-blue-100 text-blue-800' },
   { value: 'IN_PROGRESS', label: 'In Progress', color: 'bg-indigo-100 text-indigo-800' },
-  { value: 'PENDING_VERIFICATION', label: 'Pending Verification', color: 'bg-purple-100 text-purple-800' },
+  {
+    value: 'PENDING_VERIFICATION',
+    label: 'Pending Verification',
+    color: 'bg-purple-100 text-purple-800',
+  },
   { value: 'VERIFIED', label: 'Verified', color: 'bg-cyan-100 text-cyan-800' },
   { value: 'COMPLETED', label: 'Completed', color: 'bg-green-100 text-green-800' },
   { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
@@ -214,21 +236,21 @@ export default function ActionsClient() {
   };
 
   const getPriorityBadge = (priority: string) => {
-    const p = ACTION_PRIORITIES.find(ap => ap.value === priority);
+    const p = ACTION_PRIORITIES.find((ap) => ap.value === priority);
     return p ? (
-      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${p.color}`}>
-        {p.label}
-      </span>
-    ) : <Badge variant="outline">{priority}</Badge>;
+      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${p.color}`}>{p.label}</span>
+    ) : (
+      <Badge variant="outline">{priority}</Badge>
+    );
   };
 
   const getStatusBadge = (status: string) => {
-    const s = ACTION_STATUSES.find(as2 => as2.value === status);
+    const s = ACTION_STATUSES.find((as2) => as2.value === status);
     return s ? (
-      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${s.color}`}>
-        {s.label}
-      </span>
-    ) : <Badge variant="outline">{status}</Badge>;
+      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${s.color}`}>{s.label}</span>
+    ) : (
+      <Badge variant="outline">{status}</Badge>
+    );
   };
 
   const today = new Date();
@@ -236,29 +258,30 @@ export default function ActionsClient() {
 
   const counts = {
     total: actions.length,
-    open: actions.filter(a => a.status === 'OPEN' || a.status === 'IN_PROGRESS').length,
-    overdue: actions.filter(a => isOverdue(a.dueDate, a.status)).length,
-    completedThisMonth: actions.filter(a =>
-      (a.status === 'COMPLETED' || a.status === 'VERIFIED') &&
-      a.completionDate && new Date(a.completionDate) >= startOfMonth
+    open: actions.filter((a) => a.status === 'OPEN' || a.status === 'IN_PROGRESS').length,
+    overdue: actions.filter((a) => isOverdue(a.dueDate, a.status)).length,
+    completedThisMonth: actions.filter(
+      (a) =>
+        (a.status === 'COMPLETED' || a.status === 'VERIFIED') &&
+        a.completionDate &&
+        new Date(a.completionDate) >= startOfMonth
     ).length,
   };
 
   // ─── Filtering ────────────────────────────────────────────────────
 
-  const filteredActions = actions
-    .filter(a => {
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        return (
-          a.title?.toLowerCase().includes(q) ||
-          a.referenceNumber?.toLowerCase().includes(q) ||
-          a.assignedTo?.toLowerCase().includes(q) ||
-          a.description?.toLowerCase().includes(q)
-        );
-      }
-      return true;
-    });
+  const filteredActions = actions.filter((a) => {
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return (
+        a.title?.toLowerCase().includes(q) ||
+        a.referenceNumber?.toLowerCase().includes(q) ||
+        a.assignedTo?.toLowerCase().includes(q) ||
+        a.description?.toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
 
   // ─── Modal Handlers ───────────────────────────────────────────────
 
@@ -272,7 +295,7 @@ export default function ActionsClient() {
   }
 
   function updateForm(field: keyof ActionForm, value: string | number | boolean) {
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -438,50 +461,59 @@ export default function ActionsClient() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
-                  aria-label="Search actions by title, reference, assignee..." placeholder="Search actions by title, reference, assignee..."
+                  aria-label="Search actions by title, reference, assignee..."
+                  placeholder="Search actions by title, reference, assignee..."
                   value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <select
                 value={typeFilter}
-                onChange={e => setTypeFilter(e.target.value)}
+                onChange={(e) => setTypeFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Types</option>
-                {ACTION_TYPES.map(t => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
+                {ACTION_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
                 ))}
               </select>
               <select
                 value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
+                onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Statuses</option>
-                {ACTION_STATUSES.map(s => (
-                  <option key={s.value} value={s.value}>{s.label}</option>
+                {ACTION_STATUSES.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
                 ))}
               </select>
               <select
                 value={priorityFilter}
-                onChange={e => setPriorityFilter(e.target.value)}
+                onChange={(e) => setPriorityFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Priorities</option>
-                {ACTION_PRIORITIES.map(p => (
-                  <option key={p.value} value={p.value}>{p.label}</option>
+                {ACTION_PRIORITIES.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
+                  </option>
                 ))}
               </select>
               <select
                 value={sourceFilter}
-                onChange={e => setSourceFilter(e.target.value)}
+                onChange={(e) => setSourceFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               >
                 <option value="all">All Sources</option>
-                {ACTION_SOURCES.map(s => (
-                  <option key={s.value} value={s.value}>{s.label}</option>
+                {ACTION_SOURCES.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
                 ))}
               </select>
             </div>
@@ -507,13 +539,13 @@ export default function ActionsClient() {
           <CardContent>
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3, 4, 5].map(i => (
+                {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="h-28 bg-gray-100 dark:bg-gray-800 rounded-lg" />
                 ))}
               </div>
             ) : filteredActions.length > 0 ? (
               <div className="space-y-4">
-                {filteredActions.map(action => {
+                {filteredActions.map((action) => {
                   const overdue = isOverdue(action.dueDate, action.status);
                   return (
                     <div
@@ -533,7 +565,7 @@ export default function ActionsClient() {
                             {getStatusBadge(action.status)}
                             {getPriorityBadge(action.priority)}
                             <Badge variant="outline">
-                              {ACTION_TYPES.find(t => t.value === action.actionType)?.label ||
+                              {ACTION_TYPES.find((t) => t.value === action.actionType)?.label ||
                                 action.actionType?.replace(/_/g, ' ')}
                             </Badge>
                             {overdue && (
@@ -543,19 +575,21 @@ export default function ActionsClient() {
                               </Badge>
                             )}
                           </div>
-                          <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">{action.title}</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                            {action.title}
+                          </h3>
                           {action.description && (
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                               {action.description}
                             </p>
                           )}
                           <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 dark:text-gray-500">
-                            {action.assignedTo && (
-                              <span>Assigned: {action.assignedTo}</span>
-                            )}
+                            {action.assignedTo && <span>Assigned: {action.assignedTo}</span>}
                             {action.source && (
                               <span>
-                                Source: {ACTION_SOURCES.find(s => s.value === action.source)?.label || action.source}
+                                Source:{' '}
+                                {ACTION_SOURCES.find((s) => s.value === action.source)?.label ||
+                                  action.source}
                               </span>
                             )}
                           </div>
@@ -572,8 +606,8 @@ export default function ActionsClient() {
                                     action.percentComplete >= 100
                                       ? 'bg-green-500'
                                       : action.percentComplete >= 50
-                                      ? 'bg-blue-500'
-                                      : 'bg-yellow-500'
+                                        ? 'bg-blue-500'
+                                        : 'bg-yellow-500'
                                   }`}
                                   style={{ width: `${Math.min(action.percentComplete, 100)}%` }}
                                 />
@@ -582,7 +616,9 @@ export default function ActionsClient() {
                           )}
                         </div>
                         <div className="ml-4 text-right flex-shrink-0">
-                          <div className={`text-sm flex items-center gap-1 ${overdue ? 'text-red-600 font-medium' : 'text-gray-400'}`}>
+                          <div
+                            className={`text-sm flex items-center gap-1 ${overdue ? 'text-red-600 font-medium' : 'text-gray-400'}`}
+                          >
                             <Clock className="h-4 w-4" />
                             {action.dueDate
                               ? new Date(action.dueDate).toLocaleDateString()
@@ -608,7 +644,8 @@ export default function ActionsClient() {
                 <ClipboardList className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-600 mb-1">No actions found</h3>
                 <p className="text-sm text-gray-400 dark:text-gray-500 mb-4">
-                  Create your first quality action to start tracking corrective and preventive measures.
+                  Create your first quality action to start tracking corrective and preventive
+                  measures.
                 </p>
                 <Button onClick={openCreateModal} className="flex items-center gap-2 mx-auto">
                   <Plus className="h-4 w-4" />
@@ -630,7 +667,7 @@ export default function ActionsClient() {
         <form onSubmit={handleSubmit}>
           {/* Section Tabs */}
           <div className="flex gap-1 mb-6 border-b overflow-x-auto">
-            {sections.map(s => (
+            {sections.map((s) => (
               <button
                 key={s.key}
                 type="button"
@@ -665,7 +702,7 @@ export default function ActionsClient() {
                   <Input
                     id="act-title"
                     value={form.title}
-                    onChange={e => updateForm('title', e.target.value)}
+                    onChange={(e) => updateForm('title', e.target.value)}
                     required
                     placeholder="Brief description of the action required"
                   />
@@ -676,10 +713,12 @@ export default function ActionsClient() {
                     <Select
                       id="act-type"
                       value={form.actionType}
-                      onChange={e => updateForm('actionType', e.target.value)}
+                      onChange={(e) => updateForm('actionType', e.target.value)}
                     >
-                      {ACTION_TYPES.map(t => (
-                        <option key={t.value} value={t.value}>{t.label}</option>
+                      {ACTION_TYPES.map((t) => (
+                        <option key={t.value} value={t.value}>
+                          {t.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -688,10 +727,12 @@ export default function ActionsClient() {
                     <Select
                       id="act-priority"
                       value={form.priority}
-                      onChange={e => updateForm('priority', e.target.value)}
+                      onChange={(e) => updateForm('priority', e.target.value)}
                     >
-                      {ACTION_PRIORITIES.map(p => (
-                        <option key={p.value} value={p.value}>{p.label}</option>
+                      {ACTION_PRIORITIES.map((p) => (
+                        <option key={p.value} value={p.value}>
+                          {p.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -702,10 +743,12 @@ export default function ActionsClient() {
                     <Select
                       id="act-source"
                       value={form.source}
-                      onChange={e => updateForm('source', e.target.value)}
+                      onChange={(e) => updateForm('source', e.target.value)}
                     >
-                      {ACTION_SOURCES.map(s => (
-                        <option key={s.value} value={s.value}>{s.label}</option>
+                      {ACTION_SOURCES.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          {s.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -714,7 +757,7 @@ export default function ActionsClient() {
                     <Input
                       id="act-sourceRef"
                       value={form.sourceReference}
-                      onChange={e => updateForm('sourceReference', e.target.value)}
+                      onChange={(e) => updateForm('sourceReference', e.target.value)}
                       placeholder="e.g., NC-001, CAPA-005, Audit ref"
                     />
                   </div>
@@ -724,7 +767,7 @@ export default function ActionsClient() {
                   <Textarea
                     id="act-description"
                     value={form.description}
-                    onChange={e => updateForm('description', e.target.value)}
+                    onChange={(e) => updateForm('description', e.target.value)}
                     rows={4}
                     placeholder="Detailed description of the action to be taken, including context and reasoning"
                   />
@@ -734,7 +777,7 @@ export default function ActionsClient() {
                   <Textarea
                     id="act-expectedOutcome"
                     value={form.expectedOutcome}
-                    onChange={e => updateForm('expectedOutcome', e.target.value)}
+                    onChange={(e) => updateForm('expectedOutcome', e.target.value)}
                     rows={2}
                     placeholder="What successful completion of this action looks like"
                   />
@@ -754,7 +797,7 @@ export default function ActionsClient() {
                     <Input
                       id="act-assignedTo"
                       value={form.assignedTo}
-                      onChange={e => updateForm('assignedTo', e.target.value)}
+                      onChange={(e) => updateForm('assignedTo', e.target.value)}
                       placeholder="Person responsible for completing this action"
                     />
                   </div>
@@ -763,7 +806,7 @@ export default function ActionsClient() {
                     <Input
                       id="act-department"
                       value={form.department}
-                      onChange={e => updateForm('department', e.target.value)}
+                      onChange={(e) => updateForm('department', e.target.value)}
                       placeholder="e.g., Quality, Production, Engineering"
                     />
                   </div>
@@ -775,7 +818,7 @@ export default function ActionsClient() {
                       id="act-dueDate"
                       type="date"
                       value={form.dueDate}
-                      onChange={e => updateForm('dueDate', e.target.value)}
+                      onChange={(e) => updateForm('dueDate', e.target.value)}
                     />
                   </div>
                   <div>
@@ -783,10 +826,12 @@ export default function ActionsClient() {
                     <Select
                       id="act-status"
                       value={form.status}
-                      onChange={e => updateForm('status', e.target.value)}
+                      onChange={(e) => updateForm('status', e.target.value)}
                     >
-                      {ACTION_STATUSES.map(s => (
-                        <option key={s.value} value={s.value}>{s.label}</option>
+                      {ACTION_STATUSES.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          {s.label}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -805,7 +850,7 @@ export default function ActionsClient() {
                   <Textarea
                     id="act-progressNotes"
                     value={form.progressNotes}
-                    onChange={e => updateForm('progressNotes', e.target.value)}
+                    onChange={(e) => updateForm('progressNotes', e.target.value)}
                     rows={4}
                     placeholder="Log of progress updates, milestones, and obstacles"
                   />
@@ -816,9 +861,11 @@ export default function ActionsClient() {
                     id="act-completionDate"
                     type="date"
                     value={form.completionDate}
-                    onChange={e => updateForm('completionDate', e.target.value)}
+                    onChange={(e) => updateForm('completionDate', e.target.value)}
                   />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Leave blank until the action is actually completed.</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Leave blank until the action is actually completed.
+                  </p>
                 </div>
                 <div>
                   <Label htmlFor="act-percentComplete">
@@ -831,7 +878,7 @@ export default function ActionsClient() {
                     max={100}
                     step={5}
                     value={form.percentComplete}
-                    onChange={e => updateForm('percentComplete', parseInt(e.target.value))}
+                    onChange={(e) => updateForm('percentComplete', parseInt(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                   />
                   <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
@@ -856,10 +903,12 @@ export default function ActionsClient() {
                   <Select
                     id="act-verificationMethod"
                     value={form.verificationMethod}
-                    onChange={e => updateForm('verificationMethod', e.target.value)}
+                    onChange={(e) => updateForm('verificationMethod', e.target.value)}
                   >
-                    {VERIFICATION_METHODS.map(m => (
-                      <option key={m.value} value={m.value}>{m.label}</option>
+                    {VERIFICATION_METHODS.map((m) => (
+                      <option key={m.value} value={m.value}>
+                        {m.label}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -869,7 +918,7 @@ export default function ActionsClient() {
                     <Input
                       id="act-verifiedBy"
                       value={form.verifiedBy}
-                      onChange={e => updateForm('verifiedBy', e.target.value)}
+                      onChange={(e) => updateForm('verifiedBy', e.target.value)}
                       placeholder="Name of person who verified effectiveness"
                     />
                   </div>
@@ -879,7 +928,7 @@ export default function ActionsClient() {
                       id="act-verificationDate"
                       type="date"
                       value={form.verificationDate}
-                      onChange={e => updateForm('verificationDate', e.target.value)}
+                      onChange={(e) => updateForm('verificationDate', e.target.value)}
                     />
                   </div>
                 </div>
@@ -888,13 +937,14 @@ export default function ActionsClient() {
                     <input
                       type="checkbox"
                       checked={form.effective}
-                      onChange={e => updateForm('effective', e.target.checked)}
+                      onChange={(e) => updateForm('effective', e.target.checked)}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     Action verified as effective
                   </Label>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Check this box once the action has been verified to have resolved the issue effectively.
+                    Check this box once the action has been verified to have resolved the issue
+                    effectively.
                   </p>
                 </div>
               </div>
@@ -915,7 +965,7 @@ export default function ActionsClient() {
                     <Input
                       id="act-linkedNc"
                       value={form.linkedNc}
-                      onChange={e => updateForm('linkedNc', e.target.value)}
+                      onChange={(e) => updateForm('linkedNc', e.target.value)}
                       placeholder="NC reference, e.g., NC-2024-0012"
                     />
                   </div>
@@ -924,7 +974,7 @@ export default function ActionsClient() {
                     <Input
                       id="act-linkedCapa"
                       value={form.linkedCapa}
-                      onChange={e => updateForm('linkedCapa', e.target.value)}
+                      onChange={(e) => updateForm('linkedCapa', e.target.value)}
                       placeholder="CAPA reference, e.g., CAPA-2024-0003"
                     />
                   </div>
@@ -935,7 +985,7 @@ export default function ActionsClient() {
                     <Input
                       id="act-linkedProcess"
                       value={form.linkedProcess}
-                      onChange={e => updateForm('linkedProcess', e.target.value)}
+                      onChange={(e) => updateForm('linkedProcess', e.target.value)}
                       placeholder="Process name or reference"
                     />
                   </div>
@@ -944,7 +994,7 @@ export default function ActionsClient() {
                     <Input
                       id="act-linkedFmea"
                       value={form.linkedFmea}
-                      onChange={e => updateForm('linkedFmea', e.target.value)}
+                      onChange={(e) => updateForm('linkedFmea', e.target.value)}
                       placeholder="FMEA reference"
                     />
                   </div>
@@ -989,33 +1039,46 @@ export default function ActionsClient() {
                   {aiAnalysis && (
                     <div className="space-y-3 mt-4">
                       <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Risk Level</p>
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                          Risk Level
+                        </p>
                         <p className="text-sm text-gray-800">{aiAnalysis.riskLevel}</p>
                       </div>
                       <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Suggested Priority</p>
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                          Suggested Priority
+                        </p>
                         <p className="text-sm text-gray-800">{aiAnalysis.suggestedPriority}</p>
                       </div>
                       <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Potential Impact</p>
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                          Potential Impact
+                        </p>
                         <p className="text-sm text-gray-800">{aiAnalysis.potentialImpact}</p>
                       </div>
                       <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Suggested Timeline</p>
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                          Suggested Timeline
+                        </p>
                         <p className="text-sm text-gray-800">{aiAnalysis.suggestedTimeline}</p>
                       </div>
-                      {aiAnalysis.recommendedActions && aiAnalysis.recommendedActions.length > 0 && (
-                        <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Recommended Steps</p>
-                          <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
-                            {aiAnalysis.recommendedActions.map((rec, idx) => (
-                              <li key={idx}>{rec}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                      {aiAnalysis.recommendedActions &&
+                        aiAnalysis.recommendedActions.length > 0 && (
+                          <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
+                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                              Recommended Steps
+                            </p>
+                            <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
+                              {aiAnalysis.recommendedActions.map((rec, idx) => (
+                                <li key={idx}>{rec}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100">
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Compliance Notes</p>
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                          Compliance Notes
+                        </p>
                         <p className="text-sm text-gray-800">{aiAnalysis.complianceNotes}</p>
                       </div>
                     </div>
@@ -1033,7 +1096,7 @@ export default function ActionsClient() {
                     type="button"
                     variant="outline"
                     onClick={() => {
-                      const idx = sections.findIndex(s => s.key === activeSection);
+                      const idx = sections.findIndex((s) => s.key === activeSection);
                       if (idx > 0) setActiveSection(sections[idx - 1].key);
                     }}
                   >
@@ -1049,7 +1112,7 @@ export default function ActionsClient() {
                   <Button
                     type="button"
                     onClick={() => {
-                      const idx = sections.findIndex(s => s.key === activeSection);
+                      const idx = sections.findIndex((s) => s.key === activeSection);
                       if (idx < sections.length - 1) setActiveSection(sections[idx + 1].key);
                     }}
                   >

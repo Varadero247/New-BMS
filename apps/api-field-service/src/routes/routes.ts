@@ -14,7 +14,10 @@ router.use(authenticate);
 
 const routeCreateSchema = z.object({
   technicianId: z.string().trim().uuid(),
-  date: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  date: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   stops: z.array(z.any()),
   optimizedOrder: z.array(z.any()).optional().nullable(),
   totalDistance: z.number().nonnegative().optional().nullable(),
@@ -60,7 +63,13 @@ router.get('/', async (req: Request, res: Response) => {
     if (status) where.status = String(status);
 
     const [data, total] = await Promise.all([
-      prisma.fsSvcRoute.findMany({ where, skip, take: limit, orderBy: { date: 'desc' }, include: { technician: true } }),
+      prisma.fsSvcRoute.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { date: 'desc' },
+        include: { technician: true },
+      }),
       prisma.fsSvcRoute.count({ where }),
     ]);
 
@@ -70,8 +79,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list routes', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list routes' } });
+    logger.error('Failed to list routes', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list routes' },
+    });
   }
 });
 
@@ -82,9 +96,13 @@ router.get('/optimize/:technicianId/:date', async (req: Request, res: Response) 
   try {
     const { technicianId, date } = req.params;
 
-    const technician = await prisma.fsSvcTechnician.findFirst({ where: { id: technicianId, deletedAt: null } as any });
+    const technician = await prisma.fsSvcTechnician.findFirst({
+      where: { id: technicianId, deletedAt: null } as any,
+    });
     if (!technician) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
     }
 
     const d = new Date(date);
@@ -99,7 +117,8 @@ router.get('/optimize/:technicianId/:date', async (req: Request, res: Response) 
       },
       include: { site: true, customer: true },
       orderBy: { scheduledStart: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Simple optimization: order by scheduled start time
     const optimizedStops = jobs.map((job, index) => ({
@@ -123,8 +142,13 @@ router.get('/optimize/:technicianId/:date', async (req: Request, res: Response) 
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to optimize route', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to optimize route' } });
+    logger.error('Failed to optimize route', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to optimize route' },
+    });
   }
 });
 
@@ -135,7 +159,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = routeCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -145,15 +172,22 @@ router.post('/', async (req: Request, res: Response) => {
         date: new Date(parsed.data.date),
         stops: parsed.data.stops as any,
         optimizedOrder: parsed.data.optimizedOrder as any,
-        totalDistance: parsed.data.totalDistance ? new Prisma.Decimal(parsed.data.totalDistance) : null,
+        totalDistance: parsed.data.totalDistance
+          ? new Prisma.Decimal(parsed.data.totalDistance)
+          : null,
         createdBy: authReq.user!.id,
       },
     });
 
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to create route', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create route' } });
+    logger.error('Failed to create route', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create route' },
+    });
   }
 });
 
@@ -169,12 +203,18 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!data) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Route not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Route not found' } });
     }
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to get route', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get route' } });
+    logger.error('Failed to get route', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get route' } });
   }
 });
 
@@ -183,26 +223,42 @@ router.get('/:id', async (req: Request, res: Response, next) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcRoute.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSvcRoute.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Route not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Route not found' } });
     }
 
     const parsed = routeUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+      });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.stops) updateData.stops = parsed.data.stops as any;
-    if (parsed.data.optimizedOrder !== undefined) updateData.optimizedOrder = parsed.data.optimizedOrder as any;
-    if (parsed.data.totalDistance !== undefined) updateData.totalDistance = parsed.data.totalDistance ? new Prisma.Decimal(parsed.data.totalDistance) : null;
+    if (parsed.data.optimizedOrder !== undefined)
+      updateData.optimizedOrder = parsed.data.optimizedOrder as any;
+    if (parsed.data.totalDistance !== undefined)
+      updateData.totalDistance = parsed.data.totalDistance
+        ? new Prisma.Decimal(parsed.data.totalDistance)
+        : null;
 
     const data = await prisma.fsSvcRoute.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to update route', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update route' } });
+    logger.error('Failed to update route', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update route' },
+    });
   }
 });
 
@@ -211,16 +267,28 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcRoute.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSvcRoute.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Route not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Route not found' } });
     }
 
-    await prisma.fsSvcRoute.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.fsSvcRoute.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Route deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete route', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete route' } });
+    logger.error('Failed to delete route', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete route' },
+    });
   }
 });
 

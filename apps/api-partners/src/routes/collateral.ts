@@ -5,7 +5,6 @@ import { prisma } from '../prisma';
 import { type AuthRequest } from '@ims/auth';
 import { validateIdParam } from '@ims/shared';
 
-
 const logger = createLogger('api-partners:collateral');
 const router = Router();
 router.param('id', validateIdParam());
@@ -43,7 +42,8 @@ router.get('/', async (req: Request, res: Response) => {
     const collateral = await portalPrisma.mktPartnerCollateral.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: collateral });
   } catch (error) {

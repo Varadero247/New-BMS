@@ -40,7 +40,12 @@ beforeEach(() => {
 describe('GET /api/customer/invoices', () => {
   it('should list invoices with pagination', async () => {
     const items = [
-      { id: '00000000-0000-0000-0000-000000000001', orderNumber: 'ORD-001', type: 'SALES', totalAmount: 100 },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        orderNumber: 'ORD-001',
+        type: 'SALES',
+        totalAmount: 100,
+      },
     ];
     (prisma as any).portalOrder.findMany.mockResolvedValue(items);
     (prisma as any).portalOrder.count.mockResolvedValue(1);
@@ -76,10 +81,16 @@ describe('GET /api/customer/invoices', () => {
 
 describe('GET /api/customer/invoices/:id', () => {
   it('should return an invoice', async () => {
-    const invoice = { id: '00000000-0000-0000-0000-000000000001', orderNumber: 'ORD-001', portalUserId: 'user-123' };
+    const invoice = {
+      id: '00000000-0000-0000-0000-000000000001',
+      orderNumber: 'ORD-001',
+      portalUserId: 'user-123',
+    };
     (prisma as any).portalOrder.findFirst.mockResolvedValue(invoice);
 
-    const res = await request(app).get('/api/customer/invoices/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/customer/invoices/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
@@ -88,7 +99,9 @@ describe('GET /api/customer/invoices/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma as any).portalOrder.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/customer/invoices/00000000-0000-0000-0000-000000000099');
+    const res = await request(app).get(
+      '/api/customer/invoices/00000000-0000-0000-0000-000000000099'
+    );
 
     expect(res.status).toBe(404);
   });
@@ -96,9 +109,17 @@ describe('GET /api/customer/invoices/:id', () => {
 
 describe('POST /api/customer/invoices/:id/pay', () => {
   it('should record payment intent', async () => {
-    const invoice = { id: '00000000-0000-0000-0000-000000000001', orderNumber: 'ORD-001', portalUserId: 'user-123', notes: null };
+    const invoice = {
+      id: '00000000-0000-0000-0000-000000000001',
+      orderNumber: 'ORD-001',
+      portalUserId: 'user-123',
+      notes: null,
+    };
     (prisma as any).portalOrder.findFirst.mockResolvedValue(invoice);
-    (prisma as any).portalOrder.update.mockResolvedValue({ ...invoice, notes: 'Payment intent: BANK_TRANSFER' });
+    (prisma as any).portalOrder.update.mockResolvedValue({
+      ...invoice,
+      notes: 'Payment intent: BANK_TRANSFER',
+    });
 
     const res = await request(app)
       .post('/api/customer/invoices/00000000-0000-0000-0000-000000000001/pay')

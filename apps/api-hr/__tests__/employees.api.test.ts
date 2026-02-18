@@ -72,7 +72,12 @@ describe('HR Employees API Routes', () => {
         employmentStatus: 'ACTIVE',
         department: { id: '2b000000-0000-4000-a000-000000000001', name: 'Engineering' },
         position: { id: '2b100000-0000-4000-a000-000000000001', title: 'Software Developer' },
-        manager: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager', employeeNumber: 'MGR001' },
+        manager: {
+          id: '53000000-0000-4000-a000-000000000001',
+          firstName: 'Jane',
+          lastName: 'Manager',
+          employeeNumber: 'MGR001',
+        },
         _count: { subordinates: 0 },
       },
       {
@@ -233,9 +238,33 @@ describe('HR Employees API Routes', () => {
 
   describe('GET /api/employees/org-chart', () => {
     const mockOrgEmployees = [
-      { id: '53000000-0000-4000-a000-000000000010', firstName: 'CEO', lastName: 'Boss', jobTitle: 'CEO', departmentId: '2b000000-0000-4000-a000-000000000010', managerId: null, department: { name: 'Executive' } },
-      { id: '53000000-0000-4000-a000-000000000011', firstName: 'VP', lastName: 'Sales', jobTitle: 'VP Sales', departmentId: '2b000000-0000-4000-a000-000000000011', managerId: '53000000-0000-4000-a000-000000000010', department: { name: 'Sales' } },
-      { id: '53000000-0000-4000-a000-000000000001', firstName: 'Manager', lastName: 'One', jobTitle: 'Sales Manager', departmentId: '2b000000-0000-4000-a000-000000000011', managerId: '53000000-0000-4000-a000-000000000011', department: { name: 'Sales' } },
+      {
+        id: '53000000-0000-4000-a000-000000000010',
+        firstName: 'CEO',
+        lastName: 'Boss',
+        jobTitle: 'CEO',
+        departmentId: '2b000000-0000-4000-a000-000000000010',
+        managerId: null,
+        department: { name: 'Executive' },
+      },
+      {
+        id: '53000000-0000-4000-a000-000000000011',
+        firstName: 'VP',
+        lastName: 'Sales',
+        jobTitle: 'VP Sales',
+        departmentId: '2b000000-0000-4000-a000-000000000011',
+        managerId: '53000000-0000-4000-a000-000000000010',
+        department: { name: 'Sales' },
+      },
+      {
+        id: '53000000-0000-4000-a000-000000000001',
+        firstName: 'Manager',
+        lastName: 'One',
+        jobTitle: 'Sales Manager',
+        departmentId: '2b000000-0000-4000-a000-000000000011',
+        managerId: '53000000-0000-4000-a000-000000000011',
+        department: { name: 'Sales' },
+      },
     ];
 
     it('should return hierarchical org chart', async () => {
@@ -276,9 +305,16 @@ describe('HR Employees API Routes', () => {
   describe('GET /api/employees/stats', () => {
     beforeEach(() => {
       mockPrisma.employee.count.mockResolvedValue(10);
-      mockPrisma.employee.groupBy.mockResolvedValue([{ departmentId: 'd1', _count: { id: 5 } }] as any);
-      mockPrisma.hRDepartment.findMany.mockResolvedValue([{ id: 'd1', name: 'Engineering' }] as any);
-      mockPrisma.employeeSalary.aggregate.mockResolvedValue({ _avg: { baseSalary: 50000 }, _sum: { baseSalary: 500000 } } as any);
+      mockPrisma.employee.groupBy.mockResolvedValue([
+        { departmentId: 'd1', _count: { id: 5 } },
+      ] as any);
+      mockPrisma.hRDepartment.findMany.mockResolvedValue([
+        { id: 'd1', name: 'Engineering' },
+      ] as any);
+      mockPrisma.employeeSalary.aggregate.mockResolvedValue({
+        _avg: { baseSalary: 50000 },
+        _sum: { baseSalary: 500000 },
+      } as any);
     });
 
     it('should return employee statistics', async () => {
@@ -319,7 +355,11 @@ describe('HR Employees API Routes', () => {
       workEmail: 'john@company.com',
       department: { id: '2b000000-0000-4000-a000-000000000001', name: 'Engineering' },
       position: { id: '2b100000-0000-4000-a000-000000000001', title: 'Developer' },
-      manager: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
+      manager: {
+        id: '53000000-0000-4000-a000-000000000001',
+        firstName: 'Jane',
+        lastName: 'Manager',
+      },
       subordinates: [],
       leaveBalances: [],
       documents: [],
@@ -331,7 +371,9 @@ describe('HR Employees API Routes', () => {
     it('should return single employee with full details', async () => {
       mockPrisma.employee.findUnique.mockResolvedValueOnce(mockEmployee as any);
 
-      const response = await request(app).get('/api/employees/2a000000-0000-4000-a000-000000000001');
+      const response = await request(app).get(
+        '/api/employees/2a000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -362,7 +404,9 @@ describe('HR Employees API Routes', () => {
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff employee', async () => {
       mockPrisma.employee.findUnique.mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/employees/00000000-0000-4000-a000-ffffffffffff');
+      const response = await request(app).get(
+        '/api/employees/00000000-0000-4000-a000-ffffffffffff'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -371,7 +415,9 @@ describe('HR Employees API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.employee.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/employees/2a000000-0000-4000-a000-000000000001');
+      const response = await request(app).get(
+        '/api/employees/2a000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -397,9 +443,7 @@ describe('HR Employees API Routes', () => {
         position: null,
       } as any);
 
-      const response = await request(app)
-        .post('/api/employees')
-        .send(createPayload);
+      const response = await request(app).post('/api/employees').send(createPayload);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -407,9 +451,7 @@ describe('HR Employees API Routes', () => {
     });
 
     it('should return 400 for missing required fields', async () => {
-      const response = await request(app)
-        .post('/api/employees')
-        .send({ firstName: 'Incomplete' });
+      const response = await request(app).post('/api/employees').send({ firstName: 'Incomplete' });
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -457,9 +499,7 @@ describe('HR Employees API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.employee.create.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .post('/api/employees')
-        .send(createPayload);
+      const response = await request(app).post('/api/employees').send(createPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -512,7 +552,9 @@ describe('HR Employees API Routes', () => {
         terminationDate: new Date(),
       } as any);
 
-      const response = await request(app).delete('/api/employees/2a000000-0000-4000-a000-000000000001');
+      const response = await request(app).delete(
+        '/api/employees/2a000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(204);
       expect(mockPrisma.employee.update).toHaveBeenCalledWith({
@@ -527,7 +569,9 @@ describe('HR Employees API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.employee.update.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).delete('/api/employees/2a000000-0000-4000-a000-000000000001');
+      const response = await request(app).delete(
+        '/api/employees/2a000000-0000-4000-a000-000000000001'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -549,7 +593,9 @@ describe('HR Employees API Routes', () => {
     it('should return direct reports', async () => {
       mockPrisma.employee.findMany.mockResolvedValueOnce(mockSubordinates as any);
 
-      const response = await request(app).get('/api/employees/53000000-0000-4000-a000-000000000001/subordinates');
+      const response = await request(app).get(
+        '/api/employees/53000000-0000-4000-a000-000000000001/subordinates'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -562,7 +608,11 @@ describe('HR Employees API Routes', () => {
       await request(app).get('/api/employees/53000000-0000-4000-a000-000000000001/subordinates');
 
       expect(mockPrisma.employee.findMany).toHaveBeenCalledWith({
-        where: { managerId: '53000000-0000-4000-a000-000000000001', employmentStatus: 'ACTIVE', deletedAt: null },
+        where: {
+          managerId: '53000000-0000-4000-a000-000000000001',
+          employmentStatus: 'ACTIVE',
+          deletedAt: null,
+        },
         include: expect.any(Object),
         take: 100,
         orderBy: { createdAt: 'desc' },
@@ -572,7 +622,9 @@ describe('HR Employees API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.employee.findMany.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/employees/53000000-0000-4000-a000-000000000001/subordinates');
+      const response = await request(app).get(
+        '/api/employees/53000000-0000-4000-a000-000000000001/subordinates'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');

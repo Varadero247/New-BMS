@@ -3,7 +3,13 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    cmmsPreventivePlan: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    cmmsPreventivePlan: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
   },
   Prisma: { Decimal: jest.fn((v: any) => v) },
 }));
@@ -98,12 +104,14 @@ describe('Preventive Plans Routes', () => {
     it('should create a plan', async () => {
       prisma.cmmsPreventivePlan.create.mockResolvedValue(mockPlan);
 
-      const res = await request(app).post('/api/preventive-plans').send({
-        name: 'Monthly Lubrication',
-        assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        frequency: 'MONTHLY',
-        tasks: [{ task: 'Lubricate bearings' }],
-      });
+      const res = await request(app)
+        .post('/api/preventive-plans')
+        .send({
+          name: 'Monthly Lubrication',
+          assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+          frequency: 'MONTHLY',
+          tasks: [{ task: 'Lubricate bearings' }],
+        });
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
     });
@@ -127,7 +135,9 @@ describe('Preventive Plans Routes', () => {
     it('should return a plan by ID', async () => {
       prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(mockPlan);
 
-      const res = await request(app).get('/api/preventive-plans/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).get(
+        '/api/preventive-plans/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
@@ -135,7 +145,9 @@ describe('Preventive Plans Routes', () => {
     it('should return 404 for non-existent plan', async () => {
       prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/preventive-plans/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).get(
+        '/api/preventive-plans/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
     });
   });
@@ -145,14 +157,18 @@ describe('Preventive Plans Routes', () => {
       prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(mockPlan);
       prisma.cmmsPreventivePlan.update.mockResolvedValue({ ...mockPlan, name: 'Updated' });
 
-      const res = await request(app).put('/api/preventive-plans/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
+      const res = await request(app)
+        .put('/api/preventive-plans/00000000-0000-0000-0000-000000000001')
+        .send({ name: 'Updated' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent plan', async () => {
       prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/preventive-plans/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
+      const res = await request(app)
+        .put('/api/preventive-plans/00000000-0000-0000-0000-000000000099')
+        .send({ name: 'Updated' });
       expect(res.status).toBe(404);
     });
   });
@@ -162,7 +178,9 @@ describe('Preventive Plans Routes', () => {
       prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(mockPlan);
       prisma.cmmsPreventivePlan.update.mockResolvedValue({ ...mockPlan, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/preventive-plans/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/preventive-plans/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -170,7 +188,9 @@ describe('Preventive Plans Routes', () => {
     it('should return 404 for non-existent plan', async () => {
       prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/preventive-plans/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/preventive-plans/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
     });
   });

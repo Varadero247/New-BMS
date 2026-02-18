@@ -12,7 +12,7 @@ export class StripeClient {
       const resp = await fetch(`${this.baseUrl}${path}`, {
         ...options,
         headers: {
-          'Authorization': `Bearer ${this.secretKey}`,
+          Authorization: `Bearer ${this.secretKey}`,
           'Content-Type': 'application/x-www-form-urlencoded',
           ...options.headers,
         },
@@ -28,13 +28,22 @@ export class StripeClient {
     return this.request(`/subscriptions?limit=${limit}&status=active`);
   }
 
-  async createCoupon(params: { percent_off: number; duration: string; duration_in_months?: number; max_redemptions?: number }) {
-    const body = new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)] as [string, string]));
+  async createCoupon(params: {
+    percent_off: number;
+    duration: string;
+    duration_in_months?: number;
+    max_redemptions?: number;
+  }) {
+    const body = new URLSearchParams(
+      Object.entries(params).map(([k, v]) => [k, String(v)] as [string, string])
+    );
     return this.request('/coupons', { method: 'POST', body: body.toString() });
   }
 
   async createTransfer(params: { amount: number; currency: string; destination: string }) {
-    const body = new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)] as [string, string]));
+    const body = new URLSearchParams(
+      Object.entries(params).map(([k, v]) => [k, String(v)] as [string, string])
+    );
     return this.request('/transfers', { method: 'POST', body: body.toString() });
   }
 

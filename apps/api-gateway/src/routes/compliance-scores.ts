@@ -48,10 +48,10 @@ const STANDARD_DEFINITIONS = [
     label: 'ISO 9001:2015',
     weight: 1.0,
     factors: [
-      { name: 'objectives_on_track', label: 'Quality Objectives On Track', weight: 0.30 },
+      { name: 'objectives_on_track', label: 'Quality Objectives On Track', weight: 0.3 },
       { name: 'open_ncs_ratio', label: 'Open NCs Ratio (low is good)', weight: 0.25 },
       { name: 'capa_closure_rate', label: 'CAPA Closure Rate', weight: 0.25 },
-      { name: 'audit_findings_closed', label: 'Audit Findings Closed', weight: 0.20 },
+      { name: 'audit_findings_closed', label: 'Audit Findings Closed', weight: 0.2 },
     ],
   },
   {
@@ -61,8 +61,8 @@ const STANDARD_DEFINITIONS = [
     factors: [
       { name: 'objectives_on_track', label: 'OHS Objectives On Track', weight: 0.25 },
       { name: 'incident_trend', label: 'Incident Trend (improving)', weight: 0.25 },
-      { name: 'legal_compliance', label: 'Legal Compliance', weight: 0.30 },
-      { name: 'capa_closure', label: 'CAPA Closure Rate', weight: 0.20 },
+      { name: 'legal_compliance', label: 'Legal Compliance', weight: 0.3 },
+      { name: 'capa_closure', label: 'CAPA Closure Rate', weight: 0.2 },
     ],
   },
   {
@@ -72,8 +72,8 @@ const STANDARD_DEFINITIONS = [
     factors: [
       { name: 'objectives_on_track', label: 'Environmental Objectives On Track', weight: 0.25 },
       { name: 'incident_trend', label: 'Environmental Incident Trend', weight: 0.25 },
-      { name: 'legal_compliance', label: 'Legal Compliance', weight: 0.30 },
-      { name: 'capa_closure', label: 'CAPA Closure Rate', weight: 0.20 },
+      { name: 'legal_compliance', label: 'Legal Compliance', weight: 0.3 },
+      { name: 'capa_closure', label: 'CAPA Closure Rate', weight: 0.2 },
     ],
   },
   {
@@ -227,12 +227,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     }
 
     // Calculate scores for each standard
-    const standards: StandardScore[] = STANDARD_DEFINITIONS.map(def => {
-      const { score, factors } = calculateStandardScore(
-        def.code,
-        def.factors,
-        overrides[def.code]
-      );
+    const standards: StandardScore[] = STANDARD_DEFINITIONS.map((def) => {
+      const { score, factors } = calculateStandardScore(def.code, def.factors, overrides[def.code]);
 
       return {
         code: def.code,
@@ -251,7 +247,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       totalWeightedScore += std.score * std.weight;
       totalWeight += std.weight;
     }
-    const overallScore = totalWeight > 0 ? Math.round((totalWeightedScore / totalWeight) * 10) / 10 : 0;
+    const overallScore =
+      totalWeight > 0 ? Math.round((totalWeightedScore / totalWeight) * 10) / 10 : 0;
 
     const response: ComplianceScoresResponse = {
       overall: {
@@ -282,7 +279,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 router.get('/standard/:code', async (req: AuthRequest, res: Response) => {
   try {
     const { code } = req.params;
-    const def = STANDARD_DEFINITIONS.find(s => s.code === code);
+    const def = STANDARD_DEFINITIONS.find((s) => s.code === code);
 
     if (!def) {
       return res.status(404).json({

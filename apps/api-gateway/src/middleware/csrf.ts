@@ -48,7 +48,14 @@ function getDefaultOptions(): Required<CsrfOptions> {
       path: '/',
       maxAge: 60 * 60 * 1000, // 1 hour
     },
-    ignorePaths: ['/auth/login', '/auth/register', '/v1/auth/login', '/v1/auth/register', '/health', '/metrics'],
+    ignorePaths: [
+      '/auth/login',
+      '/auth/register',
+      '/v1/auth/login',
+      '/v1/auth/register',
+      '/health',
+      '/metrics',
+    ],
     protectedMethods: ['POST', 'PUT', 'PATCH', 'DELETE'],
   };
 }

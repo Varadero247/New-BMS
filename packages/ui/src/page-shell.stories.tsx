@@ -31,7 +31,9 @@ export const Default: Story = {
     user: { name: 'John Smith', initials: 'JS' },
     children: (
       <div style={{ padding: '24px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>Risk Register</h1>
+        <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>
+          Risk Register
+        </h1>
         <p style={{ color: '#999' }}>Risk management content area.</p>
       </div>
     ),

@@ -18,7 +18,11 @@ const timeEntryCreateSchema = z.object({
   jobId: z.string().trim().uuid(),
   technicianId: z.string().trim().uuid(),
   type: z.enum(['TRAVEL', 'WORK', 'BREAK', 'ADMIN']),
-  startTime: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  startTime: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   endTime: z.string().optional().nullable(),
   duration: z.number().nonnegative().optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
@@ -58,7 +62,13 @@ router.get('/', async (req: Request, res: Response) => {
     if (type) where.type = String(type);
 
     const [data, total] = await Promise.all([
-      prisma.fsSvcTimeEntry.findMany({ where, skip, take: limit, orderBy: { startTime: 'desc' }, include: { job: true, technician: true } }),
+      prisma.fsSvcTimeEntry.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { startTime: 'desc' },
+        include: { job: true, technician: true },
+      }),
       prisma.fsSvcTimeEntry.count({ where }),
     ]);
 
@@ -68,8 +78,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list time entries', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list time entries' } });
+    logger.error('Failed to list time entries', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list time entries' },
+    });
   }
 });
 
@@ -90,10 +105,20 @@ router.get('/summary', async (req: Request, res: Response) => {
     const entries = await prisma.fsSvcTimeEntry.findMany({
       where,
       include: { technician: true },
-      take: 1000});
+      take: 1000,
+    });
 
     // Aggregate by technician
-    const summary: Record<string, { technicianId: string; technicianName: string; totalHours: number; billableHours: number; breakdown: Record<string, number> }> = {};
+    const summary: Record<
+      string,
+      {
+        technicianId: string;
+        technicianName: string;
+        totalHours: number;
+        billableHours: number;
+        breakdown: Record<string, number>;
+      }
+    > = {};
 
     for (const entry of entries) {
       const tid = entry.technicianId;
@@ -114,8 +139,13 @@ router.get('/summary', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: Object.values(summary) });
   } catch (error: unknown) {
-    logger.error('Failed to get time entries summary', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get time entries summary' } });
+    logger.error('Failed to get time entries summary', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get time entries summary' },
+    });
   }
 });
 
@@ -126,7 +156,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = timeEntryCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -142,8 +175,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to create time entry', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create time entry' } });
+    logger.error('Failed to create time entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create time entry' },
+    });
   }
 });
 
@@ -158,12 +196,19 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!data) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Time entry not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Time entry not found' } });
     }
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to get time entry', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get time entry' } });
+    logger.error('Failed to get time entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get time entry' },
+    });
   }
 });
 
@@ -172,26 +217,42 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcTimeEntry.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSvcTimeEntry.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Time entry not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Time entry not found' } });
     }
 
     const parsed = timeEntryUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+      });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.startTime) updateData.startTime = new Date(parsed.data.startTime);
     if (parsed.data.endTime) updateData.endTime = new Date(parsed.data.endTime);
-    if (parsed.data.duration !== undefined) updateData.duration = parsed.data.duration ? new Prisma.Decimal(parsed.data.duration) : null;
+    if (parsed.data.duration !== undefined)
+      updateData.duration = parsed.data.duration ? new Prisma.Decimal(parsed.data.duration) : null;
 
-    const data = await prisma.fsSvcTimeEntry.update({ where: { id: req.params.id }, data: updateData });
+    const data = await prisma.fsSvcTimeEntry.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to update time entry', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update time entry' } });
+    logger.error('Failed to update time entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update time entry' },
+    });
   }
 });
 
@@ -200,16 +261,28 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcTimeEntry.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSvcTimeEntry.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Time entry not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Time entry not found' } });
     }
 
-    await prisma.fsSvcTimeEntry.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.fsSvcTimeEntry.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Time entry deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete time entry', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete time entry' } });
+    logger.error('Failed to delete time entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete time entry' },
+    });
   }
 });
 

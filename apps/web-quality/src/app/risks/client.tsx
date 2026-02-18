@@ -2,14 +2,33 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
 } from '@ims/ui';
 import {
-  Plus, Users, AlertTriangle, Target, Lightbulb,
-  Search, ChevronDown, ChevronUp, Sparkles, Loader2,
-  Shield, FileWarning, TrendingUp,
+  Plus,
+  Users,
+  AlertTriangle,
+  Target,
+  Lightbulb,
+  Search,
+  ChevronDown,
+  ChevronUp,
+  Sparkles,
+  Loader2,
+  Shield,
+  FileWarning,
+  TrendingUp,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -115,12 +134,16 @@ const CONSEQUENCE_LABELS: Record<number, string> = {
   5: 'Catastrophic',
 };
 
-const TREATMENT_OPTIONS = [
-  'AVOID', 'REDUCE', 'TRANSFER', 'ACCEPT', 'EXPLOIT', 'SHARE',
-] as const;
+const TREATMENT_OPTIONS = ['AVOID', 'REDUCE', 'TRANSFER', 'ACCEPT', 'EXPLOIT', 'SHARE'] as const;
 
 const RISK_STATUSES = ['OPEN', 'IN_PROGRESS', 'MITIGATED', 'CLOSED', 'ACCEPTED'] as const;
-const OPPORTUNITY_STATUSES = ['IDENTIFIED', 'EVALUATING', 'PURSUING', 'REALIZED', 'CLOSED'] as const;
+const OPPORTUNITY_STATUSES = [
+  'IDENTIFIED',
+  'EVALUATING',
+  'PURSUING',
+  'REALIZED',
+  'CLOSED',
+] as const;
 
 const PROCESS_OPTIONS = [
   'Leadership & Planning',
@@ -155,7 +178,9 @@ function getRiskLevel(factor: number): string {
   return 'EXTREME';
 }
 
-function getRiskFactorBadgeVariant(factor: number): 'success' | 'warning' | 'danger' | 'destructive' {
+function getRiskFactorBadgeVariant(
+  factor: number
+): 'success' | 'warning' | 'danger' | 'destructive' {
   if (factor <= 6) return 'success';
   if (factor <= 14) return 'warning';
   if (factor <= 24) return 'danger';
@@ -373,108 +398,120 @@ export default function RisksClient() {
   // Submit handlers
   // ---------------------------------------------------------------------------
 
-  const handleSubmitParty = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmittingParty(true);
-    setError('');
-    try {
-      await api.post('/parties', partyForm);
-      setShowPartyModal(false);
-      setPartyForm(emptyPartyForm);
-      fetchParties();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create interested party');
-      console.error('Failed to create party:', err);
-    } finally {
-      setSubmittingParty(false);
-    }
-  }, [partyForm, fetchParties]);
+  const handleSubmitParty = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmittingParty(true);
+      setError('');
+      try {
+        await api.post('/parties', partyForm);
+        setShowPartyModal(false);
+        setPartyForm(emptyPartyForm);
+        fetchParties();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create interested party');
+        console.error('Failed to create party:', err);
+      } finally {
+        setSubmittingParty(false);
+      }
+    },
+    [partyForm, fetchParties]
+  );
 
-  const handleSubmitIssue = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmittingIssue(true);
-    setError('');
-    try {
-      await api.post('/issues', issueForm);
-      setShowIssueModal(false);
-      setIssueForm(emptyIssueForm);
-      fetchIssues();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create issue');
-      console.error('Failed to create issue:', err);
-    } finally {
-      setSubmittingIssue(false);
-    }
-  }, [issueForm, fetchIssues]);
+  const handleSubmitIssue = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmittingIssue(true);
+      setError('');
+      try {
+        await api.post('/issues', issueForm);
+        setShowIssueModal(false);
+        setIssueForm(emptyIssueForm);
+        fetchIssues();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create issue');
+        console.error('Failed to create issue:', err);
+      } finally {
+        setSubmittingIssue(false);
+      }
+    },
+    [issueForm, fetchIssues]
+  );
 
-  const handleSubmitRisk = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmittingRisk(true);
-    setError('');
-    try {
-      const consequences = [
-        riskForm.lossOfContracts,
-        riskForm.harmToUser,
-        riskForm.unableToMeetTerms,
-        riskForm.violationOfRegulations,
-        riskForm.reputationImpact,
-        riskForm.costOfCorrection,
-      ];
-      const riskFactor = calculateRiskFactor(riskForm.likelihood, consequences);
-      const riskLevel = getRiskLevel(riskFactor);
+  const handleSubmitRisk = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmittingRisk(true);
+      setError('');
+      try {
+        const consequences = [
+          riskForm.lossOfContracts,
+          riskForm.harmToUser,
+          riskForm.unableToMeetTerms,
+          riskForm.violationOfRegulations,
+          riskForm.reputationImpact,
+          riskForm.costOfCorrection,
+        ];
+        const riskFactor = calculateRiskFactor(riskForm.likelihood, consequences);
+        const riskLevel = getRiskLevel(riskFactor);
 
-      await api.post('/risks', {
-        ...riskForm,
-        riskFactor,
-        riskLevel,
-        dueDate: riskForm.dueDate || undefined,
-        reviewDate: riskForm.reviewDate || undefined,
-      });
-      setShowRiskModal(false);
-      setRiskForm(emptyRiskForm);
-      setRiskAiAnalysis('');
-      setRiskAiExpanded(false);
-      fetchRisks();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create risk');
-      console.error('Failed to create risk:', err);
-    } finally {
-      setSubmittingRisk(false);
-    }
-  }, [riskForm, fetchRisks]);
+        await api.post('/risks', {
+          ...riskForm,
+          riskFactor,
+          riskLevel,
+          dueDate: riskForm.dueDate || undefined,
+          reviewDate: riskForm.reviewDate || undefined,
+        });
+        setShowRiskModal(false);
+        setRiskForm(emptyRiskForm);
+        setRiskAiAnalysis('');
+        setRiskAiExpanded(false);
+        fetchRisks();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create risk');
+        console.error('Failed to create risk:', err);
+      } finally {
+        setSubmittingRisk(false);
+      }
+    },
+    [riskForm, fetchRisks]
+  );
 
-  const handleSubmitOpportunity = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmittingOpportunity(true);
-    setError('');
-    try {
-      const benefits = [
-        opportunityForm.benefitToCustomer,
-        opportunityForm.revenueGrowth,
-        opportunityForm.marketExpansion,
-        opportunityForm.processImprovement,
-        opportunityForm.complianceAdvantage,
-        opportunityForm.reputationGain,
-      ];
-      const opportunityScore = calculateOpportunityScore(opportunityForm.likelihood, benefits);
+  const handleSubmitOpportunity = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmittingOpportunity(true);
+      setError('');
+      try {
+        const benefits = [
+          opportunityForm.benefitToCustomer,
+          opportunityForm.revenueGrowth,
+          opportunityForm.marketExpansion,
+          opportunityForm.processImprovement,
+          opportunityForm.complianceAdvantage,
+          opportunityForm.reputationGain,
+        ];
+        const opportunityScore = calculateOpportunityScore(opportunityForm.likelihood, benefits);
 
-      await api.post('/opportunities', {
-        ...opportunityForm,
-        opportunityScore,
-        targetDate: opportunityForm.targetDate || undefined,
-      });
-      setShowOpportunityModal(false);
-      setOpportunityForm(emptyOpportunityForm);
-      setOpportunityAiAnalysis('');
-      setOpportunityAiExpanded(false);
-      fetchOpportunities();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create opportunity');
-      console.error('Failed to create opportunity:', err);
-    } finally {
-      setSubmittingOpportunity(false);
-    }
-  }, [opportunityForm, fetchOpportunities]);
+        await api.post('/opportunities', {
+          ...opportunityForm,
+          opportunityScore,
+          targetDate: opportunityForm.targetDate || undefined,
+        });
+        setShowOpportunityModal(false);
+        setOpportunityForm(emptyOpportunityForm);
+        setOpportunityAiAnalysis('');
+        setOpportunityAiExpanded(false);
+        fetchOpportunities();
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create opportunity');
+        console.error('Failed to create opportunity:', err);
+      } finally {
+        setSubmittingOpportunity(false);
+      }
+    },
+    [opportunityForm, fetchOpportunities]
+  );
 
   // ---------------------------------------------------------------------------
   // AI analysis handlers
@@ -545,9 +582,13 @@ export default function RisksClient() {
     ];
     return calculateRiskFactor(riskForm.likelihood, consequences);
   }, [
-    riskForm.likelihood, riskForm.lossOfContracts, riskForm.harmToUser,
-    riskForm.unableToMeetTerms, riskForm.violationOfRegulations,
-    riskForm.reputationImpact, riskForm.costOfCorrection,
+    riskForm.likelihood,
+    riskForm.lossOfContracts,
+    riskForm.harmToUser,
+    riskForm.unableToMeetTerms,
+    riskForm.violationOfRegulations,
+    riskForm.reputationImpact,
+    riskForm.costOfCorrection,
   ]);
 
   const computedRiskLevel = useMemo(() => getRiskLevel(computedRiskFactor), [computedRiskFactor]);
@@ -563,9 +604,12 @@ export default function RisksClient() {
     ];
     return calculateOpportunityScore(opportunityForm.likelihood, benefits);
   }, [
-    opportunityForm.likelihood, opportunityForm.benefitToCustomer,
-    opportunityForm.revenueGrowth, opportunityForm.marketExpansion,
-    opportunityForm.processImprovement, opportunityForm.complianceAdvantage,
+    opportunityForm.likelihood,
+    opportunityForm.benefitToCustomer,
+    opportunityForm.revenueGrowth,
+    opportunityForm.marketExpansion,
+    opportunityForm.processImprovement,
+    opportunityForm.complianceAdvantage,
     opportunityForm.reputationGain,
   ]);
 
@@ -573,61 +617,111 @@ export default function RisksClient() {
   // Filtered data
   // ---------------------------------------------------------------------------
 
-  const filteredParties = useMemo(() => parties.filter(p => {
-    if (partyTypeFilter !== 'all' && p.partyType !== partyTypeFilter) return false;
-    if (partySearch && !p.partyName.toLowerCase().includes(partySearch.toLowerCase())) return false;
-    return true;
-  }), [parties, partyTypeFilter, partySearch]);
+  const filteredParties = useMemo(
+    () =>
+      parties.filter((p) => {
+        if (partyTypeFilter !== 'all' && p.partyType !== partyTypeFilter) return false;
+        if (partySearch && !p.partyName.toLowerCase().includes(partySearch.toLowerCase()))
+          return false;
+        return true;
+      }),
+    [parties, partyTypeFilter, partySearch]
+  );
 
-  const filteredIssues = useMemo(() => issues.filter(i => {
-    if (issueBiasFilter !== 'all' && i.bias !== issueBiasFilter) return false;
-    if (issuePriorityFilter !== 'all' && i.priority !== issuePriorityFilter) return false;
-    if (issueSearch && !i.issueOfConcern.toLowerCase().includes(issueSearch.toLowerCase())) return false;
-    return true;
-  }), [issues, issueBiasFilter, issuePriorityFilter, issueSearch]);
+  const filteredIssues = useMemo(
+    () =>
+      issues.filter((i) => {
+        if (issueBiasFilter !== 'all' && i.bias !== issueBiasFilter) return false;
+        if (issuePriorityFilter !== 'all' && i.priority !== issuePriorityFilter) return false;
+        if (issueSearch && !i.issueOfConcern.toLowerCase().includes(issueSearch.toLowerCase()))
+          return false;
+        return true;
+      }),
+    [issues, issueBiasFilter, issuePriorityFilter, issueSearch]
+  );
 
-  const filteredRisks = useMemo(() => risks.filter(r => {
-    if (riskStatusFilter !== 'all' && r.status !== riskStatusFilter) return false;
-    if (riskSearch && !r.riskDescription.toLowerCase().includes(riskSearch.toLowerCase()) &&
-        !r.process.toLowerCase().includes(riskSearch.toLowerCase())) return false;
-    return true;
-  }), [risks, riskStatusFilter, riskSearch]);
+  const filteredRisks = useMemo(
+    () =>
+      risks.filter((r) => {
+        if (riskStatusFilter !== 'all' && r.status !== riskStatusFilter) return false;
+        if (
+          riskSearch &&
+          !r.riskDescription.toLowerCase().includes(riskSearch.toLowerCase()) &&
+          !r.process.toLowerCase().includes(riskSearch.toLowerCase())
+        )
+          return false;
+        return true;
+      }),
+    [risks, riskStatusFilter, riskSearch]
+  );
 
-  const filteredOpportunities = useMemo(() => opportunities.filter(o => {
-    if (opportunityStatusFilter !== 'all' && o.status !== opportunityStatusFilter) return false;
-    if (opportunitySearch && !o.opportunityDescription.toLowerCase().includes(opportunitySearch.toLowerCase()) &&
-        !o.process.toLowerCase().includes(opportunitySearch.toLowerCase())) return false;
-    return true;
-  }), [opportunities, opportunityStatusFilter, opportunitySearch]);
+  const filteredOpportunities = useMemo(
+    () =>
+      opportunities.filter((o) => {
+        if (opportunityStatusFilter !== 'all' && o.status !== opportunityStatusFilter) return false;
+        if (
+          opportunitySearch &&
+          !o.opportunityDescription.toLowerCase().includes(opportunitySearch.toLowerCase()) &&
+          !o.process.toLowerCase().includes(opportunitySearch.toLowerCase())
+        )
+          return false;
+        return true;
+      }),
+    [opportunities, opportunityStatusFilter, opportunitySearch]
+  );
 
   // ---------------------------------------------------------------------------
   // Summary stats
   // ---------------------------------------------------------------------------
 
-  const summaryStats = useMemo(() => ({
-    totalParties: parties.length,
-    internalParties: parties.filter(p => p.partyType === 'INTERNAL').length,
-    externalParties: parties.filter(p => p.partyType === 'EXTERNAL').length,
-    totalIssues: issues.length,
-    riskIssues: issues.filter(i => i.bias === 'RISK').length,
-    highPriorityIssues: issues.filter(i => i.priority === 'HIGH' || i.priority === 'CRITICAL').length,
-    totalRisks: risks.length,
-    openRisks: risks.filter(r => r.status === 'OPEN' || r.status === 'IN_PROGRESS').length,
-    highRisks: risks.filter(r => r.riskFactor >= 15).length,
-    totalOpportunities: opportunities.length,
-    pursuingOpportunities: opportunities.filter(o => o.status === 'PURSUING').length,
-    realizedOpportunities: opportunities.filter(o => o.status === 'REALIZED').length,
-  }), [parties, issues, risks, opportunities]);
+  const summaryStats = useMemo(
+    () => ({
+      totalParties: parties.length,
+      internalParties: parties.filter((p) => p.partyType === 'INTERNAL').length,
+      externalParties: parties.filter((p) => p.partyType === 'EXTERNAL').length,
+      totalIssues: issues.length,
+      riskIssues: issues.filter((i) => i.bias === 'RISK').length,
+      highPriorityIssues: issues.filter((i) => i.priority === 'HIGH' || i.priority === 'CRITICAL')
+        .length,
+      totalRisks: risks.length,
+      openRisks: risks.filter((r) => r.status === 'OPEN' || r.status === 'IN_PROGRESS').length,
+      highRisks: risks.filter((r) => r.riskFactor >= 15).length,
+      totalOpportunities: opportunities.length,
+      pursuingOpportunities: opportunities.filter((o) => o.status === 'PURSUING').length,
+      realizedOpportunities: opportunities.filter((o) => o.status === 'REALIZED').length,
+    }),
+    [parties, issues, risks, opportunities]
+  );
 
   // ---------------------------------------------------------------------------
   // Tab definitions
   // ---------------------------------------------------------------------------
 
   const tabs: { key: TabKey; label: string; icon: React.ReactNode; count: number }[] = [
-    { key: 'parties', label: 'Interested Parties', icon: <Users className="h-4 w-4" />, count: parties.length },
-    { key: 'issues', label: 'Issues', icon: <FileWarning className="h-4 w-4" />, count: issues.length },
-    { key: 'risks', label: 'Risk Register', icon: <AlertTriangle className="h-4 w-4" />, count: risks.length },
-    { key: 'opportunities', label: 'Opportunities', icon: <Lightbulb className="h-4 w-4" />, count: opportunities.length },
+    {
+      key: 'parties',
+      label: 'Interested Parties',
+      icon: <Users className="h-4 w-4" />,
+      count: parties.length,
+    },
+    {
+      key: 'issues',
+      label: 'Issues',
+      icon: <FileWarning className="h-4 w-4" />,
+      count: issues.length,
+    },
+    {
+      key: 'risks',
+      label: 'Risk Register',
+      icon: <AlertTriangle className="h-4 w-4" />,
+      count: risks.length,
+    },
+    {
+      key: 'opportunities',
+      label: 'Opportunities',
+      icon: <Lightbulb className="h-4 w-4" />,
+      count: opportunities.length,
+    },
   ];
 
   // ---------------------------------------------------------------------------
@@ -650,8 +744,12 @@ export default function RisksClient() {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Risk & Opportunity Management</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">ISO 9001 Clause 6.1 -- Actions to address risks and opportunities</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Risk & Opportunity Management
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            ISO 9001 Clause 6.1 -- Actions to address risks and opportunities
+          </p>
         </div>
 
         {/* Summary Metrics */}
@@ -663,7 +761,8 @@ export default function RisksClient() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Interested Parties</p>
                   <p className="text-3xl font-bold">{summaryStats.totalParties}</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                    {summaryStats.internalParties} internal / {summaryStats.externalParties} external
+                    {summaryStats.internalParties} internal / {summaryStats.externalParties}{' '}
+                    external
                   </p>
                 </div>
                 <Users className="h-8 w-8 text-blue-500" />
@@ -703,7 +802,9 @@ export default function RisksClient() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Opportunities</p>
-                  <p className="text-3xl font-bold text-green-600">{summaryStats.totalOpportunities}</p>
+                  <p className="text-3xl font-bold text-green-600">
+                    {summaryStats.totalOpportunities}
+                  </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                     {summaryStats.realizedOpportunities} realized
                   </p>
@@ -729,9 +830,13 @@ export default function RisksClient() {
               >
                 {tab.icon}
                 {tab.label}
-                <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
-                  activeTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
-                }`}>
+                <span
+                  className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
+                    activeTab === tab.key
+                      ? 'bg-blue-100 text-blue-600'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
+                  }`}
+                >
                   {tab.count}
                 </span>
               </button>
@@ -758,14 +863,19 @@ export default function RisksClient() {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  aria-label="Search parties..." placeholder="Search parties..."
+                  aria-label="Search parties..."
+                  placeholder="Search parties..."
                   value={partySearch}
                   onChange={(e) => setPartySearch(e.target.value)}
                   className="pl-10"
                 />
               </div>
               <Button
-                onClick={() => { setPartyForm(emptyPartyForm); setError(''); setShowPartyModal(true); }}
+                onClick={() => {
+                  setPartyForm(emptyPartyForm);
+                  setError('');
+                  setShowPartyModal(true);
+                }}
                 className="flex items-center gap-2"
               >
                 <Plus className="h-4 w-4" />
@@ -774,7 +884,9 @@ export default function RisksClient() {
             </div>
 
             {/* Party list */}
-            {loadingParties ? <LoadingSpinner /> : filteredParties.length > 0 ? (
+            {loadingParties ? (
+              <LoadingSpinner />
+            ) : filteredParties.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredParties.map((party) => (
                   <Card key={party.id} className="hover:shadow-md transition-shadow">
@@ -787,7 +899,9 @@ export default function RisksClient() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{party.needsExpectations}</p>
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                        {party.needsExpectations}
+                      </p>
                       <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
                         <span>Review: {party.reviewFrequency?.replace('_', ' ')}</span>
                         <span>{party.communicationMethod}</span>
@@ -799,9 +913,19 @@ export default function RisksClient() {
             ) : (
               <div className="text-center py-16">
                 <Users className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No interested parties found</h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-6">Start by identifying the interested parties relevant to your QMS.</p>
-                <Button onClick={() => { setPartyForm(emptyPartyForm); setError(''); setShowPartyModal(true); }}>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  No interested parties found
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">
+                  Start by identifying the interested parties relevant to your QMS.
+                </p>
+                <Button
+                  onClick={() => {
+                    setPartyForm(emptyPartyForm);
+                    setError('');
+                    setShowPartyModal(true);
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add First Party
                 </Button>
@@ -823,8 +947,10 @@ export default function RisksClient() {
                 className="w-40"
               >
                 <option value="all">All Bias</option>
-                {BIAS_OPTIONS.map(b => (
-                  <option key={b} value={b}>{b}</option>
+                {BIAS_OPTIONS.map((b) => (
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
                 ))}
               </Select>
               <Select
@@ -833,21 +959,28 @@ export default function RisksClient() {
                 className="w-40"
               >
                 <option value="all">All Priorities</option>
-                {PRIORITY_OPTIONS.map(p => (
-                  <option key={p} value={p}>{p}</option>
+                {PRIORITY_OPTIONS.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
                 ))}
               </Select>
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  aria-label="Search issues..." placeholder="Search issues..."
+                  aria-label="Search issues..."
+                  placeholder="Search issues..."
                   value={issueSearch}
                   onChange={(e) => setIssueSearch(e.target.value)}
                   className="pl-10"
                 />
               </div>
               <Button
-                onClick={() => { setIssueForm(emptyIssueForm); setError(''); setShowIssueModal(true); }}
+                onClick={() => {
+                  setIssueForm(emptyIssueForm);
+                  setError('');
+                  setShowIssueModal(true);
+                }}
                 className="flex items-center gap-2"
               >
                 <Plus className="h-4 w-4" />
@@ -856,7 +989,9 @@ export default function RisksClient() {
             </div>
 
             {/* Issues list */}
-            {loadingIssues ? <LoadingSpinner /> : filteredIssues.length > 0 ? (
+            {loadingIssues ? (
+              <LoadingSpinner />
+            ) : filteredIssues.length > 0 ? (
               <div className="space-y-4">
                 {filteredIssues.map((issue) => (
                   <Card key={issue.id} className="hover:shadow-md transition-shadow">
@@ -865,21 +1000,33 @@ export default function RisksClient() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <Badge variant={getBiasVariant(issue.bias)}>{issue.bias}</Badge>
-                            <Badge variant={getPriorityVariant(issue.priority)}>{issue.priority}</Badge>
+                            <Badge variant={getPriorityVariant(issue.priority)}>
+                              {issue.priority}
+                            </Badge>
                             {issue.partyName && (
-                              <span className="text-xs text-gray-500 dark:text-gray-400">Party: {issue.partyName}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                Party: {issue.partyName}
+                              </span>
                             )}
                           </div>
-                          <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1">{issue.issueOfConcern}</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1">
+                            {issue.issueOfConcern}
+                          </h3>
                           {issue.processesAffected && (
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Processes: {issue.processesAffected}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              Processes: {issue.processesAffected}
+                            </p>
                           )}
                           {issue.treatmentMethod && (
-                            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Treatment: {issue.treatmentMethod}</p>
+                            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                              Treatment: {issue.treatmentMethod}
+                            </p>
                           )}
                         </div>
                         {issue.recordReference && (
-                          <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">{issue.recordReference}</span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">
+                            {issue.recordReference}
+                          </span>
                         )}
                       </div>
                     </CardContent>
@@ -889,9 +1036,19 @@ export default function RisksClient() {
             ) : (
               <div className="text-center py-16">
                 <FileWarning className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No issues registered</h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-6">Capture internal and external issues that affect your QMS.</p>
-                <Button onClick={() => { setIssueForm(emptyIssueForm); setError(''); setShowIssueModal(true); }}>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  No issues registered
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">
+                  Capture internal and external issues that affect your QMS.
+                </p>
+                <Button
+                  onClick={() => {
+                    setIssueForm(emptyIssueForm);
+                    setError('');
+                    setShowIssueModal(true);
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Register First Issue
                 </Button>
@@ -913,21 +1070,30 @@ export default function RisksClient() {
                 className="w-48"
               >
                 <option value="all">All Statuses</option>
-                {RISK_STATUSES.map(s => (
-                  <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                {RISK_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s.replace(/_/g, ' ')}
+                  </option>
                 ))}
               </Select>
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  aria-label="Search risks..." placeholder="Search risks..."
+                  aria-label="Search risks..."
+                  placeholder="Search risks..."
                   value={riskSearch}
                   onChange={(e) => setRiskSearch(e.target.value)}
                   className="pl-10"
                 />
               </div>
               <Button
-                onClick={() => { setRiskForm(emptyRiskForm); setRiskAiAnalysis(''); setRiskAiExpanded(false); setError(''); setShowRiskModal(true); }}
+                onClick={() => {
+                  setRiskForm(emptyRiskForm);
+                  setRiskAiAnalysis('');
+                  setRiskAiExpanded(false);
+                  setError('');
+                  setShowRiskModal(true);
+                }}
                 className="flex items-center gap-2"
               >
                 <Plus className="h-4 w-4" />
@@ -936,7 +1102,9 @@ export default function RisksClient() {
             </div>
 
             {/* Risks list */}
-            {loadingRisks ? <LoadingSpinner /> : filteredRisks.length > 0 ? (
+            {loadingRisks ? (
+              <LoadingSpinner />
+            ) : filteredRisks.length > 0 ? (
               <div className="space-y-4">
                 {filteredRisks.map((risk) => (
                   <Card key={risk.id} className="hover:shadow-md transition-shadow">
@@ -947,25 +1115,40 @@ export default function RisksClient() {
                             <Badge className={getRiskFactorColor(risk.riskFactor)}>
                               RF: {risk.riskFactor} ({risk.riskLevel})
                             </Badge>
-                            <Badge variant={
-                              risk.status === 'OPEN' ? 'danger' :
-                              risk.status === 'IN_PROGRESS' ? 'warning' :
-                              risk.status === 'MITIGATED' ? 'success' :
-                              risk.status === 'CLOSED' ? 'secondary' : 'info'
-                            }>
+                            <Badge
+                              variant={
+                                risk.status === 'OPEN'
+                                  ? 'danger'
+                                  : risk.status === 'IN_PROGRESS'
+                                    ? 'warning'
+                                    : risk.status === 'MITIGATED'
+                                      ? 'success'
+                                      : risk.status === 'CLOSED'
+                                        ? 'secondary'
+                                        : 'info'
+                              }
+                            >
                               {risk.status?.replace(/_/g, ' ')}
                             </Badge>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">{risk.process}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {risk.process}
+                            </span>
                           </div>
-                          <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1 line-clamp-2">{risk.riskDescription}</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1 line-clamp-2">
+                            {risk.riskDescription}
+                          </h3>
                           <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 dark:text-gray-500">
                             <span>Likelihood: {risk.likelihood}</span>
                             {risk.responsiblePerson && <span>Owner: {risk.responsiblePerson}</span>}
-                            {risk.dueDate && <span>Due: {new Date(risk.dueDate).toLocaleDateString()}</span>}
+                            {risk.dueDate && (
+                              <span>Due: {new Date(risk.dueDate).toLocaleDateString()}</span>
+                            )}
                             {risk.treatmentOption && <span>Treatment: {risk.treatmentOption}</span>}
                           </div>
                         </div>
-                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-sm font-bold ${getRiskFactorColor(risk.riskFactor)}`}>
+                        <div
+                          className={`w-12 h-12 rounded-lg flex items-center justify-center text-sm font-bold ${getRiskFactorColor(risk.riskFactor)}`}
+                        >
                           {risk.riskFactor}
                         </div>
                       </div>
@@ -976,9 +1159,21 @@ export default function RisksClient() {
             ) : (
               <div className="text-center py-16">
                 <Shield className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No risks in the register</h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-6">Identify and assess risks to your quality management system processes.</p>
-                <Button onClick={() => { setRiskForm(emptyRiskForm); setRiskAiAnalysis(''); setRiskAiExpanded(false); setError(''); setShowRiskModal(true); }}>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  No risks in the register
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">
+                  Identify and assess risks to your quality management system processes.
+                </p>
+                <Button
+                  onClick={() => {
+                    setRiskForm(emptyRiskForm);
+                    setRiskAiAnalysis('');
+                    setRiskAiExpanded(false);
+                    setError('');
+                    setShowRiskModal(true);
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Register First Risk
                 </Button>
@@ -1000,21 +1195,30 @@ export default function RisksClient() {
                 className="w-48"
               >
                 <option value="all">All Statuses</option>
-                {OPPORTUNITY_STATUSES.map(s => (
-                  <option key={s} value={s}>{s}</option>
+                {OPPORTUNITY_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
                 ))}
               </Select>
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input
-                  aria-label="Search opportunities..." placeholder="Search opportunities..."
+                  aria-label="Search opportunities..."
+                  placeholder="Search opportunities..."
                   value={opportunitySearch}
                   onChange={(e) => setOpportunitySearch(e.target.value)}
                   className="pl-10"
                 />
               </div>
               <Button
-                onClick={() => { setOpportunityForm(emptyOpportunityForm); setOpportunityAiAnalysis(''); setOpportunityAiExpanded(false); setError(''); setShowOpportunityModal(true); }}
+                onClick={() => {
+                  setOpportunityForm(emptyOpportunityForm);
+                  setOpportunityAiAnalysis('');
+                  setOpportunityAiExpanded(false);
+                  setError('');
+                  setShowOpportunityModal(true);
+                }}
                 className="flex items-center gap-2"
               >
                 <Plus className="h-4 w-4" />
@@ -1023,7 +1227,9 @@ export default function RisksClient() {
             </div>
 
             {/* Opportunities list */}
-            {loadingOpportunities ? <LoadingSpinner /> : filteredOpportunities.length > 0 ? (
+            {loadingOpportunities ? (
+              <LoadingSpinner />
+            ) : filteredOpportunities.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredOpportunities.map((opp) => (
                   <Card key={opp.id} className="hover:shadow-md transition-shadow">
@@ -1033,24 +1239,39 @@ export default function RisksClient() {
                           <Badge variant={getOpportunityScoreVariant(opp.opportunityScore)}>
                             Score: {opp.opportunityScore}
                           </Badge>
-                          <Badge variant={
-                            opp.status === 'REALIZED' ? 'success' :
-                            opp.status === 'PURSUING' ? 'info' :
-                            opp.status === 'EVALUATING' ? 'warning' :
-                            opp.status === 'CLOSED' ? 'secondary' : 'outline'
-                          }>
+                          <Badge
+                            variant={
+                              opp.status === 'REALIZED'
+                                ? 'success'
+                                : opp.status === 'PURSUING'
+                                  ? 'info'
+                                  : opp.status === 'EVALUATING'
+                                    ? 'warning'
+                                    : opp.status === 'CLOSED'
+                                      ? 'secondary'
+                                      : 'outline'
+                            }
+                          >
                             {opp.status}
                           </Badge>
                         </div>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{opp.process}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {opp.process}
+                        </span>
                       </div>
-                      <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">{opp.opportunityDescription}</h3>
+                      <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
+                        {opp.opportunityDescription}
+                      </h3>
                       {opp.actionToExploit && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">Action: {opp.actionToExploit}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
+                          Action: {opp.actionToExploit}
+                        </p>
                       )}
                       <div className="flex items-center gap-4 mt-3 text-xs text-gray-400 dark:text-gray-500">
                         {opp.responsiblePerson && <span>Owner: {opp.responsiblePerson}</span>}
-                        {opp.targetDate && <span>Target: {new Date(opp.targetDate).toLocaleDateString()}</span>}
+                        {opp.targetDate && (
+                          <span>Target: {new Date(opp.targetDate).toLocaleDateString()}</span>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -1059,9 +1280,21 @@ export default function RisksClient() {
             ) : (
               <div className="text-center py-16">
                 <Lightbulb className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No opportunities identified</h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-6">Capture opportunities for improvement aligned with your QMS objectives.</p>
-                <Button onClick={() => { setOpportunityForm(emptyOpportunityForm); setOpportunityAiAnalysis(''); setOpportunityAiExpanded(false); setError(''); setShowOpportunityModal(true); }}>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  No opportunities identified
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">
+                  Capture opportunities for improvement aligned with your QMS objectives.
+                </p>
+                <Button
+                  onClick={() => {
+                    setOpportunityForm(emptyOpportunityForm);
+                    setOpportunityAiAnalysis('');
+                    setOpportunityAiExpanded(false);
+                    setError('');
+                    setShowOpportunityModal(true);
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Identify First Opportunity
                 </Button>
@@ -1074,7 +1307,12 @@ export default function RisksClient() {
       {/* ==================================================================== */}
       {/* MODAL: Interested Party                                              */}
       {/* ==================================================================== */}
-      <Modal isOpen={showPartyModal} onClose={() => setShowPartyModal(false)} title="Add Interested Party" size="lg">
+      <Modal
+        isOpen={showPartyModal}
+        onClose={() => setShowPartyModal(false)}
+        title="Add Interested Party"
+        size="lg"
+      >
         <form onSubmit={handleSubmitParty}>
           <div className="max-h-[70vh] overflow-y-auto space-y-4 pr-2">
             {error && (
@@ -1102,8 +1340,10 @@ export default function RisksClient() {
                   value={partyForm.partyType}
                   onChange={(e) => setPartyForm({ ...partyForm, partyType: e.target.value })}
                 >
-                  {PARTY_TYPES.map(t => (
-                    <option key={t} value={t}>{t}</option>
+                  {PARTY_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -1114,8 +1354,10 @@ export default function RisksClient() {
                   value={partyForm.reviewFrequency}
                   onChange={(e) => setPartyForm({ ...partyForm, reviewFrequency: e.target.value })}
                 >
-                  {REVIEW_FREQUENCIES.map(f => (
-                    <option key={f} value={f}>{f.replace('_', ' ')}</option>
+                  {REVIEW_FREQUENCIES.map((f) => (
+                    <option key={f} value={f}>
+                      {f.replace('_', ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -1150,21 +1392,32 @@ export default function RisksClient() {
               <Select
                 id="ip-communicationMethod"
                 value={partyForm.communicationMethod}
-                onChange={(e) => setPartyForm({ ...partyForm, communicationMethod: e.target.value })}
+                onChange={(e) =>
+                  setPartyForm({ ...partyForm, communicationMethod: e.target.value })
+                }
               >
-                {COMMUNICATION_METHODS.map(m => (
-                  <option key={m} value={m}>{m}</option>
+                {COMMUNICATION_METHODS.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
                 ))}
               </Select>
             </div>
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowPartyModal(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setShowPartyModal(false)}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={submittingParty}>
               {submittingParty ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating...</span>
-              ) : 'Create Party'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                'Create Party'
+              )}
             </Button>
           </ModalFooter>
         </form>
@@ -1173,7 +1426,12 @@ export default function RisksClient() {
       {/* ==================================================================== */}
       {/* MODAL: Issue                                                         */}
       {/* ==================================================================== */}
-      <Modal isOpen={showIssueModal} onClose={() => setShowIssueModal(false)} title="Register Issue" size="lg">
+      <Modal
+        isOpen={showIssueModal}
+        onClose={() => setShowIssueModal(false)}
+        title="Register Issue"
+        size="lg"
+      >
         <form onSubmit={handleSubmitIssue}>
           <div className="max-h-[70vh] overflow-y-auto space-y-4 pr-2">
             {error && (
@@ -1191,8 +1449,10 @@ export default function RisksClient() {
                 required
               >
                 <option value="">-- Select Party --</option>
-                {parties.map(p => (
-                  <option key={p.id} value={p.id}>{p.partyName} ({p.partyType})</option>
+                {parties.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.partyName} ({p.partyType})
+                  </option>
                 ))}
               </Select>
             </div>
@@ -1217,8 +1477,10 @@ export default function RisksClient() {
                   value={issueForm.bias}
                   onChange={(e) => setIssueForm({ ...issueForm, bias: e.target.value })}
                 >
-                  {BIAS_OPTIONS.map(b => (
-                    <option key={b} value={b}>{b}</option>
+                  {BIAS_OPTIONS.map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -1229,8 +1491,10 @@ export default function RisksClient() {
                   value={issueForm.priority}
                   onChange={(e) => setIssueForm({ ...issueForm, priority: e.target.value })}
                 >
-                  {PRIORITY_OPTIONS.map(p => (
-                    <option key={p} value={p}>{p}</option>
+                  {PRIORITY_OPTIONS.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -1269,11 +1533,18 @@ export default function RisksClient() {
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowIssueModal(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setShowIssueModal(false)}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={submittingIssue}>
               {submittingIssue ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating...</span>
-              ) : 'Register Issue'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                'Register Issue'
+              )}
             </Button>
           </ModalFooter>
         </form>
@@ -1282,7 +1553,12 @@ export default function RisksClient() {
       {/* ==================================================================== */}
       {/* MODAL: Risk Register                                                 */}
       {/* ==================================================================== */}
-      <Modal isOpen={showRiskModal} onClose={() => setShowRiskModal(false)} title="Register Risk" size="full">
+      <Modal
+        isOpen={showRiskModal}
+        onClose={() => setShowRiskModal(false)}
+        title="Register Risk"
+        size="full"
+      >
         <form onSubmit={handleSubmitRisk}>
           <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
             {error && (
@@ -1306,8 +1582,10 @@ export default function RisksClient() {
                     required
                   >
                     <option value="">-- Select Process --</option>
-                    {PROCESS_OPTIONS.map(p => (
-                      <option key={p} value={p}>{p}</option>
+                    {PROCESS_OPTIONS.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -1336,10 +1614,14 @@ export default function RisksClient() {
                   <Select
                     id="risk-likelihood"
                     value={riskForm.likelihood}
-                    onChange={(e) => setRiskForm({ ...riskForm, likelihood: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setRiskForm({ ...riskForm, likelihood: parseInt(e.target.value) })
+                    }
                   >
-                    {[1, 2, 3, 4, 5, 6].map(n => (
-                      <option key={n} value={n}>{n} - {LIKELIHOOD_LABELS[n]}</option>
+                    {[1, 2, 3, 4, 5, 6].map((n) => (
+                      <option key={n} value={n}>
+                        {n} - {LIKELIHOOD_LABELS[n]}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -1348,7 +1630,9 @@ export default function RisksClient() {
                   <Input
                     id="risk-previousOccurrences"
                     value={riskForm.previousOccurrences}
-                    onChange={(e) => setRiskForm({ ...riskForm, previousOccurrences: e.target.value })}
+                    onChange={(e) =>
+                      setRiskForm({ ...riskForm, previousOccurrences: e.target.value })
+                    }
                     placeholder="Describe any previous occurrences"
                   />
                 </div>
@@ -1366,10 +1650,14 @@ export default function RisksClient() {
                   <Select
                     id="risk-lossOfContracts"
                     value={riskForm.lossOfContracts}
-                    onChange={(e) => setRiskForm({ ...riskForm, lossOfContracts: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setRiskForm({ ...riskForm, lossOfContracts: parseInt(e.target.value) })
+                    }
                   >
-                    {[0, 1, 2, 3, 4, 5].map(n => (
-                      <option key={n} value={n}>{n} - {CONSEQUENCE_LABELS[n]}</option>
+                    {[0, 1, 2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>
+                        {n} - {CONSEQUENCE_LABELS[n]}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -1378,10 +1666,14 @@ export default function RisksClient() {
                   <Select
                     id="risk-harmToUser"
                     value={riskForm.harmToUser}
-                    onChange={(e) => setRiskForm({ ...riskForm, harmToUser: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setRiskForm({ ...riskForm, harmToUser: parseInt(e.target.value) })
+                    }
                   >
-                    {[0, 1, 2, 3, 4, 5].map(n => (
-                      <option key={n} value={n}>{n} - {CONSEQUENCE_LABELS[n]}</option>
+                    {[0, 1, 2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>
+                        {n} - {CONSEQUENCE_LABELS[n]}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -1390,10 +1682,14 @@ export default function RisksClient() {
                   <Select
                     id="risk-unableToMeetTerms"
                     value={riskForm.unableToMeetTerms}
-                    onChange={(e) => setRiskForm({ ...riskForm, unableToMeetTerms: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setRiskForm({ ...riskForm, unableToMeetTerms: parseInt(e.target.value) })
+                    }
                   >
-                    {[0, 1, 2, 3, 4, 5].map(n => (
-                      <option key={n} value={n}>{n} - {CONSEQUENCE_LABELS[n]}</option>
+                    {[0, 1, 2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>
+                        {n} - {CONSEQUENCE_LABELS[n]}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -1402,10 +1698,14 @@ export default function RisksClient() {
                   <Select
                     id="risk-violationOfRegulations"
                     value={riskForm.violationOfRegulations}
-                    onChange={(e) => setRiskForm({ ...riskForm, violationOfRegulations: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setRiskForm({ ...riskForm, violationOfRegulations: parseInt(e.target.value) })
+                    }
                   >
-                    {[0, 1, 2, 3, 4, 5].map(n => (
-                      <option key={n} value={n}>{n} - {CONSEQUENCE_LABELS[n]}</option>
+                    {[0, 1, 2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>
+                        {n} - {CONSEQUENCE_LABELS[n]}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -1414,10 +1714,14 @@ export default function RisksClient() {
                   <Select
                     id="risk-reputationImpact"
                     value={riskForm.reputationImpact}
-                    onChange={(e) => setRiskForm({ ...riskForm, reputationImpact: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setRiskForm({ ...riskForm, reputationImpact: parseInt(e.target.value) })
+                    }
                   >
-                    {[0, 1, 2, 3, 4, 5].map(n => (
-                      <option key={n} value={n}>{n} - {CONSEQUENCE_LABELS[n]}</option>
+                    {[0, 1, 2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>
+                        {n} - {CONSEQUENCE_LABELS[n]}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -1426,10 +1730,14 @@ export default function RisksClient() {
                   <Select
                     id="risk-costOfCorrection"
                     value={riskForm.costOfCorrection}
-                    onChange={(e) => setRiskForm({ ...riskForm, costOfCorrection: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setRiskForm({ ...riskForm, costOfCorrection: parseInt(e.target.value) })
+                    }
                   >
-                    {[0, 1, 2, 3, 4, 5].map(n => (
-                      <option key={n} value={n}>{n} - {CONSEQUENCE_LABELS[n]}</option>
+                    {[0, 1, 2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>
+                        {n} - {CONSEQUENCE_LABELS[n]}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -1444,22 +1752,38 @@ export default function RisksClient() {
               <div className="flex items-center gap-6">
                 <div className="text-center">
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Risk Factor</p>
-                  <div className={`px-4 py-2 rounded-lg font-bold text-lg ${getRiskFactorColor(computedRiskFactor)}`}>
+                  <div
+                    className={`px-4 py-2 rounded-lg font-bold text-lg ${getRiskFactorColor(computedRiskFactor)}`}
+                  >
                     {computedRiskFactor}
                   </div>
                 </div>
                 <div className="text-center">
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Risk Level</p>
-                  <Badge variant={getRiskFactorBadgeVariant(computedRiskFactor)} className="text-base px-4 py-1">
+                  <Badge
+                    variant={getRiskFactorBadgeVariant(computedRiskFactor)}
+                    className="text-base px-4 py-1"
+                  >
                     {computedRiskLevel}
                   </Badge>
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400 ml-4">
-                  <p>Likelihood ({riskForm.likelihood}) x Max Consequence ({Math.max(
-                    riskForm.lossOfContracts, riskForm.harmToUser, riskForm.unableToMeetTerms,
-                    riskForm.violationOfRegulations, riskForm.reputationImpact, riskForm.costOfCorrection, 0
-                  )}) = {computedRiskFactor}</p>
-                  <p className="text-xs mt-1">GREEN: 1-6 | AMBER: 7-14 | RED: 15-24 | DARK RED: 25+</p>
+                  <p>
+                    Likelihood ({riskForm.likelihood}) x Max Consequence (
+                    {Math.max(
+                      riskForm.lossOfContracts,
+                      riskForm.harmToUser,
+                      riskForm.unableToMeetTerms,
+                      riskForm.violationOfRegulations,
+                      riskForm.reputationImpact,
+                      riskForm.costOfCorrection,
+                      0
+                    )}
+                    ) = {computedRiskFactor}
+                  </p>
+                  <p className="text-xs mt-1">
+                    GREEN: 1-6 | AMBER: 7-14 | RED: 15-24 | DARK RED: 25+
+                  </p>
                 </div>
               </div>
             </div>
@@ -1476,10 +1800,14 @@ export default function RisksClient() {
                     <Select
                       id="risk-treatmentOption"
                       value={riskForm.treatmentOption}
-                      onChange={(e) => setRiskForm({ ...riskForm, treatmentOption: e.target.value })}
+                      onChange={(e) =>
+                        setRiskForm({ ...riskForm, treatmentOption: e.target.value })
+                      }
                     >
-                      {TREATMENT_OPTIONS.map(t => (
-                        <option key={t} value={t}>{t}</option>
+                      {TREATMENT_OPTIONS.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -1490,8 +1818,10 @@ export default function RisksClient() {
                       value={riskForm.status}
                       onChange={(e) => setRiskForm({ ...riskForm, status: e.target.value })}
                     >
-                      {RISK_STATUSES.map(s => (
-                        <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                      {RISK_STATUSES.map((s) => (
+                        <option key={s} value={s}>
+                          {s.replace(/_/g, ' ')}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -1515,7 +1845,9 @@ export default function RisksClient() {
                     <Input
                       id="risk-responsiblePerson"
                       value={riskForm.responsiblePerson}
-                      onChange={(e) => setRiskForm({ ...riskForm, responsiblePerson: e.target.value })}
+                      onChange={(e) =>
+                        setRiskForm({ ...riskForm, responsiblePerson: e.target.value })
+                      }
                     />
                   </div>
                   <div>
@@ -1548,8 +1880,7 @@ export default function RisksClient() {
                 className="flex items-center justify-between w-full text-left"
               >
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-purple-500" />
-                  F -- AI Risk Analysis
+                  <Sparkles className="h-4 w-4 text-purple-500" />F -- AI Risk Analysis
                 </h3>
                 {riskAiExpanded ? (
                   <ChevronUp className="h-4 w-4 text-gray-400 dark:text-gray-500" />
@@ -1570,9 +1901,15 @@ export default function RisksClient() {
                     className="flex items-center gap-2"
                   >
                     {riskAiLoading ? (
-                      <><Loader2 className="h-4 w-4 animate-spin" />Analyzing...</>
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Analyzing...
+                      </>
                     ) : (
-                      <><Sparkles className="h-4 w-4" />Run AI Analysis</>
+                      <>
+                        <Sparkles className="h-4 w-4" />
+                        Run AI Analysis
+                      </>
                     )}
                   </Button>
                   {riskAiAnalysis && (
@@ -1586,11 +1923,18 @@ export default function RisksClient() {
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowRiskModal(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setShowRiskModal(false)}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={submittingRisk}>
               {submittingRisk ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating...</span>
-              ) : 'Register Risk'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                'Register Risk'
+              )}
             </Button>
           </ModalFooter>
         </form>
@@ -1599,7 +1943,12 @@ export default function RisksClient() {
       {/* ==================================================================== */}
       {/* MODAL: Opportunity                                                   */}
       {/* ==================================================================== */}
-      <Modal isOpen={showOpportunityModal} onClose={() => setShowOpportunityModal(false)} title="Identify Opportunity" size="full">
+      <Modal
+        isOpen={showOpportunityModal}
+        onClose={() => setShowOpportunityModal(false)}
+        title="Identify Opportunity"
+        size="full"
+      >
         <form onSubmit={handleSubmitOpportunity}>
           <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
             {error && (
@@ -1620,12 +1969,16 @@ export default function RisksClient() {
                     <Select
                       id="opp-process"
                       value={opportunityForm.process}
-                      onChange={(e) => setOpportunityForm({ ...opportunityForm, process: e.target.value })}
+                      onChange={(e) =>
+                        setOpportunityForm({ ...opportunityForm, process: e.target.value })
+                      }
                       required
                     >
                       <option value="">-- Select Process --</option>
-                      {PROCESS_OPTIONS.map(p => (
-                        <option key={p} value={p}>{p}</option>
+                      {PROCESS_OPTIONS.map((p) => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -1634,7 +1987,12 @@ export default function RisksClient() {
                     <Input
                       id="opp-interestedParties"
                       value={opportunityForm.interestedParties}
-                      onChange={(e) => setOpportunityForm({ ...opportunityForm, interestedParties: e.target.value })}
+                      onChange={(e) =>
+                        setOpportunityForm({
+                          ...opportunityForm,
+                          interestedParties: e.target.value,
+                        })
+                      }
                       placeholder="Parties related to this opportunity"
                     />
                   </div>
@@ -1644,7 +2002,12 @@ export default function RisksClient() {
                   <Textarea
                     id="opp-description"
                     value={opportunityForm.opportunityDescription}
-                    onChange={(e) => setOpportunityForm({ ...opportunityForm, opportunityDescription: e.target.value })}
+                    onChange={(e) =>
+                      setOpportunityForm({
+                        ...opportunityForm,
+                        opportunityDescription: e.target.value,
+                      })
+                    }
                     rows={3}
                     required
                     placeholder="Describe the opportunity and its potential benefits"
@@ -1664,10 +2027,17 @@ export default function RisksClient() {
                   <Select
                     id="opp-likelihood"
                     value={opportunityForm.likelihood}
-                    onChange={(e) => setOpportunityForm({ ...opportunityForm, likelihood: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setOpportunityForm({
+                        ...opportunityForm,
+                        likelihood: parseInt(e.target.value),
+                      })
+                    }
                   >
-                    {[1, 2, 3, 4, 5, 6].map(n => (
-                      <option key={n} value={n}>{n} - {LIKELIHOOD_LABELS[n]}</option>
+                    {[1, 2, 3, 4, 5, 6].map((n) => (
+                      <option key={n} value={n}>
+                        {n} - {LIKELIHOOD_LABELS[n]}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -1677,10 +2047,17 @@ export default function RisksClient() {
                     <Select
                       id="opp-benefitToCustomer"
                       value={opportunityForm.benefitToCustomer}
-                      onChange={(e) => setOpportunityForm({ ...opportunityForm, benefitToCustomer: parseInt(e.target.value) })}
+                      onChange={(e) =>
+                        setOpportunityForm({
+                          ...opportunityForm,
+                          benefitToCustomer: parseInt(e.target.value),
+                        })
+                      }
                     >
-                      {[0, 1, 2, 3, 4, 5].map(n => (
-                        <option key={n} value={n}>{n} - {CONSEQUENCE_LABELS[n]}</option>
+                      {[0, 1, 2, 3, 4, 5].map((n) => (
+                        <option key={n} value={n}>
+                          {n} - {CONSEQUENCE_LABELS[n]}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -1689,10 +2066,17 @@ export default function RisksClient() {
                     <Select
                       id="opp-revenueGrowth"
                       value={opportunityForm.revenueGrowth}
-                      onChange={(e) => setOpportunityForm({ ...opportunityForm, revenueGrowth: parseInt(e.target.value) })}
+                      onChange={(e) =>
+                        setOpportunityForm({
+                          ...opportunityForm,
+                          revenueGrowth: parseInt(e.target.value),
+                        })
+                      }
                     >
-                      {[0, 1, 2, 3, 4, 5].map(n => (
-                        <option key={n} value={n}>{n} - {CONSEQUENCE_LABELS[n]}</option>
+                      {[0, 1, 2, 3, 4, 5].map((n) => (
+                        <option key={n} value={n}>
+                          {n} - {CONSEQUENCE_LABELS[n]}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -1701,10 +2085,17 @@ export default function RisksClient() {
                     <Select
                       id="opp-marketExpansion"
                       value={opportunityForm.marketExpansion}
-                      onChange={(e) => setOpportunityForm({ ...opportunityForm, marketExpansion: parseInt(e.target.value) })}
+                      onChange={(e) =>
+                        setOpportunityForm({
+                          ...opportunityForm,
+                          marketExpansion: parseInt(e.target.value),
+                        })
+                      }
                     >
-                      {[0, 1, 2, 3, 4, 5].map(n => (
-                        <option key={n} value={n}>{n} - {CONSEQUENCE_LABELS[n]}</option>
+                      {[0, 1, 2, 3, 4, 5].map((n) => (
+                        <option key={n} value={n}>
+                          {n} - {CONSEQUENCE_LABELS[n]}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -1713,10 +2104,17 @@ export default function RisksClient() {
                     <Select
                       id="opp-processImprovement"
                       value={opportunityForm.processImprovement}
-                      onChange={(e) => setOpportunityForm({ ...opportunityForm, processImprovement: parseInt(e.target.value) })}
+                      onChange={(e) =>
+                        setOpportunityForm({
+                          ...opportunityForm,
+                          processImprovement: parseInt(e.target.value),
+                        })
+                      }
                     >
-                      {[0, 1, 2, 3, 4, 5].map(n => (
-                        <option key={n} value={n}>{n} - {CONSEQUENCE_LABELS[n]}</option>
+                      {[0, 1, 2, 3, 4, 5].map((n) => (
+                        <option key={n} value={n}>
+                          {n} - {CONSEQUENCE_LABELS[n]}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -1725,10 +2123,17 @@ export default function RisksClient() {
                     <Select
                       id="opp-complianceAdvantage"
                       value={opportunityForm.complianceAdvantage}
-                      onChange={(e) => setOpportunityForm({ ...opportunityForm, complianceAdvantage: parseInt(e.target.value) })}
+                      onChange={(e) =>
+                        setOpportunityForm({
+                          ...opportunityForm,
+                          complianceAdvantage: parseInt(e.target.value),
+                        })
+                      }
                     >
-                      {[0, 1, 2, 3, 4, 5].map(n => (
-                        <option key={n} value={n}>{n} - {CONSEQUENCE_LABELS[n]}</option>
+                      {[0, 1, 2, 3, 4, 5].map((n) => (
+                        <option key={n} value={n}>
+                          {n} - {CONSEQUENCE_LABELS[n]}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -1737,10 +2142,17 @@ export default function RisksClient() {
                     <Select
                       id="opp-reputationGain"
                       value={opportunityForm.reputationGain}
-                      onChange={(e) => setOpportunityForm({ ...opportunityForm, reputationGain: parseInt(e.target.value) })}
+                      onChange={(e) =>
+                        setOpportunityForm({
+                          ...opportunityForm,
+                          reputationGain: parseInt(e.target.value),
+                        })
+                      }
                     >
-                      {[0, 1, 2, 3, 4, 5].map(n => (
-                        <option key={n} value={n}>{n} - {CONSEQUENCE_LABELS[n]}</option>
+                      {[0, 1, 2, 3, 4, 5].map((n) => (
+                        <option key={n} value={n}>
+                          {n} - {CONSEQUENCE_LABELS[n]}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -1749,7 +2161,10 @@ export default function RisksClient() {
                 {/* Calculated score */}
                 <div className="flex items-center gap-4 pt-2">
                   <p className="text-sm text-gray-500 dark:text-gray-400">Opportunity Score:</p>
-                  <Badge variant={getOpportunityScoreVariant(computedOpportunityScore)} className="text-base px-4 py-1">
+                  <Badge
+                    variant={getOpportunityScoreVariant(computedOpportunityScore)}
+                    className="text-base px-4 py-1"
+                  >
                     {computedOpportunityScore}
                   </Badge>
                 </div>
@@ -1767,7 +2182,9 @@ export default function RisksClient() {
                   <Textarea
                     id="opp-actionToExploit"
                     value={opportunityForm.actionToExploit}
-                    onChange={(e) => setOpportunityForm({ ...opportunityForm, actionToExploit: e.target.value })}
+                    onChange={(e) =>
+                      setOpportunityForm({ ...opportunityForm, actionToExploit: e.target.value })
+                    }
                     rows={3}
                     required
                     placeholder="What actions will be taken to realize this opportunity?"
@@ -1779,7 +2196,12 @@ export default function RisksClient() {
                     <Input
                       id="opp-responsiblePerson"
                       value={opportunityForm.responsiblePerson}
-                      onChange={(e) => setOpportunityForm({ ...opportunityForm, responsiblePerson: e.target.value })}
+                      onChange={(e) =>
+                        setOpportunityForm({
+                          ...opportunityForm,
+                          responsiblePerson: e.target.value,
+                        })
+                      }
                     />
                   </div>
                   <div>
@@ -1788,7 +2210,9 @@ export default function RisksClient() {
                       id="opp-targetDate"
                       type="date"
                       value={opportunityForm.targetDate}
-                      onChange={(e) => setOpportunityForm({ ...opportunityForm, targetDate: e.target.value })}
+                      onChange={(e) =>
+                        setOpportunityForm({ ...opportunityForm, targetDate: e.target.value })
+                      }
                     />
                   </div>
                   <div>
@@ -1796,10 +2220,14 @@ export default function RisksClient() {
                     <Select
                       id="opp-status"
                       value={opportunityForm.status}
-                      onChange={(e) => setOpportunityForm({ ...opportunityForm, status: e.target.value })}
+                      onChange={(e) =>
+                        setOpportunityForm({ ...opportunityForm, status: e.target.value })
+                      }
                     >
-                      {OPPORTUNITY_STATUSES.map(s => (
-                        <option key={s} value={s}>{s}</option>
+                      {OPPORTUNITY_STATUSES.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
                       ))}
                     </Select>
                   </div>
@@ -1815,8 +2243,7 @@ export default function RisksClient() {
                 className="flex items-center justify-between w-full text-left"
               >
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-purple-500" />
-                  D -- AI Opportunity Analysis
+                  <Sparkles className="h-4 w-4 text-purple-500" />D -- AI Opportunity Analysis
                 </h3>
                 {opportunityAiExpanded ? (
                   <ChevronUp className="h-4 w-4 text-gray-400 dark:text-gray-500" />
@@ -1837,9 +2264,15 @@ export default function RisksClient() {
                     className="flex items-center gap-2"
                   >
                     {opportunityAiLoading ? (
-                      <><Loader2 className="h-4 w-4 animate-spin" />Analyzing...</>
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Analyzing...
+                      </>
                     ) : (
-                      <><Sparkles className="h-4 w-4" />Run AI Analysis</>
+                      <>
+                        <Sparkles className="h-4 w-4" />
+                        Run AI Analysis
+                      </>
                     )}
                   </Button>
                   {opportunityAiAnalysis && (
@@ -1853,11 +2286,18 @@ export default function RisksClient() {
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setShowOpportunityModal(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setShowOpportunityModal(false)}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={submittingOpportunity}>
               {submittingOpportunity ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating...</span>
-              ) : 'Register Opportunity'}
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                'Register Opportunity'
+              )}
             </Button>
           </ModalFooter>
         </form>

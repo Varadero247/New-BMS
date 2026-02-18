@@ -119,9 +119,7 @@ describe('Medical CAPA API Routes', () => {
 
   describe('GET /api/capa/stats', () => {
     it('should return CAPA statistics', async () => {
-      mockPrisma.medCapa.count
-        .mockResolvedValueOnce(10)
-        .mockResolvedValueOnce(2);
+      mockPrisma.medCapa.count.mockResolvedValueOnce(10).mockResolvedValueOnce(2);
       mockPrisma.medCapa.groupBy
         .mockResolvedValueOnce([{ status: 'OPEN', _count: { id: 5 } }])
         .mockResolvedValueOnce([{ capaType: 'CORRECTIVE', _count: { id: 8 } }])

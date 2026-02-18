@@ -3,7 +3,13 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    cmmsDowntime: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    cmmsDowntime: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
   },
   Prisma: { Decimal: jest.fn((v: any) => v) },
 }));
@@ -172,14 +178,18 @@ describe('Downtime Routes', () => {
       prisma.cmmsDowntime.findFirst.mockResolvedValue(mockDowntime);
       prisma.cmmsDowntime.update.mockResolvedValue({ ...mockDowntime, reason: 'Updated reason' });
 
-      const res = await request(app).put('/api/downtime/00000000-0000-0000-0000-000000000001').send({ reason: 'Updated reason' });
+      const res = await request(app)
+        .put('/api/downtime/00000000-0000-0000-0000-000000000001')
+        .send({ reason: 'Updated reason' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent record', async () => {
       prisma.cmmsDowntime.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/downtime/00000000-0000-0000-0000-000000000099').send({ reason: 'Updated' });
+      const res = await request(app)
+        .put('/api/downtime/00000000-0000-0000-0000-000000000099')
+        .send({ reason: 'Updated' });
       expect(res.status).toBe(404);
     });
   });

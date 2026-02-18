@@ -13,7 +13,9 @@ test.describe('Inventory CRUD', () => {
   });
 
   test('should display Inventory dashboard', async ({ page }) => {
-    await expect(page.locator('text=/Inventory|Item|Stock|Warehouse/i').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=/Inventory|Item|Stock|Warehouse/i').first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should list inventory items via API', async ({ page }) => {

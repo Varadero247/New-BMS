@@ -3,9 +3,20 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    lpaSchedule: { findMany: jest.fn(), findUnique: jest.fn(), create: jest.fn(), count: jest.fn() },
+    lpaSchedule: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      count: jest.fn(),
+    },
     lpaQuestion: { create: jest.fn() },
-    lpaAudit: { findMany: jest.fn(), findUnique: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    lpaAudit: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
     lpaResponse: { findMany: jest.fn(), create: jest.fn(), count: jest.fn() },
     $transaction: jest.fn(),
   },
@@ -56,7 +67,10 @@ describe('LPA Routes', () => {
         return cb({
           lpaSchedule: {
             create: jest.fn().mockResolvedValue({ id: 'sch-1', ...validBody }),
-            findUnique: jest.fn().mockResolvedValue({ id: 'sch-1', questions: [{ questionText: 'Are all tools calibrated?', sortOrder: 1 }] }),
+            findUnique: jest.fn().mockResolvedValue({
+              id: 'sch-1',
+              questions: [{ questionText: 'Are all tools calibrated?', sortOrder: 1 }],
+            }),
           },
           lpaQuestion: { create: jest.fn().mockResolvedValue({}) },
         });
@@ -74,22 +88,30 @@ describe('LPA Routes', () => {
     });
 
     it('should return 400 for layer 0', async () => {
-      const res = await request(app).post('/api/lpa/schedules').send({ ...validBody, layer: 0 });
+      const res = await request(app)
+        .post('/api/lpa/schedules')
+        .send({ ...validBody, layer: 0 });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for layer 5', async () => {
-      const res = await request(app).post('/api/lpa/schedules').send({ ...validBody, layer: 5 });
+      const res = await request(app)
+        .post('/api/lpa/schedules')
+        .send({ ...validBody, layer: 5 });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for invalid frequency', async () => {
-      const res = await request(app).post('/api/lpa/schedules').send({ ...validBody, frequency: 'INVALID' });
+      const res = await request(app)
+        .post('/api/lpa/schedules')
+        .send({ ...validBody, frequency: 'INVALID' });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for empty questions array', async () => {
-      const res = await request(app).post('/api/lpa/schedules').send({ ...validBody, questions: [] });
+      const res = await request(app)
+        .post('/api/lpa/schedules')
+        .send({ ...validBody, questions: [] });
       expect(res.status).toBe(400);
     });
 
@@ -104,7 +126,9 @@ describe('LPA Routes', () => {
         });
       });
 
-      const res = await request(app).post('/api/lpa/schedules').send({ ...validBody, frequency: 'WEEKLY' });
+      const res = await request(app)
+        .post('/api/lpa/schedules')
+        .send({ ...validBody, frequency: 'WEEKLY' });
       expect(res.status).toBe(201);
     });
 
@@ -119,7 +143,9 @@ describe('LPA Routes', () => {
         });
       });
 
-      const res = await request(app).post('/api/lpa/schedules').send({ ...validBody, frequency: 'MONTHLY' });
+      const res = await request(app)
+        .post('/api/lpa/schedules')
+        .send({ ...validBody, frequency: 'MONTHLY' });
       expect(res.status).toBe(201);
     });
 
@@ -162,14 +188,21 @@ describe('LPA Routes', () => {
   describe('POST /api/lpa/audits', () => {
     it('should create an LPA audit', async () => {
       (mockPrisma.lpaSchedule.findUnique as jest.Mock).mockResolvedValue({
-        id: 'sch-1', active: true, layer: 1, processArea: 'Assembly',
+        id: 'sch-1',
+        active: true,
+        layer: 1,
+        processArea: 'Assembly',
         questions: [{ id: 'q1', questionText: 'Test?' }],
       });
       (mockPrisma.lpaAudit.count as jest.Mock).mockResolvedValue(0);
-      (mockPrisma.lpaAudit.create as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'IN_PROGRESS' });
+      (mockPrisma.lpaAudit.create as jest.Mock).mockResolvedValue({
+        id: '00000000-0000-0000-0000-000000000001',
+        status: 'IN_PROGRESS',
+      });
 
       const res = await request(app).post('/api/lpa/audits').send({
-        scheduleId: 'sch-1', auditor: 'John Smith',
+        scheduleId: 'sch-1',
+        auditor: 'John Smith',
       });
       expect(res.status).toBe(201);
     });
@@ -178,29 +211,36 @@ describe('LPA Routes', () => {
       (mockPrisma.lpaSchedule.findUnique as jest.Mock).mockResolvedValue(null);
 
       const res = await request(app).post('/api/lpa/audits').send({
-        scheduleId: 'fake', auditor: 'John',
+        scheduleId: 'fake',
+        auditor: 'John',
       });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 if schedule is inactive', async () => {
       (mockPrisma.lpaSchedule.findUnique as jest.Mock).mockResolvedValue({
-        id: 'sch-1', active: false, questions: [{ id: 'q1' }],
+        id: 'sch-1',
+        active: false,
+        questions: [{ id: 'q1' }],
       });
 
       const res = await request(app).post('/api/lpa/audits').send({
-        scheduleId: 'sch-1', auditor: 'John',
+        scheduleId: 'sch-1',
+        auditor: 'John',
       });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 if schedule has no questions', async () => {
       (mockPrisma.lpaSchedule.findUnique as jest.Mock).mockResolvedValue({
-        id: 'sch-1', active: true, questions: [],
+        id: 'sch-1',
+        active: true,
+        questions: [],
       });
 
       const res = await request(app).post('/api/lpa/audits').send({
-        scheduleId: 'sch-1', auditor: 'John',
+        scheduleId: 'sch-1',
+        auditor: 'John',
       });
       expect(res.status).toBe(400);
     });
@@ -213,7 +253,9 @@ describe('LPA Routes', () => {
 
   describe('GET /api/lpa/audits', () => {
     it('should list LPA audits', async () => {
-      (mockPrisma.lpaAudit.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
+      (mockPrisma.lpaAudit.findMany as jest.Mock).mockResolvedValue([
+        { id: '00000000-0000-0000-0000-000000000001' },
+      ]);
       (mockPrisma.lpaAudit.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/lpa/audits');
@@ -242,10 +284,13 @@ describe('LPA Routes', () => {
   describe('POST /api/lpa/audits/:id/respond', () => {
     it('should submit question responses', async () => {
       (mockPrisma.lpaAudit.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', status: 'IN_PROGRESS', scheduleId: 'sch-1',
+        id: '00000000-0000-0000-0000-000000000001',
+        status: 'IN_PROGRESS',
+        scheduleId: 'sch-1',
       });
       (mockPrisma.lpaSchedule.findUnique as jest.Mock).mockResolvedValue({
-        id: 'sch-1', questions: [{ id: 'q1', questionText: 'Test?' }],
+        id: 'sch-1',
+        questions: [{ id: 'q1', questionText: 'Test?' }],
       });
       (mockPrisma.lpaResponse.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
@@ -258,65 +303,83 @@ describe('LPA Routes', () => {
         });
       });
 
-      const res = await request(app).post('/api/lpa/audits/00000000-0000-0000-0000-000000000001/respond').send({
-        responses: [{ questionId: 'q1', result: 'PASS', notes: 'All good' }],
-      });
+      const res = await request(app)
+        .post('/api/lpa/audits/00000000-0000-0000-0000-000000000001/respond')
+        .send({
+          responses: [{ questionId: 'q1', result: 'PASS', notes: 'All good' }],
+        });
       expect(res.status).toBe(201);
     });
 
     it('should return 404 if audit not found', async () => {
       (mockPrisma.lpaAudit.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/lpa/audits/00000000-0000-0000-0000-000000000099/respond').send({
-        responses: [{ questionId: 'q1', result: 'PASS' }],
-      });
+      const res = await request(app)
+        .post('/api/lpa/audits/00000000-0000-0000-0000-000000000099/respond')
+        .send({
+          responses: [{ questionId: 'q1', result: 'PASS' }],
+        });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 if audit not in progress', async () => {
       (mockPrisma.lpaAudit.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED',
+        id: '00000000-0000-0000-0000-000000000001',
+        status: 'COMPLETED',
       });
 
-      const res = await request(app).post('/api/lpa/audits/00000000-0000-0000-0000-000000000001/respond').send({
-        responses: [{ questionId: 'q1', result: 'PASS' }],
-      });
+      const res = await request(app)
+        .post('/api/lpa/audits/00000000-0000-0000-0000-000000000001/respond')
+        .send({
+          responses: [{ questionId: 'q1', result: 'PASS' }],
+        });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for empty responses array', async () => {
       (mockPrisma.lpaAudit.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', status: 'IN_PROGRESS',
+        id: '00000000-0000-0000-0000-000000000001',
+        status: 'IN_PROGRESS',
       });
 
-      const res = await request(app).post('/api/lpa/audits/00000000-0000-0000-0000-000000000001/respond').send({
-        responses: [],
-      });
+      const res = await request(app)
+        .post('/api/lpa/audits/00000000-0000-0000-0000-000000000001/respond')
+        .send({
+          responses: [],
+        });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for invalid result value', async () => {
       (mockPrisma.lpaAudit.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', status: 'IN_PROGRESS',
+        id: '00000000-0000-0000-0000-000000000001',
+        status: 'IN_PROGRESS',
       });
 
-      const res = await request(app).post('/api/lpa/audits/00000000-0000-0000-0000-000000000001/respond').send({
-        responses: [{ questionId: 'q1', result: 'INVALID' }],
-      });
+      const res = await request(app)
+        .post('/api/lpa/audits/00000000-0000-0000-0000-000000000001/respond')
+        .send({
+          responses: [{ questionId: 'q1', result: 'INVALID' }],
+        });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for invalid questionId', async () => {
       (mockPrisma.lpaAudit.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', status: 'IN_PROGRESS', scheduleId: 'sch-1',
+        id: '00000000-0000-0000-0000-000000000001',
+        status: 'IN_PROGRESS',
+        scheduleId: 'sch-1',
       });
       (mockPrisma.lpaSchedule.findUnique as jest.Mock).mockResolvedValue({
-        id: 'sch-1', questions: [{ id: 'q1' }],
+        id: 'sch-1',
+        questions: [{ id: 'q1' }],
       });
 
-      const res = await request(app).post('/api/lpa/audits/00000000-0000-0000-0000-000000000001/respond').send({
-        responses: [{ questionId: 'wrong-id', result: 'PASS' }],
-      });
+      const res = await request(app)
+        .post('/api/lpa/audits/00000000-0000-0000-0000-000000000001/respond')
+        .send({
+          responses: [{ questionId: 'wrong-id', result: 'PASS' }],
+        });
       expect(res.status).toBe(400);
     });
   });
@@ -324,17 +387,26 @@ describe('LPA Routes', () => {
   describe('POST /api/lpa/audits/:id/complete', () => {
     it('should complete an LPA audit with score', async () => {
       (mockPrisma.lpaAudit.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', status: 'IN_PROGRESS', totalQuestions: 5,
+        id: '00000000-0000-0000-0000-000000000001',
+        status: 'IN_PROGRESS',
+        totalQuestions: 5,
         responses: [
-          { result: 'PASS' }, { result: 'PASS' }, { result: 'PASS' },
-          { result: 'FAIL' }, { result: 'NOT_APPLICABLE' },
+          { result: 'PASS' },
+          { result: 'PASS' },
+          { result: 'PASS' },
+          { result: 'FAIL' },
+          { result: 'NOT_APPLICABLE' },
         ],
       });
       (mockPrisma.lpaAudit.update as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED', score: 75,
+        id: '00000000-0000-0000-0000-000000000001',
+        status: 'COMPLETED',
+        score: 75,
       });
 
-      const res = await request(app).post('/api/lpa/audits/00000000-0000-0000-0000-000000000001/complete').send({});
+      const res = await request(app)
+        .post('/api/lpa/audits/00000000-0000-0000-0000-000000000001/complete')
+        .send({});
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -342,16 +414,22 @@ describe('LPA Routes', () => {
     it('should return 404 if audit not found', async () => {
       (mockPrisma.lpaAudit.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/lpa/audits/00000000-0000-0000-0000-000000000099/complete').send({});
+      const res = await request(app)
+        .post('/api/lpa/audits/00000000-0000-0000-0000-000000000099/complete')
+        .send({});
       expect(res.status).toBe(404);
     });
 
     it('should return 400 if audit not in progress', async () => {
       (mockPrisma.lpaAudit.findUnique as jest.Mock).mockResolvedValue({
-        id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED', responses: [],
+        id: '00000000-0000-0000-0000-000000000001',
+        status: 'COMPLETED',
+        responses: [],
       });
 
-      const res = await request(app).post('/api/lpa/audits/00000000-0000-0000-0000-000000000001/complete').send({});
+      const res = await request(app)
+        .post('/api/lpa/audits/00000000-0000-0000-0000-000000000001/complete')
+        .send({});
       expect(res.status).toBe(400);
     });
   });
@@ -359,11 +437,16 @@ describe('LPA Routes', () => {
   describe('GET /api/lpa/dashboard', () => {
     it('should return dashboard stats', async () => {
       (mockPrisma.lpaAudit.count as jest.Mock)
-        .mockResolvedValueOnce(100)   // totalAudits
-        .mockResolvedValueOnce(80);   // completedAudits
+        .mockResolvedValueOnce(100) // totalAudits
+        .mockResolvedValueOnce(80); // completedAudits
       (mockPrisma.lpaAudit.findMany as jest.Mock)
-        .mockResolvedValueOnce([{ layer: 1, score: 95 }, { layer: 2, score: 88 }])  // completedByLayer
-        .mockResolvedValueOnce([{ processArea: 'Assembly', passCount: 8, failCount: 2, naCount: 0, totalQuestions: 10 }]);  // completedByArea
+        .mockResolvedValueOnce([
+          { layer: 1, score: 95 },
+          { layer: 2, score: 88 },
+        ]) // completedByLayer
+        .mockResolvedValueOnce([
+          { processArea: 'Assembly', passCount: 8, failCount: 2, naCount: 0, totalQuestions: 10 },
+        ]); // completedByArea
 
       const res = await request(app).get('/api/lpa/dashboard');
       expect(res.status).toBe(200);

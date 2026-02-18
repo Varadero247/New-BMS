@@ -24,9 +24,18 @@ jest.mock('@ims/service-auth', () => ({
 
 jest.mock('@ims/calculations', () => ({
   calculateSafetyMetrics: jest.fn((input: any) => ({
-    ltifr: input.hoursWorked > 0 ? Number(((input.lostTimeInjuries * 1_000_000) / input.hoursWorked).toFixed(2)) : 0,
-    trir: input.hoursWorked > 0 ? Number(((input.totalRecordableInjuries * 200_000) / input.hoursWorked).toFixed(2)) : 0,
-    severityRate: input.hoursWorked > 0 ? Number(((input.daysLost * 1_000_000) / input.hoursWorked).toFixed(2)) : 0,
+    ltifr:
+      input.hoursWorked > 0
+        ? Number(((input.lostTimeInjuries * 1_000_000) / input.hoursWorked).toFixed(2))
+        : 0,
+    trir:
+      input.hoursWorked > 0
+        ? Number(((input.totalRecordableInjuries * 200_000) / input.hoursWorked).toFixed(2))
+        : 0,
+    severityRate:
+      input.hoursWorked > 0
+        ? Number(((input.daysLost * 1_000_000) / input.hoursWorked).toFixed(2))
+        : 0,
   })),
 }));
 
@@ -99,9 +108,7 @@ describe('Health & Safety Metrics API Routes', () => {
     it('should filter by year parameter', async () => {
       (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/metrics/safety?year=2024')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/metrics/safety?year=2024').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.safetyMetric.findMany).toHaveBeenCalledWith({
         where: { year: 2024 },
@@ -113,9 +120,7 @@ describe('Health & Safety Metrics API Routes', () => {
     it('should order metrics by month ascending', async () => {
       (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce(mockMetrics);
 
-      await request(app)
-        .get('/api/metrics/safety')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/metrics/safety').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.safetyMetric.findMany).toHaveBeenCalledWith(
         expect.objectContaining({

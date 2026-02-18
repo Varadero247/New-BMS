@@ -1,5 +1,10 @@
 import { OfflineSyncEngine, SyncQueueItem } from '../src/lib/offline-sync';
-import { createLPASession, addFinding, completeSession, LPASession } from '../src/screens/automotive/LPAExecution';
+import {
+  createLPASession,
+  addFinding,
+  completeSession,
+  LPASession,
+} from '../src/screens/automotive/LPAExecution';
 import { createComplaintDraft } from '../src/screens/medical/ComplaintIntake';
 import { createTaskCardSignoff } from '../src/screens/aerospace/TaskCardSignoff';
 import { createAuditFinding } from '../src/screens/shared/AuditFindingCapture';
@@ -34,7 +39,7 @@ describe('OfflineSyncEngine', () => {
         'https://api.ims.local/api/test',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer test-jwt-token',
+            Authorization: 'Bearer test-jwt-token',
           }),
         })
       );
@@ -61,7 +66,7 @@ describe('OfflineSyncEngine', () => {
       engine.setOnlineStatus(false);
       const id1 = await engine.enqueue('/api/test', 'POST', {});
       // Small delay to ensure different timestamps
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
       const id2 = await engine.enqueue('/api/test', 'POST', {});
 
       expect(id1).not.toBe(id2);
@@ -183,9 +188,7 @@ describe('OfflineSyncEngine', () => {
     });
 
     it('should process multiple pending items', async () => {
-      mockFetch
-        .mockResolvedValueOnce({ ok: true })
-        .mockResolvedValueOnce({ ok: true });
+      mockFetch.mockResolvedValueOnce({ ok: true }).mockResolvedValueOnce({ ok: true });
 
       engine.setOnlineStatus(false);
       await engine.enqueue('/api/item1', 'POST', { id: 1 });
@@ -267,7 +270,7 @@ describe('OfflineSyncEngine', () => {
       engine.setOnlineStatus(true);
 
       // Allow microtask to resolve
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
       expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
@@ -311,9 +314,7 @@ describe('OfflineSyncEngine', () => {
 
   describe('clearSynced', () => {
     it('should remove synced items from queue', async () => {
-      mockFetch
-        .mockResolvedValueOnce({ ok: true })
-        .mockRejectedValueOnce(new Error('fail'));
+      mockFetch.mockResolvedValueOnce({ ok: true }).mockRejectedValueOnce(new Error('fail'));
 
       engine.setOnlineStatus(false);
       await engine.enqueue('/api/success', 'POST', {});
@@ -493,7 +494,7 @@ describe('Audit Finding Capture', () => {
   it('should support all finding types', () => {
     const types = ['MAJOR_NC', 'MINOR_NC', 'OBSERVATION', 'OPPORTUNITY'] as const;
 
-    types.forEach(type => {
+    types.forEach((type) => {
       const finding = createAuditFinding({
         standard: 'ISO 9001:2015',
         clause: '7.1.5',

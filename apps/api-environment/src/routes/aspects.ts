@@ -14,13 +14,22 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 function calculateSignificance(scores: {
-  severity: number; probability: number; duration: number;
-  extent: number; reversibility: number; regulatory: number; stakeholder: number;
+  severity: number;
+  probability: number;
+  duration: number;
+  extent: number;
+  reversibility: number;
+  regulatory: number;
+  stakeholder: number;
 }): { score: number; isSignificant: boolean } {
   const score = Math.round(
-    scores.severity * 1.5 + scores.probability * 1.5 +
-    scores.duration + scores.extent + scores.reversibility +
-    scores.regulatory + scores.stakeholder
+    scores.severity * 1.5 +
+      scores.probability * 1.5 +
+      scores.duration +
+      scores.extent +
+      scores.reversibility +
+      scores.regulatory +
+      scores.stakeholder
   );
   return { score, isSignificant: score >= 15 };
 }
@@ -55,7 +64,12 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     const [aspects, total] = await Promise.all([
-      prisma.envAspect.findMany({ where, skip, take: limitNum, orderBy: { significanceScore: 'desc' } }),
+      prisma.envAspect.findMany({
+        where,
+        skip,
+        take: limitNum,
+        orderBy: { significanceScore: 'desc' },
+      }),
       prisma.envAspect.count({ where }),
     ]);
 
@@ -66,7 +80,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List aspects error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list aspects' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list aspects' },
+    });
   }
 });
 
@@ -74,11 +91,16 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest, res: Response) => {
   try {
     const aspect = await prisma.envAspect.findUnique({ where: { id: req.params.id } });
-    if (!aspect) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Aspect not found' } });
+    if (!aspect)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Aspect not found' } });
     res.json({ success: true, data: aspect });
   } catch (error) {
     logger.error('Get aspect error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get aspect' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get aspect' } });
   }
 });
 
@@ -87,7 +109,21 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       activityProcess: z.string().trim().min(1).max(200),
-      activityCategory: z.enum(['ENERGY_USE', 'WATER_USE', 'WASTE_GENERATION', 'EMISSIONS_TO_AIR', 'DISCHARGES_TO_WATER', 'LAND_CONTAMINATION', 'RESOURCE_USE', 'NOISE_VIBRATION', 'BIODIVERSITY', 'TRANSPORT', 'PROCUREMENT', 'PRODUCT_DESIGN', 'OTHER']),
+      activityCategory: z.enum([
+        'ENERGY_USE',
+        'WATER_USE',
+        'WASTE_GENERATION',
+        'EMISSIONS_TO_AIR',
+        'DISCHARGES_TO_WATER',
+        'LAND_CONTAMINATION',
+        'RESOURCE_USE',
+        'NOISE_VIBRATION',
+        'BIODIVERSITY',
+        'TRANSPORT',
+        'PROCUREMENT',
+        'PRODUCT_DESIGN',
+        'OTHER',
+      ]),
       department: z.string().trim().min(1).max(200),
       location: z.string().optional(),
       lifecyclePhases: z.array(z.string()).optional().default([]),
@@ -116,7 +152,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       applicableStandards: z.string().optional(),
       responsiblePerson: z.string().optional(),
       reviewFrequency: z.string().optional(),
-      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      nextReviewDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       status: z.string().optional(),
       aiSignificanceJustification: z.string().optional(),
       aiControlRecommendations: z.string().optional(),
@@ -129,9 +168,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
     const sig = calculateSignificance({
-      severity: data.scoreSeverity, probability: data.scoreProbability,
-      duration: data.scoreDuration, extent: data.scoreExtent,
-      reversibility: data.scoreReversibility, regulatory: data.scoreRegulatory,
+      severity: data.scoreSeverity,
+      probability: data.scoreProbability,
+      duration: data.scoreDuration,
+      extent: data.scoreExtent,
+      reversibility: data.scoreReversibility,
+      regulatory: data.scoreRegulatory,
       stakeholder: data.scoreStakeholder,
     });
     const referenceNumber = await generateRefNumber();
@@ -159,7 +201,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         scoreRegulatory: data.scoreRegulatory,
         scoreStakeholder: data.scoreStakeholder,
         significanceScore: sig.score,
-        isSignificant: data.significanceOverride !== undefined ? !data.significanceOverride ? sig.isSignificant : !sig.isSignificant : sig.isSignificant,
+        isSignificant:
+          data.significanceOverride !== undefined
+            ? !data.significanceOverride
+              ? sig.isSignificant
+              : !sig.isSignificant
+            : sig.isSignificant,
         significanceOverride: data.significanceOverride ?? false,
         overrideReason: data.overrideReason,
         existingControls: data.existingControls,
@@ -186,17 +233,43 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: aspect });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create aspect error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create aspect' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create aspect' },
+    });
   }
 });
 
 // PUT /:id
 const aspectUpdateSchema = z.object({
   activityProcess: z.string().trim().min(1).max(200).optional(),
-  activityCategory: z.enum(['ENERGY_USE', 'WATER_USE', 'WASTE_GENERATION', 'EMISSIONS_TO_AIR', 'DISCHARGES_TO_WATER', 'LAND_CONTAMINATION', 'RESOURCE_USE', 'NOISE_VIBRATION', 'BIODIVERSITY', 'TRANSPORT', 'PROCUREMENT', 'PRODUCT_DESIGN', 'OTHER']).optional(),
+  activityCategory: z
+    .enum([
+      'ENERGY_USE',
+      'WATER_USE',
+      'WASTE_GENERATION',
+      'EMISSIONS_TO_AIR',
+      'DISCHARGES_TO_WATER',
+      'LAND_CONTAMINATION',
+      'RESOURCE_USE',
+      'NOISE_VIBRATION',
+      'BIODIVERSITY',
+      'TRANSPORT',
+      'PROCUREMENT',
+      'PRODUCT_DESIGN',
+      'OTHER',
+    ])
+    .optional(),
   department: z.string().trim().min(1).max(200).optional(),
   location: z.string().optional(),
   lifecyclePhases: z.array(z.string()).optional(),
@@ -225,7 +298,10 @@ const aspectUpdateSchema = z.object({
   applicableStandards: z.string().optional(),
   responsiblePerson: z.string().optional(),
   reviewFrequency: z.string().optional(),
-  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  nextReviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   status: z.string().optional(),
   aiSignificanceJustification: z.string().optional(),
   aiControlRecommendations: z.string().optional(),
@@ -239,11 +315,21 @@ const aspectUpdateSchema = z.object({
 router.put('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envAspect.findUnique({ where: { id: req.params.id } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Aspect not found' } });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Aspect not found' } });
 
     const parsed = aspectUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: parsed.error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: parsed.error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     const data = parsed.data;
     const scores = {
@@ -263,14 +349,19 @@ router.put('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest, re
         ...data,
         significanceScore: sig.score,
         isSignificant: data.significanceOverride ? !sig.isSignificant : sig.isSignificant,
-        nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : existing.nextReviewDate,
+        nextReviewDate: data.nextReviewDate
+          ? new Date(data.nextReviewDate)
+          : existing.nextReviewDate,
       },
     });
 
     res.json({ success: true, data: aspect });
   } catch (error) {
     logger.error('Update aspect error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update aspect' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update aspect' },
+    });
   }
 });
 
@@ -278,12 +369,21 @@ router.put('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest, re
 router.delete('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envAspect.findUnique({ where: { id: req.params.id } });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Aspect not found' } });
-    await prisma.envAspect.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: req.user?.id } });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Aspect not found' } });
+    await prisma.envAspect.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date(), updatedBy: req.user?.id },
+    });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete aspect error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete aspect' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete aspect' },
+    });
   }
 });
 

@@ -16,7 +16,10 @@ jest.mock('../src/prisma', () => ({
 }));
 
 jest.mock('@ims/auth', () => ({
-  authenticate: (_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', email: 'a@b.com' }; next(); },
+  authenticate: (_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', email: 'a@b.com' };
+    next();
+  },
 }));
 
 jest.mock('@ims/monitoring', () => ({
@@ -37,7 +40,12 @@ beforeEach(() => {
 describe('GET /api/contracts', () => {
   it('lists contracts with pagination', async () => {
     (prisma.contract.findMany as jest.Mock).mockResolvedValue([
-      { id: '00000000-0000-0000-0000-000000000001', name: 'HubSpot CRM', vendor: 'HubSpot', status: 'ACTIVE' },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        name: 'HubSpot CRM',
+        vendor: 'HubSpot',
+        status: 'ACTIVE',
+      },
     ]);
     (prisma.contract.count as jest.Mock).mockResolvedValue(1);
 
@@ -88,7 +96,11 @@ describe('GET /api/contracts/seed', () => {
 describe('GET /api/contracts/:id', () => {
   it('returns a single contract', async () => {
     (prisma.contract.findUnique as jest.Mock).mockResolvedValue({
-      id: '00000000-0000-0000-0000-000000000001', name: 'AWS', vendor: 'Amazon', status: 'ACTIVE', deletedAt: null,
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'AWS',
+      vendor: 'Amazon',
+      status: 'ACTIVE',
+      deletedAt: null,
     });
 
     const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000001');
@@ -105,7 +117,10 @@ describe('GET /api/contracts/:id', () => {
 
   it('returns contract data with all fields', async () => {
     (prisma.contract.findUnique as jest.Mock).mockResolvedValue({
-      id: '00000000-0000-0000-0000-000000000001', name: 'AWS', vendor: 'Amazon', status: 'ACTIVE',
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'AWS',
+      vendor: 'Amazon',
+      status: 'ACTIVE',
     });
 
     const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000001');
@@ -116,11 +131,25 @@ describe('GET /api/contracts/:id', () => {
 
 describe('POST /api/contracts', () => {
   it('creates a new contract', async () => {
-    const newContract = { id: 'c-new', name: 'New SaaS', vendor: 'Vendor', category: 'SOFTWARE', startDate: '2026-01-01', endDate: '2027-01-01', annualCost: 5000, status: 'ACTIVE' };
+    const newContract = {
+      id: 'c-new',
+      name: 'New SaaS',
+      vendor: 'Vendor',
+      category: 'SOFTWARE',
+      startDate: '2026-01-01',
+      endDate: '2027-01-01',
+      annualCost: 5000,
+      status: 'ACTIVE',
+    };
     (prisma.contract.create as jest.Mock).mockResolvedValue(newContract);
 
     const res = await request(app).post('/api/contracts').send({
-      name: 'New SaaS', vendor: 'Vendor', category: 'SOFTWARE', startDate: '2026-01-01', endDate: '2027-01-01', annualCost: 5000,
+      name: 'New SaaS',
+      vendor: 'Vendor',
+      category: 'SOFTWARE',
+      startDate: '2026-01-01',
+      endDate: '2027-01-01',
+      annualCost: 5000,
     });
     expect(res.status).toBe(201);
     expect(res.body.data.contract.name).toBe('New SaaS');
@@ -134,10 +163,18 @@ describe('POST /api/contracts', () => {
 
 describe('PATCH /api/contracts/:id', () => {
   it('updates contract fields', async () => {
-    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
-    (prisma.contract.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'EXPIRING_SOON' });
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (prisma.contract.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'EXPIRING_SOON',
+    });
 
-    const res = await request(app).patch('/api/contracts/00000000-0000-0000-0000-000000000001').send({ status: 'EXPIRING_SOON' });
+    const res = await request(app)
+      .patch('/api/contracts/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'EXPIRING_SOON' });
     expect(res.status).toBe(200);
     expect(prisma.contract.update).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ status: 'EXPIRING_SOON' }) })
@@ -147,19 +184,28 @@ describe('PATCH /api/contracts/:id', () => {
   it('returns 404 for missing contract', async () => {
     (prisma.contract.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).patch('/api/contracts/00000000-0000-0000-0000-000000000099').send({ status: 'ACTIVE' });
+    const res = await request(app)
+      .patch('/api/contracts/00000000-0000-0000-0000-000000000099')
+      .send({ status: 'ACTIVE' });
     expect(res.status).toBe(404);
   });
 });
 
 describe('DELETE /api/contracts/:id', () => {
   it('hard-deletes a contract', async () => {
-    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Old Contract' });
-    (prisma.contract.delete as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Old Contract',
+    });
+    (prisma.contract.delete as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
 
     const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect((prisma.contract as any).delete).toHaveBeenCalledWith({ where: { id: '00000000-0000-0000-0000-000000000001' } });
+    expect((prisma.contract as any).delete).toHaveBeenCalledWith({
+      where: { id: '00000000-0000-0000-0000-000000000001' },
+    });
   });
 
   it('returns 404 for non-existent contract', async () => {
@@ -176,7 +222,12 @@ describe('Contract expiry job', () => {
       prisma: {
         contract: {
           findMany: jest.fn().mockResolvedValue([
-            { id: '00000000-0000-0000-0000-000000000001', name: 'Expired', endDate: new Date('2020-01-01'), status: 'ACTIVE' },
+            {
+              id: '00000000-0000-0000-0000-000000000001',
+              name: 'Expired',
+              endDate: new Date('2020-01-01'),
+              status: 'ACTIVE',
+            },
           ]),
           update: jest.fn().mockResolvedValue({}),
         },

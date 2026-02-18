@@ -60,27 +60,32 @@ const ALLOWED_NAMEID_FORMATS = [
 ];
 
 const samlConfigSchema = z.object({
-  entryPoint: z.string().trim().url('Must be a valid URL').refine(
-    (url) => url.startsWith('https://'),
-    'Entry point must use HTTPS'
-  ),
+  entryPoint: z
+    .string()
+    .trim()
+    .url('Must be a valid URL')
+    .refine((url) => url.startsWith('https://'), 'Entry point must use HTTPS'),
   issuer: z.string().min(1, 'Issuer is required').max(500),
   cert: z.string().min(1, 'Certificate is required').max(10000),
   signatureAlgorithm: z.enum(['sha256', 'sha512']).optional().default('sha256'),
   enabled: z.boolean().optional().default(true),
   entityId: z.string().max(500).optional(),
-  assertionConsumerUrl: z.string().trim().url().refine(
-    (url) => url.startsWith('https://'),
-    'ACS URL must use HTTPS'
-  ).optional(),
-  idpMetadataUrl: z.string().trim().url().refine(
-    (url) => url.startsWith('https://'),
-    'IdP metadata URL must use HTTPS'
-  ).optional(),
-  nameIdFormat: z.string().refine(
-    (val) => ALLOWED_NAMEID_FORMATS.includes(val),
-    'Invalid NameID format'
-  ).optional(),
+  assertionConsumerUrl: z
+    .string()
+    .trim()
+    .url()
+    .refine((url) => url.startsWith('https://'), 'ACS URL must use HTTPS')
+    .optional(),
+  idpMetadataUrl: z
+    .string()
+    .trim()
+    .url()
+    .refine((url) => url.startsWith('https://'), 'IdP metadata URL must use HTTPS')
+    .optional(),
+  nameIdFormat: z
+    .string()
+    .refine((val) => ALLOWED_NAMEID_FORMATS.includes(val), 'Invalid NameID format')
+    .optional(),
   allowUnencryptedAssertions: z.boolean().optional().default(false),
 });
 
@@ -123,7 +128,8 @@ function buildAuthnRequest(config: SamlConfig, requestId: string): string {
   const destination = config.entryPoint;
   const entityId = config.entityId || SP_ENTITY_ID;
   const acsUrl = config.assertionConsumerUrl || SP_ACS_URL;
-  const nameIdFormat = config.nameIdFormat || 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress';
+  const nameIdFormat =
+    config.nameIdFormat || 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress';
 
   return `<samlp:AuthnRequest
   xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
@@ -154,7 +160,10 @@ function encodeAuthnRequest(xml: string): string {
  * Parse SAML Response XML and extract assertion attributes.
  * In production, this would use a full XML parser with signature validation.
  */
-function parseSamlResponse(samlResponseB64: string, config: SamlConfig): {
+function parseSamlResponse(
+  samlResponseB64: string,
+  config: SamlConfig
+): {
   valid: boolean;
   nameId?: string;
   attributes: Record<string, string>;
@@ -170,7 +179,8 @@ function parseSamlResponse(samlResponseB64: string, config: SamlConfig): {
 
     // Extract attributes
     const attributes: Record<string, string> = {};
-    const attrRegex = /<saml:Attribute\s+Name="([^"]+)"[^>]*>\s*<saml:AttributeValue[^>]*>([^<]*)<\/saml:AttributeValue>/g;
+    const attrRegex =
+      /<saml:Attribute\s+Name="([^"]+)"[^>]*>\s*<saml:AttributeValue[^>]*>([^<]*)<\/saml:AttributeValue>/g;
     let attrMatch;
     while ((attrMatch = attrRegex.exec(xml)) !== null) {
       attributes[attrMatch[1]] = attrMatch[2];
@@ -184,7 +194,9 @@ function parseSamlResponse(samlResponseB64: string, config: SamlConfig): {
     // Extracts the RSA-SHA256 signature and verifies it against the SignedInfo element.
     // Note: Full XML-DSig canonical form (C14N) requires xml-crypto for strict compliance;
     // this check covers the common case where SignedInfo is already serialised canonically.
-    const sigValueMatch = xml.match(/<(?:ds:)?SignatureValue[^>]*>([A-Za-z0-9+/=\s]+)<\/(?:ds:)?SignatureValue>/);
+    const sigValueMatch = xml.match(
+      /<(?:ds:)?SignatureValue[^>]*>([A-Za-z0-9+/=\s]+)<\/(?:ds:)?SignatureValue>/
+    );
     const signedInfoMatch = xml.match(/(<(?:ds:)?SignedInfo[\s\S]*?<\/(?:ds:)?SignedInfo>)/);
 
     if (!sigValueMatch || !signedInfoMatch) {
@@ -197,14 +209,17 @@ function parseSamlResponse(samlResponseB64: string, config: SamlConfig): {
         const signedInfoXml = signedInfoMatch[1];
 
         // Normalise the certificate to PEM format
-        const rawCert = config.cert.replace(/-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|\s/g, '');
+        const rawCert = config.cert.replace(
+          /-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|\s/g,
+          ''
+        );
         const pem = `-----BEGIN CERTIFICATE-----\n${rawCert.match(/.{1,64}/g)!.join('\n')}\n-----END CERTIFICATE-----`;
 
         // Determine algorithm from SignedInfo (default to sha256)
         const algoMap: Record<string, string> = {
           'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256': 'RSA-SHA256',
           'http://www.w3.org/2001/04/xmldsig-more#rsa-sha512': 'RSA-SHA512',
-          'http://www.w3.org/2000/09/xmldsig#rsa-sha1':        'RSA-SHA1',
+          'http://www.w3.org/2000/09/xmldsig#rsa-sha1': 'RSA-SHA1',
         };
         const algoMatch = signedInfoXml.match(/Algorithm="([^"]+)"/);
         const nodeAlgo = (algoMatch && algoMap[algoMatch[1]]) || 'RSA-SHA256';
@@ -257,7 +272,9 @@ router.get('/auth/saml/metadata', (_req: Request, res: Response) => {
     res.set('Content-Type', 'application/xml');
     res.send(generateSpMetadata());
   } catch (error: unknown) {
-    logger.error('Failed to generate SP metadata', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to generate SP metadata', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to generate SP metadata' },
@@ -277,7 +294,11 @@ router.get('/auth/saml/login', (req: Request, res: Response) => {
     }
 
     // Validate orgId format to prevent path traversal or injection
-    const orgIdSchema = z.string().trim().uuid().or(z.string().regex(/^[a-zA-Z0-9_-]{1,128}$/));
+    const orgIdSchema = z
+      .string()
+      .trim()
+      .uuid()
+      .or(z.string().regex(/^[a-zA-Z0-9_-]{1,128}$/));
     const orgIdResult = orgIdSchema.safeParse(orgId);
     if (!orgIdResult.success) {
       return res.status(400).json({
@@ -290,7 +311,10 @@ router.get('/auth/saml/login', (req: Request, res: Response) => {
     if (!config || !config.enabled) {
       return res.status(400).json({
         success: false,
-        error: { code: 'SSO_NOT_CONFIGURED', message: 'SSO is not configured or not enabled for this organisation' },
+        error: {
+          code: 'SSO_NOT_CONFIGURED',
+          message: 'SSO is not configured or not enabled for this organisation',
+        },
       });
     }
 
@@ -314,7 +338,9 @@ router.get('/auth/saml/login', (req: Request, res: Response) => {
     logger.info('SAML login redirect', { orgId, requestId });
     res.redirect(redirectUrl.toString());
   } catch (error: unknown) {
-    logger.error('Failed to initiate SAML login', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to initiate SAML login', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to initiate SAML login' },
@@ -341,7 +367,10 @@ router.post('/auth/saml/callback', (req: Request, res: Response) => {
     if (!config) {
       return res.status(400).json({
         success: false,
-        error: { code: 'SSO_NOT_CONFIGURED', message: 'Could not find SSO configuration for this organisation' },
+        error: {
+          code: 'SSO_NOT_CONFIGURED',
+          message: 'Could not find SSO configuration for this organisation',
+        },
       });
     }
 
@@ -352,7 +381,10 @@ router.post('/auth/saml/callback', (req: Request, res: Response) => {
       logger.warn('SAML assertion validation failed', { orgId, error: parsed.error });
       return res.status(400).json({
         success: false,
-        error: { code: 'SAML_VALIDATION_FAILED', message: parsed.error || 'SAML assertion validation failed' },
+        error: {
+          code: 'SAML_VALIDATION_FAILED',
+          message: parsed.error || 'SAML assertion validation failed',
+        },
       });
     }
 
@@ -376,7 +408,9 @@ router.post('/auth/saml/callback', (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to process SAML callback', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to process SAML callback', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to process SAML callback' },
@@ -414,11 +448,14 @@ router.get('/auth/saml/idp-metadata', (req: Request, res: Response) => {
         spAcsUrl: config.assertionConsumerUrl || SP_ACS_URL,
         spMetadataUrl: '/api/auth/saml/metadata',
         signatureAlgorithm: config.signatureAlgorithm,
-        nameIdFormat: config.nameIdFormat || 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
+        nameIdFormat:
+          config.nameIdFormat || 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get IdP metadata', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get IdP metadata', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get IdP metadata' },
@@ -429,169 +466,190 @@ router.get('/auth/saml/idp-metadata', (req: Request, res: Response) => {
 // ─── Admin SAML Routes ──────────────────────────────────────────────────────
 
 // GET /api/admin/security/sso — get SAML config for org
-router.get('/admin/security/sso', authenticate, requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
-  try {
-    const orgId = (req.user as any)?.orgId || 'default';
-    const config = getConfigByOrgId(orgId);
+router.get(
+  '/admin/security/sso',
+  authenticate,
+  requireRole('ADMIN'),
+  (req: AuthRequest, res: Response) => {
+    try {
+      const orgId = (req.user as any)?.orgId || 'default';
+      const config = getConfigByOrgId(orgId);
 
-    if (!config) {
-      return res.json({
-        success: true,
-        data: {
-          configured: false,
-          enabled: false,
-          spMetadataUrl: '/api/auth/saml/metadata',
-          spEntityId: SP_ENTITY_ID,
-          spAcsUrl: SP_ACS_URL,
-        },
-      });
-    }
-
-    res.json({
-      success: true,
-      data: {
-        configured: true,
-        id: config.id,
-        enabled: config.enabled,
-        entryPoint: config.entryPoint,
-        issuer: config.issuer,
-        signatureAlgorithm: config.signatureAlgorithm,
-        hasCert: !!config.cert,
-        createdAt: config.createdAt,
-        updatedAt: config.updatedAt,
-        spMetadataUrl: '/api/auth/saml/metadata',
-        spEntityId: SP_ENTITY_ID,
-        spAcsUrl: SP_ACS_URL,
-      },
-    });
-  } catch (error: unknown) {
-    logger.error('Failed to get SSO config', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'Failed to get SSO configuration' },
-    });
-  }
-});
-
-// POST /api/admin/security/sso — create or update SAML config
-router.post('/admin/security/sso', authenticate, requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
-  try {
-    const parsed = samlConfigSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Invalid input',
-          details: parsed.error.flatten(),
-        },
-      });
-    }
-
-    const orgId = (req.user as any)?.orgId || 'default';
-    const existing = getConfigByOrgId(orgId);
-    const now = new Date().toISOString();
-
-    if (existing) {
-      // Update
-      existing.entryPoint = parsed.data.entryPoint;
-      existing.issuer = parsed.data.issuer;
-      existing.cert = parsed.data.cert;
-      existing.signatureAlgorithm = parsed.data.signatureAlgorithm;
-      existing.enabled = parsed.data.enabled;
-      existing.entityId = parsed.data.entityId;
-      existing.assertionConsumerUrl = parsed.data.assertionConsumerUrl;
-      existing.idpMetadataUrl = parsed.data.idpMetadataUrl;
-      existing.nameIdFormat = parsed.data.nameIdFormat;
-      existing.allowUnencryptedAssertions = parsed.data.allowUnencryptedAssertions;
-      existing.updatedAt = now;
-
-      logger.info('SAML config updated', { orgId, id: existing.id, updatedBy: req.user!.id });
+      if (!config) {
+        return res.json({
+          success: true,
+          data: {
+            configured: false,
+            enabled: false,
+            spMetadataUrl: '/api/auth/saml/metadata',
+            spEntityId: SP_ENTITY_ID,
+            spAcsUrl: SP_ACS_URL,
+          },
+        });
+      }
 
       res.json({
         success: true,
         data: {
-          id: existing.id,
-          enabled: existing.enabled,
-          entryPoint: existing.entryPoint,
-          issuer: existing.issuer,
-          signatureAlgorithm: existing.signatureAlgorithm,
-          updatedAt: existing.updatedAt,
-        },
-      });
-    } else {
-      // Create
-      const config: SamlConfig = {
-        id: uuidv4(),
-        orgId,
-        entryPoint: parsed.data.entryPoint,
-        issuer: parsed.data.issuer,
-        cert: parsed.data.cert,
-        signatureAlgorithm: parsed.data.signatureAlgorithm,
-        enabled: parsed.data.enabled,
-        entityId: parsed.data.entityId,
-        assertionConsumerUrl: parsed.data.assertionConsumerUrl,
-        idpMetadataUrl: parsed.data.idpMetadataUrl,
-        nameIdFormat: parsed.data.nameIdFormat,
-        allowUnencryptedAssertions: parsed.data.allowUnencryptedAssertions,
-        createdAt: now,
-        updatedAt: now,
-      };
-
-      samlConfigStore.set(config.id, config);
-      samlConfigByOrgId.set(orgId, config.id);
-
-      logger.info('SAML config created', { orgId, id: config.id, createdBy: req.user!.id });
-
-      res.status(201).json({
-        success: true,
-        data: {
+          configured: true,
           id: config.id,
           enabled: config.enabled,
           entryPoint: config.entryPoint,
           issuer: config.issuer,
           signatureAlgorithm: config.signatureAlgorithm,
+          hasCert: !!config.cert,
           createdAt: config.createdAt,
+          updatedAt: config.updatedAt,
+          spMetadataUrl: '/api/auth/saml/metadata',
+          spEntityId: SP_ENTITY_ID,
+          spAcsUrl: SP_ACS_URL,
         },
       });
-    }
-  } catch (error: unknown) {
-    logger.error('Failed to save SSO config', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'Failed to save SSO configuration' },
-    });
-  }
-});
-
-// DELETE /api/admin/security/sso — disable and remove SAML config
-router.delete('/admin/security/sso', authenticate, requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
-  try {
-    const orgId = (req.user as any)?.orgId || 'default';
-    const config = getConfigByOrgId(orgId);
-
-    if (!config) {
-      return res.status(404).json({
+    } catch (error: unknown) {
+      logger.error('Failed to get SSO config', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      res.status(500).json({
         success: false,
-        error: { code: 'NOT_FOUND', message: 'No SSO configuration found for this organisation' },
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get SSO configuration' },
       });
     }
-
-    samlConfigStore.delete(config.id);
-    samlConfigByOrgId.delete(orgId);
-    logger.info('SAML config deleted', { orgId, id: config.id, deletedBy: req.user!.id });
-
-    res.json({
-      success: true,
-      data: { message: 'SSO configuration removed', id: config.id },
-    });
-  } catch (error: unknown) {
-    logger.error('Failed to delete SSO config', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete SSO configuration' },
-    });
   }
-});
+);
+
+// POST /api/admin/security/sso — create or update SAML config
+router.post(
+  '/admin/security/sso',
+  authenticate,
+  requireRole('ADMIN'),
+  (req: AuthRequest, res: Response) => {
+    try {
+      const parsed = samlConfigSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            details: parsed.error.flatten(),
+          },
+        });
+      }
+
+      const orgId = (req.user as any)?.orgId || 'default';
+      const existing = getConfigByOrgId(orgId);
+      const now = new Date().toISOString();
+
+      if (existing) {
+        // Update
+        existing.entryPoint = parsed.data.entryPoint;
+        existing.issuer = parsed.data.issuer;
+        existing.cert = parsed.data.cert;
+        existing.signatureAlgorithm = parsed.data.signatureAlgorithm;
+        existing.enabled = parsed.data.enabled;
+        existing.entityId = parsed.data.entityId;
+        existing.assertionConsumerUrl = parsed.data.assertionConsumerUrl;
+        existing.idpMetadataUrl = parsed.data.idpMetadataUrl;
+        existing.nameIdFormat = parsed.data.nameIdFormat;
+        existing.allowUnencryptedAssertions = parsed.data.allowUnencryptedAssertions;
+        existing.updatedAt = now;
+
+        logger.info('SAML config updated', { orgId, id: existing.id, updatedBy: req.user!.id });
+
+        res.json({
+          success: true,
+          data: {
+            id: existing.id,
+            enabled: existing.enabled,
+            entryPoint: existing.entryPoint,
+            issuer: existing.issuer,
+            signatureAlgorithm: existing.signatureAlgorithm,
+            updatedAt: existing.updatedAt,
+          },
+        });
+      } else {
+        // Create
+        const config: SamlConfig = {
+          id: uuidv4(),
+          orgId,
+          entryPoint: parsed.data.entryPoint,
+          issuer: parsed.data.issuer,
+          cert: parsed.data.cert,
+          signatureAlgorithm: parsed.data.signatureAlgorithm,
+          enabled: parsed.data.enabled,
+          entityId: parsed.data.entityId,
+          assertionConsumerUrl: parsed.data.assertionConsumerUrl,
+          idpMetadataUrl: parsed.data.idpMetadataUrl,
+          nameIdFormat: parsed.data.nameIdFormat,
+          allowUnencryptedAssertions: parsed.data.allowUnencryptedAssertions,
+          createdAt: now,
+          updatedAt: now,
+        };
+
+        samlConfigStore.set(config.id, config);
+        samlConfigByOrgId.set(orgId, config.id);
+
+        logger.info('SAML config created', { orgId, id: config.id, createdBy: req.user!.id });
+
+        res.status(201).json({
+          success: true,
+          data: {
+            id: config.id,
+            enabled: config.enabled,
+            entryPoint: config.entryPoint,
+            issuer: config.issuer,
+            signatureAlgorithm: config.signatureAlgorithm,
+            createdAt: config.createdAt,
+          },
+        });
+      }
+    } catch (error: unknown) {
+      logger.error('Failed to save SSO config', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to save SSO configuration' },
+      });
+    }
+  }
+);
+
+// DELETE /api/admin/security/sso — disable and remove SAML config
+router.delete(
+  '/admin/security/sso',
+  authenticate,
+  requireRole('ADMIN'),
+  (req: AuthRequest, res: Response) => {
+    try {
+      const orgId = (req.user as any)?.orgId || 'default';
+      const config = getConfigByOrgId(orgId);
+
+      if (!config) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'No SSO configuration found for this organisation' },
+        });
+      }
+
+      samlConfigStore.delete(config.id);
+      samlConfigByOrgId.delete(orgId);
+      logger.info('SAML config deleted', { orgId, id: config.id, deletedBy: req.user!.id });
+
+      res.json({
+        success: true,
+        data: { message: 'SSO configuration removed', id: config.id },
+      });
+    } catch (error: unknown) {
+      logger.error('Failed to delete SSO config', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete SSO configuration' },
+      });
+    }
+  }
+);
 
 export default router;

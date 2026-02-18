@@ -2,7 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Badge } from '@ims/ui';
-import { User, Shield, Eye, Pencil, Trash2, CheckCircle, Lock, Key, Mail, Building } from 'lucide-react';
+import {
+  User,
+  Shield,
+  Eye,
+  Pencil,
+  Trash2,
+  CheckCircle,
+  Lock,
+  Key,
+  Mail,
+  Building,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface UserProfile {
@@ -54,7 +65,9 @@ export default function MyProfilePage() {
 
         // Resolve actual permissions for this user's roles
         const userRoles = profileRes.data.data.roles || [profileRes.data.data.role];
-        const resolveRes = await api.post('/api/roles/resolve', { roles: userRoles }).catch(() => null);
+        const resolveRes = await api
+          .post('/api/roles/resolve', { roles: userRoles })
+          .catch(() => null);
         if (resolveRes?.data?.data) {
           setPermissions(resolveRes.data.data);
         }
@@ -95,7 +108,9 @@ export default function MyProfilePage() {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">My Profile</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Your account details and effective permissions</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Your account details and effective permissions
+          </p>
         </div>
 
         {/* Profile Card */}
@@ -120,7 +135,9 @@ export default function MyProfilePage() {
                   <User className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Name</p>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">{profile.firstName} {profile.lastName}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      {profile.firstName} {profile.lastName}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -134,14 +151,18 @@ export default function MyProfilePage() {
                   <Building className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Department</p>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">{profile.department || 'Not set'}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      {profile.department || 'Not set'}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <Key className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Job Title</p>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">{profile.jobTitle || 'Not set'}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      {profile.jobTitle || 'Not set'}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -155,7 +176,9 @@ export default function MyProfilePage() {
                 </div>
               </div>
             ) : (
-              <p className="text-gray-400 dark:text-gray-500 text-center py-8">Unable to load profile</p>
+              <p className="text-gray-400 dark:text-gray-500 text-center py-8">
+                Unable to load profile
+              </p>
             )}
           </CardContent>
         </Card>
@@ -174,7 +197,7 @@ export default function MyProfilePage() {
                 {permissions.roles.map((roleId) => (
                   <Badge key={roleId} variant="outline" className="text-sm py-1 px-3">
                     <Shield className="h-3 w-3 mr-1.5" />
-                    {roleId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                    {roleId.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                   </Badge>
                 ))}
               </div>
@@ -189,7 +212,9 @@ export default function MyProfilePage() {
               <CardTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5 text-green-500" />
                 What Can I Access?
-                <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">Effective permissions across all roles</span>
+                <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
+                  Effective permissions across all roles
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -202,16 +227,22 @@ export default function MyProfilePage() {
                       <div
                         key={module}
                         className={`flex items-center justify-between px-3 py-2 rounded ${
-                          level > 0 ? 'bg-white dark:bg-gray-900 border border-gray-100' : 'bg-gray-50 dark:bg-gray-800'
+                          level > 0
+                            ? 'bg-white dark:bg-gray-900 border border-gray-100'
+                            : 'bg-gray-50 dark:bg-gray-800'
                         }`}
                       >
                         <div className="flex items-center gap-2">
                           {getPermissionIcon(level)}
-                          <span className={`text-sm ${level > 0 ? 'text-gray-800 font-medium' : 'text-gray-400'}`}>
-                            {module.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                          <span
+                            className={`text-sm ${level > 0 ? 'text-gray-800 font-medium' : 'text-gray-400'}`}
+                          >
+                            {module.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                           </span>
                         </div>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ${config.color}`}>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ${config.color}`}
+                        >
                           {config.label}
                         </span>
                       </div>

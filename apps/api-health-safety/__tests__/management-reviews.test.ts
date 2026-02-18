@@ -721,7 +721,9 @@ describe('Health & Safety Management Reviews API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/management-reviews/10000000-0000-4000-a000-000000000001/actions/20000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/management-reviews/10000000-0000-4000-a000-000000000001/actions/20000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -738,7 +740,9 @@ describe('Health & Safety Management Reviews API Routes', () => {
       });
 
       await request(app)
-        .put('/api/management-reviews/10000000-0000-4000-a000-000000000001/actions/20000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/management-reviews/10000000-0000-4000-a000-000000000001/actions/20000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETE' });
 
@@ -756,7 +760,9 @@ describe('Health & Safety Management Reviews API Routes', () => {
       mockPrisma.hSMRAction.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/management-reviews/10000000-0000-4000-a000-000000000001/actions/00000000-0000-4000-a000-ffffffffffff')
+        .put(
+          '/api/management-reviews/10000000-0000-4000-a000-000000000001/actions/00000000-0000-4000-a000-ffffffffffff'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -771,7 +777,9 @@ describe('Health & Safety Management Reviews API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/management-reviews/10000000-0000-4000-a000-000000000001/actions/20000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/management-reviews/10000000-0000-4000-a000-000000000001/actions/20000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -783,7 +791,9 @@ describe('Health & Safety Management Reviews API Routes', () => {
       mockPrisma.hSMRAction.findUnique.mockResolvedValueOnce(existingAction);
 
       const response = await request(app)
-        .put('/api/management-reviews/10000000-0000-4000-a000-000000000001/actions/20000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/management-reviews/10000000-0000-4000-a000-000000000001/actions/20000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -795,7 +805,9 @@ describe('Health & Safety Management Reviews API Routes', () => {
       mockPrisma.hSMRAction.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/management-reviews/10000000-0000-4000-a000-000000000001/actions/20000000-0000-4000-a000-000000000001')
+        .put(
+          '/api/management-reviews/10000000-0000-4000-a000-000000000001/actions/20000000-0000-4000-a000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 

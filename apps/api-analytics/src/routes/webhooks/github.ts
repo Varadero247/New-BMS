@@ -5,19 +5,28 @@ import { createLogger } from '@ims/monitoring';
 
 const githubPushSchema = z.object({
   ref: z.string().optional(),
-  commits: z.array(z.object({
-    id: z.string().optional(),
-    sha: z.string().optional(),
-    message: z.string().optional(),
-    title: z.string().optional(),
-  })).optional(),
-  head_commit: z.object({
-    message: z.string().optional(),
-  }).nullable().optional(),
-  repository: z.object({
-    full_name: z.string().optional(),
-    name: z.string().optional(),
-  }).optional(),
+  commits: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        sha: z.string().optional(),
+        message: z.string().optional(),
+        title: z.string().optional(),
+      })
+    )
+    .optional(),
+  head_commit: z
+    .object({
+      message: z.string().optional(),
+    })
+    .nullable()
+    .optional(),
+  repository: z
+    .object({
+      full_name: z.string().optional(),
+      name: z.string().optional(),
+    })
+    .optional(),
 });
 
 const logger = createLogger('webhook-github');
@@ -38,7 +47,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = githubPushSchema.safeParse(req.body || {});
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { ref, commits, head_commit, repository } = parsed.data;
@@ -75,12 +87,19 @@ router.post('/', async (req: Request, res: Response) => {
       },
     });
 
-    logger.info('Changelog created from GitHub push', { changelogId: changelog.id, version, commitCount: commitList.length });
+    logger.info('Changelog created from GitHub push', {
+      changelogId: changelog.id,
+      version,
+      commitCount: commitList.length,
+    });
 
     res.json({ success: true, data: { changelog } });
   } catch (err) {
     logger.error('Failed to process GitHub webhook', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to process webhook' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to process webhook' },
+    });
   }
 });
 

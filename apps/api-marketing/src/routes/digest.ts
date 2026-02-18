@@ -17,7 +17,13 @@ router.post('/trigger', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = triggerDigestSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.errors[0]?.message || 'Invalid input',
+        },
+      });
     }
     const now = new Date();
     const yesterday = new Date(now);

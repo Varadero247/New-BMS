@@ -7,52 +7,52 @@
 
 // ── Foundation (dark-first backgrounds → text) ──────────────
 export const nexara = {
-  ink:        '#080B12',
-  deep:       '#0C1220',
-  midnight:   '#101828',
-  surface:    '#162032',
-  raised:     '#1C2940',
-  border:     '#1E2E48',
-  'border-hi':'#263852',
-  muted:      '#344D72',
-  steel:      '#5A7099',
-  silver:     '#8EA8CC',
-  light:      '#C8D9EF',
-  white:      '#EDF3FC',
+  ink: '#080B12',
+  deep: '#0C1220',
+  midnight: '#101828',
+  surface: '#162032',
+  raised: '#1C2940',
+  border: '#1E2E48',
+  'border-hi': '#263852',
+  muted: '#344D72',
+  steel: '#5A7099',
+  silver: '#8EA8CC',
+  light: '#C8D9EF',
+  white: '#EDF3FC',
   // Brand signal
-  'blue-deep':  '#1A4FBF',
-  'blue-core':  '#2660D8',
-  'blue-mid':   '#3B78F5',
-  'blue-hi':    '#5B94FF',
-  'blue-glow':  '#7AACFF',
-  'teal-deep':  '#009E87',
-  'teal-core':  '#00C4A8',
-  'teal-hi':    '#00E0BF',
+  'blue-deep': '#1A4FBF',
+  'blue-core': '#2660D8',
+  'blue-mid': '#3B78F5',
+  'blue-hi': '#5B94FF',
+  'blue-glow': '#7AACFF',
+  'teal-deep': '#009E87',
+  'teal-core': '#00C4A8',
+  'teal-hi': '#00E0BF',
 } as const;
 
 // ── Module colours (one per ISO domain) ──────────────────────
 export const moduleColors = {
-  quality:  '#3B78F5',
-  safety:   '#F04B5A',
-  env:      '#00C4A8',
-  hr:       '#9B6FEA',
-  payroll:  '#F59E0B',
+  quality: '#3B78F5',
+  safety: '#F04B5A',
+  env: '#00C4A8',
+  hr: '#9B6FEA',
+  payroll: '#F59E0B',
   projects: '#4EB8FF',
-  finance:  '#34D399',
-  crm:      '#FB923C',
-  infosec:  '#818CF8',
-  esg:      '#6EE7B7',
-  cmms:     '#FCD34D',
-  ai:       '#E879F9',
+  finance: '#34D399',
+  crm: '#FB923C',
+  infosec: '#818CF8',
+  esg: '#6EE7B7',
+  cmms: '#FCD34D',
+  ai: '#E879F9',
 } as const;
 
 // ── Sector vertical colours ──────────────────────────────────
 export const sectorColors = {
-  auto:     '#DC2626',
-  medical:  '#0891B2',
-  aero:     '#1D4ED8',
-  food:     '#16A34A',
-  energy:   '#D97706',
+  auto: '#DC2626',
+  medical: '#0891B2',
+  aero: '#1D4ED8',
+  food: '#16A34A',
+  energy: '#D97706',
   antibrib: '#7C3AED',
 } as const;
 
@@ -68,7 +68,7 @@ export const colors = {
     300: '#7AACFF',
     200: '#8EA8CC',
     100: '#C8D9EF',
-    50:  '#EDF3FC',
+    50: '#EDF3FC',
   },
   gold: {
     700: '#009E87',
@@ -78,7 +78,7 @@ export const colors = {
     300: '#34D399',
     200: '#6EE7B7',
     100: '#A7F3D0',
-    50:  '#D1FAE5',
+    50: '#D1FAE5',
   },
   success: {
     700: '#047857',
@@ -88,7 +88,7 @@ export const colors = {
     300: '#6EE7B7',
     200: '#A7F3D0',
     100: '#D1FAE5',
-    50:  '#ECFDF5',
+    50: '#ECFDF5',
   },
   warning: {
     700: '#B45309',
@@ -98,7 +98,7 @@ export const colors = {
     300: '#FCD34D',
     200: '#FDE68A',
     100: '#FEF3C7',
-    50:  '#FFFBEB',
+    50: '#FFFBEB',
   },
   danger: {
     700: '#B91C1C',
@@ -108,7 +108,7 @@ export const colors = {
     300: '#FCA5A5',
     200: '#FECACA',
     100: '#FEE2E2',
-    50:  '#FEF2F2',
+    50: '#FEF2F2',
   },
   info: {
     700: '#0369A1',
@@ -118,7 +118,7 @@ export const colors = {
     300: '#7DD3FC',
     200: '#BAE6FD',
     100: '#E0F2FE',
-    50:  '#F0F9FF',
+    50: '#F0F9FF',
   },
   gray: {
     950: '#080B12',
@@ -131,7 +131,7 @@ export const colors = {
     300: '#C8D9EF',
     200: '#E5E7EB',
     100: '#EDF3FC',
-    50:  '#EDF3FC',
+    50: '#EDF3FC',
   },
   navy: {
     DEFAULT: '#1A4FBF',
@@ -173,8 +173,8 @@ export const chartColors = [
 // ── Typography ───────────────────────────────────────────────
 export const fontFamily = {
   display: ['Syne', 'sans-serif'],
-  body:    ['DM Sans', 'sans-serif'],
-  mono:    ['DM Mono', 'monospace'],
+  body: ['DM Sans', 'sans-serif'],
+  mono: ['DM Mono', 'monospace'],
 } as const;
 
 export const fontSize = {
@@ -182,13 +182,13 @@ export const fontSize = {
   'display-lg': ['1.875rem', { lineHeight: '2.375rem', fontWeight: '800' }],
   'display-md': ['1.5rem', { lineHeight: '2rem', fontWeight: '700' }],
   'display-sm': ['1.25rem', { lineHeight: '1.75rem', fontWeight: '700' }],
-  'body-lg':    ['1.1rem', { lineHeight: '1.75', fontWeight: '300' }],
-  'body-md':    ['0.92rem', { lineHeight: '1.7', fontWeight: '400' }],
-  'body-sm':    ['0.875rem', { lineHeight: '1.25rem', fontWeight: '400' }],
-  'body-xs':    ['0.75rem', { lineHeight: '1rem', fontWeight: '400' }],
-  'label-lg':   ['0.875rem', { lineHeight: '1.25rem', fontWeight: '500' }],
-  'label-md':   ['0.8125rem', { lineHeight: '1.125rem', fontWeight: '500' }],
-  'label-sm':   ['0.75rem', { lineHeight: '1rem', fontWeight: '500' }],
+  'body-lg': ['1.1rem', { lineHeight: '1.75', fontWeight: '300' }],
+  'body-md': ['0.92rem', { lineHeight: '1.7', fontWeight: '400' }],
+  'body-sm': ['0.875rem', { lineHeight: '1.25rem', fontWeight: '400' }],
+  'body-xs': ['0.75rem', { lineHeight: '1rem', fontWeight: '400' }],
+  'label-lg': ['0.875rem', { lineHeight: '1.25rem', fontWeight: '500' }],
+  'label-md': ['0.8125rem', { lineHeight: '1.125rem', fontWeight: '500' }],
+  'label-sm': ['0.75rem', { lineHeight: '1rem', fontWeight: '500' }],
 } as const;
 
 // ── Spacing (4px grid) ───────────────────────────────────────

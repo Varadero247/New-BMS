@@ -55,7 +55,12 @@ function SignupForm() {
     return (
       <div className="text-center py-12">
         <div className="w-16 h-16 rounded-full bg-[#34D399]/20 flex items-center justify-center mx-auto mb-6">
-          <svg className="w-8 h-8 text-[#34D399]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            className="w-8 h-8 text-[#34D399]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
@@ -63,10 +68,7 @@ function SignupForm() {
         <p className="text-gray-400 dark:text-gray-500 mb-6">
           Check your inbox for a confirmation email. Your 21-day free trial starts now.
         </p>
-        <Link
-          href="/"
-          className="text-[#60A5FA] hover:text-white transition-colors text-sm"
-        >
+        <Link href="/" className="text-[#60A5FA] hover:text-white transition-colors text-sm">
           Back to homepage
         </Link>
       </div>
@@ -150,11 +152,17 @@ function SignupForm() {
 
       <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
         By signing up you agree to our{' '}
-        <Link href="/terms" className="text-gray-400 dark:text-gray-500 hover:text-white transition-colors underline">
+        <Link
+          href="/terms"
+          className="text-gray-400 dark:text-gray-500 hover:text-white transition-colors underline"
+        >
           Terms of Service
         </Link>{' '}
         and{' '}
-        <Link href="/privacy" className="text-gray-400 dark:text-gray-500 hover:text-white transition-colors underline">
+        <Link
+          href="/privacy"
+          className="text-gray-400 dark:text-gray-500 hover:text-white transition-colors underline"
+        >
           Privacy Policy
         </Link>
         .
@@ -190,7 +198,11 @@ export default function SignupPage() {
             No credit card required
           </p>
 
-          <Suspense fallback={<div className="text-center text-gray-500 dark:text-gray-400">Loading...</div>}>
+          <Suspense
+            fallback={
+              <div className="text-center text-gray-500 dark:text-gray-400">Loading...</div>
+            }
+          >
             <SignupForm />
           </Suspense>
         </div>

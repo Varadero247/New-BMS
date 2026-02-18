@@ -85,35 +85,50 @@ export default function DashboardPage() {
       label: 'High / Very High Risk',
       value: stats.highRiskCount ?? 0,
       icon: AlertTriangle,
-      colorClass: stats.highRiskCount > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-green-50 dark:bg-green-900/20',
+      colorClass:
+        stats.highRiskCount > 0
+          ? 'bg-red-50 dark:bg-red-900/20'
+          : 'bg-green-50 dark:bg-green-900/20',
       iconClass: stats.highRiskCount > 0 ? 'text-red-600' : 'text-green-600',
     },
     {
       label: 'SDS Overdue',
       value: stats.sdsOverdue ?? 0,
       icon: FileText,
-      colorClass: stats.sdsOverdue > 0 ? 'bg-amber-50 dark:bg-amber-900/20' : 'bg-green-50 dark:bg-green-900/20',
+      colorClass:
+        stats.sdsOverdue > 0
+          ? 'bg-amber-50 dark:bg-amber-900/20'
+          : 'bg-green-50 dark:bg-green-900/20',
       iconClass: stats.sdsOverdue > 0 ? 'text-amber-600' : 'text-green-600',
     },
     {
       label: 'COSHH Due Review',
       value: stats.coshhDueReview ?? 0,
       icon: ShieldAlert,
-      colorClass: stats.coshhDueReview > 0 ? 'bg-amber-50 dark:bg-amber-900/20' : 'bg-green-50 dark:bg-green-900/20',
+      colorClass:
+        stats.coshhDueReview > 0
+          ? 'bg-amber-50 dark:bg-amber-900/20'
+          : 'bg-green-50 dark:bg-green-900/20',
       iconClass: stats.coshhDueReview > 0 ? 'text-amber-600' : 'text-green-600',
     },
     {
       label: 'WEL Exceedances',
       value: stats.welExceedances ?? 0,
       icon: Activity,
-      colorClass: stats.welExceedances > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-green-50 dark:bg-green-900/20',
+      colorClass:
+        stats.welExceedances > 0
+          ? 'bg-red-50 dark:bg-red-900/20'
+          : 'bg-green-50 dark:bg-green-900/20',
       iconClass: stats.welExceedances > 0 ? 'text-red-600' : 'text-green-600',
     },
     {
       label: 'Incompatibility Alerts',
       value: stats.incompatibilityAlerts ?? 0,
       icon: Ban,
-      colorClass: stats.incompatibilityAlerts > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-green-50 dark:bg-green-900/20',
+      colorClass:
+        stats.incompatibilityAlerts > 0
+          ? 'bg-red-50 dark:bg-red-900/20'
+          : 'bg-green-50 dark:bg-green-900/20',
       iconClass: stats.incompatibilityAlerts > 0 ? 'text-red-600' : 'text-green-600',
     },
   ];
@@ -122,7 +137,11 @@ export default function DashboardPage() {
     { label: '+ Add Chemical', onClick: () => router.push('/register?action=new'), icon: Plus },
     { label: 'Record COSHH', onClick: () => router.push('/coshh/new'), icon: ClipboardCheck },
     { label: 'Log Monitoring', onClick: () => router.push('/monitoring?action=new'), icon: Beaker },
-    { label: 'Report Incident', onClick: () => router.push('/incidents?action=new'), icon: AlertTriangle },
+    {
+      label: 'Report Incident',
+      onClick: () => router.push('/incidents?action=new'),
+      icon: AlertTriangle,
+    },
   ];
 
   if (loading) {
@@ -149,7 +168,9 @@ export default function DashboardPage() {
       <main className="flex-1 p-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Chemical Management Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Chemical Management Dashboard
+            </h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">
               ISO 11014 / COSHH / GHS Compliance Overview
             </p>
@@ -183,7 +204,9 @@ export default function DashboardPage() {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Quick Actions</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              Quick Actions
+            </h2>
             <div className="flex flex-wrap gap-3">
               {quickActions.map((action) => {
                 const Icon = action.icon;
@@ -207,7 +230,9 @@ export default function DashboardPage() {
                 Recent Chemical Incidents
               </h2>
               {recentIncidents.length === 0 ? (
-                <p className="text-gray-500 dark:text-gray-400 text-sm">No recent incidents recorded.</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
+                  No recent incidents recorded.
+                </p>
               ) : (
                 <div className="space-y-3">
                   {recentIncidents.map((incident) => (
@@ -222,8 +247,8 @@ export default function DashboardPage() {
                             incident.severity === 'CRITICAL' || incident.severity === 'MAJOR'
                               ? 'text-red-500'
                               : incident.severity === 'MODERATE'
-                              ? 'text-amber-500'
-                              : 'text-gray-400'
+                                ? 'text-amber-500'
+                                : 'text-gray-400'
                           }`}
                         />
                         <div>
@@ -231,7 +256,8 @@ export default function DashboardPage() {
                             {incident.title}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {incident.chemicalName} - {new Date(incident.dateOccurred).toLocaleDateString()}
+                            {incident.chemicalName} -{' '}
+                            {new Date(incident.dateOccurred).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
@@ -240,10 +266,10 @@ export default function DashboardPage() {
                           incident.severity === 'CRITICAL'
                             ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
                             : incident.severity === 'MAJOR'
-                            ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
-                            : incident.severity === 'MODERATE'
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                              ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
+                              : incident.severity === 'MODERATE'
+                                ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
+                                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                         }`}
                       >
                         {incident.severity}

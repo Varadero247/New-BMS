@@ -64,7 +64,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List CAPAs error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list CAPAs' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list CAPAs' } });
   }
 });
 
@@ -107,7 +109,10 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('CAPA stats error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get CAPA statistics' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get CAPA statistics' },
+    });
   }
 });
 
@@ -122,13 +127,17 @@ router.get('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
     });
 
     if (!capa) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 
     res.json({ success: true, data: capa });
   } catch (error) {
     logger.error('Get CAPA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get CAPA' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get CAPA' } });
   }
 });
 
@@ -139,15 +148,31 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       capaType: z.enum(['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT']),
       title: z.string().trim().min(1).max(200),
       severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL']).default('MINOR'),
-      triggerSource: z.enum(['NC_REPORT', 'CUSTOMER_COMPLAINT', 'INTERNAL_AUDIT', 'EXTERNAL_AUDIT', 'MANAGEMENT_REVIEW', 'SUPPLIER_AUDIT', 'PROCESS_FAILURE', 'FMEA', 'RISK_REGISTER', 'OTHER']),
+      triggerSource: z.enum([
+        'NC_REPORT',
+        'CUSTOMER_COMPLAINT',
+        'INTERNAL_AUDIT',
+        'EXTERNAL_AUDIT',
+        'MANAGEMENT_REVIEW',
+        'SUPPLIER_AUDIT',
+        'PROCESS_FAILURE',
+        'FMEA',
+        'RISK_REGISTER',
+        'OTHER',
+      ]),
       sourceReference: z.string().optional(),
       description: z.string().trim().min(1).max(2000),
       isoClause: z.string().optional(),
       immediateActionRequired: z.boolean().default(false),
       actionsTaken: z.string().optional(),
       containmentVerifiedBy: z.string().optional(),
-      containmentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      rcaMethod: z.enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER']).optional(),
+      containmentDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      rcaMethod: z
+        .enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER'])
+        .optional(),
       problemStatement: z.string().optional(),
       why1: z.string().optional(),
       why2: z.string().optional(),
@@ -170,12 +195,26 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       d6Implementation: z.string().optional(),
       d7Prevention: z.string().optional(),
       d8CongratulateTeam: z.string().optional(),
-      rootCauseCategory: z.enum(['HUMAN_ERROR', 'PROCESS_FAILURE', 'EQUIPMENT', 'MATERIAL', 'MEASUREMENT', 'ENVIRONMENT', 'MANAGEMENT_SYSTEM', 'SUPPLIER']).optional(),
+      rootCauseCategory: z
+        .enum([
+          'HUMAN_ERROR',
+          'PROCESS_FAILURE',
+          'EQUIPMENT',
+          'MATERIAL',
+          'MEASUREMENT',
+          'ENVIRONMENT',
+          'MANAGEMENT_SYSTEM',
+          'SUPPLIER',
+        ])
+        .optional(),
       effectivenessCriteria: z.string().optional(),
       effectivenessKpi: z.string().optional(),
       effectivenessTarget: z.string().optional(),
       effectivenessMeasureMethod: z.string().optional(),
-      targetClosureDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      targetClosureDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       linkedNc: z.string().optional(),
       linkedProcess: z.string().optional(),
       linkedFmea: z.string().optional(),
@@ -204,10 +243,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: capa });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create CAPA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create CAPA' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create CAPA' },
+    });
   }
 });
 
@@ -216,22 +265,44 @@ router.put('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
   try {
     const existing = await prisma.qualCapa.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 
     const schema = z.object({
       capaType: z.enum(['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT']).optional(),
       title: z.string().trim().min(1).max(200).optional(),
       severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL']).optional(),
-      triggerSource: z.enum(['NC_REPORT', 'CUSTOMER_COMPLAINT', 'INTERNAL_AUDIT', 'EXTERNAL_AUDIT', 'MANAGEMENT_REVIEW', 'SUPPLIER_AUDIT', 'PROCESS_FAILURE', 'FMEA', 'RISK_REGISTER', 'OTHER']).optional(),
+      triggerSource: z
+        .enum([
+          'NC_REPORT',
+          'CUSTOMER_COMPLAINT',
+          'INTERNAL_AUDIT',
+          'EXTERNAL_AUDIT',
+          'MANAGEMENT_REVIEW',
+          'SUPPLIER_AUDIT',
+          'PROCESS_FAILURE',
+          'FMEA',
+          'RISK_REGISTER',
+          'OTHER',
+        ])
+        .optional(),
       sourceReference: z.string().nullable().optional(),
       description: z.string().optional(),
       isoClause: z.string().nullable().optional(),
       immediateActionRequired: z.boolean().optional(),
       actionsTaken: z.string().nullable().optional(),
       containmentVerifiedBy: z.string().nullable().optional(),
-      containmentDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      rcaMethod: z.enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER']).nullable().optional(),
+      containmentDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      rcaMethod: z
+        .enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER'])
+        .nullable()
+        .optional(),
       problemStatement: z.string().nullable().optional(),
       why1: z.string().nullable().optional(),
       why2: z.string().nullable().optional(),
@@ -254,17 +325,51 @@ router.put('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
       d6Implementation: z.string().nullable().optional(),
       d7Prevention: z.string().nullable().optional(),
       d8CongratulateTeam: z.string().nullable().optional(),
-      rootCauseCategory: z.enum(['HUMAN_ERROR', 'PROCESS_FAILURE', 'EQUIPMENT', 'MATERIAL', 'MEASUREMENT', 'ENVIRONMENT', 'MANAGEMENT_SYSTEM', 'SUPPLIER']).nullable().optional(),
+      rootCauseCategory: z
+        .enum([
+          'HUMAN_ERROR',
+          'PROCESS_FAILURE',
+          'EQUIPMENT',
+          'MATERIAL',
+          'MEASUREMENT',
+          'ENVIRONMENT',
+          'MANAGEMENT_SYSTEM',
+          'SUPPLIER',
+        ])
+        .nullable()
+        .optional(),
       effectivenessCriteria: z.string().nullable().optional(),
       effectivenessKpi: z.string().nullable().optional(),
       effectivenessTarget: z.string().nullable().optional(),
       effectivenessMeasureMethod: z.string().nullable().optional(),
-      status: z.enum(['INITIATED', 'ROOT_CAUSE_ANALYSIS', 'ACTIONS_DEFINED', 'IMPLEMENTATION', 'VERIFICATION', 'CLOSED', 'CANCELLED']).optional(),
+      status: z
+        .enum([
+          'INITIATED',
+          'ROOT_CAUSE_ANALYSIS',
+          'ACTIONS_DEFINED',
+          'IMPLEMENTATION',
+          'VERIFICATION',
+          'CLOSED',
+          'CANCELLED',
+        ])
+        .optional(),
       progressNotes: z.string().nullable().optional(),
       percentComplete: z.number().min(0).max(100).optional(),
-      targetClosureDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      actualClosureDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      reviewDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      targetClosureDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      actualClosureDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      reviewDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       verifiedBy: z.string().nullable().optional(),
       effectivenessAssessment: z.string().nullable().optional(),
       recurrenceCheck: z.boolean().nullable().optional(),
@@ -289,14 +394,28 @@ router.put('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
 
     const updateData = {
       ...data,
-      containmentDate: data.containmentDate ? new Date(data.containmentDate) : data.containmentDate === null ? null : undefined,
-      targetClosureDate: data.targetClosureDate ? new Date(data.targetClosureDate) : data.targetClosureDate === null ? null : undefined,
+      containmentDate: data.containmentDate
+        ? new Date(data.containmentDate)
+        : data.containmentDate === null
+          ? null
+          : undefined,
+      targetClosureDate: data.targetClosureDate
+        ? new Date(data.targetClosureDate)
+        : data.targetClosureDate === null
+          ? null
+          : undefined,
       actualClosureDate: data.actualClosureDate
         ? new Date(data.actualClosureDate)
         : data.status === 'CLOSED' && !existing.actualClosureDate
           ? new Date()
-          : data.actualClosureDate === null ? null : undefined,
-      reviewDate: data.reviewDate ? new Date(data.reviewDate) : data.reviewDate === null ? null : undefined,
+          : data.actualClosureDate === null
+            ? null
+            : undefined,
+      reviewDate: data.reviewDate
+        ? new Date(data.reviewDate)
+        : data.reviewDate === null
+          ? null
+          : undefined,
     };
 
     const capa = await prisma.qualCapa.update({
@@ -310,10 +429,20 @@ router.put('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
     res.json({ success: true, data: capa });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update CAPA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update CAPA' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update CAPA' },
+    });
   }
 });
 
@@ -322,15 +451,23 @@ router.delete('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, 
   try {
     const existing = await prisma.qualCapa.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 
-    await prisma.qualCapa.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } as any });
+    await prisma.qualCapa.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() } as any,
+    });
 
     res.status(204).send();
   } catch (error) {
     logger.error('Delete CAPA error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete CAPA' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete CAPA' },
+    });
   }
 });
 
@@ -343,15 +480,19 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
   try {
     const capa = await prisma.qualCapa.findUnique({ where: { id: req.params.id } });
     if (!capa) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 
     const schema = z.object({
       action: z.string().trim().min(1).max(2000),
       assignedTo: z.string().trim().min(1).max(200),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      dueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
-      status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED']).default('OPEN'),
+      status: z
+        .enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED'])
+        .default('OPEN'),
       notes: z.string().optional(),
     });
 
@@ -368,10 +509,20 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: capaAction });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create CAPA action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create CAPA action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create CAPA action' },
+    });
   }
 });
 
@@ -382,17 +533,28 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
       where: { id: req.params.actionId, capaId: req.params.id },
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA action not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA action not found' } });
     }
 
     const schema = z.object({
       action: z.string().trim().min(1).max(2000).optional(),
       assignedTo: z.string().optional(),
-      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
-      status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED']).optional(),
+      status: z
+        .enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED'])
+        .optional(),
       notes: z.string().nullable().optional(),
-      completedDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      completedDate: z
+        .string()
+        .nullable()
+        .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const data = schema.parse(req.body);
@@ -404,7 +566,9 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
         ? new Date(data.completedDate)
         : data.status === 'COMPLETED' && !existing.completedDate
           ? new Date()
-          : data.completedDate === null ? null : undefined,
+          : data.completedDate === null
+            ? null
+            : undefined,
     };
 
     const capaAction = await prisma.qualCapaAction.update({
@@ -415,10 +579,20 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
     res.json({ success: true, data: capaAction });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update CAPA action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update CAPA action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update CAPA action' },
+    });
   }
 });
 
@@ -429,15 +603,23 @@ router.delete('/:id/actions/:actionId', async (req: AuthRequest, res: Response) 
       where: { id: req.params.actionId, capaId: req.params.id },
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA action not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA action not found' } });
     }
 
-    await prisma.qualCapaAction.update({ where: { id: req.params.actionId }, data: { deletedAt: new Date() } as any });
+    await prisma.qualCapaAction.update({
+      where: { id: req.params.actionId },
+      data: { deletedAt: new Date() } as any,
+    });
 
     res.status(204).send();
   } catch (error) {
     logger.error('Delete CAPA action error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete CAPA action' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete CAPA action' },
+    });
   }
 });
 

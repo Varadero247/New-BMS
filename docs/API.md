@@ -48,12 +48,12 @@ Authorization: Bearer <token>
 
 ### Auth Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/auth/login` | Authenticate and get token |
-| POST | `/api/auth/logout` | Invalidate session |
-| POST | `/api/auth/refresh` | Refresh token |
-| GET | `/api/auth/me` | Get current user profile |
+| Method | Path                | Description                |
+| ------ | ------------------- | -------------------------- |
+| POST   | `/api/auth/login`   | Authenticate and get token |
+| POST   | `/api/auth/logout`  | Invalidate session         |
+| POST   | `/api/auth/refresh` | Refresh token              |
+| GET    | `/api/auth/me`      | Get current user profile   |
 
 ---
 
@@ -84,49 +84,49 @@ All responses follow this format:
 
 ## Error Codes
 
-| Code | HTTP Status | Description |
-|------|------------|-------------|
-| `UNAUTHORIZED` | 401 | Missing or invalid token |
-| `FORBIDDEN` | 403 | Insufficient RBAC permissions |
-| `NOT_FOUND` | 404 | Resource not found |
-| `VALIDATION_ERROR` | 400 | Request validation failed |
-| `INTERNAL_ERROR` | 500 | Server error |
-| `RATE_LIMITED` | 429 | Too many requests |
-| `TOKEN_INVALID` | 401 | JWT verification failed |
-| `TOKEN_EXPIRED` | 401 | JWT expired |
+| Code               | HTTP Status | Description                   |
+| ------------------ | ----------- | ----------------------------- |
+| `UNAUTHORIZED`     | 401         | Missing or invalid token      |
+| `FORBIDDEN`        | 403         | Insufficient RBAC permissions |
+| `NOT_FOUND`        | 404         | Resource not found            |
+| `VALIDATION_ERROR` | 400         | Request validation failed     |
+| `INTERNAL_ERROR`   | 500         | Server error                  |
+| `RATE_LIMITED`     | 429         | Too many requests             |
+| `TOKEN_INVALID`    | 401         | JWT verification failed       |
+| `TOKEN_EXPIRED`    | 401         | JWT expired                   |
 
 ---
 
 ## Service Proxy Routes
 
-| Gateway Path | Service | Port |
-|---|---|---|
-| `/api/health-safety/*` | api-health-safety | 4001 |
-| `/api/environment/*` | api-environment | 4002 |
-| `/api/quality/*` | api-quality | 4003 |
-| `/api/ai/*` | api-ai-analysis | 4004 |
-| `/api/inventory/*` | api-inventory | 4005 |
-| `/api/hr/*` | api-hr | 4006 |
-| `/api/payroll/*` | api-payroll | 4007 |
-| `/api/workflows/*` | api-workflows | 4008 |
+| Gateway Path                | Service                | Port |
+| --------------------------- | ---------------------- | ---- |
+| `/api/health-safety/*`      | api-health-safety      | 4001 |
+| `/api/environment/*`        | api-environment        | 4002 |
+| `/api/quality/*`            | api-quality            | 4003 |
+| `/api/ai/*`                 | api-ai-analysis        | 4004 |
+| `/api/inventory/*`          | api-inventory          | 4005 |
+| `/api/hr/*`                 | api-hr                 | 4006 |
+| `/api/payroll/*`            | api-payroll            | 4007 |
+| `/api/workflows/*`          | api-workflows          | 4008 |
 | `/api/project-management/*` | api-project-management | 4009 |
-| `/api/automotive/*` | api-automotive | 4010 |
-| `/api/medical/*` | api-medical | 4011 |
-| `/api/aerospace/*` | api-aerospace | 4012 |
-| `/api/finance/*` | api-finance | 4013 |
-| `/api/crm/*` | api-crm | 4014 |
-| `/api/infosec/*` | api-infosec | 4015 |
-| `/api/esg/*` | api-esg | 4016 |
-| `/api/cmms/*` | api-cmms | 4017 |
-| `/api/portal/*` | api-portal | 4018 |
-| `/api/food-safety/*` | api-food-safety | 4019 |
-| `/api/energy/*` | api-energy | 4020 |
-| `/api/analytics/*` | api-analytics | 4021 |
-| `/api/field-service/*` | api-field-service | 4022 |
-| `/api/iso42001/*` | api-iso42001 | 4023 |
-| `/api/iso37001/*` | api-iso37001 | 4024 |
-| `/api/marketing/*` | api-marketing | 4025 |
-| `/api/partners/*` | api-partners | 4026 |
+| `/api/automotive/*`         | api-automotive         | 4010 |
+| `/api/medical/*`            | api-medical            | 4011 |
+| `/api/aerospace/*`          | api-aerospace          | 4012 |
+| `/api/finance/*`            | api-finance            | 4013 |
+| `/api/crm/*`                | api-crm                | 4014 |
+| `/api/infosec/*`            | api-infosec            | 4015 |
+| `/api/esg/*`                | api-esg                | 4016 |
+| `/api/cmms/*`               | api-cmms               | 4017 |
+| `/api/portal/*`             | api-portal             | 4018 |
+| `/api/food-safety/*`        | api-food-safety        | 4019 |
+| `/api/energy/*`             | api-energy             | 4020 |
+| `/api/analytics/*`          | api-analytics          | 4021 |
+| `/api/field-service/*`      | api-field-service      | 4022 |
+| `/api/iso42001/*`           | api-iso42001           | 4023 |
+| `/api/iso37001/*`           | api-iso37001           | 4024 |
+| `/api/marketing/*`          | api-marketing          | 4025 |
+| `/api/partners/*`           | api-partners           | 4026 |
 
 ### Gateway-Local Routes
 
@@ -140,10 +140,10 @@ These are handled directly by the gateway (not proxied):
 
 Redis-backed rate limiting:
 
-| Limiter | Window | Limit | Applies To |
-|---------|--------|-------|-----------|
-| Auth | 15 min | 5 requests | Login/register endpoints |
-| API | 15 min | 100 requests | All other API endpoints |
+| Limiter | Window | Limit        | Applies To               |
+| ------- | ------ | ------------ | ------------------------ |
+| Auth    | 15 min | 5 requests   | Login/register endpoints |
+| API     | 15 min | 100 requests | All other API endpoints  |
 
 Rate limit headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
 

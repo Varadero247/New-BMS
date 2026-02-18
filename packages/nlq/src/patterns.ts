@@ -30,10 +30,7 @@ export const QUERY_PATTERNS: QueryPattern[] = [
     description: 'Calculate Lost Time Injury Frequency Rate',
   },
   {
-    patterns: [
-      /(?:show\s+)?(?:all\s+)?open\s+incidents?/i,
-      /incidents?\s+(?:that\s+are\s+)?open/i,
-    ],
+    patterns: [/(?:show\s+)?(?:all\s+)?open\s+incidents?/i, /incidents?\s+(?:that\s+are\s+)?open/i],
     sql: `SELECT * FROM hs_incidents WHERE status IN ('OPEN', 'INVESTIGATING') ORDER BY "dateOccurred" DESC`,
     modules: ['health-safety'],
     description: 'List all open incidents',
@@ -179,10 +176,7 @@ export const QUERY_PATTERNS: QueryPattern[] = [
 
   // ESG
   {
-    patterns: [
-      /(?:show\s+)?(?:our\s+)?esg\s+(?:score|rating)s?/i,
-      /esg\s+performance/i,
-    ],
+    patterns: [/(?:show\s+)?(?:our\s+)?esg\s+(?:score|rating)s?/i, /esg\s+performance/i],
     sql: `SELECT category, AVG(score) AS avg_score, COUNT(*) AS metrics_count FROM esg_metrics WHERE "reportingPeriod" >= NOW() - INTERVAL '12 months' GROUP BY category`,
     modules: ['esg'],
     description: 'Show ESG scores by category',
@@ -248,10 +242,7 @@ export const QUERY_PATTERNS: QueryPattern[] = [
     description: 'Show total energy consumption by meter type',
   },
   {
-    patterns: [
-      /(?:show\s+)?enpi\s+(?:trend|performance)/i,
-      /energy\s+performance\s+indicators?/i,
-    ],
+    patterns: [/(?:show\s+)?enpi\s+(?:trend|performance)/i, /energy\s+performance\s+indicators?/i],
     sql: `SELECT * FROM energy_enpi WHERE "calculatedAt" >= NOW() - INTERVAL '12 months' ORDER BY "calculatedAt" DESC`,
     modules: ['energy'],
     description: 'Show energy performance indicator trends',
@@ -309,10 +300,7 @@ export const QUERY_PATTERNS: QueryPattern[] = [
     description: 'List chemicals with missing or expired SDS',
   },
   {
-    patterns: [
-      /(?:show\s+)?coshh\s+assessments?\s+(?:due|overdue)/i,
-      /overdue\s+coshh/i,
-    ],
+    patterns: [/(?:show\s+)?coshh\s+assessments?\s+(?:due|overdue)/i, /overdue\s+coshh/i],
     sql: `SELECT * FROM chem_coshh WHERE "reviewDate" < NOW() AND status = 'ACTIVE' ORDER BY "reviewDate" ASC`,
     modules: ['chemicals'],
     description: 'List overdue COSHH assessments',

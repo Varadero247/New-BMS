@@ -1,6 +1,7 @@
 # IMS Quick Reference Card
 
 ## Start All Services (Docker)
+
 ```bash
 cd /home/dyl/New-BMS
 docker compose up -d                    # Start all containers
@@ -9,12 +10,14 @@ docker compose down                     # Stop all services
 ```
 
 ## Rebuild After Code Changes
+
 ```bash
 docker compose build --no-cache api-health-safety web-health-safety
 docker compose up -d api-health-safety web-health-safety
 ```
 
 ## Login
+
 ```
 URL:      http://localhost:3000 (Dashboard) or http://localhost:3001 (H&S)
 Email:    admin@ims.local
@@ -22,6 +25,7 @@ Password: admin123
 ```
 
 ## Health Checks
+
 ```bash
 curl http://localhost:4000/health        # API Gateway
 curl http://localhost:4001/health        # H&S API
@@ -38,100 +42,103 @@ curl http://localhost:4024/health        # ISO 37001 API
 ## Service Ports
 
 ### API Services (ports 4000-4041)
-| Service | Port | Standard/Domain |
-|---------|------|-----------------|
-| Gateway | 4000 | Auth, routing, templates, RBAC |
-| Health & Safety | 4001 | ISO 45001 |
-| Environment | 4002 | ISO 14001 |
-| Quality | 4003 | ISO 9001 |
-| AI Analysis | 4004 | Multi-provider AI |
-| Inventory | 4005 | Stock management |
-| HR | 4006 | Human Resources |
-| Payroll | 4007 | Payroll & tax |
-| Workflows | 4008 | Process automation |
-| Project Management | 4009 | PMBOK / ISO 21502 |
-| Automotive | 4010 | IATF 16949 |
-| Medical | 4011 | ISO 13485 |
-| Aerospace | 4012 | AS9100D |
-| Finance | 4013 | Financial management |
-| CRM | 4014 | Customer relationship |
-| InfoSec | 4015 | ISO 27001 |
-| ESG | 4016 | ESG reporting |
-| CMMS | 4017 | Maintenance |
-| Portal | 4018 | Customer/supplier |
-| Food Safety | 4019 | HACCP / ISO 22000 |
-| Energy | 4020 | ISO 50001 |
-| Analytics | 4021 | Business intelligence |
-| Field Service | 4022 | Field operations |
-| ISO 42001 | 4023 | AI Management |
-| ISO 37001 | 4024 | Anti-Bribery |
-| Marketing | 4025 | Sales automation |
-| Partners | 4026 | Partner portal |
-| Risk (ERM) | 4027 | ISO 31000:2018 Enterprise Risk Mgmt |
-| Training | 4028 | Competence management |
-| Suppliers | 4029 | Supplier management |
-| Assets | 4030 | Asset management |
-| Documents | 4031 | Document control |
-| Complaints | 4032 | Complaint management |
-| Contracts | 4033 | Contract lifecycle |
-| Permit to Work | 4034 | PTW management |
-| Regulatory Monitor | 4035 | Reg change tracking |
-| Incidents | 4036 | Incident management |
-| Audits | 4037 | Audit programme |
-| Mgmt Review | 4038 | Management review |
-| Setup Wizard | 4039 | Guided setup wizard |
-| Chemical Management | 4040 | COSHH / chemical safety |
-| Emergency | 4041 | ISO 22320 / ISO 22301 |
+
+| Service             | Port | Standard/Domain                     |
+| ------------------- | ---- | ----------------------------------- |
+| Gateway             | 4000 | Auth, routing, templates, RBAC      |
+| Health & Safety     | 4001 | ISO 45001                           |
+| Environment         | 4002 | ISO 14001                           |
+| Quality             | 4003 | ISO 9001                            |
+| AI Analysis         | 4004 | Multi-provider AI                   |
+| Inventory           | 4005 | Stock management                    |
+| HR                  | 4006 | Human Resources                     |
+| Payroll             | 4007 | Payroll & tax                       |
+| Workflows           | 4008 | Process automation                  |
+| Project Management  | 4009 | PMBOK / ISO 21502                   |
+| Automotive          | 4010 | IATF 16949                          |
+| Medical             | 4011 | ISO 13485                           |
+| Aerospace           | 4012 | AS9100D                             |
+| Finance             | 4013 | Financial management                |
+| CRM                 | 4014 | Customer relationship               |
+| InfoSec             | 4015 | ISO 27001                           |
+| ESG                 | 4016 | ESG reporting                       |
+| CMMS                | 4017 | Maintenance                         |
+| Portal              | 4018 | Customer/supplier                   |
+| Food Safety         | 4019 | HACCP / ISO 22000                   |
+| Energy              | 4020 | ISO 50001                           |
+| Analytics           | 4021 | Business intelligence               |
+| Field Service       | 4022 | Field operations                    |
+| ISO 42001           | 4023 | AI Management                       |
+| ISO 37001           | 4024 | Anti-Bribery                        |
+| Marketing           | 4025 | Sales automation                    |
+| Partners            | 4026 | Partner portal                      |
+| Risk (ERM)          | 4027 | ISO 31000:2018 Enterprise Risk Mgmt |
+| Training            | 4028 | Competence management               |
+| Suppliers           | 4029 | Supplier management                 |
+| Assets              | 4030 | Asset management                    |
+| Documents           | 4031 | Document control                    |
+| Complaints          | 4032 | Complaint management                |
+| Contracts           | 4033 | Contract lifecycle                  |
+| Permit to Work      | 4034 | PTW management                      |
+| Regulatory Monitor  | 4035 | Reg change tracking                 |
+| Incidents           | 4036 | Incident management                 |
+| Audits              | 4037 | Audit programme                     |
+| Mgmt Review         | 4038 | Management review                   |
+| Setup Wizard        | 4039 | Guided setup wizard                 |
+| Chemical Management | 4040 | COSHH / chemical safety             |
+| Emergency           | 4041 | ISO 22320 / ISO 22301               |
 
 ### Web Applications (ports 3000-3045)
-| Application | Port | Domain |
-|-------------|------|--------|
-| Dashboard | 3000 | Main dashboard, ROI calculator |
-| Health & Safety | 3001 | ISO 45001 |
-| Environment | 3002 | ISO 14001 |
-| Quality | 3003 | ISO 9001 |
-| Settings | 3004 | Admin & RBAC |
-| Inventory | 3005 | Stock management |
-| HR | 3006 | Human Resources |
-| Payroll | 3007 | Payroll |
-| Workflows | 3008 | Process automation |
-| Project Management | 3009 | PMBOK |
-| Automotive | 3010 | IATF 16949 |
-| Medical | 3011 | ISO 13485 |
-| Aerospace | 3012 | AS9100D |
-| Finance | 3013 | Financial management |
-| CRM | 3014 | CRM |
-| InfoSec | 3015 | ISO 27001 |
-| ESG | 3016 | ESG reporting |
-| CMMS | 3017 | Maintenance |
-| Customer Portal | 3018 | External customers |
-| Supplier Portal | 3019 | External suppliers |
-| Food Safety | 3020 | HACCP |
-| Energy | 3021 | ISO 50001 |
-| Analytics | 3022 | Business intelligence |
-| Field Service | 3023 | Field operations |
-| ISO 42001 | 3024 | AI Management |
-| ISO 37001 | 3025 | Anti-Bribery |
-| Partners Portal | 3026 | Partner portal |
-| Admin Dashboard | 3027 | Admin dashboard |
-| Marketing | 3030 | Marketing site |
-| Risk (ERM) | 3031 | ISO 31000:2018 (15 pages) |
-| Training | 3032 | Competence management |
-| Suppliers | 3033 | Supplier management |
-| Assets | 3034 | Asset management |
-| Documents | 3035 | Document control |
-| Complaints | 3036 | Complaint management |
-| Contracts | 3037 | Contract lifecycle |
-| Fin. Compliance | 3038 | Financial compliance |
-| Permit to Work | 3039 | PTW management |
-| Regulatory Monitor | 3040 | Reg change tracking |
-| Incidents | 3041 | Incident management |
-| Audits | 3042 | Audit programme |
-| Mgmt Review | 3043 | Management review |
-| Chemical Management | 3044 | Chemical safety management |
-| Emergency | 3045 | Fire, emergency & disaster management |
+
+| Application         | Port | Domain                                |
+| ------------------- | ---- | ------------------------------------- |
+| Dashboard           | 3000 | Main dashboard, ROI calculator        |
+| Health & Safety     | 3001 | ISO 45001                             |
+| Environment         | 3002 | ISO 14001                             |
+| Quality             | 3003 | ISO 9001                              |
+| Settings            | 3004 | Admin & RBAC                          |
+| Inventory           | 3005 | Stock management                      |
+| HR                  | 3006 | Human Resources                       |
+| Payroll             | 3007 | Payroll                               |
+| Workflows           | 3008 | Process automation                    |
+| Project Management  | 3009 | PMBOK                                 |
+| Automotive          | 3010 | IATF 16949                            |
+| Medical             | 3011 | ISO 13485                             |
+| Aerospace           | 3012 | AS9100D                               |
+| Finance             | 3013 | Financial management                  |
+| CRM                 | 3014 | CRM                                   |
+| InfoSec             | 3015 | ISO 27001                             |
+| ESG                 | 3016 | ESG reporting                         |
+| CMMS                | 3017 | Maintenance                           |
+| Customer Portal     | 3018 | External customers                    |
+| Supplier Portal     | 3019 | External suppliers                    |
+| Food Safety         | 3020 | HACCP                                 |
+| Energy              | 3021 | ISO 50001                             |
+| Analytics           | 3022 | Business intelligence                 |
+| Field Service       | 3023 | Field operations                      |
+| ISO 42001           | 3024 | AI Management                         |
+| ISO 37001           | 3025 | Anti-Bribery                          |
+| Partners Portal     | 3026 | Partner portal                        |
+| Admin Dashboard     | 3027 | Admin dashboard                       |
+| Marketing           | 3030 | Marketing site                        |
+| Risk (ERM)          | 3031 | ISO 31000:2018 (15 pages)             |
+| Training            | 3032 | Competence management                 |
+| Suppliers           | 3033 | Supplier management                   |
+| Assets              | 3034 | Asset management                      |
+| Documents           | 3035 | Document control                      |
+| Complaints          | 3036 | Complaint management                  |
+| Contracts           | 3037 | Contract lifecycle                    |
+| Fin. Compliance     | 3038 | Financial compliance                  |
+| Permit to Work      | 3039 | PTW management                        |
+| Regulatory Monitor  | 3040 | Reg change tracking                   |
+| Incidents           | 3041 | Incident management                   |
+| Audits              | 3042 | Audit programme                       |
+| Mgmt Review         | 3043 | Management review                     |
+| Chemical Management | 3044 | Chemical safety management            |
+| Emergency           | 3045 | Fire, emergency & disaster management |
 
 ## H&S API Endpoints (via Gateway)
+
 ```bash
 curl http://localhost:4000/api/health-safety/risks
 curl http://localhost:4000/api/health-safety/incidents
@@ -141,6 +148,7 @@ curl http://localhost:4000/api/health-safety/capa
 ```
 
 ## HR API Endpoints (via Gateway)
+
 ```bash
 curl http://localhost:4000/api/hr/employees
 curl http://localhost:4000/api/hr/employees/org-chart
@@ -155,6 +163,7 @@ curl http://localhost:4000/api/hr/documents
 ```
 
 ## Payroll API Endpoints (via Gateway)
+
 ```bash
 curl http://localhost:4000/api/payroll/runs
 curl http://localhost:4000/api/payroll/payslips
@@ -170,6 +179,7 @@ curl http://localhost:4000/api/payroll/tax-calculator
 ```
 
 ## Environment API Endpoints (via Gateway)
+
 ```bash
 curl http://localhost:4000/api/environment/aspects       # Aspects & Impacts (ISO 14001 Clause 6.1.2)
 curl http://localhost:4000/api/environment/events        # Environmental Events
@@ -180,6 +190,7 @@ curl http://localhost:4000/api/environment/capa          # CAPA Management (ISO 
 ```
 
 ## Quality API Endpoints (via Gateway) -- ISO 9001:2015
+
 ```bash
 # COTO Log (Context of the Organisation)
 curl http://localhost:4000/api/quality/parties            # Interested Parties
@@ -206,6 +217,7 @@ curl http://localhost:4000/api/quality/headstart          # Headstart Tool
 ```
 
 ## Inventory API Endpoints (via Gateway)
+
 ```bash
 curl http://localhost:4000/api/inventory/products
 curl http://localhost:4000/api/inventory/products/low-stock
@@ -218,6 +230,7 @@ curl http://localhost:4000/api/inventory/suppliers
 ```
 
 ## Workflows API Endpoints (via Gateway)
+
 ```bash
 curl http://localhost:4000/api/workflows/templates
 curl http://localhost:4000/api/workflows/definitions
@@ -229,6 +242,7 @@ curl http://localhost:4000/api/workflows/automation/rules
 ```
 
 ## PM API Endpoints (via Gateway)
+
 ```bash
 curl http://localhost:4000/api/v1/project-management/projects
 curl http://localhost:4000/api/v1/project-management/tasks
@@ -245,6 +259,7 @@ curl http://localhost:4000/api/v1/project-management/reports
 ```
 
 ## Gateway Local Endpoints
+
 ```bash
 curl http://localhost:4000/api/dashboard/stats           # Dashboard data
 curl http://localhost:4000/api/dashboard/compliance       # Compliance scores
@@ -257,6 +272,7 @@ curl http://localhost:4000/api/compliance/regulations      # Regulatory feed
 ```
 
 ## Run Tests
+
 ```bash
 pnpm test                                # All Jest tests (~12,326 across 578 suites)
 ./scripts/test-all-modules.sh            # All integration tests (master runner, 9 modules)
@@ -275,6 +291,7 @@ pnpm test                                # All Jest tests (~12,326 across 578 su
 ```
 
 ## Database
+
 ```bash
 # Push schema changes (use migrate diff for multi-schema safety)
 cd packages/database
@@ -292,6 +309,7 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
 ```
 
 ## Current Status (Feb 17, 2026)
+
 - 42 API services + 44 web apps + PostgreSQL + Redis + main API
 - **All 42 modules fully implemented** across Phases 0-14:
   - **Core**: H&S, Environment, Quality, HR, Payroll, Inventory, Workflows, PM, AI, Automotive, Medical, Aerospace

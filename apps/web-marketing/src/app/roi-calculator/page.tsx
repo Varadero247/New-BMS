@@ -94,7 +94,11 @@ export default function ROICalculatorPage() {
   }
 
   function formatCurrency(n: number) {
-    return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 }).format(n);
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      maximumFractionDigits: 0,
+    }).format(n);
   }
 
   return (
@@ -127,7 +131,10 @@ export default function ROICalculatorPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Company Name */}
               <div>
-                <label htmlFor="companyName" className="block text-sm font-medium text-gray-300 mb-1.5">
+                <label
+                  htmlFor="companyName"
+                  className="block text-sm font-medium text-gray-300 mb-1.5"
+                >
                   Company name *
                 </label>
                 <input
@@ -177,7 +184,10 @@ export default function ROICalculatorPage() {
               {/* Job Title & Industry */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="jobTitle" className="block text-sm font-medium text-gray-300 mb-1.5">
+                  <label
+                    htmlFor="jobTitle"
+                    className="block text-sm font-medium text-gray-300 mb-1.5"
+                  >
                     Job title *
                   </label>
                   <select
@@ -188,14 +198,21 @@ export default function ROICalculatorPage() {
                     onChange={handleChange}
                     className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-white focus:border-[#1B3A6B] focus:ring-1 focus:ring-[#1B3A6B] outline-none transition"
                   >
-                    <option value="" disabled>Select...</option>
+                    <option value="" disabled>
+                      Select...
+                    </option>
                     {JOB_TITLES.map((t) => (
-                      <option key={t} value={t} className="bg-[#0B1120]">{t}</option>
+                      <option key={t} value={t} className="bg-[#0B1120]">
+                        {t}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="industry" className="block text-sm font-medium text-gray-300 mb-1.5">
+                  <label
+                    htmlFor="industry"
+                    className="block text-sm font-medium text-gray-300 mb-1.5"
+                  >
                     Industry *
                   </label>
                   <select
@@ -206,9 +223,13 @@ export default function ROICalculatorPage() {
                     onChange={handleChange}
                     className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-white focus:border-[#1B3A6B] focus:ring-1 focus:ring-[#1B3A6B] outline-none transition"
                   >
-                    <option value="" disabled>Select...</option>
+                    <option value="" disabled>
+                      Select...
+                    </option>
                     {INDUSTRIES.map((i) => (
-                      <option key={i} value={i} className="bg-[#0B1120]">{i}</option>
+                      <option key={i} value={i} className="bg-[#0B1120]">
+                        {i}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -217,7 +238,10 @@ export default function ROICalculatorPage() {
               {/* Employee Count & ISO Count */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="employeeCount" className="block text-sm font-medium text-gray-300 mb-1.5">
+                  <label
+                    htmlFor="employeeCount"
+                    className="block text-sm font-medium text-gray-300 mb-1.5"
+                  >
                     Number of employees *
                   </label>
                   <select
@@ -228,14 +252,21 @@ export default function ROICalculatorPage() {
                     onChange={handleChange}
                     className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-white focus:border-[#1B3A6B] focus:ring-1 focus:ring-[#1B3A6B] outline-none transition"
                   >
-                    <option value="" disabled>Select...</option>
+                    <option value="" disabled>
+                      Select...
+                    </option>
                     {EMPLOYEE_RANGES.map((r) => (
-                      <option key={r} value={r} className="bg-[#0B1120]">{r}</option>
+                      <option key={r} value={r} className="bg-[#0B1120]">
+                        {r}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="isoCount" className="block text-sm font-medium text-gray-300 mb-1.5">
+                  <label
+                    htmlFor="isoCount"
+                    className="block text-sm font-medium text-gray-300 mb-1.5"
+                  >
                     ISO standards managed *
                   </label>
                   <select
@@ -246,9 +277,13 @@ export default function ROICalculatorPage() {
                     onChange={handleChange}
                     className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-white focus:border-[#1B3A6B] focus:ring-1 focus:ring-[#1B3A6B] outline-none transition"
                   >
-                    <option value="" disabled>Select...</option>
+                    <option value="" disabled>
+                      Select...
+                    </option>
                     {ISO_COUNTS.map((c) => (
-                      <option key={c} value={c} className="bg-[#0B1120]">{c}</option>
+                      <option key={c} value={c} className="bg-[#0B1120]">
+                        {c}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -256,11 +291,16 @@ export default function ROICalculatorPage() {
 
               {/* Current Spend */}
               <div>
-                <label htmlFor="currentSpend" className="block text-sm font-medium text-gray-300 mb-1.5">
+                <label
+                  htmlFor="currentSpend"
+                  className="block text-sm font-medium text-gray-300 mb-1.5"
+                >
                   Current annual spend on compliance tools (optional)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">£</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                    £
+                  </span>
                   <input
                     id="currentSpend"
                     name="currentSpend"
@@ -274,9 +314,7 @@ export default function ROICalculatorPage() {
                 </div>
               </div>
 
-              {error && (
-                <p className="text-red-400 text-sm">{error}</p>
-              )}
+              {error && <p className="text-red-400 text-sm">{error}</p>}
 
               <button
                 type="submit"
@@ -298,7 +336,8 @@ export default function ROICalculatorPage() {
               {form.companyName}
             </h1>
             <p className="text-gray-400 dark:text-gray-500 mb-12">
-              Recommended tier: <span className="text-white font-semibold">{result.recommendedTier}</span>
+              Recommended tier:{' '}
+              <span className="text-white font-semibold">{result.recommendedTier}</span>
             </p>
 
             {/* Large ROI figure */}
@@ -306,26 +345,38 @@ export default function ROICalculatorPage() {
               <p className="text-6xl md:text-7xl font-bold font-display text-transparent bg-clip-text bg-gradient-to-r from-[#60A5FA] to-[#34D399] animate-pulse">
                 {formatCurrency(result.totalROI)}
               </p>
-              <p className="text-gray-400 dark:text-gray-500 text-lg mt-2">total savings per year</p>
+              <p className="text-gray-400 dark:text-gray-500 text-lg mt-2">
+                total savings per year
+              </p>
             </div>
 
             {/* Breakdown cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12 text-left">
               <div className="rounded-xl border border-white/10 bg-white/5 p-6">
                 <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Monthly cost</p>
-                <p className="text-2xl font-bold text-white">{formatCurrency(result.monthlyCost)}</p>
+                <p className="text-2xl font-bold text-white">
+                  {formatCurrency(result.monthlyCost)}
+                </p>
               </div>
               <div className="rounded-xl border border-white/10 bg-white/5 p-6">
                 <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Annual cost</p>
                 <p className="text-2xl font-bold text-white">{formatCurrency(result.annualCost)}</p>
               </div>
               <div className="rounded-xl border border-white/10 bg-white/5 p-6">
-                <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Software consolidation saving</p>
-                <p className="text-2xl font-bold text-[#34D399]">{formatCurrency(result.softwareSaving)}</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">
+                  Software consolidation saving
+                </p>
+                <p className="text-2xl font-bold text-[#34D399]">
+                  {formatCurrency(result.softwareSaving)}
+                </p>
               </div>
               <div className="rounded-xl border border-white/10 bg-white/5 p-6">
-                <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Time saving (annual)</p>
-                <p className="text-2xl font-bold text-[#34D399]">{formatCurrency(result.timeSavingAnnual)}</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">
+                  Time saving (annual)
+                </p>
+                <p className="text-2xl font-bold text-[#34D399]">
+                  {formatCurrency(result.timeSavingAnnual)}
+                </p>
               </div>
             </div>
 
@@ -338,7 +389,10 @@ export default function ROICalculatorPage() {
             </Link>
 
             <button
-              onClick={() => { setStep(1); setResult(null); }}
+              onClick={() => {
+                setStep(1);
+                setResult(null);
+              }}
               className="block mx-auto mt-4 text-sm text-gray-400 dark:text-gray-500 hover:text-white transition"
             >
               Recalculate

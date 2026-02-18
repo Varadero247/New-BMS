@@ -1,15 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  BarChart3,
-  Plus,
-  Save,
-  Trash2,
-  Loader2,
-  RefreshCw,
-  Download,
-} from 'lucide-react';
+import { BarChart3, Plus, Save, Trash2, Loader2, RefreshCw, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -206,7 +198,8 @@ export default function ParetoPage() {
             <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
               <p className="text-sm font-medium text-amber-700 mb-2">Auto-Generate from Data</p>
               <p className="text-xs text-amber-600 mb-3">
-                Automatically generate a Pareto chart from existing {formData.sourceType.toLowerCase().replace('_', ' ')} data.
+                Automatically generate a Pareto chart from existing{' '}
+                {formData.sourceType.toLowerCase().replace('_', ' ')} data.
               </p>
               <Button
                 variant="outline"
@@ -265,9 +258,15 @@ export default function ParetoPage() {
               </Button>
               <Button
                 onClick={createAnalysis}
-                disabled={creating || !formData.title || formData.categories.every((c) => !c.category)}
+                disabled={
+                  creating || !formData.title || formData.categories.every((c) => !c.category)
+                }
               >
-                {creating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                {creating ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
                 Save Analysis
               </Button>
             </div>
@@ -284,8 +283,9 @@ export default function ParetoPage() {
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <p className="text-sm text-muted-foreground mb-4">
-                The Pareto principle states that roughly 80% of effects come from 20% of causes.
-                In quality management, this helps identify the &quot;vital few&quot; issues that have the most significant impact.
+                The Pareto principle states that roughly 80% of effects come from 20% of causes. In
+                quality management, this helps identify the &quot;vital few&quot; issues that have
+                the most significant impact.
               </p>
               <ul className="text-sm space-y-2">
                 <li className="flex items-center gap-2">
@@ -311,7 +311,9 @@ export default function ParetoPage() {
                   <div className="w-8 bg-amber-200 rounded-t" style={{ height: '20%' }}></div>
                   <div className="w-8 bg-amber-100 rounded-t" style={{ height: '10%' }}></div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">Bars show frequency, line shows cumulative %</p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Bars show frequency, line shows cumulative %
+                </p>
               </div>
             </div>
           </div>
@@ -327,15 +329,13 @@ export default function ParetoPage() {
           {analyses.length > 0 ? (
             <div className="space-y-6">
               {analyses.map((analysis) => (
-                <div
-                  key={analysis.id}
-                  className="p-4 border rounded-lg"
-                >
+                <div key={analysis.id} className="p-4 border rounded-lg">
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="font-medium">{analysis.title}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(analysis.createdAt).toLocaleDateString()} • {analysis.sourceType.replace('_', ' ')}
+                        {new Date(analysis.createdAt).toLocaleDateString()} •{' '}
+                        {analysis.sourceType.replace('_', ' ')}
                       </p>
                       {analysis.description && (
                         <p className="text-sm text-muted-foreground mt-1">{analysis.description}</p>

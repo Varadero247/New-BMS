@@ -43,7 +43,10 @@ router.get('/aggregate', async (_req: Request, res: Response) => {
     res.json({ success: true, data: { topByVotes, statusCounts } });
   } catch (err) {
     logger.error('Failed to aggregate feature requests', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to aggregate feature requests' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to aggregate feature requests' },
+    });
   }
 });
 
@@ -78,7 +81,10 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Failed to list feature requests', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list feature requests' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list feature requests' },
+    });
   }
 });
 
@@ -90,12 +96,18 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const featureRequest = await prisma.featureRequest.findUnique({ where: { id } });
     if (!featureRequest) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Feature request not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Feature request not found' },
+      });
     }
     res.json({ success: true, data: { featureRequest } });
   } catch (err) {
     logger.error('Failed to get feature request', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get feature request' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get feature request' },
+    });
   }
 });
 
@@ -106,7 +118,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createFeatureRequestSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { title, description, requestedBy } = parsed.data;
@@ -126,7 +141,10 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: { featureRequest } });
   } catch (err) {
     logger.error('Failed to create feature request', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create feature request' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create feature request' },
+    });
   }
 });
 
@@ -138,12 +156,18 @@ router.patch('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const existing = await prisma.featureRequest.findUnique({ where: { id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Feature request not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Feature request not found' },
+      });
     }
 
     const parsed = updateFeatureRequestSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const { status, priority } = parsed.data;
@@ -160,7 +184,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { featureRequest } });
   } catch (err) {
     logger.error('Failed to update feature request', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update feature request' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update feature request' },
+    });
   }
 });
 
@@ -173,7 +200,10 @@ router.post('/:id/vote', async (req: Request, res: Response) => {
 
     const existing = await prisma.featureRequest.findUnique({ where: { id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Feature request not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Feature request not found' },
+      });
     }
 
     const featureRequest = await prisma.featureRequest.update({
@@ -185,7 +215,9 @@ router.post('/:id/vote', async (req: Request, res: Response) => {
     res.json({ success: true, data: { featureRequest } });
   } catch (err) {
     logger.error('Failed to vote on feature request', { error: String(err) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to vote' } });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to vote' } });
   }
 });
 

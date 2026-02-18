@@ -3,7 +3,8 @@ import type { StandardChecklist } from './types';
 export const iatf16949Checklist: StandardChecklist = {
   standard: 'IATF_16949',
   version: '2016',
-  title: 'Quality Management System Requirements for Automotive Production and Relevant Service Parts Organizations',
+  title:
+    'Quality Management System Requirements for Automotive Production and Relevant Service Parts Organizations',
   clauses: [
     // =========================================================================
     // CLAUSE 4: CONTEXT OF THE ORGANIZATION
@@ -153,7 +154,7 @@ export const iatf16949Checklist: StandardChecklist = {
       questions: [
         'Does top management demonstrate leadership and commitment with respect to the QMS by taking accountability for QMS effectiveness?',
         'Does top management ensure the quality policy and quality objectives are established and are compatible with the strategic direction?',
-        'Does top management ensure the integration of QMS requirements into the organization\'s business processes?',
+        "Does top management ensure the integration of QMS requirements into the organization's business processes?",
       ],
       evidence: [
         'Management review records demonstrating active top management involvement',
@@ -199,7 +200,7 @@ export const iatf16949Checklist: StandardChecklist = {
       clause: '5.1.1.3',
       title: 'Process owners',
       questions: [
-        'Has top management identified process owners who are responsible for managing the organization\'s processes and related outputs?',
+        "Has top management identified process owners who are responsible for managing the organization's processes and related outputs?",
         'Do process owners understand their roles and are they competent to perform those roles?',
         'Do process owners have the authority and responsibility to ensure processes achieve their planned results?',
       ],
@@ -366,7 +367,7 @@ export const iatf16949Checklist: StandardChecklist = {
       title: 'Quality objectives and planning to achieve them - supplemental',
       questions: [
         'Has top management ensured that quality objectives to meet customer requirements are defined, established, and maintained for relevant functions, processes, and levels throughout the organization?',
-        'Are the results of the organization\'s review regarding interested parties and their relevant requirements considered when setting annual (minimum) quality objectives and related performance targets?',
+        "Are the results of the organization's review regarding interested parties and their relevant requirements considered when setting annual (minimum) quality objectives and related performance targets?",
         'Do quality objectives address customer-specific requirements such as PPM targets, on-time delivery, and customer scorecard metrics?',
       ],
       evidence: [
@@ -453,7 +454,7 @@ export const iatf16949Checklist: StandardChecklist = {
       clause: '7.1.5.3.1',
       title: 'Internal laboratory',
       questions: [
-        'Does the organization\'s internal laboratory facility have a defined scope that includes its capability to perform required inspection, test, or calibration services?',
+        "Does the organization's internal laboratory facility have a defined scope that includes its capability to perform required inspection, test, or calibration services?",
         'Is the laboratory scope included in the QMS documentation?',
         'Does the internal laboratory specify and implement requirements for adequacy of laboratory procedures, competency of laboratory personnel, testing of product, capability to perform services traceable to relevant standards (ASTM, EN, etc.), and customer requirements?',
         'Is ISO/IEC 17025 accreditation applicable and, if so, has it been achieved?',
@@ -476,7 +477,7 @@ export const iatf16949Checklist: StandardChecklist = {
       ],
       evidence: [
         'External laboratory accreditation certificates (ISO/IEC 17025) with scope verification',
-        'Records confirming the required tests are within the laboratory\'s accreditation scope',
+        "Records confirming the required tests are within the laboratory's accreditation scope",
         'Customer acceptance records for non-accredited external laboratories',
         'External laboratory evaluation and selection records',
       ],
@@ -703,7 +704,7 @@ export const iatf16949Checklist: StandardChecklist = {
         'Has the organization used a multidisciplinary approach to establish, document, and implement processes to identify special characteristics including those determined by the customer and the risk analysis performed by the organization?',
         'Are special characteristics identified and documented in DFMEAs, PFMEAs, control plans, standard work/operator instructions, drawings, and all related documents?',
         'Is the organization in conformance with all customer-specified definitions and symbols for special characteristics?',
-        'Are special characteristics marked on drawings per customer requirements using customer-specific symbols or the organization\'s equivalent symbols as defined in a symbol conversion table?',
+        "Are special characteristics marked on drawings per customer requirements using customer-specific symbols or the organization's equivalent symbols as defined in a symbol conversion table?",
       ],
       evidence: [
         'Special characteristics list cross-referenced across drawings, DFMEAs, PFMEAs, and control plans',
@@ -783,8 +784,8 @@ export const iatf16949Checklist: StandardChecklist = {
       clause: '8.4.1.2',
       title: 'Supplier selection process',
       questions: [
-        'Does the organization have a documented supplier selection process that includes an assessment of the selected supplier\'s risk to product conformity and uninterrupted supply?',
-        'Does the selection process include assessment of the supplier\'s QMS development status, financial stability, manufacturing capability, delivery performance, and relevant quality certifications (IATF 16949 preferred)?',
+        "Does the organization have a documented supplier selection process that includes an assessment of the selected supplier's risk to product conformity and uninterrupted supply?",
+        "Does the selection process include assessment of the supplier's QMS development status, financial stability, manufacturing capability, delivery performance, and relevant quality certifications (IATF 16949 preferred)?",
         'Are relevant automotive customer-specific requirements considered in the supplier selection process?',
         'Is software development capability assessed for suppliers providing embedded software?',
       ],
@@ -888,7 +889,7 @@ export const iatf16949Checklist: StandardChecklist = {
         'Are standardized work documents derived from sources including the control plan, quality planning activities (APQP), and special characteristics identification?',
       ],
       evidence: [
-        'Standardized work instructions posted at workstations, legible, and in the operator\'s language',
+        "Standardized work instructions posted at workstations, legible, and in the operator's language",
         'Evidence of operator training on standardized work instructions with sign-off records',
         'Visual standards/boundary samples at appropriate work areas',
         'Traceability from control plan to standardized work instructions',
@@ -915,7 +916,8 @@ export const iatf16949Checklist: StandardChecklist = {
     },
     {
       clause: '8.5.6.1',
-      title: 'Management of production tooling and manufacturing, test, inspection tooling and equipment',
+      title:
+        'Management of production tooling and manufacturing, test, inspection tooling and equipment',
       questions: [
         'Has the organization provided resources for tool and gage design, fabrication, and verification activities?',
         'Has the organization established and implemented a system for production tooling management including maintenance and repair facilities and personnel, storage and recovery, setup, tool-change programs for perishable tools, tool design modification documentation, and tool modification and revision to the tool documentation?',
@@ -1038,7 +1040,7 @@ export const iatf16949Checklist: StandardChecklist = {
       clause: '9.2',
       title: 'Internal audit',
       questions: [
-        'Does the organization conduct internal audits at planned intervals to provide information on whether the QMS conforms to the organization\'s own requirements and ISO 9001/IATF 16949 requirements, and is effectively implemented and maintained?',
+        "Does the organization conduct internal audits at planned intervals to provide information on whether the QMS conforms to the organization's own requirements and ISO 9001/IATF 16949 requirements, and is effectively implemented and maintained?",
         'Does the organization plan, establish, implement, and maintain an audit program including frequency, methods, responsibilities, planning requirements, and reporting?',
         'Are audit results reported to relevant management?',
       ],

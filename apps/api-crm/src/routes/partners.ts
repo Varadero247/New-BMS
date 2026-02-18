@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate , type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { z } from 'zod';
@@ -11,7 +11,10 @@ router.use(authenticate);
 
 const RESERVED_PATHS = ['leaderboard'];
 
-const TIER_CONFIG: Record<string, { commissionRate: number; bountyAmount: number; commissionDuration: number }> = {
+const TIER_CONFIG: Record<
+  string,
+  { commissionRate: number; bountyAmount: number; commissionDuration: number }
+> = {
   TIER_1_REFERRAL: { commissionRate: 25, bountyAmount: 500, commissionDuration: 12 },
   TIER_2_COSELL: { commissionRate: 32.5, bountyAmount: 750, commissionDuration: 18 },
   TIER_3_RESELLER: { commissionRate: 37.5, bountyAmount: 1000, commissionDuration: 24 },
@@ -42,7 +45,10 @@ router.post('/', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -64,11 +70,24 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Partner registered', { partnerId: partner.id, tier: partner.tier });
     return res.status(201).json({ success: true, data: partner });
   } catch (error: unknown) {
-    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Account is already registered as a partner' } });
+    if (
+      error != null &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as any).code === 'P2002'
+    ) {
+      return res.status(409).json({
+        success: false,
+        error: { code: 'CONFLICT', message: 'Account is already registered as a partner' },
+      });
     }
-    logger.error('Failed to register partner', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to register partner' } });
+    logger.error('Failed to register partner', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to register partner' },
+    });
   }
 });
 
@@ -102,8 +121,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list partners', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list partners' } });
+    logger.error('Failed to list partners', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list partners' },
+    });
   }
 });
 
@@ -119,8 +143,13 @@ router.get('/leaderboard', async (_req: Request, res: Response) => {
 
     return res.json({ success: true, data: partners });
   } catch (error: unknown) {
-    logger.error('Failed to get partner leaderboard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get partner leaderboard' } });
+    logger.error('Failed to get partner leaderboard', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get partner leaderboard' },
+    });
   }
 });
 
@@ -128,7 +157,9 @@ router.get('/leaderboard', async (_req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     if (RESERVED_PATHS.includes(req.params.id)) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Partner not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Partner not found' } });
     }
 
     const partner = await prisma.crmPartner.findFirst({
@@ -137,13 +168,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!partner) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Partner not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Partner not found' } });
     }
 
     return res.json({ success: true, data: partner });
   } catch (error: unknown) {
-    logger.error('Failed to get partner', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get partner' } });
+    logger.error('Failed to get partner', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get partner' },
+    });
   }
 });
 
@@ -155,14 +193,19 @@ router.put('/:id/tier', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Partner not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Partner not found' } });
     }
 
     const validation = updateTierSchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -181,8 +224,13 @@ router.put('/:id/tier', async (req: Request, res: Response) => {
     logger.info('Partner tier updated', { partnerId: partner.id, tier: partner.tier });
     return res.json({ success: true, data: partner });
   } catch (error: unknown) {
-    logger.error('Failed to update partner tier', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update partner tier' } });
+    logger.error('Failed to update partner tier', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update partner tier' },
+    });
   }
 });
 
@@ -194,14 +242,19 @@ router.post('/:id/referrals', async (req: Request, res: Response) => {
     });
 
     if (!partner) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Partner not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Partner not found' } });
     }
 
     const validation = createReferralSchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -210,14 +263,17 @@ router.post('/:id/referrals', async (req: Request, res: Response) => {
     });
 
     if (!deal) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Deal not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
 
     // Calculate commission amount based on deal value and partner commission rate
     const dealValue = Number(deal.value);
-    const commissionAmount = Math.round(dealValue * Number(partner.commissionRate) / 100 * 100) / 100;
+    const commissionAmount =
+      Math.round(((dealValue * Number(partner.commissionRate)) / 100) * 100) / 100;
 
     const referral = await prisma.crmReferral.create({
       data: {
@@ -245,11 +301,20 @@ router.post('/:id/referrals', async (req: Request, res: Response) => {
       },
     });
 
-    logger.info('Referral logged', { partnerId: req.params.id, dealId: validation.data.dealId, referralId: referral.id });
+    logger.info('Referral logged', {
+      partnerId: req.params.id,
+      dealId: validation.data.dealId,
+      referralId: referral.id,
+    });
     return res.status(201).json({ success: true, data: referral });
   } catch (error: unknown) {
-    logger.error('Failed to log referral', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log referral' } });
+    logger.error('Failed to log referral', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to log referral' },
+    });
   }
 });
 
@@ -261,7 +326,9 @@ router.get('/:id/commissions', async (req: Request, res: Response) => {
     });
 
     if (!partner) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Partner not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Partner not found' } });
     }
 
     const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
@@ -287,8 +354,13 @@ router.get('/:id/commissions', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list commissions', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list commissions' } });
+    logger.error('Failed to list commissions', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list commissions' },
+    });
   }
 });
 
@@ -300,14 +372,19 @@ router.post('/:id/commissions/pay', async (req: Request, res: Response) => {
     });
 
     if (!partner) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Partner not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Partner not found' } });
     }
 
     const validation = payCommissionsSchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -322,13 +399,14 @@ router.post('/:id/commissions/pay', async (req: Request, res: Response) => {
         deletedAt: null,
       } as any,
       select: { id: true, amount: true },
-      take: 1000});
+      take: 1000,
+    });
 
     const totalPaid = eligibleCommissions.reduce((sum, c) => sum + Number(c.amount), 0);
 
     if (eligibleCommissions.length > 0) {
       await prisma.crmCommission.updateMany({
-        where: { id: { in: eligibleCommissions.map(c => c.id) } },
+        where: { id: { in: eligibleCommissions.map((c) => c.id) } },
         data: { status: 'PAID', paidAt: now },
       });
     }
@@ -341,14 +419,23 @@ router.post('/:id/commissions/pay', async (req: Request, res: Response) => {
       });
     }
 
-    logger.info('Commissions paid', { partnerId: req.params.id, totalPaid, count: validation.data.commissionIds.length });
+    logger.info('Commissions paid', {
+      partnerId: req.params.id,
+      totalPaid,
+      count: validation.data.commissionIds.length,
+    });
     return res.json({
       success: true,
       data: { paidCount: validation.data.commissionIds.length, totalPaid },
     });
   } catch (error: unknown) {
-    logger.error('Failed to pay commissions', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to pay commissions' } });
+    logger.error('Failed to pay commissions', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to pay commissions' },
+    });
   }
 });
 

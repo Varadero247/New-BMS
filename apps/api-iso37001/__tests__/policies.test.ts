@@ -146,7 +146,9 @@ describe('ISO 37001 Policies API', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             OR: expect.arrayContaining([
-              expect.objectContaining({ title: expect.objectContaining({ contains: 'anti-bribery' }) }),
+              expect.objectContaining({
+                title: expect.objectContaining({ contains: 'anti-bribery' }),
+              }),
             ]),
           }),
         })
@@ -265,7 +267,10 @@ describe('ISO 37001 Policies API', () => {
   describe('PUT /api/policies/:id', () => {
     it('should update a policy', async () => {
       (mockPrisma.abPolicy.findFirst as jest.Mock).mockResolvedValueOnce(mockPolicy);
-      (mockPrisma.abPolicy.update as jest.Mock).mockResolvedValueOnce({ ...mockPolicy, title: 'Updated Title' });
+      (mockPrisma.abPolicy.update as jest.Mock).mockResolvedValueOnce({
+        ...mockPolicy,
+        title: 'Updated Title',
+      });
 
       const res = await request(app)
         .put('/api/policies/00000000-0000-0000-0000-000000000001')
@@ -313,7 +318,9 @@ describe('ISO 37001 Policies API', () => {
         approvedAt: new Date(),
       });
 
-      const res = await request(app).put('/api/policies/00000000-0000-0000-0000-000000000001/approve');
+      const res = await request(app).put(
+        '/api/policies/00000000-0000-0000-0000-000000000001/approve'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -333,7 +340,9 @@ describe('ISO 37001 Policies API', () => {
     it('should return 404 when policy not found for approval', async () => {
       (mockPrisma.abPolicy.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).put('/api/policies/00000000-0000-0000-0000-000000000099/approve');
+      const res = await request(app).put(
+        '/api/policies/00000000-0000-0000-0000-000000000099/approve'
+      );
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -346,7 +355,10 @@ describe('ISO 37001 Policies API', () => {
   describe('DELETE /api/policies/:id', () => {
     it('should soft delete a policy', async () => {
       (mockPrisma.abPolicy.findFirst as jest.Mock).mockResolvedValueOnce(mockPolicy);
-      (mockPrisma.abPolicy.update as jest.Mock).mockResolvedValueOnce({ ...mockPolicy, deletedAt: new Date() });
+      (mockPrisma.abPolicy.update as jest.Mock).mockResolvedValueOnce({
+        ...mockPolicy,
+        deletedAt: new Date(),
+      });
 
       const res = await request(app).delete('/api/policies/00000000-0000-0000-0000-000000000001');
 

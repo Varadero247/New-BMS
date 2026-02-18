@@ -75,7 +75,16 @@ export default function InvestigationsPage() {
     setEditingItem(null);
     const now = new Date();
     const refNum = `INV-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 900) + 100)}`;
-    setForm({ referenceNumber: refNum, title: '', description: '', type: 'INTERNAL', status: 'OPEN', findings: '', outcome: '', investigator: '' });
+    setForm({
+      referenceNumber: refNum,
+      title: '',
+      description: '',
+      type: 'INTERNAL',
+      status: 'OPEN',
+      findings: '',
+      outcome: '',
+      investigator: '',
+    });
     setModalOpen(true);
   }
 
@@ -124,7 +133,13 @@ export default function InvestigationsPage() {
   const filtered = investigations.filter((i) => {
     if (filterStatus && i.status !== filterStatus) return false;
     if (filterType && i.type !== filterType) return false;
-    if (search && !i.title.toLowerCase().includes(search.toLowerCase()) && !i.referenceNumber.toLowerCase().includes(search.toLowerCase()) && !(i.investigator || '').toLowerCase().includes(search.toLowerCase())) return false;
+    if (
+      search &&
+      !i.title.toLowerCase().includes(search.toLowerCase()) &&
+      !i.referenceNumber.toLowerCase().includes(search.toLowerCase()) &&
+      !(i.investigator || '').toLowerCase().includes(search.toLowerCase())
+    )
+      return false;
     return true;
   });
 
@@ -152,14 +167,23 @@ export default function InvestigationsPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Investigations</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Anti-bribery investigation case log per ISO 37001</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Anti-bribery investigation case log per ISO 37001
+            </p>
           </div>
-          <button onClick={openAddModal} className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors">
+          <button
+            onClick={openAddModal}
+            className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+          >
             New Investigation
           </button>
         </div>
 
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
@@ -195,18 +219,37 @@ export default function InvestigationsPage() {
           <div className="flex flex-wrap gap-4">
             <input
               type="text"
-              aria-label="Search by title, reference or investigator..." placeholder="Search by title, reference or investigator..."
+              aria-label="Search by title, reference or investigator..."
+              placeholder="Search by title, reference or investigator..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 min-w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
             />
-            <select aria-label="Filter by type" value={filterType} onChange={(e) => setFilterType(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <select
+              aria-label="Filter by type"
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+            >
               <option value="">All Types</option>
-              {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+              {typeOptions.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
             </select>
-            <select aria-label="Filter by status" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <select
+              aria-label="Filter by status"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+            >
               <option value="">All Statuses</option>
-              {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+              {statusOptions.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -216,52 +259,108 @@ export default function InvestigationsPage() {
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Reference</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Findings</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Outcome</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Investigator</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Reference
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Title
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Findings
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Outcome
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Investigator
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {filtered.length > 0 ? (
                 filtered.map((item) => (
-                  <tr key={item.id} className={`hover:bg-gray-50 dark:bg-gray-800 ${item.status === 'OPEN' ? 'border-l-2 border-l-red-400' : ''}`}>
-                    <td className="px-6 py-4 text-sm font-mono text-rose-600 whitespace-nowrap">{item.referenceNumber}</td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.title}</p>
-                      {item.description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate max-w-xs">{item.description}</p>}
+                  <tr
+                    key={item.id}
+                    className={`hover:bg-gray-50 dark:bg-gray-800 ${item.status === 'OPEN' ? 'border-l-2 border-l-red-400' : ''}`}
+                  >
+                    <td className="px-6 py-4 text-sm font-mono text-rose-600 whitespace-nowrap">
+                      {item.referenceNumber}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${typeColors[item.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {item.title}
+                      </p>
+                      {item.description && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate max-w-xs">
+                          {item.description}
+                        </p>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${typeColors[item.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                      >
                         {item.type}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[item.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[item.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                      >
                         {item.status}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs">
-                      <span className="truncate block">{item.findings || <span className="text-gray-300 dark:text-gray-600 italic">Pending</span>}</span>
+                      <span className="truncate block">
+                        {item.findings || (
+                          <span className="text-gray-300 dark:text-gray-600 italic">Pending</span>
+                        )}
+                      </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs">
-                      <span className="truncate block">{item.outcome || <span className="text-gray-300 dark:text-gray-600 italic">TBD</span>}</span>
+                      <span className="truncate block">
+                        {item.outcome || (
+                          <span className="text-gray-300 dark:text-gray-600 italic">TBD</span>
+                        )}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{item.investigator || '-'}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                      {item.investigator || '-'}
+                    </td>
                     <td className="px-6 py-4 text-right">
-                      <button onClick={() => openEditModal(item)} className="text-rose-600 hover:text-rose-700 text-sm mr-3">Edit</button>
-                      <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-700 text-sm">Delete</button>
+                      <button
+                        onClick={() => openEditModal(item)}
+                        className="text-rose-600 hover:text-rose-700 text-sm mr-3"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="text-red-600 hover:text-red-700 text-sm"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                    {investigations.length === 0 ? 'No investigations found. Open a case to get started.' : 'No investigations match your filters.'}
+                  <td
+                    colSpan={8}
+                    className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
+                  >
+                    {investigations.length === 0
+                      ? 'No investigations found. Open a case to get started.'
+                      : 'No investigations match your filters.'}
                   </td>
                 </tr>
               )}
@@ -274,18 +373,35 @@ export default function InvestigationsPage() {
       {modalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4">
-            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setModalOpen(false)} />
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50"
+              onClick={() => setModalOpen(false)}
+            />
             <div className="relative bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{editingItem ? 'Edit Investigation' : 'New Investigation'}</h2>
-                <button onClick={() => setModalOpen(false)} className="text-gray-400 dark:text-gray-500 hover:text-gray-600">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  {editingItem ? 'Edit Investigation' : 'New Investigation'}
+                </h2>
+                <button
+                  onClick={() => setModalOpen(false)}
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-600"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
                 </button>
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reference Number <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Reference Number <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="text"
                       value={form.referenceNumber}
@@ -296,14 +412,26 @@ export default function InvestigationsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
-                    <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
-                      {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Type
+                    </label>
+                    <select
+                      value={form.type}
+                      onChange={(e) => setForm({ ...form, type: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    >
+                      {typeOptions.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Title <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     value={form.title}
@@ -314,7 +442,9 @@ export default function InvestigationsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Description
+                  </label>
                   <textarea
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -325,13 +455,25 @@ export default function InvestigationsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-                    <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
-                      {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={form.status}
+                      onChange={(e) => setForm({ ...form, status: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    >
+                      {statusOptions.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Investigator</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Investigator
+                    </label>
                     <input
                       type="text"
                       value={form.investigator}
@@ -341,7 +483,9 @@ export default function InvestigationsPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Findings</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Findings
+                  </label>
                   <textarea
                     value={form.findings}
                     onChange={(e) => setForm({ ...form, findings: e.target.value })}
@@ -351,7 +495,9 @@ export default function InvestigationsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Outcome</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Outcome
+                  </label>
                   <textarea
                     value={form.outcome}
                     onChange={(e) => setForm({ ...form, outcome: e.target.value })}
@@ -361,8 +507,17 @@ export default function InvestigationsPage() {
                   />
                 </div>
                 <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
-                  <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800">Cancel</button>
-                  <button type="submit" className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700">
+                  <button
+                    type="button"
+                    onClick={() => setModalOpen(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700"
+                  >
                     {editingItem ? 'Update' : 'Create'}
                   </button>
                 </div>

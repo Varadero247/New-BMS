@@ -53,7 +53,12 @@ export interface CAFederalTaxResult {
   netPay: number;
 }
 
-export type TaxResult = UKTaxResult | UAETaxResult | AUTaxResult | USFederalTaxResult | CAFederalTaxResult;
+export type TaxResult =
+  | UKTaxResult
+  | UAETaxResult
+  | AUTaxResult
+  | USFederalTaxResult
+  | CAFederalTaxResult;
 
 export interface TaxConfig {
   jurisdiction: TaxJurisdiction;

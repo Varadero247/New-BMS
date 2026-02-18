@@ -2,15 +2,33 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle,
-  Button, Badge, Modal, ModalFooter,
-  Input, Label, Select, Textarea,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
   AIDisclosure,
 } from '@ims/ui';
 import {
-  Plus, Workflow, Search, Loader2, Sparkles,
-  AlertCircle, Clock, CheckCircle, Settings2,
-  ChevronDown, ChevronUp, Target,
+  Plus,
+  Workflow,
+  Search,
+  Loader2,
+  Sparkles,
+  AlertCircle,
+  Clock,
+  CheckCircle,
+  Settings2,
+  ChevronDown,
+  ChevronUp,
+  Target,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -127,20 +145,47 @@ interface FormData {
 }
 
 const emptyForm: FormData = {
-  processName: '', processType: 'CORE', isoClause: '', department: '', processOwner: '',
-  version: '1.0', status: 'DRAFT', purposeScope: '', inputs: '', outputs: '',
-  customerOfOutput: '', resourcesRequired: '', competenceNeeded: '', keyActivities: '',
-  controlsMethods: '', kpi1Description: '', kpi1Target: '', kpi2Description: '', kpi2Target: '',
-  kpi3Description: '', kpi3Target: '', monitoringMethod: '', measurementFrequency: '',
-  precedingProcesses: '', followingProcesses: '', relatedDocuments: '', relatedRiskRef: '',
-  relatedLegalRef: '', reviewFrequency: 'ANNUALLY', lastReviewed: '', nextReviewDate: '',
+  processName: '',
+  processType: 'CORE',
+  isoClause: '',
+  department: '',
+  processOwner: '',
+  version: '1.0',
+  status: 'DRAFT',
+  purposeScope: '',
+  inputs: '',
+  outputs: '',
+  customerOfOutput: '',
+  resourcesRequired: '',
+  competenceNeeded: '',
+  keyActivities: '',
+  controlsMethods: '',
+  kpi1Description: '',
+  kpi1Target: '',
+  kpi2Description: '',
+  kpi2Target: '',
+  kpi3Description: '',
+  kpi3Target: '',
+  monitoringMethod: '',
+  measurementFrequency: '',
+  precedingProcesses: '',
+  followingProcesses: '',
+  relatedDocuments: '',
+  relatedRiskRef: '',
+  relatedLegalRef: '',
+  reviewFrequency: 'ANNUALLY',
+  lastReviewed: '',
+  nextReviewDate: '',
   reviewNotes: '',
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function getBadge(value: string, options: readonly { value: string; label: string; color: string }[]) {
-  const opt = options.find(o => o.value === value);
+function getBadge(
+  value: string,
+  options: readonly { value: string; label: string; color: string }[]
+) {
+  const opt = options.find((o) => o.value === value);
   return opt ? <Badge className={opt.color}>{opt.label}</Badge> : <Badge>{value}</Badge>;
 }
 
@@ -175,25 +220,47 @@ export default function ProcessesClient() {
     }
   }, [search, filterType, filterStatus]);
 
-  useEffect(() => { fetchRecords(); }, [fetchRecords]);
+  useEffect(() => {
+    fetchRecords();
+  }, [fetchRecords]);
 
-  const openCreate = () => { setEditing(null); setForm(emptyForm); setModalOpen(true); };
+  const openCreate = () => {
+    setEditing(null);
+    setForm(emptyForm);
+    setModalOpen(true);
+  };
   const openEdit = (r: ProcessRecord) => {
     setEditing(r);
     setForm({
-      processName: r.processName, processType: r.processType, isoClause: r.isoClause || '',
-      department: r.department, processOwner: r.processOwner, version: r.version,
-      status: r.status, purposeScope: r.purposeScope, inputs: r.inputs, outputs: r.outputs,
-      customerOfOutput: r.customerOfOutput || '', resourcesRequired: r.resourcesRequired || '',
-      competenceNeeded: r.competenceNeeded || '', keyActivities: r.keyActivities || '',
-      controlsMethods: r.controlsMethods || '', kpi1Description: r.kpi1Description || '',
-      kpi1Target: r.kpi1Target || '', kpi2Description: r.kpi2Description || '',
-      kpi2Target: r.kpi2Target || '', kpi3Description: r.kpi3Description || '',
-      kpi3Target: r.kpi3Target || '', monitoringMethod: r.monitoringMethod || '',
+      processName: r.processName,
+      processType: r.processType,
+      isoClause: r.isoClause || '',
+      department: r.department,
+      processOwner: r.processOwner,
+      version: r.version,
+      status: r.status,
+      purposeScope: r.purposeScope,
+      inputs: r.inputs,
+      outputs: r.outputs,
+      customerOfOutput: r.customerOfOutput || '',
+      resourcesRequired: r.resourcesRequired || '',
+      competenceNeeded: r.competenceNeeded || '',
+      keyActivities: r.keyActivities || '',
+      controlsMethods: r.controlsMethods || '',
+      kpi1Description: r.kpi1Description || '',
+      kpi1Target: r.kpi1Target || '',
+      kpi2Description: r.kpi2Description || '',
+      kpi2Target: r.kpi2Target || '',
+      kpi3Description: r.kpi3Description || '',
+      kpi3Target: r.kpi3Target || '',
+      monitoringMethod: r.monitoringMethod || '',
       measurementFrequency: r.measurementFrequency || '',
-      precedingProcesses: r.precedingProcesses || '', followingProcesses: r.followingProcesses || '',
-      relatedDocuments: r.relatedDocuments || '', relatedRiskRef: r.relatedRiskRef || '',
-      relatedLegalRef: r.relatedLegalRef || '', reviewFrequency: r.reviewFrequency,
+      precedingProcesses: r.precedingProcesses || '',
+      followingProcesses: r.followingProcesses || '',
+      relatedDocuments: r.relatedDocuments || '',
+      relatedRiskRef: r.relatedRiskRef || '',
+      relatedLegalRef: r.relatedLegalRef || '',
+      reviewFrequency: r.reviewFrequency,
       lastReviewed: r.lastReviewed ? r.lastReviewed.split('T')[0] : '',
       nextReviewDate: r.nextReviewDate ? r.nextReviewDate.split('T')[0] : '',
       reviewNotes: r.reviewNotes || '',
@@ -236,10 +303,10 @@ export default function ProcessesClient() {
 
   const stats = {
     total: records.length,
-    active: records.filter(r => r.status === 'ACTIVE').length,
-    management: records.filter(r => r.processType === 'MANAGEMENT').length,
-    core: records.filter(r => r.processType === 'CORE').length,
-    support: records.filter(r => r.processType === 'SUPPORT').length,
+    active: records.filter((r) => r.status === 'ACTIVE').length,
+    management: records.filter((r) => r.processType === 'MANAGEMENT').length,
+    core: records.filter((r) => r.processType === 'CORE').length,
+    support: records.filter((r) => r.processType === 'SUPPORT').length,
   };
 
   return (
@@ -248,7 +315,9 @@ export default function ProcessesClient() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Process Register</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ISO 9001:2015 process management with turtle diagrams</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            ISO 9001:2015 process management with turtle diagrams
+          </p>
         </div>
         <Button onClick={openCreate}>
           <Plus className="h-4 w-4 mr-2" /> Add Process
@@ -260,40 +329,65 @@ export default function ProcessesClient() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg"><Workflow className="h-5 w-5 text-blue-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.total}</p><p className="text-xs text-gray-500 dark:text-gray-400">Total Processes</p></div>
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Workflow className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.total}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Total Processes</p>
+              </div>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg"><CheckCircle className="h-5 w-5 text-green-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.active}</p><p className="text-xs text-gray-500 dark:text-gray-400">Active</p></div>
+              <div className="p-2 bg-green-100 rounded-lg">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.active}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Active</p>
+              </div>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg"><Settings2 className="h-5 w-5 text-purple-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.management}</p><p className="text-xs text-gray-500 dark:text-gray-400">Management</p></div>
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Settings2 className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.management}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Management</p>
+              </div>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg"><Target className="h-5 w-5 text-blue-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.core}</p><p className="text-xs text-gray-500 dark:text-gray-400">Core</p></div>
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Target className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.core}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Core</p>
+              </div>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg"><Workflow className="h-5 w-5 text-green-600" /></div>
-              <div><p className="text-2xl font-bold">{stats.support}</p><p className="text-xs text-gray-500 dark:text-gray-400">Support</p></div>
+              <div className="p-2 bg-green-100 rounded-lg">
+                <Workflow className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.support}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Support</p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -306,16 +400,30 @@ export default function ProcessesClient() {
             <div className="flex-1 min-w-[200px]">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                <Input aria-label="Search processes..." placeholder="Search processes..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+                <Input
+                  aria-label="Search processes..."
+                  placeholder="Search processes..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10"
+                />
               </div>
             </div>
             <Select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
               <option value="">All Types</option>
-              {PROCESS_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              {PROCESS_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
             </Select>
             <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
               <option value="">All Statuses</option>
-              {PROCESS_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+              {PROCESS_STATUSES.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
             </Select>
           </div>
         </CardContent>
@@ -323,51 +431,90 @@ export default function ProcessesClient() {
 
       {/* List */}
       {loading ? (
-        <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-blue-500" /></div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        </div>
       ) : records.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
             <Workflow className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Processes Found</h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">Create your first process to get started with the process register.</p>
-            <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" /> Add Process</Button>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              No Processes Found
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              Create your first process to get started with the process register.
+            </p>
+            <Button onClick={openCreate}>
+              <Plus className="h-4 w-4 mr-2" /> Add Process
+            </Button>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
-          {records.map(r => (
+          {records.map((r) => (
             <Card key={r.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-mono text-gray-400 dark:text-gray-500">{r.referenceNumber}</span>
+                      <span className="text-xs font-mono text-gray-400 dark:text-gray-500">
+                        {r.referenceNumber}
+                      </span>
                       {getBadge(r.processType, PROCESS_TYPES)}
                       {getBadge(r.status, PROCESS_STATUSES)}
-                      {r.version && <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600">v{r.version}</Badge>}
+                      {r.version && (
+                        <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600">
+                          v{r.version}
+                        </Badge>
+                      )}
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{r.processName}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{r.purposeScope}</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      {r.processName}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                      {r.purposeScope}
+                    </p>
                     <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
                       <span>Owner: {r.processOwner}</span>
                       <span>Dept: {r.department}</span>
                       {r.isoClause && <span>ISO: {r.isoClause}</span>}
-                      {r.reviewFrequency && <span>Review: {r.reviewFrequency.replace('_', ' ')}</span>}
+                      {r.reviewFrequency && (
+                        <span>Review: {r.reviewFrequency.replace('_', ' ')}</span>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}>
-                      {expandedId === r.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}
+                    >
+                      {expandedId === r.id ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => openEdit(r)}>Edit</Button>
-                    <Button variant="outline" size="sm" onClick={() => handleDelete(r.id)} className="text-red-600 hover:text-red-700">Delete</Button>
+                    <Button variant="outline" size="sm" onClick={() => openEdit(r)}>
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(r.id)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      Delete
+                    </Button>
                   </div>
                 </div>
 
                 {/* Expanded: Turtle Diagram */}
                 {expandedId === r.id && (
                   <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
-                    <h4 className="font-semibold text-gray-700 dark:text-gray-300">Turtle Diagram</h4>
+                    <h4 className="font-semibold text-gray-700 dark:text-gray-300">
+                      Turtle Diagram
+                    </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="bg-blue-50 p-3 rounded-lg">
                         <p className="text-xs font-semibold text-blue-700 mb-1">Inputs</p>
@@ -379,26 +526,42 @@ export default function ProcessesClient() {
                       </div>
                       {r.resourcesRequired && (
                         <div className="bg-yellow-50 p-3 rounded-lg">
-                          <p className="text-xs font-semibold text-yellow-700 mb-1">Resources Required</p>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">{r.resourcesRequired}</p>
+                          <p className="text-xs font-semibold text-yellow-700 mb-1">
+                            Resources Required
+                          </p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                            {r.resourcesRequired}
+                          </p>
                         </div>
                       )}
                       {r.competenceNeeded && (
                         <div className="bg-purple-50 p-3 rounded-lg">
-                          <p className="text-xs font-semibold text-purple-700 mb-1">Competence Needed</p>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">{r.competenceNeeded}</p>
+                          <p className="text-xs font-semibold text-purple-700 mb-1">
+                            Competence Needed
+                          </p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                            {r.competenceNeeded}
+                          </p>
                         </div>
                       )}
                       {r.keyActivities && (
                         <div className="bg-indigo-50 p-3 rounded-lg">
-                          <p className="text-xs font-semibold text-indigo-700 mb-1">Key Activities</p>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">{r.keyActivities}</p>
+                          <p className="text-xs font-semibold text-indigo-700 mb-1">
+                            Key Activities
+                          </p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                            {r.keyActivities}
+                          </p>
                         </div>
                       )}
                       {r.controlsMethods && (
                         <div className="bg-orange-50 p-3 rounded-lg">
-                          <p className="text-xs font-semibold text-orange-700 mb-1">Controls & Methods</p>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">{r.controlsMethods}</p>
+                          <p className="text-xs font-semibold text-orange-700 mb-1">
+                            Controls & Methods
+                          </p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                            {r.controlsMethods}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -406,27 +569,41 @@ export default function ProcessesClient() {
                     {/* KPIs */}
                     {(r.kpi1Description || r.kpi2Description || r.kpi3Description) && (
                       <div>
-                        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Performance KPIs</h4>
+                        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          Performance KPIs
+                        </h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           {r.kpi1Description && (
                             <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                               <p className="text-xs font-semibold text-gray-600">KPI 1</p>
-                              <p className="text-sm text-gray-700 dark:text-gray-300">{r.kpi1Description}</p>
-                              {r.kpi1Target && <p className="text-xs text-blue-600 mt-1">Target: {r.kpi1Target}</p>}
+                              <p className="text-sm text-gray-700 dark:text-gray-300">
+                                {r.kpi1Description}
+                              </p>
+                              {r.kpi1Target && (
+                                <p className="text-xs text-blue-600 mt-1">Target: {r.kpi1Target}</p>
+                              )}
                             </div>
                           )}
                           {r.kpi2Description && (
                             <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                               <p className="text-xs font-semibold text-gray-600">KPI 2</p>
-                              <p className="text-sm text-gray-700 dark:text-gray-300">{r.kpi2Description}</p>
-                              {r.kpi2Target && <p className="text-xs text-blue-600 mt-1">Target: {r.kpi2Target}</p>}
+                              <p className="text-sm text-gray-700 dark:text-gray-300">
+                                {r.kpi2Description}
+                              </p>
+                              {r.kpi2Target && (
+                                <p className="text-xs text-blue-600 mt-1">Target: {r.kpi2Target}</p>
+                              )}
                             </div>
                           )}
                           {r.kpi3Description && (
                             <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                               <p className="text-xs font-semibold text-gray-600">KPI 3</p>
-                              <p className="text-sm text-gray-700 dark:text-gray-300">{r.kpi3Description}</p>
-                              {r.kpi3Target && <p className="text-xs text-blue-600 mt-1">Target: {r.kpi3Target}</p>}
+                              <p className="text-sm text-gray-700 dark:text-gray-300">
+                                {r.kpi3Description}
+                              </p>
+                              {r.kpi3Target && (
+                                <p className="text-xs text-blue-600 mt-1">Target: {r.kpi3Target}</p>
+                              )}
                             </div>
                           )}
                         </div>
@@ -443,18 +620,46 @@ export default function ProcessesClient() {
                     {/* AI Analysis */}
                     {r.aiAnalysis && (
                       <div className="border-t pt-3">
-                        <button onClick={() => setAiExpandedId(aiExpandedId === r.id ? null : r.id)} className="flex items-center gap-2 text-sm font-medium text-purple-700">
+                        <button
+                          onClick={() => setAiExpandedId(aiExpandedId === r.id ? null : r.id)}
+                          className="flex items-center gap-2 text-sm font-medium text-purple-700"
+                        >
                           <Sparkles className="h-4 w-4" /> AI Analysis
-                          {aiExpandedId === r.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                          {aiExpandedId === r.id ? (
+                            <ChevronUp className="h-3 w-3" />
+                          ) : (
+                            <ChevronDown className="h-3 w-3" />
+                          )}
                         </button>
                         {aiExpandedId === r.id && (
                           <div className="mt-2 bg-purple-50 p-3 rounded-lg space-y-2 text-sm">
                             <p>{r.aiAnalysis}</p>
-                            {r.aiProcessGaps && <p><strong>Gaps:</strong> {r.aiProcessGaps}</p>}
-                            {r.aiRiskPoints && <p><strong>Risk Points:</strong> {r.aiRiskPoints}</p>}
-                            {r.aiKpiSuggestions && <p><strong>KPI Suggestions:</strong> {r.aiKpiSuggestions}</p>}
-                            {r.aiIsoAlignment && <p><strong>ISO Alignment:</strong> {r.aiIsoAlignment}</p>}
-                            <AIDisclosure variant="inline" provider="claude" analysisType="Process Analysis" confidence={0.85} />
+                            {r.aiProcessGaps && (
+                              <p>
+                                <strong>Gaps:</strong> {r.aiProcessGaps}
+                              </p>
+                            )}
+                            {r.aiRiskPoints && (
+                              <p>
+                                <strong>Risk Points:</strong> {r.aiRiskPoints}
+                              </p>
+                            )}
+                            {r.aiKpiSuggestions && (
+                              <p>
+                                <strong>KPI Suggestions:</strong> {r.aiKpiSuggestions}
+                              </p>
+                            )}
+                            {r.aiIsoAlignment && (
+                              <p>
+                                <strong>ISO Alignment:</strong> {r.aiIsoAlignment}
+                              </p>
+                            )}
+                            <AIDisclosure
+                              variant="inline"
+                              provider="claude"
+                              analysisType="Process Analysis"
+                              confidence={0.85}
+                            />
                           </div>
                         )}
                       </div>
@@ -468,60 +673,223 @@ export default function ProcessesClient() {
       )}
 
       {/* Modal */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Process' : 'New Process'} size="lg">
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editing ? 'Edit Process' : 'New Process'}
+        size="lg"
+      >
         <div className="space-y-6 max-h-[70vh] overflow-y-auto p-1">
           {/* Basic Info */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Basic Information</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">
+              Basic Information
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2"><Label>Process Name *</Label><Input value={form.processName} onChange={e => setForm({...form, processName: e.target.value})} /></div>
-              <div><Label>Process Type *</Label>
-                <Select value={form.processType} onChange={e => setForm({...form, processType: e.target.value})}>
-                  {PROCESS_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              <div className="md:col-span-2">
+                <Label>Process Name *</Label>
+                <Input
+                  value={form.processName}
+                  onChange={(e) => setForm({ ...form, processName: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Process Type *</Label>
+                <Select
+                  value={form.processType}
+                  onChange={(e) => setForm({ ...form, processType: e.target.value })}
+                >
+                  {PROCESS_TYPES.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
                 </Select>
               </div>
-              <div><Label>Status</Label>
-                <Select value={form.status} onChange={e => setForm({...form, status: e.target.value})}>
-                  {PROCESS_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+              <div>
+                <Label>Status</Label>
+                <Select
+                  value={form.status}
+                  onChange={(e) => setForm({ ...form, status: e.target.value })}
+                >
+                  {PROCESS_STATUSES.map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
                 </Select>
               </div>
-              <div><Label>Department *</Label><Input value={form.department} onChange={e => setForm({...form, department: e.target.value})} /></div>
-              <div><Label>Process Owner *</Label><Input value={form.processOwner} onChange={e => setForm({...form, processOwner: e.target.value})} /></div>
-              <div><Label>Version</Label><Input value={form.version} onChange={e => setForm({...form, version: e.target.value})} /></div>
-              <div><Label>ISO Clause</Label><Input value={form.isoClause} onChange={e => setForm({...form, isoClause: e.target.value})} placeholder="e.g. 8.1" /></div>
+              <div>
+                <Label>Department *</Label>
+                <Input
+                  value={form.department}
+                  onChange={(e) => setForm({ ...form, department: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Process Owner *</Label>
+                <Input
+                  value={form.processOwner}
+                  onChange={(e) => setForm({ ...form, processOwner: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Version</Label>
+                <Input
+                  value={form.version}
+                  onChange={(e) => setForm({ ...form, version: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>ISO Clause</Label>
+                <Input
+                  value={form.isoClause}
+                  onChange={(e) => setForm({ ...form, isoClause: e.target.value })}
+                  placeholder="e.g. 8.1"
+                />
+              </div>
             </div>
           </div>
 
           {/* Turtle Diagram */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Turtle Diagram</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">
+              Turtle Diagram
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2"><Label>Purpose / Scope *</Label><Textarea value={form.purposeScope} onChange={e => setForm({...form, purposeScope: e.target.value})} rows={2} /></div>
-              <div><Label>Inputs *</Label><Textarea value={form.inputs} onChange={e => setForm({...form, inputs: e.target.value})} rows={3} /></div>
-              <div><Label>Outputs *</Label><Textarea value={form.outputs} onChange={e => setForm({...form, outputs: e.target.value})} rows={3} /></div>
-              <div><Label>Customer of Output</Label><Input value={form.customerOfOutput} onChange={e => setForm({...form, customerOfOutput: e.target.value})} /></div>
-              <div><Label>Resources Required</Label><Textarea value={form.resourcesRequired} onChange={e => setForm({...form, resourcesRequired: e.target.value})} rows={2} /></div>
-              <div><Label>Competence Needed</Label><Textarea value={form.competenceNeeded} onChange={e => setForm({...form, competenceNeeded: e.target.value})} rows={2} /></div>
-              <div><Label>Key Activities</Label><Textarea value={form.keyActivities} onChange={e => setForm({...form, keyActivities: e.target.value})} rows={2} /></div>
-              <div className="md:col-span-2"><Label>Controls & Methods</Label><Textarea value={form.controlsMethods} onChange={e => setForm({...form, controlsMethods: e.target.value})} rows={2} /></div>
+              <div className="md:col-span-2">
+                <Label>Purpose / Scope *</Label>
+                <Textarea
+                  value={form.purposeScope}
+                  onChange={(e) => setForm({ ...form, purposeScope: e.target.value })}
+                  rows={2}
+                />
+              </div>
+              <div>
+                <Label>Inputs *</Label>
+                <Textarea
+                  value={form.inputs}
+                  onChange={(e) => setForm({ ...form, inputs: e.target.value })}
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label>Outputs *</Label>
+                <Textarea
+                  value={form.outputs}
+                  onChange={(e) => setForm({ ...form, outputs: e.target.value })}
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label>Customer of Output</Label>
+                <Input
+                  value={form.customerOfOutput}
+                  onChange={(e) => setForm({ ...form, customerOfOutput: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Resources Required</Label>
+                <Textarea
+                  value={form.resourcesRequired}
+                  onChange={(e) => setForm({ ...form, resourcesRequired: e.target.value })}
+                  rows={2}
+                />
+              </div>
+              <div>
+                <Label>Competence Needed</Label>
+                <Textarea
+                  value={form.competenceNeeded}
+                  onChange={(e) => setForm({ ...form, competenceNeeded: e.target.value })}
+                  rows={2}
+                />
+              </div>
+              <div>
+                <Label>Key Activities</Label>
+                <Textarea
+                  value={form.keyActivities}
+                  onChange={(e) => setForm({ ...form, keyActivities: e.target.value })}
+                  rows={2}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <Label>Controls & Methods</Label>
+                <Textarea
+                  value={form.controlsMethods}
+                  onChange={(e) => setForm({ ...form, controlsMethods: e.target.value })}
+                  rows={2}
+                />
+              </div>
             </div>
           </div>
 
           {/* KPIs */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Performance KPIs</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">
+              Performance KPIs
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><Label>KPI 1 Description</Label><Input value={form.kpi1Description} onChange={e => setForm({...form, kpi1Description: e.target.value})} /></div>
-              <div><Label>KPI 1 Target</Label><Input value={form.kpi1Target} onChange={e => setForm({...form, kpi1Target: e.target.value})} /></div>
-              <div><Label>KPI 2 Description</Label><Input value={form.kpi2Description} onChange={e => setForm({...form, kpi2Description: e.target.value})} /></div>
-              <div><Label>KPI 2 Target</Label><Input value={form.kpi2Target} onChange={e => setForm({...form, kpi2Target: e.target.value})} /></div>
-              <div><Label>KPI 3 Description</Label><Input value={form.kpi3Description} onChange={e => setForm({...form, kpi3Description: e.target.value})} /></div>
-              <div><Label>KPI 3 Target</Label><Input value={form.kpi3Target} onChange={e => setForm({...form, kpi3Target: e.target.value})} /></div>
-              <div><Label>Monitoring Method</Label><Input value={form.monitoringMethod} onChange={e => setForm({...form, monitoringMethod: e.target.value})} /></div>
-              <div><Label>Measurement Frequency</Label>
-                <Select value={form.measurementFrequency} onChange={e => setForm({...form, measurementFrequency: e.target.value})}>
+              <div>
+                <Label>KPI 1 Description</Label>
+                <Input
+                  value={form.kpi1Description}
+                  onChange={(e) => setForm({ ...form, kpi1Description: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>KPI 1 Target</Label>
+                <Input
+                  value={form.kpi1Target}
+                  onChange={(e) => setForm({ ...form, kpi1Target: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>KPI 2 Description</Label>
+                <Input
+                  value={form.kpi2Description}
+                  onChange={(e) => setForm({ ...form, kpi2Description: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>KPI 2 Target</Label>
+                <Input
+                  value={form.kpi2Target}
+                  onChange={(e) => setForm({ ...form, kpi2Target: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>KPI 3 Description</Label>
+                <Input
+                  value={form.kpi3Description}
+                  onChange={(e) => setForm({ ...form, kpi3Description: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>KPI 3 Target</Label>
+                <Input
+                  value={form.kpi3Target}
+                  onChange={(e) => setForm({ ...form, kpi3Target: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Monitoring Method</Label>
+                <Input
+                  value={form.monitoringMethod}
+                  onChange={(e) => setForm({ ...form, monitoringMethod: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Measurement Frequency</Label>
+                <Select
+                  value={form.measurementFrequency}
+                  onChange={(e) => setForm({ ...form, measurementFrequency: e.target.value })}
+                >
                   <option value="">Select...</option>
-                  {MEASUREMENT_FREQUENCIES.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+                  {MEASUREMENT_FREQUENCIES.map((f) => (
+                    <option key={f.value} value={f.value}>
+                      {f.label}
+                    </option>
+                  ))}
                 </Select>
               </div>
             </div>
@@ -529,35 +897,119 @@ export default function ProcessesClient() {
 
           {/* Linkage */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Process Linkage</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">
+              Process Linkage
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><Label>Preceding Processes</Label><Input value={form.precedingProcesses} onChange={e => setForm({...form, precedingProcesses: e.target.value})} /></div>
-              <div><Label>Following Processes</Label><Input value={form.followingProcesses} onChange={e => setForm({...form, followingProcesses: e.target.value})} /></div>
-              <div><Label>Related Documents</Label><Input value={form.relatedDocuments} onChange={e => setForm({...form, relatedDocuments: e.target.value})} /></div>
-              <div><Label>Related Risk Ref</Label><Input value={form.relatedRiskRef} onChange={e => setForm({...form, relatedRiskRef: e.target.value})} /></div>
-              <div><Label>Related Legal Ref</Label><Input value={form.relatedLegalRef} onChange={e => setForm({...form, relatedLegalRef: e.target.value})} /></div>
+              <div>
+                <Label>Preceding Processes</Label>
+                <Input
+                  value={form.precedingProcesses}
+                  onChange={(e) => setForm({ ...form, precedingProcesses: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Following Processes</Label>
+                <Input
+                  value={form.followingProcesses}
+                  onChange={(e) => setForm({ ...form, followingProcesses: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Related Documents</Label>
+                <Input
+                  value={form.relatedDocuments}
+                  onChange={(e) => setForm({ ...form, relatedDocuments: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Related Risk Ref</Label>
+                <Input
+                  value={form.relatedRiskRef}
+                  onChange={(e) => setForm({ ...form, relatedRiskRef: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Related Legal Ref</Label>
+                <Input
+                  value={form.relatedLegalRef}
+                  onChange={(e) => setForm({ ...form, relatedLegalRef: e.target.value })}
+                />
+              </div>
             </div>
           </div>
 
           {/* Review */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">Review Schedule</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b pb-2">
+              Review Schedule
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div><Label>Review Frequency</Label>
-                <Select value={form.reviewFrequency} onChange={e => setForm({...form, reviewFrequency: e.target.value})}>
-                  {REVIEW_FREQUENCIES.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+              <div>
+                <Label>Review Frequency</Label>
+                <Select
+                  value={form.reviewFrequency}
+                  onChange={(e) => setForm({ ...form, reviewFrequency: e.target.value })}
+                >
+                  {REVIEW_FREQUENCIES.map((f) => (
+                    <option key={f.value} value={f.value}>
+                      {f.label}
+                    </option>
+                  ))}
                 </Select>
               </div>
-              <div><Label>Last Reviewed</Label><Input type="date" value={form.lastReviewed} onChange={e => setForm({...form, lastReviewed: e.target.value})} /></div>
-              <div><Label>Next Review Date</Label><Input type="date" value={form.nextReviewDate} onChange={e => setForm({...form, nextReviewDate: e.target.value})} /></div>
-              <div className="md:col-span-3"><Label>Review Notes</Label><Textarea value={form.reviewNotes} onChange={e => setForm({...form, reviewNotes: e.target.value})} rows={2} /></div>
+              <div>
+                <Label>Last Reviewed</Label>
+                <Input
+                  type="date"
+                  value={form.lastReviewed}
+                  onChange={(e) => setForm({ ...form, lastReviewed: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Next Review Date</Label>
+                <Input
+                  type="date"
+                  value={form.nextReviewDate}
+                  onChange={(e) => setForm({ ...form, nextReviewDate: e.target.value })}
+                />
+              </div>
+              <div className="md:col-span-3">
+                <Label>Review Notes</Label>
+                <Textarea
+                  value={form.reviewNotes}
+                  onChange={(e) => setForm({ ...form, reviewNotes: e.target.value })}
+                  rows={2}
+                />
+              </div>
             </div>
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
-          <Button onClick={handleSubmit} disabled={submitting || !form.processName || !form.department || !form.processOwner || !form.purposeScope || !form.inputs || !form.outputs}>
-            {submitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...</> : editing ? 'Update Process' : 'Create Process'}
+          <Button variant="outline" onClick={() => setModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={
+              submitting ||
+              !form.processName ||
+              !form.department ||
+              !form.processOwner ||
+              !form.purposeScope ||
+              !form.inputs ||
+              !form.outputs
+            }
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...
+              </>
+            ) : editing ? (
+              'Update Process'
+            ) : (
+              'Create Process'
+            )}
           </Button>
         </ModalFooter>
       </Modal>

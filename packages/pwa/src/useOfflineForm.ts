@@ -63,87 +63,93 @@ export function useOfflineForm(options: OfflineFormOptions): UseOfflineFormRetur
   const [error, setError] = useState<Error | null>(null);
   const idCounter = useRef(0);
 
-  const submit = useCallback(async (data: Record<string, unknown>) => {
-    setIsSubmitting(true);
-    setError(null);
-    setIsQueued(false);
+  const submit = useCallback(
+    async (data: Record<string, unknown>) => {
+      setIsSubmitting(true);
+      setError(null);
+      setIsQueued(false);
 
-    const body = JSON.stringify(data);
-    const allHeaders: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...headers,
-    };
-
-    // Add auth token if available
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (token) {
-        allHeaders['Authorization'] = `Bearer ${token}`;
-      }
-    }
-
-    if (isOnline) {
-      // Online — submit directly
-      try {
-        const response = await fetch(url, {
-          method,
-          headers: allHeaders,
-          body,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Request failed: ${response.status} ${response.statusText}`);
-        }
-
-        const result = await response.json();
-        onSuccess?.(result);
-      } catch (err: unknown) {
-        const fetchError = err as Error;
-
-        // If the fetch failed due to network error, queue it
-        if (fetchError.name === 'TypeError' || fetchError.message.includes('Failed to fetch')) {
-          await queueRequest(allHeaders, body);
-        } else {
-          setError(fetchError);
-          onError?.(fetchError);
-        }
-      } finally {
-        setIsSubmitting(false);
-      }
-    } else {
-      // Offline — queue the request
-      await queueRequest(allHeaders, body);
-      setIsSubmitting(false);
-    }
-  }, [url, method, headers, isOnline, onSuccess, onQueued, onError]);
-
-  const queueRequest = useCallback(async (allHeaders: Record<string, string>, body: string) => {
-    try {
-      // Strip sensitive auth headers before persisting to IndexedDB.
-      // The token will be re-read fresh from localStorage during replay.
-      const safeHeaders: Record<string, string> = { ...allHeaders };
-      delete safeHeaders['Authorization'];
-      delete safeHeaders['authorization'];
-
-      const queuedRequest: QueuedRequest = {
-        id: `offline-form-${Date.now()}-${idCounter.current++}`,
-        url,
-        method,
-        headers: safeHeaders,
-        body,
-        timestamp: Date.now(),
-        retryCount: 0,
+      const body = JSON.stringify(data);
+      const allHeaders: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...headers,
       };
 
-      await syncQueueInstance.enqueue(queuedRequest);
-      setIsQueued(true);
-      onQueued?.();
-    } catch (err: unknown) {
-      const queueError = new Error('Failed to queue request for offline sync');
-      setError(queueError);
-      onError?.(queueError);
-    }
-  }, [url, method, onQueued, onError]);
+      // Add auth token if available
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('token');
+        if (token) {
+          allHeaders['Authorization'] = `Bearer ${token}`;
+        }
+      }
+
+      if (isOnline) {
+        // Online — submit directly
+        try {
+          const response = await fetch(url, {
+            method,
+            headers: allHeaders,
+            body,
+          });
+
+          if (!response.ok) {
+            throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+          }
+
+          const result = await response.json();
+          onSuccess?.(result);
+        } catch (err: unknown) {
+          const fetchError = err as Error;
+
+          // If the fetch failed due to network error, queue it
+          if (fetchError.name === 'TypeError' || fetchError.message.includes('Failed to fetch')) {
+            await queueRequest(allHeaders, body);
+          } else {
+            setError(fetchError);
+            onError?.(fetchError);
+          }
+        } finally {
+          setIsSubmitting(false);
+        }
+      } else {
+        // Offline — queue the request
+        await queueRequest(allHeaders, body);
+        setIsSubmitting(false);
+      }
+    },
+    [url, method, headers, isOnline, onSuccess, onQueued, onError]
+  );
+
+  const queueRequest = useCallback(
+    async (allHeaders: Record<string, string>, body: string) => {
+      try {
+        // Strip sensitive auth headers before persisting to IndexedDB.
+        // The token will be re-read fresh from localStorage during replay.
+        const safeHeaders: Record<string, string> = { ...allHeaders };
+        delete safeHeaders['Authorization'];
+        delete safeHeaders['authorization'];
+
+        const queuedRequest: QueuedRequest = {
+          id: `offline-form-${Date.now()}-${idCounter.current++}`,
+          url,
+          method,
+          headers: safeHeaders,
+          body,
+          timestamp: Date.now(),
+          retryCount: 0,
+        };
+
+        await syncQueueInstance.enqueue(queuedRequest);
+        setIsQueued(true);
+        onQueued?.();
+      } catch (err: unknown) {
+        const queueError = new Error('Failed to queue request for offline sync');
+        setError(queueError);
+        onError?.(queueError);
+      }
+    },
+    [url, method, onQueued, onError]
+  );
 
   const reset = useCallback(() => {
     setIsSubmitting(false);

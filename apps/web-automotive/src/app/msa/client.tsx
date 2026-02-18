@@ -1,8 +1,32 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal, ModalFooter, Input, Label, Select, Textarea } from '@ims/ui';
-import { Plus, BarChart3, Search, Clock, CheckCircle, AlertTriangle, RefreshCw, Eye, XCircle, Target } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Select,
+  Textarea,
+} from '@ims/ui';
+import {
+  Plus,
+  BarChart3,
+  Search,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  RefreshCw,
+  Eye,
+  XCircle,
+  Target,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -52,20 +76,9 @@ interface MsaStudy {
 // Constants
 // ---------------------------------------------------------------------------
 
-const MSA_STATUSES = [
-  'DRAFT',
-  'IN_PROGRESS',
-  'COMPLETED',
-  'CANCELLED',
-] as const;
+const MSA_STATUSES = ['DRAFT', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'] as const;
 
-const STUDY_TYPES = [
-  'GRR',
-  'BIAS',
-  'LINEARITY',
-  'STABILITY',
-  'ATTRIBUTE',
-] as const;
+const STUDY_TYPES = ['GRR', 'BIAS', 'LINEARITY', 'STABILITY', 'ATTRIBUTE'] as const;
 
 const studyTypeLabels: Record<string, string> = {
   GRR: 'Gage R&R',
@@ -75,11 +88,7 @@ const studyTypeLabels: Record<string, string> = {
   ATTRIBUTE: 'Attribute Study',
 };
 
-const RESULT_VALUES = [
-  'ACCEPTABLE',
-  'MARGINAL',
-  'UNACCEPTABLE',
-] as const;
+const RESULT_VALUES = ['ACCEPTABLE', 'MARGINAL', 'UNACCEPTABLE'] as const;
 
 const statusColors: Record<string, string> = {
   DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
@@ -225,9 +234,12 @@ export default function MsaClient() {
       setSelectedStudy(detail);
       setResults(resultsRes.data.data || null);
       // Pre-fill operator from study operators list
-      const ops = (detail.operators || '').split(',').map((o: string) => o.trim()).filter(Boolean);
+      const ops = (detail.operators || '')
+        .split(',')
+        .map((o: string) => o.trim())
+        .filter(Boolean);
       if (ops.length > 0) {
-        setDataForm(prev => ({ ...prev, operator: ops[0] }));
+        setDataForm((prev) => ({ ...prev, operator: ops[0] }));
       }
     } catch (err) {
       console.error('Failed to load MSA study detail:', err);
@@ -251,7 +263,10 @@ export default function MsaClient() {
       // Increment trial, then part, then operator
       const numTrials = selectedStudy.numTrials || 3;
       const numParts = selectedStudy.numParts || 10;
-      const ops = (selectedStudy.operators || '').split(',').map(o => o.trim()).filter(Boolean);
+      const ops = (selectedStudy.operators || '')
+        .split(',')
+        .map((o) => o.trim())
+        .filter(Boolean);
       let nextTrial = parseInt(dataForm.trialNumber) + 1;
       let nextPart = parseInt(dataForm.partNumber);
       let nextOpIdx = ops.indexOf(dataForm.operator);
@@ -292,23 +307,27 @@ export default function MsaClient() {
   // -------------------------------------------------------------------------
 
   const filtered = studies
-    .filter(s => statusFilter === 'all' || s.status === statusFilter)
-    .filter(s => studyTypeFilter === 'all' || s.studyType === studyTypeFilter)
-    .filter(s => resultFilter === 'all' || s.result === resultFilter)
-    .filter(s =>
-      !searchQuery ||
-      s.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.referenceNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.gageName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.characteristic?.toLowerCase().includes(searchQuery.toLowerCase())
+    .filter((s) => statusFilter === 'all' || s.status === statusFilter)
+    .filter((s) => studyTypeFilter === 'all' || s.studyType === studyTypeFilter)
+    .filter((s) => resultFilter === 'all' || s.result === resultFilter)
+    .filter(
+      (s) =>
+        !searchQuery ||
+        s.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.referenceNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.gageName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.characteristic?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-  const stats = useMemo(() => ({
-    total: studies.length,
-    inProgress: studies.filter(s => s.status === 'IN_PROGRESS').length,
-    acceptable: studies.filter(s => s.result === 'ACCEPTABLE').length,
-    unacceptable: studies.filter(s => s.result === 'UNACCEPTABLE').length,
-  }), [studies]);
+  const stats = useMemo(
+    () => ({
+      total: studies.length,
+      inProgress: studies.filter((s) => s.status === 'IN_PROGRESS').length,
+      acceptable: studies.filter((s) => s.result === 'ACCEPTABLE').length,
+      unacceptable: studies.filter((s) => s.result === 'UNACCEPTABLE').length,
+    }),
+    [studies]
+  );
 
   // -------------------------------------------------------------------------
   // Helpers
@@ -317,7 +336,11 @@ export default function MsaClient() {
   function formatDate(dateStr: string | undefined | null): string {
     if (!dateStr) return '-';
     try {
-      return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      return new Date(dateStr).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
     } catch {
       return '-';
     }
@@ -359,7 +382,10 @@ export default function MsaClient() {
               <RefreshCw className="h-4 w-4" />
               Refresh
             </Button>
-            <Button onClick={openCreateModal} className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700">
+            <Button
+              onClick={openCreateModal}
+              className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700"
+            >
               <Plus className="h-4 w-4" />
               New Study
             </Button>
@@ -421,7 +447,9 @@ export default function MsaClient() {
               <AlertTriangle className="h-5 w-5" />
               <span>{error}</span>
             </div>
-            <Button variant="outline" size="sm" onClick={loadStudies}>Retry</Button>
+            <Button variant="outline" size="sm" onClick={loadStudies}>
+              Retry
+            </Button>
           </div>
         )}
 
@@ -430,12 +458,15 @@ export default function MsaClient() {
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Search</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Search
+                </Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
-                    aria-label="Search by title, reference, gage name, characteristic..." placeholder="Search by title, reference, gage name, characteristic..."
+                    aria-label="Search by title, reference, gage name, characteristic..."
+                    placeholder="Search by title, reference, gage name, characteristic..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -443,29 +474,44 @@ export default function MsaClient() {
                 </div>
               </div>
               <div className="min-w-[140px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Status</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Status
+                </Label>
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">All Statuses</option>
-                  {MSA_STATUSES.map(s => (
-                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                  {MSA_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s.replace(/_/g, ' ')}
+                    </option>
                   ))}
                 </Select>
               </div>
               <div className="min-w-[140px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Study Type</Label>
-                <Select value={studyTypeFilter} onChange={(e) => setStudyTypeFilter(e.target.value)}>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Study Type
+                </Label>
+                <Select
+                  value={studyTypeFilter}
+                  onChange={(e) => setStudyTypeFilter(e.target.value)}
+                >
                   <option value="all">All Types</option>
-                  {STUDY_TYPES.map(t => (
-                    <option key={t} value={t}>{studyTypeLabels[t] || t}</option>
+                  {STUDY_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {studyTypeLabels[t] || t}
+                    </option>
                   ))}
                 </Select>
               </div>
               <div className="min-w-[140px]">
-                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Result</Label>
+                <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                  Result
+                </Label>
                 <Select value={resultFilter} onChange={(e) => setResultFilter(e.target.value)}>
                   <option value="all">All Results</option>
-                  {RESULT_VALUES.map(r => (
-                    <option key={r} value={r}>{r}</option>
+                  {RESULT_VALUES.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -486,7 +532,7 @@ export default function MsaClient() {
           <CardContent>
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3, 4].map(i => (
+                {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="h-20 bg-gray-200 rounded" />
                 ))}
               </div>
@@ -497,9 +543,13 @@ export default function MsaClient() {
                     <tr className="border-b border-gray-200 dark:border-gray-700">
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Ref #</th>
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Title</th>
-                      <th className="px-4 py-3 text-center font-medium text-gray-600">Study Type</th>
+                      <th className="px-4 py-3 text-center font-medium text-gray-600">
+                        Study Type
+                      </th>
                       <th className="px-4 py-3 text-left font-medium text-gray-600">Gage Name</th>
-                      <th className="px-4 py-3 text-left font-medium text-gray-600">Characteristic</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-600">
+                        Characteristic
+                      </th>
                       <th className="px-4 py-3 text-center font-medium text-gray-600">Status</th>
                       <th className="px-4 py-3 text-center font-medium text-gray-600">GR&R %</th>
                       <th className="px-4 py-3 text-center font-medium text-gray-600">Result</th>
@@ -508,34 +558,52 @@ export default function MsaClient() {
                   </thead>
                   <tbody>
                     {filtered.map((study) => (
-                      <tr key={study.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 transition-colors">
+                      <tr
+                        key={study.id}
+                        className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 transition-colors"
+                      >
                         <td className="px-4 py-3">
                           <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
                             {study.referenceNumber || '-'}
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="font-medium text-gray-900 dark:text-gray-100">{study.title}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
+                            {study.title}
+                          </p>
                         </td>
                         <td className="px-4 py-3 text-center">
                           <Badge className="bg-orange-100 text-orange-700">
                             {studyTypeLabels[study.studyType] || study.studyType}
                           </Badge>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{study.gageName}</td>
-                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{study.characteristic}</td>
+                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                          {study.gageName}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                          {study.characteristic}
+                        </td>
                         <td className="px-4 py-3 text-center">
-                          <Badge className={statusColors[study.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+                          <Badge
+                            className={
+                              statusColors[study.status] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
                             {study.status?.replace(/_/g, ' ')}
                           </Badge>
                         </td>
                         <td className="px-4 py-3 text-center">
                           {study.grrPercent != null ? (
-                            <span className={`text-sm font-bold ${
-                              study.grrPercent <= 10 ? 'text-green-600' :
-                              study.grrPercent <= 30 ? 'text-yellow-600' :
-                              'text-red-600'
-                            }`}>
+                            <span
+                              className={`text-sm font-bold ${
+                                study.grrPercent <= 10
+                                  ? 'text-green-600'
+                                  : study.grrPercent <= 30
+                                    ? 'text-yellow-600'
+                                    : 'text-red-600'
+                              }`}
+                            >
                               {study.grrPercent.toFixed(1)}%
                             </span>
                           ) : (
@@ -544,7 +612,12 @@ export default function MsaClient() {
                         </td>
                         <td className="px-4 py-3 text-center">
                           {study.result ? (
-                            <Badge className={resultColors[study.result] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>
+                            <Badge
+                              className={
+                                resultColors[study.result] ||
+                                'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                              }
+                            >
                               {study.result}
                             </Badge>
                           ) : (
@@ -569,18 +642,29 @@ export default function MsaClient() {
             ) : (
               <div className="text-center py-16">
                 <BarChart3 className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No MSA studies found</h3>
+                <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">
+                  No MSA studies found
+                </h3>
                 <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
-                  {searchQuery || statusFilter !== 'all' || studyTypeFilter !== 'all' || resultFilter !== 'all'
+                  {searchQuery ||
+                  statusFilter !== 'all' ||
+                  studyTypeFilter !== 'all' ||
+                  resultFilter !== 'all'
                     ? 'Try adjusting your filters or search query.'
                     : 'Get started by creating your first MSA study.'}
                 </p>
-                {!searchQuery && statusFilter === 'all' && studyTypeFilter === 'all' && resultFilter === 'all' && (
-                  <Button onClick={openCreateModal} className="flex items-center gap-2 mx-auto bg-orange-600 hover:bg-orange-700">
-                    <Plus className="h-4 w-4" />
-                    Create First Study
-                  </Button>
-                )}
+                {!searchQuery &&
+                  statusFilter === 'all' &&
+                  studyTypeFilter === 'all' &&
+                  resultFilter === 'all' && (
+                    <Button
+                      onClick={openCreateModal}
+                      className="flex items-center gap-2 mx-auto bg-orange-600 hover:bg-orange-700"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Create First Study
+                    </Button>
+                  )}
               </div>
             )}
           </CardContent>
@@ -590,12 +674,7 @@ export default function MsaClient() {
       {/* ================================================================= */}
       {/* CREATE MODAL                                                      */}
       {/* ================================================================= */}
-      <Modal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        title="New MSA Study"
-        size="lg"
-      >
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="New MSA Study" size="lg">
         <form onSubmit={handleSubmit}>
           <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4">
             <div>
@@ -603,7 +682,7 @@ export default function MsaClient() {
               <Input
                 id="msa-title"
                 value={form.title}
-                onChange={e => setForm({ ...form, title: e.target.value })}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
                 required
                 placeholder="e.g. Bore Diameter GR&R Study"
               />
@@ -615,10 +694,12 @@ export default function MsaClient() {
                 <Select
                   id="msa-studyType"
                   value={form.studyType}
-                  onChange={e => setForm({ ...form, studyType: e.target.value })}
+                  onChange={(e) => setForm({ ...form, studyType: e.target.value })}
                 >
-                  {STUDY_TYPES.map(t => (
-                    <option key={t} value={t}>{studyTypeLabels[t] || t}</option>
+                  {STUDY_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {studyTypeLabels[t] || t}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -627,7 +708,7 @@ export default function MsaClient() {
                 <Input
                   id="msa-characteristic"
                   value={form.characteristic}
-                  onChange={e => setForm({ ...form, characteristic: e.target.value })}
+                  onChange={(e) => setForm({ ...form, characteristic: e.target.value })}
                   required
                   placeholder="e.g. Bore Diameter"
                 />
@@ -640,7 +721,7 @@ export default function MsaClient() {
                 <Input
                   id="msa-gageName"
                   value={form.gageName}
-                  onChange={e => setForm({ ...form, gageName: e.target.value })}
+                  onChange={(e) => setForm({ ...form, gageName: e.target.value })}
                   required
                   placeholder="e.g. Digital Bore Gauge"
                 />
@@ -650,7 +731,7 @@ export default function MsaClient() {
                 <Input
                   id="msa-gageId"
                   value={form.gageId}
-                  onChange={e => setForm({ ...form, gageId: e.target.value })}
+                  onChange={(e) => setForm({ ...form, gageId: e.target.value })}
                   required
                   placeholder="e.g. BG-001"
                 />
@@ -663,7 +744,7 @@ export default function MsaClient() {
                 <Input
                   id="msa-specification"
                   value={form.specification}
-                  onChange={e => setForm({ ...form, specification: e.target.value })}
+                  onChange={(e) => setForm({ ...form, specification: e.target.value })}
                   placeholder="e.g. 25.00 +/- 0.05 mm"
                 />
               </div>
@@ -674,7 +755,7 @@ export default function MsaClient() {
                   type="number"
                   step="any"
                   value={form.tolerance}
-                  onChange={e => setForm({ ...form, tolerance: e.target.value })}
+                  onChange={(e) => setForm({ ...form, tolerance: e.target.value })}
                   placeholder="e.g. 0.10"
                 />
               </div>
@@ -685,7 +766,7 @@ export default function MsaClient() {
               <Input
                 id="msa-operators"
                 value={form.operators}
-                onChange={e => setForm({ ...form, operators: e.target.value })}
+                onChange={(e) => setForm({ ...form, operators: e.target.value })}
                 required
                 placeholder="e.g. John, Jane, Bob"
               />
@@ -700,7 +781,7 @@ export default function MsaClient() {
                   min="1"
                   max="30"
                   value={form.numParts}
-                  onChange={e => setForm({ ...form, numParts: e.target.value })}
+                  onChange={(e) => setForm({ ...form, numParts: e.target.value })}
                   placeholder="10"
                 />
               </div>
@@ -712,7 +793,7 @@ export default function MsaClient() {
                   min="1"
                   max="10"
                   value={form.numTrials}
-                  onChange={e => setForm({ ...form, numTrials: e.target.value })}
+                  onChange={(e) => setForm({ ...form, numTrials: e.target.value })}
                   placeholder="3"
                 />
               </div>
@@ -723,7 +804,7 @@ export default function MsaClient() {
               <Textarea
                 id="msa-notes"
                 value={form.notes}
-                onChange={e => setForm({ ...form, notes: e.target.value })}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
                 rows={2}
                 placeholder="Additional notes or comments"
               />
@@ -734,7 +815,11 @@ export default function MsaClient() {
             <Button type="button" variant="outline" onClick={() => setShowModal(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={submitting} className="bg-orange-600 hover:bg-orange-700">
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
               {submitting ? 'Creating...' : 'Create Study'}
             </Button>
           </ModalFooter>
@@ -746,14 +831,20 @@ export default function MsaClient() {
       {/* ================================================================= */}
       <Modal
         isOpen={showDetail}
-        onClose={() => { setShowDetail(false); setSelectedStudy(null); setResults(null); }}
+        onClose={() => {
+          setShowDetail(false);
+          setSelectedStudy(null);
+          setResults(null);
+        }}
         title={selectedStudy?.title || 'MSA Study Detail'}
         size="lg"
       >
         {detailLoading ? (
           <div className="py-12">
             <div className="animate-pulse space-y-4">
-              {[1, 2, 3].map(i => <div key={i} className="h-12 bg-gray-200 rounded" />)}
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-12 bg-gray-200 rounded" />
+              ))}
             </div>
           </div>
         ) : selectedStudy ? (
@@ -761,16 +852,22 @@ export default function MsaClient() {
             {/* Header Info */}
             <div className="flex items-center gap-3 flex-wrap">
               {selectedStudy.referenceNumber && (
-                <span className="text-sm font-mono text-gray-500 dark:text-gray-400">{selectedStudy.referenceNumber}</span>
+                <span className="text-sm font-mono text-gray-500 dark:text-gray-400">
+                  {selectedStudy.referenceNumber}
+                </span>
               )}
               <Badge className="bg-orange-100 text-orange-700">
                 {studyTypeLabels[selectedStudy.studyType] || selectedStudy.studyType}
               </Badge>
-              <Badge className={statusColors[selectedStudy.status] || 'bg-gray-100 dark:bg-gray-800'}>
+              <Badge
+                className={statusColors[selectedStudy.status] || 'bg-gray-100 dark:bg-gray-800'}
+              >
                 {selectedStudy.status?.replace(/_/g, ' ')}
               </Badge>
               {selectedStudy.result && (
-                <Badge className={resultColors[selectedStudy.result] || 'bg-gray-100 dark:bg-gray-800'}>
+                <Badge
+                  className={resultColors[selectedStudy.result] || 'bg-gray-100 dark:bg-gray-800'}
+                >
                   {selectedStudy.result}
                 </Badge>
               )}
@@ -778,7 +875,9 @@ export default function MsaClient() {
 
             {/* Study Info */}
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Study Information</h3>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">
+                Study Information
+              </h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Gage Name</p>
@@ -798,7 +897,9 @@ export default function MsaClient() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Tolerance</p>
-                  <p className="text-sm font-medium">{selectedStudy.tolerance != null ? selectedStudy.tolerance : '-'}</p>
+                  <p className="text-sm font-medium">
+                    {selectedStudy.tolerance != null ? selectedStudy.tolerance : '-'}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Operators</p>
@@ -806,16 +907,22 @@ export default function MsaClient() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Parts x Trials</p>
-                  <p className="text-sm font-medium">{selectedStudy.numParts} x {selectedStudy.numTrials}</p>
+                  <p className="text-sm font-medium">
+                    {selectedStudy.numParts} x {selectedStudy.numTrials}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
                   <p className="text-sm">{formatDate(selectedStudy.createdAt)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Total Measurements Expected</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Total Measurements Expected
+                  </p>
                   <p className="text-sm font-medium">
-                    {(selectedStudy.operators || '').split(',').filter(o => o.trim()).length * selectedStudy.numParts * selectedStudy.numTrials}
+                    {(selectedStudy.operators || '').split(',').filter((o) => o.trim()).length *
+                      selectedStudy.numParts *
+                      selectedStudy.numTrials}
                   </p>
                 </div>
               </div>
@@ -824,14 +931,20 @@ export default function MsaClient() {
             {/* Results Display */}
             {results && (
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">GR&R Results</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">
+                  GR&R Results
+                </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className={`text-center p-3 rounded-lg ${getGrrColor(results.repeatability)}`}>
+                  <div
+                    className={`text-center p-3 rounded-lg ${getGrrColor(results.repeatability)}`}
+                  >
                     <p className="text-xs font-medium opacity-70">Repeatability</p>
                     <p className="text-2xl font-bold">{results.repeatability.toFixed(1)}%</p>
                     <p className="text-xs mt-1">Equipment Variation</p>
                   </div>
-                  <div className={`text-center p-3 rounded-lg ${getGrrColor(results.reproducibility)}`}>
+                  <div
+                    className={`text-center p-3 rounded-lg ${getGrrColor(results.reproducibility)}`}
+                  >
                     <p className="text-xs font-medium opacity-70">Reproducibility</p>
                     <p className="text-2xl font-bold">{results.reproducibility.toFixed(1)}%</p>
                     <p className="text-xs mt-1">Appraiser Variation</p>
@@ -844,11 +957,19 @@ export default function MsaClient() {
                   <div className={`text-center p-3 rounded-lg ${getNdcColor(results.ndc)}`}>
                     <p className="text-xs font-medium opacity-70">NDC</p>
                     <p className="text-2xl font-bold">{results.ndc}</p>
-                    <p className="text-xs mt-1">{results.ndc >= 5 ? 'Acceptable' : results.ndc >= 3 ? 'Marginal' : 'Unacceptable'}</p>
+                    <p className="text-xs mt-1">
+                      {results.ndc >= 5
+                        ? 'Acceptable'
+                        : results.ndc >= 3
+                          ? 'Marginal'
+                          : 'Unacceptable'}
+                    </p>
                   </div>
                 </div>
                 <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 text-center">
-                  <Badge className={`text-lg px-4 py-1 ${resultColors[results.result] || 'bg-gray-100 dark:bg-gray-800'}`}>
+                  <Badge
+                    className={`text-lg px-4 py-1 ${resultColors[results.result] || 'bg-gray-100 dark:bg-gray-800'}`}
+                  >
                     {results.result}
                   </Badge>
                 </div>
@@ -858,62 +979,84 @@ export default function MsaClient() {
             {/* Data Entry Form */}
             {selectedStudy.status !== 'COMPLETED' && selectedStudy.status !== 'CANCELLED' && (
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Add Measurement</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">
+                  Add Measurement
+                </h3>
                 <form onSubmit={handleAddMeasurement} className="flex flex-wrap items-end gap-3">
                   <div className="min-w-[120px]">
-                    <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Operator *</Label>
+                    <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                      Operator *
+                    </Label>
                     <Select
                       value={dataForm.operator}
-                      onChange={e => setDataForm({ ...dataForm, operator: e.target.value })}
+                      onChange={(e) => setDataForm({ ...dataForm, operator: e.target.value })}
                       required
                     >
                       <option value="">Select...</option>
-                      {(selectedStudy.operators || '').split(',').map(o => o.trim()).filter(Boolean).map(op => (
-                        <option key={op} value={op}>{op}</option>
-                      ))}
+                      {(selectedStudy.operators || '')
+                        .split(',')
+                        .map((o) => o.trim())
+                        .filter(Boolean)
+                        .map((op) => (
+                          <option key={op} value={op}>
+                            {op}
+                          </option>
+                        ))}
                     </Select>
                   </div>
                   <div className="w-20">
-                    <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Part #</Label>
+                    <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                      Part #
+                    </Label>
                     <Input
                       type="number"
                       min="1"
                       max={String(selectedStudy.numParts)}
                       value={dataForm.partNumber}
-                      onChange={e => setDataForm({ ...dataForm, partNumber: e.target.value })}
+                      onChange={(e) => setDataForm({ ...dataForm, partNumber: e.target.value })}
                       required
                     />
                   </div>
                   <div className="w-20">
-                    <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Trial #</Label>
+                    <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                      Trial #
+                    </Label>
                     <Input
                       type="number"
                       min="1"
                       max={String(selectedStudy.numTrials)}
                       value={dataForm.trialNumber}
-                      onChange={e => setDataForm({ ...dataForm, trialNumber: e.target.value })}
+                      onChange={(e) => setDataForm({ ...dataForm, trialNumber: e.target.value })}
                       required
                     />
                   </div>
                   <div className="min-w-[120px]">
-                    <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Value *</Label>
+                    <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                      Value *
+                    </Label>
                     <Input
                       type="number"
                       step="any"
                       value={dataForm.value}
-                      onChange={e => setDataForm({ ...dataForm, value: e.target.value })}
+                      onChange={(e) => setDataForm({ ...dataForm, value: e.target.value })}
                       required
                       placeholder="25.001"
                     />
                   </div>
-                  <Button type="submit" disabled={addingData} className="bg-orange-600 hover:bg-orange-700">
+                  <Button
+                    type="submit"
+                    disabled={addingData}
+                    className="bg-orange-600 hover:bg-orange-700"
+                  >
                     {addingData ? 'Adding...' : 'Add'}
                   </Button>
                 </form>
                 <div className="mt-2 text-xs text-gray-400 dark:text-gray-500">
-                  Recorded: {selectedStudy.measurements?.length || 0} / {
-                    (selectedStudy.operators || '').split(',').filter(o => o.trim()).length * selectedStudy.numParts * selectedStudy.numTrials
-                  } measurements
+                  Recorded: {selectedStudy.measurements?.length || 0} /{' '}
+                  {(selectedStudy.operators || '').split(',').filter((o) => o.trim()).length *
+                    selectedStudy.numParts *
+                    selectedStudy.numTrials}{' '}
+                  measurements
                 </div>
               </div>
             )}
@@ -937,12 +1080,19 @@ export default function MsaClient() {
                     </thead>
                     <tbody>
                       {selectedStudy.measurements.map((m, idx) => (
-                        <tr key={m.id || idx} className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-800">
+                        <tr
+                          key={m.id || idx}
+                          className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-800"
+                        >
                           <td className="px-3 py-2">{m.operator}</td>
                           <td className="px-3 py-2 text-center">{m.partNumber}</td>
                           <td className="px-3 py-2 text-center">{m.trialNumber}</td>
-                          <td className="px-3 py-2 text-right font-mono font-medium">{m.value.toFixed(4)}</td>
-                          <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">{formatDate(m.createdAt)}</td>
+                          <td className="px-3 py-2 text-right font-mono font-medium">
+                            {m.value.toFixed(4)}
+                          </td>
+                          <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">
+                            {formatDate(m.createdAt)}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -954,7 +1104,16 @@ export default function MsaClient() {
         ) : null}
 
         <ModalFooter>
-          <Button variant="outline" onClick={() => { setShowDetail(false); setSelectedStudy(null); setResults(null); }}>Close</Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setShowDetail(false);
+              setSelectedStudy(null);
+              setResults(null);
+            }}
+          >
+            Close
+          </Button>
         </ModalFooter>
       </Modal>
     </div>

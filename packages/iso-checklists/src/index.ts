@@ -19,12 +19,12 @@ import { iso13485Checklist } from './iso13485';
 import type { StandardChecklist } from './types';
 
 export const checklists: Record<string, StandardChecklist> = {
-  'ISO_9001': iso9001Checklist,
-  'ISO_14001': iso14001Checklist,
-  'ISO_45001': iso45001Checklist,
-  'IATF_16949': iatf16949Checklist,
-  'AS9100D': as9100Checklist,
-  'ISO_13485': iso13485Checklist,
+  ISO_9001: iso9001Checklist,
+  ISO_14001: iso14001Checklist,
+  ISO_45001: iso45001Checklist,
+  IATF_16949: iatf16949Checklist,
+  AS9100D: as9100Checklist,
+  ISO_13485: iso13485Checklist,
 };
 
 export function getChecklist(standard: string): StandardChecklist | undefined {
@@ -36,5 +36,10 @@ export function getAvailableStandards(): string[] {
 }
 
 // Audit Engine
-export { createAuditPlan, calculateAuditScore, getClausesByStatus, getMandatoryGaps } from './audit-engine';
+export {
+  createAuditPlan,
+  calculateAuditScore,
+  getClausesByStatus,
+  getMandatoryGaps,
+} from './audit-engine';
 export type { AuditPlan, AuditClauseStatus } from './audit-engine';

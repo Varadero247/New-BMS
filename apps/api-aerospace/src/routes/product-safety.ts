@@ -43,15 +43,31 @@ const createProductSafetyItemSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
   partNumber: z.string().optional(),
-  category: z.enum(['CRITICAL_SAFETY_ITEM', 'FLIGHT_SAFETY_PART', 'SAFETY_OF_FLIGHT', 'FRACTURE_CRITICAL', 'LIFE_LIMITED', 'OTHER']),
+  category: z.enum([
+    'CRITICAL_SAFETY_ITEM',
+    'FLIGHT_SAFETY_PART',
+    'SAFETY_OF_FLIGHT',
+    'FRACTURE_CRITICAL',
+    'LIFE_LIMITED',
+    'OTHER',
+  ]),
   regulatoryBasis: z.string().optional(),
   hazardDescription: z.string().optional(),
-  riskLevel: z.enum(['CATASTROPHIC', 'CRITICAL', 'MARGINAL', 'NEGLIGIBLE']).optional().default('MARGINAL'),
+  riskLevel: z
+    .enum(['CATASTROPHIC', 'CRITICAL', 'MARGINAL', 'NEGLIGIBLE'])
+    .optional()
+    .default('MARGINAL'),
   mitigations: z.array(z.string()).optional().default([]),
   verificationMethod: z.string().optional(),
-  complianceStatus: z.enum(['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NOT_ASSESSED']).optional().default('NOT_ASSESSED'),
+  complianceStatus: z
+    .enum(['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NOT_ASSESSED'])
+    .optional()
+    .default('NOT_ASSESSED'),
   responsibleEngineer: z.string().optional(),
-  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  nextReviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   notes: z.string().optional(),
 });
 
@@ -59,26 +75,54 @@ const updateProductSafetyItemSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   partNumber: z.string().optional(),
-  category: z.enum(['CRITICAL_SAFETY_ITEM', 'FLIGHT_SAFETY_PART', 'SAFETY_OF_FLIGHT', 'FRACTURE_CRITICAL', 'LIFE_LIMITED', 'OTHER']).optional(),
+  category: z
+    .enum([
+      'CRITICAL_SAFETY_ITEM',
+      'FLIGHT_SAFETY_PART',
+      'SAFETY_OF_FLIGHT',
+      'FRACTURE_CRITICAL',
+      'LIFE_LIMITED',
+      'OTHER',
+    ])
+    .optional(),
   regulatoryBasis: z.string().optional(),
   hazardDescription: z.string().optional(),
   riskLevel: z.enum(['CATASTROPHIC', 'CRITICAL', 'MARGINAL', 'NEGLIGIBLE']).optional(),
   mitigations: z.array(z.string()).optional(),
   verificationMethod: z.string().optional(),
-  complianceStatus: z.enum(['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NOT_ASSESSED']).optional(),
+  complianceStatus: z
+    .enum(['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NOT_ASSESSED'])
+    .optional(),
   status: z.enum(['ACTIVE', 'UNDER_REVIEW', 'CLOSED', 'SUPERSEDED']).optional(),
   responsibleEngineer: z.string().optional(),
-  lastReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  lastReviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  nextReviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   notes: z.string().optional(),
 });
 
 const createSafetyReviewSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  reviewType: z.enum(['PRELIMINARY_HAZARD', 'SYSTEM_SAFETY', 'FAILURE_MODE', 'FAULT_TREE', 'FUNCTIONAL_HAZARD', 'COMMON_CAUSE', 'DESIGN_REVIEW']),
+  reviewType: z.enum([
+    'PRELIMINARY_HAZARD',
+    'SYSTEM_SAFETY',
+    'FAILURE_MODE',
+    'FAULT_TREE',
+    'FUNCTIONAL_HAZARD',
+    'COMMON_CAUSE',
+    'DESIGN_REVIEW',
+  ]),
   productSafetyItemIds: z.array(z.string()).optional().default([]),
   scope: z.string().optional(),
-  scheduledDate: z.string().min(1, 'Scheduled date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  scheduledDate: z
+    .string()
+    .min(1, 'Scheduled date is required')
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   reviewTeam: z.array(z.string()).optional().default([]),
   leadReviewer: z.string().optional(),
   notes: z.string().optional(),
@@ -135,7 +179,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List product safety items error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list product safety items' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list product safety items' },
+    });
   }
 });
 
@@ -175,7 +222,10 @@ router.get('/reviews', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List safety reviews error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list safety reviews' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list safety reviews' },
+    });
   }
 });
 
@@ -187,13 +237,19 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!item || item.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product safety item not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Product safety item not found' },
+      });
     }
 
     res.json({ success: true, data: item });
   } catch (error) {
     logger.error('Get product safety item error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get product safety item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get product safety item' },
+    });
   }
 });
 
@@ -229,20 +285,32 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create product safety item error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create product safety item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create product safety item' },
+    });
   }
 });
 
 // PUT /:id - Update product safety item
 router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.aeroProductSafetyItem.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroProductSafetyItem.findUnique({
+      where: { id: req.params.id },
+    });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product safety item not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Product safety item not found' },
+      });
     }
 
     const data = updateProductSafetyItemSchema.parse(req.body);
@@ -251,8 +319,12 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       data: {
         ...data,
-        lastReviewDate: data.lastReviewDate ? new Date(data.lastReviewDate) : existing.lastReviewDate,
-        nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : existing.nextReviewDate,
+        lastReviewDate: data.lastReviewDate
+          ? new Date(data.lastReviewDate)
+          : existing.lastReviewDate,
+        nextReviewDate: data.nextReviewDate
+          ? new Date(data.nextReviewDate)
+          : existing.nextReviewDate,
       } as any,
     });
 
@@ -261,20 +333,32 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update product safety item error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update product safety item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update product safety item' },
+    });
   }
 });
 
 // DELETE /:id - Soft delete product safety item
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.aeroProductSafetyItem.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.aeroProductSafetyItem.findUnique({
+      where: { id: req.params.id },
+    });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product safety item not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Product safety item not found' },
+      });
     }
 
     await prisma.aeroProductSafetyItem.update({
@@ -285,7 +369,10 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     res.status(204).send();
   } catch (error) {
     logger.error('Delete product safety item error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete product safety item' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete product safety item' },
+    });
   }
 });
 
@@ -320,11 +407,18 @@ router.post('/reviews', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create safety review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create safety review' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create safety review' },
+    });
   }
 });
 
@@ -333,7 +427,9 @@ router.put('/reviews/:id/complete', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroSafetyReview.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Safety review not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Safety review not found' } });
     }
 
     const data = completeSafetyReviewSchema.parse(req.body);
@@ -348,7 +444,9 @@ router.put('/reviews/:id/complete', async (req: AuthRequest, res: Response) => {
         completedDate: new Date(),
         approvedBy: data.approvedBy,
         status: 'COMPLETED',
-        notes: data.notes ? `${existing.notes ? existing.notes + '\n' : ''}${data.notes}` : existing.notes,
+        notes: data.notes
+          ? `${existing.notes ? existing.notes + '\n' : ''}${data.notes}`
+          : existing.notes,
       } as any,
     });
 
@@ -357,11 +455,18 @@ router.put('/reviews/:id/complete', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Complete safety review error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete safety review' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete safety review' },
+    });
   }
 });
 

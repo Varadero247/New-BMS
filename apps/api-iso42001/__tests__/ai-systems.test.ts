@@ -381,9 +381,7 @@ describe('PUT /api/ai-systems/:id', () => {
   it('should return 404 when updating non-existent system', async () => {
     (prisma as any).aiSystem.findFirst.mockResolvedValue(null);
 
-    const res = await request(app)
-      .put(`/api/ai-systems/${UUID2}`)
-      .send({ name: 'Updated' });
+    const res = await request(app).put(`/api/ai-systems/${UUID2}`).send({ name: 'Updated' });
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -404,9 +402,7 @@ describe('PUT /api/ai-systems/:id', () => {
     (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
     (prisma as any).aiSystem.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app)
-      .put(`/api/ai-systems/${UUID1}`)
-      .send({ name: 'Updated' });
+    const res = await request(app).put(`/api/ai-systems/${UUID1}`).send({ name: 'Updated' });
 
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

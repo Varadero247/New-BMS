@@ -69,13 +69,11 @@ router.get('/low-stock', async (req: Request, res: Response) => {
     const parts = await prisma.cmmsPart.findMany({
       where: {
         deletedAt: null,
-        OR: [
-          { reorderPoint: { not: null } as any },
-          { minStock: { gt: 0 } },
-        ],
+        OR: [{ reorderPoint: { not: null } as any }, { minStock: { gt: 0 } }],
       },
       orderBy: { quantity: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     const lowStock = parts.filter((p: Record<string, unknown>) => {
       const threshold = (p.reorderPoint ?? p.minStock) as number;
@@ -84,8 +82,13 @@ router.get('/low-stock', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: lowStock });
   } catch (error: unknown) {
-    logger.error('Failed to list low-stock parts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list low-stock parts' } });
+    logger.error('Failed to list low-stock parts', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list low-stock parts' },
+    });
   }
 });
 
@@ -117,8 +120,12 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list parts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list parts' } });
+    logger.error('Failed to list parts', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list parts' } });
   }
 });
 
@@ -127,7 +134,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = partCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -155,10 +165,18 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: part });
   } catch (error: unknown) {
     if ((error as any)?.code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Part number already exists' } });
+      return res.status(409).json({
+        success: false,
+        error: { code: 'CONFLICT', message: 'Part number already exists' },
+      });
     }
-    logger.error('Failed to create part', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create part' } });
+    logger.error('Failed to create part', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create part' },
+    });
   }
 });
 
@@ -168,17 +186,25 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const part = await prisma.cmmsPart.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
-      include: { partUsages: { where: { deletedAt: null } as any, take: 20, orderBy: { usedAt: 'desc' } } },
+      include: {
+        partUsages: { where: { deletedAt: null } as any, take: 20, orderBy: { usedAt: 'desc' } },
+      },
     });
 
     if (!part) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Part not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Part not found' } });
     }
 
     res.json({ success: true, data: part });
   } catch (error: unknown) {
-    logger.error('Failed to get part', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get part' } });
+    logger.error('Failed to get part', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get part' } });
   }
 });
 
@@ -187,39 +213,61 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = partUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
-    const existing = await prisma.cmmsPart.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsPart.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Part not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Part not found' } });
     }
 
     const data = parsed.data;
     const updateData: Record<string, unknown> = { ...data };
-    if (data.unitCost !== undefined) updateData.unitCost = data.unitCost != null ? new Prisma.Decimal(data.unitCost) : null;
+    if (data.unitCost !== undefined)
+      updateData.unitCost = data.unitCost != null ? new Prisma.Decimal(data.unitCost) : null;
 
     const part = await prisma.cmmsPart.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: part });
   } catch (error: unknown) {
-    logger.error('Failed to update part', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update part' } });
+    logger.error('Failed to update part', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update part' },
+    });
   }
 });
 
 // DELETE /:id — Soft delete part
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsPart.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsPart.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Part not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Part not found' } });
     }
 
     await prisma.cmmsPart.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'Part deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete part', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete part' } });
+    logger.error('Failed to delete part', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete part' },
+    });
   }
 });
 
@@ -228,19 +276,29 @@ router.post('/:id/usage', async (req: Request, res: Response) => {
   try {
     const parsed = partUsageSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
     const authReq = req as AuthRequest;
     const data = parsed.data;
 
-    const part = await prisma.cmmsPart.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const part = await prisma.cmmsPart.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!part) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Part not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Part not found' } });
     }
 
     if (part.quantity < data.quantity) {
-      return res.status(400).json({ success: false, error: { code: 'INSUFFICIENT_STOCK', message: 'Insufficient stock' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INSUFFICIENT_STOCK', message: 'Insufficient stock' },
+      });
     }
 
     const unitCost = part.unitCost ? Number(part.unitCost) : 0;
@@ -265,8 +323,13 @@ router.post('/:id/usage', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: usage });
   } catch (error: unknown) {
-    logger.error('Failed to record part usage', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to record part usage' } });
+    logger.error('Failed to record part usage', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to record part usage' },
+    });
   }
 });
 

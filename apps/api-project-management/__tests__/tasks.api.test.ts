@@ -114,7 +114,9 @@ describe('Tasks API Routes', () => {
       (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([mockTask]);
       (mockPrisma.projectTask.count as jest.Mock).mockResolvedValueOnce(1);
 
-      const res = await request(app).get('/api/tasks?projectId=44000000-0000-4000-a000-000000000001');
+      const res = await request(app).get(
+        '/api/tasks?projectId=44000000-0000-4000-a000-000000000001'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -136,7 +138,9 @@ describe('Tasks API Routes', () => {
       (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([mockTask]);
       (mockPrisma.projectTask.count as jest.Mock).mockResolvedValueOnce(50);
 
-      const res = await request(app).get('/api/tasks?projectId=44000000-0000-4000-a000-000000000001&page=2&limit=10');
+      const res = await request(app).get(
+        '/api/tasks?projectId=44000000-0000-4000-a000-000000000001&page=2&limit=10'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.meta).toEqual({ page: 2, limit: 10, total: 50, totalPages: 5 });
@@ -144,7 +148,7 @@ describe('Tasks API Routes', () => {
         expect.objectContaining({
           skip: 10,
           take: 10,
-        }),
+        })
       );
     });
 
@@ -152,7 +156,9 @@ describe('Tasks API Routes', () => {
       (mockPrisma.projectTask.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
       (mockPrisma.projectTask.count as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
 
-      const res = await request(app).get('/api/tasks?projectId=44000000-0000-4000-a000-000000000001');
+      const res = await request(app).get(
+        '/api/tasks?projectId=44000000-0000-4000-a000-000000000001'
+      );
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -184,7 +190,7 @@ describe('Tasks API Routes', () => {
             isCriticalPath: true,
             slack: true,
           }),
-        }),
+        })
       );
     });
 
@@ -220,7 +226,7 @@ describe('Tasks API Routes', () => {
         expect.objectContaining({
           where: { id: '3d000000-0000-4000-a000-000000000001' },
           include: { childTasks: true, parentTask: true, timesheets: true },
-        }),
+        })
       );
     });
 
@@ -235,7 +241,9 @@ describe('Tasks API Routes', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.projectTask.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB failure'));
+      (mockPrisma.projectTask.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB failure')
+      );
 
       const res = await request(app).get('/api/tasks/3d000000-0000-4000-a000-000000000001');
 

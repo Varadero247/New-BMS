@@ -17,7 +17,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -74,9 +78,7 @@ describe('InfoSec Assets API', () => {
       (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.isAsset.create as jest.Mock).mockResolvedValueOnce(mockAsset);
 
-      const res = await request(app)
-        .post('/api/assets')
-        .send(validCreatePayload);
+      const res = await request(app).post('/api/assets').send(validCreatePayload);
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -111,9 +113,7 @@ describe('InfoSec Assets API', () => {
     });
 
     it('should return 400 for missing classification', async () => {
-      const res = await request(app)
-        .post('/api/assets')
-        .send({ name: 'Test', type: 'SOFTWARE' });
+      const res = await request(app).post('/api/assets').send({ name: 'Test', type: 'SOFTWARE' });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -132,9 +132,7 @@ describe('InfoSec Assets API', () => {
       (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.isAsset.create as jest.Mock).mockResolvedValueOnce(mockAsset);
 
-      await request(app)
-        .post('/api/assets')
-        .send(validCreatePayload);
+      await request(app).post('/api/assets').send(validCreatePayload);
 
       const createCall = (mockPrisma.isAsset.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.refNumber).toBe('IA-0001');
@@ -142,11 +140,12 @@ describe('InfoSec Assets API', () => {
 
     it('should auto-generate sequential refNumber (IA-0005)', async () => {
       (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(4);
-      (mockPrisma.isAsset.create as jest.Mock).mockResolvedValueOnce({ ...mockAsset, refNumber: 'IA-0005' });
+      (mockPrisma.isAsset.create as jest.Mock).mockResolvedValueOnce({
+        ...mockAsset,
+        refNumber: 'IA-0005',
+      });
 
-      await request(app)
-        .post('/api/assets')
-        .send(validCreatePayload);
+      await request(app).post('/api/assets').send(validCreatePayload);
 
       const createCall = (mockPrisma.isAsset.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.refNumber).toBe('IA-0005');
@@ -156,9 +155,7 @@ describe('InfoSec Assets API', () => {
       (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.isAsset.create as jest.Mock).mockResolvedValueOnce(mockAsset);
 
-      await request(app)
-        .post('/api/assets')
-        .send(validCreatePayload);
+      await request(app).post('/api/assets').send(validCreatePayload);
 
       const createCall = (mockPrisma.isAsset.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.status).toBe('ACTIVE');
@@ -168,9 +165,7 @@ describe('InfoSec Assets API', () => {
       (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.isAsset.create as jest.Mock).mockResolvedValueOnce(mockAsset);
 
-      await request(app)
-        .post('/api/assets')
-        .send(validCreatePayload);
+      await request(app).post('/api/assets').send(validCreatePayload);
 
       const createCall = (mockPrisma.isAsset.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.createdBy).toBe('00000000-0000-4000-a000-000000000123');
@@ -180,9 +175,7 @@ describe('InfoSec Assets API', () => {
       (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.isAsset.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const res = await request(app)
-        .post('/api/assets')
-        .send(validCreatePayload);
+      const res = await request(app).post('/api/assets').send(validCreatePayload);
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -343,7 +336,10 @@ describe('InfoSec Assets API', () => {
   describe('DELETE /api/assets/:id', () => {
     it('should soft delete asset', async () => {
       (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
-      (mockPrisma.isAsset.update as jest.Mock).mockResolvedValueOnce({ ...mockAsset, deletedAt: new Date() });
+      (mockPrisma.isAsset.update as jest.Mock).mockResolvedValueOnce({
+        ...mockAsset,
+        deletedAt: new Date(),
+      });
 
       const res = await request(app).delete('/api/assets/00000000-0000-0000-0000-000000000001');
 
@@ -363,7 +359,10 @@ describe('InfoSec Assets API', () => {
 
     it('should set deletedBy from authenticated user', async () => {
       (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
-      (mockPrisma.isAsset.update as jest.Mock).mockResolvedValueOnce({ ...mockAsset, deletedAt: new Date() });
+      (mockPrisma.isAsset.update as jest.Mock).mockResolvedValueOnce({
+        ...mockAsset,
+        deletedAt: new Date(),
+      });
 
       await request(app).delete('/api/assets/00000000-0000-0000-0000-000000000001');
 

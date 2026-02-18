@@ -1,7 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+} from '@ims/ui';
 import { Plus, Search, Building2, Edit, Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -28,7 +39,11 @@ const typeColors: Record<string, string> = {
 };
 
 function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(amount);
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+  }).format(amount);
 }
 
 const initialFormState = {
@@ -70,9 +85,11 @@ export default function AccountsPage() {
     }
   }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
   function openCreateModal() {
@@ -97,7 +114,10 @@ export default function AccountsPage() {
 
   async function handleCreate() {
     setFormError('');
-    if (!formData.name.trim()) { setFormError('Account name is required'); return; }
+    if (!formData.name.trim()) {
+      setFormError('Account name is required');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -113,7 +133,10 @@ export default function AccountsPage() {
 
   async function handleUpdate() {
     setFormError('');
-    if (!formData.name.trim()) { setFormError('Account name is required'); return; }
+    if (!formData.name.trim()) {
+      setFormError('Account name is required');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -137,8 +160,9 @@ export default function AccountsPage() {
     }
   }
 
-  const filteredAccounts = accounts.filter(a => {
-    const matchesSearch = !searchTerm ||
+  const filteredAccounts = accounts.filter((a) => {
+    const matchesSearch =
+      !searchTerm ||
       a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (a.industry || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = !typeFilter || a.type === typeFilter;
@@ -162,7 +186,9 @@ export default function AccountsPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Accounts</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage customer and partner accounts</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Manage customer and partner accounts
+            </p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> Add Account
@@ -170,7 +196,9 @@ export default function AccountsPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
         )}
 
         <Card className="mb-6">
@@ -179,10 +207,22 @@ export default function AccountsPage() {
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  <input type="text" aria-label="Search accounts..." placeholder="Search accounts..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500" />
+                  <input
+                    type="text"
+                    aria-label="Search accounts..."
+                    placeholder="Search accounts..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  />
                 </div>
               </div>
-              <select aria-label="Filter by type" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+              <select
+                aria-label="Filter by type"
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="border rounded-md px-3 py-2 text-sm"
+              >
                 <option value="">All Types</option>
                 <option value="PROSPECT">Prospect</option>
                 <option value="CUSTOMER">Customer</option>
@@ -206,30 +246,69 @@ export default function AccountsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Industry</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Contacts</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Deals</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Lifetime Revenue</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Name
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Type
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Industry
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Contacts
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Deals
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Lifetime Revenue
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredAccounts.map((account) => (
                       <tr key={account.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{account.name}</td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                          {account.name}
+                        </td>
                         <td className="py-3 px-4">
-                          <Badge className={typeColors[account.type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{account.type}</Badge>
+                          <Badge
+                            className={
+                              typeColors[account.type] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
+                            {account.type}
+                          </Badge>
                         </td>
                         <td className="py-3 px-4 text-gray-600">{account.industry || '-'}</td>
-                        <td className="py-3 px-4 text-center text-gray-600">{account._count?.contacts ?? account.contactsCount ?? 0}</td>
-                        <td className="py-3 px-4 text-center text-gray-600">{account._count?.deals ?? account.dealsCount ?? 0}</td>
-                        <td className="py-3 px-4 text-right font-medium text-gray-900 dark:text-gray-100">{formatCurrency(account.lifetimeRevenue || 0)}</td>
+                        <td className="py-3 px-4 text-center text-gray-600">
+                          {account._count?.contacts ?? account.contactsCount ?? 0}
+                        </td>
+                        <td className="py-3 px-4 text-center text-gray-600">
+                          {account._count?.deals ?? account.dealsCount ?? 0}
+                        </td>
+                        <td className="py-3 px-4 text-right font-medium text-gray-900 dark:text-gray-100">
+                          {formatCurrency(account.lifetimeRevenue || 0)}
+                        </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openEditModal(account)} className="text-gray-400 dark:text-gray-500 hover:text-violet-600"><Edit className="h-4 w-4" /></button>
-                            <button onClick={() => handleDelete(account.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+                            <button
+                              onClick={() => openEditModal(account)}
+                              className="text-gray-400 dark:text-gray-500 hover:text-violet-600"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(account.id)}
+                              className="text-gray-400 dark:text-gray-500 hover:text-red-600"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -248,14 +327,38 @@ export default function AccountsPage() {
       </div>
 
       {/* Create Modal */}
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Add Account" size="lg">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Add Account"
+        size="lg"
+      >
         <div className="space-y-4">
-          {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>}
+          {formError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="name">Account Name *</Label><Input id="name" name="name" value={formData.name} onChange={handleChange} placeholder="Acme Corp" /></div>
+            <div>
+              <Label htmlFor="name">Account Name *</Label>
+              <Input
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Acme Corp"
+              />
+            </div>
             <div>
               <Label htmlFor="type">Type</Label>
-              <select id="type" name="type" value={formData.type} onChange={handleChange} className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500">
+              <select
+                id="type"
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500"
+              >
                 <option value="PROSPECT">Prospect</option>
                 <option value="CUSTOMER">Customer</option>
                 <option value="PARTNER">Partner</option>
@@ -264,29 +367,87 @@ export default function AccountsPage() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="industry">Industry</Label><Input id="industry" name="industry" value={formData.industry} onChange={handleChange} placeholder="Technology" /></div>
-            <div><Label htmlFor="website">Website</Label><Input id="website" name="website" value={formData.website} onChange={handleChange} placeholder="https://example.com" /></div>
+            <div>
+              <Label htmlFor="industry">Industry</Label>
+              <Input
+                id="industry"
+                name="industry"
+                value={formData.industry}
+                onChange={handleChange}
+                placeholder="Technology"
+              />
+            </div>
+            <div>
+              <Label htmlFor="website">Website</Label>
+              <Input
+                id="website"
+                name="website"
+                value={formData.website}
+                onChange={handleChange}
+                placeholder="https://example.com"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="phone">Phone</Label><Input id="phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="+1 234 567 890" /></div>
-            <div><Label htmlFor="address">Address</Label><Input id="address" name="address" value={formData.address} onChange={handleChange} placeholder="123 Main St" /></div>
+            <div>
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="+1 234 567 890"
+              />
+            </div>
+            <div>
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                placeholder="123 Main St"
+              />
+            </div>
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleCreate} disabled={submitting}>{submitting ? 'Creating...' : 'Create Account'}</Button>
+          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleCreate} disabled={submitting}>
+            {submitting ? 'Creating...' : 'Create Account'}
+          </Button>
         </ModalFooter>
       </Modal>
 
       {/* Edit Modal */}
-      <Modal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} title="Edit Account" size="lg">
+      <Modal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        title="Edit Account"
+        size="lg"
+      >
         <div className="space-y-4">
-          {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>}
+          {formError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="e-name">Account Name *</Label><Input id="e-name" name="name" value={formData.name} onChange={handleChange} /></div>
+            <div>
+              <Label htmlFor="e-name">Account Name *</Label>
+              <Input id="e-name" name="name" value={formData.name} onChange={handleChange} />
+            </div>
             <div>
               <Label htmlFor="e-type">Type</Label>
-              <select id="e-type" name="type" value={formData.type} onChange={handleChange} className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500">
+              <select
+                id="e-type"
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500"
+              >
                 <option value="PROSPECT">Prospect</option>
                 <option value="CUSTOMER">Customer</option>
                 <option value="PARTNER">Partner</option>
@@ -295,17 +456,48 @@ export default function AccountsPage() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="e-industry">Industry</Label><Input id="e-industry" name="industry" value={formData.industry} onChange={handleChange} /></div>
-            <div><Label htmlFor="e-website">Website</Label><Input id="e-website" name="website" value={formData.website} onChange={handleChange} /></div>
+            <div>
+              <Label htmlFor="e-industry">Industry</Label>
+              <Input
+                id="e-industry"
+                name="industry"
+                value={formData.industry}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="e-website">Website</Label>
+              <Input
+                id="e-website"
+                name="website"
+                value={formData.website}
+                onChange={handleChange}
+              />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="e-phone">Phone</Label><Input id="e-phone" name="phone" value={formData.phone} onChange={handleChange} /></div>
-            <div><Label htmlFor="e-address">Address</Label><Input id="e-address" name="address" value={formData.address} onChange={handleChange} /></div>
+            <div>
+              <Label htmlFor="e-phone">Phone</Label>
+              <Input id="e-phone" name="phone" value={formData.phone} onChange={handleChange} />
+            </div>
+            <div>
+              <Label htmlFor="e-address">Address</Label>
+              <Input
+                id="e-address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+              />
+            </div>
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setEditModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleUpdate} disabled={submitting}>{submitting ? 'Saving...' : 'Save Changes'}</Button>
+          <Button variant="outline" onClick={() => setEditModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleUpdate} disabled={submitting}>
+            {submitting ? 'Saving...' : 'Save Changes'}
+          </Button>
         </ModalFooter>
       </Modal>
     </div>

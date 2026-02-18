@@ -2,16 +2,35 @@ import express from 'express';
 import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
-  prisma: { ptwPermit: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() } },
+  prisma: {
+    ptwPermit: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+  },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/conflicts';
 import { prisma } from '../src/prisma';
-const app = express(); app.use(express.json()); app.use('/api/conflicts', router);
-beforeEach(() => { jest.clearAllMocks(); });
+const app = express();
+app.use(express.json());
+app.use('/api/conflicts', router);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('GET /api/conflicts', () => {
   it('should return empty array when no active permits', async () => {
@@ -24,8 +43,24 @@ describe('GET /api/conflicts', () => {
 
   it('should return conflicts when permits share location and area', async () => {
     const permits = [
-      { id: '1', title: 'Permit A', location: 'Building 1', area: 'Zone A', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
-      { id: '2', title: 'Permit B', location: 'Building 1', area: 'Zone A', startDate: new Date(), endDate: new Date(), type: 'CONFINED_SPACE' },
+      {
+        id: '1',
+        title: 'Permit A',
+        location: 'Building 1',
+        area: 'Zone A',
+        startDate: new Date(),
+        endDate: new Date(),
+        type: 'HOT_WORK',
+      },
+      {
+        id: '2',
+        title: 'Permit B',
+        location: 'Building 1',
+        area: 'Zone A',
+        startDate: new Date(),
+        endDate: new Date(),
+        type: 'CONFINED_SPACE',
+      },
     ];
     (prisma as any).ptwPermit.findMany.mockResolvedValue(permits);
     const res = await request(app).get('/api/conflicts');
@@ -39,8 +74,24 @@ describe('GET /api/conflicts', () => {
 
   it('should not report conflict when permits are in different locations', async () => {
     const permits = [
-      { id: '1', title: 'Permit A', location: 'Building 1', area: 'Zone A', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
-      { id: '2', title: 'Permit B', location: 'Building 2', area: 'Zone A', startDate: new Date(), endDate: new Date(), type: 'CONFINED_SPACE' },
+      {
+        id: '1',
+        title: 'Permit A',
+        location: 'Building 1',
+        area: 'Zone A',
+        startDate: new Date(),
+        endDate: new Date(),
+        type: 'HOT_WORK',
+      },
+      {
+        id: '2',
+        title: 'Permit B',
+        location: 'Building 2',
+        area: 'Zone A',
+        startDate: new Date(),
+        endDate: new Date(),
+        type: 'CONFINED_SPACE',
+      },
     ];
     (prisma as any).ptwPermit.findMany.mockResolvedValue(permits);
     const res = await request(app).get('/api/conflicts');
@@ -51,8 +102,24 @@ describe('GET /api/conflicts', () => {
 
   it('should not report conflict when permits are in different areas', async () => {
     const permits = [
-      { id: '1', title: 'Permit A', location: 'Building 1', area: 'Zone A', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
-      { id: '2', title: 'Permit B', location: 'Building 1', area: 'Zone B', startDate: new Date(), endDate: new Date(), type: 'CONFINED_SPACE' },
+      {
+        id: '1',
+        title: 'Permit A',
+        location: 'Building 1',
+        area: 'Zone A',
+        startDate: new Date(),
+        endDate: new Date(),
+        type: 'HOT_WORK',
+      },
+      {
+        id: '2',
+        title: 'Permit B',
+        location: 'Building 1',
+        area: 'Zone B',
+        startDate: new Date(),
+        endDate: new Date(),
+        type: 'CONFINED_SPACE',
+      },
     ];
     (prisma as any).ptwPermit.findMany.mockResolvedValue(permits);
     const res = await request(app).get('/api/conflicts');
@@ -62,9 +129,33 @@ describe('GET /api/conflicts', () => {
 
   it('should detect multiple conflicts among several permits', async () => {
     const permits = [
-      { id: '1', title: 'Permit A', location: 'Site X', area: 'Area 1', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
-      { id: '2', title: 'Permit B', location: 'Site X', area: 'Area 1', startDate: new Date(), endDate: new Date(), type: 'CONFINED_SPACE' },
-      { id: '3', title: 'Permit C', location: 'Site X', area: 'Area 1', startDate: new Date(), endDate: new Date(), type: 'ELECTRICAL' },
+      {
+        id: '1',
+        title: 'Permit A',
+        location: 'Site X',
+        area: 'Area 1',
+        startDate: new Date(),
+        endDate: new Date(),
+        type: 'HOT_WORK',
+      },
+      {
+        id: '2',
+        title: 'Permit B',
+        location: 'Site X',
+        area: 'Area 1',
+        startDate: new Date(),
+        endDate: new Date(),
+        type: 'CONFINED_SPACE',
+      },
+      {
+        id: '3',
+        title: 'Permit C',
+        location: 'Site X',
+        area: 'Area 1',
+        startDate: new Date(),
+        endDate: new Date(),
+        type: 'ELECTRICAL',
+      },
     ];
     (prisma as any).ptwPermit.findMany.mockResolvedValue(permits);
     const res = await request(app).get('/api/conflicts');

@@ -16,24 +16,31 @@ Shared React component library for all IMS web applications. Built with Tailwind
 ## Key Components
 
 ### Layout
+
 `AppShell`, `AppSidebar`, `AppNav`, `PageShell`, `PageHeader`, `TopBar`
 
 ### Data Display
+
 `DataTable`, `StatCard`, `KpiCard`, `Timeline`, `Gauge`, `Badge`, `StatusBadge`, `StatusIndicator`
 
 ### Forms
+
 `Input`, `Select`, `Textarea`, `Label`, `FormGroup`, `FormField`, `FormError`
 
 ### Feedback
+
 `Modal`, `ConfirmDialog`, `Alert`, `Spinner`, `Skeleton`, `ToastProvider`
 
 ### Navigation
+
 `Breadcrumbs`, `Tabs`, `DropdownMenu`, `GlobalSearch`, `CommandPalette`
 
 ### Specialized
+
 `LoginPage`, `ExportDropdown`, `BulkImportWizard`, `SignatureCapture`, `PhotoCapture`, `PhotoAnnotation`, `QRCodeDisplay`, `QRScanner`, `OfflineInspectionForm`, `GhsPictogram`
 
 ### Brand
+
 `NexaraLogo`, `NexaraIcon`, `NexaraTag`, `ModuleChip`, `SectorCard`, `HeroSection`
 
 ## Usage

@@ -70,7 +70,13 @@ export function LocaleSwitcher() {
         <span>{LOCALE_FLAGS[current]}</span>
         <span>{LOCALE_LABELS[current]}</span>
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ marginLeft: '4px' }}>
-          <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path
+            d="M3 4.5L6 7.5L9 4.5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       </button>
 
@@ -117,8 +123,20 @@ export function LocaleSwitcher() {
                 <span>{LOCALE_FLAGS[locale]}</span>
                 <span>{LOCALE_LABELS[locale]}</span>
                 {locale === current && (
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ marginLeft: 'auto' }}>
-                    <path d="M3.5 8L6.5 11L12.5 5" stroke="var(--accent-primary, #2563eb)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    style={{ marginLeft: 'auto' }}
+                  >
+                    <path
+                      d="M3.5 8L6.5 11L12.5 5"
+                      stroke="var(--accent-primary, #2563eb)"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 )}
               </button>

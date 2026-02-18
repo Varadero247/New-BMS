@@ -1,15 +1,75 @@
 {
   "flags": [
-    { "name": "workflow_visual_builder", "description": "Visual drag-and-drop workflow builder", "enabled": false, "createdAt": "2026-02-14T00:00:00.000Z", "updatedAt": "2026-02-14T00:00:00.000Z" },
-    { "name": "natural_language_query", "description": "AI-powered natural language data queries", "enabled": false, "createdAt": "2026-02-14T00:00:00.000Z", "updatedAt": "2026-02-14T00:00:00.000Z" },
-    { "name": "predictive_analytics", "description": "ML-based predictive analytics and forecasting", "enabled": false, "createdAt": "2026-02-14T00:00:00.000Z", "updatedAt": "2026-02-14T00:00:00.000Z" },
-    { "name": "anomaly_detection", "description": "Automated KPI anomaly detection alerts", "enabled": false, "createdAt": "2026-02-14T00:00:00.000Z", "updatedAt": "2026-02-14T00:00:00.000Z" },
-    { "name": "ai_digests", "description": "AI-generated daily digest emails", "enabled": false, "createdAt": "2026-02-14T00:00:00.000Z", "updatedAt": "2026-02-14T00:00:00.000Z" },
-    { "name": "qr_code_scanning", "description": "QR code scanning for assets and equipment", "enabled": false, "createdAt": "2026-02-14T00:00:00.000Z", "updatedAt": "2026-02-14T00:00:00.000Z" },
-    { "name": "offline_inspection", "description": "Offline inspection form completion", "enabled": false, "createdAt": "2026-02-14T00:00:00.000Z", "updatedAt": "2026-02-14T00:00:00.000Z" },
-    { "name": "gps_tagging", "description": "GPS location tagging on records", "enabled": false, "createdAt": "2026-02-14T00:00:00.000Z", "updatedAt": "2026-02-14T00:00:00.000Z" },
-    { "name": "digital_signatures", "description": "Digital signature capture on approvals", "enabled": false, "createdAt": "2026-02-14T00:00:00.000Z", "updatedAt": "2026-02-14T00:00:00.000Z" },
-    { "name": "photo_annotation", "description": "Photo capture with annotation tools", "enabled": false, "createdAt": "2026-02-14T00:00:00.000Z", "updatedAt": "2026-02-14T00:00:00.000Z" }
+    {
+      "name": "workflow_visual_builder",
+      "description": "Visual drag-and-drop workflow builder",
+      "enabled": false,
+      "createdAt": "2026-02-14T00:00:00.000Z",
+      "updatedAt": "2026-02-14T00:00:00.000Z"
+    },
+    {
+      "name": "natural_language_query",
+      "description": "AI-powered natural language data queries",
+      "enabled": false,
+      "createdAt": "2026-02-14T00:00:00.000Z",
+      "updatedAt": "2026-02-14T00:00:00.000Z"
+    },
+    {
+      "name": "predictive_analytics",
+      "description": "ML-based predictive analytics and forecasting",
+      "enabled": false,
+      "createdAt": "2026-02-14T00:00:00.000Z",
+      "updatedAt": "2026-02-14T00:00:00.000Z"
+    },
+    {
+      "name": "anomaly_detection",
+      "description": "Automated KPI anomaly detection alerts",
+      "enabled": false,
+      "createdAt": "2026-02-14T00:00:00.000Z",
+      "updatedAt": "2026-02-14T00:00:00.000Z"
+    },
+    {
+      "name": "ai_digests",
+      "description": "AI-generated daily digest emails",
+      "enabled": false,
+      "createdAt": "2026-02-14T00:00:00.000Z",
+      "updatedAt": "2026-02-14T00:00:00.000Z"
+    },
+    {
+      "name": "qr_code_scanning",
+      "description": "QR code scanning for assets and equipment",
+      "enabled": false,
+      "createdAt": "2026-02-14T00:00:00.000Z",
+      "updatedAt": "2026-02-14T00:00:00.000Z"
+    },
+    {
+      "name": "offline_inspection",
+      "description": "Offline inspection form completion",
+      "enabled": false,
+      "createdAt": "2026-02-14T00:00:00.000Z",
+      "updatedAt": "2026-02-14T00:00:00.000Z"
+    },
+    {
+      "name": "gps_tagging",
+      "description": "GPS location tagging on records",
+      "enabled": false,
+      "createdAt": "2026-02-14T00:00:00.000Z",
+      "updatedAt": "2026-02-14T00:00:00.000Z"
+    },
+    {
+      "name": "digital_signatures",
+      "description": "Digital signature capture on approvals",
+      "enabled": false,
+      "createdAt": "2026-02-14T00:00:00.000Z",
+      "updatedAt": "2026-02-14T00:00:00.000Z"
+    },
+    {
+      "name": "photo_annotation",
+      "description": "Photo capture with annotation tools",
+      "enabled": false,
+      "createdAt": "2026-02-14T00:00:00.000Z",
+      "updatedAt": "2026-02-14T00:00:00.000Z"
+    }
   ],
   "orgOverrides": []
 }

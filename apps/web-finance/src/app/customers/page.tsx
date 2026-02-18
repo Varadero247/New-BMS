@@ -1,7 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+} from '@ims/ui';
 import { Plus, Search, Users, Edit, Trash2, Mail, Phone } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -64,9 +75,11 @@ export default function CustomersPage() {
     }
   }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
   function openCreateModal() {
@@ -96,9 +109,18 @@ export default function CustomersPage() {
 
   async function handleCreate() {
     setFormError('');
-    if (!formData.code.trim()) { setFormError('Customer code is required'); return; }
-    if (!formData.name.trim()) { setFormError('Customer name is required'); return; }
-    if (!formData.email.trim()) { setFormError('Email is required'); return; }
+    if (!formData.code.trim()) {
+      setFormError('Customer code is required');
+      return;
+    }
+    if (!formData.name.trim()) {
+      setFormError('Customer name is required');
+      return;
+    }
+    if (!formData.email.trim()) {
+      setFormError('Email is required');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -117,8 +139,14 @@ export default function CustomersPage() {
 
   async function handleUpdate() {
     setFormError('');
-    if (!formData.code.trim()) { setFormError('Customer code is required'); return; }
-    if (!formData.name.trim()) { setFormError('Customer name is required'); return; }
+    if (!formData.code.trim()) {
+      setFormError('Customer code is required');
+      return;
+    }
+    if (!formData.name.trim()) {
+      setFormError('Customer name is required');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -145,11 +173,13 @@ export default function CustomersPage() {
     }
   }
 
-  const filteredCustomers = customers.filter(c => {
-    return !searchTerm ||
+  const filteredCustomers = customers.filter((c) => {
+    return (
+      !searchTerm ||
       c.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.email.toLowerCase().includes(searchTerm.toLowerCase());
+      c.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   });
 
   if (loading) {
@@ -177,14 +207,23 @@ export default function CustomersPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
         )}
 
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-              <input type="text" aria-label="Search customers..." placeholder="Search customers..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input
+                type="text"
+                aria-label="Search customers..."
+                placeholder="Search customers..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
             </div>
           </CardContent>
         </Card>
@@ -202,38 +241,86 @@ export default function CustomersPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Code</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Email</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Phone</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Payment Terms</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Code
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Name
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Email
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Phone
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Payment Terms
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Status
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredCustomers.map((customer) => (
                       <tr key={customer.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">{customer.code}</td>
-                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{customer.name}</td>
-                        <td className="py-3 px-4 text-gray-600">
-                          <div className="flex items-center gap-1"><Mail className="h-3 w-3" />{customer.email}</div>
+                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">
+                          {customer.code}
+                        </td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                          {customer.name}
                         </td>
                         <td className="py-3 px-4 text-gray-600">
-                          {customer.phone ? <div className="flex items-center gap-1"><Phone className="h-3 w-3" />{customer.phone}</div> : '-'}
+                          <div className="flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            {customer.email}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {customer.phone ? (
+                            <div className="flex items-center gap-1">
+                              <Phone className="h-3 w-3" />
+                              {customer.phone}
+                            </div>
+                          ) : (
+                            '-'
+                          )}
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className="bg-indigo-100 text-indigo-700">{customer.paymentTerms?.replace('_', ' ') || 'NET 30'}</Badge>
+                          <Badge className="bg-indigo-100 text-indigo-700">
+                            {customer.paymentTerms?.replace('_', ' ') || 'NET 30'}
+                          </Badge>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={customer.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}>
+                          <Badge
+                            className={
+                              customer.isActive
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
+                            }
+                          >
                             {customer.isActive ? 'Active' : 'Inactive'}
                           </Badge>
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openEditModal(customer)} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600" aria-label="Edit customer"><Edit className="h-4 w-4" /></button>
-                            <button onClick={() => handleDelete(customer.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600" aria-label="Delete customer"><Trash2 className="h-4 w-4" /></button>
+                            <button
+                              onClick={() => openEditModal(customer)}
+                              className="text-gray-400 dark:text-gray-500 hover:text-indigo-600"
+                              aria-label="Edit customer"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(customer.id)}
+                              className="text-gray-400 dark:text-gray-500 hover:text-red-600"
+                              aria-label="Delete customer"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -252,27 +339,97 @@ export default function CustomersPage() {
       </div>
 
       {/* Create Modal */}
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Add Customer" size="lg">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Add Customer"
+        size="lg"
+      >
         <div className="space-y-4">
-          {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>}
+          {formError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="code">Customer Code *</Label><Input id="code" name="code" value={formData.code} onChange={handleChange} placeholder="e.g. CUST-001" /></div>
-            <div><Label htmlFor="name">Name *</Label><Input id="name" name="name" value={formData.name} onChange={handleChange} placeholder="Company name" /></div>
+            <div>
+              <Label htmlFor="code">Customer Code *</Label>
+              <Input
+                id="code"
+                name="code"
+                value={formData.code}
+                onChange={handleChange}
+                placeholder="e.g. CUST-001"
+              />
+            </div>
+            <div>
+              <Label htmlFor="name">Name *</Label>
+              <Input
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Company name"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="email">Email *</Label><Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="contact@company.com" /></div>
-            <div><Label htmlFor="phone">Phone</Label><Input id="phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="+1 234 567 890" /></div>
+            <div>
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="contact@company.com"
+              />
+            </div>
+            <div>
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="+1 234 567 890"
+              />
+            </div>
           </div>
-          <div><Label htmlFor="address">Address</Label><Input id="address" name="address" value={formData.address} onChange={handleChange} placeholder="Street address" /></div>
+          <div>
+            <Label htmlFor="address">Address</Label>
+            <Input
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              placeholder="Street address"
+            />
+          </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="city">City</Label><Input id="city" name="city" value={formData.city} onChange={handleChange} /></div>
-            <div><Label htmlFor="country">Country</Label><Input id="country" name="country" value={formData.country} onChange={handleChange} /></div>
+            <div>
+              <Label htmlFor="city">City</Label>
+              <Input id="city" name="city" value={formData.city} onChange={handleChange} />
+            </div>
+            <div>
+              <Label htmlFor="country">Country</Label>
+              <Input id="country" name="country" value={formData.country} onChange={handleChange} />
+            </div>
           </div>
           <div className="grid grid-cols-3 gap-4">
-            <div><Label htmlFor="taxId">Tax ID</Label><Input id="taxId" name="taxId" value={formData.taxId} onChange={handleChange} /></div>
+            <div>
+              <Label htmlFor="taxId">Tax ID</Label>
+              <Input id="taxId" name="taxId" value={formData.taxId} onChange={handleChange} />
+            </div>
             <div>
               <Label htmlFor="paymentTerms">Payment Terms</Label>
-              <select id="paymentTerms" name="paymentTerms" value={formData.paymentTerms} onChange={handleChange} className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+              <select
+                id="paymentTerms"
+                name="paymentTerms"
+                value={formData.paymentTerms}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+              >
                 <option value="NET_7">Net 7</option>
                 <option value="NET_14">Net 14</option>
                 <option value="NET_30">Net 30</option>
@@ -281,50 +438,139 @@ export default function CustomersPage() {
                 <option value="DUE_ON_RECEIPT">Due on Receipt</option>
               </select>
             </div>
-            <div><Label htmlFor="creditLimit">Credit Limit</Label><Input id="creditLimit" name="creditLimit" type="number" step="0.01" value={formData.creditLimit} onChange={handleChange} placeholder="0.00" /></div>
+            <div>
+              <Label htmlFor="creditLimit">Credit Limit</Label>
+              <Input
+                id="creditLimit"
+                name="creditLimit"
+                type="number"
+                step="0.01"
+                value={formData.creditLimit}
+                onChange={handleChange}
+                placeholder="0.00"
+              />
+            </div>
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleCreate} disabled={submitting}>{submitting ? 'Creating...' : 'Create Customer'}</Button>
+          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleCreate} disabled={submitting}>
+            {submitting ? 'Creating...' : 'Create Customer'}
+          </Button>
         </ModalFooter>
       </Modal>
 
       {/* Edit Modal */}
-      <Modal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} title="Edit Customer" size="lg">
+      <Modal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        title="Edit Customer"
+        size="lg"
+      >
         <div className="space-y-4">
-          {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>}
+          {formError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="e-code">Customer Code *</Label><Input id="e-code" name="code" value={formData.code} onChange={handleChange} /></div>
-            <div><Label htmlFor="e-name">Name *</Label><Input id="e-name" name="name" value={formData.name} onChange={handleChange} /></div>
+            <div>
+              <Label htmlFor="e-code">Customer Code *</Label>
+              <Input id="e-code" name="code" value={formData.code} onChange={handleChange} />
+            </div>
+            <div>
+              <Label htmlFor="e-name">Name *</Label>
+              <Input id="e-name" name="name" value={formData.name} onChange={handleChange} />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="e-email">Email *</Label><Input id="e-email" name="email" type="email" value={formData.email} onChange={handleChange} /></div>
-            <div><Label htmlFor="e-phone">Phone</Label><Input id="e-phone" name="phone" value={formData.phone} onChange={handleChange} /></div>
+            <div>
+              <Label htmlFor="e-email">Email *</Label>
+              <Input
+                id="e-email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="e-phone">Phone</Label>
+              <Input id="e-phone" name="phone" value={formData.phone} onChange={handleChange} />
+            </div>
           </div>
-          <div><Label htmlFor="e-address">Address</Label><Input id="e-address" name="address" value={formData.address} onChange={handleChange} /></div>
+          <div>
+            <Label htmlFor="e-address">Address</Label>
+            <Input id="e-address" name="address" value={formData.address} onChange={handleChange} />
+          </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="e-city">City</Label><Input id="e-city" name="city" value={formData.city} onChange={handleChange} /></div>
-            <div><Label htmlFor="e-country">Country</Label><Input id="e-country" name="country" value={formData.country} onChange={handleChange} /></div>
+            <div>
+              <Label htmlFor="e-city">City</Label>
+              <Input id="e-city" name="city" value={formData.city} onChange={handleChange} />
+            </div>
+            <div>
+              <Label htmlFor="e-country">Country</Label>
+              <Input
+                id="e-country"
+                name="country"
+                value={formData.country}
+                onChange={handleChange}
+              />
+            </div>
           </div>
           <div className="grid grid-cols-3 gap-4">
-            <div><Label htmlFor="e-taxId">Tax ID</Label><Input id="e-taxId" name="taxId" value={formData.taxId} onChange={handleChange} /></div>
+            <div>
+              <Label htmlFor="e-taxId">Tax ID</Label>
+              <Input id="e-taxId" name="taxId" value={formData.taxId} onChange={handleChange} />
+            </div>
             <div>
               <Label htmlFor="e-paymentTerms">Payment Terms</Label>
-              <select id="e-paymentTerms" name="paymentTerms" value={formData.paymentTerms} onChange={handleChange} className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                <option value="NET_7">Net 7</option><option value="NET_14">Net 14</option><option value="NET_30">Net 30</option><option value="NET_60">Net 60</option><option value="NET_90">Net 90</option><option value="DUE_ON_RECEIPT">Due on Receipt</option>
+              <select
+                id="e-paymentTerms"
+                name="paymentTerms"
+                value={formData.paymentTerms}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="NET_7">Net 7</option>
+                <option value="NET_14">Net 14</option>
+                <option value="NET_30">Net 30</option>
+                <option value="NET_60">Net 60</option>
+                <option value="NET_90">Net 90</option>
+                <option value="DUE_ON_RECEIPT">Due on Receipt</option>
               </select>
             </div>
-            <div><Label htmlFor="e-creditLimit">Credit Limit</Label><Input id="e-creditLimit" name="creditLimit" type="number" step="0.01" value={formData.creditLimit} onChange={handleChange} /></div>
+            <div>
+              <Label htmlFor="e-creditLimit">Credit Limit</Label>
+              <Input
+                id="e-creditLimit"
+                name="creditLimit"
+                type="number"
+                step="0.01"
+                value={formData.creditLimit}
+                onChange={handleChange}
+              />
+            </div>
           </div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" id="e-isActive" checked={formData.isActive as any} onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))} />
+            <input
+              type="checkbox"
+              id="e-isActive"
+              checked={formData.isActive as any}
+              onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
+            />
             <Label htmlFor="e-isActive">Active</Label>
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setEditModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleUpdate} disabled={submitting}>{submitting ? 'Saving...' : 'Save Changes'}</Button>
+          <Button variant="outline" onClick={() => setEditModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleUpdate} disabled={submitting}>
+            {submitting ? 'Saving...' : 'Save Changes'}
+          </Button>
         </ModalFooter>
       </Modal>
     </div>

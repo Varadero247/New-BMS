@@ -1,7 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label, Textarea } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Textarea,
+} from '@ims/ui';
 import { Clock, UserCheck, UserX, AlertTriangle, Calendar, Plus } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -52,7 +64,9 @@ export default function AttendancePage() {
   const [formData, setFormData] = useState(initialFormState);
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [employees, setEmployees] = useState<Array<{ id: string; firstName: string; lastName: string; employeeNumber: string }>>([]);
+  const [employees, setEmployees] = useState<
+    Array<{ id: string; firstName: string; lastName: string; employeeNumber: string }>
+  >([]);
 
   useEffect(() => {
     loadAttendance();
@@ -72,7 +86,9 @@ export default function AttendancePage() {
 
   async function loadSummary() {
     try {
-      const res = await api.get(`/attendance/summary?startDate=${selectedDate}&endDate=${selectedDate}`);
+      const res = await api.get(
+        `/attendance/summary?startDate=${selectedDate}&endDate=${selectedDate}`
+      );
       setSummary(res.data.data);
     } catch (error) {
       console.error('Error loading summary:', error);
@@ -95,9 +111,11 @@ export default function AttendancePage() {
     loadEmployees();
   }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
   async function handleCreate() {
@@ -155,7 +173,7 @@ export default function AttendancePage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-24 bg-gray-200 rounded" />
             ))}
           </div>
@@ -165,10 +183,10 @@ export default function AttendancePage() {
   }
 
   const stats = {
-    present: attendances.filter(a => a.status === 'PRESENT').length,
-    late: attendances.filter(a => a.status === 'LATE').length,
-    absent: attendances.filter(a => a.status === 'ABSENT').length,
-    onLeave: attendances.filter(a => a.status === 'ON_LEAVE').length,
+    present: attendances.filter((a) => a.status === 'PRESENT').length,
+    late: attendances.filter((a) => a.status === 'LATE').length,
+    absent: attendances.filter((a) => a.status === 'ABSENT').length,
+    onLeave: attendances.filter((a) => a.status === 'ON_LEAVE').length,
   };
 
   return (
@@ -247,7 +265,15 @@ export default function AttendancePage() {
         {/* Attendance List */}
         <Card>
           <CardHeader>
-            <CardTitle>Attendance Records - {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</CardTitle>
+            <CardTitle>
+              Attendance Records -{' '}
+              {new Date(selectedDate).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {attendances.length > 0 ? (
@@ -266,15 +292,26 @@ export default function AttendancePage() {
                   </thead>
                   <tbody>
                     {attendances.map((attendance) => (
-                      <tr key={attendance.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
+                      <tr
+                        key={attendance.id}
+                        className="border-b hover:bg-gray-50 dark:bg-gray-800"
+                      >
                         <td className="py-3 px-4">
                           <div>
-                            <p className="font-medium">{attendance.employee.firstName} {attendance.employee.lastName}</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{attendance.employee.employeeNumber}</p>
+                            <p className="font-medium">
+                              {attendance.employee.firstName} {attendance.employee.lastName}
+                            </p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {attendance.employee.employeeNumber}
+                            </p>
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[attendance.status] || 'bg-gray-100 dark:bg-gray-800'}>
+                          <Badge
+                            className={
+                              statusColors[attendance.status] || 'bg-gray-100 dark:bg-gray-800'
+                            }
+                          >
                             {attendance.status.replace('_', ' ')}
                           </Badge>
                         </td>
@@ -285,13 +322,19 @@ export default function AttendancePage() {
                         </td>
                         <td className="py-3 px-4">
                           {attendance.overtimeHours ? (
-                            <span className="text-blue-600 font-medium">+{attendance.overtimeHours.toFixed(1)}h</span>
-                          ) : '-'}
+                            <span className="text-blue-600 font-medium">
+                              +{attendance.overtimeHours.toFixed(1)}h
+                            </span>
+                          ) : (
+                            '-'
+                          )}
                         </td>
                         <td className="py-3 px-4">
                           {attendance.lateMinutes > 0 ? (
                             <span className="text-orange-600">{attendance.lateMinutes}m</span>
-                          ) : '-'}
+                          ) : (
+                            '-'
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -309,7 +352,12 @@ export default function AttendancePage() {
       </div>
 
       {/* Manual Attendance Entry Modal */}
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Manual Attendance Entry" size="lg">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Manual Attendance Entry"
+        size="lg"
+      >
         <div className="max-h-[70vh] overflow-y-auto pr-2">
           {formError && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
@@ -328,7 +376,7 @@ export default function AttendancePage() {
                 className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="">Select employee</option>
-                {employees.map(emp => (
+                {employees.map((emp) => (
                   <option key={emp.id} value={emp.id}>
                     {emp.firstName} {emp.lastName} ({emp.employeeNumber})
                   </option>
@@ -404,11 +452,7 @@ export default function AttendancePage() {
         </div>
 
         <ModalFooter>
-          <Button
-            variant="outline"
-            onClick={() => setCreateModalOpen(false)}
-            disabled={submitting}
-          >
+          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>
             Cancel
           </Button>
           <Button onClick={handleCreate} disabled={submitting}>

@@ -54,10 +54,14 @@ export default function DefinitionsPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'ACTIVE': return <Play className="h-4 w-4 text-green-500" />;
-      case 'DEPRECATED': return <Pause className="h-4 w-4 text-yellow-500" />;
-      case 'ARCHIVED': return <Archive className="h-4 w-4 text-red-500" />;
-      default: return <FileCode className="h-4 w-4 text-gray-500 dark:text-gray-400" />;
+      case 'ACTIVE':
+        return <Play className="h-4 w-4 text-green-500" />;
+      case 'DEPRECATED':
+        return <Pause className="h-4 w-4 text-yellow-500" />;
+      case 'ARCHIVED':
+        return <Archive className="h-4 w-4 text-red-500" />;
+      default:
+        return <FileCode className="h-4 w-4 text-gray-500 dark:text-gray-400" />;
     }
   };
 
@@ -72,7 +76,9 @@ export default function DefinitionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Workflow Definitions</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Workflow Definitions
+        </h1>
         <Link
           href="/definitions/new"
           className="flex items-center space-x-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
@@ -115,11 +121,21 @@ export default function DefinitionsPage() {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Definition</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Trigger</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Version</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                Definition
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                Category
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                Trigger
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                Version
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                Status
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
@@ -134,16 +150,27 @@ export default function DefinitionsPage() {
               definitions.map((def) => (
                 <tr key={def.id} className="hover:bg-gray-50 dark:bg-gray-800">
                   <td className="px-6 py-4">
-                    <Link href={`/definitions/${def.id}`} className="text-indigo-600 hover:text-indigo-900">
+                    <Link
+                      href={`/definitions/${def.id}`}
+                      className="text-indigo-600 hover:text-indigo-900"
+                    >
                       <div className="font-medium">{def.name}</div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">{def.code}</div>
                     </Link>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{def.category.replace(/_/g, ' ')}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{def.triggerType}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">v{def.version}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                    {def.category.replace(/_/g, ' ')}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                    {def.triggerType}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                    v{def.version}
+                  </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center space-x-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(def.status)}`}>
+                    <span
+                      className={`inline-flex items-center space-x-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(def.status)}`}
+                    >
                       {getStatusIcon(def.status)}
                       <span>{def.status}</span>
                     </span>

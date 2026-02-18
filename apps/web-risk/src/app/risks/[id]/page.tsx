@@ -4,9 +4,24 @@ import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@ims/ui';
 import {
-  ArrowLeft, AlertTriangle, Shield, Activity, Target, GitBranch,
-  ClipboardList, User, Calendar, Tag, ChevronRight, Plus,
-  RefreshCw, Zap, CheckCircle2, Clock, TrendingUp, TrendingDown,
+  ArrowLeft,
+  AlertTriangle,
+  Shield,
+  Activity,
+  Target,
+  GitBranch,
+  ClipboardList,
+  User,
+  Calendar,
+  Tag,
+  ChevronRight,
+  Plus,
+  RefreshCw,
+  Zap,
+  CheckCircle2,
+  Clock,
+  TrendingUp,
+  TrendingDown,
 } from 'lucide-react';
 import Link from 'next/link';
 import Sidebar from '@/components/sidebar';
@@ -68,9 +83,21 @@ interface RiskBowtie {
   id: string;
   topEvent: string;
   threats: { id: string; description: string; likelihood?: number }[];
-  preventionBarriers: { id: string; description: string; type?: string; effectiveness?: string; owner?: string }[];
+  preventionBarriers: {
+    id: string;
+    description: string;
+    type?: string;
+    effectiveness?: string;
+    owner?: string;
+  }[];
   consequences: { id: string; description: string; severity?: number }[];
-  mitigationBarriers: { id: string; description: string; type?: string; effectiveness?: string; owner?: string }[];
+  mitigationBarriers: {
+    id: string;
+    description: string;
+    type?: string;
+    effectiveness?: string;
+    owner?: string;
+  }[];
   escalationFactors?: string[];
   criticalPath?: string;
   keyGaps?: string;
@@ -132,10 +159,13 @@ const TABS: { key: TabKey; label: string; icon: React.ComponentType<{ className?
 ];
 
 const LEVEL_COLORS: Record<string, string> = {
-  CRITICAL: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800',
-  VERY_HIGH: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 border-orange-200 dark:border-orange-800',
+  CRITICAL:
+    'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800',
+  VERY_HIGH:
+    'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 border-orange-200 dark:border-orange-800',
   HIGH: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
-  MEDIUM: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+  MEDIUM:
+    'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800',
   LOW: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800',
 };
 
@@ -155,8 +185,10 @@ const APPETITE_COLORS: Record<string, string> = {
 
 const KRI_STATUS_COLORS: Record<string, string> = {
   RED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800',
-  AMBER: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800',
-  GREEN: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800',
+  AMBER:
+    'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+  GREEN:
+    'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800',
 };
 
 const EFFECTIVENESS_COLORS: Record<string, string> = {
@@ -175,11 +207,22 @@ const ACTION_STATUS_COLORS: Record<string, string> = {
 
 function MiniHeatmapCell({ l, c, highlight }: { l: number; c: number; highlight?: boolean }) {
   const score = l * c;
-  const bg = score >= 15 ? 'bg-red-500' : score >= 10 ? 'bg-orange-400' : score >= 5 ? 'bg-yellow-400' : 'bg-green-400';
+  const bg =
+    score >= 15
+      ? 'bg-red-500'
+      : score >= 10
+        ? 'bg-orange-400'
+        : score >= 5
+          ? 'bg-yellow-400'
+          : 'bg-green-400';
   return (
-    <div className={`${bg} relative w-8 h-8 flex items-center justify-center rounded text-xs font-bold ${score >= 5 ? 'text-white' : 'text-gray-800'}`}>
+    <div
+      className={`${bg} relative w-8 h-8 flex items-center justify-center rounded text-xs font-bold ${score >= 5 ? 'text-white' : 'text-gray-800'}`}
+    >
       {score}
-      {highlight && <div className="absolute inset-0 rounded ring-2 ring-white dark:ring-gray-900 ring-offset-1" />}
+      {highlight && (
+        <div className="absolute inset-0 rounded ring-2 ring-white dark:ring-gray-900 ring-offset-1" />
+      )}
     </div>
   );
 }
@@ -189,22 +232,46 @@ function MiniHeatmap({ iL, iC, rL, rC }: { iL?: number; iC?: number; rL?: number
     <div>
       <div className="grid gap-0.5" style={{ gridTemplateColumns: 'auto repeat(5, 2rem)' }}>
         <div />
-        {[1, 2, 3, 4, 5].map(c => (
-          <div key={c} className="text-center text-xs text-gray-400 dark:text-gray-500 font-medium pb-0.5">{c}</div>
+        {[1, 2, 3, 4, 5].map((c) => (
+          <div
+            key={c}
+            className="text-center text-xs text-gray-400 dark:text-gray-500 font-medium pb-0.5"
+          >
+            {c}
+          </div>
         ))}
-        {[5, 4, 3, 2, 1].map(l => (
+        {[5, 4, 3, 2, 1].map((l) => (
           <>
-            <div key={`l${l}`} className="flex items-center justify-end pr-1 text-xs text-gray-400 dark:text-gray-500 font-medium">{l}</div>
-            {[1, 2, 3, 4, 5].map(c => (
-              <MiniHeatmapCell key={`${l}-${c}`} l={l} c={c}
-                highlight={(l === iL && c === iC) || (l === rL && c === rC)} />
+            <div
+              key={`l${l}`}
+              className="flex items-center justify-end pr-1 text-xs text-gray-400 dark:text-gray-500 font-medium"
+            >
+              {l}
+            </div>
+            {[1, 2, 3, 4, 5].map((c) => (
+              <MiniHeatmapCell
+                key={`${l}-${c}`}
+                l={l}
+                c={c}
+                highlight={(l === iL && c === iC) || (l === rL && c === rC)}
+              />
             ))}
           </>
         ))}
       </div>
       <div className="flex gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
-        {iL && iC && <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-gray-400" />Inherent ({iL * iC})</span>}
-        {rL && rC && <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-gray-700 dark:bg-gray-300" />Residual ({rL * rC})</span>}
+        {iL && iC && (
+          <span className="flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded bg-gray-400" />
+            Inherent ({iL * iC})
+          </span>
+        )}
+        {rL && rC && (
+          <span className="flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded bg-gray-700 dark:bg-gray-300" />
+            Residual ({rL * rC})
+          </span>
+        )}
       </div>
     </div>
   );
@@ -234,37 +301,46 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
     }
   }
 
-  useEffect(() => { loadRisk(); }, [id]);
+  useEffect(() => {
+    loadRisk();
+  }, [id]);
 
-  if (loading) return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-      <main className="flex-1 p-8">
-        <div className="max-w-5xl mx-auto animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
-          <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
-          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded" />
-        </div>
-      </main>
-    </div>
-  );
-
-  if (error || !risk) return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-      <main className="flex-1 p-8">
-        <div className="max-w-5xl mx-auto">
-          <div className="p-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-center">
-            <AlertTriangle className="h-10 w-10 text-red-500 mx-auto mb-3" />
-            <p className="text-red-700 dark:text-red-300 font-medium">{error || 'Risk not found'}</p>
-            <Link href="/risks" className="mt-4 inline-block text-sm text-red-600 dark:text-red-400 hover:underline">
-              Return to Risk Register
-            </Link>
+  if (loading)
+    return (
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <main className="flex-1 p-8">
+          <div className="max-w-5xl mx-auto animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
+            <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
+            <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded" />
           </div>
-        </div>
-      </main>
-    </div>
-  );
+        </main>
+      </div>
+    );
+
+  if (error || !risk)
+    return (
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <main className="flex-1 p-8">
+          <div className="max-w-5xl mx-auto">
+            <div className="p-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-center">
+              <AlertTriangle className="h-10 w-10 text-red-500 mx-auto mb-3" />
+              <p className="text-red-700 dark:text-red-300 font-medium">
+                {error || 'Risk not found'}
+              </p>
+              <Link
+                href="/risks"
+                className="mt-4 inline-block text-sm text-red-600 dark:text-red-400 hover:underline"
+              >
+                Return to Risk Register
+              </Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
 
   const tabBadge = {
     controls: risk.riskControls?.length || 0,
@@ -280,17 +356,24 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
         <div className="max-w-5xl mx-auto">
           {/* Back button */}
           <div className="flex items-center gap-3 mb-4">
-            <button onClick={() => router.back()}
-              className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+            >
               <ArrowLeft className="h-4 w-4" />
               Back
             </button>
             <span className="text-gray-300 dark:text-gray-700">/</span>
-            <Link href="/risks" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+            <Link
+              href="/risks"
+              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+            >
               Risk Register
             </Link>
             <span className="text-gray-300 dark:text-gray-700">/</span>
-            <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{risk.referenceNumber}</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+              {risk.referenceNumber}
+            </span>
           </div>
 
           {/* Header Card */}
@@ -299,28 +382,42 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className="font-mono text-sm text-gray-500 dark:text-gray-400">{risk.referenceNumber}</span>
+                    <span className="font-mono text-sm text-gray-500 dark:text-gray-400">
+                      {risk.referenceNumber}
+                    </span>
                     {risk.residualRiskLevel && (
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${LEVEL_COLORS[risk.residualRiskLevel] || 'bg-gray-100 text-gray-700'}`}>
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${LEVEL_COLORS[risk.residualRiskLevel] || 'bg-gray-100 text-gray-700'}`}
+                      >
                         {risk.residualRiskLevel}
                       </span>
                     )}
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[risk.status] || STATUS_COLORS.IDENTIFIED}`}>
+                    <span
+                      className={`px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[risk.status] || STATUS_COLORS.IDENTIFIED}`}
+                    >
                       {risk.status.replace(/_/g, ' ')}
                     </span>
                     {risk.appetiteStatus && (
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${APPETITE_COLORS[risk.appetiteStatus] || ''}`}>
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold ${APPETITE_COLORS[risk.appetiteStatus] || ''}`}
+                      >
                         Appetite: {risk.appetiteStatus}
                       </span>
                     )}
                   </div>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 leading-tight">{risk.title}</h1>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
+                    {risk.title}
+                  </h1>
                   {risk.description && (
-                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{risk.description}</p>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                      {risk.description}
+                    </p>
                   )}
                 </div>
-                <button onClick={loadRisk}
-                  className="shrink-0 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                <button
+                  onClick={loadRisk}
+                  className="shrink-0 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                >
                   <RefreshCw className="h-4 w-4" />
                 </button>
               </div>
@@ -331,7 +428,10 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                   <div>
                     <p className="text-xs text-gray-400 dark:text-gray-500">Category</p>
                     <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
-                      {risk.category.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}
+                      {risk.category
+                        .replace(/_/g, ' ')
+                        .toLowerCase()
+                        .replace(/\b\w/g, (c) => c.toUpperCase())}
                     </p>
                   </div>
                 </div>
@@ -340,7 +440,9 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                     <User className="h-4 w-4 text-gray-400 shrink-0" />
                     <div>
                       <p className="text-xs text-gray-400 dark:text-gray-500">Owner</p>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{risk.ownerName}</p>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+                        {risk.ownerName}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -349,7 +451,9 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                     <Calendar className="h-4 w-4 text-gray-400 shrink-0" />
                     <div>
                       <p className="text-xs text-gray-400 dark:text-gray-500">Next Review</p>
-                      <p className={`text-sm font-medium ${new Date(risk.nextReviewDate) < new Date() ? 'text-red-600 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'}`}>
+                      <p
+                        className={`text-sm font-medium ${new Date(risk.nextReviewDate) < new Date() ? 'text-red-600 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'}`}
+                      >
                         {new Date(risk.nextReviewDate).toLocaleDateString()}
                       </p>
                     </div>
@@ -360,7 +464,9 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                     <Target className="h-4 w-4 text-gray-400 shrink-0" />
                     <div>
                       <p className="text-xs text-gray-400 dark:text-gray-500">Treatment</p>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{risk.treatment.replace(/_/g, ' ')}</p>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {risk.treatment.replace(/_/g, ' ')}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -370,7 +476,7 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
 
           {/* Tabs */}
           <div className="flex gap-0 mb-6 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
-            {TABS.map(tab => {
+            {TABS.map((tab) => {
               const Icon = tab.icon;
               const count = tabBadge[tab.key as keyof typeof tabBadge] || 0;
               return (
@@ -381,15 +487,20 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                     activeTab === tab.key
                       ? 'border-red-600 text-red-600 dark:text-red-400'
                       : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300'
-                  }`}>
+                  }`}
+                >
                   <Icon className="h-4 w-4" />
                   {tab.label}
                   {count > 0 && (
-                    <span className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${
-                      activeTab === tab.key
-                        ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-                        : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-                    }`}>{count}</span>
+                    <span
+                      className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${
+                        activeTab === tab.key
+                          ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                          : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                      }`}
+                    >
+                      {count}
+                    </span>
                   )}
                 </button>
               );
@@ -405,15 +516,23 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
               {(risk.causes?.length || risk.riskEvent || risk.consequences?.length) && (
                 <Card>
                   <CardContent className="p-5">
-                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4">Cause — Event — Consequence</h3>
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4">
+                      Cause — Event — Consequence
+                    </h3>
                     <div className="flex gap-2 items-start">
                       {risk.causes && risk.causes.length > 0 && (
                         <div className="flex-1 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800/40">
-                          <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wider mb-2">Causes</p>
+                          <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wider mb-2">
+                            Causes
+                          </p>
                           <ul className="space-y-1">
                             {risk.causes.map((c, i) => (
-                              <li key={i} className="text-sm text-blue-800 dark:text-blue-200 flex items-start gap-1.5">
-                                <span className="text-blue-400 mt-0.5">•</span>{c}
+                              <li
+                                key={i}
+                                className="text-sm text-blue-800 dark:text-blue-200 flex items-start gap-1.5"
+                              >
+                                <span className="text-blue-400 mt-0.5">•</span>
+                                {c}
                               </li>
                             ))}
                           </ul>
@@ -424,9 +543,12 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                           <ChevronRight className="h-5 w-5 text-gray-400 shrink-0 mt-3" />
                           <div className="flex-1 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800/40">
                             <p className="text-xs font-semibold text-orange-700 dark:text-orange-300 uppercase tracking-wider mb-1 flex items-center gap-1">
-                              <Zap className="h-3 w-3" />Event
+                              <Zap className="h-3 w-3" />
+                              Event
                             </p>
-                            <p className="text-sm text-orange-800 dark:text-orange-200">{risk.riskEvent}</p>
+                            <p className="text-sm text-orange-800 dark:text-orange-200">
+                              {risk.riskEvent}
+                            </p>
                           </div>
                         </>
                       )}
@@ -434,11 +556,17 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                         <>
                           <ChevronRight className="h-5 w-5 text-gray-400 shrink-0 mt-3" />
                           <div className="flex-1 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800/40">
-                            <p className="text-xs font-semibold text-red-700 dark:text-red-300 uppercase tracking-wider mb-2">Consequences</p>
+                            <p className="text-xs font-semibold text-red-700 dark:text-red-300 uppercase tracking-wider mb-2">
+                              Consequences
+                            </p>
                             <ul className="space-y-1">
                               {risk.consequences.map((c, i) => (
-                                <li key={i} className="text-sm text-red-800 dark:text-red-200 flex items-start gap-1.5">
-                                  <span className="text-red-400 mt-0.5">•</span>{c}
+                                <li
+                                  key={i}
+                                  className="text-sm text-red-800 dark:text-red-200 flex items-start gap-1.5"
+                                >
+                                  <span className="text-red-400 mt-0.5">•</span>
+                                  {c}
                                 </li>
                               ))}
                             </ul>
@@ -454,19 +582,24 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card>
                   <CardContent className="p-5">
-                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Inherent Risk</p>
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                      Inherent Risk
+                    </p>
                     <p className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                       {risk.inherentScore ?? '—'}
                     </p>
                     {risk.inherentRiskLevel && (
-                      <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border ${LEVEL_COLORS[risk.inherentRiskLevel] || ''}`}>
+                      <span
+                        className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border ${LEVEL_COLORS[risk.inherentRiskLevel] || ''}`}
+                      >
                         {risk.inherentRiskLevel}
                       </span>
                     )}
                     {(risk.inherentLikelihood || risk.inherentConsequence) && (
                       <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                         L{risk.inherentLikelihood} × C{risk.inherentConsequence}
-                        {risk.likelihood && ` (${risk.likelihood.replace(/_/g, ' ')} / ${risk.consequence?.replace(/_/g, ' ')})`}
+                        {risk.likelihood &&
+                          ` (${risk.likelihood.replace(/_/g, ' ')} / ${risk.consequence?.replace(/_/g, ' ')})`}
                       </p>
                     )}
                   </CardContent>
@@ -474,19 +607,24 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
 
                 <Card>
                   <CardContent className="p-5">
-                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Residual Risk</p>
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                      Residual Risk
+                    </p>
                     <p className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                       {risk.residualScore ?? '—'}
                     </p>
                     {risk.residualRiskLevel && (
-                      <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border ${LEVEL_COLORS[risk.residualRiskLevel] || ''}`}>
+                      <span
+                        className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border ${LEVEL_COLORS[risk.residualRiskLevel] || ''}`}
+                      >
                         {risk.residualRiskLevel}
                       </span>
                     )}
                     {(risk.residualLikelihoodNum || risk.residualConsequenceNum) && (
                       <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                         L{risk.residualLikelihoodNum} × C{risk.residualConsequenceNum}
-                        {risk.residualLikelihood && ` (${risk.residualLikelihood.replace(/_/g, ' ')} / ${risk.residualConsequence?.replace(/_/g, ' ')})`}
+                        {risk.residualLikelihood &&
+                          ` (${risk.residualLikelihood.replace(/_/g, ' ')} / ${risk.residualConsequence?.replace(/_/g, ' ')})`}
                       </p>
                     )}
                     {risk.inherentScore && risk.residualScore && (
@@ -499,7 +637,9 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
 
                 <Card>
                   <CardContent className="p-5">
-                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">5x5 Position</p>
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                      5x5 Position
+                    </p>
                     <MiniHeatmap
                       iL={risk.inherentLikelihood}
                       iC={risk.inherentConsequence}
@@ -515,32 +655,48 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                 {risk.internalContext && (
                   <Card>
                     <CardContent className="p-4">
-                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Internal Context</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{risk.internalContext}</p>
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                        Internal Context
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                        {risk.internalContext}
+                      </p>
                     </CardContent>
                   </Card>
                 )}
                 {risk.externalContext && (
                   <Card>
                     <CardContent className="p-4">
-                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">External Context</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{risk.externalContext}</p>
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                        External Context
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                        {risk.externalContext}
+                      </p>
                     </CardContent>
                   </Card>
                 )}
                 {risk.regulatoryRef && (
                   <Card>
                     <CardContent className="p-4">
-                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Regulatory Reference</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">{risk.regulatoryRef}</p>
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                        Regulatory Reference
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        {risk.regulatoryRef}
+                      </p>
                     </CardContent>
                   </Card>
                 )}
                 {risk.treatmentPlan && (
                   <Card>
                     <CardContent className="p-4">
-                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Treatment Plan</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{risk.treatmentPlan}</p>
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                        Treatment Plan
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                        {risk.treatmentPlan}
+                      </p>
                     </CardContent>
                   </Card>
                 )}
@@ -549,8 +705,12 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
               {risk.notes && (
                 <Card>
                   <CardContent className="p-4">
-                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Notes</p>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{risk.notes}</p>
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                      Notes
+                    </p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                      {risk.notes}
+                    </p>
                   </CardContent>
                 </Card>
               )}
@@ -574,7 +734,7 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                 </Card>
               ) : (
                 <div className="space-y-3">
-                  {risk.riskControls.map(ctrl => (
+                  {risk.riskControls.map((ctrl) => (
                     <Card key={ctrl.id}>
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between gap-3">
@@ -583,24 +743,35 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                               <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-xs font-medium">
                                 {ctrl.controlType.replace(/_/g, ' ')}
                               </span>
-                              <span className={`px-2 py-0.5 rounded text-xs font-medium ${EFFECTIVENESS_COLORS[ctrl.effectiveness] || ''}`}>
+                              <span
+                                className={`px-2 py-0.5 rounded text-xs font-medium ${EFFECTIVENESS_COLORS[ctrl.effectiveness] || ''}`}
+                              >
                                 {ctrl.effectiveness.replace(/_/g, ' ')}
                               </span>
                             </div>
-                            <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">{ctrl.description}</p>
+                            <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">
+                              {ctrl.description}
+                            </p>
                             {ctrl.owner && (
                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
-                                <User className="h-3 w-3" />Owner: {ctrl.owner}
+                                <User className="h-3 w-3" />
+                                Owner: {ctrl.owner}
                               </p>
                             )}
                           </div>
                           <div className="text-right text-xs text-gray-400 dark:text-gray-500 shrink-0">
-                            {ctrl.lastTestedDate && <p>Tested: {new Date(ctrl.lastTestedDate).toLocaleDateString()}</p>}
-                            {ctrl.nextTestDate && <p>Next test: {new Date(ctrl.nextTestDate).toLocaleDateString()}</p>}
+                            {ctrl.lastTestedDate && (
+                              <p>Tested: {new Date(ctrl.lastTestedDate).toLocaleDateString()}</p>
+                            )}
+                            {ctrl.nextTestDate && (
+                              <p>Next test: {new Date(ctrl.nextTestDate).toLocaleDateString()}</p>
+                            )}
                           </div>
                         </div>
                         {ctrl.testingNotes && (
-                          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded p-2">{ctrl.testingNotes}</p>
+                          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded p-2">
+                            {ctrl.testingNotes}
+                          </p>
                         )}
                       </CardContent>
                     </Card>
@@ -627,48 +798,79 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                 </Card>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {risk.keyRiskIndicators.map(kri => (
-                    <Card key={kri.id} className={`border-2 ${KRI_STATUS_COLORS[kri.currentStatus || 'GREEN']?.includes('green') ? 'border-green-200 dark:border-green-800' : kri.currentStatus === 'RED' ? 'border-red-200 dark:border-red-800' : 'border-amber-200 dark:border-amber-800'}`}>
+                  {risk.keyRiskIndicators.map((kri) => (
+                    <Card
+                      key={kri.id}
+                      className={`border-2 ${KRI_STATUS_COLORS[kri.currentStatus || 'GREEN']?.includes('green') ? 'border-green-200 dark:border-green-800' : kri.currentStatus === 'RED' ? 'border-red-200 dark:border-red-800' : 'border-amber-200 dark:border-amber-800'}`}
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between mb-2">
-                          <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{kri.name}</p>
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-bold border ${KRI_STATUS_COLORS[kri.currentStatus || 'GREEN']}`}>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+                            {kri.name}
+                          </p>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-xs font-bold border ${KRI_STATUS_COLORS[kri.currentStatus || 'GREEN']}`}
+                          >
                             {kri.currentStatus || 'GREEN'}
                           </span>
                         </div>
-                        {kri.description && <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{kri.description}</p>}
+                        {kri.description && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                            {kri.description}
+                          </p>
+                        )}
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-500 dark:text-gray-400">Current value</span>
                             <span className="font-bold text-gray-900 dark:text-gray-100">
-                              {kri.currentValue != null ? `${kri.currentValue}${kri.unit ? ` ${kri.unit}` : ''}` : '—'}
+                              {kri.currentValue != null
+                                ? `${kri.currentValue}${kri.unit ? ` ${kri.unit}` : ''}`
+                                : '—'}
                             </span>
                           </div>
                           <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                             <span>Green / Amber / Red</span>
                             <span>
-                              {kri.greenThreshold ?? '—'} / {kri.amberThreshold ?? '—'} / {kri.redThreshold ?? '—'}
+                              {kri.greenThreshold ?? '—'} / {kri.amberThreshold ?? '—'} /{' '}
+                              {kri.redThreshold ?? '—'}
                               {kri.unit ? ` ${kri.unit}` : ''}
                             </span>
                           </div>
                           {kri.thresholdDirection && (
                             <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
-                              {kri.thresholdDirection === 'INCREASING_IS_WORSE'
-                                ? <><TrendingUp className="h-3 w-3" />Higher values are worse</>
-                                : <><TrendingDown className="h-3 w-3" />Lower values are worse</>
-                              }
+                              {kri.thresholdDirection === 'INCREASING_IS_WORSE' ? (
+                                <>
+                                  <TrendingUp className="h-3 w-3" />
+                                  Higher values are worse
+                                </>
+                              ) : (
+                                <>
+                                  <TrendingDown className="h-3 w-3" />
+                                  Lower values are worse
+                                </>
+                              )}
                             </div>
                           )}
                           {kri.nextMeasurementDue && (
                             <div className="flex justify-between text-xs">
-                              <span className="text-gray-500 dark:text-gray-400">Next reading due</span>
-                              <span className={new Date(kri.nextMeasurementDue) < new Date() ? 'text-red-600 dark:text-red-400 font-medium' : 'text-gray-600 dark:text-gray-400'}>
+                              <span className="text-gray-500 dark:text-gray-400">
+                                Next reading due
+                              </span>
+                              <span
+                                className={
+                                  new Date(kri.nextMeasurementDue) < new Date()
+                                    ? 'text-red-600 dark:text-red-400 font-medium'
+                                    : 'text-gray-600 dark:text-gray-400'
+                                }
+                              >
                                 {new Date(kri.nextMeasurementDue).toLocaleDateString()}
                               </span>
                             </div>
                           )}
                           {kri.measurementFrequency && (
-                            <p className="text-xs text-gray-400 dark:text-gray-500">Frequency: {kri.measurementFrequency.replace(/_/g, ' ')}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500">
+                              Frequency: {kri.measurementFrequency.replace(/_/g, ' ')}
+                            </p>
                           )}
                         </div>
                       </CardContent>
@@ -685,7 +887,9 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
               {(risk.treatment || risk.treatmentPlan) && (
                 <Card>
                   <CardContent className="p-5">
-                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3">Treatment Strategy</h3>
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3">
+                      Treatment Strategy
+                    </h3>
                     {risk.treatment && (
                       <div className="flex items-center gap-2 mb-2">
                         <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-sm font-semibold">
@@ -694,7 +898,9 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                       </div>
                     )}
                     {risk.treatmentPlan && (
-                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{risk.treatmentPlan}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                        {risk.treatmentPlan}
+                      </p>
                     )}
                   </CardContent>
                 </Card>
@@ -718,36 +924,67 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b border-gray-100 dark:border-gray-800">
-                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Action</th>
-                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Owner</th>
-                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Target Date</th>
-                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Priority</th>
-                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Action
+                              </th>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Owner
+                              </th>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Target Date
+                              </th>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Priority
+                              </th>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Status
+                              </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-50 dark:divide-gray-800/60">
-                            {risk.treatmentActions.map(action => {
-                              const overdue = action.status !== 'COMPLETED' && new Date(action.targetDate) < new Date();
+                            {risk.treatmentActions.map((action) => {
+                              const overdue =
+                                action.status !== 'COMPLETED' &&
+                                new Date(action.targetDate) < new Date();
                               return (
-                                <tr key={action.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/30 ${overdue ? 'bg-red-50/30 dark:bg-red-900/10' : ''}`}>
+                                <tr
+                                  key={action.id}
+                                  className={`hover:bg-gray-50 dark:hover:bg-gray-800/30 ${overdue ? 'bg-red-50/30 dark:bg-red-900/10' : ''}`}
+                                >
                                   <td className="px-4 py-3">
-                                    <p className="font-medium text-gray-900 dark:text-gray-100">{action.actionTitle}</p>
-                                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate max-w-xs">{action.description}</p>
+                                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                                      {action.actionTitle}
+                                    </p>
+                                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate max-w-xs">
+                                      {action.description}
+                                    </p>
                                   </td>
-                                  <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{action.owner || '—'}</td>
+                                  <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                    {action.owner || '—'}
+                                  </td>
                                   <td className="px-4 py-3">
-                                    <span className={overdue ? 'text-red-600 dark:text-red-400 font-medium' : 'text-gray-700 dark:text-gray-300'}>
+                                    <span
+                                      className={
+                                        overdue
+                                          ? 'text-red-600 dark:text-red-400 font-medium'
+                                          : 'text-gray-700 dark:text-gray-300'
+                                      }
+                                    >
                                       {new Date(action.targetDate).toLocaleDateString()}
                                     </span>
                                     {overdue && <p className="text-xs text-red-500">Overdue</p>}
                                   </td>
                                   <td className="px-4 py-3">
                                     {action.priority && (
-                                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{action.priority}</span>
+                                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                        {action.priority}
+                                      </span>
                                     )}
                                   </td>
                                   <td className="px-4 py-3">
-                                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${ACTION_STATUS_COLORS[action.status] || ''}`}>
+                                    <span
+                                      className={`px-2 py-0.5 rounded-full text-xs font-semibold ${ACTION_STATUS_COLORS[action.status] || ''}`}
+                                    >
                                       {action.status.replace(/_/g, ' ')}
                                     </span>
                                   </td>
@@ -771,14 +1008,19 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                 <Card>
                   <CardContent className="py-16 text-center">
                     <GitBranch className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                    <p className="text-gray-600 dark:text-gray-400 font-medium mb-2">No bow-tie analysis yet</p>
+                    <p className="text-gray-600 dark:text-gray-400 font-medium mb-2">
+                      No bow-tie analysis yet
+                    </p>
                     <p className="text-sm text-gray-400 dark:text-gray-500 mb-6 max-w-sm mx-auto">
-                      Bow-tie analysis is available for HIGH, VERY HIGH and CRITICAL risks. It maps threats through prevention barriers to the top event, then through mitigation barriers to consequences.
+                      Bow-tie analysis is available for HIGH, VERY HIGH and CRITICAL risks. It maps
+                      threats through prevention barriers to the top event, then through mitigation
+                      barriers to consequences.
                     </p>
                     {['HIGH', 'VERY_HIGH', 'CRITICAL'].includes(risk.residualRiskLevel || '') && (
                       <button
                         onClick={() => setCreatingBowtie(true)}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+                      >
                         <Plus className="h-4 w-4" />
                         Create Bow-Tie Analysis
                       </button>
@@ -794,8 +1036,12 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                 <div className="space-y-4">
                   <div className="flex items-center justify-between mb-2">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Bow-Tie Analysis</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Version {risk.bowtie.version}</p>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        Bow-Tie Analysis
+                      </h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Version {risk.bowtie.version}
+                      </p>
                     </div>
                   </div>
 
@@ -804,9 +1050,13 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                     <CardContent className="p-4 text-center">
                       <div className="flex items-center justify-center gap-2 mb-1">
                         <Zap className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                        <p className="text-sm font-semibold text-orange-700 dark:text-orange-300 uppercase tracking-wider">Top Event</p>
+                        <p className="text-sm font-semibold text-orange-700 dark:text-orange-300 uppercase tracking-wider">
+                          Top Event
+                        </p>
                       </div>
-                      <p className="text-base font-bold text-orange-900 dark:text-orange-100">{risk.bowtie.topEvent}</p>
+                      <p className="text-base font-bold text-orange-900 dark:text-orange-100">
+                        {risk.bowtie.topEvent}
+                      </p>
                     </CardContent>
                   </Card>
 
@@ -818,10 +1068,17 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                         Threats ({risk.bowtie.threats?.length || 0})
                       </p>
                       <div className="space-y-2">
-                        {(risk.bowtie.threats || []).map(t => (
-                          <div key={t.id} className="p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-lg">
-                            <p className="text-xs text-red-800 dark:text-red-200">{t.description}</p>
-                            {t.likelihood != null && <p className="text-xs text-red-400 mt-0.5">L={t.likelihood}</p>}
+                        {(risk.bowtie.threats || []).map((t) => (
+                          <div
+                            key={t.id}
+                            className="p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-lg"
+                          >
+                            <p className="text-xs text-red-800 dark:text-red-200">
+                              {t.description}
+                            </p>
+                            {t.likelihood != null && (
+                              <p className="text-xs text-red-400 mt-0.5">L={t.likelihood}</p>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -833,11 +1090,18 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                         Prevention Barriers ({risk.bowtie.preventionBarriers?.length || 0})
                       </p>
                       <div className="space-y-2">
-                        {(risk.bowtie.preventionBarriers || []).map(b => (
-                          <div key={b.id} className="p-2.5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/40 rounded-lg">
-                            <p className="text-xs text-green-800 dark:text-green-200">{b.description}</p>
+                        {(risk.bowtie.preventionBarriers || []).map((b) => (
+                          <div
+                            key={b.id}
+                            className="p-2.5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/40 rounded-lg"
+                          >
+                            <p className="text-xs text-green-800 dark:text-green-200">
+                              {b.description}
+                            </p>
                             {b.effectiveness && (
-                              <p className={`text-xs mt-0.5 font-medium ${b.effectiveness === 'STRONG' ? 'text-green-600 dark:text-green-400' : b.effectiveness === 'ADEQUATE' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-500'}`}>
+                              <p
+                                className={`text-xs mt-0.5 font-medium ${b.effectiveness === 'STRONG' ? 'text-green-600 dark:text-green-400' : b.effectiveness === 'ADEQUATE' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-500'}`}
+                              >
                                 {b.effectiveness.replace(/_/g, ' ')}
                               </p>
                             )}
@@ -859,11 +1123,18 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                         Mitigation Barriers ({risk.bowtie.mitigationBarriers?.length || 0})
                       </p>
                       <div className="space-y-2">
-                        {(risk.bowtie.mitigationBarriers || []).map(b => (
-                          <div key={b.id} className="p-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 rounded-lg">
-                            <p className="text-xs text-blue-800 dark:text-blue-200">{b.description}</p>
+                        {(risk.bowtie.mitigationBarriers || []).map((b) => (
+                          <div
+                            key={b.id}
+                            className="p-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 rounded-lg"
+                          >
+                            <p className="text-xs text-blue-800 dark:text-blue-200">
+                              {b.description}
+                            </p>
                             {b.effectiveness && (
-                              <p className={`text-xs mt-0.5 font-medium ${b.effectiveness === 'STRONG' ? 'text-green-600 dark:text-green-400' : b.effectiveness === 'ADEQUATE' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-500'}`}>
+                              <p
+                                className={`text-xs mt-0.5 font-medium ${b.effectiveness === 'STRONG' ? 'text-green-600 dark:text-green-400' : b.effectiveness === 'ADEQUATE' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-500'}`}
+                              >
                                 {b.effectiveness.replace(/_/g, ' ')}
                               </p>
                             )}
@@ -878,10 +1149,19 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                         Consequences ({risk.bowtie.consequences?.length || 0})
                       </p>
                       <div className="space-y-2">
-                        {(risk.bowtie.consequences || []).map(c => (
-                          <div key={c.id} className="p-2.5 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800/40 rounded-lg">
-                            <p className="text-xs text-purple-800 dark:text-purple-200">{c.description}</p>
-                            {c.severity != null && <p className="text-xs text-purple-400 mt-0.5">Severity={c.severity}</p>}
+                        {(risk.bowtie.consequences || []).map((c) => (
+                          <div
+                            key={c.id}
+                            className="p-2.5 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800/40 rounded-lg"
+                          >
+                            <p className="text-xs text-purple-800 dark:text-purple-200">
+                              {c.description}
+                            </p>
+                            {c.severity != null && (
+                              <p className="text-xs text-purple-400 mt-0.5">
+                                Severity={c.severity}
+                              </p>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -889,32 +1169,48 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                   </div>
 
                   {/* Additional Info */}
-                  {(risk.bowtie.criticalPath || risk.bowtie.keyGaps || risk.bowtie.escalationFactors?.length) && (
+                  {(risk.bowtie.criticalPath ||
+                    risk.bowtie.keyGaps ||
+                    risk.bowtie.escalationFactors?.length) && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                       {risk.bowtie.criticalPath && (
                         <Card>
                           <CardContent className="p-4">
-                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Critical Path</p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">{risk.bowtie.criticalPath}</p>
+                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                              Critical Path
+                            </p>
+                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                              {risk.bowtie.criticalPath}
+                            </p>
                           </CardContent>
                         </Card>
                       )}
                       {risk.bowtie.keyGaps && (
                         <Card>
                           <CardContent className="p-4">
-                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Key Gaps</p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">{risk.bowtie.keyGaps}</p>
+                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                              Key Gaps
+                            </p>
+                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                              {risk.bowtie.keyGaps}
+                            </p>
                           </CardContent>
                         </Card>
                       )}
                       {risk.bowtie.escalationFactors?.length && (
                         <Card>
                           <CardContent className="p-4">
-                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Escalation Factors</p>
+                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                              Escalation Factors
+                            </p>
                             <ul className="space-y-1">
                               {risk.bowtie.escalationFactors.map((f, i) => (
-                                <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-1.5">
-                                  <span className="text-gray-400 mt-0.5">•</span>{f}
+                                <li
+                                  key={i}
+                                  className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-1.5"
+                                >
+                                  <span className="text-gray-400 mt-0.5">•</span>
+                                  {f}
                                 </li>
                               ))}
                             </ul>
@@ -949,27 +1245,40 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                   <div className="space-y-4">
                     {risk.reviews.map((review, idx) => (
                       <div key={review.id} className="relative pl-10">
-                        <div className={`absolute left-2.5 w-3 h-3 rounded-full border-2 border-white dark:border-gray-950 top-4 ${
-                          review.status === 'COMPLETED' ? 'bg-green-500' :
-                          review.status === 'CANCELLED' ? 'bg-red-500' :
-                          'bg-blue-400'
-                        }`} />
+                        <div
+                          className={`absolute left-2.5 w-3 h-3 rounded-full border-2 border-white dark:border-gray-950 top-4 ${
+                            review.status === 'COMPLETED'
+                              ? 'bg-green-500'
+                              : review.status === 'CANCELLED'
+                                ? 'bg-red-500'
+                                : 'bg-blue-400'
+                          }`}
+                        />
                         <Card>
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between mb-2">
                               <div>
                                 {review.referenceNumber && (
-                                  <span className="font-mono text-xs text-gray-400 dark:text-gray-500">{review.referenceNumber}</span>
+                                  <span className="font-mono text-xs text-gray-400 dark:text-gray-500">
+                                    {review.referenceNumber}
+                                  </span>
                                 )}
                                 <div className="flex items-center gap-2 mt-0.5">
-                                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                                    review.status === 'COMPLETED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
-                                    review.status === 'CANCELLED' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
-                                    'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                                  }`}>{review.status.replace(/_/g, ' ')}</span>
+                                  <span
+                                    className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                      review.status === 'COMPLETED'
+                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                        : review.status === 'CANCELLED'
+                                          ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                                          : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                                    }`}
+                                  >
+                                    {review.status.replace(/_/g, ' ')}
+                                  </span>
                                   {review.reviewerName && (
                                     <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                                      <User className="h-3 w-3" />{review.reviewerName}
+                                      <User className="h-3 w-3" />
+                                      {review.reviewerName}
                                     </span>
                                   )}
                                 </div>
@@ -977,7 +1286,9 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                               <div className="text-right text-xs text-gray-400 dark:text-gray-500">
                                 <p>{new Date(review.scheduledDate).toLocaleDateString()}</p>
                                 {review.completedDate && (
-                                  <p>Completed: {new Date(review.completedDate).toLocaleDateString()}</p>
+                                  <p>
+                                    Completed: {new Date(review.completedDate).toLocaleDateString()}
+                                  </p>
                                 )}
                               </div>
                             </div>
@@ -986,7 +1297,9 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                             {(review.previousScore != null || review.newScore != null) && (
                               <div className="flex items-center gap-2 my-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
                                 {review.previousScore != null && (
-                                  <span className={`px-2 py-0.5 rounded text-xs font-bold ${getRiskLevelColor(review.previousScore)}`}>
+                                  <span
+                                    className={`px-2 py-0.5 rounded text-xs font-bold ${getRiskLevelColor(review.previousScore)}`}
+                                  >
                                     {review.previousScore}
                                   </span>
                                 )}
@@ -994,15 +1307,21 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                                   <ChevronRight className="h-4 w-4 text-gray-400" />
                                 )}
                                 {review.newScore != null && (
-                                  <span className={`px-2 py-0.5 rounded text-xs font-bold ${getRiskLevelColor(review.newScore)}`}>
+                                  <span
+                                    className={`px-2 py-0.5 rounded text-xs font-bold ${getRiskLevelColor(review.newScore)}`}
+                                  >
                                     {review.newScore}
                                   </span>
                                 )}
                                 {review.previousScore != null && review.newScore != null && (
-                                  <span className={`text-xs font-medium ${review.newScore < review.previousScore ? 'text-green-600 dark:text-green-400' : review.newScore > review.previousScore ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}>
-                                    {review.newScore < review.previousScore ? `Improved by ${review.previousScore - review.newScore}` :
-                                     review.newScore > review.previousScore ? `Worsened by ${review.newScore - review.previousScore}` :
-                                     'No change'}
+                                  <span
+                                    className={`text-xs font-medium ${review.newScore < review.previousScore ? 'text-green-600 dark:text-green-400' : review.newScore > review.previousScore ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}
+                                  >
+                                    {review.newScore < review.previousScore
+                                      ? `Improved by ${review.previousScore - review.newScore}`
+                                      : review.newScore > review.previousScore
+                                        ? `Worsened by ${review.newScore - review.previousScore}`
+                                        : 'No change'}
                                   </span>
                                 )}
                               </div>
@@ -1010,14 +1329,22 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
 
                             {review.findings && (
                               <div className="mt-2">
-                                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-0.5">Findings</p>
-                                <p className="text-sm text-gray-700 dark:text-gray-300">{review.findings}</p>
+                                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-0.5">
+                                  Findings
+                                </p>
+                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                  {review.findings}
+                                </p>
                               </div>
                             )}
                             {review.recommendations && (
                               <div className="mt-2">
-                                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-0.5">Recommendations</p>
-                                <p className="text-sm text-gray-700 dark:text-gray-300">{review.recommendations}</p>
+                                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-0.5">
+                                  Recommendations
+                                </p>
+                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                  {review.recommendations}
+                                </p>
                               </div>
                             )}
                           </CardContent>
@@ -1037,7 +1364,8 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
 
 function getRiskLevelColor(score: number): string {
   if (score >= 15) return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
-  if (score >= 10) return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
+  if (score >= 10)
+    return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
   if (score >= 5) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
   return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
 }

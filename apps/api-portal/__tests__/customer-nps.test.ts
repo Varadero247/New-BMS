@@ -37,7 +37,12 @@ beforeEach(() => {
 
 describe('POST /api/customer/nps', () => {
   it('should submit an NPS score', async () => {
-    const nps = { id: 'n-1', reportType: 'INSPECTION', description: 'NPS Score: 9', status: 'CLOSED' };
+    const nps = {
+      id: 'n-1',
+      reportType: 'INSPECTION',
+      description: 'NPS Score: 9',
+      status: 'CLOSED',
+    };
     (prisma as any).portalQualityReport.create.mockResolvedValue(nps);
 
     const res = await request(app)
@@ -49,28 +54,27 @@ describe('POST /api/customer/nps', () => {
   });
 
   it('should reject score below 0', async () => {
-    const res = await request(app)
-      .post('/api/customer/nps')
-      .send({ score: -1 });
+    const res = await request(app).post('/api/customer/nps').send({ score: -1 });
 
     expect(res.status).toBe(400);
   });
 
   it('should reject score above 10', async () => {
-    const res = await request(app)
-      .post('/api/customer/nps')
-      .send({ score: 11 });
+    const res = await request(app).post('/api/customer/nps').send({ score: 11 });
 
     expect(res.status).toBe(400);
   });
 
   it('should accept score of 0', async () => {
-    const nps = { id: 'n-2', reportType: 'INSPECTION', description: 'NPS Score: 0', status: 'CLOSED' };
+    const nps = {
+      id: 'n-2',
+      reportType: 'INSPECTION',
+      description: 'NPS Score: 0',
+      status: 'CLOSED',
+    };
     (prisma as any).portalQualityReport.create.mockResolvedValue(nps);
 
-    const res = await request(app)
-      .post('/api/customer/nps')
-      .send({ score: 0 });
+    const res = await request(app).post('/api/customer/nps').send({ score: 0 });
 
     expect(res.status).toBe(201);
   });
@@ -78,9 +82,7 @@ describe('POST /api/customer/nps', () => {
   it('should handle server error on submit', async () => {
     (prisma as any).portalQualityReport.create.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app)
-      .post('/api/customer/nps')
-      .send({ score: 8 });
+    const res = await request(app).post('/api/customer/nps').send({ score: 8 });
 
     expect(res.status).toBe(500);
   });

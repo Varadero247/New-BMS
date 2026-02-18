@@ -22,17 +22,33 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       type: z.enum([
-        'LEGAL_REFERENCES', 'ENVIRONMENTAL_ASPECT',
-        'HR_JOB_DESCRIPTION', 'HR_PERFORMANCE_INSIGHTS', 'HR_LEAVE_ANALYSIS',
-        'HR_EMPLOYEE_ONBOARDING', 'HR_CERTIFICATION_MONITOR',
-        'PAYROLL_VALIDATION', 'SALARY_BENCHMARK', 'EXPENSE_VALIDATION',
-        'LOAN_CALCULATOR', 'PAYSLIP_ANOMALY',
-        'PROJECT_CHARTER', 'WBS_GENERATION', 'CRITICAL_PATH',
-        'THREE_POINT_ESTIMATION', 'RESOURCE_LEVELING', 'PROJECT_RISK_ANALYSIS',
-        'EVM_ANALYSIS', 'STAKEHOLDER_STRATEGY', 'PROJECT_HEALTH_CHECK',
-        'SPRINT_PLANNING', 'LESSONS_LEARNED',
-        'ENV_ASPECTS_SIGNIFICANCE', 'ENV_REGULATORY_GAP',
-        'MEDICAL_COMPLAINT_MDR_TRIAGE', 'MEDICAL_RISK_CONTROL_GENERATION',
+        'LEGAL_REFERENCES',
+        'ENVIRONMENTAL_ASPECT',
+        'HR_JOB_DESCRIPTION',
+        'HR_PERFORMANCE_INSIGHTS',
+        'HR_LEAVE_ANALYSIS',
+        'HR_EMPLOYEE_ONBOARDING',
+        'HR_CERTIFICATION_MONITOR',
+        'PAYROLL_VALIDATION',
+        'SALARY_BENCHMARK',
+        'EXPENSE_VALIDATION',
+        'LOAN_CALCULATOR',
+        'PAYSLIP_ANOMALY',
+        'PROJECT_CHARTER',
+        'WBS_GENERATION',
+        'CRITICAL_PATH',
+        'THREE_POINT_ESTIMATION',
+        'RESOURCE_LEVELING',
+        'PROJECT_RISK_ANALYSIS',
+        'EVM_ANALYSIS',
+        'STAKEHOLDER_STRATEGY',
+        'PROJECT_HEALTH_CHECK',
+        'SPRINT_PLANNING',
+        'LESSONS_LEARNED',
+        'ENV_ASPECTS_SIGNIFICANCE',
+        'ENV_REGULATORY_GAP',
+        'MEDICAL_COMPLAINT_MDR_TRIAGE',
+        'MEDICAL_RISK_CONTROL_GENERATION',
         'MEDICAL_DESIGN_INPUT_REVIEW',
         'AEROSPACE_COUNTERFEIT_RISK_ASSESSMENT',
         'AEROSPACE_AIRWORTHINESS_DIRECTIVE_IMPACT',
@@ -53,7 +69,11 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (!settings?.apiKey) {
       return res.status(400).json({
         success: false,
-        error: { code: 'NO_AI_CONFIG', message: 'AI provider not configured. Please set up an API key in Settings > AI Configuration.' },
+        error: {
+          code: 'NO_AI_CONFIG',
+          message:
+            'AI provider not configured. Please set up an API key in Settings > AI Configuration.',
+        },
       });
     }
 
@@ -1091,7 +1111,11 @@ Provide a comprehensive PPAP readiness assessment. Respond with ONLY valid JSON:
       if (settings.provider === 'OPENAI') {
         aiResponse = await callOpenAI(settings.apiKey, settings.model || 'gpt-4', prompt);
       } else if (settings.provider === 'ANTHROPIC') {
-        aiResponse = await callAnthropic(settings.apiKey, settings.model || 'claude-3-sonnet-20240229', prompt);
+        aiResponse = await callAnthropic(
+          settings.apiKey,
+          settings.model || 'claude-3-sonnet-20240229',
+          prompt
+        );
       } else if (settings.provider === 'GROK') {
         aiResponse = await callGrok(settings.apiKey, prompt);
       }
@@ -1128,13 +1152,16 @@ Provide a comprehensive PPAP readiness assessment. Respond with ONLY valid JSON:
 
     // Return structured result
     if (data.type === 'LEGAL_REFERENCES') {
-      res.json({ success: true, data: { suggestions: Array.isArray(parsedResult) ? parsedResult : [] } });
+      res.json({
+        success: true,
+        data: { suggestions: Array.isArray(parsedResult) ? parsedResult : [] },
+      });
     } else {
       res.json({ success: true, data: { type: data.type, result: parsedResult } });
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const fields = error.errors.map(e => e.path.join('.'));
+      const fields = error.errors.map((e) => e.path.join('.'));
       return res.status(400).json({
         success: false,
         error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields },
@@ -1154,12 +1181,16 @@ async function callOpenAI(apiKey: string, model: string, prompt: string) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model,
       messages: [
-        { role: 'system', content: 'You are an expert management system consultant specializing in ISO 45001, ISO 14001, ISO 9001, ISO 30414 (HR), SHRM, and CIPD frameworks. Always respond with valid JSON only.' },
+        {
+          role: 'system',
+          content:
+            'You are an expert management system consultant specializing in ISO 45001, ISO 14001, ISO 9001, ISO 30414 (HR), SHRM, and CIPD frameworks. Always respond with valid JSON only.',
+        },
         { role: 'user', content: prompt },
       ],
       temperature: 0.7,
@@ -1168,12 +1199,12 @@ async function callOpenAI(apiKey: string, model: string, prompt: string) {
   });
 
   if (!response.ok) {
-    const error = await response.json() as Record<string, unknown>;
+    const error = (await response.json()) as Record<string, unknown>;
     const errorObj = error.error as Record<string, unknown> | undefined;
     throw new Error((errorObj?.message as string) || 'OpenAI API error');
   }
 
-  const data = await response.json() as Record<string, unknown>;
+  const data = (await response.json()) as Record<string, unknown>;
   const choices = data.choices as Array<{ message: { content: string } }>;
   const usage = data.usage as { total_tokens?: number } | undefined;
   return {
@@ -1193,18 +1224,19 @@ async function callAnthropic(apiKey: string, model: string, prompt: string) {
     body: JSON.stringify({
       model,
       max_tokens: 2000,
-      system: 'You are an expert management system consultant specializing in ISO 45001, ISO 14001, ISO 9001, ISO 30414 (HR), SHRM, and CIPD frameworks. Always respond with valid JSON only.',
+      system:
+        'You are an expert management system consultant specializing in ISO 45001, ISO 14001, ISO 9001, ISO 30414 (HR), SHRM, and CIPD frameworks. Always respond with valid JSON only.',
       messages: [{ role: 'user', content: prompt }],
     }),
   });
 
   if (!response.ok) {
-    const error = await response.json() as Record<string, unknown>;
+    const error = (await response.json()) as Record<string, unknown>;
     const errorObj = error.error as Record<string, unknown> | undefined;
     throw new Error((errorObj?.message as string) || 'Anthropic API error');
   }
 
-  const data = await response.json() as Record<string, unknown>;
+  const data = (await response.json()) as Record<string, unknown>;
   const content = data.content as Array<{ text: string }>;
   const usage = data.usage as { input_tokens?: number; output_tokens?: number } | undefined;
   return {
@@ -1218,24 +1250,28 @@ async function callGrok(apiKey: string, prompt: string) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model: 'grok-beta',
       messages: [
-        { role: 'system', content: 'You are an expert ISO management system consultant. Always respond with valid JSON only.' },
+        {
+          role: 'system',
+          content:
+            'You are an expert ISO management system consultant. Always respond with valid JSON only.',
+        },
         { role: 'user', content: prompt },
       ],
     }),
   });
 
   if (!response.ok) {
-    const error = await response.json() as Record<string, unknown>;
+    const error = (await response.json()) as Record<string, unknown>;
     const errorObj = error.error as Record<string, unknown> | undefined;
     throw new Error((errorObj?.message as string) || 'Grok API error');
   }
 
-  const data = await response.json() as Record<string, unknown>;
+  const data = (await response.json()) as Record<string, unknown>;
   const choices = data.choices as Array<{ message: { content: string } }>;
   const usage = data.usage as { total_tokens?: number } | undefined;
   return {

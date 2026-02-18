@@ -19,7 +19,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const { projectId, page = '1', limit = '50' } = req.query;
 
     if (!projectId) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' },
+      });
     }
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -45,7 +48,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List changes error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list change requests' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list change requests' },
+    });
   }
 });
 
@@ -67,9 +73,11 @@ const createChangeSchema = z.object({
   priority: z.string().optional(),
   urgency: z.string().optional(),
 });
-const updateChangeSchema = createChangeSchema.extend({
-  implementedAt: z.string().optional(),
-}).partial();
+const updateChangeSchema = createChangeSchema
+  .extend({
+    implementedAt: z.string().optional(),
+  })
+  .partial();
 
 // POST /api/changes - Create change request
 router.post('/', async (req: AuthRequest, res: Response) => {
@@ -103,114 +111,181 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: change });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
     logger.error('Create change error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create change request' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create change request' },
+    });
   }
 });
 
 // PUT /api/changes/:id - Update change request
-router.put('/:id', checkOwnership(prisma.projectChange), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectChange.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
+router.put(
+  '/:id',
+  checkOwnership(prisma.projectChange),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectChange.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Change request not found' },
+        });
+      }
+
+      const parsed = updateChangeSchema.safeParse(req.body);
+      if (!parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+        });
+      const data = parsed.data;
+      const updateData = { ...data } as Record<string, unknown>;
+
+      if (data.implementedAt) updateData.implementedAt = new Date(data.implementedAt);
+
+      const change = await prisma.projectChange.update({
+        where: { id: req.params.id },
+        data: updateData,
+      });
+
+      res.json({ success: true, data: change });
+    } catch (error) {
+      logger.error('Update change error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update change request' },
+      });
     }
-
-    const parsed = updateChangeSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const data = parsed.data;
-    const updateData = { ...data } as Record<string, unknown>;
-
-    if (data.implementedAt) updateData.implementedAt = new Date(data.implementedAt);
-
-    const change = await prisma.projectChange.update({
-      where: { id: req.params.id },
-      data: updateData,
-    });
-
-    res.json({ success: true, data: change });
-  } catch (error) {
-    logger.error('Update change error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update change request' } });
   }
-});
+);
 
 // PUT /api/changes/:id/review - Review change request
-router.put('/:id/review', checkOwnership(prisma.projectChange), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectChange.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
+router.put(
+  '/:id/review',
+  checkOwnership(prisma.projectChange),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectChange.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Change request not found' },
+        });
+      }
+
+      const _schema = z.object({
+        status: z.string().trim().optional(),
+        reviewerComments: z.string().trim().optional(),
+      });
+      const _parsed = _schema.safeParse(req.body);
+      if (!_parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+        });
+      const { status, reviewerComments } = _parsed.data;
+
+      const change = await prisma.projectChange.update({
+        where: { id: req.params.id },
+        data: {
+          status: status || 'UNDER_REVIEW',
+          reviewedBy: req.user?.id,
+          reviewedAt: new Date(),
+          reviewerComments,
+        },
+      });
+
+      res.json({ success: true, data: change });
+    } catch (error) {
+      logger.error('Review change error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to review change request' },
+      });
     }
-
-    const _schema = z.object({ status: z.string().trim().optional(), reviewerComments: z.string().trim().optional() });
-    const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
-    const { status, reviewerComments } = _parsed.data;
-
-    const change = await prisma.projectChange.update({
-      where: { id: req.params.id },
-      data: {
-        status: status || 'UNDER_REVIEW',
-        reviewedBy: req.user?.id,
-        reviewedAt: new Date(),
-        reviewerComments,
-      },
-    });
-
-    res.json({ success: true, data: change });
-  } catch (error) {
-    logger.error('Review change error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to review change request' } });
   }
-});
+);
 
 // PUT /api/changes/:id/approve - Approve change request
-router.put('/:id/approve', checkOwnership(prisma.projectChange), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectChange.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
+router.put(
+  '/:id/approve',
+  checkOwnership(prisma.projectChange),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectChange.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Change request not found' },
+        });
+      }
+
+      const _schema = z.object({
+        status: z.string().trim().optional(),
+        approvalComments: z.string().trim().optional(),
+      });
+      const _parsed = _schema.safeParse(req.body);
+      if (!_parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+        });
+      const { status, approvalComments } = _parsed.data;
+
+      const change = await prisma.projectChange.update({
+        where: { id: req.params.id },
+        data: {
+          status: status || 'APPROVED',
+          approvedBy: req.user?.id,
+          approvedAt: new Date(),
+          approvalComments,
+        },
+      });
+
+      res.json({ success: true, data: change });
+    } catch (error) {
+      logger.error('Approve change error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to approve change request' },
+      });
     }
-
-    const _schema = z.object({ status: z.string().trim().optional(), approvalComments: z.string().trim().optional() });
-    const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
-    const { status, approvalComments } = _parsed.data;
-
-    const change = await prisma.projectChange.update({
-      where: { id: req.params.id },
-      data: {
-        status: status || 'APPROVED',
-        approvedBy: req.user?.id,
-        approvedAt: new Date(),
-        approvalComments,
-      },
-    });
-
-    res.json({ success: true, data: change });
-  } catch (error) {
-    logger.error('Approve change error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve change request' } });
   }
-});
+);
 
 // DELETE /api/changes/:id - Delete change request
-router.delete('/:id', checkOwnership(prisma.projectChange), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectChange.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
-    }
+router.delete(
+  '/:id',
+  checkOwnership(prisma.projectChange),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectChange.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Change request not found' },
+        });
+      }
 
-    await prisma.projectChange.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete change error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete change request' } });
+      await prisma.projectChange.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete change error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete change request' },
+      });
+    }
   }
-});
+);
 
 export default router;

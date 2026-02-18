@@ -14,9 +14,9 @@ export type FieldType =
   | 'tel'
   | 'signature'
   | 'file'
-  | 'section'       // visual divider / grouping header
-  | 'table'         // repeatable row group
-  | 'rating';       // 1-5 scale
+  | 'section' // visual divider / grouping header
+  | 'table' // repeatable row group
+  | 'rating'; // 1-5 scale
 
 /** A single field definition within a template */
 export interface FieldDefinition {
@@ -27,7 +27,7 @@ export interface FieldDefinition {
   placeholder?: string;
   helpText?: string;
   defaultValue?: string | number | boolean | string[];
-  options?: { label: string; value: string }[];  // for select/multiselect/radio
+  options?: { label: string; value: string }[]; // for select/multiselect/radio
   validation?: {
     min?: number;
     max?: number;
@@ -35,9 +35,9 @@ export interface FieldDefinition {
     maxLength?: number;
     pattern?: string;
   };
-  columns?: FieldDefinition[];  // for type=table — defines columns
+  columns?: FieldDefinition[]; // for type=table — defines columns
   width?: 'full' | 'half' | 'third';
-  section?: string;  // group fields under a section header
+  section?: string; // group fields under a section header
 }
 
 export type TemplateModule =
@@ -105,5 +105,5 @@ export interface TemplateDefinition {
   tags: string[];
   fields: FieldDefinition[];
   defaultContent?: Record<string, unknown>;
-  isoClause?: string;  // e.g. "6.1.2" — for audit doc reference
+  isoClause?: string; // e.g. "6.1.2" — for audit doc reference
 }

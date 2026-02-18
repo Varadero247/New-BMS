@@ -53,7 +53,8 @@ export function apiKeyAuth(req: Request, _res: Response, next: NextFunction): vo
   }
 
   // Verify bcrypt hash (async but we handle it in a promise)
-  bcrypt.compare(token, matchedRecord.keyHash)
+  bcrypt
+    .compare(token, matchedRecord.keyHash)
     .then((isValid) => {
       if (!isValid) {
         logger.warn('API key hash mismatch', { prefix });

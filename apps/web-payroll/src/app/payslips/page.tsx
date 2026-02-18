@@ -2,13 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import {
-  FileText,
-  CheckCircle,
-  DollarSign,
-  Clock,
-  Search,
-} from 'lucide-react';
+import { FileText, CheckCircle, DollarSign, Clock, Search } from 'lucide-react';
 import api from '@/lib/api';
 
 interface Payslip {
@@ -201,7 +195,9 @@ export default function PayslipsPage() {
               payslips.map((payslip) => (
                 <tr key={payslip.id} className="hover:bg-gray-50 dark:bg-gray-800">
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{payslip.payslipNumber}</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                      {payslip.payslipNumber}
+                    </span>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                     {payslip.employeeName}

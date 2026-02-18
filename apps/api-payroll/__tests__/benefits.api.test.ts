@@ -111,9 +111,7 @@ describe('Payroll Benefits API Routes', () => {
     it('should only return active plans by default', async () => {
       (mockPrisma.benefitPlan.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/benefits/plans')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/benefits/plans').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.benefitPlan.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -245,7 +243,9 @@ describe('Payroll Benefits API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.employeeBenefit.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.employeeBenefit.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/benefits/employees/2a000000-0000-4000-a000-000000000001')

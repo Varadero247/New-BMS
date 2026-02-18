@@ -29,12 +29,15 @@ function checkRateLimit(key: string, maxAttempts: number): boolean {
 }
 
 // Clean up stale entries every 30 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of loginAttempts.entries()) {
-    if (entry.resetAt < now) loginAttempts.delete(key);
-  }
-}, 30 * 60 * 1000).unref();
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [key, entry] of loginAttempts.entries()) {
+      if (entry.resetAt < now) loginAttempts.delete(key);
+    }
+  },
+  30 * 60 * 1000
+).unref();
 
 const registerSchema = z.object({
   email: z.string().trim().email(),
@@ -54,7 +57,13 @@ const loginSchema = z.object({
 router.post('/register', async (req: Request, res: Response) => {
   const ip = req.ip || 'unknown';
   if (!checkRateLimit(`register:${ip}`, MAX_REGISTER_ATTEMPTS)) {
-    return res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Too many registration attempts. Please try again later.' } });
+    return res.status(429).json({
+      success: false,
+      error: {
+        code: 'RATE_LIMITED',
+        message: 'Too many registration attempts. Please try again later.',
+      },
+    });
   }
   try {
     const parsed = registerSchema.safeParse(req.body);
@@ -95,11 +104,9 @@ router.post('/register', async (req: Request, res: Response) => {
       });
     });
 
-    const token = jwt.sign(
-      { id: partner.id, email: partner.email, type: 'partner' },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const token = jwt.sign({ id: partner.id, email: partner.email, type: 'partner' }, JWT_SECRET, {
+      expiresIn: '7d',
+    });
 
     res.status(201).json({
       success: true,
@@ -129,7 +136,13 @@ router.post('/register', async (req: Request, res: Response) => {
 router.post('/login', async (req: Request, res: Response) => {
   const ip = req.ip || 'unknown';
   if (!checkRateLimit(`login:${ip}`, MAX_LOGIN_ATTEMPTS)) {
-    return res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Too many login attempts. Please try again later.' } });
+    return res.status(429).json({
+      success: false,
+      error: {
+        code: 'RATE_LIMITED',
+        message: 'Too many login attempts. Please try again later.',
+      },
+    });
   }
   try {
     const parsed = loginSchema.safeParse(req.body);
@@ -165,11 +178,9 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
-    const token = jwt.sign(
-      { id: partner.id, email: partner.email, type: 'partner' },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const token = jwt.sign({ id: partner.id, email: partner.email, type: 'partner' }, JWT_SECRET, {
+      expiresIn: '7d',
+    });
 
     res.json({
       success: true,

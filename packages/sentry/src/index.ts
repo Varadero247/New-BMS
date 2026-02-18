@@ -16,9 +16,7 @@ export function initSentry(serviceName: string): void {
     release: `${serviceName}@${process.env.npm_package_version || '1.0.0'}`,
     serverName: serviceName,
     tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.1'),
-    integrations: [
-      Sentry.httpIntegration(),
-    ],
+    integrations: [Sentry.httpIntegration()],
     beforeSend(event) {
       // Strip all sensitive headers from error reports
       if (event.request?.headers) {
@@ -57,7 +55,7 @@ export function initSentry(serviceName: string): void {
       if (event.extra) {
         const sensitiveKeys = ['password', 'secret', 'token', 'apiKey', 'api_key', 'authorization'];
         for (const key of Object.keys(event.extra)) {
-          if (sensitiveKeys.some(s => key.toLowerCase().includes(s))) {
+          if (sensitiveKeys.some((s) => key.toLowerCase().includes(s))) {
             event.extra[key] = '[REDACTED]';
           }
         }

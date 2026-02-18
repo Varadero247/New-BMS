@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate , type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import {
   listEntries,
@@ -56,7 +56,9 @@ router.get('/', async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: unknown) {
-    logger.error('Failed to list changelog entries', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list changelog entries', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list changelog entries' },
@@ -90,7 +92,9 @@ router.get('/all', authenticate, async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: unknown) {
-    logger.error('Failed to list all changelog entries', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to list all changelog entries', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to list all changelog entries' },
@@ -111,7 +115,9 @@ router.get('/unread-count', authenticate, async (req: Request, res: Response) =>
       data: { unreadCount: count },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get unread count', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to get unread count', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to get unread count' },
@@ -132,7 +138,9 @@ router.post('/mark-read', authenticate, async (req: Request, res: Response) => {
       data: { message: 'Changelog marked as read' },
     });
   } catch (error: unknown) {
-    logger.error('Failed to mark as read', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to mark as read', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to mark changelog as read' },
@@ -170,14 +178,20 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 
     const entry = createEntry(parsed.data);
 
-    logger.info('Changelog entry created', { entryId: entry.id, title: entry.title, userId: user!.id });
+    logger.info('Changelog entry created', {
+      entryId: entry.id,
+      title: entry.title,
+      userId: user!.id,
+    });
 
     res.status(201).json({
       success: true,
       data: entry,
     });
   } catch (error: unknown) {
-    logger.error('Failed to create changelog entry', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Failed to create changelog entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to create changelog entry' },

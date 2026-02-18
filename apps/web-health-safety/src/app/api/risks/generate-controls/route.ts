@@ -54,7 +54,9 @@ Rules:
     activityLocation ? `Location/Activity: ${activityLocation}` : '',
     whoAtRisk ? `Who is at risk: ${whoAtRisk}` : '',
     hazardCategory ? `Hazard Category: ${hazardCategory}` : '',
-  ].filter(Boolean).join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -75,30 +77,21 @@ Rules:
     if (!response.ok) {
       const errorData = await response.text();
       console.error('Anthropic API error:', response.status, errorData);
-      return NextResponse.json(
-        { error: 'AI service temporarily unavailable' },
-        { status: 502 }
-      );
+      return NextResponse.json({ error: 'AI service temporarily unavailable' }, { status: 502 });
     }
 
     const data = await response.json();
     const content = data.content?.[0]?.text;
 
     if (!content) {
-      return NextResponse.json(
-        { error: 'Empty response from AI service' },
-        { status: 502 }
-      );
+      return NextResponse.json({ error: 'Empty response from AI service' }, { status: 502 });
     }
 
     // Parse JSON from response (handle potential markdown code fences)
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       console.error('Failed to parse AI response:', content);
-      return NextResponse.json(
-        { error: 'Failed to parse AI response' },
-        { status: 502 }
-      );
+      return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 502 });
     }
 
     const controls = JSON.parse(jsonMatch[0]);
@@ -117,9 +110,6 @@ Rules:
     return NextResponse.json(result);
   } catch (error) {
     console.error('AI control generation error:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate controls' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to generate controls' }, { status: 500 });
   }
 }

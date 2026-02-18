@@ -71,7 +71,7 @@ export function createRequest(params: CreateDsarParams): DsarRequest {
 
 export function listRequests(orgId: string): DsarRequest[] {
   return Array.from(dsarStore.values())
-    .filter(r => r.orgId === orgId)
+    .filter((r) => r.orgId === orgId)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
@@ -129,7 +129,8 @@ export function processErasureRequest(id: string): Promise<DsarRequest | null> {
     setTimeout(() => {
       request.status = 'COMPLETE';
       request.completedAt = new Date().toISOString();
-      request.notes = (request.notes ? request.notes + '\n' : '') +
+      request.notes =
+        (request.notes ? request.notes + '\n' : '') +
         `Data erasure completed at ${request.completedAt}. All personal data for ${request.subjectEmail} has been removed from applicable systems.`;
       request.updatedAt = new Date().toISOString();
 

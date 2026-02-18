@@ -53,7 +53,9 @@ describe('IP Allowlist Routes', () => {
 
   describe('GET /api/admin/ip-allowlist', () => {
     it('lists allowlist entries', async () => {
-      mockGetOrgAllowlist.mockReturnValue([{ id: '00000000-0000-0000-0000-000000000001', cidr: '10.0.0.0/8', label: 'VPN' }]);
+      mockGetOrgAllowlist.mockReturnValue([
+        { id: '00000000-0000-0000-0000-000000000001', cidr: '10.0.0.0/8', label: 'VPN' },
+      ]);
       const res = await request(app).get('/api/admin/ip-allowlist');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -78,23 +80,25 @@ describe('IP Allowlist Routes', () => {
     });
 
     it('rejects missing label', async () => {
-      const res = await request(app)
-        .post('/api/admin/ip-allowlist')
-        .send({ cidr: '10.0.0.0/8' });
+      const res = await request(app).post('/api/admin/ip-allowlist').send({ cidr: '10.0.0.0/8' });
       expect(res.status).toBe(400);
     });
   });
 
   describe('DELETE /api/admin/ip-allowlist/:id', () => {
     it('removes an entry', async () => {
-      const res = await request(app).delete('/api/admin/ip-allowlist/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/admin/ip-allowlist/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
 
     it('returns 404 for non-existent', async () => {
       mockRemoveOrgAllowlistEntry.mockReturnValueOnce(false);
-      const res = await request(app).delete('/api/admin/ip-allowlist/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/admin/ip-allowlist/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
     });
   });

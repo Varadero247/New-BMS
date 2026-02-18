@@ -41,33 +41,45 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: definitions });
   } catch (error) {
     logger.error('Error fetching definitions', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch definitions' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch definitions' },
+    });
   }
 });
 
 // GET /api/definitions/:id - Get single definition
-router.get('/:id', checkOwnership(prisma.workflowDefinition), async (req: AuthRequest, res: Response) => {
-  try {
-    const definition = await prisma.workflowDefinition.findUnique({
-      where: { id: req.params.id },
-      include: {
-        instances: {
-          take: 10,
-          orderBy: { createdAt: 'desc' },
+router.get(
+  '/:id',
+  checkOwnership(prisma.workflowDefinition),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const definition = await prisma.workflowDefinition.findUnique({
+        where: { id: req.params.id },
+        include: {
+          instances: {
+            take: 10,
+            orderBy: { createdAt: 'desc' },
+          },
         },
-      },
-    });
+      });
 
-    if (!definition) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Definition not found' } });
+      if (!definition) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Definition not found' } });
+      }
+
+      res.json({ success: true, data: definition });
+    } catch (error) {
+      logger.error('Error fetching definition', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch definition' },
+      });
     }
-
-    res.json({ success: true, data: definition });
-  } catch (error) {
-    logger.error('Error fetching definition', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch definition' } });
   }
-});
+);
 
 // POST /api/definitions - Create workflow definition
 router.post('/', async (req: Request, res: Response) => {
@@ -77,9 +89,19 @@ router.post('/', async (req: Request, res: Response) => {
       name: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       category: z.enum([
-        'APPROVAL', 'REVIEW', 'CHANGE_MANAGEMENT', 'INCIDENT', 'REQUEST',
-        'ONBOARDING', 'OFFBOARDING', 'PROCUREMENT', 'DOCUMENT_CONTROL',
-        'AUDIT', 'CAPA', 'TRAINING', 'CUSTOM'
+        'APPROVAL',
+        'REVIEW',
+        'CHANGE_MANAGEMENT',
+        'INCIDENT',
+        'REQUEST',
+        'ONBOARDING',
+        'OFFBOARDING',
+        'PROCUREMENT',
+        'DOCUMENT_CONTROL',
+        'AUDIT',
+        'CAPA',
+        'TRAINING',
+        'CUSTOM',
       ]),
       triggerType: triggerTypeEnum,
       triggerConfig: z.record(z.unknown()).optional(),
@@ -113,97 +135,131 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: definition });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      return res
+        .status(400)
+        .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
     }
     logger.error('Error creating definition', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create definition' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create definition' },
+    });
   }
 });
 
 // PUT /api/definitions/:id - Update workflow definition
-router.put('/:id', checkOwnership(prisma.workflowDefinition), async (req: AuthRequest, res: Response) => {
-  try {
-    const schema = z.object({
-      name: z.string().trim().min(1).max(200).optional(),
-      description: z.string().optional(),
-      triggerType: triggerTypeEnum.optional(),
-      triggerConfig: z.record(z.unknown()).optional(),
-      steps: z.unknown().optional(),
-      rules: z.record(z.unknown()).optional(),
-      defaultSlaHours: z.number().nonnegative().optional(),
-      escalationConfig: z.record(z.unknown()).optional(),
-    });
+router.put(
+  '/:id',
+  checkOwnership(prisma.workflowDefinition),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const schema = z.object({
+        name: z.string().trim().min(1).max(200).optional(),
+        description: z.string().optional(),
+        triggerType: triggerTypeEnum.optional(),
+        triggerConfig: z.record(z.unknown()).optional(),
+        steps: z.unknown().optional(),
+        rules: z.record(z.unknown()).optional(),
+        defaultSlaHours: z.number().nonnegative().optional(),
+        escalationConfig: z.record(z.unknown()).optional(),
+      });
 
-    const data = schema.parse(req.body);
+      const data = schema.parse(req.body);
 
-    // Increment version on update
-    const current = await prisma.workflowDefinition.findUnique({ where: { id: req.params.id } });
-    if (!current) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Definition not found' } });
+      // Increment version on update
+      const current = await prisma.workflowDefinition.findUnique({ where: { id: req.params.id } });
+      if (!current) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Definition not found' } });
+      }
+
+      const definition = await prisma.workflowDefinition.update({
+        where: { id: req.params.id },
+        data: {
+          ...data,
+          version: current.version + 1,
+        } as any,
+      });
+
+      res.json({ success: true, data: definition });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res
+          .status(400)
+          .json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
+      }
+      logger.error('Error updating definition', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update definition' },
+      });
     }
-
-    const definition = await prisma.workflowDefinition.update({
-      where: { id: req.params.id },
-      data: {
-        ...data,
-        version: current.version + 1,
-      } as any,
-    });
-
-    res.json({ success: true, data: definition });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: error.errors } });
-    }
-    logger.error('Error updating definition', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update definition' } });
   }
-});
+);
 
 // PUT /api/definitions/:id/activate - Activate workflow definition (was publish)
-router.put('/:id/activate', checkOwnership(prisma.workflowDefinition), async (req: AuthRequest, res: Response) => {
-  try {
-    const current = await prisma.workflowDefinition.findUnique({ where: { id: req.params.id } });
-    if (!current) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Definition not found' } });
+router.put(
+  '/:id/activate',
+  checkOwnership(prisma.workflowDefinition),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const current = await prisma.workflowDefinition.findUnique({ where: { id: req.params.id } });
+      if (!current) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Definition not found' } });
+      }
+
+      const definition = await prisma.workflowDefinition.update({
+        where: { id: req.params.id },
+        data: {
+          status: 'ACTIVE',
+          publishedAt: new Date(),
+        },
+      });
+
+      res.json({ success: true, data: definition });
+    } catch (error) {
+      logger.error('Error activating definition', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to activate definition' },
+      });
     }
-
-    const definition = await prisma.workflowDefinition.update({
-      where: { id: req.params.id },
-      data: {
-        status: 'ACTIVE',
-        publishedAt: new Date(),
-      },
-    });
-
-    res.json({ success: true, data: definition });
-  } catch (error) {
-    logger.error('Error activating definition', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to activate definition' } });
   }
-});
+);
 
 // PUT /api/definitions/:id/archive - Archive workflow definition
-router.put('/:id/archive', checkOwnership(prisma.workflowDefinition), async (req: AuthRequest, res: Response) => {
-  try {
-    const definition = await prisma.workflowDefinition.update({
-      where: { id: req.params.id },
-      data: { status: 'ARCHIVED' },
-    });
+router.put(
+  '/:id/archive',
+  checkOwnership(prisma.workflowDefinition),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const definition = await prisma.workflowDefinition.update({
+        where: { id: req.params.id },
+        data: { status: 'ARCHIVED' },
+      });
 
-    res.json({ success: true, data: definition });
-  } catch (error) {
-    logger.error('Error archiving definition', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to archive definition' } });
+      res.json({ success: true, data: definition });
+    } catch (error) {
+      logger.error('Error archiving definition', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to archive definition' },
+      });
+    }
   }
-});
+);
 
 // POST /api/definitions/:id/clone - Clone workflow definition
 router.post('/:id/clone', async (req: Request, res: Response) => {
   try {
     const source = await prisma.workflowDefinition.findUnique({ where: { id: req.params.id } });
     if (!source) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Definition not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Definition not found' } });
     }
 
     // Generate unique code for clone
@@ -229,7 +285,10 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: clone });
   } catch (error) {
     logger.error('Error cloning definition', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to clone definition' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to clone definition' },
+    });
   }
 });
 

@@ -53,7 +53,8 @@ export class RegulatoryFeedService {
     const terms = query.toLowerCase().split(/\s+/);
 
     return Array.from(this.regulations.values()).filter((reg) => {
-      const searchText = `${reg.title} ${reg.description} ${reg.keywords.join(' ')} ${reg.categories.join(' ')}`.toLowerCase();
+      const searchText =
+        `${reg.title} ${reg.description} ${reg.keywords.join(' ')} ${reg.categories.join(' ')}`.toLowerCase();
       return terms.every((term) => searchText.includes(term));
     });
   }

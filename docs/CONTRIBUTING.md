@@ -2,14 +2,14 @@
 
 ## Branch Naming
 
-| Prefix | Purpose |
-|--------|---------|
-| `feature/*` | New features |
-| `fix/*` | Bug fixes |
-| `docs/*` | Documentation changes |
-| `chore/*` | Maintenance, dependencies |
-| `test/*` | Test additions or fixes |
-| `refactor/*` | Code refactoring |
+| Prefix       | Purpose                   |
+| ------------ | ------------------------- |
+| `feature/*`  | New features              |
+| `fix/*`      | Bug fixes                 |
+| `docs/*`     | Documentation changes     |
+| `chore/*`    | Maintenance, dependencies |
+| `test/*`     | Test additions or fixes   |
+| `refactor/*` | Code refactoring          |
 
 ## Commit Format
 

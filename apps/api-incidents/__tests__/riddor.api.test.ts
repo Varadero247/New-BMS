@@ -5,18 +5,33 @@ jest.mock('../src/prisma', () => ({
   prisma: { incIncident: { findMany: jest.fn(), update: jest.fn() } },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/riddor';
 import { prisma } from '../src/prisma';
-const app = express(); app.use(express.json()); app.use('/api/riddor', router);
-beforeEach(() => { jest.clearAllMocks(); });
+const app = express();
+app.use(express.json());
+app.use('/api/riddor', router);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('GET /api/riddor', () => {
   it('should return list of RIDDOR reportable incidents', async () => {
     const incidents = [
-      { id: '00000000-0000-0000-0000-000000000001', title: 'Serious injury', riddorReportable: 'YES' },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        title: 'Serious injury',
+        riddorReportable: 'YES',
+      },
       { id: 'inc-2', title: 'Dangerous occurrence', riddorReportable: 'YES' },
     ];
     (prisma as any).incIncident.findMany.mockResolvedValue(incidents);
@@ -50,7 +65,11 @@ describe('GET /api/riddor', () => {
 
 describe('POST /api/riddor/:id/assess', () => {
   it('should mark incident as RIDDOR reportable', async () => {
-    const updated = { id: '00000000-0000-0000-0000-000000000001', riddorReportable: 'YES', riddorRef: 'RIDDOR-2026-001' };
+    const updated = {
+      id: '00000000-0000-0000-0000-000000000001',
+      riddorReportable: 'YES',
+      riddorRef: 'RIDDOR-2026-001',
+    };
     (prisma as any).incIncident.update.mockResolvedValue(updated);
     const res = await request(app)
       .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')

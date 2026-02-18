@@ -2,9 +2,21 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Card, CardContent, Button, Badge, Modal, ModalFooter,
-  Input, Label, Textarea,
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  Card,
+  CardContent,
+  Button,
+  Badge,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+  Textarea,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
 } from '@ims/ui';
 import { Search, Loader2, UserCheck, FileText } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -52,9 +64,11 @@ export default function InvestigationClient() {
       if (searchTerm) params.search = searchTerm;
       const response = await api.get('/incidents', { params });
       const all = response.data.data || [];
-      setIncidents(all.filter((i: Incident) =>
-        ['INVESTIGATING', 'ROOT_CAUSE_ANALYSIS', 'ACKNOWLEDGED', 'REPORTED'].includes(i.status)
-      ));
+      setIncidents(
+        all.filter((i: Incident) =>
+          ['INVESTIGATING', 'ROOT_CAUSE_ANALYSIS', 'ACKNOWLEDGED', 'REPORTED'].includes(i.status)
+        )
+      );
     } catch (err) {
       console.error('Failed to load incidents:', err);
     } finally {
@@ -62,7 +76,9 @@ export default function InvestigationClient() {
     }
   }, [searchTerm]);
 
-  useEffect(() => { loadIncidents(); }, [loadIncidents]);
+  useEffect(() => {
+    loadIncidents();
+  }, [loadIncidents]);
 
   function openAssign(incident: Incident) {
     setSelectedId(incident.id);
@@ -115,11 +131,16 @@ export default function InvestigationClient() {
 
   function getSeverityColor(severity: string): string {
     switch (severity) {
-      case 'CATASTROPHIC': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
-      case 'CRITICAL': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
-      case 'MAJOR': return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
-      case 'MODERATE': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
-      default: return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+      case 'CATASTROPHIC':
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+      case 'CRITICAL':
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
+      case 'MAJOR':
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
+      case 'MODERATE':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+      default:
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
     }
   }
 
@@ -129,7 +150,9 @@ export default function InvestigationClient() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Investigation</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Assign investigators and submit root cause analysis reports</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Assign investigators and submit root cause analysis reports
+            </p>
           </div>
         </div>
 
@@ -142,13 +165,17 @@ export default function InvestigationClient() {
           </Card>
           <Card>
             <CardContent className="pt-6 text-center">
-              <p className="text-3xl font-bold text-amber-600">{incidents.filter(i => !i.investigator).length}</p>
+              <p className="text-3xl font-bold text-amber-600">
+                {incidents.filter((i) => !i.investigator).length}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Unassigned</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6 text-center">
-              <p className="text-3xl font-bold text-blue-600">{incidents.filter(i => i.status === 'INVESTIGATING').length}</p>
+              <p className="text-3xl font-bold text-blue-600">
+                {incidents.filter((i) => i.status === 'INVESTIGATING').length}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Under Investigation</p>
             </CardContent>
           </Card>
@@ -162,7 +189,7 @@ export default function InvestigationClient() {
               aria-label="Search investigations"
               placeholder="Search incidents for investigation..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
             />
           </div>
@@ -171,7 +198,11 @@ export default function InvestigationClient() {
         <Card>
           <CardContent className="p-0">
             {loading ? (
-              <div className="animate-pulse space-y-4 p-6">{[1, 2, 3].map(i => <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded" />)}</div>
+              <div className="animate-pulse space-y-4 p-6">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded" />
+                ))}
+              </div>
             ) : incidents.length > 0 ? (
               <div className="overflow-x-auto">
                 <Table>
@@ -187,26 +218,56 @@ export default function InvestigationClient() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {incidents.map(incident => (
+                    {incidents.map((incident) => (
                       <TableRow key={incident.id}>
-                        <TableCell className="font-mono text-xs">{incident.referenceNumber}</TableCell>
-                        <TableCell className="font-medium max-w-[200px] truncate">{incident.title}</TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {incident.referenceNumber}
+                        </TableCell>
+                        <TableCell className="font-medium max-w-[200px] truncate">
+                          {incident.title}
+                        </TableCell>
                         <TableCell>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(incident.severity)}`}>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(incident.severity)}`}
+                          >
                             {incident.severity || '-'}
                           </span>
                         </TableCell>
-                        <TableCell className="text-sm">{incident.dateOccurred ? new Date(incident.dateOccurred).toLocaleDateString() : '-'}</TableCell>
-                        <TableCell><Badge variant="outline">{(incident.status || '').replace(/_/g, ' ')}</Badge></TableCell>
-                        <TableCell className="text-sm">{incident.investigatorName || <span className="text-gray-400 italic">Unassigned</span>}</TableCell>
+                        <TableCell className="text-sm">
+                          {incident.dateOccurred
+                            ? new Date(incident.dateOccurred).toLocaleDateString()
+                            : '-'}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {(incident.status || '').replace(/_/g, ' ')}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {incident.investigatorName || (
+                            <span className="text-gray-400 italic">Unassigned</span>
+                          )}
+                        </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => openAssign(incident)} className="flex items-center gap-1">
-                              <UserCheck className="h-3 w-3" />Assign
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openAssign(incident)}
+                              className="flex items-center gap-1"
+                            >
+                              <UserCheck className="h-3 w-3" />
+                              Assign
                             </Button>
                             {incident.status === 'INVESTIGATING' && (
-                              <Button size="sm" variant="outline" onClick={() => openReport(incident)} className="flex items-center gap-1">
-                                <FileText className="h-3 w-3" />Report
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openReport(incident)}
+                                className="flex items-center gap-1"
+                              >
+                                <FileText className="h-3 w-3" />
+                                Report
                               </Button>
                             )}
                           </div>
@@ -219,20 +280,27 @@ export default function InvestigationClient() {
             ) : (
               <div className="text-center py-12">
                 <Search className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400">No incidents require investigation</p>
+                <p className="text-gray-500 dark:text-gray-400">
+                  No incidents require investigation
+                </p>
               </div>
             )}
           </CardContent>
         </Card>
 
         {assignModalOpen && (
-          <Modal isOpen={assignModalOpen} onClose={() => setAssignModalOpen(false)} title="Assign Investigator" size="md">
+          <Modal
+            isOpen={assignModalOpen}
+            onClose={() => setAssignModalOpen(false)}
+            title="Assign Investigator"
+            size="md"
+          >
             <div className="space-y-4">
               <div>
                 <Label>Investigator ID *</Label>
                 <Input
                   value={assignForm.investigator}
-                  onChange={e => setAssignForm(p => ({ ...p, investigator: e.target.value }))}
+                  onChange={(e) => setAssignForm((p) => ({ ...p, investigator: e.target.value }))}
                   placeholder="User ID of investigator"
                 />
               </div>
@@ -240,28 +308,44 @@ export default function InvestigationClient() {
                 <Label>Investigator Name</Label>
                 <Input
                   value={assignForm.investigatorName}
-                  onChange={e => setAssignForm(p => ({ ...p, investigatorName: e.target.value }))}
+                  onChange={(e) =>
+                    setAssignForm((p) => ({ ...p, investigatorName: e.target.value }))
+                  }
                   placeholder="Full name of investigator"
                 />
               </div>
             </div>
             <ModalFooter>
-              <Button variant="outline" onClick={() => setAssignModalOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setAssignModalOpen(false)}>
+                Cancel
+              </Button>
               <Button onClick={handleAssign} disabled={saving || !assignForm.investigator}>
-                {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Assigning...</> : 'Assign Investigator'}
+                {saving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Assigning...
+                  </>
+                ) : (
+                  'Assign Investigator'
+                )}
               </Button>
             </ModalFooter>
           </Modal>
         )}
 
         {reportModalOpen && (
-          <Modal isOpen={reportModalOpen} onClose={() => setReportModalOpen(false)} title="Investigation Report" size="lg">
+          <Modal
+            isOpen={reportModalOpen}
+            onClose={() => setReportModalOpen(false)}
+            title="Investigation Report"
+            size="lg"
+          >
             <div className="space-y-4">
               <div>
                 <Label>Root Cause</Label>
                 <Textarea
                   value={reportForm.rootCause}
-                  onChange={e => setReportForm(p => ({ ...p, rootCause: e.target.value }))}
+                  onChange={(e) => setReportForm((p) => ({ ...p, rootCause: e.target.value }))}
                   rows={3}
                   placeholder="What was the root cause of this incident?"
                 />
@@ -270,7 +354,9 @@ export default function InvestigationClient() {
                 <Label>Contributing Factors</Label>
                 <Textarea
                   value={reportForm.contributingFactors}
-                  onChange={e => setReportForm(p => ({ ...p, contributingFactors: e.target.value }))}
+                  onChange={(e) =>
+                    setReportForm((p) => ({ ...p, contributingFactors: e.target.value }))
+                  }
                   rows={3}
                   placeholder="What factors contributed to the incident?"
                 />
@@ -279,7 +365,9 @@ export default function InvestigationClient() {
                 <Label>Corrective Actions</Label>
                 <Textarea
                   value={reportForm.correctiveActions}
-                  onChange={e => setReportForm(p => ({ ...p, correctiveActions: e.target.value }))}
+                  onChange={(e) =>
+                    setReportForm((p) => ({ ...p, correctiveActions: e.target.value }))
+                  }
                   rows={3}
                   placeholder="What corrective actions are required?"
                 />
@@ -288,7 +376,9 @@ export default function InvestigationClient() {
                 <Label>Preventive Actions</Label>
                 <Textarea
                   value={reportForm.preventiveActions}
-                  onChange={e => setReportForm(p => ({ ...p, preventiveActions: e.target.value }))}
+                  onChange={(e) =>
+                    setReportForm((p) => ({ ...p, preventiveActions: e.target.value }))
+                  }
                   rows={3}
                   placeholder="What preventive actions will stop recurrence?"
                 />
@@ -297,16 +387,25 @@ export default function InvestigationClient() {
                 <Label>Investigation Report Summary</Label>
                 <Textarea
                   value={reportForm.report}
-                  onChange={e => setReportForm(p => ({ ...p, report: e.target.value }))}
+                  onChange={(e) => setReportForm((p) => ({ ...p, report: e.target.value }))}
                   rows={4}
                   placeholder="Full investigation report summary..."
                 />
               </div>
             </div>
             <ModalFooter>
-              <Button variant="outline" onClick={() => setReportModalOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setReportModalOpen(false)}>
+                Cancel
+              </Button>
               <Button onClick={handleReport} disabled={saving}>
-                {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Submitting...</> : 'Submit Report'}
+                {saving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit Report'
+                )}
               </Button>
             </ModalFooter>
           </Modal>

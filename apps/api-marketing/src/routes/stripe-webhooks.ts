@@ -7,13 +7,17 @@ import { AutomationConfig } from '../config';
 
 const stripeWebhookSchema = z.object({
   type: z.string().min(1, 'Invalid event'),
-  data: z.object({
-    object: z.object({
-      id: z.string().optional(),
-      metadata: z.record(z.string()).optional(),
-      status: z.string().optional(),
-    }).optional(),
-  }).optional(),
+  data: z
+    .object({
+      object: z
+        .object({
+          id: z.string().optional(),
+          metadata: z.record(z.string()).optional(),
+          status: z.string().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
 });
 
 const logger = createLogger('api-marketing:stripe-webhooks');
@@ -30,7 +34,11 @@ const SIGNATURE_TOLERANCE_SECONDS = 300; // 5 minutes
  * 4. Compare computed signature with the provided v1 signature
  * 5. Check that the timestamp is within tolerance (prevents replay attacks)
  */
-export function verifyStripeSignature(rawBody: string | Buffer, signature: string, secret: string): void {
+export function verifyStripeSignature(
+  rawBody: string | Buffer,
+  signature: string,
+  secret: string
+): void {
   const parts = signature.split(',').reduce<Record<string, string>>((acc, part) => {
     const [key, value] = part.split('=');
     if (key && value) acc[key.trim()] = value.trim();
@@ -61,7 +69,8 @@ export function verifyStripeSignature(rawBody: string | Buffer, signature: strin
 // POST /api/webhooks/stripe
 router.post('/stripe', async (req: Request, res: Response) => {
   try {
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || AutomationConfig.stripe.webhookSecret;
+    const webhookSecret =
+      process.env.STRIPE_WEBHOOK_SECRET || AutomationConfig.stripe.webhookSecret;
 
     // Verify Stripe signature if webhook secret is configured
     if (webhookSecret) {
@@ -75,10 +84,15 @@ router.post('/stripe', async (req: Request, res: Response) => {
 
       const rawBody = (req as any).rawBody;
       if (!rawBody) {
-        logger.warn('Raw body not available for Stripe signature verification — ensure raw body middleware is configured');
+        logger.warn(
+          'Raw body not available for Stripe signature verification — ensure raw body middleware is configured'
+        );
         return res.status(400).json({
           success: false,
-          error: { code: 'MISSING_RAW_BODY', message: 'Raw body not available for signature verification' },
+          error: {
+            code: 'MISSING_RAW_BODY',
+            message: 'Raw body not available for signature verification',
+          },
         });
       }
 
@@ -92,12 +106,17 @@ router.post('/stripe', async (req: Request, res: Response) => {
         });
       }
     } else {
-      logger.warn('STRIPE_WEBHOOK_SECRET not set — skipping signature verification (not recommended for production)');
+      logger.warn(
+        'STRIPE_WEBHOOK_SECRET not set — skipping signature verification (not recommended for production)'
+      );
     }
 
     const parsed = stripeWebhookSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const event = parsed.data;
@@ -119,7 +138,8 @@ router.post('/stripe', async (req: Request, res: Response) => {
             });
             logger.info('Win-back sequence created', { orgId });
           } catch (err: unknown) {
-            if ((err as any)?.code !== 'P2002') { // Ignore unique constraint (already exists)
+            if ((err as any)?.code !== 'P2002') {
+              // Ignore unique constraint (already exists)
               logger.error('Failed to create win-back sequence', { error: String(err) });
             }
           }
@@ -132,12 +152,14 @@ router.post('/stripe', async (req: Request, res: Response) => {
         const subscription = event.data?.object;
         const orgId = subscription?.metadata?.orgId;
         if (orgId && subscription?.status === 'active') {
-          await prisma.mktRenewalSequence.update({
-            where: { orgId },
-            data: { renewedAt: new Date() },
-          }).catch(() => {
-            // Sequence may not exist — that's fine
-          });
+          await prisma.mktRenewalSequence
+            .update({
+              where: { orgId },
+              data: { renewedAt: new Date() },
+            })
+            .catch(() => {
+              // Sequence may not exist — that's fine
+            });
         }
         break;
       }
@@ -165,7 +187,10 @@ router.post('/stripe', async (req: Request, res: Response) => {
     res.json({ received: true });
   } catch (error) {
     logger.error('Stripe webhook handling failed', { error: String(error) });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Webhook handler failed' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Webhook handler failed' },
+    });
   }
 });
 

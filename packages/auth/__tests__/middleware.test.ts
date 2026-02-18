@@ -187,7 +187,9 @@ describe('Auth Middleware', () => {
       const token = generateToken({ userId: 'user-123', email: 'test@test.com', role: 'USER' });
       mockReq.headers = { authorization: `Bearer ${token}` };
 
-      (mockPrisma.session.findFirst as jest.Mock).mockRejectedValue(new Error('DB connection failed'));
+      (mockPrisma.session.findFirst as jest.Mock).mockRejectedValue(
+        new Error('DB connection failed')
+      );
 
       await authenticate(mockReq as AuthRequest, mockRes, mockNext);
 

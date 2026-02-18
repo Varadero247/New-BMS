@@ -2,7 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal } from '@ims/ui';
-import { Shield, ChevronDown, ChevronRight, Search, Users, Eye, Pencil, Trash2, CheckCircle, Lock, Plus, Save, X } from 'lucide-react';
+import {
+  Shield,
+  ChevronDown,
+  ChevronRight,
+  Search,
+  Users,
+  Eye,
+  Pencil,
+  Trash2,
+  CheckCircle,
+  Lock,
+  Plus,
+  Save,
+  X,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface RolePermission {
@@ -30,25 +44,47 @@ const PERMISSION_LEVELS: Record<number, { label: string; color: string }> = {
 };
 
 const ALL_MODULES = [
-  'health-safety', 'environment', 'quality', 'hr', 'payroll',
-  'inventory', 'workflows', 'project-management', 'automotive',
-  'medical', 'aerospace', 'finance', 'crm', 'infosec',
-  'esg', 'cmms', 'portal', 'food-safety', 'energy',
-  'analytics', 'field-service', 'iso42001', 'iso37001',
-  'ai', 'settings', 'templates', 'reports', 'dashboard',
+  'health-safety',
+  'environment',
+  'quality',
+  'hr',
+  'payroll',
+  'inventory',
+  'workflows',
+  'project-management',
+  'automotive',
+  'medical',
+  'aerospace',
+  'finance',
+  'crm',
+  'infosec',
+  'esg',
+  'cmms',
+  'portal',
+  'food-safety',
+  'energy',
+  'analytics',
+  'field-service',
+  'iso42001',
+  'iso37001',
+  'ai',
+  'settings',
+  'templates',
+  'reports',
+  'dashboard',
 ];
 
 const MODULE_GROUPS: Record<string, string[]> = {
   'Core Compliance': ['health-safety', 'environment', 'quality'],
   'Industry Standards': ['automotive', 'medical', 'aerospace', 'iso42001', 'iso37001'],
   'Business Operations': ['finance', 'crm', 'hr', 'payroll', 'inventory'],
-  'Operational': ['workflows', 'project-management', 'cmms', 'field-service'],
-  'Specialist': ['infosec', 'esg', 'food-safety', 'energy', 'portal'],
-  'Platform': ['analytics', 'ai', 'settings', 'templates', 'reports', 'dashboard'],
+  Operational: ['workflows', 'project-management', 'cmms', 'field-service'],
+  Specialist: ['infosec', 'esg', 'food-safety', 'energy', 'portal'],
+  Platform: ['analytics', 'ai', 'settings', 'templates', 'reports', 'dashboard'],
 };
 
 function formatModuleName(mod: string): string {
-  return mod.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  return mod.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export default function RolesPage() {
@@ -91,7 +127,9 @@ export default function RolesPage() {
     setRoleName('');
     setRoleDescription('');
     const perms: Record<string, number> = {};
-    ALL_MODULES.forEach(m => { perms[m] = 0; });
+    ALL_MODULES.forEach((m) => {
+      perms[m] = 0;
+    });
     setRolePermissions(perms);
     setError('');
     setModalOpen(true);
@@ -102,8 +140,12 @@ export default function RolesPage() {
     setRoleName(role.name);
     setRoleDescription(role.description);
     const perms: Record<string, number> = {};
-    ALL_MODULES.forEach(m => { perms[m] = 0; });
-    role.permissions.forEach(p => { perms[p.module] = p.level; });
+    ALL_MODULES.forEach((m) => {
+      perms[m] = 0;
+    });
+    role.permissions.forEach((p) => {
+      perms[p.module] = p.level;
+    });
     setRolePermissions(perms);
     setError('');
     setModalOpen(true);
@@ -166,37 +208,110 @@ export default function RolesPage() {
   }
 
   function setPermissionLevel(module: string, level: number) {
-    setRolePermissions(prev => ({ ...prev, [module]: level }));
+    setRolePermissions((prev) => ({ ...prev, [module]: level }));
   }
 
-  const filteredRoles = roles.filter(role =>
-    role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    role.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredRoles = roles.filter(
+    (role) =>
+      role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      role.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const roleCategories: Record<string, PlatformRole[]> = {
-    'Custom Roles': filteredRoles.filter(r => !r.isSystem),
-    'Executive & Admin': filteredRoles.filter(r => r.isSystem && ['super-admin', 'org-admin', 'executive', 'board-member', 'compliance-director', 'it-admin'].includes(r.id)),
-    'Quality & HSE': filteredRoles.filter(r => r.isSystem && ['quality-manager', 'quality-lead', 'quality-officer', 'hs-manager', 'hs-lead', 'hs-officer', 'env-manager', 'env-lead', 'env-officer', 'auditor'].includes(r.id)),
-    'Finance & Sales': filteredRoles.filter(r => r.isSystem && ['finance-manager', 'finance-lead', 'accountant', 'payroll-officer', 'crm-manager', 'crm-lead', 'sales-rep'].includes(r.id)),
-    'Operations & Engineering': filteredRoles.filter(r => r.isSystem && ['pm-manager', 'cmms-manager', 'field-service-manager', 'inventory-manager', 'analytics-manager'].includes(r.id)),
-    'Specialist': filteredRoles.filter(r => r.isSystem && ['infosec-manager', 'infosec-lead', 'infosec-analyst', 'dpo', 'food-safety-manager', 'energy-manager', 'esg-manager', 'ai-governance-manager', 'antibribery-manager', 'hr-manager', 'hr-officer', 'portal-manager', 'automotive-manager', 'medical-manager', 'aerospace-manager'].includes(r.id)),
-    'Portal & External': filteredRoles.filter(r => r.isSystem && ['employee', 'contractor', 'viewer'].includes(r.id)),
+    'Custom Roles': filteredRoles.filter((r) => !r.isSystem),
+    'Executive & Admin': filteredRoles.filter(
+      (r) =>
+        r.isSystem &&
+        [
+          'super-admin',
+          'org-admin',
+          'executive',
+          'board-member',
+          'compliance-director',
+          'it-admin',
+        ].includes(r.id)
+    ),
+    'Quality & HSE': filteredRoles.filter(
+      (r) =>
+        r.isSystem &&
+        [
+          'quality-manager',
+          'quality-lead',
+          'quality-officer',
+          'hs-manager',
+          'hs-lead',
+          'hs-officer',
+          'env-manager',
+          'env-lead',
+          'env-officer',
+          'auditor',
+        ].includes(r.id)
+    ),
+    'Finance & Sales': filteredRoles.filter(
+      (r) =>
+        r.isSystem &&
+        [
+          'finance-manager',
+          'finance-lead',
+          'accountant',
+          'payroll-officer',
+          'crm-manager',
+          'crm-lead',
+          'sales-rep',
+        ].includes(r.id)
+    ),
+    'Operations & Engineering': filteredRoles.filter(
+      (r) =>
+        r.isSystem &&
+        [
+          'pm-manager',
+          'cmms-manager',
+          'field-service-manager',
+          'inventory-manager',
+          'analytics-manager',
+        ].includes(r.id)
+    ),
+    Specialist: filteredRoles.filter(
+      (r) =>
+        r.isSystem &&
+        [
+          'infosec-manager',
+          'infosec-lead',
+          'infosec-analyst',
+          'dpo',
+          'food-safety-manager',
+          'energy-manager',
+          'esg-manager',
+          'ai-governance-manager',
+          'antibribery-manager',
+          'hr-manager',
+          'hr-officer',
+          'portal-manager',
+          'automotive-manager',
+          'medical-manager',
+          'aerospace-manager',
+        ].includes(r.id)
+    ),
+    'Portal & External': filteredRoles.filter(
+      (r) => r.isSystem && ['employee', 'contractor', 'viewer'].includes(r.id)
+    ),
   };
 
   function toggleGroup(group: string) {
-    setExpandedGroups(prev => ({ ...prev, [group]: !prev[group] }));
+    setExpandedGroups((prev) => ({ ...prev, [group]: !prev[group] }));
   }
 
   function getPermissionLevel(role: PlatformRole, module: string): number {
-    const perm = role.permissions.find(p => p.module === module);
+    const perm = role.permissions.find((p) => p.module === module);
     return perm?.level ?? 0;
   }
 
   function getLevelBadge(level: number) {
     const config = PERMISSION_LEVELS[level] || PERMISSION_LEVELS[0];
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${config.color}`}>
+      <span
+        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${config.color}`}
+      >
         {config.label}
       </span>
     );
@@ -212,7 +327,7 @@ export default function RolesPage() {
   }
 
   function getActiveModuleCount(role: PlatformRole): number {
-    return role.permissions.filter(p => p.level > 0).length;
+    return role.permissions.filter((p) => p.level > 0).length;
   }
 
   if (loading) {
@@ -222,7 +337,7 @@ export default function RolesPage() {
           <div className="animate-pulse space-y-4">
             <div className="h-10 bg-gray-200 rounded w-1/3" />
             <div className="h-6 bg-gray-200 rounded w-1/2" />
-            {[1, 2, 3, 4, 5].map(i => (
+            {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="h-20 bg-gray-200 rounded" />
             ))}
           </div>
@@ -237,7 +352,9 @@ export default function RolesPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Roles & Permissions</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Roles & Permissions
+            </h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">
               {roles.length} platform roles across {Object.keys(MODULE_GROUPS).length} module groups
             </p>
@@ -253,7 +370,8 @@ export default function RolesPage() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
-            aria-label="Search roles..." placeholder="Search roles..."
+            aria-label="Search roles..."
+            placeholder="Search roles..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -270,13 +388,17 @@ export default function RolesPage() {
           </Card>
           <Card>
             <CardContent className="pt-5 pb-4 text-center">
-              <p className="text-2xl font-bold text-blue-600">{roles.filter(r => r.isSystem).length}</p>
+              <p className="text-2xl font-bold text-blue-600">
+                {roles.filter((r) => r.isSystem).length}
+              </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">System Roles</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-5 pb-4 text-center">
-              <p className="text-2xl font-bold text-green-600">{roles.filter(r => !r.isSystem).length}</p>
+              <p className="text-2xl font-bold text-green-600">
+                {roles.filter((r) => !r.isSystem).length}
+              </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Custom Roles</p>
             </CardContent>
           </Card>
@@ -294,7 +416,10 @@ export default function RolesPage() {
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Levels:</span>
               {Object.entries(PERMISSION_LEVELS).map(([level, config]) => (
-                <span key={level} className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${config.color}`}>
+                <span
+                  key={level}
+                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${config.color}`}
+                >
                   {level} = {config.label}
                 </span>
               ))}
@@ -312,17 +437,24 @@ export default function RolesPage() {
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Users className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                     {category}
-                    <Badge variant="outline" className="ml-2">{categoryRoles.length}</Badge>
+                    <Badge variant="outline" className="ml-2">
+                      {categoryRoles.length}
+                    </Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
                     {categoryRoles.map((role) => (
-                      <div key={role.id} className="border border-gray-100 dark:border-gray-700 rounded-lg">
+                      <div
+                        key={role.id}
+                        className="border border-gray-100 dark:border-gray-700 rounded-lg"
+                      >
                         {/* Role Header */}
                         <div className="flex items-center justify-between p-3 hover:bg-gray-50 dark:bg-gray-800 rounded-lg transition-colors">
                           <button
-                            onClick={() => setExpandedRole(expandedRole === role.id ? null : role.id)}
+                            onClick={() =>
+                              setExpandedRole(expandedRole === role.id ? null : role.id)
+                            }
                             className="flex items-center gap-3 flex-1 text-left"
                           >
                             {expandedRole === role.id ? (
@@ -332,8 +464,12 @@ export default function RolesPage() {
                             )}
                             <Shield className="h-4 w-4 text-blue-500" />
                             <div>
-                              <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{role.name}</p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">{role.description}</p>
+                              <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                                {role.name}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {role.description}
+                              </p>
                             </div>
                           </button>
                           <div className="flex items-center gap-2">
@@ -341,13 +477,18 @@ export default function RolesPage() {
                               {getActiveModuleCount(role)} modules
                             </Badge>
                             {role.isSystem ? (
-                              <Badge variant="secondary" className="text-xs">System</Badge>
+                              <Badge variant="secondary" className="text-xs">
+                                System
+                              </Badge>
                             ) : (
                               <>
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={(e) => { e.stopPropagation(); openEditModal(role); }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openEditModal(role);
+                                  }}
                                   className="h-7 w-7 p-0"
                                 >
                                   <Pencil className="h-3.5 w-3.5" />
@@ -355,7 +496,10 @@ export default function RolesPage() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={(e) => { e.stopPropagation(); setDeleteConfirm(role); }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteConfirm(role);
+                                  }}
                                   className="h-7 w-7 p-0 text-red-500 hover:text-red-700"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
@@ -390,12 +534,20 @@ export default function RolesPage() {
                                           <div
                                             key={mod}
                                             className={`flex items-center justify-between px-3 py-1.5 rounded text-sm ${
-                                              level > 0 ? 'bg-white dark:bg-gray-900 border border-gray-100' : 'bg-gray-50 dark:bg-gray-800'
+                                              level > 0
+                                                ? 'bg-white dark:bg-gray-900 border border-gray-100'
+                                                : 'bg-gray-50 dark:bg-gray-800'
                                             }`}
                                           >
                                             <div className="flex items-center gap-2">
                                               {getPermissionIcon(level)}
-                                              <span className={level > 0 ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400'}>
+                                              <span
+                                                className={
+                                                  level > 0
+                                                    ? 'text-gray-700 dark:text-gray-300'
+                                                    : 'text-gray-400'
+                                                }
+                                              >
                                                 {formatModuleName(mod)}
                                               </span>
                                             </div>
@@ -421,7 +573,12 @@ export default function RolesPage() {
       </div>
 
       {/* Create / Edit Role Modal */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingRole ? 'Edit Role' : 'Create Role'} size="lg">
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingRole ? 'Edit Role' : 'Create Role'}
+        size="lg"
+      >
         <div className="space-y-4">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
@@ -430,7 +587,9 @@ export default function RolesPage() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Role Name
+            </label>
             <input
               type="text"
               value={roleName}
@@ -441,7 +600,9 @@ export default function RolesPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Description
+            </label>
             <input
               type="text"
               value={roleDescription}
@@ -453,17 +614,26 @@ export default function RolesPage() {
 
           {/* Permission Matrix */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Module Permissions</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Module Permissions
+            </label>
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg max-h-96 overflow-y-auto">
               {Object.entries(MODULE_GROUPS).map(([groupName, modules]) => (
-                <div key={groupName} className="border-b border-gray-100 dark:border-gray-700 last:border-b-0">
+                <div
+                  key={groupName}
+                  className="border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                >
                   <div className="bg-gray-50 dark:bg-gray-800 px-4 py-2">
-                    <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{groupName}</span>
+                    <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      {groupName}
+                    </span>
                   </div>
                   <div className="divide-y divide-gray-50">
                     {modules.map((mod) => (
                       <div key={mod} className="flex items-center justify-between px-4 py-2">
-                        <span className="text-sm text-gray-700 dark:text-gray-300">{formatModuleName(mod)}</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          {formatModuleName(mod)}
+                        </span>
                         <div className="flex gap-1">
                           {Object.entries(PERMISSION_LEVELS).map(([levelStr, config]) => {
                             const level = parseInt(levelStr);
@@ -494,7 +664,9 @@ export default function RolesPage() {
 
           {/* Quick set buttons */}
           <div className="flex gap-2 flex-wrap">
-            <span className="text-xs text-gray-500 dark:text-gray-400 self-center">Quick set all:</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400 self-center">
+              Quick set all:
+            </span>
             {[
               { label: 'None', level: 0 },
               { label: 'View', level: 1 },
@@ -505,7 +677,9 @@ export default function RolesPage() {
                 key={level}
                 onClick={() => {
                   const perms: Record<string, number> = {};
-                  ALL_MODULES.forEach(m => { perms[m] = level; });
+                  ALL_MODULES.forEach((m) => {
+                    perms[m] = level;
+                  });
                   setRolePermissions(perms);
                 }}
                 className="px-2 py-1 text-xs border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-50 dark:bg-gray-800"
@@ -530,13 +704,21 @@ export default function RolesPage() {
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={!!deleteConfirm} onClose={() => setDeleteConfirm(null)} title="Delete Role" size="sm">
+      <Modal
+        isOpen={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        title="Delete Role"
+        size="sm"
+      >
         <div className="space-y-4">
           <p className="text-sm text-gray-600">
-            Are you sure you want to delete the role <strong>{deleteConfirm?.name}</strong>? This action cannot be undone.
+            Are you sure you want to delete the role <strong>{deleteConfirm?.name}</strong>? This
+            action cannot be undone.
           </p>
           <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+              Cancel
+            </Button>
             <Button
               variant="destructive"
               onClick={() => deleteConfirm && handleDelete(deleteConfirm)}

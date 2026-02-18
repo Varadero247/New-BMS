@@ -83,34 +83,44 @@ const riskCreateSchema = z.object({
   existingControls: z.string().max(4000).optional().nullable(),
   proposedMitigations: z.string().max(4000).optional().nullable(),
   riskOwner: z.string().max(200).optional().nullable(),
-  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  reviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   notes: z.string().max(4000).optional().nullable(),
 });
 
 const riskUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
   description: z.string().max(4000).optional().nullable(),
-  category: z.enum([
-    'BIAS_DISCRIMINATION',
-    'PRIVACY_DATA_PROTECTION',
-    'SAFETY_SECURITY',
-    'TRANSPARENCY_EXPLAINABILITY',
-    'ACCOUNTABILITY',
-    'HUMAN_OVERSIGHT',
-    'ROBUSTNESS_RELIABILITY',
-    'ENVIRONMENTAL_IMPACT',
-    'SOCIETAL_IMPACT',
-    'INTELLECTUAL_PROPERTY',
-    'REGULATORY_COMPLIANCE',
-    'OTHER',
-  ]).optional(),
+  category: z
+    .enum([
+      'BIAS_DISCRIMINATION',
+      'PRIVACY_DATA_PROTECTION',
+      'SAFETY_SECURITY',
+      'TRANSPARENCY_EXPLAINABILITY',
+      'ACCOUNTABILITY',
+      'HUMAN_OVERSIGHT',
+      'ROBUSTNESS_RELIABILITY',
+      'ENVIRONMENTAL_IMPACT',
+      'SOCIETAL_IMPACT',
+      'INTELLECTUAL_PROPERTY',
+      'REGULATORY_COMPLIANCE',
+      'OTHER',
+    ])
+    .optional(),
   likelihood: z.enum(['RARE', 'UNLIKELY', 'POSSIBLE', 'LIKELY', 'ALMOST_CERTAIN']).optional(),
   impact: z.enum(['NEGLIGIBLE', 'MINOR', 'MODERATE', 'MAJOR', 'CATASTROPHIC']).optional(),
   status: z.enum(['IDENTIFIED', 'ASSESSED', 'MITIGATED', 'ACCEPTED', 'CLOSED']).optional(),
   existingControls: z.string().max(4000).optional().nullable(),
   proposedMitigations: z.string().max(4000).optional().nullable(),
   riskOwner: z.string().max(200).optional().nullable(),
-  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  reviewDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   notes: z.string().max(4000).optional().nullable(),
 });
 
@@ -177,8 +187,13 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list risk assessments', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list risk assessments' } });
+    logger.error('Failed to list risk assessments', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list risk assessments' },
+    });
   }
 });
 
@@ -187,13 +202,24 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = riskCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     // Verify system exists
-    const system = await prisma.aiSystem.findFirst({ where: { id: parsed.data.systemId, deletedAt: null } as any });
+    const system = await prisma.aiSystem.findFirst({
+      where: { id: parsed.data.systemId, deletedAt: null } as any,
+    });
     if (!system) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -228,8 +254,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('AI risk assessment created', { riskId: risk.id, reference, riskScore, riskLevel });
     res.status(201).json({ success: true, data: risk });
   } catch (error: unknown) {
-    logger.error('Failed to create risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create risk assessment' } });
+    logger.error('Failed to create risk assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create risk assessment' },
+    });
   }
 });
 
@@ -246,13 +277,22 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!risk) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Risk assessment not found' },
+      });
     }
 
     res.json({ success: true, data: risk });
   } catch (error: unknown) {
-    logger.error('Failed to get risk assessment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk assessment' } });
+    logger.error('Failed to get risk assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk assessment' },
+    });
   }
 });
 
@@ -262,12 +302,24 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = riskUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.aiRiskAssessment.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiRiskAssessment.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Risk assessment not found' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -284,9 +336,12 @@ router.put('/:id', async (req: Request, res: Response) => {
         ...parsed.data,
         riskScore,
         riskLevel,
-        reviewDate: parsed.data.reviewDate !== undefined
-          ? (parsed.data.reviewDate ? new Date(parsed.data.reviewDate) : null)
-          : undefined,
+        reviewDate:
+          parsed.data.reviewDate !== undefined
+            ? parsed.data.reviewDate
+              ? new Date(parsed.data.reviewDate)
+              : null
+            : undefined,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
       } as any,
@@ -298,8 +353,14 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('AI risk assessment updated', { riskId: id, riskScore, riskLevel });
     res.json({ success: true, data: risk });
   } catch (error: unknown) {
-    logger.error('Failed to update risk assessment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update risk assessment' } });
+    logger.error('Failed to update risk assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update risk assessment' },
+    });
   }
 });
 
@@ -308,9 +369,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.aiRiskAssessment.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiRiskAssessment.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk assessment not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Risk assessment not found' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -325,8 +391,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('AI risk assessment soft-deleted', { riskId: id });
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete risk assessment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete risk assessment' } });
+    logger.error('Failed to delete risk assessment', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete risk assessment' },
+    });
   }
 });
 

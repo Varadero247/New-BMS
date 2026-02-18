@@ -6,17 +6,21 @@ import { createLogger } from '@ims/monitoring';
 const stripeEventSchema = z.object({
   id: z.string().optional(),
   type: z.string().min(1, 'Missing or invalid Stripe event'),
-  data: z.object({
-    object: z.object({
-      id: z.string().optional(),
-      customer: z.string().optional(),
-      customer_email: z.string().optional(),
-      customer_name: z.string().optional(),
-      amount_due: z.number().nonnegative().optional(),
-      currency: z.string().optional(),
-      number: z.string().optional(),
-    }).optional(),
-  }).optional(),
+  data: z
+    .object({
+      object: z
+        .object({
+          id: z.string().optional(),
+          customer: z.string().optional(),
+          customer_email: z.string().optional(),
+          customer_name: z.string().optional(),
+          amount_due: z.number().nonnegative().optional(),
+          currency: z.string().optional(),
+          number: z.string().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
 });
 
 const logger = createLogger('stripe-dunning-webhook');
@@ -29,7 +33,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = stripeEventSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+      });
     }
 
     const event = parsed.data;
@@ -60,7 +67,10 @@ router.post('/', async (req: Request, res: Response) => {
 
     if (existing) {
       logger.info('Dunning sequence already exists for invoice', { stripeInvoiceId });
-      return res.json({ success: true, data: { dunningSequence: existing, message: 'Already exists' } });
+      return res.json({
+        success: true,
+        data: { dunningSequence: existing, message: 'Already exists' },
+      });
     }
 
     const dunningSequence = await prisma.dunningSequence.create({

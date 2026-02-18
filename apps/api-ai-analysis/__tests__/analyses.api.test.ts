@@ -24,7 +24,11 @@ jest.mock('@ims/auth', () => ({
         error: { code: 'UNAUTHORIZED', message: 'No token provided' },
       });
     }
-    req.user = { id: '20000000-0000-4000-a000-000000000001', email: 'admin@ims.local', role: 'ADMIN' };
+    req.user = {
+      id: '20000000-0000-4000-a000-000000000001',
+      email: 'admin@ims.local',
+      role: 'ADMIN',
+    };
     next();
   },
   requireRole: () => (req: any, res: any, next: any) => next(),
@@ -60,7 +64,11 @@ describe('Analyses CRUD API', () => {
     jest.clearAllMocks();
   });
 
-  const mockUser = { id: '20000000-0000-4000-a000-000000000001', firstName: 'Admin', lastName: 'User' };
+  const mockUser = {
+    id: '20000000-0000-4000-a000-000000000001',
+    firstName: 'Admin',
+    lastName: 'User',
+  };
 
   const mockAnalysis = {
     id: '52000000-0000-4000-a000-000000000001',
@@ -74,8 +82,18 @@ describe('Analyses CRUD API', () => {
     response: { content: 'Analysis result' },
     suggestedRootCause: 'Inadequate protection',
     suggestedActions: [
-      { title: 'Install guardrails', description: 'Install guardrails', priority: 'HIGH', type: 'CORRECTIVE' },
-      { title: 'Provide training', description: 'Training on heights', priority: 'MEDIUM', type: 'PREVENTIVE' },
+      {
+        title: 'Install guardrails',
+        description: 'Install guardrails',
+        priority: 'HIGH',
+        type: 'CORRECTIVE',
+      },
+      {
+        title: 'Provide training',
+        description: 'Training on heights',
+        priority: 'MEDIUM',
+        type: 'PREVENTIVE',
+      },
     ],
     complianceGaps: [{ clause: '6.1.2', gap: 'Risk assessment gap' }],
     highlights: [],

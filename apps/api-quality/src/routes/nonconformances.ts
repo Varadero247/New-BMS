@@ -62,7 +62,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List non-conformances error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list non-conformances' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list non-conformances' },
+    });
   }
 });
 
@@ -97,34 +100,65 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('NC stats error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get non-conformance statistics' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get non-conformance statistics' },
+    });
   }
 });
 
 // GET /:id - Get single non-conformance
-router.get('/:id', checkOwnership(prisma.qualNonConformance), async (req: AuthRequest, res: Response) => {
-  try {
-    const nc = await prisma.qualNonConformance.findUnique({
-      where: { id: req.params.id },
-    });
+router.get(
+  '/:id',
+  checkOwnership(prisma.qualNonConformance),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const nc = await prisma.qualNonConformance.findUnique({
+        where: { id: req.params.id },
+      });
 
-    if (!nc) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Non-conformance not found' } });
+      if (!nc) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Non-conformance not found' },
+        });
+      }
+
+      res.json({ success: true, data: nc });
+    } catch (error) {
+      logger.error('Get NC error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get non-conformance' },
+      });
     }
-
-    res.json({ success: true, data: nc });
-  } catch (error) {
-    logger.error('Get NC error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get non-conformance' } });
   }
-});
+);
 
 // POST / - Create non-conformance
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      ncType: z.enum(['INTERNAL', 'CUSTOMER_COMPLAINT', 'SUPPLIER', 'REGULATORY', 'AUDIT_FINDING', 'PROCESS_FAILURE', 'PRODUCT_DEFECT', 'SERVICE_FAILURE']),
-      source: z.enum(['INTERNAL_AUDIT', 'CUSTOMER_FEEDBACK', 'SUPPLIER_AUDIT', 'PROCESS_MONITORING', 'MANAGEMENT_REVIEW', 'THIRD_PARTY_AUDIT', 'INSPECTION', 'OBSERVATION']),
+      ncType: z.enum([
+        'INTERNAL',
+        'CUSTOMER_COMPLAINT',
+        'SUPPLIER',
+        'REGULATORY',
+        'AUDIT_FINDING',
+        'PROCESS_FAILURE',
+        'PRODUCT_DEFECT',
+        'SERVICE_FAILURE',
+      ]),
+      source: z.enum([
+        'INTERNAL_AUDIT',
+        'CUSTOMER_FEEDBACK',
+        'SUPPLIER_AUDIT',
+        'PROCESS_MONITORING',
+        'MANAGEMENT_REVIEW',
+        'THIRD_PARTY_AUDIT',
+        'INSPECTION',
+        'OBSERVATION',
+      ]),
       severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL']).default('MINOR'),
       isoClause: z.string().optional(),
       dateReported: z.string().optional(),
@@ -143,15 +177,31 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       productsQuarantined: z.boolean().default(false),
       customersNotified: z.boolean().default(false),
       containmentEffectiveBy: z.string().optional(),
-      containmentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      rcaMethod: z.enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER']).optional(),
+      containmentDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
+      rcaMethod: z
+        .enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER'])
+        .optional(),
       why1: z.string().optional(),
       why2: z.string().optional(),
       why3: z.string().optional(),
       why4: z.string().optional(),
       why5: z.string().optional(),
       rootCause: z.string().optional(),
-      rootCauseCategory: z.enum(['HUMAN_ERROR', 'PROCESS_FAILURE', 'EQUIPMENT', 'MATERIAL', 'MEASUREMENT', 'ENVIRONMENT', 'MANAGEMENT_SYSTEM', 'SUPPLIER']).optional(),
+      rootCauseCategory: z
+        .enum([
+          'HUMAN_ERROR',
+          'PROCESS_FAILURE',
+          'EQUIPMENT',
+          'MATERIAL',
+          'MEASUREMENT',
+          'ENVIRONMENT',
+          'MANAGEMENT_SYSTEM',
+          'SUPPLIER',
+        ])
+        .optional(),
       capaRequired: z.boolean().default(false),
       capaReference: z.string().optional(),
       correctiveActions: z.string().optional(),
@@ -179,116 +229,215 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: nc });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create NC error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create non-conformance' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create non-conformance' },
+    });
   }
 });
 
 // PUT /:id - Update non-conformance
-router.put('/:id', checkOwnership(prisma.qualNonConformance), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.qualNonConformance.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Non-conformance not found' } });
+router.put(
+  '/:id',
+  checkOwnership(prisma.qualNonConformance),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.qualNonConformance.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Non-conformance not found' },
+        });
+      }
+
+      const schema = z.object({
+        ncType: z
+          .enum([
+            'INTERNAL',
+            'CUSTOMER_COMPLAINT',
+            'SUPPLIER',
+            'REGULATORY',
+            'AUDIT_FINDING',
+            'PROCESS_FAILURE',
+            'PRODUCT_DEFECT',
+            'SERVICE_FAILURE',
+          ])
+          .optional(),
+        source: z
+          .enum([
+            'INTERNAL_AUDIT',
+            'CUSTOMER_FEEDBACK',
+            'SUPPLIER_AUDIT',
+            'PROCESS_MONITORING',
+            'MANAGEMENT_REVIEW',
+            'THIRD_PARTY_AUDIT',
+            'INSPECTION',
+            'OBSERVATION',
+          ])
+          .optional(),
+        severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL']).optional(),
+        isoClause: z.string().nullable().optional(),
+        reportedBy: z.string().optional(),
+        department: z.string().optional(),
+        title: z.string().trim().min(1).max(200).optional(),
+        description: z.string().optional(),
+        evidenceRef: z.string().nullable().optional(),
+        whereDetected: z.string().nullable().optional(),
+        quantityAffected: z.number().nonnegative().nullable().optional(),
+        quantityUnit: z.string().nullable().optional(),
+        customerImpact: z.boolean().optional(),
+        customerImpactDesc: z.string().nullable().optional(),
+        containmentRequired: z.boolean().optional(),
+        containmentActions: z.string().nullable().optional(),
+        productsQuarantined: z.boolean().optional(),
+        customersNotified: z.boolean().optional(),
+        containmentEffectiveBy: z.string().nullable().optional(),
+        containmentDate: z
+          .string()
+          .nullable()
+          .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        rcaMethod: z
+          .enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER'])
+          .nullable()
+          .optional(),
+        why1: z.string().nullable().optional(),
+        why2: z.string().nullable().optional(),
+        why3: z.string().nullable().optional(),
+        why4: z.string().nullable().optional(),
+        why5: z.string().nullable().optional(),
+        rootCause: z.string().nullable().optional(),
+        rootCauseCategory: z
+          .enum([
+            'HUMAN_ERROR',
+            'PROCESS_FAILURE',
+            'EQUIPMENT',
+            'MATERIAL',
+            'MEASUREMENT',
+            'ENVIRONMENT',
+            'MANAGEMENT_SYSTEM',
+            'SUPPLIER',
+          ])
+          .nullable()
+          .optional(),
+        capaRequired: z.boolean().optional(),
+        capaReference: z.string().nullable().optional(),
+        correctiveActions: z.string().nullable().optional(),
+        preventiveActions: z.string().nullable().optional(),
+        recurrencePrevention: z.string().nullable().optional(),
+        status: z
+          .enum([
+            'REPORTED',
+            'UNDER_REVIEW',
+            'CONTAINED',
+            'ROOT_CAUSE',
+            'CAPA_RAISED',
+            'VERIFICATION',
+            'CLOSED',
+          ])
+          .optional(),
+        closedBy: z.string().nullable().optional(),
+        closureDate: z
+          .string()
+          .nullable()
+          .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        effectivenessVerified: z.enum(['YES', 'NO', 'PENDING']).optional(),
+        lessonsLearned: z.string().nullable().optional(),
+        linkedProcess: z.string().nullable().optional(),
+        linkedFmea: z.string().nullable().optional(),
+        linkedHsIncident: z.string().nullable().optional(),
+        linkedEnvEvent: z.string().nullable().optional(),
+        // AI fields
+        aiAnalysis: z.string().nullable().optional(),
+        aiRootCauseSuggestions: z.string().nullable().optional(),
+        aiContainmentAdequacy: z.string().nullable().optional(),
+        aiCapaRecommendations: z.string().nullable().optional(),
+        aiIsoClause: z.string().nullable().optional(),
+        aiGenerated: z.boolean().optional(),
+      });
+
+      const data = schema.parse(req.body);
+
+      // Auto-set closure fields when status changes to CLOSED
+      const updateData = {
+        ...data,
+        containmentDate: data.containmentDate
+          ? new Date(data.containmentDate)
+          : data.containmentDate === null
+            ? null
+            : undefined,
+        closureDate: data.closureDate
+          ? new Date(data.closureDate)
+          : data.status === 'CLOSED' && !existing.closureDate
+            ? new Date()
+            : undefined,
+      };
+
+      const nc = await prisma.qualNonConformance.update({
+        where: { id: req.params.id },
+        data: updateData,
+      });
+
+      res.json({ success: true, data: nc });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update NC error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update non-conformance' },
+      });
     }
-
-    const schema = z.object({
-      ncType: z.enum(['INTERNAL', 'CUSTOMER_COMPLAINT', 'SUPPLIER', 'REGULATORY', 'AUDIT_FINDING', 'PROCESS_FAILURE', 'PRODUCT_DEFECT', 'SERVICE_FAILURE']).optional(),
-      source: z.enum(['INTERNAL_AUDIT', 'CUSTOMER_FEEDBACK', 'SUPPLIER_AUDIT', 'PROCESS_MONITORING', 'MANAGEMENT_REVIEW', 'THIRD_PARTY_AUDIT', 'INSPECTION', 'OBSERVATION']).optional(),
-      severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL']).optional(),
-      isoClause: z.string().nullable().optional(),
-      reportedBy: z.string().optional(),
-      department: z.string().optional(),
-      title: z.string().trim().min(1).max(200).optional(),
-      description: z.string().optional(),
-      evidenceRef: z.string().nullable().optional(),
-      whereDetected: z.string().nullable().optional(),
-      quantityAffected: z.number().nonnegative().nullable().optional(),
-      quantityUnit: z.string().nullable().optional(),
-      customerImpact: z.boolean().optional(),
-      customerImpactDesc: z.string().nullable().optional(),
-      containmentRequired: z.boolean().optional(),
-      containmentActions: z.string().nullable().optional(),
-      productsQuarantined: z.boolean().optional(),
-      customersNotified: z.boolean().optional(),
-      containmentEffectiveBy: z.string().nullable().optional(),
-      containmentDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      rcaMethod: z.enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER']).nullable().optional(),
-      why1: z.string().nullable().optional(),
-      why2: z.string().nullable().optional(),
-      why3: z.string().nullable().optional(),
-      why4: z.string().nullable().optional(),
-      why5: z.string().nullable().optional(),
-      rootCause: z.string().nullable().optional(),
-      rootCauseCategory: z.enum(['HUMAN_ERROR', 'PROCESS_FAILURE', 'EQUIPMENT', 'MATERIAL', 'MEASUREMENT', 'ENVIRONMENT', 'MANAGEMENT_SYSTEM', 'SUPPLIER']).nullable().optional(),
-      capaRequired: z.boolean().optional(),
-      capaReference: z.string().nullable().optional(),
-      correctiveActions: z.string().nullable().optional(),
-      preventiveActions: z.string().nullable().optional(),
-      recurrencePrevention: z.string().nullable().optional(),
-      status: z.enum(['REPORTED', 'UNDER_REVIEW', 'CONTAINED', 'ROOT_CAUSE', 'CAPA_RAISED', 'VERIFICATION', 'CLOSED']).optional(),
-      closedBy: z.string().nullable().optional(),
-      closureDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      effectivenessVerified: z.enum(['YES', 'NO', 'PENDING']).optional(),
-      lessonsLearned: z.string().nullable().optional(),
-      linkedProcess: z.string().nullable().optional(),
-      linkedFmea: z.string().nullable().optional(),
-      linkedHsIncident: z.string().nullable().optional(),
-      linkedEnvEvent: z.string().nullable().optional(),
-      // AI fields
-      aiAnalysis: z.string().nullable().optional(),
-      aiRootCauseSuggestions: z.string().nullable().optional(),
-      aiContainmentAdequacy: z.string().nullable().optional(),
-      aiCapaRecommendations: z.string().nullable().optional(),
-      aiIsoClause: z.string().nullable().optional(),
-      aiGenerated: z.boolean().optional(),
-    });
-
-    const data = schema.parse(req.body);
-
-    // Auto-set closure fields when status changes to CLOSED
-    const updateData = {
-      ...data,
-      containmentDate: data.containmentDate ? new Date(data.containmentDate) : data.containmentDate === null ? null : undefined,
-      closureDate: data.closureDate
-        ? new Date(data.closureDate)
-        : data.status === 'CLOSED' && !existing.closureDate
-          ? new Date()
-          : undefined,
-    };
-
-    const nc = await prisma.qualNonConformance.update({
-      where: { id: req.params.id },
-      data: updateData,
-    });
-
-    res.json({ success: true, data: nc });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
-    }
-    logger.error('Update NC error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update non-conformance' } });
   }
-});
+);
 
 // DELETE /:id - Delete non-conformance
-router.delete('/:id', checkOwnership(prisma.qualNonConformance), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.qualNonConformance.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Non-conformance not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.qualNonConformance),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.qualNonConformance.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Non-conformance not found' },
+        });
+      }
+
+      await prisma.qualNonConformance.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete NC error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete non-conformance' },
+      });
     }
-
-    await prisma.qualNonConformance.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete NC error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete non-conformance' } });
   }
-});
+);
 
 export default router;

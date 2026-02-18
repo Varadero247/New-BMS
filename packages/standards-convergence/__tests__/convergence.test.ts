@@ -53,7 +53,7 @@ describe('@ims/standards-convergence', () => {
     });
 
     it('should have non-empty standards array for each clause', () => {
-      CLAUSE_STANDARD_MAP.forEach(m => {
+      CLAUSE_STANDARD_MAP.forEach((m) => {
         expect(m.standards.length).toBeGreaterThan(0);
       });
     });
@@ -280,7 +280,7 @@ describe('@ims/standards-convergence', () => {
 
   describe('all ISOStandard values in mappings', () => {
     const allStandardsInMappings = new Set<string>();
-    CLAUSE_STANDARD_MAP.forEach(m => m.standards.forEach(s => allStandardsInMappings.add(s)));
+    CLAUSE_STANDARD_MAP.forEach((m) => m.standards.forEach((s) => allStandardsInMappings.add(s)));
 
     it('should include ISO_9001 in at least one mapping', () => {
       expect(allStandardsInMappings.has('ISO_9001')).toBe(true);

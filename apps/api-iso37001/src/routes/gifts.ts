@@ -63,16 +63,18 @@ const giftCreateSchema = z.object({
 
 const giftUpdateSchema = z.object({
   description: z.string().trim().min(1).max(500).optional(),
-  giftType: z.enum([
-    'GIFT',
-    'HOSPITALITY',
-    'ENTERTAINMENT',
-    'TRAVEL',
-    'DONATION',
-    'SPONSORSHIP',
-    'FACILITATION_PAYMENT',
-    'OTHER',
-  ]).optional(),
+  giftType: z
+    .enum([
+      'GIFT',
+      'HOSPITALITY',
+      'ENTERTAINMENT',
+      'TRAVEL',
+      'DONATION',
+      'SPONSORSHIP',
+      'FACILITATION_PAYMENT',
+      'OTHER',
+    ])
+    .optional(),
   direction: z.enum(['GIVEN', 'RECEIVED']).optional(),
   value: z.number().min(0).optional(),
   currency: z.string().length(3).optional(),
@@ -146,8 +148,12 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list gifts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list gifts' } });
+    logger.error('Failed to list gifts', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list gifts' } });
   }
 });
 
@@ -178,8 +184,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Gift record created', { id: gift.id, referenceNumber });
     res.status(201).json({ success: true, data: gift });
   } catch (error: unknown) {
-    logger.error('Failed to create gift record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create gift record' } });
+    logger.error('Failed to create gift record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create gift record' },
+    });
   }
 });
 
@@ -193,13 +204,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!gift) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
     }
 
     res.json({ success: true, data: gift });
   } catch (error: unknown) {
-    logger.error('Failed to get gift record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get gift record' } });
+    logger.error('Failed to get gift record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get gift record' },
+    });
   }
 });
 
@@ -217,7 +235,9 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -240,8 +260,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Gift record updated', { id: gift.id });
     res.json({ success: true, data: gift });
   } catch (error: unknown) {
-    logger.error('Failed to update gift record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update gift record' } });
+    logger.error('Failed to update gift record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update gift record' },
+    });
   }
 });
 
@@ -252,7 +277,9 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -270,8 +297,13 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     logger.info('Gift record approved', { id: gift.id });
     res.json({ success: true, data: gift });
   } catch (error: unknown) {
-    logger.error('Failed to approve gift record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve gift record' } });
+    logger.error('Failed to approve gift record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve gift record' },
+    });
   }
 });
 
@@ -282,7 +314,9 @@ router.put('/:id/decline', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -300,8 +334,13 @@ router.put('/:id/decline', async (req: Request, res: Response) => {
     logger.info('Gift record declined', { id: gift.id });
     res.json({ success: true, data: gift });
   } catch (error: unknown) {
-    logger.error('Failed to decline gift record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to decline gift record' } });
+    logger.error('Failed to decline gift record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to decline gift record' },
+    });
   }
 });
 
@@ -312,7 +351,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -328,8 +369,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Gift record deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Gift record deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete gift record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete gift record' } });
+    logger.error('Failed to delete gift record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete gift record' },
+    });
   }
 });
 

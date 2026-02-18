@@ -19,7 +19,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const { projectId, page = '1', limit = '50' } = req.query;
 
     if (!projectId) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'projectId query parameter is required' },
+      });
     }
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -45,7 +48,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List resources error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list resources' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list resources' },
+    });
   }
 });
 
@@ -64,9 +70,11 @@ const createResourceSchema = z.object({
   plannedHours: z.number().nonnegative().optional(),
   status: z.string().optional(),
 });
-const updateResourceSchema = createResourceSchema.extend({
-  actualHours: z.number().nonnegative().optional(),
-}).partial();
+const updateResourceSchema = createResourceSchema
+  .extend({
+    actualHours: z.number().nonnegative().optional(),
+  })
+  .partial();
 
 // POST /api/resources - Create resource
 router.post('/', async (req: AuthRequest, res: Response) => {
@@ -94,64 +102,95 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: resource });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
     logger.error('Create resource error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' },
+    });
   }
 });
 
 // PUT /api/resources/:id - Update resource
-router.put('/:id', checkOwnership(prisma.projectResource), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectResource.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Resource not found' } });
-    }
-
-    const parsed = updateResourceSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const data = parsed.data;
-    const updateData = { ...data } as Record<string, unknown>;
-
-    if (data.allocatedFrom) updateData.allocatedFrom = new Date(data.allocatedFrom);
-    if (data.allocatedTo) updateData.allocatedTo = new Date(data.allocatedTo);
-
-    // Auto-calculate utilization
-    if (data.actualHours !== undefined || data.plannedHours !== undefined) {
-      const planned = data.plannedHours ?? existing.plannedHours;
-      const actual = data.actualHours ?? existing.actualHours;
-      if (planned && planned > 0) {
-        updateData.utilization = parseFloat(((actual / planned) * 100).toFixed(2));
+router.put(
+  '/:id',
+  checkOwnership(prisma.projectResource),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectResource.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Resource not found' } });
       }
+
+      const parsed = updateResourceSchema.safeParse(req.body);
+      if (!parsed.success)
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
+        });
+      const data = parsed.data;
+      const updateData = { ...data } as Record<string, unknown>;
+
+      if (data.allocatedFrom) updateData.allocatedFrom = new Date(data.allocatedFrom);
+      if (data.allocatedTo) updateData.allocatedTo = new Date(data.allocatedTo);
+
+      // Auto-calculate utilization
+      if (data.actualHours !== undefined || data.plannedHours !== undefined) {
+        const planned = data.plannedHours ?? existing.plannedHours;
+        const actual = data.actualHours ?? existing.actualHours;
+        if (planned && planned > 0) {
+          updateData.utilization = parseFloat(((actual / planned) * 100).toFixed(2));
+        }
+      }
+
+      const resource = await prisma.projectResource.update({
+        where: { id: req.params.id },
+        data: updateData,
+      });
+
+      res.json({ success: true, data: resource });
+    } catch (error) {
+      logger.error('Update resource error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' },
+      });
     }
-
-    const resource = await prisma.projectResource.update({
-      where: { id: req.params.id },
-      data: updateData,
-    });
-
-    res.json({ success: true, data: resource });
-  } catch (error) {
-    logger.error('Update resource error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' } });
   }
-});
+);
 
 // DELETE /api/resources/:id - Delete resource
-router.delete('/:id', checkOwnership(prisma.projectResource), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.projectResource.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Resource not found' } });
-    }
+router.delete(
+  '/:id',
+  checkOwnership(prisma.projectResource),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.projectResource.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Resource not found' } });
+      }
 
-    await prisma.projectResource.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete resource error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete resource' } });
+      await prisma.projectResource.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete resource error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete resource' },
+      });
+    }
   }
-});
+);
 
 export default router;

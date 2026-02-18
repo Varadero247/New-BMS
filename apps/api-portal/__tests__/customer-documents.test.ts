@@ -40,7 +40,12 @@ beforeEach(() => {
 describe('GET /api/customer/documents', () => {
   it('should list shared documents', async () => {
     const items = [
-      { id: '00000000-0000-0000-0000-000000000001', title: 'Spec Sheet', category: 'SPECIFICATION', visibility: 'PUBLIC' },
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        title: 'Spec Sheet',
+        category: 'SPECIFICATION',
+        visibility: 'PUBLIC',
+      },
       { id: 'd-2', title: 'Contract', category: 'CONTRACT', visibility: 'SHARED' },
     ];
     (prisma as any).portalDocument.findMany.mockResolvedValue(items);
@@ -86,10 +91,17 @@ describe('GET /api/customer/documents', () => {
 
 describe('GET /api/customer/documents/:id', () => {
   it('should return a document', async () => {
-    const doc = { id: '00000000-0000-0000-0000-000000000001', title: 'Spec Sheet', visibility: 'PUBLIC', portalType: 'CUSTOMER' };
+    const doc = {
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Spec Sheet',
+      visibility: 'PUBLIC',
+      portalType: 'CUSTOMER',
+    };
     (prisma as any).portalDocument.findFirst.mockResolvedValue(doc);
 
-    const res = await request(app).get('/api/customer/documents/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/customer/documents/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
@@ -98,7 +110,9 @@ describe('GET /api/customer/documents/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma as any).portalDocument.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/customer/documents/00000000-0000-0000-0000-000000000099');
+    const res = await request(app).get(
+      '/api/customer/documents/00000000-0000-0000-0000-000000000099'
+    );
 
     expect(res.status).toBe(404);
   });
@@ -106,7 +120,9 @@ describe('GET /api/customer/documents/:id', () => {
   it('should handle server error on fetch', async () => {
     (prisma as any).portalDocument.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/customer/documents/00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/customer/documents/00000000-0000-0000-0000-000000000001'
+    );
 
     expect(res.status).toBe(500);
   });

@@ -13,8 +13,15 @@ const createLegalSchema = z.object({
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().min(1).max(2000),
   type: z.enum([
-    'LEGISLATION', 'REGULATION', 'CODE_OF_PRACTICE', 'PERMIT', 'LICENSE',
-    'STANDARD', 'CUSTOMER_REQUIREMENT', 'INTERNAL_REQUIREMENT', 'OTHER',
+    'LEGISLATION',
+    'REGULATION',
+    'CODE_OF_PRACTICE',
+    'PERMIT',
+    'LICENSE',
+    'STANDARD',
+    'CUSTOMER_REQUIREMENT',
+    'INTERNAL_REQUIREMENT',
+    'OTHER',
   ]),
   jurisdiction: z.string().optional(),
   issuingBody: z.string().optional(),
@@ -26,7 +33,9 @@ const createLegalSchema = z.object({
 });
 
 const updateLegalSchema = createLegalSchema.partial().extend({
-  complianceStatus: z.enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'PENDING', 'NOT_APPLICABLE']).optional(),
+  complianceStatus: z
+    .enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'PENDING', 'NOT_APPLICABLE'])
+    .optional(),
   complianceEvidence: z.string().optional(),
   nextAssessmentDate: z.string().datetime({ offset: true }).optional(),
 });
@@ -118,7 +127,8 @@ router.get('/compliance', authenticate, async (req, res, next) => {
 
     const compliantCount = statusCounts.COMPLIANT + statusCounts.NOT_APPLICABLE;
     const applicableCount = total - statusCounts.NOT_APPLICABLE;
-    const compliancePercentage = applicableCount > 0 ? Math.round((compliantCount / applicableCount) * 100) : 100;
+    const compliancePercentage =
+      applicableCount > 0 ? Math.round((compliantCount / applicableCount) * 100) : 100;
 
     res.json({
       success: true,
@@ -126,11 +136,14 @@ router.get('/compliance', authenticate, async (req, res, next) => {
         total,
         compliancePercentage,
         byStatus: statusCounts,
-        byStandard: byStandard.reduce((acc, item) => {
-          if (!acc[item.standard]) acc[item.standard] = {};
-          acc[item.standard][item.complianceStatus] = item._count.id;
-          return acc;
-        }, {} as Record<string, Record<string, number>>),
+        byStandard: byStandard.reduce(
+          (acc, item) => {
+            if (!acc[item.standard]) acc[item.standard] = {};
+            acc[item.standard][item.complianceStatus] = item._count.id;
+            return acc;
+          },
+          {} as Record<string, Record<string, number>>
+        ),
       },
     });
   } catch (error) {
@@ -166,31 +179,37 @@ router.get('/:id', authenticate, async (req, res, next) => {
 });
 
 // POST /api/legal-requirements - Create new requirement
-router.post('/', authenticate, requireRole(['ADMIN', 'MANAGER']), validate(createLegalSchema), async (req, res, next) => {
-  try {
-    const requirement = await prisma.legalRequirement.create({
-      data: {
-        ...req.body,
-        effectiveDate: req.body.effectiveDate ? new Date(req.body.effectiveDate) : undefined,
-        expiryDate: req.body.expiryDate ? new Date(req.body.expiryDate) : undefined,
-      },
-    });
+router.post(
+  '/',
+  authenticate,
+  requireRole(['ADMIN', 'MANAGER']),
+  validate(createLegalSchema),
+  async (req, res, next) => {
+    try {
+      const requirement = await prisma.legalRequirement.create({
+        data: {
+          ...req.body,
+          effectiveDate: req.body.effectiveDate ? new Date(req.body.effectiveDate) : undefined,
+          expiryDate: req.body.expiryDate ? new Date(req.body.expiryDate) : undefined,
+        },
+      });
 
-    await prisma.auditLog.create({
-      data: {
-        userId: req.user!.id,
-        action: 'CREATE',
-        entity: 'LegalRequirement',
-        entityId: requirement.id,
-        newData: requirement as any,
-      },
-    });
+      await prisma.auditLog.create({
+        data: {
+          userId: req.user!.id,
+          action: 'CREATE',
+          entity: 'LegalRequirement',
+          entityId: requirement.id,
+          newData: requirement as any,
+        },
+      });
 
-    res.status(201).json({ success: true, data: requirement });
-  } catch (error) {
-    next(error);
+      res.status(201).json({ success: true, data: requirement });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // PUT /api/legal-requirements/:id - Update requirement
 router.put('/:id', authenticate, validate(updateLegalSchema), async (req, res, next) => {
@@ -209,7 +228,8 @@ router.put('/:id', authenticate, validate(updateLegalSchema), async (req, res, n
     const updateData: Record<string, unknown> = { ...req.body };
     if (req.body.effectiveDate) updateData.effectiveDate = new Date(req.body.effectiveDate);
     if (req.body.expiryDate) updateData.expiryDate = new Date(req.body.expiryDate);
-    if (req.body.nextAssessmentDate) updateData.nextAssessmentDate = new Date(req.body.nextAssessmentDate);
+    if (req.body.nextAssessmentDate)
+      updateData.nextAssessmentDate = new Date(req.body.nextAssessmentDate);
     if (req.body.complianceStatus && req.body.complianceStatus !== existing.complianceStatus) {
       updateData.lastAssessedAt = new Date();
     }

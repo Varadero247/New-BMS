@@ -74,8 +74,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list locations', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list locations' } });
+    logger.error('Failed to list locations', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list locations' },
+    });
   }
 });
 
@@ -84,7 +89,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = locationCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -106,10 +114,18 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: location });
   } catch (error: unknown) {
     if ((error as any)?.code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Location code already exists' } });
+      return res.status(409).json({
+        success: false,
+        error: { code: 'CONFLICT', message: 'Location code already exists' },
+      });
     }
-    logger.error('Failed to create location', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create location' } });
+    logger.error('Failed to create location', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create location' },
+    });
   }
 });
 
@@ -121,13 +137,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!location) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Location not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Location not found' } });
     }
 
     res.json({ success: true, data: location });
   } catch (error: unknown) {
-    logger.error('Failed to get location', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get location' } });
+    logger.error('Failed to get location', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get location' },
+    });
   }
 });
 
@@ -136,35 +159,62 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = locationUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
-    const existing = await prisma.cmmsLocation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsLocation.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Location not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Location not found' } });
     }
 
-    const location = await prisma.cmmsLocation.update({ where: { id: req.params.id }, data: parsed.data });
+    const location = await prisma.cmmsLocation.update({
+      where: { id: req.params.id },
+      data: parsed.data,
+    });
     res.json({ success: true, data: location });
   } catch (error: unknown) {
-    logger.error('Failed to update location', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update location' } });
+    logger.error('Failed to update location', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update location' },
+    });
   }
 });
 
 // DELETE /:id — Soft delete location
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsLocation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsLocation.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Location not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Location not found' } });
     }
 
-    await prisma.cmmsLocation.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.cmmsLocation.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Location deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete location', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete location' } });
+    logger.error('Failed to delete location', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete location' },
+    });
   }
 });
 

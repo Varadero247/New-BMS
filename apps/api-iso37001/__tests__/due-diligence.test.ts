@@ -157,7 +157,9 @@ describe('ISO 37001 Due Diligence API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.abDueDiligence.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.abDueDiligence.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
       (mockPrisma.abDueDiligence.count as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/due-diligence');
@@ -356,7 +358,9 @@ describe('ISO 37001 Due Diligence API', () => {
         status: 'EXPIRED',
       });
 
-      const res = await request(app).put('/api/due-diligence/00000000-0000-0000-0000-000000000001/expire');
+      const res = await request(app).put(
+        '/api/due-diligence/00000000-0000-0000-0000-000000000001/expire'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.data.status).toBe('EXPIRED');
@@ -365,7 +369,9 @@ describe('ISO 37001 Due Diligence API', () => {
     it('should return 404 when not found for expiry', async () => {
       (mockPrisma.abDueDiligence.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).put('/api/due-diligence/00000000-0000-0000-0000-000000000099/expire');
+      const res = await request(app).put(
+        '/api/due-diligence/00000000-0000-0000-0000-000000000099/expire'
+      );
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -378,9 +384,14 @@ describe('ISO 37001 Due Diligence API', () => {
   describe('DELETE /api/due-diligence/:id', () => {
     it('should soft delete a due diligence assessment', async () => {
       (mockPrisma.abDueDiligence.findFirst as jest.Mock).mockResolvedValueOnce(mockDD);
-      (mockPrisma.abDueDiligence.update as jest.Mock).mockResolvedValueOnce({ ...mockDD, deletedAt: new Date() });
+      (mockPrisma.abDueDiligence.update as jest.Mock).mockResolvedValueOnce({
+        ...mockDD,
+        deletedAt: new Date(),
+      });
 
-      const res = await request(app).delete('/api/due-diligence/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/due-diligence/00000000-0000-0000-0000-000000000001'
+      );
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -389,7 +400,9 @@ describe('ISO 37001 Due Diligence API', () => {
     it('should return 404 when not found for deletion', async () => {
       (mockPrisma.abDueDiligence.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).delete('/api/due-diligence/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/due-diligence/00000000-0000-0000-0000-000000000099'
+      );
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);

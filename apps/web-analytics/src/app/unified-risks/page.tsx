@@ -130,7 +130,9 @@ export default function UnifiedRisksPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [scoreRange, setScoreRange] = useState('');
   const [ownerFilter, setOwnerFilter] = useState('');
-  const [sortField, setSortField] = useState<'score' | 'likelihood' | 'severity' | 'title'>('score');
+  const [sortField, setSortField] = useState<'score' | 'likelihood' | 'severity' | 'title'>(
+    'score'
+  );
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
@@ -165,7 +167,7 @@ export default function UnifiedRisksPage() {
     if (!searchTerm) return data.risks;
     const term = searchTerm.toLowerCase();
     return data.risks.filter(
-      r =>
+      (r) =>
         r.title.toLowerCase().includes(term) ||
         r.refNumber.toLowerCase().includes(term) ||
         r.owner.toLowerCase().includes(term) ||
@@ -175,7 +177,7 @@ export default function UnifiedRisksPage() {
 
   function toggleSort(field: typeof sortField) {
     if (sortField === field) {
-      setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
+      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortField(field);
       setSortOrder('desc');
@@ -188,7 +190,9 @@ export default function UnifiedRisksPage() {
         <div className="animate-pulse space-y-4 max-w-7xl mx-auto">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-gray-200 rounded" />)}
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-24 bg-gray-200 rounded" />
+            ))}
           </div>
           <div className="h-64 bg-gray-200 rounded" />
         </div>
@@ -204,9 +208,12 @@ export default function UnifiedRisksPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Unified Risk Register</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Unified Risk Register
+          </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Cross-module risk view aggregating risks from Quality, H&S, Environment, InfoSec, AI, and Energy
+            Cross-module risk view aggregating risks from Quality, H&S, Environment, InfoSec, AI,
+            and Energy
           </p>
         </div>
 
@@ -249,16 +256,23 @@ export default function UnifiedRisksPage() {
                   <thead>
                     <tr>
                       <th className="p-1 text-xs text-gray-500 dark:text-gray-400 w-20"></th>
-                      {[1, 2, 3, 4, 5].map(s => (
-                        <th key={s} className="p-1 text-xs text-center text-gray-500 dark:text-gray-400 font-medium">Sev {s}</th>
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <th
+                          key={s}
+                          className="p-1 text-xs text-center text-gray-500 dark:text-gray-400 font-medium"
+                        >
+                          Sev {s}
+                        </th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {[5, 4, 3, 2, 1].map(l => (
+                    {[5, 4, 3, 2, 1].map((l) => (
                       <tr key={l}>
-                        <td className="p-1 text-xs text-gray-500 dark:text-gray-400 font-medium">Lik {l}</td>
-                        {[1, 2, 3, 4, 5].map(s => {
+                        <td className="p-1 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                          Lik {l}
+                        </td>
+                        {[1, 2, 3, 4, 5].map((s) => {
                           const count = heatmap[l - 1]?.[s - 1] || 0;
                           return (
                             <td key={s} className="p-1">
@@ -294,8 +308,12 @@ export default function UnifiedRisksPage() {
                       return (
                         <div key={source}>
                           <div className="flex justify-between text-sm mb-1">
-                            <span className="font-medium text-gray-700 dark:text-gray-300">{SOURCE_LABELS[source] || source}</span>
-                            <span className="text-gray-500 dark:text-gray-400">{count} ({pct}%)</span>
+                            <span className="font-medium text-gray-700 dark:text-gray-300">
+                              {SOURCE_LABELS[source] || source}
+                            </span>
+                            <span className="text-gray-500 dark:text-gray-400">
+                              {count} ({pct}%)
+                            </span>
                           </div>
                           <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
                             <div
@@ -308,8 +326,12 @@ export default function UnifiedRisksPage() {
                     })}
                   <div className="pt-3 mt-3 border-t border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between text-sm">
-                      <span className="font-medium text-gray-700 dark:text-gray-300">Red Zone (score 12+)</span>
-                      <span className={`font-bold ${(summary.redZonePercent || 0) > 30 ? 'text-red-600' : 'text-orange-500'}`}>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">
+                        Red Zone (score 12+)
+                      </span>
+                      <span
+                        className={`font-bold ${(summary.redZonePercent || 0) > 30 ? 'text-red-600' : 'text-orange-500'}`}
+                      >
                         {summary.redZonePercent}%
                       </span>
                     </div>
@@ -326,38 +348,51 @@ export default function UnifiedRisksPage() {
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              aria-label="Search risks..." placeholder="Search risks..."
+              aria-label="Search risks..."
+              placeholder="Search risks..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-800"
             />
           </div>
           <select
             value={sourceFilter}
-            onChange={e => setSourceFilter(e.target.value)}
+            onChange={(e) => setSourceFilter(e.target.value)}
             className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-800"
           >
-            {SOURCE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            {SOURCE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
           </select>
           <select
             value={scoreRange}
-            onChange={e => setScoreRange(e.target.value)}
+            onChange={(e) => setScoreRange(e.target.value)}
             className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-800"
           >
-            {SCORE_RANGE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            {SCORE_RANGE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
           </select>
           <select
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
+            onChange={(e) => setStatusFilter(e.target.value)}
             className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-800"
           >
-            {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            {STATUS_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
           </select>
           <input
             type="text"
             placeholder="Owner..."
             value={ownerFilter}
-            onChange={e => setOwnerFilter(e.target.value)}
+            onChange={(e) => setOwnerFilter(e.target.value)}
             className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm w-40 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-800"
           />
         </div>
@@ -376,8 +411,12 @@ export default function UnifiedRisksPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Source</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Ref
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Source
+                      </th>
                       <th
                         className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none"
                         onClick={() => toggleSort('title')}
@@ -410,41 +449,74 @@ export default function UnifiedRisksPage() {
                           Score <ArrowUpDown className="h-3 w-3" />
                         </span>
                       </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Owner</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Due</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Link</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Status
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Owner
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Due
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Link
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredRisks.map(risk => (
-                      <tr key={risk.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800/30">
+                    {filteredRisks.map((risk) => (
+                      <tr
+                        key={risk.id}
+                        className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800/30"
+                      >
                         <td className="py-3 px-4">
-                          <span className="text-xs font-mono text-gray-500 dark:text-gray-400">{risk.refNumber}</span>
+                          <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
+                            {risk.refNumber}
+                          </span>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${SOURCE_COLORS[risk.source] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${SOURCE_COLORS[risk.source] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                          >
                             {SOURCE_LABELS[risk.source] || risk.source}
                           </span>
                         </td>
                         <td className="py-3 px-4 max-w-xs">
-                          <p className="text-gray-900 dark:text-gray-100 font-medium truncate">{risk.title}</p>
-                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{risk.isoStandard}</p>
+                          <p className="text-gray-900 dark:text-gray-100 font-medium truncate">
+                            {risk.title}
+                          </p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                            {risk.isoStandard}
+                          </p>
                         </td>
-                        <td className="py-3 px-4 text-center font-semibold text-gray-700 dark:text-gray-300">{risk.likelihood}</td>
-                        <td className="py-3 px-4 text-center font-semibold text-gray-700 dark:text-gray-300">{risk.severity}</td>
+                        <td className="py-3 px-4 text-center font-semibold text-gray-700 dark:text-gray-300">
+                          {risk.likelihood}
+                        </td>
+                        <td className="py-3 px-4 text-center font-semibold text-gray-700 dark:text-gray-300">
+                          {risk.severity}
+                        </td>
                         <td className="py-3 px-4 text-center">
-                          <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold ${scoreColor(risk.score)}`}>
+                          <span
+                            className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold ${scoreColor(risk.score)}`}
+                          >
                             {risk.score}
                           </span>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[risk.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
-                            {risk.status === 'IN_PROGRESS' ? 'In Progress' : risk.status.charAt(0) + risk.status.slice(1).toLowerCase()}
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[risk.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                          >
+                            {risk.status === 'IN_PROGRESS'
+                              ? 'In Progress'
+                              : risk.status.charAt(0) + risk.status.slice(1).toLowerCase()}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400 text-xs">{risk.owner}</td>
-                        <td className="py-3 px-4 text-gray-400 dark:text-gray-500 text-xs">{risk.dueDate || '-'}</td>
+                        <td className="py-3 px-4 text-gray-500 dark:text-gray-400 text-xs">
+                          {risk.owner}
+                        </td>
+                        <td className="py-3 px-4 text-gray-400 dark:text-gray-500 text-xs">
+                          {risk.dueDate || '-'}
+                        </td>
                         <td className="py-3 px-4 text-center">
                           <a
                             href={risk.url}

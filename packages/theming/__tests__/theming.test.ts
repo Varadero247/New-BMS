@@ -211,11 +211,14 @@ describe('CSS variable mapping (applyThemeVars logic)', () => {
     if (theme.surfaceColor) root.style.setProperty('--bg-surface', theme.surfaceColor);
     if (theme.textColor) root.style.setProperty('--text-primary', theme.textColor);
     if (theme.sidebarColor) root.style.setProperty('--bg-sidebar', theme.sidebarColor);
-    if (theme.borderRadius !== undefined) root.style.setProperty('--radius', `${theme.borderRadius}px`);
+    if (theme.borderRadius !== undefined)
+      root.style.setProperty('--radius', `${theme.borderRadius}px`);
     if (theme.fontFamily) root.style.setProperty('--font-family', theme.fontFamily);
 
     if (theme.favicon) {
-      const link = document.querySelector<HTMLLinkElement>("link[rel*='icon']") || document.createElement('link');
+      const link =
+        document.querySelector<HTMLLinkElement>("link[rel*='icon']") ||
+        document.createElement('link');
       (link as any).type = 'image/x-icon';
       (link as any).rel = 'shortcut icon';
       (link as any).href = theme.favicon;
@@ -225,9 +228,7 @@ describe('CSS variable mapping (applyThemeVars logic)', () => {
     if (theme.brandName) {
       const titleParts = document.title.split(' | ');
       document.title =
-        titleParts.length > 1
-          ? `${titleParts[0]} | ${theme.brandName}`
-          : theme.brandName;
+        titleParts.length > 1 ? `${titleParts[0]} | ${theme.brandName}` : theme.brandName;
     }
 
     if (theme.customCSS) {

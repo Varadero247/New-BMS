@@ -86,7 +86,9 @@ describe('Payroll Salary API Routes', () => {
     ];
 
     it('should return list of active component types', async () => {
-      (mockPrisma.salaryComponentType.findMany as jest.Mock).mockResolvedValueOnce(mockComponentTypes);
+      (mockPrisma.salaryComponentType.findMany as jest.Mock).mockResolvedValueOnce(
+        mockComponentTypes
+      );
 
       const response = await request(app)
         .get('/api/salary/component-types')
@@ -98,7 +100,9 @@ describe('Payroll Salary API Routes', () => {
     });
 
     it('should filter by type', async () => {
-      (mockPrisma.salaryComponentType.findMany as jest.Mock).mockResolvedValueOnce([mockComponentTypes[0]]);
+      (mockPrisma.salaryComponentType.findMany as jest.Mock).mockResolvedValueOnce([
+        mockComponentTypes[0],
+      ]);
 
       await request(app)
         .get('/api/salary/component-types?type=EARNING')
@@ -136,9 +140,7 @@ describe('Payroll Salary API Routes', () => {
     it('should only return active types by default', async () => {
       (mockPrisma.salaryComponentType.findMany as jest.Mock).mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/salary/component-types')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/salary/component-types').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.salaryComponentType.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -151,11 +153,11 @@ describe('Payroll Salary API Routes', () => {
     });
 
     it('should order by sortOrder ascending', async () => {
-      (mockPrisma.salaryComponentType.findMany as jest.Mock).mockResolvedValueOnce(mockComponentTypes);
+      (mockPrisma.salaryComponentType.findMany as jest.Mock).mockResolvedValueOnce(
+        mockComponentTypes
+      );
 
-      await request(app)
-        .get('/api/salary/component-types')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/salary/component-types').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.salaryComponentType.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -165,7 +167,9 @@ describe('Payroll Salary API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.salaryComponentType.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.salaryComponentType.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/salary/component-types')
@@ -233,7 +237,9 @@ describe('Payroll Salary API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.salaryComponentType.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.salaryComponentType.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/salary/component-types')
@@ -304,7 +310,9 @@ describe('Payroll Salary API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.employeeSalary.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.employeeSalary.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
@@ -386,7 +394,9 @@ describe('Payroll Salary API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.employeeSalary.updateMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.employeeSalary.updateMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
@@ -462,7 +472,9 @@ describe('Payroll Salary API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.salaryComponent.deleteMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.salaryComponent.deleteMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/salary/36000000-0000-4000-a000-000000000001/components')

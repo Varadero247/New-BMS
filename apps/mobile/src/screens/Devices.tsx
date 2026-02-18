@@ -2,11 +2,51 @@ import { useState } from 'react';
 import { Search, Thermometer, Wind, Lightbulb, Shield } from 'lucide-react';
 
 const devices = [
-  { id: '1', name: 'Main HVAC', type: 'HVAC', location: 'Floor 2', status: 'online', reading: '72°F', icon: Wind },
-  { id: '2', name: 'Lobby Thermostat', type: 'Thermostat', location: 'Lobby', status: 'online', reading: '71°F', icon: Thermometer },
-  { id: '3', name: 'Conference Lights', type: 'Lighting', location: 'Conf A', status: 'online', reading: '80%', icon: Lightbulb },
-  { id: '4', name: 'Server Room AC', type: 'HVAC', location: 'Server Room', status: 'warning', reading: '68°F', icon: Wind },
-  { id: '5', name: 'Entry Access', type: 'Access', location: 'Lobby', status: 'online', reading: 'Locked', icon: Shield },
+  {
+    id: '1',
+    name: 'Main HVAC',
+    type: 'HVAC',
+    location: 'Floor 2',
+    status: 'online',
+    reading: '72°F',
+    icon: Wind,
+  },
+  {
+    id: '2',
+    name: 'Lobby Thermostat',
+    type: 'Thermostat',
+    location: 'Lobby',
+    status: 'online',
+    reading: '71°F',
+    icon: Thermometer,
+  },
+  {
+    id: '3',
+    name: 'Conference Lights',
+    type: 'Lighting',
+    location: 'Conf A',
+    status: 'online',
+    reading: '80%',
+    icon: Lightbulb,
+  },
+  {
+    id: '4',
+    name: 'Server Room AC',
+    type: 'HVAC',
+    location: 'Server Room',
+    status: 'warning',
+    reading: '68°F',
+    icon: Wind,
+  },
+  {
+    id: '5',
+    name: 'Entry Access',
+    type: 'Access',
+    location: 'Lobby',
+    status: 'online',
+    reading: 'Locked',
+    icon: Shield,
+  },
 ];
 
 const statusColors = {
@@ -72,7 +112,9 @@ export default function DevicesScreen() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <h3 className="font-medium text-gray-900">{device.name}</h3>
-                  <span className={`w-2 h-2 rounded-full ${statusColors[device.status as keyof typeof statusColors]}`} />
+                  <span
+                    className={`w-2 h-2 rounded-full ${statusColors[device.status as keyof typeof statusColors]}`}
+                  />
                 </div>
                 <p className="text-sm text-gray-500">
                   {device.type} · {device.location}

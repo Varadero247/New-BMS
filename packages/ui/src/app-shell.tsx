@@ -49,7 +49,15 @@ export interface AppShellProps {
 /*  Sub-components                                            */
 /* ────────────────────────────────────────────────────────── */
 
-function SidebarLink({ item, isActive, collapsed }: { item: NavItem; isActive: boolean; collapsed?: boolean }) {
+function SidebarLink({
+  item,
+  isActive,
+  collapsed,
+}: {
+  item: NavItem;
+  isActive: boolean;
+  collapsed?: boolean;
+}) {
   const Icon = item.icon;
   const props = item.external
     ? { href: item.href, target: '_blank' as const, rel: 'noopener noreferrer' }
@@ -99,9 +107,10 @@ function SidebarSection({
     return (
       <div className="space-y-1">
         {section.items.map((item) => {
-          const isActive = item.href === '/'
-            ? pathname === '/'
-            : pathname === item.href || pathname.startsWith(item.href + '/');
+          const isActive =
+            item.href === '/'
+              ? pathname === '/'
+              : pathname === item.href || pathname.startsWith(item.href + '/');
           return <SidebarLink key={item.name} item={item} isActive={isActive} collapsed />;
         })}
       </div>
@@ -128,7 +137,11 @@ function SidebarSection({
               viewBox="0 0 20 20"
               fill="currentColor"
             >
-              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              <path
+                fillRule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
             </svg>
           )}
         </button>
@@ -136,9 +149,10 @@ function SidebarSection({
       {open && (
         <ul className="space-y-1">
           {section.items.map((item) => {
-            const isActive = item.href === '/'
-              ? pathname === '/'
-              : pathname === item.href || pathname.startsWith(item.href + '/');
+            const isActive =
+              item.href === '/'
+                ? pathname === '/'
+                : pathname === item.href || pathname.startsWith(item.href + '/');
             return <SidebarLink key={item.name} item={item} isActive={isActive} />;
           })}
         </ul>
@@ -203,7 +217,12 @@ export function AppShell({
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto p-3" aria-label="Module navigation">
         {navSections.map((section, i) => (
-          <SidebarSection key={section.title || i} section={section} pathname={pathname} collapsed={collapsed} />
+          <SidebarSection
+            key={section.title || i}
+            section={section}
+            pathname={pathname}
+            collapsed={collapsed}
+          />
         ))}
       </nav>
 
@@ -275,8 +294,18 @@ export function AppShell({
             className="md:hidden p-3 text-gray-500 hover:text-foreground"
             aria-label="Open navigation menu"
           >
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+              />
             </svg>
           </button>
           <div className="flex-1">{topBar}</div>

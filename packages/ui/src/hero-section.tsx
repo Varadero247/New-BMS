@@ -11,10 +11,19 @@ export interface HeroSectionProps {
   className?: string;
 }
 
-export function HeroSection({ eyebrow, title, description, children, className }: HeroSectionProps) {
+export function HeroSection({
+  eyebrow,
+  title,
+  description,
+  children,
+  className,
+}: HeroSectionProps) {
   return (
     <section
-      className={cn('relative min-h-[92vh] flex flex-col items-center justify-center px-6 overflow-hidden', className)}
+      className={cn(
+        'relative min-h-[92vh] flex flex-col items-center justify-center px-6 overflow-hidden',
+        className
+      )}
       style={{ background: 'var(--ink, #080B12)' }}
     >
       {/* Gradient background layer */}
@@ -72,14 +81,10 @@ export function HeroSection({ eyebrow, title, description, children, className }
 
         <div className="display mb-6">{title}</div>
 
-        {description && (
-          <p className="body-lg max-w-2xl mx-auto mb-8">{description}</p>
-        )}
+        {description && <p className="body-lg max-w-2xl mx-auto mb-8">{description}</p>}
 
         {children && (
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
-            {children}
-          </div>
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-8">{children}</div>
         )}
       </div>
     </section>
@@ -94,7 +99,13 @@ export interface HeroButtonProps {
   className?: string;
 }
 
-export function HeroButton({ children, variant = 'primary', href, onClick, className }: HeroButtonProps) {
+export function HeroButton({
+  children,
+  variant = 'primary',
+  href,
+  onClick,
+  className,
+}: HeroButtonProps) {
   const Tag = href ? 'a' : 'button';
   const isPrimary = variant === 'primary';
 

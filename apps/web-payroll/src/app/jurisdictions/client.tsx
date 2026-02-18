@@ -30,7 +30,14 @@ interface Jurisdiction {
 
 const jurisdictions: Jurisdiction[] = [
   {
-    id: 'uk', name: 'United Kingdom', code: 'GB', region: 'Europe', currency: 'GBP', symbol: '£', status: 'active', taxYear: '2025/26',
+    id: 'uk',
+    name: 'United Kingdom',
+    code: 'GB',
+    region: 'Europe',
+    currency: 'GBP',
+    symbol: '£',
+    status: 'active',
+    taxYear: '2025/26',
     personalAllowance: 12570,
     taxBands: [
       { name: 'Basic Rate', from: 12571, to: 50270, rate: 20 },
@@ -44,7 +51,14 @@ const jurisdictions: Jurisdiction[] = [
     lastUpdated: '2025-04-06',
   },
   {
-    id: 'us', name: 'United States (Federal)', code: 'US', region: 'North America', currency: 'USD', symbol: '$', status: 'active', taxYear: '2025',
+    id: 'us',
+    name: 'United States (Federal)',
+    code: 'US',
+    region: 'North America',
+    currency: 'USD',
+    symbol: '$',
+    status: 'active',
+    taxYear: '2025',
     personalAllowance: 14600,
     taxBands: [
       { name: '10%', from: 0, to: 11600, rate: 10 },
@@ -62,7 +76,14 @@ const jurisdictions: Jurisdiction[] = [
     lastUpdated: '2025-01-01',
   },
   {
-    id: 'ie', name: 'Ireland', code: 'IE', region: 'Europe', currency: 'EUR', symbol: '€', status: 'active', taxYear: '2025',
+    id: 'ie',
+    name: 'Ireland',
+    code: 'IE',
+    region: 'Europe',
+    currency: 'EUR',
+    symbol: '€',
+    status: 'active',
+    taxYear: '2025',
     personalAllowance: 1875,
     taxBands: [
       { name: 'Standard Rate', from: 0, to: 42000, rate: 20 },
@@ -71,11 +92,18 @@ const jurisdictions: Jurisdiction[] = [
     socialSecurity: { employeeRate: 4, employerRate: 11.05, ceiling: null },
     pension: { mandatoryRate: 0, employerMin: 0 },
     payFrequencies: ['Weekly', 'Fortnightly', 'Monthly'],
-    minimumWage: 12.70,
+    minimumWage: 12.7,
     lastUpdated: '2025-01-01',
   },
   {
-    id: 'de', name: 'Germany', code: 'DE', region: 'Europe', currency: 'EUR', symbol: '€', status: 'active', taxYear: '2025',
+    id: 'de',
+    name: 'Germany',
+    code: 'DE',
+    region: 'Europe',
+    currency: 'EUR',
+    symbol: '€',
+    status: 'active',
+    taxYear: '2025',
     personalAllowance: 11604,
     taxBands: [
       { name: 'First Zone', from: 11605, to: 17005, rate: 14 },
@@ -90,7 +118,14 @@ const jurisdictions: Jurisdiction[] = [
     lastUpdated: '2025-01-01',
   },
   {
-    id: 'fr', name: 'France', code: 'FR', region: 'Europe', currency: 'EUR', symbol: '€', status: 'active', taxYear: '2025',
+    id: 'fr',
+    name: 'France',
+    code: 'FR',
+    region: 'Europe',
+    currency: 'EUR',
+    symbol: '€',
+    status: 'active',
+    taxYear: '2025',
     personalAllowance: 11294,
     taxBands: [
       { name: 'Tranche 1', from: 11295, to: 28797, rate: 11 },
@@ -105,7 +140,14 @@ const jurisdictions: Jurisdiction[] = [
     lastUpdated: '2025-01-01',
   },
   {
-    id: 'au', name: 'Australia', code: 'AU', region: 'Asia Pacific', currency: 'AUD', symbol: 'A$', status: 'active', taxYear: '2025/26',
+    id: 'au',
+    name: 'Australia',
+    code: 'AU',
+    region: 'Asia Pacific',
+    currency: 'AUD',
+    symbol: 'A$',
+    status: 'active',
+    taxYear: '2025/26',
     personalAllowance: 18200,
     taxBands: [
       { name: 'First Bracket', from: 18201, to: 45000, rate: 16 },
@@ -120,7 +162,14 @@ const jurisdictions: Jurisdiction[] = [
     lastUpdated: '2025-07-01',
   },
   {
-    id: 'ca', name: 'Canada (Federal)', code: 'CA', region: 'North America', currency: 'CAD', symbol: 'C$', status: 'coming-soon', taxYear: '2025',
+    id: 'ca',
+    name: 'Canada (Federal)',
+    code: 'CA',
+    region: 'North America',
+    currency: 'CAD',
+    symbol: 'C$',
+    status: 'coming-soon',
+    taxYear: '2025',
     personalAllowance: 15705,
     taxBands: [
       { name: 'First Bracket', from: 15706, to: 55867, rate: 15 },
@@ -132,11 +181,18 @@ const jurisdictions: Jurisdiction[] = [
     socialSecurity: { employeeRate: 5.95, employerRate: 5.95, ceiling: 68500 },
     pension: { mandatoryRate: 0, employerMin: 0 },
     payFrequencies: ['Weekly', 'Bi-weekly', 'Semi-monthly', 'Monthly'],
-    minimumWage: 17.20,
+    minimumWage: 17.2,
     lastUpdated: '2025-01-01',
   },
   {
-    id: 'sg', name: 'Singapore', code: 'SG', region: 'Asia Pacific', currency: 'SGD', symbol: 'S$', status: 'coming-soon', taxYear: '2025',
+    id: 'sg',
+    name: 'Singapore',
+    code: 'SG',
+    region: 'Asia Pacific',
+    currency: 'SGD',
+    symbol: 'S$',
+    status: 'coming-soon',
+    taxYear: '2025',
     personalAllowance: 20000,
     taxBands: [
       { name: 'First Band', from: 20001, to: 30000, rate: 2 },
@@ -167,7 +223,10 @@ export default function JurisdictionsClient() {
   const activeCount = jurisdictions.filter((j) => j.status === 'active').length;
 
   const filtered = jurisdictions.filter((j) => {
-    const matchesSearch = !searchTerm || j.name.toLowerCase().includes(searchTerm.toLowerCase()) || j.code.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      !searchTerm ||
+      j.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      j.code.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRegion = regionFilter === 'all' || j.region === regionFilter;
     return matchesSearch && matchesRegion;
   });
@@ -185,22 +244,32 @@ export default function JurisdictionsClient() {
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Tax Jurisdictions</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Supported payroll tax jurisdictions, rates, and thresholds</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Supported payroll tax jurisdictions, rates, and thresholds
+        </p>
       </div>
 
       {/* Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Jurisdictions</p>
-          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{jurisdictions.length}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">
+            Total Jurisdictions
+          </p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+            {jurisdictions.length}
+          </p>
         </div>
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
           <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Active</p>
           <p className="text-3xl font-bold text-green-700 mt-1">{activeCount}</p>
         </div>
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Coming Soon</p>
-          <p className="text-3xl font-bold text-amber-700 mt-1">{jurisdictions.length - activeCount}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">
+            Coming Soon
+          </p>
+          <p className="text-3xl font-bold text-amber-700 mt-1">
+            {jurisdictions.length - activeCount}
+          </p>
         </div>
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
           <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Regions</p>
@@ -214,7 +283,8 @@ export default function JurisdictionsClient() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
-            aria-label="Search jurisdictions..." placeholder="Search jurisdictions..."
+            aria-label="Search jurisdictions..."
+            placeholder="Search jurisdictions..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -224,13 +294,17 @@ export default function JurisdictionsClient() {
           <button
             onClick={() => setRegionFilter('all')}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium ${regionFilter === 'all' ? 'bg-green-100 text-green-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'}`}
-          >All</button>
+          >
+            All
+          </button>
           {regions.map((r) => (
             <button
               key={r}
               onClick={() => setRegionFilter(r)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium ${regionFilter === r ? 'bg-green-100 text-green-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'}`}
-            >{r}</button>
+            >
+              {r}
+            </button>
           ))}
         </div>
       </div>
@@ -240,27 +314,41 @@ export default function JurisdictionsClient() {
         {filtered.map((j) => {
           const isExpanded = expanded.has(j.id);
           return (
-            <div key={j.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+            <div
+              key={j.id}
+              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden"
+            >
               <button
                 onClick={() => toggleExpand(j.id)}
                 className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  {isExpanded ? <ChevronDown className="h-5 w-5 text-gray-400 dark:text-gray-500" /> : <ChevronRight className="h-5 w-5 text-gray-400 dark:text-gray-500" />}
+                  {isExpanded ? (
+                    <ChevronDown className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                  ) : (
+                    <ChevronRight className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                  )}
                   <Globe className="h-5 w-5 text-green-600" />
                   <div className="text-left">
                     <div className="flex items-center gap-2">
                       <p className="font-semibold text-gray-900 dark:text-gray-100">{j.name}</p>
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${j.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${j.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}
+                      >
                         {j.status === 'active' ? 'Active' : 'Coming Soon'}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{j.region} · {j.currency} ({j.symbol}) · Tax Year {j.taxYear}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {j.region} · {j.currency} ({j.symbol}) · Tax Year {j.taxYear}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                   <span>Top rate: {j.taxBands[j.taxBands.length - 1].rate}%</span>
-                  <span>Allowance: {j.symbol}{j.personalAllowance.toLocaleString()}</span>
+                  <span>
+                    Allowance: {j.symbol}
+                    {j.personalAllowance.toLocaleString()}
+                  </span>
                 </div>
               </button>
 
@@ -269,17 +357,24 @@ export default function JurisdictionsClient() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Tax Bands */}
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Income Tax Bands</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Income Tax Bands
+                      </h4>
                       <div className="space-y-1.5">
                         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                           <span>Personal Allowance</span>
-                          <span>{j.symbol}{j.personalAllowance.toLocaleString()} @ 0%</span>
+                          <span>
+                            {j.symbol}
+                            {j.personalAllowance.toLocaleString()} @ 0%
+                          </span>
                         </div>
                         {j.taxBands.map((b, i) => (
                           <div key={i} className="flex justify-between text-xs">
                             <span className="text-gray-700 dark:text-gray-300">{b.name}</span>
                             <span className="text-gray-500 dark:text-gray-400">
-                              {j.symbol}{b.from.toLocaleString()} – {b.to ? `${j.symbol}${b.to.toLocaleString()}` : '∞'} @ {b.rate}%
+                              {j.symbol}
+                              {b.from.toLocaleString()} –{' '}
+                              {b.to ? `${j.symbol}${b.to.toLocaleString()}` : '∞'} @ {b.rate}%
                             </span>
                           </div>
                         ))}
@@ -288,7 +383,9 @@ export default function JurisdictionsClient() {
 
                     {/* Social Security */}
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Social Security</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Social Security
+                      </h4>
                       <div className="space-y-1.5 text-xs">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Employee Rate</span>
@@ -300,11 +397,17 @@ export default function JurisdictionsClient() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Earnings Ceiling</span>
-                          <span className="font-medium">{j.socialSecurity.ceiling ? `${j.symbol}${j.socialSecurity.ceiling.toLocaleString()}` : 'None'}</span>
+                          <span className="font-medium">
+                            {j.socialSecurity.ceiling
+                              ? `${j.symbol}${j.socialSecurity.ceiling.toLocaleString()}`
+                              : 'None'}
+                          </span>
                         </div>
                       </div>
 
-                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-4 mb-2">Pension</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-4 mb-2">
+                        Pension
+                      </h4>
                       <div className="space-y-1.5 text-xs">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Mandatory Employee</span>
@@ -319,11 +422,15 @@ export default function JurisdictionsClient() {
 
                     {/* General Info */}
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">General</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        General
+                      </h4>
                       <div className="space-y-1.5 text-xs">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Minimum Wage</span>
-                          <span className="font-medium">{j.minimumWage > 0 ? `${j.symbol}${j.minimumWage}/hr` : 'N/A'}</span>
+                          <span className="font-medium">
+                            {j.minimumWage > 0 ? `${j.symbol}${j.minimumWage}/hr` : 'N/A'}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Pay Frequencies</span>

@@ -31,7 +31,9 @@ test.describe('Responsive Layout', () => {
     await page.reload();
     await page.waitForTimeout(500);
     // Dashboard heading or module list should be visible at desktop width
-    await expect(page.locator('text=/ISO Compliance|Operations|Dashboard/i').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=/ISO Compliance|Operations|Dashboard/i').first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should navigate to a module page on tablet viewport', async ({ page }) => {
@@ -39,7 +41,9 @@ test.describe('Responsive Layout', () => {
     await page.reload();
     await page.waitForTimeout(500);
     // Core page content should still be reachable on a tablet
-    await expect(page.locator('text=/Health|Quality|Environment|Dashboard/i').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=/Health|Quality|Environment|Dashboard/i').first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should keep login form usable on mobile viewport', async ({ page }) => {

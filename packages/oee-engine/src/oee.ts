@@ -17,7 +17,8 @@ export function calculateOEE(input: OEEInput): OEEResult {
 
   if (plannedProductionTime <= 0) throw new Error('Planned production time must be positive');
   if (downtime < 0) throw new Error('Downtime must be non-negative');
-  if (downtime > plannedProductionTime) throw new Error('Downtime cannot exceed planned production time');
+  if (downtime > plannedProductionTime)
+    throw new Error('Downtime cannot exceed planned production time');
   if (idealCycleTime <= 0) throw new Error('Ideal cycle time must be positive');
   if (totalPieces < 0) throw new Error('Total pieces must be non-negative');
   if (goodPieces < 0) throw new Error('Good pieces must be non-negative');
@@ -29,9 +30,7 @@ export function calculateOEE(input: OEEInput): OEEResult {
   const availability = runTime / plannedProductionTime;
 
   // Performance (capped at 1.0 to handle measurement inaccuracies)
-  const performance = runTime > 0
-    ? Math.min((idealCycleTime * totalPieces) / runTime, 1.0)
-    : 0;
+  const performance = runTime > 0 ? Math.min((idealCycleTime * totalPieces) / runTime, 1.0) : 0;
 
   // Quality
   const quality = totalPieces > 0 ? goodPieces / totalPieces : 0;
@@ -72,7 +71,7 @@ export function calculateMTBF(failures: number, operatingHours: number): number 
  */
 export function calculateMTTR(repairTimes: number[]): number {
   if (repairTimes.length === 0) return 0;
-  if (repairTimes.some(t => t < 0)) throw new Error('Repair times must be non-negative');
+  if (repairTimes.some((t) => t < 0)) throw new Error('Repair times must be non-negative');
   const total = repairTimes.reduce((sum, t) => sum + t, 0);
   return total / repairTimes.length;
 }
@@ -95,6 +94,6 @@ export function getOEECategory(oee: number): OEECategory {
   if (oee >= 0.85) return 'world-class';
   if (oee >= 0.75) return 'good';
   if (oee >= 0.65) return 'average';
-  if (oee >= 0.50) return 'below-average';
+  if (oee >= 0.5) return 'below-average';
   return 'poor';
 }

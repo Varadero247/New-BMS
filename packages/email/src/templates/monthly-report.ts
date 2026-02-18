@@ -66,71 +66,130 @@ function trajectoryBadge(trajectory?: string | null): string {
 
 export function monthlyReportEmail(vars: MonthlyReportVars) {
   const { month, monthNumber, snapshot, planTarget } = vars;
-  const monthLabel = new Date(month + '-01').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  const monthLabel = new Date(month + '-01').toLocaleDateString('en-GB', {
+    month: 'long',
+    year: 'numeric',
+  });
   const alerts: string[] = Array.isArray(snapshot.aiAlerts) ? snapshot.aiAlerts : [];
-  const recommendations: unknown[] = Array.isArray(snapshot.aiRecommendations) ? snapshot.aiRecommendations : [];
+  const recommendations: unknown[] = Array.isArray(snapshot.aiRecommendations)
+    ? snapshot.aiRecommendations
+    : [];
   const greenFlags: string[] = [];
   const redFlags: string[] = [];
 
   // Classify alerts
   if (planTarget) {
-    if (Number(snapshot.mrr) >= Number(planTarget.plannedMrr)) greenFlags.push(`MRR at or above plan (${fmt(snapshot.mrr)})`);
-    else redFlags.push(`MRR below plan: ${fmt(snapshot.mrr)} vs ${fmt(planTarget.plannedMrr)} target`);
+    if (Number(snapshot.mrr) >= Number(planTarget.plannedMrr))
+      greenFlags.push(`MRR at or above plan (${fmt(snapshot.mrr)})`);
+    else
+      redFlags.push(`MRR below plan: ${fmt(snapshot.mrr)} vs ${fmt(planTarget.plannedMrr)} target`);
 
-    if (snapshot.customers >= planTarget.plannedCustomers) greenFlags.push(`Customer count on track (${snapshot.customers})`);
-    else redFlags.push(`Customers below plan: ${snapshot.customers} vs ${planTarget.plannedCustomers} target`);
+    if (snapshot.customers >= planTarget.plannedCustomers)
+      greenFlags.push(`Customer count on track (${snapshot.customers})`);
+    else
+      redFlags.push(
+        `Customers below plan: ${snapshot.customers} vs ${planTarget.plannedCustomers} target`
+      );
 
-    if (Number(snapshot.revenueChurnPct) <= Number(planTarget.plannedChurnPct)) greenFlags.push(`Churn within target (${pct(snapshot.revenueChurnPct)})`);
-    else redFlags.push(`Churn above target: ${pct(snapshot.revenueChurnPct)} vs ${pct(planTarget.plannedChurnPct)} plan`);
+    if (Number(snapshot.revenueChurnPct) <= Number(planTarget.plannedChurnPct))
+      greenFlags.push(`Churn within target (${pct(snapshot.revenueChurnPct)})`);
+    else
+      redFlags.push(
+        `Churn above target: ${pct(snapshot.revenueChurnPct)} vs ${pct(planTarget.plannedChurnPct)} plan`
+      );
   }
-  alerts.forEach(a => redFlags.push(a));
+  alerts.forEach((a) => redFlags.push(a));
 
   // Build KPI rows
   const kpiRows = [
-    { label: 'MRR', actual: fmt(snapshot.mrr), plan: planTarget ? fmt(planTarget.plannedMrr) : 'N/A', color: planTarget ? varianceColor(Number(snapshot.mrr), Number(planTarget.plannedMrr)) : '#6b7280' },
-    { label: 'ARR', actual: fmt(snapshot.arr), plan: planTarget ? fmt(Number(planTarget.plannedMrr) * 12) : 'N/A', color: planTarget ? varianceColor(Number(snapshot.arr), Number(planTarget.plannedMrr) * 12) : '#6b7280' },
-    { label: 'Customers', actual: String(snapshot.customers), plan: planTarget ? String(planTarget.plannedCustomers) : 'N/A', color: planTarget ? varianceColor(snapshot.customers, planTarget.plannedCustomers) : '#6b7280' },
-    { label: 'New Customers', actual: String(snapshot.newCustomers), plan: planTarget ? String(planTarget.plannedNewCustomers) : 'N/A', color: planTarget ? varianceColor(snapshot.newCustomers, planTarget.plannedNewCustomers) : '#6b7280' },
-    { label: 'Revenue Churn', actual: pct(snapshot.revenueChurnPct), plan: planTarget ? pct(planTarget.plannedChurnPct) : 'N/A', color: planTarget ? varianceColor(Number(planTarget.plannedChurnPct), Number(snapshot.revenueChurnPct)) : '#6b7280' },
+    {
+      label: 'MRR',
+      actual: fmt(snapshot.mrr),
+      plan: planTarget ? fmt(planTarget.plannedMrr) : 'N/A',
+      color: planTarget
+        ? varianceColor(Number(snapshot.mrr), Number(planTarget.plannedMrr))
+        : '#6b7280',
+    },
+    {
+      label: 'ARR',
+      actual: fmt(snapshot.arr),
+      plan: planTarget ? fmt(Number(planTarget.plannedMrr) * 12) : 'N/A',
+      color: planTarget
+        ? varianceColor(Number(snapshot.arr), Number(planTarget.plannedMrr) * 12)
+        : '#6b7280',
+    },
+    {
+      label: 'Customers',
+      actual: String(snapshot.customers),
+      plan: planTarget ? String(planTarget.plannedCustomers) : 'N/A',
+      color: planTarget
+        ? varianceColor(snapshot.customers, planTarget.plannedCustomers)
+        : '#6b7280',
+    },
+    {
+      label: 'New Customers',
+      actual: String(snapshot.newCustomers),
+      plan: planTarget ? String(planTarget.plannedNewCustomers) : 'N/A',
+      color: planTarget
+        ? varianceColor(snapshot.newCustomers, planTarget.plannedNewCustomers)
+        : '#6b7280',
+    },
+    {
+      label: 'Revenue Churn',
+      actual: pct(snapshot.revenueChurnPct),
+      plan: planTarget ? pct(planTarget.plannedChurnPct) : 'N/A',
+      color: planTarget
+        ? varianceColor(Number(planTarget.plannedChurnPct), Number(snapshot.revenueChurnPct))
+        : '#6b7280',
+    },
     { label: 'Pipeline', actual: fmt(snapshot.pipelineValue), plan: 'N/A', color: '#6b7280' },
     { label: 'Win Rate', actual: pct(snapshot.winRate), plan: 'N/A', color: '#6b7280' },
   ];
 
-  const kpiRowsHtml = kpiRows.map(r =>
-    `<tr>
+  const kpiRowsHtml = kpiRows
+    .map(
+      (r) =>
+        `<tr>
       <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-weight:500;">${r.label}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;text-align:right;">${r.plan}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;">${r.actual}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;text-align:center;"><span style="color:${r.color};font-weight:600;">${r.color === '#16a34a' ? '↑' : r.color === '#dc2626' ? '↓' : '—'}</span></td>
     </tr>`
-  ).join('');
+    )
+    .join('');
 
-  const greenFlagsHtml = greenFlags.length > 0
-    ? greenFlags.map(f => `<div style="padding:6px 0;">✅ ${f}</div>`).join('')
-    : '<div style="color:#6b7280;">No green flags this month</div>';
+  const greenFlagsHtml =
+    greenFlags.length > 0
+      ? greenFlags.map((f) => `<div style="padding:6px 0;">✅ ${f}</div>`).join('')
+      : '<div style="color:#6b7280;">No green flags this month</div>';
 
-  const redFlagsHtml = redFlags.length > 0
-    ? redFlags.map(f => `<div style="padding:6px 0;">🔴 ${f}</div>`).join('')
-    : '<div style="color:#6b7280;">No red flags — great month!</div>';
+  const redFlagsHtml =
+    redFlags.length > 0
+      ? redFlags.map((f) => `<div style="padding:6px 0;">🔴 ${f}</div>`).join('')
+      : '<div style="color:#6b7280;">No red flags — great month!</div>';
 
-  const recsHtml = recommendations.length > 0
-    ? `<table style="width:100%;border-collapse:collapse;margin-top:12px;">
+  const recsHtml =
+    recommendations.length > 0
+      ? `<table style="width:100%;border-collapse:collapse;margin-top:12px;">
         <thead><tr style="background:#f9fafb;">
           <th style="padding:8px 12px;text-align:left;font-size:12px;color:#6b7280;">Metric</th>
           <th style="padding:8px 12px;text-align:right;font-size:12px;color:#6b7280;">Current</th>
           <th style="padding:8px 12px;text-align:right;font-size:12px;color:#6b7280;">Suggested</th>
           <th style="padding:8px 12px;text-align:left;font-size:12px;color:#6b7280;">Rationale</th>
         </tr></thead>
-        <tbody>${recommendations.map((r: Record<string, unknown>) =>
-          `<tr>
+        <tbody>${recommendations
+          .map(
+            (r: Record<string, unknown>) =>
+              `<tr>
             <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">${r.metric}</td>
             <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(r.current)}</td>
             <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;">${fmt(r.suggested)}</td>
             <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#4b5563;">${r.rationale}</td>
           </tr>`
-        ).join('')}</tbody>
+          )
+          .join('')}</tbody>
       </table>`
-    : '<p style="color:#6b7280;">No recalibration proposals this month.</p>';
+      : '<p style="color:#6b7280;">No recalibration proposals this month.</p>';
 
   const platformUrl = process.env.PLATFORM_URL || 'https://app.nexara.io';
 

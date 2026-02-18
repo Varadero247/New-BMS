@@ -29,7 +29,9 @@ export const WithActions: Story = {
     description: 'Track and manage all physical assets.',
     actions: (
       <>
-        <Button variant="outline" size="sm">Import</Button>
+        <Button variant="outline" size="sm">
+          Import
+        </Button>
         <Button size="sm">+ Add Asset</Button>
       </>
     ),
@@ -55,7 +57,9 @@ export const WithBadge: Story = {
     badge: <Badge variant="info">Open</Badge>,
     actions: (
       <>
-        <Button variant="outline" size="sm">Assign</Button>
+        <Button variant="outline" size="sm">
+          Assign
+        </Button>
         <Button size="sm">Close Incident</Button>
       </>
     ),
@@ -74,8 +78,12 @@ export const FullFeatured: Story = {
     ],
     actions: (
       <>
-        <Button variant="outline" size="sm">Export PDF</Button>
-        <Button variant="outline" size="sm">Edit</Button>
+        <Button variant="outline" size="sm">
+          Export PDF
+        </Button>
+        <Button variant="outline" size="sm">
+          Edit
+        </Button>
         <Button size="sm">Complete Audit</Button>
       </>
     ),

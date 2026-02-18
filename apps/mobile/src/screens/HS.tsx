@@ -69,8 +69,22 @@ export default function HSScreen() {
         safetyMetrics: { ltifr: 2.4, trir: 4.8, severityRate: 12.5 },
       });
       setRecentIncidents([
-        { id: '1', referenceNumber: 'INC-2024-001', title: 'Slip and fall in warehouse', severity: 'MODERATE', status: 'OPEN', dateOccurred: '2024-01-15' },
-        { id: '2', referenceNumber: 'INC-2024-002', title: 'Near miss - forklift', severity: 'MAJOR', status: 'UNDER_INVESTIGATION', dateOccurred: '2024-01-14' },
+        {
+          id: '1',
+          referenceNumber: 'INC-2024-001',
+          title: 'Slip and fall in warehouse',
+          severity: 'MODERATE',
+          status: 'OPEN',
+          dateOccurred: '2024-01-15',
+        },
+        {
+          id: '2',
+          referenceNumber: 'INC-2024-002',
+          title: 'Near miss - forklift',
+          severity: 'MAJOR',
+          status: 'UNDER_INVESTIGATION',
+          dateOccurred: '2024-01-14',
+        },
       ]);
     } finally {
       setLoading(false);
@@ -132,15 +146,10 @@ export default function HSScreen() {
         {/* Quick Links */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           {quickLinks.map((link) => (
-            <div
-              key={link.label}
-              className="bg-gray-50 rounded-xl p-3 flex flex-col items-center"
-            >
+            <div key={link.label} className="bg-gray-50 rounded-xl p-3 flex flex-col items-center">
               <link.icon className={`w-5 h-5 ${link.color} mb-1`} />
               <span className="text-xs font-medium">{link.label}</span>
-              {link.count !== null && (
-                <span className="text-lg font-bold">{link.count}</span>
-              )}
+              {link.count !== null && <span className="text-lg font-bold">{link.count}</span>}
             </div>
           ))}
         </div>
@@ -202,18 +211,18 @@ export default function HSScreen() {
         <div className="space-y-2 pb-4">
           {recentIncidents.length > 0 ? (
             recentIncidents.map((incident) => (
-              <div
-                key={incident.id}
-                className="bg-gray-50 rounded-xl p-4"
-              >
+              <div key={incident.id} className="bg-gray-50 rounded-xl p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <p className="font-medium text-sm">{incident.title}</p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {incident.referenceNumber} • {new Date(incident.dateOccurred).toLocaleDateString()}
+                      {incident.referenceNumber} •{' '}
+                      {new Date(incident.dateOccurred).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(incident.severity)}`}>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(incident.severity)}`}
+                  >
                     {incident.severity}
                   </span>
                 </div>

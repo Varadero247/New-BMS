@@ -140,7 +140,9 @@ export default function RisksPage() {
               <AlertTriangle className="h-6 w-6 text-blue-600" />
               Project Risks
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Risk register and management</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+              Risk register and management
+            </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -155,7 +157,9 @@ export default function RisksPage() {
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-4 mb-6">
           <div className="flex items-center gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Filter by Project
+              </label>
               <select
                 value={filterProjectId}
                 onChange={(e) => setFilterProjectId(e.target.value)}
@@ -163,12 +167,16 @@ export default function RisksPage() {
               >
                 <option value="">All Projects</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Risk Level</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Filter by Risk Level
+              </label>
               <select
                 value={filterRiskLevel}
                 onChange={(e) => setFilterRiskLevel(e.target.value)}
@@ -189,16 +197,36 @@ export default function RisksPage() {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Code</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Category</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Prob</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Impact</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Score</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Level</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Strategy</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Code
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Title
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Category
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Prob
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Impact
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Score
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Level
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Strategy
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -207,20 +235,34 @@ export default function RisksPage() {
                   const level = risk.riskLevel || getRiskLevel(score);
                   return (
                     <tr key={risk.id} className="hover:bg-gray-50 dark:bg-gray-800">
-                      <td className="px-4 py-3 text-sm font-mono text-gray-900 dark:text-gray-100">{risk.riskCode}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{risk.riskTitle}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{risk.riskCategory}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{risk.probability}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{risk.impact}</td>
+                      <td className="px-4 py-3 text-sm font-mono text-gray-900 dark:text-gray-100">
+                        {risk.riskCode}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                        {risk.riskTitle}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                        {risk.riskCategory}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                        {risk.probability}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                        {risk.impact}
+                      </td>
                       <td className="px-4 py-3 text-sm font-bold">{score}</td>
                       <td className="px-4 py-3">
                         <span className={`text-xs px-2 py-1 rounded-full ${riskLevelBadge(level)}`}>
                           {level}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{risk.responseStrategy}</td>
+                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                        {risk.responseStrategy}
+                      </td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs px-2 py-1 rounded-full ${statusBadge(risk.status)}`}>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full ${statusBadge(risk.status)}`}
+                        >
                           {risk.status}
                         </span>
                       </td>
@@ -239,7 +281,10 @@ export default function RisksPage() {
                 })}
                 {risks.length === 0 && (
                   <tr>
-                    <td colSpan={10} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={10}
+                      className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
+                    >
                       No risks found. Create your first risk.
                     </td>
                   </tr>
@@ -253,7 +298,9 @@ export default function RisksPage() {
         <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Risk" size="lg">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Project
+              </label>
               <select
                 required
                 value={form.projectId}
@@ -262,13 +309,17 @@ export default function RisksPage() {
               >
                 <option value="">Select Project</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.projectName}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.projectName}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Risk Code</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Risk Code
+                </label>
                 <input
                   type="text"
                   required
@@ -278,7 +329,9 @@ export default function RisksPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Risk Title</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Risk Title
+                </label>
                 <input
                   type="text"
                   required
@@ -290,7 +343,9 @@ export default function RisksPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Category
+                </label>
                 <select
                   value={form.riskCategory}
                   onChange={(e) => setForm({ ...form, riskCategory: e.target.value })}
@@ -307,7 +362,9 @@ export default function RisksPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Response Strategy</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Response Strategy
+                </label>
                 <select
                   value={form.responseStrategy}
                   onChange={(e) => setForm({ ...form, responseStrategy: e.target.value })}
@@ -324,7 +381,9 @@ export default function RisksPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Probability (1-5)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Probability (1-5)
+                </label>
                 <input
                   type="number"
                   min={1}
@@ -336,7 +395,9 @@ export default function RisksPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Impact (1-5)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Impact (1-5)
+                </label>
                 <input
                   type="number"
                   min={1}
@@ -351,16 +412,26 @@ export default function RisksPage() {
             <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <p className="text-sm text-gray-600">
                 Risk Score: <span className="font-bold">{form.probability * form.impact}</span> |
-                Level: <span className={`font-bold ${
-                  getRiskLevel(form.probability * form.impact) === 'CRITICAL' ? 'text-red-600' :
-                  getRiskLevel(form.probability * form.impact) === 'HIGH' ? 'text-orange-600' :
-                  getRiskLevel(form.probability * form.impact) === 'MEDIUM' ? 'text-amber-600' :
-                  'text-green-600'
-                }`}>{getRiskLevel(form.probability * form.impact)}</span>
+                Level:{' '}
+                <span
+                  className={`font-bold ${
+                    getRiskLevel(form.probability * form.impact) === 'CRITICAL'
+                      ? 'text-red-600'
+                      : getRiskLevel(form.probability * form.impact) === 'HIGH'
+                        ? 'text-orange-600'
+                        : getRiskLevel(form.probability * form.impact) === 'MEDIUM'
+                          ? 'text-amber-600'
+                          : 'text-green-600'
+                  }`}
+                >
+                  {getRiskLevel(form.probability * form.impact)}
+                </span>
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Description
+              </label>
               <textarea
                 rows={3}
                 value={form.riskDescription}
@@ -387,9 +458,16 @@ export default function RisksPage() {
         </Modal>
 
         {/* AI Result Modal */}
-        <Modal isOpen={showAiModal} onClose={() => setShowAiModal(false)} title="AI Risk Analysis" size="lg">
+        <Modal
+          isOpen={showAiModal}
+          onClose={() => setShowAiModal(false)}
+          title="AI Risk Analysis"
+          size="lg"
+        >
           <div className="prose max-w-none">
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">{aiResult}</pre>
+            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+              {aiResult}
+            </pre>
           </div>
           <div className="flex justify-end pt-4">
             <button

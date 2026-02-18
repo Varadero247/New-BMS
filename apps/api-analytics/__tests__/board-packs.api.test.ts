@@ -82,7 +82,11 @@ describe('GET /api/board-packs', () => {
 // ===================================================================
 describe('GET /api/board-packs/:id', () => {
   it('should return a board pack by ID', async () => {
-    const boardPack = { id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT', generatedAt: new Date() };
+    const boardPack = {
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'DRAFT',
+      generatedAt: new Date(),
+    };
     (prisma as any).boardPack.findUnique.mockResolvedValue(boardPack);
 
     const res = await request(app).get('/api/board-packs/00000000-0000-0000-0000-000000000001');
@@ -121,7 +125,9 @@ describe('PATCH /api/board-packs/:id', () => {
     (prisma as any).boardPack.findUnique.mockResolvedValue(existing);
     (prisma as any).boardPack.update.mockResolvedValue(updated);
 
-    const res = await request(app).patch('/api/board-packs/00000000-0000-0000-0000-000000000001').send({ status: 'FINAL' });
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'FINAL' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -134,7 +140,9 @@ describe('PATCH /api/board-packs/:id', () => {
     (prisma as any).boardPack.findUnique.mockResolvedValue(existing);
     (prisma as any).boardPack.update.mockResolvedValue(updated);
 
-    const res = await request(app).patch('/api/board-packs/00000000-0000-0000-0000-000000000001').send({ status: 'DISTRIBUTED' });
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'DISTRIBUTED' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('DISTRIBUTED');
@@ -144,7 +152,9 @@ describe('PATCH /api/board-packs/:id', () => {
     const existing = { id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' };
     (prisma as any).boardPack.findUnique.mockResolvedValue(existing);
 
-    const res = await request(app).patch('/api/board-packs/00000000-0000-0000-0000-000000000001').send({ status: 'DISTRIBUTED' });
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'DISTRIBUTED' });
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INVALID_TRANSITION');
@@ -154,7 +164,9 @@ describe('PATCH /api/board-packs/:id', () => {
     const existing = { id: '00000000-0000-0000-0000-000000000001', status: 'DISTRIBUTED' };
     (prisma as any).boardPack.findUnique.mockResolvedValue(existing);
 
-    const res = await request(app).patch('/api/board-packs/00000000-0000-0000-0000-000000000001').send({ status: 'DRAFT' });
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'DRAFT' });
 
     expect(res.status).toBe(400);
   });
@@ -162,7 +174,9 @@ describe('PATCH /api/board-packs/:id', () => {
   it('should return 404 for a non-existent board pack', async () => {
     (prisma as any).boardPack.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).patch('/api/board-packs/00000000-0000-0000-0000-000000000099').send({ status: 'FINAL' });
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000099')
+      .send({ status: 'FINAL' });
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -172,7 +186,9 @@ describe('PATCH /api/board-packs/:id', () => {
     const existing = { id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' };
     (prisma as any).boardPack.findUnique.mockResolvedValue(existing);
 
-    const res = await request(app).patch('/api/board-packs/00000000-0000-0000-0000-000000000001').send({ status: 'INVALID_STATUS' });
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'INVALID_STATUS' });
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -181,7 +197,9 @@ describe('PATCH /api/board-packs/:id', () => {
   it('should handle server errors', async () => {
     (prisma as any).boardPack.findUnique.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).patch('/api/board-packs/00000000-0000-0000-0000-000000000001').send({ status: 'FINAL' });
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'FINAL' });
 
     expect(res.status).toBe(500);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

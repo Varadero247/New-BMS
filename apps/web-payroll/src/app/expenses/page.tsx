@@ -185,7 +185,9 @@ export default function ExpensesPage() {
                     description: expenses[0]?.description || '',
                     merchant: expenses[0]?.merchant || '',
                     isBillable: expenses[0]?.isBillable || false,
-                    recentClaims: expenses.slice(0, 5).map(e => ({ amount: e.amount, category: e.category })),
+                    recentClaims: expenses
+                      .slice(0, 5)
+                      .map((e) => ({ amount: e.amount, category: e.category })),
                   },
                 });
                 setAiResult(res.data.data.result);
@@ -226,7 +228,12 @@ export default function ExpensesPage() {
               Dismiss
             </button>
           </div>
-          <AIDisclosure variant="inline" provider="claude" analysisType="Expense Analysis" confidence={0.85} />
+          <AIDisclosure
+            variant="inline"
+            provider="claude"
+            analysisType="Expense Analysis"
+            confidence={0.85}
+          />
           <div className="space-y-3 mt-3">
             <div className="flex items-center space-x-3">
               <span
@@ -241,8 +248,8 @@ export default function ExpensesPage() {
                   aiResult.riskLevel === 'LOW'
                     ? 'bg-green-100 text-green-800'
                     : aiResult.riskLevel === 'MEDIUM'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-red-100 text-red-800'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
                 }`}
               >
                 Risk: {aiResult.riskLevel}
@@ -250,7 +257,9 @@ export default function ExpensesPage() {
             </div>
             {aiResult.policyChecks && aiResult.policyChecks.length > 0 && (
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Policy Checks:</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Policy Checks:
+                </p>
                 <ul className="mt-1 list-inside list-disc text-sm text-gray-600">
                   {aiResult.policyChecks.map((check: any, i: number) => (
                     <li key={i}>
@@ -265,7 +274,9 @@ export default function ExpensesPage() {
             )}
             {aiResult.approvalRecommendation && (
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Recommendation:</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Recommendation:
+                </p>
                 <p className="text-sm text-gray-600">{aiResult.approvalRecommendation}</p>
               </div>
             )}
@@ -404,7 +415,9 @@ export default function ExpensesPage() {
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center space-x-2">
                       <Receipt className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                      <span className="font-medium text-gray-900 dark:text-gray-100">{expense.expenseNumber}</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        {expense.expenseNumber}
+                      </span>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
@@ -412,18 +425,24 @@ export default function ExpensesPage() {
                       <p className="font-medium text-gray-900 dark:text-gray-100">
                         {expense.employee.firstName} {expense.employee.lastName}
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{expense.employee.employeeNumber}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {expense.employee.employeeNumber}
+                      </p>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getCategoryBadge(expense.category)}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getCategoryBadge(expense.category)}`}
+                    >
                       {expense.category.replace(/_/g, ' ')}
                     </span>
                   </td>
                   <td className="max-w-xs truncate px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {expense.description}
                     {expense.merchant && (
-                      <span className="block text-xs text-gray-400 dark:text-gray-500">@ {expense.merchant}</span>
+                      <span className="block text-xs text-gray-400 dark:text-gray-500">
+                        @ {expense.merchant}
+                      </span>
                     )}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-gray-100">
@@ -433,7 +452,9 @@ export default function ExpensesPage() {
                     {new Date(expense.expenseDate).toLocaleDateString()}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(expense.status)}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(expense.status)}`}
+                    >
                       {expense.status}
                     </span>
                   </td>
@@ -465,11 +486,18 @@ export default function ExpensesPage() {
       </div>
 
       {/* Create Expense Modal */}
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Expense" size="lg">
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title="Create Expense"
+        size="lg"
+      >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Employee ID</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Employee ID
+              </label>
               <input
                 type="text"
                 value={formData.employeeId}
@@ -480,7 +508,9 @@ export default function ExpensesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Category
+              </label>
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -501,7 +531,9 @@ export default function ExpensesPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Description
+            </label>
             <input
               type="text"
               value={formData.description}
@@ -512,7 +544,9 @@ export default function ExpensesPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Merchant</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Merchant
+              </label>
               <input
                 type="text"
                 value={formData.merchant}
@@ -522,7 +556,9 @@ export default function ExpensesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Amount
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -535,7 +571,9 @@ export default function ExpensesPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Currency</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Currency
+              </label>
               <input
                 type="text"
                 value={formData.currency}
@@ -544,7 +582,9 @@ export default function ExpensesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Expense Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Expense Date
+              </label>
               <input
                 type="date"
                 value={formData.expenseDate}
@@ -556,7 +596,9 @@ export default function ExpensesPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Project Code</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Project Code
+              </label>
               <input
                 type="text"
                 value={formData.projectCode}
@@ -566,7 +608,9 @@ export default function ExpensesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Cost Center</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Cost Center
+              </label>
               <input
                 type="text"
                 value={formData.costCenter}
@@ -586,7 +630,9 @@ export default function ExpensesPage() {
             <label className="text-sm text-gray-700 dark:text-gray-300">Billable</label>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Notes
+            </label>
             <textarea
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}

@@ -48,7 +48,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/digest', digestRouter);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('POST /api/digest/trigger', () => {
   it('generates digest data', async () => {

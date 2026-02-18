@@ -86,7 +86,7 @@ export default function InfoSecDashboard() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
           <div className="grid grid-cols-3 gap-4">
-            {[1, 2, 3, 4, 5, 6].map(i => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
             ))}
           </div>
@@ -169,7 +169,16 @@ export default function InfoSecDashboard() {
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
             <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-            <button onClick={() => { setError(''); setLoading(true); loadDashboard(); }} className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0">Retry</button>
+            <button
+              onClick={() => {
+                setError('');
+                setLoading(true);
+                loadDashboard();
+              }}
+              className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0"
+            >
+              Retry
+            </button>
           </div>
         )}
 
@@ -185,7 +194,9 @@ export default function InfoSecDashboard() {
                       <div>
                         <p className="text-sm text-gray-500 dark:text-gray-400">{card.title}</p>
                         <p className={`text-2xl font-bold ${card.valueColor}`}>{card.value}</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{card.subtitle}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                          {card.subtitle}
+                        </p>
                       </div>
                       <div className={`p-3 rounded-full ${card.bgColor}`}>
                         <Icon className={`h-6 w-6 ${card.iconColor}`} />
@@ -211,14 +222,18 @@ export default function InfoSecDashboard() {
                   const pct = total > 0 ? (item.count / total) * 100 : 0;
                   return (
                     <div key={item.level} className="flex items-center gap-4">
-                      <span className="text-sm font-medium text-gray-600 w-24">{item.level.replace('_', ' ')}</span>
+                      <span className="text-sm font-medium text-gray-600 w-24">
+                        {item.level.replace('_', ' ')}
+                      </span>
                       <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-full h-6 overflow-hidden">
                         <div
                           className={`h-full rounded-full ${riskLevelColors[item.level] || 'bg-gray-400'}`}
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <span className="text-sm font-bold text-gray-700 dark:text-gray-300 w-8 text-right">{item.count}</span>
+                      <span className="text-sm font-bold text-gray-700 dark:text-gray-300 w-8 text-right">
+                        {item.count}
+                      </span>
                     </div>
                   );
                 })}
@@ -243,27 +258,50 @@ export default function InfoSecDashboard() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Title</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Type</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Severity</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Reported</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Ref
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Title
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Type
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Severity
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Status
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Reported
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.recentIncidents.map((incident) => (
-                      <tr key={incident.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
-                        <td className="py-3 px-4 font-mono text-xs text-gray-600">{incident.referenceNumber}</td>
-                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">{incident.title}</td>
+                      <tr
+                        key={incident.id}
+                        className="border-b hover:bg-gray-50 dark:hover:bg-gray-800"
+                      >
+                        <td className="py-3 px-4 font-mono text-xs text-gray-600">
+                          {incident.referenceNumber}
+                        </td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100">
+                          {incident.title}
+                        </td>
                         <td className="py-3 px-4 text-gray-600">{incident.type}</td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${severityColors[incident.severity] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${severityColors[incident.severity] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                          >
                             {incident.severity}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-gray-600">{incident.status}</td>
-                        <td className="py-3 px-4 text-gray-600">{new Date(incident.reportedDate).toLocaleDateString()}</td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {new Date(incident.reportedDate).toLocaleDateString()}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

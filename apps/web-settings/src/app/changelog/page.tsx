@@ -18,10 +18,22 @@ interface ChangelogEntry {
 }
 
 const categoryLabels: Record<ChangelogCategory, { label: string; className: string }> = {
-  new_feature: { label: 'New Feature', className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
-  improvement: { label: 'Improvement', className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
-  bug_fix: { label: 'Bug Fix', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
-  security: { label: 'Security', className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
+  new_feature: {
+    label: 'New Feature',
+    className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+  },
+  improvement: {
+    label: 'Improvement',
+    className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  },
+  bug_fix: {
+    label: 'Bug Fix',
+    className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  },
+  security: {
+    label: 'Security',
+    className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+  },
 };
 
 export default function ChangelogPage() {
@@ -75,7 +87,10 @@ export default function ChangelogPage() {
           title: title.trim(),
           description: description.trim(),
           category,
-          modules: modules.split(',').map((m) => m.trim()).filter(Boolean),
+          modules: modules
+            .split(',')
+            .map((m) => m.trim())
+            .filter(Boolean),
           isPublished,
         }),
       });
@@ -159,7 +174,9 @@ export default function ChangelogPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Modules (comma-separated)</label>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Modules (comma-separated)
+                </label>
                 <input
                   type="text"
                   value={modules}
@@ -178,7 +195,9 @@ export default function ChangelogPage() {
                 className="h-4 w-4 rounded border-gray-300 text-brand-600"
                 id="isPublished"
               />
-              <label htmlFor="isPublished" className="text-sm text-foreground">Publish immediately</label>
+              <label htmlFor="isPublished" className="text-sm text-foreground">
+                Publish immediately
+              </label>
             </div>
 
             <div className="flex justify-end">
@@ -197,9 +216,13 @@ export default function ChangelogPage() {
       {/* Entries list */}
       <div className="mt-6 space-y-4">
         {loading ? (
-          <div className="text-center py-12 text-muted-foreground text-sm">Loading changelog entries...</div>
+          <div className="text-center py-12 text-muted-foreground text-sm">
+            Loading changelog entries...
+          </div>
         ) : entries.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground text-sm">No changelog entries yet. Create one above.</div>
+          <div className="text-center py-12 text-muted-foreground text-sm">
+            No changelog entries yet. Create one above.
+          </div>
         ) : (
           entries.map((entry) => {
             const chip = categoryLabels[entry.category];
@@ -217,7 +240,9 @@ export default function ChangelogPage() {
                     )}
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(entry.publishedAt).toLocaleDateString('en-US', { dateStyle: 'medium' })}
+                    {new Date(entry.publishedAt).toLocaleDateString('en-US', {
+                      dateStyle: 'medium',
+                    })}
                   </span>
                 </div>
                 <h4 className="text-sm font-semibold text-foreground">{entry.title}</h4>
@@ -225,7 +250,10 @@ export default function ChangelogPage() {
                 {entry.modules.length > 0 && (
                   <div className="flex gap-1 mt-2">
                     {entry.modules.map((mod) => (
-                      <span key={mod} className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-muted text-muted-foreground">
+                      <span
+                        key={mod}
+                        className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-muted text-muted-foreground"
+                      >
                         {mod}
                       </span>
                     ))}

@@ -154,11 +154,16 @@ describe('Releases Routes', () => {
   describe('PUT /api/releases/:id', () => {
     it('should update a release', async () => {
       (prisma.qualRelease.findFirst as jest.Mock).mockResolvedValue(mockRelease);
-      (prisma.qualRelease.update as jest.Mock).mockResolvedValue({ ...mockRelease, decision: 'APPROVED' });
-
-      const res = await request(app).put('/api/releases/00000000-0000-0000-0000-000000000001').send({
+      (prisma.qualRelease.update as jest.Mock).mockResolvedValue({
+        ...mockRelease,
         decision: 'APPROVED',
       });
+
+      const res = await request(app)
+        .put('/api/releases/00000000-0000-0000-0000-000000000001')
+        .send({
+          decision: 'APPROVED',
+        });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.decision).toBe('APPROVED');
@@ -167,9 +172,11 @@ describe('Releases Routes', () => {
     it('should return 404 if not found', async () => {
       (prisma.qualRelease.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/releases/00000000-0000-0000-0000-000000000099').send({
-        decision: 'APPROVED',
-      });
+      const res = await request(app)
+        .put('/api/releases/00000000-0000-0000-0000-000000000099')
+        .send({
+          decision: 'APPROVED',
+        });
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
     });
@@ -178,9 +185,11 @@ describe('Releases Routes', () => {
       (prisma.qualRelease.findFirst as jest.Mock).mockResolvedValue(mockRelease);
       (prisma.qualRelease.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).put('/api/releases/00000000-0000-0000-0000-000000000001').send({
-        decision: 'APPROVED',
-      });
+      const res = await request(app)
+        .put('/api/releases/00000000-0000-0000-0000-000000000001')
+        .send({
+          decision: 'APPROVED',
+        });
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
@@ -196,9 +205,11 @@ describe('Releases Routes', () => {
         authorisedAt: '2026-02-13T00:00:00.000Z',
       });
 
-      const res = await request(app).put('/api/releases/00000000-0000-0000-0000-000000000001/authorise').send({
-        decision: 'APPROVED',
-      });
+      const res = await request(app)
+        .put('/api/releases/00000000-0000-0000-0000-000000000001/authorise')
+        .send({
+          decision: 'APPROVED',
+        });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.authorisedBy).toBe('user-123');
@@ -207,9 +218,11 @@ describe('Releases Routes', () => {
     it('should return 404 if release not found for authorise', async () => {
       (prisma.qualRelease.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/releases/00000000-0000-0000-0000-000000000099/authorise').send({
-        decision: 'APPROVED',
-      });
+      const res = await request(app)
+        .put('/api/releases/00000000-0000-0000-0000-000000000099/authorise')
+        .send({
+          decision: 'APPROVED',
+        });
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
     });
@@ -218,9 +231,11 @@ describe('Releases Routes', () => {
       (prisma.qualRelease.findFirst as jest.Mock).mockResolvedValue(mockRelease);
       (prisma.qualRelease.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).put('/api/releases/00000000-0000-0000-0000-000000000001/authorise').send({
-        decision: 'APPROVED',
-      });
+      const res = await request(app)
+        .put('/api/releases/00000000-0000-0000-0000-000000000001/authorise')
+        .send({
+          decision: 'APPROVED',
+        });
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
@@ -229,7 +244,10 @@ describe('Releases Routes', () => {
   describe('DELETE /api/releases/:id', () => {
     it('should soft delete a release', async () => {
       (prisma.qualRelease.findFirst as jest.Mock).mockResolvedValue(mockRelease);
-      (prisma.qualRelease.update as jest.Mock).mockResolvedValue({ ...mockRelease, deletedAt: new Date().toISOString() });
+      (prisma.qualRelease.update as jest.Mock).mockResolvedValue({
+        ...mockRelease,
+        deletedAt: new Date().toISOString(),
+      });
 
       const res = await request(app).delete('/api/releases/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);

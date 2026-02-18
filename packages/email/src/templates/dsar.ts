@@ -32,7 +32,11 @@ const TYPE_LABELS: Record<string, string> = {
   OBJECTION: 'Objection to Processing (Article 21)',
 };
 
-export function dsarAcknowledgmentEmail(vars: DsarAcknowledgmentVars): { subject: string; html: string; text: string } {
+export function dsarAcknowledgmentEmail(vars: DsarAcknowledgmentVars): {
+  subject: string;
+  html: string;
+  text: string;
+} {
   const typeLabel = TYPE_LABELS[vars.requestType] || vars.requestType;
 
   const subject = `Your data request has been received — ${typeLabel}`;
@@ -64,7 +68,11 @@ The Nexara Data Protection Team`;
   return { subject, html, text };
 }
 
-export function dsarCompletionEmail(vars: DsarCompletionVars): { subject: string; html: string; text: string } {
+export function dsarCompletionEmail(vars: DsarCompletionVars): {
+  subject: string;
+  html: string;
+  text: string;
+} {
   const typeLabel = TYPE_LABELS[vars.requestType] || vars.requestType;
 
   const subject = `Your data request has been completed — ${typeLabel}`;

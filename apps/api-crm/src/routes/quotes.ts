@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate , type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
@@ -45,9 +45,14 @@ async function generateRefNumber(): Promise<string> {
   return `${prefix}-${String(count + 1).padStart(4, '0')}`;
 }
 
-function calculateLine(line: { quantity: number; unitPrice: number; discount: number; taxRate: number }) {
+function calculateLine(line: {
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+  taxRate: number;
+}) {
   const subtotal = line.quantity * line.unitPrice * (1 - line.discount / 100);
-  const taxAmount = subtotal * line.taxRate / 100;
+  const taxAmount = (subtotal * line.taxRate) / 100;
   const total = subtotal + taxAmount;
   return {
     subtotal: Math.round(subtotal * 100) / 100,
@@ -63,7 +68,10 @@ router.post('/', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -112,8 +120,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Quote created', { quoteId: quote.id, refNumber });
     return res.status(201).json({ success: true, data: quote });
   } catch (error: unknown) {
-    logger.error('Failed to create quote', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create quote' } });
+    logger.error('Failed to create quote', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create quote' },
+    });
   }
 });
 
@@ -148,8 +161,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list quotes', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list quotes' } });
+    logger.error('Failed to list quotes', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list quotes' },
+    });
   }
 });
 
@@ -162,13 +180,19 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!quote) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
     }
 
     return res.json({ success: true, data: quote });
   } catch (error: unknown) {
-    logger.error('Failed to get quote', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get quote' } });
+    logger.error('Failed to get quote', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get quote' } });
   }
 });
 
@@ -180,7 +204,9 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
     }
 
     if (existing.status !== 'DRAFT') {
@@ -194,7 +220,10 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: validation.error.errors.map((e) => e.message).join(', ') },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validation.error.errors.map((e) => e.message).join(', '),
+        },
       });
     }
 
@@ -249,8 +278,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Quote updated', { quoteId: quote.id });
     return res.json({ success: true, data: quote });
   } catch (error: unknown) {
-    logger.error('Failed to update quote', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update quote' } });
+    logger.error('Failed to update quote', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update quote' },
+    });
   }
 });
 
@@ -262,7 +296,9 @@ router.post('/:id/send', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
     }
 
     if (existing.status !== 'DRAFT') {
@@ -280,8 +316,12 @@ router.post('/:id/send', async (req: Request, res: Response) => {
     logger.info('Quote sent', { quoteId: quote.id });
     return res.json({ success: true, data: quote });
   } catch (error: unknown) {
-    logger.error('Failed to send quote', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to send quote' } });
+    logger.error('Failed to send quote', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to send quote' } });
   }
 });
 
@@ -293,7 +333,9 @@ router.post('/:id/accept', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
     }
 
     if (existing.status !== 'SENT') {
@@ -311,8 +353,13 @@ router.post('/:id/accept', async (req: Request, res: Response) => {
     logger.info('Quote accepted', { quoteId: quote.id });
     return res.json({ success: true, data: quote });
   } catch (error: unknown) {
-    logger.error('Failed to accept quote', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to accept quote' } });
+    logger.error('Failed to accept quote', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to accept quote' },
+    });
   }
 });
 
@@ -320,33 +367,48 @@ router.post('/:id/accept', async (req: Request, res: Response) => {
 // PDF builder — generates a PDF-1.4 quote document (pure Node, no deps)
 // ---------------------------------------------------------------------------
 function pdfEsc(s: string): string {
-  return String(s ?? '').replace(/[^\x20-\x7E]/g, '').replace(/[\\()]/g, (c) => `\\${c}`);
+  return String(s ?? '')
+    .replace(/[^\x20-\x7E]/g, '')
+    .replace(/[\\()]/g, (c) => `\\${c}`);
 }
 
 function buildQuotePdf(quote: Record<string, unknown>): Buffer {
-  const lines: Record<string, unknown>[] = Array.isArray(quote.lines) ? (quote.lines as Record<string, unknown>[]) : [];
+  const lines: Record<string, unknown>[] = Array.isArray(quote.lines)
+    ? (quote.lines as Record<string, unknown>[])
+    : [];
   const ref = pdfEsc(String(quote.refNumber ?? ''));
   const title = pdfEsc(String(quote.title ?? 'Quote'));
   const status = pdfEsc(String(quote.status ?? ''));
   const currency = pdfEsc(String(quote.currency ?? 'GBP'));
   const fmt = (v: unknown) => Number(v ?? 0).toFixed(2);
-  const validUntil = quote.validUntil ? new Date(quote.validUntil as string).toLocaleDateString('en-GB') : 'N/A';
+  const validUntil = quote.validUntil
+    ? new Date(quote.validUntil as string).toLocaleDateString('en-GB')
+    : 'N/A';
   const generatedAt = new Date().toLocaleDateString('en-GB');
 
-  const pageWidth = 595; const pageHeight = 842;
-  const ml = 50; const mr = pageWidth - 50; const contentW = mr - ml;
+  const pageWidth = 595;
+  const pageHeight = 842;
+  const ml = 50;
+  const mr = pageWidth - 50;
+  const contentW = mr - ml;
 
   const objs: string[] = [];
-  const addObj = (content: string) => { objs.push(content); return objs.length; };
+  const addObj = (content: string) => {
+    objs.push(content);
+    return objs.length;
+  };
 
   // Build content stream
   const parts: string[] = [];
   const y = { v: pageHeight - 70 };
-  const ln = (n = 1) => { y.v -= n * 14; };
+  const ln = (n = 1) => {
+    y.v -= n * 14;
+  };
   const text = (x: number, txt: string, font: string, size: number) =>
     parts.push(`BT /${font} ${size} Tf ${x} ${y.v} Td (${pdfEsc(txt)}) Tj ET`);
   const hline = (yy: number) => parts.push(`${ml} ${yy} m ${mr} ${yy} l S`);
-  const rect = (x: number, yy: number, w: number, h: number) => parts.push(`${x} ${yy} ${w} ${h} re f`);
+  const rect = (x: number, yy: number, w: number, h: number) =>
+    parts.push(`${x} ${yy} ${w} ${h} re f`);
 
   // Header band
   rect(0, pageHeight - 60, pageWidth, 60);
@@ -354,16 +416,27 @@ function buildQuotePdf(quote: Record<string, unknown>): Buffer {
   rect(0, pageHeight - 60, pageWidth, 60);
   parts.push('1 g');
   parts.push(`BT /F2 20 Tf 50 ${pageHeight - 38} Td (QUOTE) Tj ET`);
-  parts.push(`BT /F1 10 Tf ${pageWidth - 200} ${pageHeight - 38} Td (${pdfEsc('Nexara IMS')}) Tj ET`);
+  parts.push(
+    `BT /F1 10 Tf ${pageWidth - 200} ${pageHeight - 38} Td (${pdfEsc('Nexara IMS')}) Tj ET`
+  );
   parts.push('0 g');
 
   y.v = pageHeight - 85;
 
   // Quote details
-  text(ml, `Reference: ${ref}`, 'F2', 10); ln();
-  text(ml, `Title: ${title}`, 'F1', 9); ln();
-  text(ml, `Status: ${status}   |   Valid Until: ${validUntil}   |   Date: ${generatedAt}`, 'F1', 9); ln(1.5);
-  hline(y.v + 5); ln(0.5);
+  text(ml, `Reference: ${ref}`, 'F2', 10);
+  ln();
+  text(ml, `Title: ${title}`, 'F1', 9);
+  ln();
+  text(
+    ml,
+    `Status: ${status}   |   Valid Until: ${validUntil}   |   Date: ${generatedAt}`,
+    'F1',
+    9
+  );
+  ln(1.5);
+  hline(y.v + 5);
+  ln(0.5);
 
   // Line items header
   parts.push('0.9 g');
@@ -391,29 +464,41 @@ function buildQuotePdf(quote: Record<string, unknown>): Buffer {
     if (y.v < 100) break;
   }
 
-  ln(0.5); hline(y.v + 5); ln(1.5);
+  ln(0.5);
+  hline(y.v + 5);
+  ln(1.5);
 
   // Totals
   const totalX = ml + 340;
-  text(totalX, `Subtotal: ${currency} ${fmt(quote.subtotal)}`, 'F1', 9); ln();
-  text(totalX, `Tax:      ${currency} ${fmt(quote.taxTotal)}`, 'F1', 9); ln();
+  text(totalX, `Subtotal: ${currency} ${fmt(quote.subtotal)}`, 'F1', 9);
+  ln();
+  text(totalX, `Tax:      ${currency} ${fmt(quote.taxTotal)}`, 'F1', 9);
+  ln();
   parts.push('0.2 0.4 0.7 rg');
-  text(totalX, `TOTAL:    ${currency} ${fmt(quote.total)}`, 'F2', 11); ln(1.5);
+  text(totalX, `TOTAL:    ${currency} ${fmt(quote.total)}`, 'F2', 11);
+  ln(1.5);
   parts.push('0 g');
 
-  if (quote.notes) { text(ml, `Notes: ${String(quote.notes).substring(0, 100)}`, 'F1', 8); ln(); }
-  if (quote.terms) { text(ml, `Terms: ${String(quote.terms).substring(0, 100)}`, 'F1', 8); }
+  if (quote.notes) {
+    text(ml, `Notes: ${String(quote.notes).substring(0, 100)}`, 'F1', 8);
+    ln();
+  }
+  if (quote.terms) {
+    text(ml, `Terms: ${String(quote.terms).substring(0, 100)}`, 'F1', 8);
+  }
 
   const stream = parts.join('\n');
 
   // Assemble PDF objects
   const contentId = addObj(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
-  const pageId = addObj(`<< /Type /Page /Parent 3 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Contents ${contentId} 0 R /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> >>`);
+  const pageId = addObj(
+    `<< /Type /Page /Parent 3 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Contents ${contentId} 0 R /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> >>`
+  );
 
   const allObjs = [
-    '',  // placeholder for obj 1
+    '', // placeholder for obj 1
     '<< /Type /Catalog /Pages 3 0 R >>',
-    '',  // placeholder for obj 3 Pages
+    '', // placeholder for obj 3 Pages
     `<< /Type /Pages /Kids [${pageId} 0 R] /Count 1 >>`,
     '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
     '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>',
@@ -439,13 +524,16 @@ function buildQuotePdf(quote: Record<string, unknown>): Buffer {
   const xrefOffset = body.length;
   const offsets: number[] = [];
   let pos = 0;
-  for (const o of pdfObjs) { offsets.push(pos); pos += o.length; }
+  for (const o of pdfObjs) {
+    offsets.push(pos);
+    pos += o.length;
+  }
 
   const xref = [
     'xref\n',
     `0 ${pdfObjs.length}\n`,
     '0000000000 65535 f \n',
-    ...offsets.slice(1).map(o => `${String(o).padStart(10, '0')} 00000 n \n`),
+    ...offsets.slice(1).map((o) => `${String(o).padStart(10, '0')} 00000 n \n`),
   ].join('');
 
   const trailer = `trailer\n<< /Size ${pdfObjs.length} /Root 1 0 R /Info 2 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
@@ -462,20 +550,30 @@ router.get('/:id/pdf', async (req: Request, res: Response) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Quote not found' } });
     }
 
     const pdfBuffer = buildQuotePdf(existing as unknown as Record<string, unknown>);
     const filename = `quote-${existing.refNumber}-${new Date().toISOString().slice(0, 10)}.pdf`;
 
-    return res.status(200).set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${filename}"`,
-      'Content-Length': String(pdfBuffer.length),
-    }).end(pdfBuffer);
+    return res
+      .status(200)
+      .set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Content-Length': String(pdfBuffer.length),
+      })
+      .end(pdfBuffer);
   } catch (error: unknown) {
-    logger.error('Failed to generate quote PDF', { error: error instanceof Error ? error.message : 'Unknown error' });
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate quote PDF' } });
+    logger.error('Failed to generate quote PDF', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate quote PDF' },
+    });
   }
 });
 

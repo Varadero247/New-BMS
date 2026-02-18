@@ -98,7 +98,10 @@ describe('ISO 37001 Training API', () => {
   // =========================================================================
   describe('GET /api/training', () => {
     it('should return paginated list of training records', async () => {
-      (mockPrisma.abTraining.findMany as jest.Mock).mockResolvedValueOnce([mockTraining, mockTraining2]);
+      (mockPrisma.abTraining.findMany as jest.Mock).mockResolvedValueOnce([
+        mockTraining,
+        mockTraining2,
+      ]);
       (mockPrisma.abTraining.count as jest.Mock).mockResolvedValueOnce(2);
 
       const res = await request(app).get('/api/training');
@@ -231,10 +234,12 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should return 400 when courseType is invalid', async () => {
-      const res = await request(app).post('/api/training').send({
-        ...validPayload,
-        courseType: 'INVALID_TYPE',
-      });
+      const res = await request(app)
+        .post('/api/training')
+        .send({
+          ...validPayload,
+          courseType: 'INVALID_TYPE',
+        });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -449,10 +454,10 @@ describe('ISO 37001 Training API', () => {
   describe('GET /api/training/stats', () => {
     it('should return training completion statistics', async () => {
       (mockPrisma.abTraining.count as jest.Mock)
-        .mockResolvedValueOnce(100)  // total
-        .mockResolvedValueOnce(60)   // completed
-        .mockResolvedValueOnce(20)   // inProgress
-        .mockResolvedValueOnce(10);  // overdue
+        .mockResolvedValueOnce(100) // total
+        .mockResolvedValueOnce(60) // completed
+        .mockResolvedValueOnce(20) // inProgress
+        .mockResolvedValueOnce(10); // overdue
       (mockPrisma.abTraining.groupBy as jest.Mock).mockResolvedValueOnce([
         { courseType: 'GENERAL_AWARENESS', _count: { id: 50 } },
         { courseType: 'ROLE_SPECIFIC', _count: { id: 30 } },

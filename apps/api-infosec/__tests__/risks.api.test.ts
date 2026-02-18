@@ -18,7 +18,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -83,9 +87,7 @@ describe('InfoSec Risks API', () => {
     it('should create risk with calculated score and level', async () => {
       (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce(mockRisk);
 
-      const res = await request(app)
-        .post('/api/risks')
-        .send(validCreatePayload);
+      const res = await request(app).post('/api/risks').send(validCreatePayload);
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -122,7 +124,11 @@ describe('InfoSec Risks API', () => {
     });
 
     it('should calculate VERY_LOW for score 1-4 (e.g. 1*1=1)', async () => {
-      (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce({ ...mockRisk, riskScore: 1, riskLevel: 'VERY_LOW' });
+      (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce({
+        ...mockRisk,
+        riskScore: 1,
+        riskLevel: 'VERY_LOW',
+      });
 
       await request(app)
         .post('/api/risks')
@@ -134,7 +140,11 @@ describe('InfoSec Risks API', () => {
     });
 
     it('should calculate VERY_LOW for score 4 (e.g. 2*2=4)', async () => {
-      (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce({ ...mockRisk, riskScore: 4, riskLevel: 'VERY_LOW' });
+      (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce({
+        ...mockRisk,
+        riskScore: 4,
+        riskLevel: 'VERY_LOW',
+      });
 
       await request(app)
         .post('/api/risks')
@@ -146,7 +156,11 @@ describe('InfoSec Risks API', () => {
     });
 
     it('should calculate LOW for score 5-8 (e.g. 2*3=6)', async () => {
-      (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce({ ...mockRisk, riskScore: 6, riskLevel: 'LOW' });
+      (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce({
+        ...mockRisk,
+        riskScore: 6,
+        riskLevel: 'LOW',
+      });
 
       await request(app)
         .post('/api/risks')
@@ -158,7 +172,11 @@ describe('InfoSec Risks API', () => {
     });
 
     it('should calculate LOW for score 8 (e.g. 2*4=8)', async () => {
-      (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce({ ...mockRisk, riskScore: 8, riskLevel: 'LOW' });
+      (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce({
+        ...mockRisk,
+        riskScore: 8,
+        riskLevel: 'LOW',
+      });
 
       await request(app)
         .post('/api/risks')
@@ -170,7 +188,11 @@ describe('InfoSec Risks API', () => {
     });
 
     it('should calculate MEDIUM for score 9-12 (e.g. 3*3=9)', async () => {
-      (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce({ ...mockRisk, riskScore: 9, riskLevel: 'MEDIUM' });
+      (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce({
+        ...mockRisk,
+        riskScore: 9,
+        riskLevel: 'MEDIUM',
+      });
 
       await request(app)
         .post('/api/risks')
@@ -182,7 +204,11 @@ describe('InfoSec Risks API', () => {
     });
 
     it('should calculate MEDIUM for score 12 (e.g. 3*4=12)', async () => {
-      (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce({ ...mockRisk, riskScore: 12, riskLevel: 'MEDIUM' });
+      (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce({
+        ...mockRisk,
+        riskScore: 12,
+        riskLevel: 'MEDIUM',
+      });
 
       await request(app)
         .post('/api/risks')
@@ -194,7 +220,11 @@ describe('InfoSec Risks API', () => {
     });
 
     it('should calculate HIGH for score 13-19 (e.g. 3*5=15)', async () => {
-      (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce({ ...mockRisk, riskScore: 15, riskLevel: 'HIGH' });
+      (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce({
+        ...mockRisk,
+        riskScore: 15,
+        riskLevel: 'HIGH',
+      });
 
       await request(app)
         .post('/api/risks')
@@ -232,9 +262,7 @@ describe('InfoSec Risks API', () => {
     it('should generate a ref number starting with ISR-', async () => {
       (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce(mockRisk);
 
-      await request(app)
-        .post('/api/risks')
-        .send(validCreatePayload);
+      await request(app).post('/api/risks').send(validCreatePayload);
 
       const createCall = (mockPrisma.isRisk.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.refNumber).toMatch(/^ISR-/);
@@ -243,9 +271,7 @@ describe('InfoSec Risks API', () => {
     it('should set status to IDENTIFIED on create', async () => {
       (mockPrisma.isRisk.create as jest.Mock).mockResolvedValueOnce(mockRisk);
 
-      await request(app)
-        .post('/api/risks')
-        .send(validCreatePayload);
+      await request(app).post('/api/risks').send(validCreatePayload);
 
       const createCall = (mockPrisma.isRisk.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.status).toBe('IDENTIFIED');
@@ -270,9 +296,7 @@ describe('InfoSec Risks API', () => {
     it('should return 500 on database error', async () => {
       (mockPrisma.isRisk.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const res = await request(app)
-        .post('/api/risks')
-        .send(validCreatePayload);
+      const res = await request(app).post('/api/risks').send(validCreatePayload);
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -415,8 +439,18 @@ describe('InfoSec Risks API', () => {
 
   describe('PUT /api/risks/:id', () => {
     it('should update and recalculate score', async () => {
-      (mockPrisma.isRisk.findFirst as jest.Mock).mockResolvedValueOnce({ ...mockRisk, likelihood: 4, impact: 5 });
-      (mockPrisma.isRisk.update as jest.Mock).mockResolvedValueOnce({ ...mockRisk, likelihood: 2, impact: 3, riskScore: 6, riskLevel: 'LOW' });
+      (mockPrisma.isRisk.findFirst as jest.Mock).mockResolvedValueOnce({
+        ...mockRisk,
+        likelihood: 4,
+        impact: 5,
+      });
+      (mockPrisma.isRisk.update as jest.Mock).mockResolvedValueOnce({
+        ...mockRisk,
+        likelihood: 2,
+        impact: 3,
+        riskScore: 6,
+        riskLevel: 'LOW',
+      });
 
       const res = await request(app)
         .put('/api/risks/a6000000-0000-4000-a000-000000000001')
@@ -430,7 +464,11 @@ describe('InfoSec Risks API', () => {
     });
 
     it('should recalculate using existing values when only likelihood changes', async () => {
-      (mockPrisma.isRisk.findFirst as jest.Mock).mockResolvedValueOnce({ ...mockRisk, likelihood: 4, impact: 5 });
+      (mockPrisma.isRisk.findFirst as jest.Mock).mockResolvedValueOnce({
+        ...mockRisk,
+        likelihood: 4,
+        impact: 5,
+      });
       (mockPrisma.isRisk.update as jest.Mock).mockResolvedValueOnce(mockRisk);
 
       await request(app)
@@ -489,14 +527,12 @@ describe('InfoSec Risks API', () => {
       (mockPrisma.isRisk.findFirst as jest.Mock).mockResolvedValueOnce(mockRisk);
       (mockPrisma.isRisk.update as jest.Mock).mockResolvedValueOnce(mockRisk);
 
-      await request(app)
-        .put('/api/risks/a6000000-0000-4000-a000-000000000001/treatment')
-        .send({
-          treatment: 'MITIGATE',
-          treatmentPlan: 'Implement MFA',
-          residualLikelihood: 2,
-          residualImpact: 3,
-        });
+      await request(app).put('/api/risks/a6000000-0000-4000-a000-000000000001/treatment').send({
+        treatment: 'MITIGATE',
+        treatmentPlan: 'Implement MFA',
+        residualLikelihood: 2,
+        residualImpact: 3,
+      });
 
       const updateCall = (mockPrisma.isRisk.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.residualLikelihood).toBe(2);

@@ -21,11 +21,15 @@ const createScheduleSchema = z.object({
     temperature: z.number().optional(),
     brightness: z.number().min(0).max(100).optional(),
     recurring: z.boolean().optional(),
-    actions: z.array(z.object({
-      deviceId: z.string().optional(),
-      command: z.string(),
-      params: z.record(z.unknown()).optional(),
-    })).optional(),
+    actions: z
+      .array(
+        z.object({
+          deviceId: z.string().optional(),
+          command: z.string(),
+          params: z.record(z.unknown()).optional(),
+        })
+      )
+      .optional(),
   }),
   isActive: z.boolean().optional(),
 });
@@ -119,147 +123,169 @@ router.get('/:id', authenticate, async (req: AuthRequest, res, next) => {
 });
 
 // Create schedule
-router.post('/', authenticate, requireRole(['ADMIN', 'MANAGER']), validate(createScheduleSchema), async (req: AuthRequest, res, next) => {
-  try {
-    const data = req.body;
+router.post(
+  '/',
+  authenticate,
+  requireRole(['ADMIN', 'MANAGER']),
+  validate(createScheduleSchema),
+  async (req: AuthRequest, res, next) => {
+    try {
+      const data = req.body;
 
-    // Verify building exists
-    const building = await prisma.building.findUnique({
-      where: { id: data.buildingId },
-    });
-
-    if (!building) {
-      throw new AppError(404, 'NOT_FOUND', 'Building not found');
-    }
-
-    // Verify zone if provided
-    if (data.zoneId) {
-      const zone = await prisma.zone.findUnique({
-        where: { id: data.zoneId },
+      // Verify building exists
+      const building = await prisma.building.findUnique({
+        where: { id: data.buildingId },
       });
 
-      if (!zone || zone.buildingId !== data.buildingId) {
-        throw new AppError(404, 'NOT_FOUND', 'Zone not found in this building');
+      if (!building) {
+        throw new AppError(404, 'NOT_FOUND', 'Building not found');
       }
+
+      // Verify zone if provided
+      if (data.zoneId) {
+        const zone = await prisma.zone.findUnique({
+          where: { id: data.zoneId },
+        });
+
+        if (!zone || zone.buildingId !== data.buildingId) {
+          throw new AppError(404, 'NOT_FOUND', 'Zone not found in this building');
+        }
+      }
+
+      const schedule = await prisma.schedule.create({
+        data: {
+          buildingId: data.buildingId,
+          zoneId: data.zoneId,
+          name: data.name,
+          description: data.description,
+          type: data.type,
+          config: data.config,
+          isActive: data.isActive ?? true,
+        },
+        include: {
+          building: {
+            select: { id: true, name: true },
+          },
+          zone: {
+            select: { id: true, name: true },
+          },
+        },
+      });
+
+      res.status(201).json({
+        success: true,
+        data: schedule,
+      });
+    } catch (error) {
+      next(error);
     }
-
-    const schedule = await prisma.schedule.create({
-      data: {
-        buildingId: data.buildingId,
-        zoneId: data.zoneId,
-        name: data.name,
-        description: data.description,
-        type: data.type,
-        config: data.config,
-        isActive: data.isActive ?? true,
-      },
-      include: {
-        building: {
-          select: { id: true, name: true },
-        },
-        zone: {
-          select: { id: true, name: true },
-        },
-      },
-    });
-
-    res.status(201).json({
-      success: true,
-      data: schedule,
-    });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 // Update schedule
-router.patch('/:id', authenticate, requireRole(['ADMIN', 'MANAGER']), validate(updateScheduleSchema), async (req: AuthRequest, res, next) => {
-  try {
-    const { id } = req.params;
-    const updates = req.body;
+router.patch(
+  '/:id',
+  authenticate,
+  requireRole(['ADMIN', 'MANAGER']),
+  validate(updateScheduleSchema),
+  async (req: AuthRequest, res, next) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
 
-    const existing = await prisma.schedule.findUnique({
-      where: { id },
-    });
+      const existing = await prisma.schedule.findUnique({
+        where: { id },
+      });
 
-    if (!existing) {
-      throw new AppError(404, 'NOT_FOUND', 'Schedule not found');
+      if (!existing) {
+        throw new AppError(404, 'NOT_FOUND', 'Schedule not found');
+      }
+
+      const schedule = await prisma.schedule.update({
+        where: { id },
+        data: updates,
+        include: {
+          building: {
+            select: { id: true, name: true },
+          },
+          zone: {
+            select: { id: true, name: true },
+          },
+        },
+      });
+
+      res.json({
+        success: true,
+        data: schedule,
+      });
+    } catch (error) {
+      next(error);
     }
-
-    const schedule = await prisma.schedule.update({
-      where: { id },
-      data: updates,
-      include: {
-        building: {
-          select: { id: true, name: true },
-        },
-        zone: {
-          select: { id: true, name: true },
-        },
-      },
-    });
-
-    res.json({
-      success: true,
-      data: schedule,
-    });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 // Toggle schedule active status
-router.post('/:id/toggle', authenticate, requireRole(['ADMIN', 'MANAGER']), async (req: AuthRequest, res, next) => {
-  try {
-    const { id } = req.params;
+router.post(
+  '/:id/toggle',
+  authenticate,
+  requireRole(['ADMIN', 'MANAGER']),
+  async (req: AuthRequest, res, next) => {
+    try {
+      const { id } = req.params;
 
-    const existing = await prisma.schedule.findUnique({
-      where: { id },
-    });
+      const existing = await prisma.schedule.findUnique({
+        where: { id },
+      });
 
-    if (!existing) {
-      throw new AppError(404, 'NOT_FOUND', 'Schedule not found');
+      if (!existing) {
+        throw new AppError(404, 'NOT_FOUND', 'Schedule not found');
+      }
+
+      const schedule = await prisma.schedule.update({
+        where: { id },
+        data: { isActive: !existing.isActive },
+      });
+
+      res.json({
+        success: true,
+        data: schedule,
+      });
+    } catch (error) {
+      next(error);
     }
-
-    const schedule = await prisma.schedule.update({
-      where: { id },
-      data: { isActive: !existing.isActive },
-    });
-
-    res.json({
-      success: true,
-      data: schedule,
-    });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 // Delete schedule
-router.delete('/:id', authenticate, requireRole(['ADMIN', 'MANAGER']), async (req: AuthRequest, res, next) => {
-  try {
-    const { id } = req.params;
+router.delete(
+  '/:id',
+  authenticate,
+  requireRole(['ADMIN', 'MANAGER']),
+  async (req: AuthRequest, res, next) => {
+    try {
+      const { id } = req.params;
 
-    const schedule = await prisma.schedule.findUnique({
-      where: { id },
-    });
+      const schedule = await prisma.schedule.findUnique({
+        where: { id },
+      });
 
-    if (!schedule) {
-      throw new AppError(404, 'NOT_FOUND', 'Schedule not found');
+      if (!schedule) {
+        throw new AppError(404, 'NOT_FOUND', 'Schedule not found');
+      }
+
+      await prisma.schedule.delete({
+        where: { id },
+      });
+
+      res.json({
+        success: true,
+        data: { message: 'Schedule deleted successfully' },
+      });
+    } catch (error) {
+      next(error);
     }
-
-    await prisma.schedule.delete({
-      where: { id },
-    });
-
-    res.json({
-      success: true,
-      data: { message: 'Schedule deleted successfully' },
-    });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 // Get schedules for a specific building
 router.get('/building/:buildingId', authenticate, async (req: AuthRequest, res, next) => {
@@ -274,7 +300,8 @@ router.get('/building/:buildingId', authenticate, async (req: AuthRequest, res, 
         },
       },
       orderBy: { name: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({
       success: true,

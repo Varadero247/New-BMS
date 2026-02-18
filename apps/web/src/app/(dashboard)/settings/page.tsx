@@ -62,7 +62,12 @@ const aiProviders = [
     id: 'ANTHROPIC',
     name: 'Anthropic',
     description: 'Claude 3.5 and Claude 3 models',
-    models: ['claude-3-5-sonnet-20241022', 'claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307'],
+    models: [
+      'claude-3-5-sonnet-20241022',
+      'claude-3-opus-20240229',
+      'claude-3-sonnet-20240229',
+      'claude-3-haiku-20240307',
+    ],
     icon: '🧠',
   },
   {
@@ -84,7 +89,9 @@ export default function SettingsPage() {
   const [showApiKey, setShowApiKey] = useState(false);
 
   // AI Settings form state
-  const [selectedProvider, setSelectedProvider] = useState<'OPENAI' | 'ANTHROPIC' | 'GROK'>('OPENAI');
+  const [selectedProvider, setSelectedProvider] = useState<'OPENAI' | 'ANTHROPIC' | 'GROK'>(
+    'OPENAI'
+  );
   const [apiKey, setApiKey] = useState('');
   const [selectedModel, setSelectedModel] = useState('gpt-4o');
   const [defaultPrompt, setDefaultPrompt] = useState(
@@ -213,7 +220,8 @@ export default function SettingsPage() {
                     AI Provider
                   </CardTitle>
                   <CardDescription>
-                    Select your AI provider for automated analysis of incidents, risks, and non-conformances
+                    Select your AI provider for automated analysis of incidents, risks, and
+                    non-conformances
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -247,9 +255,7 @@ export default function SettingsPage() {
                     <Key className="w-5 h-5" />
                     API Configuration
                   </CardTitle>
-                  <CardDescription>
-                    Enter your API key and select the model to use
-                  </CardDescription>
+                  <CardDescription>Enter your API key and select the model to use</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
@@ -291,7 +297,11 @@ export default function SettingsPage() {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={testConnection} variant="outline" disabled={testing || !apiKey}>
+                    <Button
+                      onClick={testConnection}
+                      variant="outline"
+                      disabled={testing || !apiKey}
+                    >
                       {testing ? (
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       ) : (
@@ -383,9 +393,7 @@ export default function SettingsPage() {
                         <p className="text-xs text-muted-foreground">Total Analyses</p>
                       </div>
                       <div className="p-4 bg-muted/50 rounded-lg text-center">
-                        <p className="text-2xl font-bold">
-                          {aiSettings.isActive ? '✓' : '✗'}
-                        </p>
+                        <p className="text-2xl font-bold">{aiSettings.isActive ? '✓' : '✗'}</p>
                         <p className="text-xs text-muted-foreground">Status</p>
                       </div>
                       <div className="p-4 bg-muted/50 rounded-lg text-center">
@@ -430,7 +438,8 @@ export default function SettingsPage() {
                       <div>
                         <p className="font-medium">Request AI Analysis</p>
                         <p className="text-sm text-muted-foreground">
-                          Click the &quot;Analyze with AI&quot; button to send the data to your configured AI provider
+                          Click the &quot;Analyze with AI&quot; button to send the data to your
+                          configured AI provider
                         </p>
                       </div>
                     </div>
@@ -441,7 +450,8 @@ export default function SettingsPage() {
                       <div>
                         <p className="font-medium">Review Suggestions</p>
                         <p className="text-sm text-muted-foreground">
-                          The AI will suggest root causes, corrective actions, and preventive measures
+                          The AI will suggest root causes, corrective actions, and preventive
+                          measures
                         </p>
                       </div>
                     </div>
@@ -474,7 +484,9 @@ export default function SettingsPage() {
                     <span className="text-2xl font-medium text-primary">JD</span>
                   </div>
                   <div>
-                    <Button variant="outline" size="sm">Change Photo</Button>
+                    <Button variant="outline" size="sm">
+                      Change Photo
+                    </Button>
                     <p className="text-xs text-muted-foreground mt-1">JPG, PNG or GIF. Max 2MB.</p>
                   </div>
                 </div>
@@ -520,10 +532,19 @@ export default function SettingsPage() {
                   </h3>
                   <div className="space-y-3 pl-6">
                     {[
-                      { label: 'Critical incidents', description: 'High severity incidents and accidents' },
+                      {
+                        label: 'Critical incidents',
+                        description: 'High severity incidents and accidents',
+                      },
                       { label: 'Overdue actions', description: 'When CAPA items become overdue' },
-                      { label: 'Training expiry', description: 'Upcoming training expiration reminders' },
-                      { label: 'Weekly compliance report', description: 'Weekly compliance summary' },
+                      {
+                        label: 'Training expiry',
+                        description: 'Upcoming training expiration reminders',
+                      },
+                      {
+                        label: 'Weekly compliance report',
+                        description: 'Weekly compliance summary',
+                      },
                     ].map((item) => (
                       <div key={item.label} className="flex items-center justify-between">
                         <div>
@@ -543,7 +564,10 @@ export default function SettingsPage() {
                   <div className="space-y-3 pl-6">
                     {[
                       { label: 'All incidents', description: 'Receive all incident notifications' },
-                      { label: 'Action assignments', description: 'When you are assigned an action' },
+                      {
+                        label: 'Action assignments',
+                        description: 'When you are assigned an action',
+                      },
                     ].map((item) => (
                       <div key={item.label} className="flex items-center justify-between">
                         <div>
@@ -594,7 +618,9 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                     <div>
                       <p className="font-medium">2FA Status</p>
-                      <p className="text-sm text-muted-foreground">Add an extra layer of security</p>
+                      <p className="text-sm text-muted-foreground">
+                        Add an extra layer of security
+                      </p>
                     </div>
                     <Button variant="outline">Enable 2FA</Button>
                   </div>
@@ -658,10 +684,22 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {[
-                  { name: 'Slack', status: 'connected', description: 'Send alerts to Slack channels' },
-                  { name: 'Microsoft Teams', status: 'disconnected', description: 'Integrate with Teams' },
+                  {
+                    name: 'Slack',
+                    status: 'connected',
+                    description: 'Send alerts to Slack channels',
+                  },
+                  {
+                    name: 'Microsoft Teams',
+                    status: 'disconnected',
+                    description: 'Integrate with Teams',
+                  },
                   { name: 'Webhook', status: 'connected', description: 'Custom webhook endpoints' },
-                  { name: 'SMTP Email', status: 'connected', description: 'Email delivery service' },
+                  {
+                    name: 'SMTP Email',
+                    status: 'connected',
+                    description: 'Email delivery service',
+                  },
                 ].map((integration) => (
                   <div
                     key={integration.name}

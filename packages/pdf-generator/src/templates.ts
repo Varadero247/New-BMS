@@ -44,7 +44,7 @@ export function invoiceTemplate(data: InvoiceData): string {
         <td style="text-align: center">${item.quantity}</td>
         <td style="text-align: right">${formatCurrencyValue(item.unitPrice, data.currency)}</td>
         <td style="text-align: right">${formatCurrencyValue(item.total, data.currency)}</td>
-      </tr>`,
+      </tr>`
     )
     .join('');
 
@@ -113,12 +113,13 @@ export function reportTemplate(data: ReportData): string {
           section.metrics
             ? `<div style="margin-top: 10px">${section.metrics
                 .map(
-                  (m) => `<div class="metric"><div class="metric-value">${m.value}</div><div class="metric-label">${m.label}</div></div>`,
+                  (m) =>
+                    `<div class="metric"><div class="metric-value">${m.value}</div><div class="metric-label">${m.label}</div></div>`
                 )
                 .join('')}</div>`
             : ''
         }
-      </div>`,
+      </div>`
     )
     .join('');
 
@@ -163,7 +164,7 @@ export function evidencePackTemplate(data: EvidencePackData): string {
         <td>${item.date}</td>
         <td><span class="badge badge-${item.status.toLowerCase()}">${item.status}</span></td>
         <td>${item.details || '-'}</td>
-      </tr>`,
+      </tr>`
     )
     .join('');
 

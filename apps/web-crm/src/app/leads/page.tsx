@@ -1,7 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Modal, ModalFooter, Input, Label } from '@ims/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Modal,
+  ModalFooter,
+  Input,
+  Label,
+} from '@ims/ui';
 import { Plus, Search, UserPlus, CheckCircle, XCircle } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -65,7 +76,7 @@ export default function LeadsPage() {
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
   function openCreateModal() {
@@ -76,9 +87,18 @@ export default function LeadsPage() {
 
   async function handleCreate() {
     setFormError('');
-    if (!formData.firstName.trim()) { setFormError('First name is required'); return; }
-    if (!formData.lastName.trim()) { setFormError('Last name is required'); return; }
-    if (!formData.email.trim()) { setFormError('Email is required'); return; }
+    if (!formData.firstName.trim()) {
+      setFormError('First name is required');
+      return;
+    }
+    if (!formData.lastName.trim()) {
+      setFormError('Last name is required');
+      return;
+    }
+    if (!formData.email.trim()) {
+      setFormError('Email is required');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -114,8 +134,9 @@ export default function LeadsPage() {
     }
   }
 
-  const filteredLeads = leads.filter(l => {
-    const matchesSearch = !searchTerm ||
+  const filteredLeads = leads.filter((l) => {
+    const matchesSearch =
+      !searchTerm ||
       `${l.firstName} ${l.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       l.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (l.reference || '').toLowerCase().includes(searchTerm.toLowerCase());
@@ -140,7 +161,9 @@ export default function LeadsPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Leads</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage and qualify incoming leads</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Manage and qualify incoming leads
+            </p>
           </div>
           <Button className="flex items-center gap-2" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> Add Lead
@@ -148,7 +171,9 @@ export default function LeadsPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
         )}
 
         <Card className="mb-6">
@@ -157,10 +182,22 @@ export default function LeadsPage() {
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  <input type="text" aria-label="Search leads..." placeholder="Search leads..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500" />
+                  <input
+                    type="text"
+                    aria-label="Search leads..."
+                    placeholder="Search leads..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  />
                 </div>
               </div>
-              <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+              <select
+                aria-label="Filter by status"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="border rounded-md px-3 py-2 text-sm"
+              >
                 <option value="">All Status</option>
                 <option value="NEW">New</option>
                 <option value="CONTACTED">Contacted</option>
@@ -185,42 +222,81 @@ export default function LeadsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Ref</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Email</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Company</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Source</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Score</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Status</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Ref
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Name
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Email
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Company
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Source
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Score
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Status
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredLeads.map((lead) => (
                       <tr key={lead.id} className="border-b hover:bg-gray-50 dark:bg-gray-800">
-                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">{lead.reference || '-'}</td>
-                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{lead.firstName} {lead.lastName}</td>
+                        <td className="py-3 px-4 font-mono text-gray-900 dark:text-gray-100">
+                          {lead.reference || '-'}
+                        </td>
+                        <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                          {lead.firstName} {lead.lastName}
+                        </td>
                         <td className="py-3 px-4 text-gray-600">{lead.email}</td>
                         <td className="py-3 px-4 text-gray-600">{lead.company || '-'}</td>
                         <td className="py-3 px-4">
-                          <Badge className="bg-violet-100 text-violet-700">{lead.source?.replace('_', ' ') || 'N/A'}</Badge>
+                          <Badge className="bg-violet-100 text-violet-700">
+                            {lead.source?.replace('_', ' ') || 'N/A'}
+                          </Badge>
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <span className={`font-medium ${lead.score >= 70 ? 'text-green-600' : lead.score >= 40 ? 'text-amber-600' : 'text-gray-600'}`}>
+                          <span
+                            className={`font-medium ${lead.score >= 70 ? 'text-green-600' : lead.score >= 40 ? 'text-amber-600' : 'text-gray-600'}`}
+                          >
                             {lead.score}
                           </span>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={statusColors[lead.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{lead.status}</Badge>
+                          <Badge
+                            className={
+                              statusColors[lead.status] ||
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700'
+                            }
+                          >
+                            {lead.status}
+                          </Badge>
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             {(lead.status === 'NEW' || lead.status === 'CONTACTED') && (
                               <>
-                                <button onClick={() => handleQualify(lead.id)} className="text-gray-400 dark:text-gray-500 hover:text-green-600" title="Qualify">
+                                <button
+                                  onClick={() => handleQualify(lead.id)}
+                                  className="text-gray-400 dark:text-gray-500 hover:text-green-600"
+                                  title="Qualify"
+                                >
                                   <CheckCircle className="h-4 w-4" />
                                 </button>
-                                <button onClick={() => handleDisqualify(lead.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600" title="Disqualify">
+                                <button
+                                  onClick={() => handleDisqualify(lead.id)}
+                                  className="text-gray-400 dark:text-gray-500 hover:text-red-600"
+                                  title="Disqualify"
+                                >
                                   <XCircle className="h-4 w-4" />
                                 </button>
                               </>
@@ -243,21 +319,73 @@ export default function LeadsPage() {
       </div>
 
       {/* Create Modal */}
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Add Lead" size="lg">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Add Lead"
+        size="lg"
+      >
         <div className="space-y-4">
-          {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{formError}</div>}
+          {formError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              {formError}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="firstName">First Name *</Label><Input id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="John" /></div>
-            <div><Label htmlFor="lastName">Last Name *</Label><Input id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Doe" /></div>
+            <div>
+              <Label htmlFor="firstName">First Name *</Label>
+              <Input
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                placeholder="John"
+              />
+            </div>
+            <div>
+              <Label htmlFor="lastName">Last Name *</Label>
+              <Input
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                placeholder="Doe"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label htmlFor="email">Email *</Label><Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="john@company.com" /></div>
-            <div><Label htmlFor="company">Company</Label><Input id="company" name="company" value={formData.company} onChange={handleChange} placeholder="Acme Corp" /></div>
+            <div>
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="john@company.com"
+              />
+            </div>
+            <div>
+              <Label htmlFor="company">Company</Label>
+              <Input
+                id="company"
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
+                placeholder="Acme Corp"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="source">Source</Label>
-              <select id="source" name="source" value={formData.source} onChange={handleChange} className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500">
+              <select
+                id="source"
+                name="source"
+                value={formData.source}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500"
+              >
                 <option value="WEBSITE">Website</option>
                 <option value="REFERRAL">Referral</option>
                 <option value="LINKEDIN">LinkedIn</option>
@@ -267,12 +395,27 @@ export default function LeadsPage() {
                 <option value="OTHER">Other</option>
               </select>
             </div>
-            <div><Label htmlFor="score">Lead Score</Label><Input id="score" name="score" type="number" min="0" max="100" value={formData.score} onChange={handleChange} /></div>
+            <div>
+              <Label htmlFor="score">Lead Score</Label>
+              <Input
+                id="score"
+                name="score"
+                type="number"
+                min="0"
+                max="100"
+                value={formData.score}
+                onChange={handleChange}
+              />
+            </div>
           </div>
         </div>
         <ModalFooter>
-          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button onClick={handleCreate} disabled={submitting}>{submitting ? 'Creating...' : 'Create Lead'}</Button>
+          <Button variant="outline" onClick={() => setCreateModalOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleCreate} disabled={submitting}>
+            {submitting ? 'Creating...' : 'Create Lead'}
+          </Button>
         </ModalFooter>
       </Modal>
     </div>

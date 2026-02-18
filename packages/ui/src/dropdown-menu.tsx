@@ -41,7 +41,7 @@ export function DropdownMenu({ trigger, children, align = 'left', className }: D
   return (
     <DropdownContext.Provider value={{ close }}>
       <div className={cn('relative inline-block', className)} ref={ref}>
-        <div onClick={() => setOpen(o => !o)} aria-expanded={open} aria-haspopup="menu">
+        <div onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="menu">
           {trigger}
         </div>
         {open && (
@@ -69,7 +69,14 @@ export interface DropdownItemProps {
   className?: string;
 }
 
-export function DropdownItem({ onClick, disabled, destructive, icon, children, className }: DropdownItemProps) {
+export function DropdownItem({
+  onClick,
+  disabled,
+  destructive,
+  icon,
+  children,
+  className,
+}: DropdownItemProps) {
   const { close } = useContext(DropdownContext);
 
   const handleClick = () => {
@@ -106,12 +113,19 @@ export interface DropdownLabelProps {
 
 export function DropdownLabel({ children, className }: DropdownLabelProps) {
   return (
-    <div className={cn('px-3 py-1.5 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider', className)}>
+    <div
+      className={cn(
+        'px-3 py-1.5 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider',
+        className
+      )}
+    >
       {children}
     </div>
   );
 }
 
 export function DropdownSeparator({ className }: { className?: string }) {
-  return <div className={cn('my-1 h-px bg-gray-200 dark:bg-gray-700', className)} role="separator" />;
+  return (
+    <div className={cn('my-1 h-px bg-gray-200 dark:bg-gray-700', className)} role="separator" />
+  );
 }

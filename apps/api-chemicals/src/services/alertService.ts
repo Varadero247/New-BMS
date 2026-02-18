@@ -43,5 +43,8 @@ export async function getLowStock() {
     where: { isActive: true, minStockLevel: { not: null } },
     include: { chemical: { select: { productName: true, casNumber: true } } },
   });
-  return items.filter((item: Record<string, unknown>) => Number(item.quantityOnhand) <= Number(item.minStockLevel || 0));
+  return items.filter(
+    (item: Record<string, unknown>) =>
+      Number(item.quantityOnhand) <= Number(item.minStockLevel || 0)
+  );
 }

@@ -137,9 +137,7 @@ describe('HR Performance API Routes', () => {
     it('should order by year descending', async () => {
       (mockPrisma.performanceCycle.findMany as jest.Mock).mockResolvedValueOnce(mockCycles);
 
-      await request(app)
-        .get('/api/performance/cycles')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/performance/cycles').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.performanceCycle.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -149,7 +147,9 @@ describe('HR Performance API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.performanceCycle.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.performanceCycle.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/performance/cycles')
@@ -208,7 +208,9 @@ describe('HR Performance API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.performanceCycle.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.performanceCycle.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/performance/cycles')
@@ -229,8 +231,18 @@ describe('HR Performance API Routes', () => {
         reviewerId: '53000000-0000-4000-a000-000000000001',
         status: 'DRAFT',
         cycle: { name: '2024 Review', year: 2024 },
-        employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', jobTitle: 'Developer' },
-        reviewer: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
+        employee: {
+          id: '2a000000-0000-4000-a000-000000000001',
+          firstName: 'John',
+          lastName: 'Doe',
+          employeeNumber: 'EMP001',
+          jobTitle: 'Developer',
+        },
+        reviewer: {
+          id: '53000000-0000-4000-a000-000000000001',
+          firstName: 'Jane',
+          lastName: 'Manager',
+        },
       },
       {
         id: '2f000000-0000-4000-a000-000000000002',
@@ -239,8 +251,18 @@ describe('HR Performance API Routes', () => {
         reviewerId: '53000000-0000-4000-a000-000000000001',
         status: 'COMPLETED',
         cycle: { name: '2024 Review', year: 2024 },
-        employee: { id: '2a000000-0000-4000-a000-000000000002', firstName: 'Alice', lastName: 'Smith', employeeNumber: 'EMP002', jobTitle: 'Designer' },
-        reviewer: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
+        employee: {
+          id: '2a000000-0000-4000-a000-000000000002',
+          firstName: 'Alice',
+          lastName: 'Smith',
+          employeeNumber: 'EMP002',
+          jobTitle: 'Designer',
+        },
+        reviewer: {
+          id: '53000000-0000-4000-a000-000000000001',
+          firstName: 'Jane',
+          lastName: 'Manager',
+        },
       },
     ];
 
@@ -332,9 +354,7 @@ describe('HR Performance API Routes', () => {
       (mockPrisma.performanceReview.findMany as jest.Mock).mockResolvedValueOnce(mockReviews);
       (mockPrisma.performanceReview.count as jest.Mock).mockResolvedValueOnce(2);
 
-      await request(app)
-        .get('/api/performance/reviews')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/performance/reviews').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.performanceReview.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -344,7 +364,9 @@ describe('HR Performance API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.performanceReview.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.performanceReview.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/performance/reviews')
@@ -363,15 +385,31 @@ describe('HR Performance API Routes', () => {
       reviewerId: '53000000-0000-4000-a000-000000000001',
       status: 'DRAFT',
       cycle: { id: '30100000-0000-4000-a000-000000000001', name: '2024 Review' },
-      employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe', employeeNumber: 'EMP001', jobTitle: 'Developer', department: { name: 'Engineering' } },
-      reviewer: { id: '53000000-0000-4000-a000-000000000001', firstName: 'Jane', lastName: 'Manager' },
+      employee: {
+        id: '2a000000-0000-4000-a000-000000000001',
+        firstName: 'John',
+        lastName: 'Doe',
+        employeeNumber: 'EMP001',
+        jobTitle: 'Developer',
+        department: { name: 'Engineering' },
+      },
+      reviewer: {
+        id: '53000000-0000-4000-a000-000000000001',
+        firstName: 'Jane',
+        lastName: 'Manager',
+      },
       feedbacks: [],
     };
 
     it('should return single review with goals', async () => {
       (mockPrisma.performanceReview.findUnique as jest.Mock).mockResolvedValueOnce(mockReview);
       (mockPrisma.performanceGoal.findMany as jest.Mock).mockResolvedValueOnce([
-        { id: '31000000-0000-4000-a000-000000000001', title: 'Complete project', status: 'IN_PROGRESS', updates: [] },
+        {
+          id: '31000000-0000-4000-a000-000000000001',
+          title: 'Complete project',
+          status: 'IN_PROGRESS',
+          updates: [],
+        },
       ]);
 
       const response = await request(app)
@@ -396,7 +434,9 @@ describe('HR Performance API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.performanceReview.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.performanceReview.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/performance/reviews/2f000000-0000-4000-a000-000000000001')
@@ -458,7 +498,9 @@ describe('HR Performance API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.performanceReview.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.performanceReview.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .post('/api/performance/reviews')
@@ -502,7 +544,9 @@ describe('HR Performance API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.performanceReview.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.performanceReview.update as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .put('/api/performance/reviews/2f000000-0000-4000-a000-000000000001')
@@ -523,7 +567,11 @@ describe('HR Performance API Routes', () => {
         status: 'IN_PROGRESS',
         progress: 50,
         cycle: { name: '2024 Review', year: 2024 },
-        employee: { id: '2a000000-0000-4000-a000-000000000001', firstName: 'John', lastName: 'Doe' },
+        employee: {
+          id: '2a000000-0000-4000-a000-000000000001',
+          firstName: 'John',
+          lastName: 'Doe',
+        },
         updates: [],
       },
     ];
@@ -605,7 +653,9 @@ describe('HR Performance API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.performanceGoal.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.performanceGoal.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB error')
+      );
 
       const response = await request(app)
         .get('/api/performance/goals')

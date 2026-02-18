@@ -91,9 +91,7 @@ describe('Project Risks API Routes', () => {
     });
 
     it('should return 400 without projectId', async () => {
-      const response = await request(app)
-        .get('/api/risks')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/risks').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -317,7 +315,9 @@ describe('Project Risks API Routes', () => {
 
   describe('DELETE /api/risks/:id', () => {
     it('should delete risk successfully', async () => {
-      (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce({ id: '10000000-0000-4000-a000-000000000001' });
+      (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '10000000-0000-4000-a000-000000000001',
+      });
       (mockPrisma.projectRisk.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)

@@ -27,7 +27,20 @@ async function generateRefNumber(): Promise<string> {
 const createSchema = z.object({
   name: z.string().trim().min(1).max(300),
   description: z.string().max(2000).optional().nullable(),
-  category: z.enum(['CUSTOMER_SATISFACTION', 'PRODUCT_QUALITY', 'PROCESS_PERFORMANCE', 'SUPPLIER_PERFORMANCE', 'AUDIT_RESULTS', 'NONCONFORMANCE', 'DELIVERY', 'SAFETY', 'FINANCIAL', 'OTHER']).default('OTHER'),
+  category: z
+    .enum([
+      'CUSTOMER_SATISFACTION',
+      'PRODUCT_QUALITY',
+      'PROCESS_PERFORMANCE',
+      'SUPPLIER_PERFORMANCE',
+      'AUDIT_RESULTS',
+      'NONCONFORMANCE',
+      'DELIVERY',
+      'SAFETY',
+      'FINANCIAL',
+      'OTHER',
+    ])
+    .default('OTHER'),
   unit: z.string().max(100).optional().nullable(),
   targetValue: z.number().nonnegative().optional().nullable(),
   actualValue: z.number().optional().nullable(),
@@ -37,7 +50,11 @@ const createSchema = z.object({
   owner: z.string().max(200).optional().nullable(),
   isoClause: z.string().max(200).optional().nullable(),
   period: z.string().max(100).optional().nullable(),
-  measurementDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  measurementDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional()
+    .nullable(),
   trend: z.string().max(100).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
 });
@@ -63,13 +80,24 @@ router.get('/summary', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: {
-        total, onTrack, atRisk, offTrack,
-        byCategory: byCategory.map((c: Record<string, unknown>) => ({ category: c.category, count: (c as any)._count.id })),
+        total,
+        onTrack,
+        atRisk,
+        offTrack,
+        byCategory: byCategory.map((c: Record<string, unknown>) => ({
+          category: c.category,
+          count: (c as any)._count.id,
+        })),
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get metrics summary', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get metrics summary' } });
+    logger.error('Failed to get metrics summary', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get metrics summary' },
+    });
   }
 });
 
@@ -97,10 +125,19 @@ router.get('/', async (req: Request, res: Response) => {
       prisma.qualMetric.count({ where }),
     ]);
 
-    res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error: unknown) {
-    logger.error('Failed to list metrics', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list metrics' } });
+    logger.error('Failed to list metrics', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list metrics' },
+    });
   }
 });
 
@@ -109,7 +146,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -128,20 +172,34 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to create metric', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create metric' } });
+    logger.error('Failed to create metric', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create metric' },
+    });
   }
 });
 
 // GET /:id — Get metric by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await prisma.qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
+    const item = await prisma.qualMetric.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!item)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to get metric', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get metric' } });
+    logger.error('Failed to get metric', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get metric' } });
   }
 });
 
@@ -150,11 +208,23 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
+    const existing = await prisma.qualMetric.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.measurementDate) data.measurementDate = new Date(parsed.data.measurementDate);
@@ -162,22 +232,40 @@ router.put('/:id', async (req: Request, res: Response) => {
     const item = await prisma.qualMetric.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to update metric', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update metric' } });
+    logger.error('Failed to update metric', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update metric' },
+    });
   }
 });
 
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
+    const existing = await prisma.qualMetric.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
 
-    await prisma.qualMetric.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualMetric.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete metric', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete metric' } });
+    logger.error('Failed to delete metric', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete metric' },
+    });
   }
 });
 

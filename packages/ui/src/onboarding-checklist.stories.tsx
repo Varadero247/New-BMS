@@ -12,11 +12,41 @@ export default meta;
 type Story = StoryObj<typeof OnboardingChecklist>;
 
 const sampleSteps: OnboardingStep[] = [
-  { id: '1', title: 'Create your first risk', description: 'Add a risk to the register', completed: true, href: '/risks/new' },
-  { id: '2', title: 'Set up notifications', description: 'Configure email alerts', completed: true, href: '/settings/notifications' },
-  { id: '3', title: 'Invite team members', description: 'Add users to your organisation', completed: false, href: '/settings/users' },
-  { id: '4', title: 'Upload documents', description: 'Import your existing documents', completed: false, href: '/documents' },
-  { id: '5', title: 'Configure RBAC', description: 'Set up roles and permissions', completed: false, href: '/settings/roles' },
+  {
+    id: '1',
+    title: 'Create your first risk',
+    description: 'Add a risk to the register',
+    completed: true,
+    href: '/risks/new',
+  },
+  {
+    id: '2',
+    title: 'Set up notifications',
+    description: 'Configure email alerts',
+    completed: true,
+    href: '/settings/notifications',
+  },
+  {
+    id: '3',
+    title: 'Invite team members',
+    description: 'Add users to your organisation',
+    completed: false,
+    href: '/settings/users',
+  },
+  {
+    id: '4',
+    title: 'Upload documents',
+    description: 'Import your existing documents',
+    completed: false,
+    href: '/documents',
+  },
+  {
+    id: '5',
+    title: 'Configure RBAC',
+    description: 'Set up roles and permissions',
+    completed: false,
+    href: '/settings/roles',
+  },
 ];
 
 export const Default: Story = {

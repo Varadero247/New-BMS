@@ -93,7 +93,12 @@ export function checkServiceHealth(name: string, port: number): ServiceHealth {
   return health;
 }
 
-export function setServiceHealth(name: string, port: number, status: ServiceStatusValue, latencyMs: number): ServiceHealth {
+export function setServiceHealth(
+  name: string,
+  port: number,
+  status: ServiceStatusValue,
+  latencyMs: number
+): ServiceHealth {
   const health: ServiceHealth = {
     name,
     port,
@@ -106,7 +111,7 @@ export function setServiceHealth(name: string, port: number, status: ServiceStat
 }
 
 export function getAllServiceStatus(): ServiceHealth[] {
-  return SERVICE_REGISTRY.map(service => {
+  return SERVICE_REGISTRY.map((service) => {
     const existing = healthStore.get(`${service.name}:${service.port}`);
     if (existing) return existing;
     return checkServiceHealth(service.name, service.port);
@@ -115,8 +120,8 @@ export function getAllServiceStatus(): ServiceHealth[] {
 
 export function getOverallStatus(): ServiceStatusValue {
   const services = getAllServiceStatus();
-  if (services.some(s => s.status === 'down')) return 'down';
-  if (services.some(s => s.status === 'degraded')) return 'degraded';
+  if (services.some((s) => s.status === 'down')) return 'down';
+  if (services.some((s) => s.status === 'degraded')) return 'degraded';
   return 'operational';
 }
 
@@ -126,9 +131,9 @@ export function getUptime(): UptimeData {
 
 export function getPlatformStatus(): PlatformStatus {
   const services = getAllServiceStatus();
-  const overall = services.some(s => s.status === 'down')
+  const overall = services.some((s) => s.status === 'down')
     ? 'down'
-    : services.some(s => s.status === 'degraded')
+    : services.some((s) => s.status === 'degraded')
       ? 'degraded'
       : 'operational';
 

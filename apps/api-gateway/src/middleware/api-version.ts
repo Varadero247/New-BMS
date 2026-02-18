@@ -30,10 +30,7 @@ export function addVersionHeader(version: string) {
  * Middleware to mark routes as deprecated
  * Adds deprecation headers and logs usage
  */
-export function deprecatedRoute(
-  alternativeEndpoint: string,
-  sunsetDate?: string
-) {
+export function deprecatedRoute(alternativeEndpoint: string, sunsetDate?: string) {
   return (req: Request, res: Response, next: NextFunction): void => {
     // Add deprecation headers
     res.setHeader('Deprecation', 'true');

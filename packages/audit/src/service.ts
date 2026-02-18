@@ -1,10 +1,5 @@
 import { PrismaClient } from '@ims/database';
-import {
-  AuditLogEntry,
-  AuditLogQueryOptions,
-  AuditLogResult,
-  SENSITIVE_FIELDS,
-} from './types';
+import { AuditLogEntry, AuditLogQueryOptions, AuditLogResult, SENSITIVE_FIELDS } from './types';
 import { createLogger } from '@ims/monitoring';
 
 const logger = createLogger('audit');
@@ -61,7 +56,9 @@ export class AuditService {
       return auditLog.id;
     } catch (error) {
       // Audit logging should never fail the main operation
-      logger.error('Failed to create audit log', { error: error instanceof Error ? error.message : String(error) });
+      logger.error('Failed to create audit log', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return null;
     }
   }

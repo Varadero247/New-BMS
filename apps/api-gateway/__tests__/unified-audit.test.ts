@@ -11,7 +11,10 @@ jest.mock('@ims/auth', () => ({
 
 jest.mock('@ims/monitoring', () => ({
   createLogger: () => ({
-    info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn(),
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
   }),
 }));
 
@@ -70,7 +73,9 @@ describe('Unified Audit Routes', () => {
     });
 
     it('should return 404 for unknown standard', async () => {
-      const res = await request(app).get('/api/v1/unified-audit/standards/00000000-0000-0000-0000-000000000099/checklist');
+      const res = await request(app).get(
+        '/api/v1/unified-audit/standards/00000000-0000-0000-0000-000000000099/checklist'
+      );
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
@@ -226,7 +231,9 @@ describe('Unified Audit Routes', () => {
     });
 
     it('should return 404 for non-existent plan', async () => {
-      const res = await request(app).get('/api/v1/unified-audit/plans/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).get(
+        '/api/v1/unified-audit/plans/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
@@ -317,7 +324,9 @@ describe('Unified Audit Routes', () => {
     });
 
     it('should return 404 for non-existent plan', async () => {
-      const res = await request(app).get('/api/v1/unified-audit/plans/00000000-0000-0000-0000-000000000099/score');
+      const res = await request(app).get(
+        '/api/v1/unified-audit/plans/00000000-0000-0000-0000-000000000099/score'
+      );
       expect(res.status).toBe(404);
     });
   });
@@ -342,7 +351,9 @@ describe('Unified Audit Routes', () => {
     });
 
     it('should return 404 for non-existent plan', async () => {
-      const res = await request(app).get('/api/v1/unified-audit/plans/00000000-0000-0000-0000-000000000099/gaps');
+      const res = await request(app).get(
+        '/api/v1/unified-audit/plans/00000000-0000-0000-0000-000000000099/gaps'
+      );
       expect(res.status).toBe(404);
     });
   });
@@ -382,7 +393,9 @@ describe('Unified Audit Routes', () => {
     });
 
     it('should return 404 for non-existent plan', async () => {
-      const res = await request(app).get('/api/v1/unified-audit/plans/00000000-0000-0000-0000-000000000099/report');
+      const res = await request(app).get(
+        '/api/v1/unified-audit/plans/00000000-0000-0000-0000-000000000099/report'
+      );
       expect(res.status).toBe(404);
     });
   });

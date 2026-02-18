@@ -3,15 +3,28 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    chemRegister: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    chemRegister: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
     chemSds: { findMany: jest.fn() },
     chemInventory: { findMany: jest.fn() },
     chemIncompatAlert: { findMany: jest.fn() },
   },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/chemicals';
 import { prisma } from '../src/prisma';
@@ -20,7 +33,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/chemicals', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockChemical = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -130,7 +145,9 @@ describe('POST /api/chemicals', () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data.productName).toBe('Acetone');
     expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ orgId: 'org-1', createdBy: 'user-1' }) })
+      expect.objectContaining({
+        data: expect.objectContaining({ orgId: 'org-1', createdBy: 'user-1' }),
+      })
     );
   });
 
@@ -153,7 +170,11 @@ describe('POST /api/chemicals', () => {
   });
 
   it('should auto-set isCmr and healthSurveillanceReq when isCarcinogen is true', async () => {
-    (prisma as any).chemRegister.create.mockResolvedValue({ ...mockChemical, isCmr: true, healthSurveillanceReq: true });
+    (prisma as any).chemRegister.create.mockResolvedValue({
+      ...mockChemical,
+      isCmr: true,
+      healthSurveillanceReq: true,
+    });
 
     const res = await request(app).post('/api/chemicals').send({
       productName: 'Benzene',
@@ -162,12 +183,18 @@ describe('POST /api/chemicals', () => {
     });
     expect(res.status).toBe(201);
     expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }) })
+      expect.objectContaining({
+        data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }),
+      })
     );
   });
 
   it('should auto-set isCmr when isMutagen is true', async () => {
-    (prisma as any).chemRegister.create.mockResolvedValue({ ...mockChemical, isCmr: true, healthSurveillanceReq: true });
+    (prisma as any).chemRegister.create.mockResolvedValue({
+      ...mockChemical,
+      isCmr: true,
+      healthSurveillanceReq: true,
+    });
 
     const res = await request(app).post('/api/chemicals').send({
       productName: 'Mutagen X',
@@ -176,12 +203,18 @@ describe('POST /api/chemicals', () => {
     });
     expect(res.status).toBe(201);
     expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }) })
+      expect.objectContaining({
+        data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }),
+      })
     );
   });
 
   it('should auto-set isCmr when isReprotoxic is true', async () => {
-    (prisma as any).chemRegister.create.mockResolvedValue({ ...mockChemical, isCmr: true, healthSurveillanceReq: true });
+    (prisma as any).chemRegister.create.mockResolvedValue({
+      ...mockChemical,
+      isCmr: true,
+      healthSurveillanceReq: true,
+    });
 
     const res = await request(app).post('/api/chemicals').send({
       productName: 'Reprotoxic Y',
@@ -190,7 +223,9 @@ describe('POST /api/chemicals', () => {
     });
     expect(res.status).toBe(201);
     expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }) })
+      expect.objectContaining({
+        data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }),
+      })
     );
   });
 
@@ -203,7 +238,9 @@ describe('POST /api/chemicals', () => {
     });
     expect(res.status).toBe(201);
     expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ isCmr: false, healthSurveillanceReq: false }) })
+      expect.objectContaining({
+        data: expect.objectContaining({ isCmr: false, healthSurveillanceReq: false }),
+      })
     );
   });
 
@@ -223,7 +260,10 @@ describe('POST /api/chemicals', () => {
 describe('PUT /api/chemicals/:id', () => {
   it('should update an existing chemical', async () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemRegister.update.mockResolvedValue({ ...mockChemical, productName: 'Updated Acetone' });
+    (prisma as any).chemRegister.update.mockResolvedValue({
+      ...mockChemical,
+      productName: 'Updated Acetone',
+    });
 
     const res = await request(app).put('/api/chemicals/00000000-0000-0000-0000-000000000001').send({
       productName: 'Updated Acetone',
@@ -245,15 +285,27 @@ describe('PUT /api/chemicals/:id', () => {
   });
 
   it('should recalculate isCmr on update when isCarcinogen changes', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue({ ...mockChemical, isCarcinogen: false, isMutagen: false, isReprotoxic: false });
-    (prisma as any).chemRegister.update.mockResolvedValue({ ...mockChemical, isCmr: true, healthSurveillanceReq: true, isCarcinogen: true });
+    (prisma as any).chemRegister.findFirst.mockResolvedValue({
+      ...mockChemical,
+      isCarcinogen: false,
+      isMutagen: false,
+      isReprotoxic: false,
+    });
+    (prisma as any).chemRegister.update.mockResolvedValue({
+      ...mockChemical,
+      isCmr: true,
+      healthSurveillanceReq: true,
+      isCarcinogen: true,
+    });
 
     const res = await request(app).put('/api/chemicals/00000000-0000-0000-0000-000000000001').send({
       isCarcinogen: true,
     });
     expect(res.status).toBe(200);
     expect((prisma as any).chemRegister.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }) })
+      expect.objectContaining({
+        data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }),
+      })
     );
   });
 
@@ -273,7 +325,11 @@ describe('PUT /api/chemicals/:id', () => {
 describe('DELETE /api/chemicals/:id', () => {
   it('should soft delete a chemical', async () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemRegister.update.mockResolvedValue({ ...mockChemical, deletedAt: new Date().toISOString(), isActive: false });
+    (prisma as any).chemRegister.update.mockResolvedValue({
+      ...mockChemical,
+      deletedAt: new Date().toISOString(),
+      isActive: false,
+    });
 
     const res = await request(app).delete('/api/chemicals/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
@@ -306,8 +362,20 @@ describe('DELETE /api/chemicals/:id', () => {
 
 describe('GET /api/chemicals/alerts/expiry', () => {
   it('should return SDS and stock expiry alerts', async () => {
-    const sdsExpiring = [{ id: 'sds-1', nextReviewDate: '2026-03-01', chemical: { id: 'c-1', productName: 'Acetone', casNumber: '67-64-1' } }];
-    const stockExpiring = [{ id: 'inv-1', expiryDate: '2026-03-15', chemical: { id: 'c-1', productName: 'Acetone', casNumber: '67-64-1' } }];
+    const sdsExpiring = [
+      {
+        id: 'sds-1',
+        nextReviewDate: '2026-03-01',
+        chemical: { id: 'c-1', productName: 'Acetone', casNumber: '67-64-1' },
+      },
+    ];
+    const stockExpiring = [
+      {
+        id: 'inv-1',
+        expiryDate: '2026-03-15',
+        chemical: { id: 'c-1', productName: 'Acetone', casNumber: '67-64-1' },
+      },
+    ];
     (prisma as any).chemSds.findMany.mockResolvedValue(sdsExpiring);
     (prisma as any).chemInventory.findMany.mockResolvedValue(stockExpiring);
 
@@ -340,7 +408,13 @@ describe('GET /api/chemicals/alerts/expiry', () => {
 describe('GET /api/chemicals/alerts/incompatible', () => {
   it('should return incompatibility alerts', async () => {
     const alerts = [
-      { id: 'alert-1', chemicalId: 'c-1', incompatibleWithName: 'Sodium Hydroxide', severityLevel: 'CRITICAL', chemical: { id: 'c-1', productName: 'Acetone', casNumber: '67-64-1' } },
+      {
+        id: 'alert-1',
+        chemicalId: 'c-1',
+        incompatibleWithName: 'Sodium Hydroxide',
+        severityLevel: 'CRITICAL',
+        chemical: { id: 'c-1', productName: 'Acetone', casNumber: '67-64-1' },
+      },
     ];
     (prisma as any).chemIncompatAlert.findMany.mockResolvedValue(alerts);
 

@@ -75,8 +75,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list technicians', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list technicians' } });
+    logger.error('Failed to list technicians', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list technicians' },
+    });
   }
 });
 
@@ -88,11 +93,17 @@ router.get('/available', async (req: Request, res: Response) => {
     const data = await prisma.fsSvcTechnician.findMany({
       where: { deletedAt: null, status: 'AVAILABLE' } as any,
       orderBy: { name: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to list available technicians', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list available technicians' } });
+    logger.error('Failed to list available technicians', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list available technicians' },
+    });
   }
 });
 
@@ -103,21 +114,42 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = technicianCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+      });
     }
 
     const authReq = req as AuthRequest;
     const data = await prisma.fsSvcTechnician.create({
-      data: { ...parsed.data, skills: parsed.data.skills as any, certifications: parsed.data.certifications as any, currentLocation: parsed.data.currentLocation as any, createdBy: authReq.user!.id },
+      data: {
+        ...parsed.data,
+        skills: parsed.data.skills as any,
+        certifications: parsed.data.certifications as any,
+        currentLocation: parsed.data.currentLocation as any,
+        createdBy: authReq.user!.id,
+      },
     });
 
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to create technician', { error: error instanceof Error ? error.message : 'Unknown error' });
-    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Email already exists' } });
+    logger.error('Failed to create technician', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    if (
+      error != null &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as any).code === 'P2002'
+    ) {
+      return res
+        .status(409)
+        .json({ success: false, error: { code: 'CONFLICT', message: 'Email already exists' } });
     }
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create technician' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create technician' },
+    });
   }
 });
 
@@ -128,16 +160,30 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const data = await prisma.fsSvcTechnician.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
-      include: { jobs: { where: { deletedAt: null, status: { in: ['ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'] } as any } } },
+      include: {
+        jobs: {
+          where: {
+            deletedAt: null,
+            status: { in: ['ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'] } as any,
+          },
+        },
+      },
     });
 
     if (!data) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
     }
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to get technician', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get technician' } });
+    logger.error('Failed to get technician', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get technician' },
+    });
   }
 });
 
@@ -150,7 +196,9 @@ router.get('/:id/schedule', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!technician) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
     }
 
     const { startDate, endDate } = req.query;
@@ -166,12 +214,18 @@ router.get('/:id/schedule', async (req: Request, res: Response) => {
         ...(Object.keys(dateFilter).length > 0 ? { scheduledStart: dateFilter } : {}),
       },
       orderBy: { scheduledStart: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: { technician, jobs } });
   } catch (error: unknown) {
-    logger.error('Failed to get technician schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get technician schedule' } });
+    logger.error('Failed to get technician schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get technician schedule' },
+    });
   }
 });
 
@@ -180,25 +234,42 @@ router.get('/:id/schedule', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcTechnician.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSvcTechnician.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
     }
 
     const parsed = technicianUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+      });
     }
 
     const data = await prisma.fsSvcTechnician.update({
       where: { id: req.params.id },
-      data: { ...parsed.data, skills: parsed.data.skills as any, certifications: parsed.data.certifications as any, currentLocation: parsed.data.currentLocation as any },
+      data: {
+        ...parsed.data,
+        skills: parsed.data.skills as any,
+        certifications: parsed.data.certifications as any,
+        currentLocation: parsed.data.currentLocation as any,
+      },
     });
 
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to update technician', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update technician' } });
+    logger.error('Failed to update technician', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update technician' },
+    });
   }
 });
 
@@ -207,16 +278,28 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcTechnician.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSvcTechnician.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
     }
 
-    await prisma.fsSvcTechnician.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.fsSvcTechnician.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Technician deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete technician', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete technician' } });
+    logger.error('Failed to delete technician', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete technician' },
+    });
   }
 });
 

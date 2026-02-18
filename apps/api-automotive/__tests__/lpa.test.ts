@@ -215,7 +215,10 @@ const validSchedulePayload = {
   layer: 1,
   frequency: 'DAILY',
   questions: [
-    { questionText: 'Is the operator following the work instruction?', category: 'Process Control' },
+    {
+      questionText: 'Is the operator following the work instruction?',
+      category: 'Process Control',
+    },
     { questionText: 'Are the correct tools and gauges being used?', category: 'Tooling' },
   ],
 };
@@ -376,9 +379,7 @@ describe('Automotive LPA API Routes', () => {
       (mockPrisma.lpaSchedule.findMany as jest.Mock).mockResolvedValue([]);
       (mockPrisma.lpaSchedule.count as jest.Mock).mockResolvedValue(0);
 
-      await request(app)
-        .get('/api/lpa/schedules?layer=2')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/lpa/schedules?layer=2').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.lpaSchedule.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -406,9 +407,7 @@ describe('Automotive LPA API Routes', () => {
       (mockPrisma.lpaSchedule.findMany as jest.Mock).mockResolvedValue([]);
       (mockPrisma.lpaSchedule.count as jest.Mock).mockResolvedValue(0);
 
-      await request(app)
-        .get('/api/lpa/schedules?active=true')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/lpa/schedules?active=true').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.lpaSchedule.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -580,7 +579,8 @@ describe('Automotive LPA API Routes', () => {
 
       const mockTx = {
         lpaResponse: {
-          create: jest.fn()
+          create: jest
+            .fn()
             .mockResolvedValueOnce(mockResponse1)
             .mockResolvedValueOnce(mockResponse2),
           findMany: jest.fn().mockResolvedValue([mockResponse1, mockResponse2]),
@@ -796,8 +796,8 @@ describe('Automotive LPA API Routes', () => {
     it('should return dashboard with audit stats, scores by layer, and fail rates', async () => {
       // Total and completed counts
       (mockPrisma.lpaAudit.count as jest.Mock)
-        .mockResolvedValueOnce(10)  // totalAudits
-        .mockResolvedValueOnce(8);  // completedAudits
+        .mockResolvedValueOnce(10) // totalAudits
+        .mockResolvedValueOnce(8); // completedAudits
 
       // Completed by layer (for avgScoreByLayer)
       (mockPrisma.lpaAudit.findMany as jest.Mock)
@@ -808,7 +808,13 @@ describe('Automotive LPA API Routes', () => {
         ])
         // Completed by area (for failRateByProcessArea)
         .mockResolvedValueOnce([
-          { processArea: 'Assembly Line 1', passCount: 8, failCount: 2, naCount: 0, totalQuestions: 10 },
+          {
+            processArea: 'Assembly Line 1',
+            passCount: 8,
+            failCount: 2,
+            naCount: 0,
+            totalQuestions: 10,
+          },
           { processArea: 'Paint Shop', passCount: 5, failCount: 5, naCount: 0, totalQuestions: 10 },
         ]);
 

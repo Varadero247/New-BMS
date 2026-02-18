@@ -31,8 +31,16 @@ const IMPACT_VALUES: Record<string, number> = {
 };
 
 // Calculate priority score from impact levels
-function calculatePriorityScore(qualityImpact: string, customerImpact: string, processImpact: string): number {
-  return (IMPACT_VALUES[qualityImpact] ?? 0) + (IMPACT_VALUES[customerImpact] ?? 0) + (IMPACT_VALUES[processImpact] ?? 0);
+function calculatePriorityScore(
+  qualityImpact: string,
+  customerImpact: string,
+  processImpact: string
+): number {
+  return (
+    (IMPACT_VALUES[qualityImpact] ?? 0) +
+    (IMPACT_VALUES[customerImpact] ?? 0) +
+    (IMPACT_VALUES[processImpact] ?? 0)
+  );
 }
 
 // ============================================
@@ -77,27 +85,39 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List improvements error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list improvements' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list improvements' },
+    });
   }
 });
 
 // GET /:id — Get single improvement
-router.get('/:id', checkOwnership(prisma.qualImprovement), async (req: AuthRequest, res: Response) => {
-  try {
-    const improvement = await prisma.qualImprovement.findUnique({
-      where: { id: req.params.id },
-    });
+router.get(
+  '/:id',
+  checkOwnership(prisma.qualImprovement),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const improvement = await prisma.qualImprovement.findUnique({
+        where: { id: req.params.id },
+      });
 
-    if (!improvement) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Improvement not found' } });
+      if (!improvement) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Improvement not found' } });
+      }
+
+      res.json({ success: true, data: improvement });
+    } catch (error) {
+      logger.error('Get improvement error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get improvement' },
+      });
     }
-
-    res.json({ success: true, data: improvement });
-  } catch (error) {
-    logger.error('Get improvement error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get improvement' } });
   }
-});
+);
 
 // POST / — Create improvement
 router.post('/', async (req: AuthRequest, res: Response) => {
@@ -105,13 +125,28 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
       category: z.enum([
-        'PROCESS_IMPROVEMENT', 'PRODUCT_ENHANCEMENT', 'CUSTOMER_EXPERIENCE',
-        'COST_REDUCTION', 'EFFICIENCY', 'QUALITY_IMPROVEMENT', 'SAFETY',
-        'ENVIRONMENTAL', 'DIGITAL_TRANSFORMATION', 'INNOVATION', 'OTHER',
+        'PROCESS_IMPROVEMENT',
+        'PRODUCT_ENHANCEMENT',
+        'CUSTOMER_EXPERIENCE',
+        'COST_REDUCTION',
+        'EFFICIENCY',
+        'QUALITY_IMPROVEMENT',
+        'SAFETY',
+        'ENVIRONMENTAL',
+        'DIGITAL_TRANSFORMATION',
+        'INNOVATION',
+        'OTHER',
       ]),
       source: z.enum([
-        'EMPLOYEE_SUGGESTION', 'CUSTOMER_FEEDBACK', 'AUDIT', 'MANAGEMENT_REVIEW',
-        'BENCHMARKING', 'NEAR_MISS', 'DATA_ANALYSIS', 'EXTERNAL_RESEARCH', 'OTHER',
+        'EMPLOYEE_SUGGESTION',
+        'CUSTOMER_FEEDBACK',
+        'AUDIT',
+        'MANAGEMENT_REVIEW',
+        'BENCHMARKING',
+        'NEAR_MISS',
+        'DATA_ANALYSIS',
+        'EXTERNAL_RESEARCH',
+        'OTHER',
       ]),
       submittedBy: z.string().trim().min(1).max(200),
       department: z.string().optional(),
@@ -127,18 +162,31 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       customerImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
       processImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
       environmentalImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
-      status: z.enum([
-        'IDEA_SUBMITTED', 'UNDER_EVALUATION', 'APPROVED', 'REJECTED',
-        'IN_PROGRESS', 'IMPLEMENTED', 'BENEFITS_REALISED',
-      ]).optional(),
+      status: z
+        .enum([
+          'IDEA_SUBMITTED',
+          'UNDER_EVALUATION',
+          'APPROVED',
+          'REJECTED',
+          'IN_PROGRESS',
+          'IMPLEMENTED',
+          'BENEFITS_REALISED',
+        ])
+        .optional(),
       evaluationNotes: z.string().optional(),
       approvedBy: z.string().optional(),
-      approvalDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      approvalDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       pdcaStage: z.enum(['PLAN', 'DO', 'CHECK', 'ACT']).optional(),
       linkedActions: z.string().optional(),
       pilotRequired: z.boolean().optional(),
       pilotResults: z.string().optional(),
-      implementationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      implementationDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       implementedBy: z.string().optional(),
       kpiToMeasure: z.string().optional(),
       baselineMetric: z.string().optional(),
@@ -214,116 +262,188 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: improvement });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create improvement error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create improvement' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create improvement' },
+    });
   }
 });
 
 // PUT /:id — Update improvement
-router.put('/:id', checkOwnership(prisma.qualImprovement), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.qualImprovement.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Improvement not found' } });
+router.put(
+  '/:id',
+  checkOwnership(prisma.qualImprovement),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.qualImprovement.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Improvement not found' } });
+      }
+
+      const schema = z.object({
+        title: z.string().trim().min(1).max(200).optional(),
+        category: z
+          .enum([
+            'PROCESS_IMPROVEMENT',
+            'PRODUCT_ENHANCEMENT',
+            'CUSTOMER_EXPERIENCE',
+            'COST_REDUCTION',
+            'EFFICIENCY',
+            'QUALITY_IMPROVEMENT',
+            'SAFETY',
+            'ENVIRONMENTAL',
+            'DIGITAL_TRANSFORMATION',
+            'INNOVATION',
+            'OTHER',
+          ])
+          .optional(),
+        source: z
+          .enum([
+            'EMPLOYEE_SUGGESTION',
+            'CUSTOMER_FEEDBACK',
+            'AUDIT',
+            'MANAGEMENT_REVIEW',
+            'BENCHMARKING',
+            'NEAR_MISS',
+            'DATA_ANALYSIS',
+            'EXTERNAL_RESEARCH',
+            'OTHER',
+          ])
+          .optional(),
+        submittedBy: z.string().optional(),
+        department: z.string().optional(),
+        description: z.string().optional(),
+        currentState: z.string().optional(),
+        proposedSolution: z.string().optional(),
+        expectedBenefits: z.string().optional(),
+        estimatedCost: z.number().nonnegative().optional(),
+        estimatedTime: z.string().optional(),
+        estimatedSaving: z.number().optional(),
+        qualityImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
+        customerImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
+        processImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
+        environmentalImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
+        status: z
+          .enum([
+            'IDEA_SUBMITTED',
+            'UNDER_EVALUATION',
+            'APPROVED',
+            'REJECTED',
+            'IN_PROGRESS',
+            'IMPLEMENTED',
+            'BENEFITS_REALISED',
+          ])
+          .optional(),
+        evaluationNotes: z.string().optional(),
+        approvedBy: z.string().optional(),
+        approvalDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        pdcaStage: z.enum(['PLAN', 'DO', 'CHECK', 'ACT']).optional(),
+        linkedActions: z.string().optional(),
+        pilotRequired: z.boolean().optional(),
+        pilotResults: z.string().optional(),
+        implementationDate: z
+          .string()
+          .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+          .optional(),
+        implementedBy: z.string().optional(),
+        kpiToMeasure: z.string().optional(),
+        baselineMetric: z.string().optional(),
+        targetMetric: z.string().optional(),
+        actualCost: z.number().nonnegative().optional(),
+        actualSaving: z.number().optional(),
+        qualityImprovement: z.string().optional(),
+        lessonsLearned: z.string().optional(),
+        shareAcrossIms: z.boolean().optional(),
+        aiAnalysis: z.string().optional(),
+        aiFeasibility: z.string().optional(),
+        aiImplementationPlan: z.string().optional(),
+        aiKpiSuggestions: z.string().optional(),
+        aiGenerated: z.boolean().optional(),
+      });
+
+      const data = schema.parse(req.body);
+
+      // Recalculate priority score if any impact changed
+      const qi = data.qualityImpact ?? existing.qualityImpact;
+      const ci = data.customerImpact ?? existing.customerImpact;
+      const pi = data.processImpact ?? existing.processImpact;
+      const priorityScore = calculatePriorityScore(qi, ci, pi);
+
+      const improvement = await prisma.qualImprovement.update({
+        where: { id: req.params.id },
+        data: {
+          ...data,
+          priorityScore,
+          approvalDate: data.approvalDate ? new Date(data.approvalDate) : undefined,
+          implementationDate: data.implementationDate
+            ? new Date(data.implementationDate)
+            : undefined,
+        },
+      });
+
+      res.json({ success: true, data: improvement });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update improvement error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update improvement' },
+      });
     }
-
-    const schema = z.object({
-      title: z.string().trim().min(1).max(200).optional(),
-      category: z.enum([
-        'PROCESS_IMPROVEMENT', 'PRODUCT_ENHANCEMENT', 'CUSTOMER_EXPERIENCE',
-        'COST_REDUCTION', 'EFFICIENCY', 'QUALITY_IMPROVEMENT', 'SAFETY',
-        'ENVIRONMENTAL', 'DIGITAL_TRANSFORMATION', 'INNOVATION', 'OTHER',
-      ]).optional(),
-      source: z.enum([
-        'EMPLOYEE_SUGGESTION', 'CUSTOMER_FEEDBACK', 'AUDIT', 'MANAGEMENT_REVIEW',
-        'BENCHMARKING', 'NEAR_MISS', 'DATA_ANALYSIS', 'EXTERNAL_RESEARCH', 'OTHER',
-      ]).optional(),
-      submittedBy: z.string().optional(),
-      department: z.string().optional(),
-      description: z.string().optional(),
-      currentState: z.string().optional(),
-      proposedSolution: z.string().optional(),
-      expectedBenefits: z.string().optional(),
-      estimatedCost: z.number().nonnegative().optional(),
-      estimatedTime: z.string().optional(),
-      estimatedSaving: z.number().optional(),
-      qualityImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
-      customerImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
-      processImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
-      environmentalImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
-      status: z.enum([
-        'IDEA_SUBMITTED', 'UNDER_EVALUATION', 'APPROVED', 'REJECTED',
-        'IN_PROGRESS', 'IMPLEMENTED', 'BENEFITS_REALISED',
-      ]).optional(),
-      evaluationNotes: z.string().optional(),
-      approvedBy: z.string().optional(),
-      approvalDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      pdcaStage: z.enum(['PLAN', 'DO', 'CHECK', 'ACT']).optional(),
-      linkedActions: z.string().optional(),
-      pilotRequired: z.boolean().optional(),
-      pilotResults: z.string().optional(),
-      implementationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      implementedBy: z.string().optional(),
-      kpiToMeasure: z.string().optional(),
-      baselineMetric: z.string().optional(),
-      targetMetric: z.string().optional(),
-      actualCost: z.number().nonnegative().optional(),
-      actualSaving: z.number().optional(),
-      qualityImprovement: z.string().optional(),
-      lessonsLearned: z.string().optional(),
-      shareAcrossIms: z.boolean().optional(),
-      aiAnalysis: z.string().optional(),
-      aiFeasibility: z.string().optional(),
-      aiImplementationPlan: z.string().optional(),
-      aiKpiSuggestions: z.string().optional(),
-      aiGenerated: z.boolean().optional(),
-    });
-
-    const data = schema.parse(req.body);
-
-    // Recalculate priority score if any impact changed
-    const qi = data.qualityImpact ?? existing.qualityImpact;
-    const ci = data.customerImpact ?? existing.customerImpact;
-    const pi = data.processImpact ?? existing.processImpact;
-    const priorityScore = calculatePriorityScore(qi, ci, pi);
-
-    const improvement = await prisma.qualImprovement.update({
-      where: { id: req.params.id },
-      data: {
-        ...data,
-        priorityScore,
-        approvalDate: data.approvalDate ? new Date(data.approvalDate) : undefined,
-        implementationDate: data.implementationDate ? new Date(data.implementationDate) : undefined,
-      },
-    });
-
-    res.json({ success: true, data: improvement });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
-    }
-    logger.error('Update improvement error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update improvement' } });
   }
-});
+);
 
 // DELETE /:id — Delete improvement
-router.delete('/:id', checkOwnership(prisma.qualImprovement), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.qualImprovement.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Improvement not found' } });
+router.delete(
+  '/:id',
+  checkOwnership(prisma.qualImprovement),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.qualImprovement.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Improvement not found' } });
+      }
+
+      await prisma.qualImprovement.update({
+        where: { id: req.params.id },
+        data: { deletedAt: new Date() },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Delete improvement error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete improvement' },
+      });
     }
-
-    await prisma.qualImprovement.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Delete improvement error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete improvement' } });
   }
-});
+);
 
 export default router;

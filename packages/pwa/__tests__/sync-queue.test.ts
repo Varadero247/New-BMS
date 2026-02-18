@@ -12,7 +12,11 @@ class MockIDBIndex {
     this.store = store;
   }
 
-  openCursor(): { onsuccess: ((e: any) => void) | null; onerror: ((e: any) => void) | null; result: any } {
+  openCursor(): {
+    onsuccess: ((e: any) => void) | null;
+    onerror: ((e: any) => void) | null;
+    result: any;
+  } {
     const entries = Array.from(this.store.data.values()).sort(
       (a: any, b: any) => a.timestamp - b.timestamp
     );
@@ -28,7 +32,11 @@ class MockIDBIndex {
     return req;
   }
 
-  getAll(): { onsuccess: ((e: any) => void) | null; onerror: ((e: any) => void) | null; result: any } {
+  getAll(): {
+    onsuccess: ((e: any) => void) | null;
+    onerror: ((e: any) => void) | null;
+    result: any;
+  } {
     const entries = Array.from(this.store.data.values()).sort(
       (a: any, b: any) => a.timestamp - b.timestamp
     );
@@ -61,7 +69,7 @@ class MockIDBObjectStore {
 
   count() {
     const req: any = { onsuccess: null, onerror: null, result: this.data.size };
-    setTimeout(() => req.onsuccess?.({}) , 0);
+    setTimeout(() => req.onsuccess?.({}), 0);
     return req;
   }
 
@@ -110,7 +118,7 @@ const mockIndexedDB = {
       onerror: null,
       result: new MockIDBDatabase(sharedStore),
     };
-    setTimeout(() => req.onsuccess?.({}) , 0);
+    setTimeout(() => req.onsuccess?.({}), 0);
     return req;
   },
 };

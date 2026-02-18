@@ -58,10 +58,7 @@ function getServiceSecret(): string {
 /**
  * Generate a service-to-service JWT token
  */
-export function generateServiceToken(
-  serviceName: string,
-  permissions: string[] = []
-): string {
+export function generateServiceToken(serviceName: string, permissions: string[] = []): string {
   const secret = getServiceSecret();
 
   const payload: ServicePayload = {
@@ -107,11 +104,7 @@ export function verifyServiceToken(token: string): ServicePayload {
  * Middleware to require service authentication
  * Use this on microservices to validate requests from the API gateway
  */
-export function requireServiceAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
+export function requireServiceAuth(req: Request, res: Response, next: NextFunction): void {
   const token = req.headers['x-service-token'] as string;
 
   if (!token) {
@@ -144,11 +137,7 @@ export function requireServiceAuth(
 /**
  * Optional service auth middleware - allows requests without tokens but attaches service info if present
  */
-export function optionalServiceAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
+export function optionalServiceAuth(req: Request, res: Response, next: NextFunction): void {
   const token = req.headers['x-service-token'] as string;
 
   if (token) {
@@ -188,9 +177,7 @@ export function requireServicePermission(...permissions: string[]) {
       return;
     }
 
-    const hasPermission = permissions.every(
-      (p) => serviceReq.service?.permissions?.includes(p)
-    );
+    const hasPermission = permissions.every((p) => serviceReq.service?.permissions?.includes(p));
 
     if (!hasPermission) {
       res.status(403).json({

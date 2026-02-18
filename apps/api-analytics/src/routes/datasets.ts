@@ -27,7 +27,17 @@ function generateReference(prefix: string): string {
 // Zod Schemas
 // ---------------------------------------------------------------------------
 
-const dataSourceEnum = z.enum(['HEALTH_SAFETY', 'ENVIRONMENT', 'QUALITY', 'HR', 'FINANCE', 'CRM', 'INVENTORY', 'CMMS', 'ALL']);
+const dataSourceEnum = z.enum([
+  'HEALTH_SAFETY',
+  'ENVIRONMENT',
+  'QUALITY',
+  'HR',
+  'FINANCE',
+  'CRM',
+  'INVENTORY',
+  'CMMS',
+  'ALL',
+]);
 
 const datasetCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
@@ -94,8 +104,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list datasets', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list datasets' } });
+    logger.error('Failed to list datasets', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list datasets' },
+    });
   }
 });
 
@@ -108,7 +123,14 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = datasetCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const data = parsed.data;
@@ -128,8 +150,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Dataset created', { id: dataset.id, name: dataset.name });
     res.status(201).json({ success: true, data: dataset });
   } catch (error: unknown) {
-    logger.error('Failed to create dataset', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create dataset' } });
+    logger.error('Failed to create dataset', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create dataset' },
+    });
   }
 });
 
@@ -141,9 +168,13 @@ router.post('/:id/refresh', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const dataset = await prisma.analyticsDataset.findFirst({ where: { id, deletedAt: null } as any });
+    const dataset = await prisma.analyticsDataset.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!dataset) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Dataset not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Dataset not found' } });
     }
 
     const updated = await prisma.analyticsDataset.update({
@@ -157,8 +188,13 @@ router.post('/:id/refresh', async (req: Request, res: Response) => {
     logger.info('Dataset refreshed', { id });
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Failed to refresh dataset', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to refresh dataset' } });
+    logger.error('Failed to refresh dataset', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to refresh dataset' },
+    });
   }
 });
 
@@ -173,13 +209,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!dataset) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Dataset not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Dataset not found' } });
     }
 
     res.json({ success: true, data: dataset });
   } catch (error: unknown) {
-    logger.error('Failed to get dataset', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get dataset' } });
+    logger.error('Failed to get dataset', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get dataset' },
+    });
   }
 });
 
@@ -191,14 +234,25 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsDataset.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsDataset.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Dataset not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Dataset not found' } });
     }
 
     const parsed = datasetUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const updated = await prisma.analyticsDataset.update({
@@ -208,8 +262,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Failed to update dataset', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update dataset' } });
+    logger.error('Failed to update dataset', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update dataset' },
+    });
   }
 });
 
@@ -221,9 +280,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsDataset.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsDataset.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Dataset not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Dataset not found' } });
     }
 
     await prisma.analyticsDataset.update({
@@ -233,8 +296,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { message: 'Dataset deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete dataset', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete dataset' } });
+    logger.error('Failed to delete dataset', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete dataset' },
+    });
   }
 });
 

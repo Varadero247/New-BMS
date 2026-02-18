@@ -100,8 +100,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list reports', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list reports' } });
+    logger.error('Failed to list reports', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list reports' },
+    });
   }
 });
 
@@ -114,7 +119,14 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = reportCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const data = parsed.data;
@@ -136,8 +148,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Report created', { id: report.id, name: report.name });
     res.status(201).json({ success: true, data: report });
   } catch (error: unknown) {
-    logger.error('Failed to create report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create report' } });
+    logger.error('Failed to create report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create report' },
+    });
   }
 });
 
@@ -150,14 +167,24 @@ router.post('/:id/run', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const { id } = req.params;
 
-    const report = await prisma.analyticsReport.findFirst({ where: { id, deletedAt: null } as any });
+    const report = await prisma.analyticsReport.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!report) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }
 
     const runParsed = reportRunSchema.safeParse(req.body);
     if (!runParsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: runParsed.error.errors[0]?.message || 'Invalid run parameters' } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: runParsed.error.errors[0]?.message || 'Invalid run parameters',
+        },
+      });
     }
 
     const run = await prisma.analyticsReportRun.create({
@@ -178,8 +205,12 @@ router.post('/:id/run', async (req: Request, res: Response) => {
     logger.info('Report run queued', { reportId: id, runId: run.id });
     res.status(201).json({ success: true, data: run });
   } catch (error: unknown) {
-    logger.error('Failed to run report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to run report' } });
+    logger.error('Failed to run report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to run report' } });
   }
 });
 
@@ -194,9 +225,13 @@ router.get('/:id/runs', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 20, 100);
     const skip = (page - 1) * limit;
 
-    const report = await prisma.analyticsReport.findFirst({ where: { id, deletedAt: null } as any });
+    const report = await prisma.analyticsReport.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!report) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }
 
     const [runs, total] = await Promise.all([
@@ -215,8 +250,13 @@ router.get('/:id/runs', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list report runs', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list report runs' } });
+    logger.error('Failed to list report runs', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list report runs' },
+    });
   }
 });
 
@@ -234,13 +274,20 @@ router.get('/:id/runs/:runId', async (req: Request, res: Response) => {
     });
 
     if (!run) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report run not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Report run not found' } });
     }
 
     res.json({ success: true, data: run });
   } catch (error: unknown) {
-    logger.error('Failed to get report run', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get report run' } });
+    logger.error('Failed to get report run', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get report run' },
+    });
   }
 });
 
@@ -258,13 +305,19 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!report) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }
 
     res.json({ success: true, data: report });
   } catch (error: unknown) {
-    logger.error('Failed to get report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get report' } });
+    logger.error('Failed to get report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get report' } });
   }
 });
 
@@ -276,14 +329,25 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsReport.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsReport.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }
 
     const parsed = reportUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const updated = await prisma.analyticsReport.update({
@@ -293,8 +357,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: updated });
   } catch (error: unknown) {
-    logger.error('Failed to update report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update report' } });
+    logger.error('Failed to update report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update report' },
+    });
   }
 });
 
@@ -306,9 +375,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsReport.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsReport.findFirst({
+      where: { id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }
 
     await prisma.analyticsReport.update({
@@ -318,8 +391,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { message: 'Report deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete report' } });
+    logger.error('Failed to delete report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete report' },
+    });
   }
 });
 

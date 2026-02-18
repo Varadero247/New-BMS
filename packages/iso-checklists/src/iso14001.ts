@@ -81,7 +81,7 @@ export const iso14001Checklist: StandardChecklist = {
       questions: [
         'Does top management demonstrate leadership and commitment with respect to the EMS by taking accountability for its effectiveness?',
         'Has top management ensured that the environmental policy and environmental objectives are established and are compatible with the strategic direction and context of the organization?',
-        'Has top management ensured that the requirements of the EMS are integrated into the organization\'s business processes?',
+        "Has top management ensured that the requirements of the EMS are integrated into the organization's business processes?",
         'Are adequate resources available for the EMS, and does top management direct and support persons to contribute to EMS effectiveness?',
         'Does top management promote continual improvement and support other relevant management roles to demonstrate leadership in their areas of responsibility?',
       ],
@@ -383,7 +383,7 @@ export const iso14001Checklist: StandardChecklist = {
       clause: '9.2',
       title: 'Internal audit',
       questions: [
-        'Has the organization conducted internal audits at planned intervals to provide information on whether the EMS conforms to ISO 14001:2015 requirements and the organization\'s own EMS requirements, and is effectively implemented and maintained?',
+        "Has the organization conducted internal audits at planned intervals to provide information on whether the EMS conforms to ISO 14001:2015 requirements and the organization's own EMS requirements, and is effectively implemented and maintained?",
         'Has the organization established an audit programme including frequency, methods, responsibilities, planning requirements, and reporting, taking into account the environmental importance of processes, changes affecting the organization, and results of previous audits?',
         'Are audit criteria and scope defined for each audit?',
         'Are auditors selected to ensure objectivity and impartiality of the audit process?',

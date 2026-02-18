@@ -18,17 +18,34 @@ function generateReference(prefix: string): string {
 }
 
 const socialCreateSchema = z.object({
-  category: z.enum(['DIVERSITY', 'HEALTH_SAFETY', 'TRAINING', 'COMMUNITY', 'HUMAN_RIGHTS', 'LABOR']),
+  category: z.enum([
+    'DIVERSITY',
+    'HEALTH_SAFETY',
+    'TRAINING',
+    'COMMUNITY',
+    'HUMAN_RIGHTS',
+    'LABOR',
+  ]),
   metric: z.string().trim().min(1).max(200),
   value: z.number(),
   unit: z.string().max(50).optional().nullable(),
-  periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodStart: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  periodEnd: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   notes: z.string().max(2000).optional().nullable(),
 });
 
 const socialUpdateSchema = z.object({
-  category: z.enum(['DIVERSITY', 'HEALTH_SAFETY', 'TRAINING', 'COMMUNITY', 'HUMAN_RIGHTS', 'LABOR']).optional(),
+  category: z
+    .enum(['DIVERSITY', 'HEALTH_SAFETY', 'TRAINING', 'COMMUNITY', 'HUMAN_RIGHTS', 'LABOR'])
+    .optional(),
   metric: z.string().trim().min(1).max(200).optional(),
   value: z.number().optional(),
   unit: z.string().max(50).optional().nullable(),
@@ -47,22 +64,40 @@ router.get('/workforce', async (req: Request, res: Response) => {
       category: { in: ['DIVERSITY', 'LABOR'] },
     };
 
-    const metrics = await prisma.esgSocialMetric.findMany({ where, orderBy: { periodStart: 'desc' },
-      take: 1000});
+    const metrics = await prisma.esgSocialMetric.findMany({
+      where,
+      orderBy: { periodStart: 'desc' },
+      take: 1000,
+    });
 
     const summary: Record<string, any[]> = { diversity: [], labor: [] };
     for (const m of metrics) {
       if (m.category === 'DIVERSITY') {
-        summary.diversity.push({ metric: m.metric, value: Number(m.value), unit: m.unit, period: m.periodStart });
+        summary.diversity.push({
+          metric: m.metric,
+          value: Number(m.value),
+          unit: m.unit,
+          period: m.periodStart,
+        });
       } else if (m.category === 'LABOR') {
-        summary.labor.push({ metric: m.metric, value: Number(m.value), unit: m.unit, period: m.periodStart });
+        summary.labor.push({
+          metric: m.metric,
+          value: Number(m.value),
+          unit: m.unit,
+          period: m.periodStart,
+        });
       }
     }
 
     res.json({ success: true, data: summary });
   } catch (error: unknown) {
-    logger.error('Error fetching workforce summary', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch workforce summary' } });
+    logger.error('Error fetching workforce summary', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch workforce summary' },
+    });
   }
 });
 
@@ -74,8 +109,11 @@ router.get('/safety', async (req: Request, res: Response) => {
       category: 'HEALTH_SAFETY',
     };
 
-    const metrics = await prisma.esgSocialMetric.findMany({ where, orderBy: { periodStart: 'desc' },
-      take: 1000});
+    const metrics = await prisma.esgSocialMetric.findMany({
+      where,
+      orderBy: { periodStart: 'desc' },
+      take: 1000,
+    });
 
     const safetyData = metrics.map((m: Record<string, any>) => ({
       metric: m.metric,
@@ -87,8 +125,13 @@ router.get('/safety', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: safetyData });
   } catch (error: unknown) {
-    logger.error('Error fetching safety summary', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch safety summary' } });
+    logger.error('Error fetching safety summary', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch safety summary' },
+    });
   }
 });
 
@@ -96,7 +139,9 @@ router.get('/safety', async (req: Request, res: Response) => {
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { category, periodStart, periodEnd, page = '1', limit = '20' } = req.query;
-    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * Math.max(1, parseInt(limit as string, 10) || 20);
+    const skip =
+      (Math.max(1, parseInt(page as string, 10) || 1) - 1) *
+      Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
     const where: Record<string, any> = { deletedAt: null };
@@ -112,11 +157,21 @@ router.get('/', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data,
-      pagination: { page: Math.max(1, parseInt(page as string, 10) || 1), limit: take, total, totalPages: Math.ceil(total / take) },
+      pagination: {
+        page: Math.max(1, parseInt(page as string, 10) || 1),
+        limit: take,
+        total,
+        totalPages: Math.ceil(total / take),
+      },
     });
   } catch (error: unknown) {
-    logger.error('Error listing social metrics', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list social metrics' } });
+    logger.error('Error listing social metrics', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list social metrics' },
+    });
   }
 });
 
@@ -126,7 +181,14 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const parsed = socialCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.issues,
+        },
+      });
     }
 
     const data = parsed.data;
@@ -145,8 +207,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: metric });
   } catch (error: unknown) {
-    logger.error('Error creating social metric', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create social metric' } });
+    logger.error('Error creating social metric', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create social metric' },
+    });
   }
 });
 
@@ -154,14 +221,23 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
-    const metric = await prisma.esgSocialMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const metric = await prisma.esgSocialMetric.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!metric) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Social metric not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Social metric not found' } });
     }
     res.json({ success: true, data: metric });
   } catch (error: unknown) {
-    logger.error('Error fetching social metric', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch social metric' } });
+    logger.error('Error fetching social metric', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch social metric' },
+    });
   }
 });
 
@@ -170,12 +246,23 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = socialUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.issues,
+        },
+      });
     }
 
-    const existing = await prisma.esgSocialMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.esgSocialMetric.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Social metric not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Social metric not found' } });
     }
 
     const updateData: Record<string, any> = { ...parsed.data };
@@ -183,27 +270,47 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (updateData.periodStart) updateData.periodStart = new Date(updateData.periodStart);
     if (updateData.periodEnd) updateData.periodEnd = new Date(updateData.periodEnd);
 
-    const metric = await prisma.esgSocialMetric.update({ where: { id: req.params.id }, data: updateData });
+    const metric = await prisma.esgSocialMetric.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
     res.json({ success: true, data: metric });
   } catch (error: unknown) {
-    logger.error('Error updating social metric', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update social metric' } });
+    logger.error('Error updating social metric', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update social metric' },
+    });
   }
 });
 
 // DELETE /api/social/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgSocialMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.esgSocialMetric.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Social metric not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Social metric not found' } });
     }
 
-    await prisma.esgSocialMetric.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.esgSocialMetric.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Social metric deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting social metric', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete social metric' } });
+    logger.error('Error deleting social metric', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete social metric' },
+    });
   }
 });
 

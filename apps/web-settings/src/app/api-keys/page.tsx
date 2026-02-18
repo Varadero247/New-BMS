@@ -115,10 +115,16 @@ export default function ApiKeysPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">API Keys</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage API keys for programmatic access to your IMS</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Manage API keys for programmatic access to your IMS
+          </p>
         </div>
         <button
-          onClick={() => { setShowCreate(true); setNewKeyName(''); setNewKeyScopes([]); }}
+          onClick={() => {
+            setShowCreate(true);
+            setNewKeyName('');
+            setNewKeyScopes([]);
+          }}
           className="px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700"
         >
           Create API Key
@@ -128,11 +134,20 @@ export default function ApiKeysPage() {
       {/* Created key banner */}
       {createdKey && (
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-green-800 dark:text-green-300 mb-2">API Key Created</h3>
-          <p className="text-xs text-green-600 dark:text-green-400 mb-2">Copy this key now -- you will not be able to see it again.</p>
+          <h3 className="text-sm font-semibold text-green-800 dark:text-green-300 mb-2">
+            API Key Created
+          </h3>
+          <p className="text-xs text-green-600 dark:text-green-400 mb-2">
+            Copy this key now -- you will not be able to see it again.
+          </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 bg-white dark:bg-gray-800 rounded-md border border-green-300 dark:border-green-700 px-3 py-2 text-sm font-mono text-green-900 dark:text-green-200 break-all">{createdKey}</code>
-            <button onClick={handleCopy} className="px-3 py-2 text-sm rounded-md bg-green-600 text-white hover:bg-green-700 shrink-0">
+            <code className="flex-1 bg-white dark:bg-gray-800 rounded-md border border-green-300 dark:border-green-700 px-3 py-2 text-sm font-mono text-green-900 dark:text-green-200 break-all">
+              {createdKey}
+            </code>
+            <button
+              onClick={handleCopy}
+              className="px-3 py-2 text-sm rounded-md bg-green-600 text-white hover:bg-green-700 shrink-0"
+            >
               {copied ? 'Copied!' : 'Copy'}
             </button>
           </div>
@@ -144,10 +159,18 @@ export default function ApiKeysPage() {
                 onChange={(e) => setConfirmed(e.target.checked)}
                 className="h-4 w-4 text-green-600 rounded"
               />
-              <span className="text-xs text-green-700 dark:text-green-300">I have copied this key</span>
+              <span className="text-xs text-green-700 dark:text-green-300">
+                I have copied this key
+              </span>
             </label>
             {confirmed && (
-              <button onClick={() => { setCreatedKey(null); setConfirmed(false); }} className="text-xs text-green-600 hover:underline ml-2">
+              <button
+                onClick={() => {
+                  setCreatedKey(null);
+                  setConfirmed(false);
+                }}
+                className="text-xs text-green-600 hover:underline ml-2"
+              >
                 Dismiss
               </button>
             )}
@@ -161,30 +184,56 @@ export default function ApiKeysPage() {
           <thead className="bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600">
             <tr>
               <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Name</th>
-              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Key Prefix</th>
+              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                Key Prefix
+              </th>
               <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Scopes</th>
-              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Last Used</th>
+              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                Last Used
+              </th>
               <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Status</th>
-              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Actions</th>
+              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y dark:divide-gray-700">
             {loading ? (
-              <tr><td colSpan={6} className="p-6 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
+              <tr>
+                <td colSpan={6} className="p-6 text-center text-gray-500 dark:text-gray-400">
+                  Loading...
+                </td>
+              </tr>
             ) : keys.length === 0 ? (
-              <tr><td colSpan={6} className="p-6 text-center text-gray-500 dark:text-gray-400">No API keys yet. Create one to get started.</td></tr>
+              <tr>
+                <td colSpan={6} className="p-6 text-center text-gray-500 dark:text-gray-400">
+                  No API keys yet. Create one to get started.
+                </td>
+              </tr>
             ) : (
-              keys.map(key => (
-                <tr key={key.id} className="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-750">
+              keys.map((key) => (
+                <tr
+                  key={key.id}
+                  className="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-750"
+                >
                   <td className="p-3">
                     <div className="font-medium text-gray-900 dark:text-gray-100">{key.name}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Created {new Date(key.createdAt).toLocaleDateString()}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      Created {new Date(key.createdAt).toLocaleDateString()}
+                    </div>
                   </td>
-                  <td className="p-3 font-mono text-xs text-gray-600 dark:text-gray-400">{key.keyPrefix}...</td>
+                  <td className="p-3 font-mono text-xs text-gray-600 dark:text-gray-400">
+                    {key.keyPrefix}...
+                  </td>
                   <td className="p-3">
                     <div className="flex flex-wrap gap-1">
-                      {key.scopes.map(s => (
-                        <span key={s} className="inline-flex rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:text-blue-300">{s}</span>
+                      {key.scopes.map((s) => (
+                        <span
+                          key={s}
+                          className="inline-flex rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:text-blue-300"
+                        >
+                          {s}
+                        </span>
                       ))}
                     </div>
                   </td>
@@ -192,14 +241,22 @@ export default function ApiKeysPage() {
                     {key.lastUsedAt ? (
                       <div>
                         <div>{new Date(key.lastUsedAt).toLocaleString()}</div>
-                        <div className="text-gray-400 dark:text-gray-500">{key.usageCount} calls</div>
+                        <div className="text-gray-400 dark:text-gray-500">
+                          {key.usageCount} calls
+                        </div>
                       </div>
-                    ) : 'Never'}
+                    ) : (
+                      'Never'
+                    )}
                   </td>
                   <td className="p-3">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                      key.status === 'active' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-                    }`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                        key.status === 'active'
+                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                          : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                      }`}
+                    >
                       {key.status}
                     </span>
                   </td>
@@ -224,52 +281,83 @@ export default function ApiKeysPage() {
       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-4">
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">API Usage</h3>
         <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-          <p>Base URL: <code className="bg-white dark:bg-gray-900 px-1.5 py-0.5 rounded border dark:border-gray-600 text-gray-700 dark:text-gray-300">https://api.ims.local/api/v1</code></p>
-          <p>Authentication: <code className="bg-white dark:bg-gray-900 px-1.5 py-0.5 rounded border dark:border-gray-600 text-gray-700 dark:text-gray-300">Authorization: Bearer rxk_...</code></p>
+          <p>
+            Base URL:{' '}
+            <code className="bg-white dark:bg-gray-900 px-1.5 py-0.5 rounded border dark:border-gray-600 text-gray-700 dark:text-gray-300">
+              https://api.ims.local/api/v1
+            </code>
+          </p>
+          <p>
+            Authentication:{' '}
+            <code className="bg-white dark:bg-gray-900 px-1.5 py-0.5 rounded border dark:border-gray-600 text-gray-700 dark:text-gray-300">
+              Authorization: Bearer rxk_...
+            </code>
+          </p>
           <p>Rate limit: 1,000 requests/minute per key</p>
         </div>
       </div>
 
       {/* Create Modal */}
       {showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowCreate(false)}>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4" onClick={e => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setShowCreate(false)}
+        >
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-6 space-y-4">
               <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Create API Key</h2>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Key Name *</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Key Name *
+                </label>
                 <input
                   value={newKeyName}
-                  onChange={e => setNewKeyName(e.target.value)}
+                  onChange={(e) => setNewKeyName(e.target.value)}
                   placeholder="e.g. Production Integration"
                   className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Scopes *</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Scopes *
+                </label>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {SCOPES.map(scope => (
+                  {SCOPES.map((scope) => (
                     <label key={scope.id} className="flex items-start gap-2 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={newKeyScopes.includes(scope.id)}
-                        onChange={e => {
-                          setNewKeyScopes(prev =>
-                            e.target.checked ? [...prev, scope.id] : prev.filter(s => s !== scope.id)
+                        onChange={(e) => {
+                          setNewKeyScopes((prev) =>
+                            e.target.checked
+                              ? [...prev, scope.id]
+                              : prev.filter((s) => s !== scope.id)
                           );
                         }}
                         className="mt-0.5 h-4 w-4 text-blue-600 rounded"
                       />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{scope.label}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{scope.description}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {scope.label}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {scope.description}
+                        </div>
                       </div>
                     </label>
                   ))}
                 </div>
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <button onClick={() => setShowCreate(false)} className="px-4 py-2 text-sm rounded-md border dark:border-gray-600 text-gray-700 dark:text-gray-300">Cancel</button>
+                <button
+                  onClick={() => setShowCreate(false)}
+                  className="px-4 py-2 text-sm rounded-md border dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                >
+                  Cancel
+                </button>
                 <button
                   onClick={handleCreate}
                   disabled={!newKeyName.trim() || newKeyScopes.length === 0}

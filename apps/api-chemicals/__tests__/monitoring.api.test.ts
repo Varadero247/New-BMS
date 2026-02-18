@@ -3,13 +3,26 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    chemMonitoring: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    chemMonitoring: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
     chemRegister: { findFirst: jest.fn() },
   },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/monitoring';
 import { prisma } from '../src/prisma';
@@ -18,7 +31,9 @@ const app = express();
 app.use(express.json());
 app.use('/api/monitoring', router);
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockChemical = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -42,7 +57,11 @@ const mockMonitoring = {
   percentageOfWel: 50,
   resultVsWel: 'BELOW_WEL',
   actionRequired: false,
-  chemical: { id: '00000000-0000-0000-0000-000000000001', productName: 'Acetone', casNumber: '67-64-1' },
+  chemical: {
+    id: '00000000-0000-0000-0000-000000000001',
+    productName: 'Acetone',
+    casNumber: '67-64-1',
+  },
 };
 
 const validMonitoringBody = {
@@ -72,10 +91,14 @@ describe('GET /api/monitoring', () => {
     (prisma as any).chemMonitoring.findMany.mockResolvedValue([]);
     (prisma as any).chemMonitoring.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/monitoring?chemicalId=00000000-0000-0000-0000-000000000001');
+    const res = await request(app).get(
+      '/api/monitoring?chemicalId=00000000-0000-0000-0000-000000000001'
+    );
     expect(res.status).toBe(200);
     expect((prisma as any).chemMonitoring.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ chemicalId: '00000000-0000-0000-0000-000000000001' }) })
+      expect.objectContaining({
+        where: expect.objectContaining({ chemicalId: '00000000-0000-0000-0000-000000000001' }),
+      })
     );
   });
 
@@ -134,11 +157,11 @@ describe('GET /api/monitoring/overdue', () => {
 describe('GET /api/monitoring/dashboard', () => {
   it('should return WEL dashboard stats', async () => {
     (prisma as any).chemMonitoring.count
-      .mockResolvedValueOnce(100)   // total
-      .mockResolvedValueOnce(5)     // aboveWel
-      .mockResolvedValueOnce(10)    // atWel
-      .mockResolvedValueOnce(80)    // belowWel
-      .mockResolvedValueOnce(3);    // overdue
+      .mockResolvedValueOnce(100) // total
+      .mockResolvedValueOnce(5) // aboveWel
+      .mockResolvedValueOnce(10) // atWel
+      .mockResolvedValueOnce(80) // belowWel
+      .mockResolvedValueOnce(3); // overdue
 
     const res = await request(app).get('/api/monitoring/dashboard');
     expect(res.status).toBe(200);
@@ -193,12 +216,19 @@ describe('POST /api/monitoring', () => {
 
   it('should auto-calculate WEL as AT_WEL when result is 90% of limit', async () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemMonitoring.create.mockResolvedValue({ ...mockMonitoring, percentageOfWel: 95, resultVsWel: 'AT_WEL', actionRequired: true });
-
-    const res = await request(app).post('/api/monitoring').send({
-      ...validMonitoringBody,
-      resultValue: 9.5,
+    (prisma as any).chemMonitoring.create.mockResolvedValue({
+      ...mockMonitoring,
+      percentageOfWel: 95,
+      resultVsWel: 'AT_WEL',
+      actionRequired: true,
     });
+
+    const res = await request(app)
+      .post('/api/monitoring')
+      .send({
+        ...validMonitoringBody,
+        resultValue: 9.5,
+      });
     expect(res.status).toBe(201);
     expect((prisma as any).chemMonitoring.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -213,12 +243,19 @@ describe('POST /api/monitoring', () => {
 
   it('should auto-calculate WEL as ABOVE_WEL when result exceeds limit', async () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemMonitoring.create.mockResolvedValue({ ...mockMonitoring, percentageOfWel: 150, resultVsWel: 'ABOVE_WEL', actionRequired: true });
-
-    const res = await request(app).post('/api/monitoring').send({
-      ...validMonitoringBody,
-      resultValue: 15,
+    (prisma as any).chemMonitoring.create.mockResolvedValue({
+      ...mockMonitoring,
+      percentageOfWel: 150,
+      resultVsWel: 'ABOVE_WEL',
+      actionRequired: true,
     });
+
+    const res = await request(app)
+      .post('/api/monitoring')
+      .send({
+        ...validMonitoringBody,
+        resultValue: 15,
+      });
     expect(res.status).toBe(201);
     expect((prisma as any).chemMonitoring.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -253,10 +290,12 @@ describe('POST /api/monitoring', () => {
   });
 
   it('should return 400 when monitoringType is invalid', async () => {
-    const res = await request(app).post('/api/monitoring').send({
-      ...validMonitoringBody,
-      monitoringType: 'INVALID_TYPE',
-    });
+    const res = await request(app)
+      .post('/api/monitoring')
+      .send({
+        ...validMonitoringBody,
+        monitoringType: 'INVALID_TYPE',
+      });
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -265,10 +304,12 @@ describe('POST /api/monitoring', () => {
   it('should return 404 when chemical does not exist', async () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/monitoring').send({
-      ...validMonitoringBody,
-      chemicalId: '00000000-0000-0000-0000-000000000099',
-    });
+    const res = await request(app)
+      .post('/api/monitoring')
+      .send({
+        ...validMonitoringBody,
+        chemicalId: '00000000-0000-0000-0000-000000000099',
+      });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -289,11 +330,16 @@ describe('POST /api/monitoring', () => {
 describe('PUT /api/monitoring/:id', () => {
   it('should update an existing monitoring record', async () => {
     (prisma as any).chemMonitoring.findFirst.mockResolvedValue(mockMonitoring);
-    (prisma as any).chemMonitoring.update.mockResolvedValue({ ...mockMonitoring, location: 'Lab B' });
-
-    const res = await request(app).put('/api/monitoring/00000000-0000-0000-0000-000000000040').send({
+    (prisma as any).chemMonitoring.update.mockResolvedValue({
+      ...mockMonitoring,
       location: 'Lab B',
     });
+
+    const res = await request(app)
+      .put('/api/monitoring/00000000-0000-0000-0000-000000000040')
+      .send({
+        location: 'Lab B',
+      });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.location).toBe('Lab B');
@@ -302,9 +348,11 @@ describe('PUT /api/monitoring/:id', () => {
   it('should return 404 when monitoring record not found', async () => {
     (prisma as any).chemMonitoring.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/monitoring/00000000-0000-0000-0000-000000000099').send({
-      location: 'Lab B',
-    });
+    const res = await request(app)
+      .put('/api/monitoring/00000000-0000-0000-0000-000000000099')
+      .send({
+        location: 'Lab B',
+      });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -314,9 +362,11 @@ describe('PUT /api/monitoring/:id', () => {
     (prisma as any).chemMonitoring.findFirst.mockResolvedValue(mockMonitoring);
     (prisma as any).chemMonitoring.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/monitoring/00000000-0000-0000-0000-000000000040').send({
-      location: 'Lab B',
-    });
+    const res = await request(app)
+      .put('/api/monitoring/00000000-0000-0000-0000-000000000040')
+      .send({
+        location: 'Lab B',
+      });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

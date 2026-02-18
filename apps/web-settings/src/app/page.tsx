@@ -42,7 +42,9 @@ export default function SettingsOverview() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage system configuration and administration</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Manage system configuration and administration
+          </p>
         </div>
 
         {/* System Status */}
@@ -117,8 +119,12 @@ export default function SettingsOverview() {
                         <Icon className="h-6 w-6" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{category.name}</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{category.description}</p>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                          {category.name}
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                          {category.description}
+                        </p>
                       </div>
                     </div>
                   </CardContent>

@@ -56,14 +56,28 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      prisma.qualRaci.findMany({ where, skip, take: limit, orderBy: [{ processName: 'asc' }, { activityName: 'asc' }] }),
+      prisma.qualRaci.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: [{ processName: 'asc' }, { activityName: 'asc' }],
+      }),
       prisma.qualRaci.count({ where }),
     ]);
 
-    res.json({ success: true, data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error: unknown) {
-    logger.error('Failed to list RACI entries', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list RACI entries' } });
+    logger.error('Failed to list RACI entries', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list RACI entries' },
+    });
   }
 });
 
@@ -81,17 +95,29 @@ router.get('/matrix', async (req: Request, res: Response) => {
     });
 
     // Group by process → activity → roles
-    const matrix: Record<string, Record<string, Array<{ roleName: string; personName: string | null; raciType: string }>>> = {};
+    const matrix: Record<
+      string,
+      Record<string, Array<{ roleName: string; personName: string | null; raciType: string }>>
+    > = {};
     for (const e of entries) {
       if (!matrix[e.processName]) matrix[e.processName] = {};
       if (!matrix[e.processName][e.activityName]) matrix[e.processName][e.activityName] = [];
-      matrix[e.processName][e.activityName].push({ roleName: e.roleName, personName: e.personName, raciType: e.raciType });
+      matrix[e.processName][e.activityName].push({
+        roleName: e.roleName,
+        personName: e.personName,
+        raciType: e.raciType,
+      });
     }
 
     res.json({ success: true, data: matrix });
   } catch (error: unknown) {
-    logger.error('Failed to generate RACI matrix', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate RACI matrix' } });
+    logger.error('Failed to generate RACI matrix', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate RACI matrix' },
+    });
   }
 });
 
@@ -100,7 +126,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -117,20 +150,35 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to create RACI entry', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create RACI entry' } });
+    logger.error('Failed to create RACI entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create RACI entry' },
+    });
   }
 });
 
 // GET /:id
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await prisma.qualRaci.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'RACI entry not found' } });
+    const item = await prisma.qualRaci.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!item)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'RACI entry not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to get RACI entry', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get RACI entry' } });
+    logger.error('Failed to get RACI entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get RACI entry' },
+    });
   }
 });
 
@@ -139,31 +187,58 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
-    const existing = await prisma.qualRaci.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'RACI entry not found' } });
+    const existing = await prisma.qualRaci.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'RACI entry not found' } });
 
     const item = await prisma.qualRaci.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
-    logger.error('Failed to update RACI entry', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update RACI entry' } });
+    logger.error('Failed to update RACI entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update RACI entry' },
+    });
   }
 });
 
 // DELETE /:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.qualRaci.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
-    if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'RACI entry not found' } });
+    const existing = await prisma.qualRaci.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'RACI entry not found' } });
 
     await prisma.qualRaci.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
-    logger.error('Failed to delete RACI entry', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete RACI entry' } });
+    logger.error('Failed to delete RACI entry', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete RACI entry' },
+    });
   }
 });
 

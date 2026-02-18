@@ -13,7 +13,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: (req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'admin@ims.local', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'admin@ims.local',
+      role: 'ADMIN',
+    };
     next();
   },
 }));
@@ -82,8 +86,22 @@ describe('Compliance Routes', () => {
     const mockGapResult = {
       overallComplianceScore: 72,
       standardScores: {
-        iso9001: { standard: 'ISO 9001', score: 75, totalClauses: 10, compliant: 7, partial: 2, gaps: 1 },
-        iso14001: { standard: 'ISO 14001', score: 69, totalClauses: 10, compliant: 6, partial: 2, gaps: 2 },
+        iso9001: {
+          standard: 'ISO 9001',
+          score: 75,
+          totalClauses: 10,
+          compliant: 7,
+          partial: 2,
+          gaps: 1,
+        },
+        iso14001: {
+          standard: 'ISO 14001',
+          score: 69,
+          totalClauses: 10,
+          compliant: 6,
+          partial: 2,
+          gaps: 2,
+        },
       },
       topGap: {
         standard: 'ISO 14001',
@@ -102,9 +120,7 @@ describe('Compliance Routes', () => {
     it('should return gap analysis results', async () => {
       mockOpenAIResponse(JSON.stringify(mockGapResult));
 
-      const res = await request(app)
-        .post('/api/compliance/gap-analysis')
-        .send(validPayload);
+      const res = await request(app).post('/api/compliance/gap-analysis').send(validPayload);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -121,7 +137,9 @@ describe('Compliance Routes', () => {
         .post('/api/compliance/gap-analysis')
         .send({
           standards: ['ISO 45001'],
-          currentEvidence: [{ clause: '5.1', evidence: 'Leadership commitment documented', status: 'COMPLIANT' }],
+          currentEvidence: [
+            { clause: '5.1', evidence: 'Leadership commitment documented', status: 'COMPLIANT' },
+          ],
         });
 
       expect(res.status).toBe(200);
@@ -146,7 +164,10 @@ describe('Compliance Routes', () => {
     it('should return 400 when standards array is empty', async () => {
       const res = await request(app)
         .post('/api/compliance/gap-analysis')
-        .send({ standards: [], currentEvidence: [{ clause: '4.1', evidence: 'test', status: 'COMPLIANT' }] });
+        .send({
+          standards: [],
+          currentEvidence: [{ clause: '4.1', evidence: 'test', status: 'COMPLIANT' }],
+        });
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -185,20 +206,19 @@ describe('Compliance Routes', () => {
     it('should return 400 when AI is not configured', async () => {
       (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app)
-        .post('/api/compliance/gap-analysis')
-        .send(validPayload);
+      const res = await request(app).post('/api/compliance/gap-analysis').send(validPayload);
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('NO_AI_CONFIG');
     });
 
     it('should return 400 when settings exist but apiKey is missing', async () => {
-      (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue({ ...mockSettings, apiKey: null });
+      (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue({
+        ...mockSettings,
+        apiKey: null,
+      });
 
-      const res = await request(app)
-        .post('/api/compliance/gap-analysis')
-        .send(validPayload);
+      const res = await request(app).post('/api/compliance/gap-analysis').send(validPayload);
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('NO_AI_CONFIG');
@@ -207,9 +227,7 @@ describe('Compliance Routes', () => {
     it('should update token usage after gap analysis', async () => {
       mockOpenAIResponse(JSON.stringify(mockGapResult));
 
-      await request(app)
-        .post('/api/compliance/gap-analysis')
-        .send(validPayload);
+      await request(app).post('/api/compliance/gap-analysis').send(validPayload);
 
       expect(prisma.aISettings.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -224,9 +242,7 @@ describe('Compliance Routes', () => {
     it('should call OpenAI with correct parameters', async () => {
       mockOpenAIResponse(JSON.stringify(mockGapResult));
 
-      await request(app)
-        .post('/api/compliance/gap-analysis')
-        .send(validPayload);
+      await request(app).post('/api/compliance/gap-analysis').send(validPayload);
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.openai.com/v1/chat/completions',
@@ -248,9 +264,7 @@ describe('Compliance Routes', () => {
         }),
       });
 
-      const res = await request(app)
-        .post('/api/compliance/gap-analysis')
-        .send(validPayload);
+      const res = await request(app).post('/api/compliance/gap-analysis').send(validPayload);
 
       expect(res.status).toBe(500);
       expect(res.body.error.code).toBe('AI_ERROR');
@@ -260,7 +274,19 @@ describe('Compliance Routes', () => {
       const res = await request(app)
         .post('/api/compliance/gap-analysis')
         .send({
-          standards: ['ISO 9001', 'ISO 14001', 'ISO 45001', 'ISO 27001', 'ISO 22301', 'ISO 31000', 'ISO 42001', 'ISO 37001', 'ISO 50001', 'ISO 22000', 'ISO 20000'],
+          standards: [
+            'ISO 9001',
+            'ISO 14001',
+            'ISO 45001',
+            'ISO 27001',
+            'ISO 22301',
+            'ISO 31000',
+            'ISO 42001',
+            'ISO 37001',
+            'ISO 50001',
+            'ISO 22000',
+            'ISO 20000',
+          ],
           currentEvidence: [{ clause: '4.1', evidence: 'test', status: 'COMPLIANT' }],
         });
 
@@ -274,9 +300,27 @@ describe('Compliance Routes', () => {
   describe('POST /api/compliance/predictive-risk', () => {
     const validPayload = {
       historicalIncidents: [
-        { type: 'Slip/Trip/Fall', severity: 'MINOR', date: '2025-11-01', department: 'Warehouse', rootCause: 'Wet floor' },
-        { type: 'Chemical Exposure', severity: 'MAJOR', date: '2025-12-15', department: 'Lab', rootCause: 'PPE not worn' },
-        { type: 'Slip/Trip/Fall', severity: 'MODERATE', date: '2026-01-10', department: 'Warehouse', rootCause: 'Uneven surface' },
+        {
+          type: 'Slip/Trip/Fall',
+          severity: 'MINOR',
+          date: '2025-11-01',
+          department: 'Warehouse',
+          rootCause: 'Wet floor',
+        },
+        {
+          type: 'Chemical Exposure',
+          severity: 'MAJOR',
+          date: '2025-12-15',
+          department: 'Lab',
+          rootCause: 'PPE not worn',
+        },
+        {
+          type: 'Slip/Trip/Fall',
+          severity: 'MODERATE',
+          date: '2026-01-10',
+          department: 'Warehouse',
+          rootCause: 'Uneven surface',
+        },
       ],
       currentRisks: [
         { title: 'Slip hazards in warehouse', category: 'Physical', currentScore: 12 },
@@ -309,9 +353,7 @@ describe('Compliance Routes', () => {
     it('should return predictive risk analysis', async () => {
       mockOpenAIResponse(JSON.stringify(mockPredictiveResult));
 
-      const res = await request(app)
-        .post('/api/compliance/predictive-risk')
-        .send(validPayload);
+      const res = await request(app).post('/api/compliance/predictive-risk').send(validPayload);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -327,9 +369,7 @@ describe('Compliance Routes', () => {
       const res = await request(app)
         .post('/api/compliance/predictive-risk')
         .send({
-          historicalIncidents: [
-            { type: 'Near Miss', severity: 'LOW', date: '2026-01-05' },
-          ],
+          historicalIncidents: [{ type: 'Near Miss', severity: 'LOW', date: '2026-01-05' }],
         });
 
       expect(res.status).toBe(200);
@@ -383,9 +423,7 @@ describe('Compliance Routes', () => {
     });
 
     it('should return 400 when historicalIncidents is missing', async () => {
-      const res = await request(app)
-        .post('/api/compliance/predictive-risk')
-        .send({});
+      const res = await request(app).post('/api/compliance/predictive-risk').send({});
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -451,9 +489,7 @@ describe('Compliance Routes', () => {
     it('should return 400 when AI is not configured', async () => {
       (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app)
-        .post('/api/compliance/predictive-risk')
-        .send(validPayload);
+      const res = await request(app).post('/api/compliance/predictive-risk').send(validPayload);
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('NO_AI_CONFIG');
@@ -462,9 +498,7 @@ describe('Compliance Routes', () => {
     it('should return 400 when settings exist but apiKey is empty string', async () => {
       (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue({ ...mockSettings, apiKey: '' });
 
-      const res = await request(app)
-        .post('/api/compliance/predictive-risk')
-        .send(validPayload);
+      const res = await request(app).post('/api/compliance/predictive-risk').send(validPayload);
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('NO_AI_CONFIG');
@@ -473,9 +507,7 @@ describe('Compliance Routes', () => {
     it('should update token usage after predictive risk analysis', async () => {
       mockOpenAIResponse(JSON.stringify(mockPredictiveResult));
 
-      await request(app)
-        .post('/api/compliance/predictive-risk')
-        .send(validPayload);
+      await request(app).post('/api/compliance/predictive-risk').send(validPayload);
 
       expect(prisma.aISettings.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -496,9 +528,7 @@ describe('Compliance Routes', () => {
         }),
       });
 
-      const res = await request(app)
-        .post('/api/compliance/predictive-risk')
-        .send(validPayload);
+      const res = await request(app).post('/api/compliance/predictive-risk').send(validPayload);
 
       expect(res.status).toBe(500);
       expect(res.body.error.code).toBe('AI_ERROR');
@@ -516,13 +546,27 @@ describe('Compliance Routes', () => {
 
     // Use a simple mock result with no arrays to avoid parseJsonResponse regex issue
     const mockSearchResult = {
-      interpretation: 'User is searching for fire risk assessment procedures and related documentation',
+      interpretation:
+        'User is searching for fire risk assessment procedures and related documentation',
       searchTerms: 'fire risk assessment, FRA, fire safety, emergency procedures',
       relevantModules: {
-        emergency: { module: 'Emergency', relevanceScore: 95, suggestedEndpoint: '/api/emergency/fra' },
-        healthSafety: { module: 'Health & Safety', relevanceScore: 80, suggestedEndpoint: '/api/health-safety/risks' },
+        emergency: {
+          module: 'Emergency',
+          relevanceScore: 95,
+          suggestedEndpoint: '/api/emergency/fra',
+        },
+        healthSafety: {
+          module: 'Health & Safety',
+          relevanceScore: 80,
+          suggestedEndpoint: '/api/health-safety/risks',
+        },
       },
-      suggestedFilters: { dateRange: 'last 12 months', status: 'ACTIVE', severity: '', category: 'fire' },
+      suggestedFilters: {
+        dateRange: 'last 12 months',
+        status: 'ACTIVE',
+        severity: '',
+        category: 'fire',
+      },
       relatedSearches: 'fire warden training, evacuation drill records, fire equipment inspection',
       isoClausesRelated: 'ISO 45001 cl.8.2, ISO 22301 cl.8.4',
     };
@@ -530,9 +574,7 @@ describe('Compliance Routes', () => {
     it('should return semantic search results', async () => {
       mockOpenAIResponse(JSON.stringify(mockSearchResult));
 
-      const res = await request(app)
-        .post('/api/compliance/search')
-        .send(validPayload);
+      const res = await request(app).post('/api/compliance/search').send(validPayload);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -567,18 +609,14 @@ describe('Compliance Routes', () => {
     });
 
     it('should return 400 when query is missing', async () => {
-      const res = await request(app)
-        .post('/api/compliance/search')
-        .send({});
+      const res = await request(app).post('/api/compliance/search').send({});
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
     });
 
     it('should return 400 when query is too short (less than 3 chars)', async () => {
-      const res = await request(app)
-        .post('/api/compliance/search')
-        .send({ query: 'ab' });
+      const res = await request(app).post('/api/compliance/search').send({ query: 'ab' });
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -614,20 +652,19 @@ describe('Compliance Routes', () => {
     it('should return 400 when AI is not configured', async () => {
       (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app)
-        .post('/api/compliance/search')
-        .send(validPayload);
+      const res = await request(app).post('/api/compliance/search').send(validPayload);
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('NO_AI_CONFIG');
     });
 
     it('should return 400 when settings exist but apiKey is null', async () => {
-      (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue({ ...mockSettings, apiKey: null });
+      (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue({
+        ...mockSettings,
+        apiKey: null,
+      });
 
-      const res = await request(app)
-        .post('/api/compliance/search')
-        .send(validPayload);
+      const res = await request(app).post('/api/compliance/search').send(validPayload);
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('NO_AI_CONFIG');
@@ -636,9 +673,7 @@ describe('Compliance Routes', () => {
     it('should update token usage after search', async () => {
       mockOpenAIResponse(JSON.stringify(mockSearchResult));
 
-      await request(app)
-        .post('/api/compliance/search')
-        .send(validPayload);
+      await request(app).post('/api/compliance/search').send(validPayload);
 
       expect(prisma.aISettings.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -670,9 +705,7 @@ describe('Compliance Routes', () => {
         }),
       });
 
-      const res = await request(app)
-        .post('/api/compliance/search')
-        .send(validPayload);
+      const res = await request(app).post('/api/compliance/search').send(validPayload);
 
       expect(res.status).toBe(500);
       expect(res.body.error.code).toBe('AI_ERROR');
@@ -685,9 +718,7 @@ describe('Compliance Routes', () => {
     it('should call findFirst with deletedAt: null filter', async () => {
       mockOpenAIResponse(JSON.stringify({ interpretation: 'test', suggestedFilters: {} }));
 
-      await request(app)
-        .post('/api/compliance/search')
-        .send({ query: 'test query here' });
+      await request(app).post('/api/compliance/search').send({ query: 'test query here' });
 
       expect(prisma.aISettings.findFirst).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -700,9 +731,7 @@ describe('Compliance Routes', () => {
     it('should record lastUsedAt timestamp on token update', async () => {
       mockOpenAIResponse(JSON.stringify({ interpretation: 'test', suggestedFilters: {} }));
 
-      await request(app)
-        .post('/api/compliance/search')
-        .send({ query: 'test query here' });
+      await request(app).post('/api/compliance/search').send({ query: 'test query here' });
 
       expect(prisma.aISettings.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -739,12 +768,13 @@ describe('Compliance Routes', () => {
     });
 
     it('should use model from settings in API call', async () => {
-      (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue({ ...mockSettings, model: 'gpt-4-turbo' });
+      (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue({
+        ...mockSettings,
+        model: 'gpt-4-turbo',
+      });
       mockOpenAIResponse(JSON.stringify({ interpretation: 'test', suggestedFilters: {} }));
 
-      await request(app)
-        .post('/api/compliance/search')
-        .send({ query: 'test query here' });
+      await request(app).post('/api/compliance/search').send({ query: 'test query here' });
 
       const fetchCall = mockFetch.mock.calls[0];
       const body = JSON.parse(fetchCall[1].body);
@@ -755,7 +785,13 @@ describe('Compliance Routes', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          choices: [{ message: { content: JSON.stringify({ interpretation: 'test', suggestedFilters: {} }) } }],
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({ interpretation: 'test', suggestedFilters: {} }),
+              },
+            },
+          ],
           usage: { total_tokens: 0 },
         }),
       });

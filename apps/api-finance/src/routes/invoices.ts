@@ -72,8 +72,14 @@ const invoiceCreateSchema = z.object({
 
 const invoiceUpdateSchema = z.object({
   customerId: z.string().trim().uuid().optional(),
-  issueDate: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }).optional(),
-  dueDate: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }).optional(),
+  issueDate: z
+    .string()
+    .refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' })
+    .optional(),
+  dueDate: z
+    .string()
+    .refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' })
+    .optional(),
   notes: z.string().max(2000).optional().nullable(),
   lines: z.array(invoiceLineSchema).min(1).optional(),
 });
@@ -144,7 +150,10 @@ router.get('/customers', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List customers error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list customers' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list customers' },
+    });
   }
 });
 
@@ -159,13 +168,18 @@ router.get('/customers/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!customer || customer.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
     res.json({ success: true, data: customer });
   } catch (error) {
     logger.error('Get customer error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get customer' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get customer' },
+    });
   }
 });
 
@@ -177,7 +191,10 @@ router.post('/customers', async (req: AuthRequest, res: Response) => {
     // Check for duplicate code
     const existing = await prisma.finCustomer.findUnique({ where: { code: data.code } });
     if (existing) {
-      return res.status(400).json({ success: false, error: { code: 'DUPLICATE_CODE', message: 'Customer code already exists' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'DUPLICATE_CODE', message: 'Customer code already exists' },
+      });
     }
 
     const customer = await prisma.finCustomer.create({
@@ -194,11 +211,18 @@ router.post('/customers', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e) => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create customer error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create customer' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create customer' },
+    });
   }
 });
 
@@ -207,7 +231,9 @@ router.put('/customers/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.finCustomer.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
     const data = customerUpdateSchema.parse(req.body);
@@ -225,11 +251,18 @@ router.put('/customers/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e) => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update customer error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update customer' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update customer' },
+    });
   }
 });
 
@@ -249,13 +282,18 @@ router.delete('/customers/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
     if (existing.invoices.length > 0) {
       return res.status(409).json({
         success: false,
-        error: { code: 'HAS_UNPAID_INVOICES', message: 'Cannot delete customer with unpaid invoices. Settle all invoices first.' },
+        error: {
+          code: 'HAS_UNPAID_INVOICES',
+          message: 'Cannot delete customer with unpaid invoices. Settle all invoices first.',
+        },
       });
     }
 
@@ -267,7 +305,10 @@ router.delete('/customers/:id', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: { message: 'Customer deleted' } });
   } catch (error) {
     logger.error('Delete customer error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete customer' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete customer' },
+    });
   }
 });
 
@@ -323,7 +364,10 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List invoices error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list invoices' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list invoices' },
+    });
   }
 });
 
@@ -338,10 +382,14 @@ router.get('/aging', async (req: AuthRequest, res: Response) => {
       include: {
         customer: { select: { id: true, code: true, name: true } },
       },
-      take: 1000});
+      take: 1000,
+    });
 
     const now = new Date();
-    const buckets: Record<string, { total: number; count: number; invoices: Record<string, unknown>[] }> = {
+    const buckets: Record<
+      string,
+      { total: number; count: number; invoices: Record<string, unknown>[] }
+    > = {
       '0-30': { total: 0, count: 0, invoices: [] },
       '31-60': { total: 0, count: 0, invoices: [] },
       '61-90': { total: 0, count: 0, invoices: [] },
@@ -349,7 +397,10 @@ router.get('/aging', async (req: AuthRequest, res: Response) => {
     };
 
     for (const inv of invoices) {
-      const daysOverdue = Math.max(0, Math.floor((now.getTime() - new Date(inv.dueDate).getTime()) / (1000 * 60 * 60 * 24)));
+      const daysOverdue = Math.max(
+        0,
+        Math.floor((now.getTime() - new Date(inv.dueDate).getTime()) / (1000 * 60 * 60 * 24))
+      );
       const bucket = getAgingBucket(daysOverdue);
       buckets[bucket].total += Number(inv.amountDue);
       buckets[bucket].count += 1;
@@ -375,7 +426,10 @@ router.get('/aging', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('AR aging report error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate aging report' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate aging report' },
+    });
   }
 });
 
@@ -386,7 +440,9 @@ router.get('/statements/:customerId', async (req: AuthRequest, res: Response) =>
 
     const customer = await prisma.finCustomer.findUnique({ where: { id: customerId } });
     if (!customer) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
     const [invoices, payments, creditNotes] = await Promise.all([
@@ -403,7 +459,8 @@ router.get('/statements/:customerId', async (req: AuthRequest, res: Response) =>
           amountDue: true,
           status: true,
         },
-        take: 1000}),
+        take: 1000,
+      }),
       (prisma as any).finPayment.findMany({
         where: { customerId },
         orderBy: { date: 'asc' },
@@ -415,7 +472,8 @@ router.get('/statements/:customerId', async (req: AuthRequest, res: Response) =>
           method: true,
           invoiceId: true,
         },
-        take: 1000}),
+        take: 1000,
+      }),
       prisma.finCreditNote.findMany({
         where: { customerId },
         orderBy: { date: 'asc' },
@@ -427,7 +485,8 @@ router.get('/statements/:customerId', async (req: AuthRequest, res: Response) =>
           reason: true,
           invoiceId: true,
         },
-        take: 1000}),
+        take: 1000,
+      }),
     ]);
 
     const totalInvoiced = invoices.reduce((sum: number, inv: any) => sum + Number(inv.total), 0);
@@ -453,7 +512,10 @@ router.get('/statements/:customerId', async (req: AuthRequest, res: Response) =>
     });
   } catch (error) {
     logger.error('Customer statement error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate statement' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate statement' },
+    });
   }
 });
 
@@ -490,7 +552,10 @@ router.get('/credit-notes', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List credit notes error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list credit notes' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list credit notes' },
+    });
   }
 });
 
@@ -502,14 +567,18 @@ router.post('/credit-notes', async (req: AuthRequest, res: Response) => {
     // Validate customer exists
     const customer = await prisma.finCustomer.findUnique({ where: { id: data.customerId } });
     if (!customer || customer.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
     // Validate invoice if provided
     if (data.invoiceId) {
       const invoice = await prisma.finInvoice.findUnique({ where: { id: data.invoiceId } });
       if (!invoice) {
-        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
       }
       if (invoice.customerId !== data.customerId) {
         return res.status(400).json({
@@ -541,11 +610,18 @@ router.post('/credit-notes', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e) => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create credit note error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create credit note' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create credit note' },
+    });
   }
 });
 
@@ -588,7 +664,10 @@ router.get('/payments', async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List payments error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list payments' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list payments' },
+    });
   }
 });
 
@@ -600,7 +679,9 @@ router.post('/payments', async (req: AuthRequest, res: Response) => {
     // Validate customer exists
     const customer = await prisma.finCustomer.findUnique({ where: { id: data.customerId } });
     if (!customer || customer.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
     // Validate invoice if provided
@@ -608,7 +689,9 @@ router.post('/payments', async (req: AuthRequest, res: Response) => {
     if (data.invoiceId) {
       invoice = await prisma.finInvoice.findUnique({ where: { id: data.invoiceId } });
       if (!invoice) {
-        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
       }
       if (invoice.customerId !== data.customerId) {
         return res.status(400).json({
@@ -619,7 +702,10 @@ router.post('/payments', async (req: AuthRequest, res: Response) => {
       if (invoice.status === 'VOID' || invoice.status === 'PAID') {
         return res.status(400).json({
           success: false,
-          error: { code: 'INVALID_STATUS', message: `Cannot apply payment to ${invoice.status} invoice` },
+          error: {
+            code: 'INVALID_STATUS',
+            message: `Cannot apply payment to ${invoice.status} invoice`,
+          },
         });
       }
     }
@@ -671,11 +757,18 @@ router.post('/payments', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e) => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create payment error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create payment' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create payment' },
+    });
   }
 });
 
@@ -692,13 +785,18 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!invoice) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
     }
 
     res.json({ success: true, data: invoice });
   } catch (error) {
     logger.error('Get invoice error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get invoice' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get invoice' },
+    });
   }
 });
 
@@ -710,15 +808,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     // Validate customer exists
     const customer = await prisma.finCustomer.findUnique({ where: { id: data.customerId } });
     if (!customer || customer.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
     // Batch-fetch tax rates for all lines that specify one
     const taxRateIds = [...new Set(data.lines.map((l) => l.taxRateId).filter(Boolean) as string[])];
-    const taxRates = taxRateIds.length > 0
-      ? await prisma.finTaxRate.findMany({ where: { id: { in: taxRateIds }, isActive: true } as any,
-      take: 1000})
-      : [];
+    const taxRates =
+      taxRateIds.length > 0
+        ? await prisma.finTaxRate.findMany({
+            where: { id: { in: taxRateIds }, isActive: true } as any,
+            take: 1000,
+          })
+        : [];
     const taxRateMap = new Map(taxRates.map((r: any) => [r.id, Number(r.rate)]));
 
     // Calculate totals from lines
@@ -777,11 +880,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e) => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create invoice error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create invoice' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create invoice' },
+    });
   }
 });
 
@@ -790,7 +900,9 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.finInvoice.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
     }
 
     if (existing.status !== 'DRAFT') {
@@ -806,7 +918,9 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     if (data.customerId) {
       const customer = await prisma.finCustomer.findUnique({ where: { id: data.customerId } });
       if (!customer || customer.deletedAt) {
-        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
+        return res
+          .status(404)
+          .json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
       }
     }
 
@@ -820,14 +934,21 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     };
 
     // Remove undefined keys
-    Object.keys(updateData).forEach((key) => updateData[key] === undefined && delete updateData[key]);
+    Object.keys(updateData).forEach(
+      (key) => updateData[key] === undefined && delete updateData[key]
+    );
 
     if (data.lines) {
-      const updateTaxRateIds = [...new Set(data.lines.map((l) => l.taxRateId).filter(Boolean) as string[])];
-      const updateTaxRates = updateTaxRateIds.length > 0
-        ? await prisma.finTaxRate.findMany({ where: { id: { in: updateTaxRateIds }, isActive: true } as any,
-      take: 1000})
-        : [];
+      const updateTaxRateIds = [
+        ...new Set(data.lines.map((l) => l.taxRateId).filter(Boolean) as string[]),
+      ];
+      const updateTaxRates =
+        updateTaxRateIds.length > 0
+          ? await prisma.finTaxRate.findMany({
+              where: { id: { in: updateTaxRateIds }, isActive: true } as any,
+              take: 1000,
+            })
+          : [];
       const updateTaxRateMap = new Map(updateTaxRates.map((r: any) => [r.id, Number(r.rate)]));
 
       let subtotal = 0;
@@ -880,11 +1001,18 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e) => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update invoice error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update invoice' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update invoice' },
+    });
   }
 });
 
@@ -893,7 +1021,9 @@ router.post('/:id/send', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.finInvoice.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
     }
 
     if (existing.status !== 'DRAFT') {
@@ -918,7 +1048,10 @@ router.post('/:id/send', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: invoice });
   } catch (error) {
     logger.error('Send invoice error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to send invoice' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to send invoice' },
+    });
   }
 });
 
@@ -927,7 +1060,9 @@ router.post('/:id/void', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.finInvoice.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
     }
 
     if (existing.status === 'VOID') {
@@ -940,7 +1075,10 @@ router.post('/:id/void', async (req: AuthRequest, res: Response) => {
     if (existing.status === 'PAID') {
       return res.status(400).json({
         success: false,
-        error: { code: 'CANNOT_VOID_PAID', message: 'Cannot void a fully paid invoice. Create a credit note instead.' },
+        error: {
+          code: 'CANNOT_VOID_PAID',
+          message: 'Cannot void a fully paid invoice. Create a credit note instead.',
+        },
       });
     }
 
@@ -968,11 +1106,18 @@ router.post('/:id/void', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map((e) => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Void invoice error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to void invoice' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to void invoice' },
+    });
   }
 });
 

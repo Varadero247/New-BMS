@@ -8,19 +8,129 @@
     "approvedBy": "[Managing Director]",
     "isoRef": "ISO 31000:2018 Clause 5",
     "sections": [
-      { "heading": "1. Purpose", "content": "This policy establishes the organisation's commitment to systematic risk management in accordance with ISO 31000:2018 Risk Management — Guidelines. It defines the principles, framework, and process for managing risk across all activities, functions, and projects.\n\nThe policy ensures that risk management is integrated into governance, strategy, planning, management, reporting, policies, values, and culture." },
-      { "heading": "2. Scope", "content": "This policy applies to all employees, contractors, and third parties operating within the organisation. It covers all types of risk including but not limited to:", "bullets": ["Strategic and operational risks", "Health, safety, and environmental risks", "Financial and compliance risks", "Technology and cyber security risks", "Reputational and stakeholder risks", "Project and programme risks", "Supply chain and external risks"] },
-      { "heading": "3. Policy Statement", "content": "The organisation is committed to managing risk proactively and systematically to protect and create value for stakeholders. Risk management shall be:\n\na) Integrated — embedded in all organisational activities\nb) Structured and comprehensive — contributing to consistent and comparable results\nc) Customised — proportionate and aligned to context\nd) Inclusive — involving appropriate and timely stakeholder engagement\ne) Dynamic — anticipating, detecting, acknowledging, and responding to changes\nf) Based on the best available information\ng) Considerate of human and cultural factors\nh) Subject to continual improvement" },
-      { "heading": "4. Risk Management Principles (ISO 31000 Cl. 4)", "content": "Risk management creates and protects value by contributing to the achievement of objectives and improvement of performance. The following principles form the foundation:", "bullets": ["Value creation and protection through informed decision-making", "Integration into organisational processes at all levels", "Structured and comprehensive approach to consistent outcomes", "Customisation to the organisation's external and internal context", "Inclusive engagement of stakeholders for diverse knowledge and views", "Dynamic responsiveness to emerging and changing risks", "Best available information as the basis for decisions", "Human and cultural factors influencing all aspects of risk management", "Continual improvement through learning and experience"] },
-      { "heading": "5. Risk Management Framework (ISO 31000 Cl. 5)", "level": 1, "content": "The risk management framework provides the foundations and organisational arrangements for designing, implementing, monitoring, reviewing, and continually improving risk management throughout the organisation." },
-      { "heading": "5.1 Leadership and Commitment", "level": 2, "content": "Top management and oversight bodies shall demonstrate leadership and commitment by ensuring risk management is integrated into all organisational activities, allocating appropriate resources, and establishing risk appetite and tolerance levels." },
-      { "heading": "5.2 Integration", "level": 2, "content": "Risk management shall be a part of, and not separate from, the organisational purpose, governance, leadership and commitment, strategy, objectives, and operations." },
-      { "heading": "5.3 Design", "level": 2, "content": "The framework shall be designed considering the organisation's external and internal context, risk management policy, accountability and oversight, resource allocation, and communication and consultation mechanisms." },
-      { "heading": "5.4 Implementation", "level": 2, "content": "Implementation shall include developing an appropriate plan including timelines and resources, identifying where, when, and how decisions are made, and modifying applicable decision-making processes." },
-      { "heading": "5.5 Evaluation and Improvement", "level": 2, "content": "The organisation shall periodically measure framework performance against its purpose, plans, indicators, and expected behaviour, and determine whether it remains suitable to support achieving objectives." },
-      { "heading": "6. Risk Appetite and Tolerance", "content": "The organisation defines risk appetite statements for each risk category. These thresholds determine acceptable residual risk levels and escalation triggers:", "table": { "headers": ["Risk Category", "Appetite Level", "Max Tolerable Score", "Acceptable Residual", "Escalation Threshold"], "rows": [["Health & Safety", "Very Low", "6", "3", "8"], ["Environmental", "Very Low", "6", "3", "8"], ["Financial", "Moderate", "12", "8", "15"], ["Operational", "Low", "9", "6", "12"], ["Compliance/Legal", "Very Low", "4", "3", "6"], ["Technology/Cyber", "Low", "8", "6", "10"], ["Reputational", "Low", "9", "6", "12"], ["Strategic", "Moderate", "12", "9", "15"], ["[Category]", "[Level]", "[Score]", "[Score]", "[Score]"]] } },
-      { "heading": "7. Roles and Responsibilities", "content": "Clear accountability for risk management is essential:", "table": { "headers": ["Role", "Responsibility"], "rows": [["Board/Executive", "Approve risk policy, set risk appetite, oversee framework effectiveness"], ["Chief Risk Officer", "Design and maintain risk framework, report to board, coordinate risk activities"], ["Risk Committee", "Review risk register, monitor KRIs, approve treatment plans, escalate issues"], ["Risk Owners", "Identify, assess, and manage risks within their area, implement controls"], ["All Employees", "Report risks and incidents, follow risk procedures, participate in training"]] } },
-      { "heading": "8. Review and Approval", "content": "This policy shall be reviewed at least annually or following significant organisational changes, incidents, or audit findings. The review shall assess policy effectiveness, alignment with ISO 31000:2018, and changes in the external and internal context.\n\nAll amendments require approval from the Managing Director." }
+      {
+        "heading": "1. Purpose",
+        "content": "This policy establishes the organisation's commitment to systematic risk management in accordance with ISO 31000:2018 Risk Management — Guidelines. It defines the principles, framework, and process for managing risk across all activities, functions, and projects.\n\nThe policy ensures that risk management is integrated into governance, strategy, planning, management, reporting, policies, values, and culture."
+      },
+      {
+        "heading": "2. Scope",
+        "content": "This policy applies to all employees, contractors, and third parties operating within the organisation. It covers all types of risk including but not limited to:",
+        "bullets": [
+          "Strategic and operational risks",
+          "Health, safety, and environmental risks",
+          "Financial and compliance risks",
+          "Technology and cyber security risks",
+          "Reputational and stakeholder risks",
+          "Project and programme risks",
+          "Supply chain and external risks"
+        ]
+      },
+      {
+        "heading": "3. Policy Statement",
+        "content": "The organisation is committed to managing risk proactively and systematically to protect and create value for stakeholders. Risk management shall be:\n\na) Integrated — embedded in all organisational activities\nb) Structured and comprehensive — contributing to consistent and comparable results\nc) Customised — proportionate and aligned to context\nd) Inclusive — involving appropriate and timely stakeholder engagement\ne) Dynamic — anticipating, detecting, acknowledging, and responding to changes\nf) Based on the best available information\ng) Considerate of human and cultural factors\nh) Subject to continual improvement"
+      },
+      {
+        "heading": "4. Risk Management Principles (ISO 31000 Cl. 4)",
+        "content": "Risk management creates and protects value by contributing to the achievement of objectives and improvement of performance. The following principles form the foundation:",
+        "bullets": [
+          "Value creation and protection through informed decision-making",
+          "Integration into organisational processes at all levels",
+          "Structured and comprehensive approach to consistent outcomes",
+          "Customisation to the organisation's external and internal context",
+          "Inclusive engagement of stakeholders for diverse knowledge and views",
+          "Dynamic responsiveness to emerging and changing risks",
+          "Best available information as the basis for decisions",
+          "Human and cultural factors influencing all aspects of risk management",
+          "Continual improvement through learning and experience"
+        ]
+      },
+      {
+        "heading": "5. Risk Management Framework (ISO 31000 Cl. 5)",
+        "level": 1,
+        "content": "The risk management framework provides the foundations and organisational arrangements for designing, implementing, monitoring, reviewing, and continually improving risk management throughout the organisation."
+      },
+      {
+        "heading": "5.1 Leadership and Commitment",
+        "level": 2,
+        "content": "Top management and oversight bodies shall demonstrate leadership and commitment by ensuring risk management is integrated into all organisational activities, allocating appropriate resources, and establishing risk appetite and tolerance levels."
+      },
+      {
+        "heading": "5.2 Integration",
+        "level": 2,
+        "content": "Risk management shall be a part of, and not separate from, the organisational purpose, governance, leadership and commitment, strategy, objectives, and operations."
+      },
+      {
+        "heading": "5.3 Design",
+        "level": 2,
+        "content": "The framework shall be designed considering the organisation's external and internal context, risk management policy, accountability and oversight, resource allocation, and communication and consultation mechanisms."
+      },
+      {
+        "heading": "5.4 Implementation",
+        "level": 2,
+        "content": "Implementation shall include developing an appropriate plan including timelines and resources, identifying where, when, and how decisions are made, and modifying applicable decision-making processes."
+      },
+      {
+        "heading": "5.5 Evaluation and Improvement",
+        "level": 2,
+        "content": "The organisation shall periodically measure framework performance against its purpose, plans, indicators, and expected behaviour, and determine whether it remains suitable to support achieving objectives."
+      },
+      {
+        "heading": "6. Risk Appetite and Tolerance",
+        "content": "The organisation defines risk appetite statements for each risk category. These thresholds determine acceptable residual risk levels and escalation triggers:",
+        "table": {
+          "headers": [
+            "Risk Category",
+            "Appetite Level",
+            "Max Tolerable Score",
+            "Acceptable Residual",
+            "Escalation Threshold"
+          ],
+          "rows": [
+            ["Health & Safety", "Very Low", "6", "3", "8"],
+            ["Environmental", "Very Low", "6", "3", "8"],
+            ["Financial", "Moderate", "12", "8", "15"],
+            ["Operational", "Low", "9", "6", "12"],
+            ["Compliance/Legal", "Very Low", "4", "3", "6"],
+            ["Technology/Cyber", "Low", "8", "6", "10"],
+            ["Reputational", "Low", "9", "6", "12"],
+            ["Strategic", "Moderate", "12", "9", "15"],
+            ["[Category]", "[Level]", "[Score]", "[Score]", "[Score]"]
+          ]
+        }
+      },
+      {
+        "heading": "7. Roles and Responsibilities",
+        "content": "Clear accountability for risk management is essential:",
+        "table": {
+          "headers": ["Role", "Responsibility"],
+          "rows": [
+            [
+              "Board/Executive",
+              "Approve risk policy, set risk appetite, oversee framework effectiveness"
+            ],
+            [
+              "Chief Risk Officer",
+              "Design and maintain risk framework, report to board, coordinate risk activities"
+            ],
+            [
+              "Risk Committee",
+              "Review risk register, monitor KRIs, approve treatment plans, escalate issues"
+            ],
+            [
+              "Risk Owners",
+              "Identify, assess, and manage risks within their area, implement controls"
+            ],
+            [
+              "All Employees",
+              "Report risks and incidents, follow risk procedures, participate in training"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "8. Review and Approval",
+        "content": "This policy shall be reviewed at least annually or following significant organisational changes, incidents, or audit findings. The review shall assess policy effectiveness, alignment with ISO 31000:2018, and changes in the external and internal context.\n\nAll amendments require approval from the Managing Director."
+      }
     ]
   },
   {
@@ -32,21 +142,100 @@
     "approvedBy": "[Board of Directors]",
     "isoRef": "ISO 31000:2018 / ISO Guide 73:2009",
     "sections": [
-      { "heading": "1. Purpose", "content": "This document defines the organisation's risk appetite — the amount and type of risk it is prepared to pursue, retain, or take in order to achieve its objectives. It provides the basis for risk-based decision-making and ensures consistent application of risk tolerance thresholds across all functions." },
-      { "heading": "2. Definitions", "content": "The following terms are used in accordance with ISO Guide 73:2009:", "bullets": ["Risk Appetite: The amount and type of risk an organisation is willing to pursue or retain", "Risk Tolerance: The organisation's readiness to bear the risk after risk treatments, in order to achieve its objectives", "Risk Capacity: The maximum amount of risk the organisation can absorb", "Risk Threshold: A level of risk above which risks are not tolerable regardless of benefits"] },
-      { "heading": "3. Overall Risk Appetite", "content": "The organisation adopts a balanced approach to risk, recognising that some risk-taking is necessary to achieve strategic objectives. The overall risk appetite is MODERATE — the organisation is willing to accept a moderate level of risk in pursuit of its goals, provided risks are identified, assessed, and managed within defined tolerance levels.\n\nRisks to health, safety, and regulatory compliance are subject to a VERY LOW appetite — these risks must be minimised to as low as reasonably practicable (ALARP)." },
-      { "heading": "4. Risk Appetite by Category", "content": "Each risk category has a defined appetite level with corresponding scoring thresholds based on the 5×5 risk matrix (score range 1-25):" },
-      { "heading": "4.1 Health & Safety — VERY LOW", "level": 2, "content": "Maximum Tolerable Score: 6 | Acceptable Residual: 3 | Escalation Threshold: 8\n\nThe organisation has zero tolerance for preventable harm. All health and safety risks must be reduced to ALARP. Any risk scoring above 6 requires immediate escalation and a documented treatment plan." },
-      { "heading": "4.2 Environmental — VERY LOW", "level": 2, "content": "Maximum Tolerable Score: 6 | Acceptable Residual: 3 | Escalation Threshold: 8\n\nEnvironmental risks including pollution, emissions, and waste must be minimised. Regulatory non-compliance is unacceptable." },
-      { "heading": "4.3 Compliance & Legal — VERY LOW", "level": 2, "content": "Maximum Tolerable Score: 4 | Acceptable Residual: 3 | Escalation Threshold: 6\n\nRegulatory and legal compliance risks must be maintained at the lowest achievable level. Zero tolerance for deliberate non-compliance." },
-      { "heading": "4.4 Financial — MODERATE", "level": 2, "content": "Maximum Tolerable Score: 12 | Acceptable Residual: 8 | Escalation Threshold: 15\n\nModerate financial risk is acceptable where aligned with strategy and within budget parameters. Material financial exposures require board awareness." },
-      { "heading": "4.5 Operational — LOW", "level": 2, "content": "Maximum Tolerable Score: 9 | Acceptable Residual: 6 | Escalation Threshold: 12\n\nOperational disruptions should be minimised through robust controls and business continuity planning." },
-      { "heading": "4.6 Technology & Cyber — LOW", "level": 2, "content": "Maximum Tolerable Score: 8 | Acceptable Residual: 6 | Escalation Threshold: 10\n\nCyber risks demand proactive management. Critical system downtime and data breaches are not tolerable." },
-      { "heading": "4.7 Strategic — MODERATE", "level": 2, "content": "Maximum Tolerable Score: 12 | Acceptable Residual: 9 | Escalation Threshold: 15\n\nStrategic risks are inherent in growth and transformation. Controlled risk-taking aligned with strategy is encouraged." },
-      { "heading": "4.8 Reputational — LOW", "level": 2, "content": "Maximum Tolerable Score: 9 | Acceptable Residual: 6 | Escalation Threshold: 12\n\nReputation damage can have lasting effects. Risks to brand, stakeholder confidence, and public trust must be carefully managed." },
-      { "heading": "5. Appetite Status Classification", "content": "Each risk is classified against its category's appetite thresholds:", "table": { "headers": ["Status", "Criteria", "Action Required"], "rows": [["WITHIN", "Residual score ≤ acceptable residual score", "Monitor per review frequency; no additional action"], ["AT_LIMIT", "Residual score > acceptable but ≤ maximum tolerable", "Enhanced monitoring; treatment plan recommended"], ["EXCEEDS", "Residual score > maximum tolerable score", "Immediate escalation; mandatory treatment plan; report to Risk Committee"]] } },
-      { "heading": "6. Monitoring and Review", "content": "Risk appetite statements shall be reviewed:\n\na) At least annually by the Risk Committee\nb) Following any significant incident or near-miss\nc) When strategic objectives change\nd) After material changes in the external environment\n\nThe Chief Risk Officer shall report appetite breaches to the Board quarterly." },
-      { "heading": "7. Approval", "content": "This Risk Appetite Statement is approved by the Board of Directors and is effective from the date of approval." }
+      {
+        "heading": "1. Purpose",
+        "content": "This document defines the organisation's risk appetite — the amount and type of risk it is prepared to pursue, retain, or take in order to achieve its objectives. It provides the basis for risk-based decision-making and ensures consistent application of risk tolerance thresholds across all functions."
+      },
+      {
+        "heading": "2. Definitions",
+        "content": "The following terms are used in accordance with ISO Guide 73:2009:",
+        "bullets": [
+          "Risk Appetite: The amount and type of risk an organisation is willing to pursue or retain",
+          "Risk Tolerance: The organisation's readiness to bear the risk after risk treatments, in order to achieve its objectives",
+          "Risk Capacity: The maximum amount of risk the organisation can absorb",
+          "Risk Threshold: A level of risk above which risks are not tolerable regardless of benefits"
+        ]
+      },
+      {
+        "heading": "3. Overall Risk Appetite",
+        "content": "The organisation adopts a balanced approach to risk, recognising that some risk-taking is necessary to achieve strategic objectives. The overall risk appetite is MODERATE — the organisation is willing to accept a moderate level of risk in pursuit of its goals, provided risks are identified, assessed, and managed within defined tolerance levels.\n\nRisks to health, safety, and regulatory compliance are subject to a VERY LOW appetite — these risks must be minimised to as low as reasonably practicable (ALARP)."
+      },
+      {
+        "heading": "4. Risk Appetite by Category",
+        "content": "Each risk category has a defined appetite level with corresponding scoring thresholds based on the 5×5 risk matrix (score range 1-25):"
+      },
+      {
+        "heading": "4.1 Health & Safety — VERY LOW",
+        "level": 2,
+        "content": "Maximum Tolerable Score: 6 | Acceptable Residual: 3 | Escalation Threshold: 8\n\nThe organisation has zero tolerance for preventable harm. All health and safety risks must be reduced to ALARP. Any risk scoring above 6 requires immediate escalation and a documented treatment plan."
+      },
+      {
+        "heading": "4.2 Environmental — VERY LOW",
+        "level": 2,
+        "content": "Maximum Tolerable Score: 6 | Acceptable Residual: 3 | Escalation Threshold: 8\n\nEnvironmental risks including pollution, emissions, and waste must be minimised. Regulatory non-compliance is unacceptable."
+      },
+      {
+        "heading": "4.3 Compliance & Legal — VERY LOW",
+        "level": 2,
+        "content": "Maximum Tolerable Score: 4 | Acceptable Residual: 3 | Escalation Threshold: 6\n\nRegulatory and legal compliance risks must be maintained at the lowest achievable level. Zero tolerance for deliberate non-compliance."
+      },
+      {
+        "heading": "4.4 Financial — MODERATE",
+        "level": 2,
+        "content": "Maximum Tolerable Score: 12 | Acceptable Residual: 8 | Escalation Threshold: 15\n\nModerate financial risk is acceptable where aligned with strategy and within budget parameters. Material financial exposures require board awareness."
+      },
+      {
+        "heading": "4.5 Operational — LOW",
+        "level": 2,
+        "content": "Maximum Tolerable Score: 9 | Acceptable Residual: 6 | Escalation Threshold: 12\n\nOperational disruptions should be minimised through robust controls and business continuity planning."
+      },
+      {
+        "heading": "4.6 Technology & Cyber — LOW",
+        "level": 2,
+        "content": "Maximum Tolerable Score: 8 | Acceptable Residual: 6 | Escalation Threshold: 10\n\nCyber risks demand proactive management. Critical system downtime and data breaches are not tolerable."
+      },
+      {
+        "heading": "4.7 Strategic — MODERATE",
+        "level": 2,
+        "content": "Maximum Tolerable Score: 12 | Acceptable Residual: 9 | Escalation Threshold: 15\n\nStrategic risks are inherent in growth and transformation. Controlled risk-taking aligned with strategy is encouraged."
+      },
+      {
+        "heading": "4.8 Reputational — LOW",
+        "level": 2,
+        "content": "Maximum Tolerable Score: 9 | Acceptable Residual: 6 | Escalation Threshold: 12\n\nReputation damage can have lasting effects. Risks to brand, stakeholder confidence, and public trust must be carefully managed."
+      },
+      {
+        "heading": "5. Appetite Status Classification",
+        "content": "Each risk is classified against its category's appetite thresholds:",
+        "table": {
+          "headers": ["Status", "Criteria", "Action Required"],
+          "rows": [
+            [
+              "WITHIN",
+              "Residual score ≤ acceptable residual score",
+              "Monitor per review frequency; no additional action"
+            ],
+            [
+              "AT_LIMIT",
+              "Residual score > acceptable but ≤ maximum tolerable",
+              "Enhanced monitoring; treatment plan recommended"
+            ],
+            [
+              "EXCEEDS",
+              "Residual score > maximum tolerable score",
+              "Immediate escalation; mandatory treatment plan; report to Risk Committee"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "6. Monitoring and Review",
+        "content": "Risk appetite statements shall be reviewed:\n\na) At least annually by the Risk Committee\nb) Following any significant incident or near-miss\nc) When strategic objectives change\nd) After material changes in the external environment\n\nThe Chief Risk Officer shall report appetite breaches to the Board quarterly."
+      },
+      {
+        "heading": "7. Approval",
+        "content": "This Risk Appetite Statement is approved by the Board of Directors and is effective from the date of approval."
+      }
     ]
   },
   {
@@ -58,17 +247,137 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31000:2018 Clause 6.4",
     "sections": [
-      { "heading": "1. Purpose", "content": "This procedure describes the systematic process for identifying, analysing, and evaluating risks in accordance with ISO 31000:2018 Clause 6.4 (Risk Assessment). It ensures consistent application of risk assessment methodology across the organisation." },
-      { "heading": "2. Scope", "content": "This procedure applies to all risk assessments conducted within the organisation including:", "bullets": ["Strategic and operational risk assessments", "Project risk assessments", "Change-related risk assessments", "Module-specific assessments (H&S, environmental, cyber, financial)", "Risks imported from other IMS modules (COSHH, FRA, incidents, audits)"] },
-      { "heading": "3. Risk Assessment Process (ISO 31000 Cl. 6.4)", "content": "Risk assessment is the overall process of risk identification, risk analysis, and risk evaluation." },
-      { "heading": "3.1 Risk Identification (Cl. 6.4.2)", "level": 2, "content": "The purpose of risk identification is to find, recognise, and describe risks that might help or prevent the organisation achieving its objectives.\n\nMethods include:", "bullets": ["Brainstorming and workshops", "Checklists and historical data review", "SWOT and PESTLE analysis", "Process flow analysis", "Incident and near-miss trend analysis", "Automatic import from linked IMS modules (COSHH assessments, fire risk assessments, incident investigations, audit findings)", "Stakeholder consultation"] },
-      { "heading": "3.2 Risk Analysis (Cl. 6.4.3)", "level": 2, "content": "Risk analysis involves understanding the nature, sources, and causes of identified risks and estimating the level of risk.\n\nThe 5×5 Risk Matrix is used:" },
-      { "table": { "headers": ["Score", "Likelihood", "Consequence"], "rows": [["1", "Rare — May occur only in exceptional circumstances", "Insignificant — Negligible impact"], ["2", "Unlikely — Could occur at some time", "Minor — Small impact, easily managed"], ["3", "Possible — Might occur at some time", "Moderate — Significant but manageable impact"], ["4", "Likely — Will probably occur in most circumstances", "Major — Serious impact requiring significant response"], ["5", "Almost Certain — Expected to occur in most circumstances", "Catastrophic — Severe/irreversible impact"]] } },
-      { "heading": "3.3 Risk Scoring", "level": 2, "content": "Risk Score = Likelihood × Consequence (range 1-25)\n\nBoth inherent risk (before controls) and residual risk (after controls) are assessed:", "table": { "headers": ["Risk Level", "Score Range", "Colour", "Response"], "rows": [["LOW", "1-3", "Green", "Accept and monitor"], ["MEDIUM", "4-6", "Yellow", "Manage by routine procedures"], ["HIGH", "8-12", "Amber", "Senior management attention required"], ["VERY HIGH", "15-19", "Orange", "Immediate action required"], ["CRITICAL", "20-25", "Red", "Urgent executive action"]] } },
-      { "heading": "3.4 Risk Evaluation (Cl. 6.4.4)", "level": 2, "content": "Risk evaluation involves comparing the results of risk analysis with the established risk appetite (RM-POL-002) to determine whether the risk and its magnitude are acceptable or tolerable.\n\nRisks scoring above the category's maximum tolerable score are classified as EXCEEDS APPETITE and require mandatory treatment planning and escalation." },
-      { "heading": "4. Control Assessment", "content": "Existing controls are documented and assessed for effectiveness:", "table": { "headers": ["Effectiveness", "Criteria"], "rows": [["STRONG", "Control is well-designed, consistently applied, and demonstrably effective"], ["ADEQUATE", "Control is reasonably effective but has minor gaps"], ["WEAK", "Control has significant gaps or is inconsistently applied"], ["NONE_EFFECTIVE", "Control is absent, ineffective, or not applied"]] } },
-      { "heading": "5. Documentation", "content": "All risk assessments shall be recorded in the Enterprise Risk Register using form RM-FRM-001 or the Nexara IMS digital platform. The record shall include:", "bullets": ["Unique reference number (auto-generated: RISK-YYYY-NNNN)", "Risk title, description, causes, risk event, and consequences", "Risk category and source module", "Inherent likelihood, consequence, and score", "Existing controls with effectiveness ratings", "Residual likelihood, consequence, and score", "Risk appetite status (WITHIN / AT_LIMIT / EXCEEDS)", "Treatment option and plan", "Risk owner and review date"] },
-      { "heading": "6. Review Frequency", "content": "Risk assessments shall be reviewed at the following intervals:", "table": { "headers": ["Risk Level", "Review Frequency"], "rows": [["CRITICAL", "Monthly"], ["VERY HIGH", "Monthly"], ["HIGH", "Quarterly"], ["MEDIUM", "Six-monthly"], ["LOW", "Annually"]] } }
+      {
+        "heading": "1. Purpose",
+        "content": "This procedure describes the systematic process for identifying, analysing, and evaluating risks in accordance with ISO 31000:2018 Clause 6.4 (Risk Assessment). It ensures consistent application of risk assessment methodology across the organisation."
+      },
+      {
+        "heading": "2. Scope",
+        "content": "This procedure applies to all risk assessments conducted within the organisation including:",
+        "bullets": [
+          "Strategic and operational risk assessments",
+          "Project risk assessments",
+          "Change-related risk assessments",
+          "Module-specific assessments (H&S, environmental, cyber, financial)",
+          "Risks imported from other IMS modules (COSHH, FRA, incidents, audits)"
+        ]
+      },
+      {
+        "heading": "3. Risk Assessment Process (ISO 31000 Cl. 6.4)",
+        "content": "Risk assessment is the overall process of risk identification, risk analysis, and risk evaluation."
+      },
+      {
+        "heading": "3.1 Risk Identification (Cl. 6.4.2)",
+        "level": 2,
+        "content": "The purpose of risk identification is to find, recognise, and describe risks that might help or prevent the organisation achieving its objectives.\n\nMethods include:",
+        "bullets": [
+          "Brainstorming and workshops",
+          "Checklists and historical data review",
+          "SWOT and PESTLE analysis",
+          "Process flow analysis",
+          "Incident and near-miss trend analysis",
+          "Automatic import from linked IMS modules (COSHH assessments, fire risk assessments, incident investigations, audit findings)",
+          "Stakeholder consultation"
+        ]
+      },
+      {
+        "heading": "3.2 Risk Analysis (Cl. 6.4.3)",
+        "level": 2,
+        "content": "Risk analysis involves understanding the nature, sources, and causes of identified risks and estimating the level of risk.\n\nThe 5×5 Risk Matrix is used:"
+      },
+      {
+        "table": {
+          "headers": ["Score", "Likelihood", "Consequence"],
+          "rows": [
+            [
+              "1",
+              "Rare — May occur only in exceptional circumstances",
+              "Insignificant — Negligible impact"
+            ],
+            ["2", "Unlikely — Could occur at some time", "Minor — Small impact, easily managed"],
+            [
+              "3",
+              "Possible — Might occur at some time",
+              "Moderate — Significant but manageable impact"
+            ],
+            [
+              "4",
+              "Likely — Will probably occur in most circumstances",
+              "Major — Serious impact requiring significant response"
+            ],
+            [
+              "5",
+              "Almost Certain — Expected to occur in most circumstances",
+              "Catastrophic — Severe/irreversible impact"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "3.3 Risk Scoring",
+        "level": 2,
+        "content": "Risk Score = Likelihood × Consequence (range 1-25)\n\nBoth inherent risk (before controls) and residual risk (after controls) are assessed:",
+        "table": {
+          "headers": ["Risk Level", "Score Range", "Colour", "Response"],
+          "rows": [
+            ["LOW", "1-3", "Green", "Accept and monitor"],
+            ["MEDIUM", "4-6", "Yellow", "Manage by routine procedures"],
+            ["HIGH", "8-12", "Amber", "Senior management attention required"],
+            ["VERY HIGH", "15-19", "Orange", "Immediate action required"],
+            ["CRITICAL", "20-25", "Red", "Urgent executive action"]
+          ]
+        }
+      },
+      {
+        "heading": "3.4 Risk Evaluation (Cl. 6.4.4)",
+        "level": 2,
+        "content": "Risk evaluation involves comparing the results of risk analysis with the established risk appetite (RM-POL-002) to determine whether the risk and its magnitude are acceptable or tolerable.\n\nRisks scoring above the category's maximum tolerable score are classified as EXCEEDS APPETITE and require mandatory treatment planning and escalation."
+      },
+      {
+        "heading": "4. Control Assessment",
+        "content": "Existing controls are documented and assessed for effectiveness:",
+        "table": {
+          "headers": ["Effectiveness", "Criteria"],
+          "rows": [
+            [
+              "STRONG",
+              "Control is well-designed, consistently applied, and demonstrably effective"
+            ],
+            ["ADEQUATE", "Control is reasonably effective but has minor gaps"],
+            ["WEAK", "Control has significant gaps or is inconsistently applied"],
+            ["NONE_EFFECTIVE", "Control is absent, ineffective, or not applied"]
+          ]
+        }
+      },
+      {
+        "heading": "5. Documentation",
+        "content": "All risk assessments shall be recorded in the Enterprise Risk Register using form RM-FRM-001 or the Nexara IMS digital platform. The record shall include:",
+        "bullets": [
+          "Unique reference number (auto-generated: RISK-YYYY-NNNN)",
+          "Risk title, description, causes, risk event, and consequences",
+          "Risk category and source module",
+          "Inherent likelihood, consequence, and score",
+          "Existing controls with effectiveness ratings",
+          "Residual likelihood, consequence, and score",
+          "Risk appetite status (WITHIN / AT_LIMIT / EXCEEDS)",
+          "Treatment option and plan",
+          "Risk owner and review date"
+        ]
+      },
+      {
+        "heading": "6. Review Frequency",
+        "content": "Risk assessments shall be reviewed at the following intervals:",
+        "table": {
+          "headers": ["Risk Level", "Review Frequency"],
+          "rows": [
+            ["CRITICAL", "Monthly"],
+            ["VERY HIGH", "Monthly"],
+            ["HIGH", "Quarterly"],
+            ["MEDIUM", "Six-monthly"],
+            ["LOW", "Annually"]
+          ]
+        }
+      }
     ]
   },
   {
@@ -80,12 +389,104 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31000:2018 Clause 6.5",
     "sections": [
-      { "heading": "1. Purpose", "content": "This procedure defines the process for selecting and implementing risk treatment options in accordance with ISO 31000:2018 Clause 6.5 (Risk Treatment). It ensures risks exceeding appetite thresholds are systematically addressed through appropriate treatment strategies." },
-      { "heading": "2. Treatment Options (ISO 31000 Cl. 6.5.2)", "content": "The following treatment options are available. Selection should be based on the risk level, cost-benefit analysis, and alignment with organisational objectives:", "table": { "headers": ["Option", "Code", "Description", "When to Use"], "rows": [["Avoid", "AVOID", "Eliminate the risk by not starting or continuing the activity", "Unacceptable risk where no viable treatment exists"], ["Reduce Likelihood", "REDUCE_LIKELIHOOD", "Implement controls to decrease the probability of occurrence", "Where preventive measures can significantly lower frequency"], ["Reduce Consequence", "REDUCE_CONSEQUENCE", "Implement controls to minimise the impact if the risk materialises", "Where impact mitigation is more practical than prevention"], ["Share/Transfer", "SHARE", "Share the risk with other parties (insurance, outsourcing, JVs)", "Where risk can be effectively distributed to parties better able to manage it"], ["Accept/Retain", "ACCEPT", "Retain the risk by informed decision, within appetite", "Where residual risk is within appetite after analysis"], ["Exploit", "EXPLOIT", "Increase exposure to capture upside opportunity", "Positive risks/opportunities where benefit outweighs downside"]] } },
-      { "heading": "3. Treatment Plan Requirements", "content": "Each risk requiring treatment shall have a documented treatment plan including:", "bullets": ["Selected treatment option with justification", "Specific treatment actions with responsible owners", "Target residual risk score", "Implementation timeline with milestones", "Resource requirements and budget allocation", "Expected effectiveness of proposed treatments", "Monitoring and review arrangements", "Escalation criteria if treatment is ineffective"] },
-      { "heading": "4. Treatment Action Tracking", "content": "Treatment actions are tracked in the Nexara IMS platform with the following fields:", "table": { "headers": ["Field", "Description"], "rows": [["Action Title", "Clear description of the treatment action"], ["Description", "Detailed explanation of what is required"], ["Owner", "Person accountable for completion"], ["Priority", "CRITICAL / HIGH / MEDIUM / LOW"], ["Target Date", "Expected completion date"], ["Status", "OPEN / IN_PROGRESS / COMPLETED / OVERDUE"], ["Evidence", "Documentation confirming completion"], ["Completion Date", "Actual date of completion"]] } },
-      { "heading": "5. Approval and Escalation", "content": "Treatment plans for risks with the following levels require specific approval:", "table": { "headers": ["Risk Level", "Approval Authority", "Escalation"], "rows": [["CRITICAL (20-25)", "Board/Executive Committee", "Immediate notification to CEO"], ["VERY HIGH (15-19)", "Chief Risk Officer", "Monthly board report"], ["HIGH (8-12)", "Risk Committee", "Quarterly board report"], ["MEDIUM (4-6)", "Department Manager", "Annual risk review"], ["LOW (1-3)", "Risk Owner", "Routine monitoring"]] } },
-      { "heading": "6. Monitoring and Review", "content": "Treatment effectiveness shall be monitored through:\n\na) Regular review of treatment action status and due dates\nb) Reassessment of residual risk scores after treatment implementation\nc) Key Risk Indicator (KRI) monitoring for treated risks\nd) Post-treatment audit verification\n\nThe Risk Committee shall review all active treatment plans quarterly." }
+      {
+        "heading": "1. Purpose",
+        "content": "This procedure defines the process for selecting and implementing risk treatment options in accordance with ISO 31000:2018 Clause 6.5 (Risk Treatment). It ensures risks exceeding appetite thresholds are systematically addressed through appropriate treatment strategies."
+      },
+      {
+        "heading": "2. Treatment Options (ISO 31000 Cl. 6.5.2)",
+        "content": "The following treatment options are available. Selection should be based on the risk level, cost-benefit analysis, and alignment with organisational objectives:",
+        "table": {
+          "headers": ["Option", "Code", "Description", "When to Use"],
+          "rows": [
+            [
+              "Avoid",
+              "AVOID",
+              "Eliminate the risk by not starting or continuing the activity",
+              "Unacceptable risk where no viable treatment exists"
+            ],
+            [
+              "Reduce Likelihood",
+              "REDUCE_LIKELIHOOD",
+              "Implement controls to decrease the probability of occurrence",
+              "Where preventive measures can significantly lower frequency"
+            ],
+            [
+              "Reduce Consequence",
+              "REDUCE_CONSEQUENCE",
+              "Implement controls to minimise the impact if the risk materialises",
+              "Where impact mitigation is more practical than prevention"
+            ],
+            [
+              "Share/Transfer",
+              "SHARE",
+              "Share the risk with other parties (insurance, outsourcing, JVs)",
+              "Where risk can be effectively distributed to parties better able to manage it"
+            ],
+            [
+              "Accept/Retain",
+              "ACCEPT",
+              "Retain the risk by informed decision, within appetite",
+              "Where residual risk is within appetite after analysis"
+            ],
+            [
+              "Exploit",
+              "EXPLOIT",
+              "Increase exposure to capture upside opportunity",
+              "Positive risks/opportunities where benefit outweighs downside"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "3. Treatment Plan Requirements",
+        "content": "Each risk requiring treatment shall have a documented treatment plan including:",
+        "bullets": [
+          "Selected treatment option with justification",
+          "Specific treatment actions with responsible owners",
+          "Target residual risk score",
+          "Implementation timeline with milestones",
+          "Resource requirements and budget allocation",
+          "Expected effectiveness of proposed treatments",
+          "Monitoring and review arrangements",
+          "Escalation criteria if treatment is ineffective"
+        ]
+      },
+      {
+        "heading": "4. Treatment Action Tracking",
+        "content": "Treatment actions are tracked in the Nexara IMS platform with the following fields:",
+        "table": {
+          "headers": ["Field", "Description"],
+          "rows": [
+            ["Action Title", "Clear description of the treatment action"],
+            ["Description", "Detailed explanation of what is required"],
+            ["Owner", "Person accountable for completion"],
+            ["Priority", "CRITICAL / HIGH / MEDIUM / LOW"],
+            ["Target Date", "Expected completion date"],
+            ["Status", "OPEN / IN_PROGRESS / COMPLETED / OVERDUE"],
+            ["Evidence", "Documentation confirming completion"],
+            ["Completion Date", "Actual date of completion"]
+          ]
+        }
+      },
+      {
+        "heading": "5. Approval and Escalation",
+        "content": "Treatment plans for risks with the following levels require specific approval:",
+        "table": {
+          "headers": ["Risk Level", "Approval Authority", "Escalation"],
+          "rows": [
+            ["CRITICAL (20-25)", "Board/Executive Committee", "Immediate notification to CEO"],
+            ["VERY HIGH (15-19)", "Chief Risk Officer", "Monthly board report"],
+            ["HIGH (8-12)", "Risk Committee", "Quarterly board report"],
+            ["MEDIUM (4-6)", "Department Manager", "Annual risk review"],
+            ["LOW (1-3)", "Risk Owner", "Routine monitoring"]
+          ]
+        }
+      },
+      {
+        "heading": "6. Monitoring and Review",
+        "content": "Treatment effectiveness shall be monitored through:\n\na) Regular review of treatment action status and due dates\nb) Reassessment of residual risk scores after treatment implementation\nc) Key Risk Indicator (KRI) monitoring for treated risks\nd) Post-treatment audit verification\n\nThe Risk Committee shall review all active treatment plans quarterly."
+      }
     ]
   },
   {
@@ -97,15 +498,104 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31000:2018 Clause 6.6",
     "sections": [
-      { "heading": "1. Purpose", "content": "This procedure defines the process for establishing, monitoring, and responding to Key Risk Indicators (KRIs) in accordance with ISO 31000:2018 Clause 6.6 (Monitoring and Review). KRIs provide early warning signals that risk levels are changing and may require management action." },
-      { "heading": "2. KRI Definition", "content": "A Key Risk Indicator is a quantitative metric that provides an early signal of increasing risk exposure. Effective KRIs are:", "bullets": ["Measurable — quantifiable with a clear unit of measurement", "Relevant — directly linked to a specific risk", "Timely — capable of providing early warning before risk materialises", "Comparable — consistent measurement over time to identify trends", "Actionable — threshold breaches trigger specific management responses"] },
-      { "heading": "3. KRI Status Thresholds", "content": "Each KRI has three threshold levels:", "table": { "headers": ["Status", "Colour", "Meaning", "Action Required"], "rows": [["GREEN", "Green", "KRI value is within acceptable range", "Continue routine monitoring"], ["AMBER", "Amber", "KRI value has breached the warning threshold", "Investigate trend; consider preventive action; notify risk owner"], ["RED", "Red", "KRI value has breached the critical threshold", "Immediate investigation; implement corrective action; escalate to Risk Committee"]] } },
-      { "heading": "4. KRI Measurement Process", "content": "The following process shall be followed for each KRI measurement cycle:" },
-      { "heading": "4.1 Data Collection", "level": 2, "content": "KRI data shall be collected at the defined frequency (daily, weekly, monthly, quarterly, or annually) from reliable and verified sources. Automated data collection through the Nexara IMS platform is preferred where available." },
-      { "heading": "4.2 Recording", "level": 2, "content": "Each reading shall be recorded with the following information:", "bullets": ["KRI name and associated risk", "Measurement date and value", "Unit of measurement", "Automatic status evaluation (GREEN/AMBER/RED)", "Notes or context for the reading", "Recorded by (user)"] },
-      { "heading": "4.3 Trend Analysis", "level": 2, "content": "KRI readings shall be analysed for trends over time. Where a KRI shows a deteriorating trend (even within GREEN thresholds), the risk owner shall be notified and the risk reassessed." },
-      { "heading": "5. Escalation Protocol", "content": "KRI breaches trigger the following escalation:", "table": { "headers": ["Trigger", "Action", "Timeframe"], "rows": [["AMBER breach (first)", "Risk owner notified; review scheduled", "Within 5 working days"], ["AMBER breach (consecutive)", "Risk Committee informed; treatment plan reviewed", "Within 10 working days"], ["RED breach", "Immediate escalation to CRO; emergency risk review", "Within 24 hours"], ["RED breach (sustained)", "Board notification; corrective action mandatory", "Within 48 hours"]] } },
-      { "heading": "6. KRI Review", "content": "The KRI portfolio shall be reviewed quarterly to ensure:\n\na) KRIs remain relevant to current risks\nb) Thresholds are appropriately calibrated\nc) Measurement frequencies are adequate\nd) New risks have appropriate KRIs assigned\n\nThe Risk Committee shall approve all changes to KRI definitions and thresholds." }
+      {
+        "heading": "1. Purpose",
+        "content": "This procedure defines the process for establishing, monitoring, and responding to Key Risk Indicators (KRIs) in accordance with ISO 31000:2018 Clause 6.6 (Monitoring and Review). KRIs provide early warning signals that risk levels are changing and may require management action."
+      },
+      {
+        "heading": "2. KRI Definition",
+        "content": "A Key Risk Indicator is a quantitative metric that provides an early signal of increasing risk exposure. Effective KRIs are:",
+        "bullets": [
+          "Measurable — quantifiable with a clear unit of measurement",
+          "Relevant — directly linked to a specific risk",
+          "Timely — capable of providing early warning before risk materialises",
+          "Comparable — consistent measurement over time to identify trends",
+          "Actionable — threshold breaches trigger specific management responses"
+        ]
+      },
+      {
+        "heading": "3. KRI Status Thresholds",
+        "content": "Each KRI has three threshold levels:",
+        "table": {
+          "headers": ["Status", "Colour", "Meaning", "Action Required"],
+          "rows": [
+            [
+              "GREEN",
+              "Green",
+              "KRI value is within acceptable range",
+              "Continue routine monitoring"
+            ],
+            [
+              "AMBER",
+              "Amber",
+              "KRI value has breached the warning threshold",
+              "Investigate trend; consider preventive action; notify risk owner"
+            ],
+            [
+              "RED",
+              "Red",
+              "KRI value has breached the critical threshold",
+              "Immediate investigation; implement corrective action; escalate to Risk Committee"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "4. KRI Measurement Process",
+        "content": "The following process shall be followed for each KRI measurement cycle:"
+      },
+      {
+        "heading": "4.1 Data Collection",
+        "level": 2,
+        "content": "KRI data shall be collected at the defined frequency (daily, weekly, monthly, quarterly, or annually) from reliable and verified sources. Automated data collection through the Nexara IMS platform is preferred where available."
+      },
+      {
+        "heading": "4.2 Recording",
+        "level": 2,
+        "content": "Each reading shall be recorded with the following information:",
+        "bullets": [
+          "KRI name and associated risk",
+          "Measurement date and value",
+          "Unit of measurement",
+          "Automatic status evaluation (GREEN/AMBER/RED)",
+          "Notes or context for the reading",
+          "Recorded by (user)"
+        ]
+      },
+      {
+        "heading": "4.3 Trend Analysis",
+        "level": 2,
+        "content": "KRI readings shall be analysed for trends over time. Where a KRI shows a deteriorating trend (even within GREEN thresholds), the risk owner shall be notified and the risk reassessed."
+      },
+      {
+        "heading": "5. Escalation Protocol",
+        "content": "KRI breaches trigger the following escalation:",
+        "table": {
+          "headers": ["Trigger", "Action", "Timeframe"],
+          "rows": [
+            [
+              "AMBER breach (first)",
+              "Risk owner notified; review scheduled",
+              "Within 5 working days"
+            ],
+            [
+              "AMBER breach (consecutive)",
+              "Risk Committee informed; treatment plan reviewed",
+              "Within 10 working days"
+            ],
+            ["RED breach", "Immediate escalation to CRO; emergency risk review", "Within 24 hours"],
+            [
+              "RED breach (sustained)",
+              "Board notification; corrective action mandatory",
+              "Within 48 hours"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "6. KRI Review",
+        "content": "The KRI portfolio shall be reviewed quarterly to ensure:\n\na) KRIs remain relevant to current risks\nb) Thresholds are appropriately calibrated\nc) Measurement frequencies are adequate\nd) New risks have appropriate KRIs assigned\n\nThe Risk Committee shall approve all changes to KRI definitions and thresholds."
+      }
     ]
   },
   {
@@ -117,17 +607,81 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31010:2019 / ISO 31000:2018",
     "sections": [
-      { "heading": "1. Purpose", "content": "This procedure describes the bow-tie analysis methodology used for HIGH and above rated risks, in accordance with ISO 31010:2019 (Risk Assessment Techniques). Bow-tie analysis provides a visual representation of the relationship between causes, the risk event, consequences, and the controls in place." },
-      { "heading": "2. When to Perform Bow-Tie Analysis", "content": "Bow-tie analysis shall be performed for:", "bullets": ["All risks rated HIGH (score 8-12) or above", "Risks identified as critical by the Risk Committee", "Risks with complex cause-consequence chains", "Risks requiring detailed control assurance", "As directed by regulatory requirements or audit findings"] },
-      { "heading": "3. Bow-Tie Structure", "content": "A bow-tie diagram consists of the following elements:" },
-      { "heading": "3.1 Hazard/Threat (Left Side)", "level": 2, "content": "The source of potential harm or the threatening condition. Multiple threats may be identified for a single risk event." },
-      { "heading": "3.2 Top Event (Centre)", "level": 2, "content": "The unwanted event — the point at which control is lost. This is the risk event described in the risk register." },
-      { "heading": "3.3 Consequences (Right Side)", "level": 2, "content": "The potential outcomes if the top event occurs. Multiple consequences should be identified covering different impact types (safety, financial, reputational, etc.)." },
-      { "heading": "3.4 Preventive Controls (Left Barriers)", "level": 2, "content": "Controls that prevent the threat from causing the top event. These reduce the likelihood of the risk materialising." },
-      { "heading": "3.5 Mitigating Controls (Right Barriers)", "level": 2, "content": "Controls that limit the consequences once the top event has occurred. These reduce the severity of impact." },
-      { "heading": "4. Bow-Tie Development Process", "content": "Follow these steps:", "numberedList": ["Define the top event (risk event from the risk register)", "Identify all credible threats/causes that could lead to the top event", "Identify all potential consequences of the top event", "Map existing preventive controls against each threat", "Map existing mitigating controls against each consequence", "Assess control effectiveness (STRONG/ADEQUATE/WEAK/NONE)", "Identify gaps where additional controls are needed", "Document escalation factors that could defeat controls", "Record in the Nexara IMS bow-tie library"] },
-      { "heading": "5. Documentation", "content": "Bow-tie analyses shall be recorded with:", "bullets": ["Link to parent risk register entry", "JSON-structured diagram data (threats, consequences, preventive controls, mitigating controls)", "Each element with description and type classification", "Control effectiveness ratings", "Date of analysis and analyst name", "Review date (aligned with risk review frequency)"] },
-      { "heading": "6. Review and Update", "content": "Bow-tie analyses shall be reviewed:\n\na) At each risk review cycle\nb) Following any incident related to the risk\nc) When controls are modified or added\nd) When new threats or consequences are identified\n\nUpdated bow-ties shall be presented to the Risk Committee for critical risks." }
+      {
+        "heading": "1. Purpose",
+        "content": "This procedure describes the bow-tie analysis methodology used for HIGH and above rated risks, in accordance with ISO 31010:2019 (Risk Assessment Techniques). Bow-tie analysis provides a visual representation of the relationship between causes, the risk event, consequences, and the controls in place."
+      },
+      {
+        "heading": "2. When to Perform Bow-Tie Analysis",
+        "content": "Bow-tie analysis shall be performed for:",
+        "bullets": [
+          "All risks rated HIGH (score 8-12) or above",
+          "Risks identified as critical by the Risk Committee",
+          "Risks with complex cause-consequence chains",
+          "Risks requiring detailed control assurance",
+          "As directed by regulatory requirements or audit findings"
+        ]
+      },
+      {
+        "heading": "3. Bow-Tie Structure",
+        "content": "A bow-tie diagram consists of the following elements:"
+      },
+      {
+        "heading": "3.1 Hazard/Threat (Left Side)",
+        "level": 2,
+        "content": "The source of potential harm or the threatening condition. Multiple threats may be identified for a single risk event."
+      },
+      {
+        "heading": "3.2 Top Event (Centre)",
+        "level": 2,
+        "content": "The unwanted event — the point at which control is lost. This is the risk event described in the risk register."
+      },
+      {
+        "heading": "3.3 Consequences (Right Side)",
+        "level": 2,
+        "content": "The potential outcomes if the top event occurs. Multiple consequences should be identified covering different impact types (safety, financial, reputational, etc.)."
+      },
+      {
+        "heading": "3.4 Preventive Controls (Left Barriers)",
+        "level": 2,
+        "content": "Controls that prevent the threat from causing the top event. These reduce the likelihood of the risk materialising."
+      },
+      {
+        "heading": "3.5 Mitigating Controls (Right Barriers)",
+        "level": 2,
+        "content": "Controls that limit the consequences once the top event has occurred. These reduce the severity of impact."
+      },
+      {
+        "heading": "4. Bow-Tie Development Process",
+        "content": "Follow these steps:",
+        "numberedList": [
+          "Define the top event (risk event from the risk register)",
+          "Identify all credible threats/causes that could lead to the top event",
+          "Identify all potential consequences of the top event",
+          "Map existing preventive controls against each threat",
+          "Map existing mitigating controls against each consequence",
+          "Assess control effectiveness (STRONG/ADEQUATE/WEAK/NONE)",
+          "Identify gaps where additional controls are needed",
+          "Document escalation factors that could defeat controls",
+          "Record in the Nexara IMS bow-tie library"
+        ]
+      },
+      {
+        "heading": "5. Documentation",
+        "content": "Bow-tie analyses shall be recorded with:",
+        "bullets": [
+          "Link to parent risk register entry",
+          "JSON-structured diagram data (threats, consequences, preventive controls, mitigating controls)",
+          "Each element with description and type classification",
+          "Control effectiveness ratings",
+          "Date of analysis and analyst name",
+          "Review date (aligned with risk review frequency)"
+        ]
+      },
+      {
+        "heading": "6. Review and Update",
+        "content": "Bow-tie analyses shall be reviewed:\n\na) At each risk review cycle\nb) Following any incident related to the risk\nc) When controls are modified or added\nd) When new threats or consequences are identified\n\nUpdated bow-ties shall be presented to the Risk Committee for critical risks."
+      }
     ]
   },
   {
@@ -139,15 +693,123 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31000:2018 Clause 6.6-6.7",
     "sections": [
-      { "heading": "1. Purpose", "content": "This procedure defines the process for reviewing risks, recording review outcomes, and reporting risk information to stakeholders in accordance with ISO 31000:2018 Clauses 6.6 (Monitoring and Review) and 6.7 (Recording and Reporting)." },
-      { "heading": "2. Review Types", "content": "The following review types are defined:", "table": { "headers": ["Review Type", "Purpose", "Frequency", "Conducted By"], "rows": [["Scheduled Review", "Regular reassessment of risk status, controls, and scoring", "Per risk level frequency table", "Risk Owner"], ["Triggered Review", "Response to incident, near-miss, or material change", "As required", "Risk Owner + Risk Manager"], ["Periodic Deep-Dive", "Comprehensive review of risk category or portfolio", "Quarterly", "Risk Committee"], ["Annual Framework Review", "Assessment of overall risk management effectiveness", "Annually", "Chief Risk Officer + Board"]] } },
-      { "heading": "3. Review Process", "content": "Each risk review shall:", "numberedList": ["Confirm the risk is still relevant and correctly described", "Reassess inherent and residual likelihood and consequence", "Evaluate control effectiveness (have controls improved or deteriorated?)", "Update KRI thresholds if applicable", "Review treatment plan progress and action completion", "Check risk appetite status (WITHIN / AT_LIMIT / EXCEEDS)", "Determine if the risk level has changed", "Document the review outcome and set next review date"] },
-      { "heading": "4. Review Record", "content": "Each review shall be recorded with:", "bullets": ["Review date and reviewer name", "Review type (SCHEDULED / TRIGGERED / DEEP_DIVE / ANNUAL)", "Residual score at time of review", "Whether controls changed (yes/no with description)", "Whether risk level changed (yes/no)", "Recommendations and actions arising", "Next review date"] },
-      { "heading": "5. Reporting", "content": "Risk reports shall be produced at the following levels:" },
-      { "heading": "5.1 Operational Reports", "level": 2, "content": "Monthly reports to department managers covering:", "bullets": ["Risks owned by the department", "Overdue reviews and actions", "KRI status summary", "New risks identified"] },
-      { "heading": "5.2 Risk Committee Reports", "level": 2, "content": "Quarterly reports to the Risk Committee covering:", "bullets": ["Enterprise risk heat map", "Top 10 risks by residual score", "Risks exceeding appetite", "KRI breach summary", "Treatment plan progress", "Trend analysis (improving/stable/deteriorating)"] },
-      { "heading": "5.3 Board Reports", "level": 2, "content": "Quarterly/annual reports to the Board covering:", "bullets": ["Strategic risk profile overview", "Risk appetite compliance", "Material risk changes", "Framework effectiveness assessment", "Recommendations for policy/appetite changes"] },
-      { "heading": "6. Overdue Review Escalation", "content": "Reviews overdue by more than 14 days shall be escalated:", "table": { "headers": ["Days Overdue", "Escalation"], "rows": [["14 days", "Automated reminder to risk owner"], ["30 days", "Notification to line manager"], ["60 days", "Escalation to Risk Committee"], ["90 days", "Report to CRO; risk flagged as unmanaged"]] } }
+      {
+        "heading": "1. Purpose",
+        "content": "This procedure defines the process for reviewing risks, recording review outcomes, and reporting risk information to stakeholders in accordance with ISO 31000:2018 Clauses 6.6 (Monitoring and Review) and 6.7 (Recording and Reporting)."
+      },
+      {
+        "heading": "2. Review Types",
+        "content": "The following review types are defined:",
+        "table": {
+          "headers": ["Review Type", "Purpose", "Frequency", "Conducted By"],
+          "rows": [
+            [
+              "Scheduled Review",
+              "Regular reassessment of risk status, controls, and scoring",
+              "Per risk level frequency table",
+              "Risk Owner"
+            ],
+            [
+              "Triggered Review",
+              "Response to incident, near-miss, or material change",
+              "As required",
+              "Risk Owner + Risk Manager"
+            ],
+            [
+              "Periodic Deep-Dive",
+              "Comprehensive review of risk category or portfolio",
+              "Quarterly",
+              "Risk Committee"
+            ],
+            [
+              "Annual Framework Review",
+              "Assessment of overall risk management effectiveness",
+              "Annually",
+              "Chief Risk Officer + Board"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "3. Review Process",
+        "content": "Each risk review shall:",
+        "numberedList": [
+          "Confirm the risk is still relevant and correctly described",
+          "Reassess inherent and residual likelihood and consequence",
+          "Evaluate control effectiveness (have controls improved or deteriorated?)",
+          "Update KRI thresholds if applicable",
+          "Review treatment plan progress and action completion",
+          "Check risk appetite status (WITHIN / AT_LIMIT / EXCEEDS)",
+          "Determine if the risk level has changed",
+          "Document the review outcome and set next review date"
+        ]
+      },
+      {
+        "heading": "4. Review Record",
+        "content": "Each review shall be recorded with:",
+        "bullets": [
+          "Review date and reviewer name",
+          "Review type (SCHEDULED / TRIGGERED / DEEP_DIVE / ANNUAL)",
+          "Residual score at time of review",
+          "Whether controls changed (yes/no with description)",
+          "Whether risk level changed (yes/no)",
+          "Recommendations and actions arising",
+          "Next review date"
+        ]
+      },
+      {
+        "heading": "5. Reporting",
+        "content": "Risk reports shall be produced at the following levels:"
+      },
+      {
+        "heading": "5.1 Operational Reports",
+        "level": 2,
+        "content": "Monthly reports to department managers covering:",
+        "bullets": [
+          "Risks owned by the department",
+          "Overdue reviews and actions",
+          "KRI status summary",
+          "New risks identified"
+        ]
+      },
+      {
+        "heading": "5.2 Risk Committee Reports",
+        "level": 2,
+        "content": "Quarterly reports to the Risk Committee covering:",
+        "bullets": [
+          "Enterprise risk heat map",
+          "Top 10 risks by residual score",
+          "Risks exceeding appetite",
+          "KRI breach summary",
+          "Treatment plan progress",
+          "Trend analysis (improving/stable/deteriorating)"
+        ]
+      },
+      {
+        "heading": "5.3 Board Reports",
+        "level": 2,
+        "content": "Quarterly/annual reports to the Board covering:",
+        "bullets": [
+          "Strategic risk profile overview",
+          "Risk appetite compliance",
+          "Material risk changes",
+          "Framework effectiveness assessment",
+          "Recommendations for policy/appetite changes"
+        ]
+      },
+      {
+        "heading": "6. Overdue Review Escalation",
+        "content": "Reviews overdue by more than 14 days shall be escalated:",
+        "table": {
+          "headers": ["Days Overdue", "Escalation"],
+          "rows": [
+            ["14 days", "Automated reminder to risk owner"],
+            ["30 days", "Notification to line manager"],
+            ["60 days", "Escalation to Risk Committee"],
+            ["90 days", "Report to CRO; risk flagged as unmanaged"]
+          ]
+        }
+      }
     ]
   },
   {
@@ -159,13 +821,142 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31000:2018 Clause 6.4",
     "sections": [
-      { "heading": "Risk Register Entry", "content": "Complete all sections below for each risk identified. Fields marked with * are mandatory." },
-      { "heading": "Section A: Risk Identification", "table": { "headers": ["Field", "Entry"], "rows": [["Reference Number*", "RISK-YYYY-NNNN (auto-generated)"], ["Date Identified*", "[DD/MM/YYYY]"], ["Risk Title*", "[Clear, concise description of the risk]"], ["Risk Description", "[Detailed description of the risk and its context]"], ["Risk Category*", "☐ Health & Safety  ☐ Environmental  ☐ Quality  ☐ Financial  ☐ Operational  ☐ Compliance/Legal  ☐ Strategic  ☐ Reputational  ☐ Technology/Cyber  ☐ People/HR  ☐ External/Geopolitical  ☐ Project/Programme  ☐ Other"], ["Causes", "[Root causes and contributing factors]"], ["Risk Event", "[Description of the unwanted event]"], ["Consequences", "[Potential impacts if the risk materialises]"], ["Affected Objectives", "[Which organisational objectives are impacted]"], ["Source Module", "☐ Manual Entry  ☐ COSHH Assessment  ☐ Fire Risk Assessment  ☐ H&S Incident  ☐ Audit Finding  ☐ Other"], ["Risk Owner*", "[Name and position]"], ["Department", "[Owning department]"]] } },
-      { "heading": "Section B: Inherent Risk Assessment (Before Controls)", "table": { "headers": ["Field", "Entry"], "rows": [["Inherent Likelihood*", "☐ 1 Rare  ☐ 2 Unlikely  ☐ 3 Possible  ☐ 4 Likely  ☐ 5 Almost Certain"], ["Inherent Consequence*", "☐ 1 Insignificant  ☐ 2 Minor  ☐ 3 Moderate  ☐ 4 Major  ☐ 5 Catastrophic"], ["Inherent Score", "[Likelihood × Consequence] = ___"], ["Inherent Risk Level", "☐ LOW (1-3)  ☐ MEDIUM (4-6)  ☐ HIGH (8-12)  ☐ VERY HIGH (15-19)  ☐ CRITICAL (20-25)"]] } },
-      { "heading": "Section C: Existing Controls", "table": { "headers": ["Control #", "Control Description", "Type", "Effectiveness", "Owner"], "rows": [["C1", "", "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", ""], ["C2", "", "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", ""], ["C3", "", "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", ""], ["C4", "", "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", ""]] } },
-      { "heading": "Section D: Residual Risk Assessment (After Controls)", "table": { "headers": ["Field", "Entry"], "rows": [["Residual Likelihood*", "☐ 1 Rare  ☐ 2 Unlikely  ☐ 3 Possible  ☐ 4 Likely  ☐ 5 Almost Certain"], ["Residual Consequence*", "☐ 1 Insignificant  ☐ 2 Minor  ☐ 3 Moderate  ☐ 4 Major  ☐ 5 Catastrophic"], ["Residual Score", "[Likelihood × Consequence] = ___"], ["Residual Risk Level", "☐ LOW (1-3)  ☐ MEDIUM (4-6)  ☐ HIGH (8-12)  ☐ VERY HIGH (15-19)  ☐ CRITICAL (20-25)"], ["Appetite Status", "☐ WITHIN  ☐ AT_LIMIT  ☐ EXCEEDS"]] } },
-      { "heading": "Section E: Treatment", "table": { "headers": ["Field", "Entry"], "rows": [["Treatment Option*", "☐ Avoid  ☐ Reduce Likelihood  ☐ Reduce Consequence  ☐ Share/Transfer  ☐ Accept  ☐ Exploit"], ["Treatment Plan", "[Description of the treatment plan]"], ["Target Residual Score", "[Target score after treatment]"], ["Review Frequency", "☐ Monthly  ☐ Quarterly  ☐ Six-monthly  ☐ Annually"], ["Next Review Date", "[DD/MM/YYYY]"]] } },
-      { "heading": "Signatures", "table": { "headers": ["Role", "Name", "Signature", "Date"], "rows": [["Risk Assessor", "", "", ""], ["Risk Owner", "", "", ""], ["Reviewed By", "", "", ""]] } }
+      {
+        "heading": "Risk Register Entry",
+        "content": "Complete all sections below for each risk identified. Fields marked with * are mandatory."
+      },
+      {
+        "heading": "Section A: Risk Identification",
+        "table": {
+          "headers": ["Field", "Entry"],
+          "rows": [
+            ["Reference Number*", "RISK-YYYY-NNNN (auto-generated)"],
+            ["Date Identified*", "[DD/MM/YYYY]"],
+            ["Risk Title*", "[Clear, concise description of the risk]"],
+            ["Risk Description", "[Detailed description of the risk and its context]"],
+            [
+              "Risk Category*",
+              "☐ Health & Safety  ☐ Environmental  ☐ Quality  ☐ Financial  ☐ Operational  ☐ Compliance/Legal  ☐ Strategic  ☐ Reputational  ☐ Technology/Cyber  ☐ People/HR  ☐ External/Geopolitical  ☐ Project/Programme  ☐ Other"
+            ],
+            ["Causes", "[Root causes and contributing factors]"],
+            ["Risk Event", "[Description of the unwanted event]"],
+            ["Consequences", "[Potential impacts if the risk materialises]"],
+            ["Affected Objectives", "[Which organisational objectives are impacted]"],
+            [
+              "Source Module",
+              "☐ Manual Entry  ☐ COSHH Assessment  ☐ Fire Risk Assessment  ☐ H&S Incident  ☐ Audit Finding  ☐ Other"
+            ],
+            ["Risk Owner*", "[Name and position]"],
+            ["Department", "[Owning department]"]
+          ]
+        }
+      },
+      {
+        "heading": "Section B: Inherent Risk Assessment (Before Controls)",
+        "table": {
+          "headers": ["Field", "Entry"],
+          "rows": [
+            [
+              "Inherent Likelihood*",
+              "☐ 1 Rare  ☐ 2 Unlikely  ☐ 3 Possible  ☐ 4 Likely  ☐ 5 Almost Certain"
+            ],
+            [
+              "Inherent Consequence*",
+              "☐ 1 Insignificant  ☐ 2 Minor  ☐ 3 Moderate  ☐ 4 Major  ☐ 5 Catastrophic"
+            ],
+            ["Inherent Score", "[Likelihood × Consequence] = ___"],
+            [
+              "Inherent Risk Level",
+              "☐ LOW (1-3)  ☐ MEDIUM (4-6)  ☐ HIGH (8-12)  ☐ VERY HIGH (15-19)  ☐ CRITICAL (20-25)"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "Section C: Existing Controls",
+        "table": {
+          "headers": ["Control #", "Control Description", "Type", "Effectiveness", "Owner"],
+          "rows": [
+            [
+              "C1",
+              "",
+              "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              ""
+            ],
+            [
+              "C2",
+              "",
+              "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              ""
+            ],
+            [
+              "C3",
+              "",
+              "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              ""
+            ],
+            [
+              "C4",
+              "",
+              "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              ""
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "Section D: Residual Risk Assessment (After Controls)",
+        "table": {
+          "headers": ["Field", "Entry"],
+          "rows": [
+            [
+              "Residual Likelihood*",
+              "☐ 1 Rare  ☐ 2 Unlikely  ☐ 3 Possible  ☐ 4 Likely  ☐ 5 Almost Certain"
+            ],
+            [
+              "Residual Consequence*",
+              "☐ 1 Insignificant  ☐ 2 Minor  ☐ 3 Moderate  ☐ 4 Major  ☐ 5 Catastrophic"
+            ],
+            ["Residual Score", "[Likelihood × Consequence] = ___"],
+            [
+              "Residual Risk Level",
+              "☐ LOW (1-3)  ☐ MEDIUM (4-6)  ☐ HIGH (8-12)  ☐ VERY HIGH (15-19)  ☐ CRITICAL (20-25)"
+            ],
+            ["Appetite Status", "☐ WITHIN  ☐ AT_LIMIT  ☐ EXCEEDS"]
+          ]
+        }
+      },
+      {
+        "heading": "Section E: Treatment",
+        "table": {
+          "headers": ["Field", "Entry"],
+          "rows": [
+            [
+              "Treatment Option*",
+              "☐ Avoid  ☐ Reduce Likelihood  ☐ Reduce Consequence  ☐ Share/Transfer  ☐ Accept  ☐ Exploit"
+            ],
+            ["Treatment Plan", "[Description of the treatment plan]"],
+            ["Target Residual Score", "[Target score after treatment]"],
+            ["Review Frequency", "☐ Monthly  ☐ Quarterly  ☐ Six-monthly  ☐ Annually"],
+            ["Next Review Date", "[DD/MM/YYYY]"]
+          ]
+        }
+      },
+      {
+        "heading": "Signatures",
+        "table": {
+          "headers": ["Role", "Name", "Signature", "Date"],
+          "rows": [
+            ["Risk Assessor", "", "", ""],
+            ["Risk Owner", "", "", ""],
+            ["Reviewed By", "", "", ""]
+          ]
+        }
+      }
     ]
   },
   {
@@ -177,13 +968,103 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31000:2018 Clause 6.3-6.4",
     "sections": [
-      { "heading": "1. Workshop Details", "table": { "headers": ["Field", "Detail"], "rows": [["Workshop Title", "[e.g. Q1 2026 Enterprise Risk Assessment]"], ["Date", "[DD/MM/YYYY]"], ["Duration", "[HH:MM - HH:MM]"], ["Location/Format", "[Room name / Virtual meeting link]"], ["Facilitator", "[Name and position]"], ["Scribe", "[Name]"], ["Purpose", "[Description of workshop objective]"]] } },
-      { "heading": "2. Attendees", "table": { "headers": ["Name", "Position/Department", "Role in Workshop"], "rows": [["", "", ""], ["", "", ""], ["", "", ""], ["", "", ""], ["", "", ""], ["", "", ""]] } },
-      { "heading": "3. Context Setting (ISO 31000 Cl. 6.3)", "content": "Record the external and internal context discussed:", "table": { "headers": ["Context Type", "Key Factors Discussed"], "rows": [["External — Regulatory", ""], ["External — Market/Economic", ""], ["External — Technology", ""], ["External — Social/Stakeholder", ""], ["Internal — Strategy/Objectives", ""], ["Internal — Processes/Systems", ""], ["Internal — Culture/Capability", ""], ["Internal — Resources/Constraints", ""]] } },
-      { "heading": "4. Risks Identified", "content": "Record each risk identified during the workshop:", "table": { "headers": ["#", "Risk Title", "Category", "Causes", "Consequences", "Initial Score (L×C)", "Owner"], "rows": [["1", "", "", "", "", "", ""], ["2", "", "", "", "", "", ""], ["3", "", "", "", "", "", ""], ["4", "", "", "", "", "", ""], ["5", "", "", "", "", "", ""], ["6", "", "", "", "", "", ""], ["7", "", "", "", "", "", ""], ["8", "", "", "", "", "", ""]] } },
-      { "heading": "5. Actions Arising", "table": { "headers": ["Action", "Owner", "Due Date", "Priority"], "rows": [["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""]] } },
-      { "heading": "6. Workshop Summary", "content": "Total risks identified: ___\nNew risks: ___\nExisting risks updated: ___\nRisks closed/removed: ___\n\nKey themes/patterns observed:\n[Record key themes discussed]\n\nNext workshop date: [DD/MM/YYYY]" },
-      { "heading": "7. Approval", "table": { "headers": ["Role", "Name", "Signature", "Date"], "rows": [["Facilitator", "", "", ""], ["Risk Manager", "", "", ""]] } }
+      {
+        "heading": "1. Workshop Details",
+        "table": {
+          "headers": ["Field", "Detail"],
+          "rows": [
+            ["Workshop Title", "[e.g. Q1 2026 Enterprise Risk Assessment]"],
+            ["Date", "[DD/MM/YYYY]"],
+            ["Duration", "[HH:MM - HH:MM]"],
+            ["Location/Format", "[Room name / Virtual meeting link]"],
+            ["Facilitator", "[Name and position]"],
+            ["Scribe", "[Name]"],
+            ["Purpose", "[Description of workshop objective]"]
+          ]
+        }
+      },
+      {
+        "heading": "2. Attendees",
+        "table": {
+          "headers": ["Name", "Position/Department", "Role in Workshop"],
+          "rows": [
+            ["", "", ""],
+            ["", "", ""],
+            ["", "", ""],
+            ["", "", ""],
+            ["", "", ""],
+            ["", "", ""]
+          ]
+        }
+      },
+      {
+        "heading": "3. Context Setting (ISO 31000 Cl. 6.3)",
+        "content": "Record the external and internal context discussed:",
+        "table": {
+          "headers": ["Context Type", "Key Factors Discussed"],
+          "rows": [
+            ["External — Regulatory", ""],
+            ["External — Market/Economic", ""],
+            ["External — Technology", ""],
+            ["External — Social/Stakeholder", ""],
+            ["Internal — Strategy/Objectives", ""],
+            ["Internal — Processes/Systems", ""],
+            ["Internal — Culture/Capability", ""],
+            ["Internal — Resources/Constraints", ""]
+          ]
+        }
+      },
+      {
+        "heading": "4. Risks Identified",
+        "content": "Record each risk identified during the workshop:",
+        "table": {
+          "headers": [
+            "#",
+            "Risk Title",
+            "Category",
+            "Causes",
+            "Consequences",
+            "Initial Score (L×C)",
+            "Owner"
+          ],
+          "rows": [
+            ["1", "", "", "", "", "", ""],
+            ["2", "", "", "", "", "", ""],
+            ["3", "", "", "", "", "", ""],
+            ["4", "", "", "", "", "", ""],
+            ["5", "", "", "", "", "", ""],
+            ["6", "", "", "", "", "", ""],
+            ["7", "", "", "", "", "", ""],
+            ["8", "", "", "", "", "", ""]
+          ]
+        }
+      },
+      {
+        "heading": "5. Actions Arising",
+        "table": {
+          "headers": ["Action", "Owner", "Due Date", "Priority"],
+          "rows": [
+            ["", "", "", ""],
+            ["", "", "", ""],
+            ["", "", "", ""],
+            ["", "", "", ""]
+          ]
+        }
+      },
+      {
+        "heading": "6. Workshop Summary",
+        "content": "Total risks identified: ___\nNew risks: ___\nExisting risks updated: ___\nRisks closed/removed: ___\n\nKey themes/patterns observed:\n[Record key themes discussed]\n\nNext workshop date: [DD/MM/YYYY]"
+      },
+      {
+        "heading": "7. Approval",
+        "table": {
+          "headers": ["Role", "Name", "Signature", "Date"],
+          "rows": [
+            ["Facilitator", "", "", ""],
+            ["Risk Manager", "", "", ""]
+          ]
+        }
+      }
     ]
   },
   {
@@ -195,11 +1076,136 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31000:2018 Clause 6.5",
     "sections": [
-      { "heading": "1. Risk Details", "table": { "headers": ["Field", "Entry"], "rows": [["Risk Reference", "RISK-____-____"], ["Risk Title", ""], ["Risk Owner", ""], ["Assessment Date", "[DD/MM/YYYY]"], ["Assessor", ""]] } },
-      { "heading": "2. Control Inventory", "content": "List all controls associated with this risk:", "table": { "headers": ["Control ID", "Control Description", "Type", "Category", "Owner", "Last Tested"], "rows": [["C1", "", "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive", "☐ Manual  ☐ Automated  ☐ Hybrid", "", ""], ["C2", "", "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive", "☐ Manual  ☐ Automated  ☐ Hybrid", "", ""], ["C3", "", "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive", "☐ Manual  ☐ Automated  ☐ Hybrid", "", ""], ["C4", "", "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive", "☐ Manual  ☐ Automated  ☐ Hybrid", "", ""]] } },
-      { "heading": "3. Control Effectiveness Assessment", "content": "Assess each control against the following criteria:", "table": { "headers": ["Control ID", "Design Adequacy", "Operating Effectiveness", "Overall Rating", "Evidence Reviewed"], "rows": [["C1", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", ""], ["C2", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", ""], ["C3", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", ""], ["C4", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None", ""]] } },
-      { "heading": "4. Overall Control Environment", "table": { "headers": ["Field", "Assessment"], "rows": [["Overall Effectiveness", "☐ STRONG — All controls well-designed and operating effectively\n☐ ADEQUATE — Most controls effective with minor gaps\n☐ WEAK — Significant control gaps exist\n☐ NONE — Controls absent or fundamentally ineffective"], ["Control Gaps Identified", "[Describe any gaps]"], ["Recommendations", "[Recommended improvements]"], ["Impact on Residual Score", "Current: ___ | Revised (if applicable): ___"]] } },
-      { "heading": "5. Approval", "table": { "headers": ["Role", "Name", "Signature", "Date"], "rows": [["Assessor", "", "", ""], ["Risk Owner", "", "", ""], ["Risk Manager", "", "", ""]] } }
+      {
+        "heading": "1. Risk Details",
+        "table": {
+          "headers": ["Field", "Entry"],
+          "rows": [
+            ["Risk Reference", "RISK-____-____"],
+            ["Risk Title", ""],
+            ["Risk Owner", ""],
+            ["Assessment Date", "[DD/MM/YYYY]"],
+            ["Assessor", ""]
+          ]
+        }
+      },
+      {
+        "heading": "2. Control Inventory",
+        "content": "List all controls associated with this risk:",
+        "table": {
+          "headers": [
+            "Control ID",
+            "Control Description",
+            "Type",
+            "Category",
+            "Owner",
+            "Last Tested"
+          ],
+          "rows": [
+            [
+              "C1",
+              "",
+              "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive",
+              "☐ Manual  ☐ Automated  ☐ Hybrid",
+              "",
+              ""
+            ],
+            [
+              "C2",
+              "",
+              "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive",
+              "☐ Manual  ☐ Automated  ☐ Hybrid",
+              "",
+              ""
+            ],
+            [
+              "C3",
+              "",
+              "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive",
+              "☐ Manual  ☐ Automated  ☐ Hybrid",
+              "",
+              ""
+            ],
+            [
+              "C4",
+              "",
+              "☐ Preventive  ☐ Detective  ☐ Corrective  ☐ Directive",
+              "☐ Manual  ☐ Automated  ☐ Hybrid",
+              "",
+              ""
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "3. Control Effectiveness Assessment",
+        "content": "Assess each control against the following criteria:",
+        "table": {
+          "headers": [
+            "Control ID",
+            "Design Adequacy",
+            "Operating Effectiveness",
+            "Overall Rating",
+            "Evidence Reviewed"
+          ],
+          "rows": [
+            [
+              "C1",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              ""
+            ],
+            [
+              "C2",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              ""
+            ],
+            [
+              "C3",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              ""
+            ],
+            [
+              "C4",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              "☐ Strong  ☐ Adequate  ☐ Weak  ☐ None",
+              ""
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "4. Overall Control Environment",
+        "table": {
+          "headers": ["Field", "Assessment"],
+          "rows": [
+            [
+              "Overall Effectiveness",
+              "☐ STRONG — All controls well-designed and operating effectively\n☐ ADEQUATE — Most controls effective with minor gaps\n☐ WEAK — Significant control gaps exist\n☐ NONE — Controls absent or fundamentally ineffective"
+            ],
+            ["Control Gaps Identified", "[Describe any gaps]"],
+            ["Recommendations", "[Recommended improvements]"],
+            ["Impact on Residual Score", "Current: ___ | Revised (if applicable): ___"]
+          ]
+        }
+      },
+      {
+        "heading": "5. Approval",
+        "table": {
+          "headers": ["Role", "Name", "Signature", "Date"],
+          "rows": [
+            ["Assessor", "", "", ""],
+            ["Risk Owner", "", "", ""],
+            ["Risk Manager", "", "", ""]
+          ]
+        }
+      }
     ]
   },
   {
@@ -211,15 +1217,141 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31010:2019",
     "sections": [
-      { "heading": "1. Risk Details", "table": { "headers": ["Field", "Entry"], "rows": [["Risk Reference", "RISK-____-____"], ["Risk Title", ""], ["Risk Level", "☐ HIGH  ☐ VERY HIGH  ☐ CRITICAL"], ["Risk Owner", ""], ["Analysis Date", "[DD/MM/YYYY]"], ["Analyst", ""]] } },
-      { "heading": "2. Bow-Tie Elements", "content": "Complete each section of the bow-tie diagram:" },
-      { "heading": "2.1 Top Event (Centre)", "level": 2, "table": { "headers": ["Field", "Entry"], "rows": [["Top Event Description", "[The unwanted event — point at which control is lost]"], ["Risk Event Statement", "[As recorded in risk register]"]] } },
-      { "heading": "2.2 Threats / Causes (Left Side)", "level": 2, "table": { "headers": ["Threat #", "Threat Description", "Source/Origin", "Likelihood"], "rows": [["T1", "", "", "☐ Rare ☐ Unlikely ☐ Possible ☐ Likely ☐ Almost Certain"], ["T2", "", "", "☐ Rare ☐ Unlikely ☐ Possible ☐ Likely ☐ Almost Certain"], ["T3", "", "", "☐ Rare ☐ Unlikely ☐ Possible ☐ Likely ☐ Almost Certain"], ["T4", "", "", "☐ Rare ☐ Unlikely ☐ Possible ☐ Likely ☐ Almost Certain"]] } },
-      { "heading": "2.3 Preventive Controls (Left Barriers)", "level": 2, "table": { "headers": ["Control #", "Control Description", "Blocks Threat(s)", "Effectiveness", "Owner"], "rows": [["PC1", "", "T___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""], ["PC2", "", "T___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""], ["PC3", "", "T___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""], ["PC4", "", "T___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""]] } },
-      { "heading": "2.4 Consequences (Right Side)", "level": 2, "table": { "headers": ["Consequence #", "Consequence Description", "Impact Area", "Severity"], "rows": [["C1", "", "☐ Safety ☐ Financial ☐ Reputational ☐ Operational ☐ Legal", "☐ Insignificant ☐ Minor ☐ Moderate ☐ Major ☐ Catastrophic"], ["C2", "", "☐ Safety ☐ Financial ☐ Reputational ☐ Operational ☐ Legal", "☐ Insignificant ☐ Minor ☐ Moderate ☐ Major ☐ Catastrophic"], ["C3", "", "☐ Safety ☐ Financial ☐ Reputational ☐ Operational ☐ Legal", "☐ Insignificant ☐ Minor ☐ Moderate ☐ Major ☐ Catastrophic"], ["C4", "", "☐ Safety ☐ Financial ☐ Reputational ☐ Operational ☐ Legal", "☐ Insignificant ☐ Minor ☐ Moderate ☐ Major ☐ Catastrophic"]] } },
-      { "heading": "2.5 Mitigating Controls (Right Barriers)", "level": 2, "table": { "headers": ["Control #", "Control Description", "Mitigates Consequence(s)", "Effectiveness", "Owner"], "rows": [["MC1", "", "C___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""], ["MC2", "", "C___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""], ["MC3", "", "C___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""], ["MC4", "", "C___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""]] } },
-      { "heading": "3. Control Gaps and Recommendations", "table": { "headers": ["Gap Identified", "Recommended Action", "Priority", "Owner"], "rows": [["", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""], ["", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""], ["", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""]] } },
-      { "heading": "4. Approval", "table": { "headers": ["Role", "Name", "Signature", "Date"], "rows": [["Analyst", "", "", ""], ["Risk Owner", "", "", ""], ["Risk Manager", "", "", ""]] } }
+      {
+        "heading": "1. Risk Details",
+        "table": {
+          "headers": ["Field", "Entry"],
+          "rows": [
+            ["Risk Reference", "RISK-____-____"],
+            ["Risk Title", ""],
+            ["Risk Level", "☐ HIGH  ☐ VERY HIGH  ☐ CRITICAL"],
+            ["Risk Owner", ""],
+            ["Analysis Date", "[DD/MM/YYYY]"],
+            ["Analyst", ""]
+          ]
+        }
+      },
+      {
+        "heading": "2. Bow-Tie Elements",
+        "content": "Complete each section of the bow-tie diagram:"
+      },
+      {
+        "heading": "2.1 Top Event (Centre)",
+        "level": 2,
+        "table": {
+          "headers": ["Field", "Entry"],
+          "rows": [
+            ["Top Event Description", "[The unwanted event — point at which control is lost]"],
+            ["Risk Event Statement", "[As recorded in risk register]"]
+          ]
+        }
+      },
+      {
+        "heading": "2.2 Threats / Causes (Left Side)",
+        "level": 2,
+        "table": {
+          "headers": ["Threat #", "Threat Description", "Source/Origin", "Likelihood"],
+          "rows": [
+            ["T1", "", "", "☐ Rare ☐ Unlikely ☐ Possible ☐ Likely ☐ Almost Certain"],
+            ["T2", "", "", "☐ Rare ☐ Unlikely ☐ Possible ☐ Likely ☐ Almost Certain"],
+            ["T3", "", "", "☐ Rare ☐ Unlikely ☐ Possible ☐ Likely ☐ Almost Certain"],
+            ["T4", "", "", "☐ Rare ☐ Unlikely ☐ Possible ☐ Likely ☐ Almost Certain"]
+          ]
+        }
+      },
+      {
+        "heading": "2.3 Preventive Controls (Left Barriers)",
+        "level": 2,
+        "table": {
+          "headers": [
+            "Control #",
+            "Control Description",
+            "Blocks Threat(s)",
+            "Effectiveness",
+            "Owner"
+          ],
+          "rows": [
+            ["PC1", "", "T___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""],
+            ["PC2", "", "T___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""],
+            ["PC3", "", "T___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""],
+            ["PC4", "", "T___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""]
+          ]
+        }
+      },
+      {
+        "heading": "2.4 Consequences (Right Side)",
+        "level": 2,
+        "table": {
+          "headers": ["Consequence #", "Consequence Description", "Impact Area", "Severity"],
+          "rows": [
+            [
+              "C1",
+              "",
+              "☐ Safety ☐ Financial ☐ Reputational ☐ Operational ☐ Legal",
+              "☐ Insignificant ☐ Minor ☐ Moderate ☐ Major ☐ Catastrophic"
+            ],
+            [
+              "C2",
+              "",
+              "☐ Safety ☐ Financial ☐ Reputational ☐ Operational ☐ Legal",
+              "☐ Insignificant ☐ Minor ☐ Moderate ☐ Major ☐ Catastrophic"
+            ],
+            [
+              "C3",
+              "",
+              "☐ Safety ☐ Financial ☐ Reputational ☐ Operational ☐ Legal",
+              "☐ Insignificant ☐ Minor ☐ Moderate ☐ Major ☐ Catastrophic"
+            ],
+            [
+              "C4",
+              "",
+              "☐ Safety ☐ Financial ☐ Reputational ☐ Operational ☐ Legal",
+              "☐ Insignificant ☐ Minor ☐ Moderate ☐ Major ☐ Catastrophic"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "2.5 Mitigating Controls (Right Barriers)",
+        "level": 2,
+        "table": {
+          "headers": [
+            "Control #",
+            "Control Description",
+            "Mitigates Consequence(s)",
+            "Effectiveness",
+            "Owner"
+          ],
+          "rows": [
+            ["MC1", "", "C___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""],
+            ["MC2", "", "C___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""],
+            ["MC3", "", "C___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""],
+            ["MC4", "", "C___", "☐ Strong ☐ Adequate ☐ Weak ☐ None", ""]
+          ]
+        }
+      },
+      {
+        "heading": "3. Control Gaps and Recommendations",
+        "table": {
+          "headers": ["Gap Identified", "Recommended Action", "Priority", "Owner"],
+          "rows": [
+            ["", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""],
+            ["", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""],
+            ["", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""]
+          ]
+        }
+      },
+      {
+        "heading": "4. Approval",
+        "table": {
+          "headers": ["Role", "Name", "Signature", "Date"],
+          "rows": [
+            ["Analyst", "", "", ""],
+            ["Risk Owner", "", "", ""],
+            ["Risk Manager", "", "", ""]
+          ]
+        }
+      }
     ]
   },
   {
@@ -231,11 +1363,76 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31000:2018 Clause 6.6",
     "sections": [
-      { "heading": "1. KRI Definition", "table": { "headers": ["Field", "Entry"], "rows": [["KRI Name*", ""], ["Associated Risk", "RISK-____-____ | [Risk Title]"], ["Risk Category", ""], ["KRI Description", "[What does this indicator measure?]"], ["Unit of Measurement", "[%, #, £, days, etc.]"], ["Measurement Frequency", "☐ Daily  ☐ Weekly  ☐ Monthly  ☐ Quarterly  ☐ Annually"], ["Data Source", "[Where is the data obtained?]"], ["Data Owner", "[Person responsible for providing data]"]] } },
-      { "heading": "2. Threshold Definitions", "table": { "headers": ["Status", "Threshold", "Value", "Action Required"], "rows": [["GREEN", "Below warning threshold", "≤ ___", "Continue routine monitoring"], ["AMBER", "Warning threshold breached", "> ___ and ≤ ___", "Investigate and review"], ["RED", "Critical threshold breached", "> ___", "Immediate action required"]] } },
-      { "heading": "3. KRI Readings", "table": { "headers": ["Date", "Value", "Status", "Trend", "Notes", "Recorded By"], "rows": [["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""], ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""], ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""], ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""], ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""], ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""], ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""], ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""], ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""], ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""], ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""], ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""]] } },
-      { "heading": "4. Breach Response Log", "table": { "headers": ["Date", "Status", "Actions Taken", "Escalated To", "Outcome"], "rows": [["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""]] } },
-      { "heading": "5. Review", "table": { "headers": ["Field", "Detail"], "rows": [["Last Reviewed", "[DD/MM/YYYY]"], ["Reviewed By", ""], ["Thresholds Still Appropriate?", "☐ Yes  ☐ No — revised thresholds: ___"], ["Next Review Date", "[DD/MM/YYYY]"]] } }
+      {
+        "heading": "1. KRI Definition",
+        "table": {
+          "headers": ["Field", "Entry"],
+          "rows": [
+            ["KRI Name*", ""],
+            ["Associated Risk", "RISK-____-____ | [Risk Title]"],
+            ["Risk Category", ""],
+            ["KRI Description", "[What does this indicator measure?]"],
+            ["Unit of Measurement", "[%, #, £, days, etc.]"],
+            ["Measurement Frequency", "☐ Daily  ☐ Weekly  ☐ Monthly  ☐ Quarterly  ☐ Annually"],
+            ["Data Source", "[Where is the data obtained?]"],
+            ["Data Owner", "[Person responsible for providing data]"]
+          ]
+        }
+      },
+      {
+        "heading": "2. Threshold Definitions",
+        "table": {
+          "headers": ["Status", "Threshold", "Value", "Action Required"],
+          "rows": [
+            ["GREEN", "Below warning threshold", "≤ ___", "Continue routine monitoring"],
+            ["AMBER", "Warning threshold breached", "> ___ and ≤ ___", "Investigate and review"],
+            ["RED", "Critical threshold breached", "> ___", "Immediate action required"]
+          ]
+        }
+      },
+      {
+        "heading": "3. KRI Readings",
+        "table": {
+          "headers": ["Date", "Value", "Status", "Trend", "Notes", "Recorded By"],
+          "rows": [
+            ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""],
+            ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""],
+            ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""],
+            ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""],
+            ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""],
+            ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""],
+            ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""],
+            ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""],
+            ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""],
+            ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""],
+            ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""],
+            ["", "", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓", "", ""]
+          ]
+        }
+      },
+      {
+        "heading": "4. Breach Response Log",
+        "table": {
+          "headers": ["Date", "Status", "Actions Taken", "Escalated To", "Outcome"],
+          "rows": [
+            ["", "", "", "", ""],
+            ["", "", "", "", ""],
+            ["", "", "", "", ""]
+          ]
+        }
+      },
+      {
+        "heading": "5. Review",
+        "table": {
+          "headers": ["Field", "Detail"],
+          "rows": [
+            ["Last Reviewed", "[DD/MM/YYYY]"],
+            ["Reviewed By", ""],
+            ["Thresholds Still Appropriate?", "☐ Yes  ☐ No — revised thresholds: ___"],
+            ["Next Review Date", "[DD/MM/YYYY]"]
+          ]
+        }
+      }
     ]
   },
   {
@@ -247,13 +1444,89 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31000:2018 Clause 6.6",
     "sections": [
-      { "heading": "1. Review Details", "table": { "headers": ["Field", "Entry"], "rows": [["Risk Reference", "RISK-____-____"], ["Risk Title", ""], ["Review Date", "[DD/MM/YYYY]"], ["Review Type", "☐ Scheduled  ☐ Triggered  ☐ Deep-Dive  ☐ Annual"], ["Reviewer", ""], ["Previous Review Date", ""]] } },
-      { "heading": "2. Current Status", "table": { "headers": ["Field", "Previous", "Current", "Change?"], "rows": [["Inherent Score", "", "", "☐ Yes ☐ No"], ["Residual Score", "", "", "☐ Yes ☐ No"], ["Risk Level", "", "", "☐ Yes ☐ No"], ["Appetite Status", "", "", "☐ Yes ☐ No"], ["Treatment Progress", "", "", "☐ Yes ☐ No"]] } },
-      { "heading": "3. Control Review", "table": { "headers": ["Control", "Previous Effectiveness", "Current Effectiveness", "Comments"], "rows": [["C1: [name]", "", "", ""], ["C2: [name]", "", "", ""], ["C3: [name]", "", "", ""]] } },
-      { "heading": "4. KRI Review", "table": { "headers": ["KRI Name", "Current Status", "Trend", "Comments"], "rows": [["", "☐ G ☐ A ☐ R", "☐ Improving ☐ Stable ☐ Deteriorating", ""], ["", "☐ G ☐ A ☐ R", "☐ Improving ☐ Stable ☐ Deteriorating", ""]] } },
-      { "heading": "5. Treatment Plan Progress", "table": { "headers": ["Action", "Due Date", "Status", "Comments"], "rows": [["", "", "☐ Open ☐ In Progress ☐ Completed ☐ Overdue", ""], ["", "", "☐ Open ☐ In Progress ☐ Completed ☐ Overdue", ""], ["", "", "☐ Open ☐ In Progress ☐ Completed ☐ Overdue", ""]] } },
-      { "heading": "6. Review Outcome", "table": { "headers": ["Field", "Entry"], "rows": [["Risk Still Relevant?", "☐ Yes  ☐ No — close risk"], ["Risk Description Changed?", "☐ Yes  ☐ No"], ["Controls Changed?", "☐ Yes  ☐ No"], ["Score Changed?", "☐ Yes  ☐ No"], ["Recommendations", "[Any new actions or recommendations]"], ["Next Review Date", "[DD/MM/YYYY]"]] } },
-      { "heading": "7. Approval", "table": { "headers": ["Role", "Name", "Signature", "Date"], "rows": [["Reviewer", "", "", ""], ["Risk Owner", "", "", ""]] } }
+      {
+        "heading": "1. Review Details",
+        "table": {
+          "headers": ["Field", "Entry"],
+          "rows": [
+            ["Risk Reference", "RISK-____-____"],
+            ["Risk Title", ""],
+            ["Review Date", "[DD/MM/YYYY]"],
+            ["Review Type", "☐ Scheduled  ☐ Triggered  ☐ Deep-Dive  ☐ Annual"],
+            ["Reviewer", ""],
+            ["Previous Review Date", ""]
+          ]
+        }
+      },
+      {
+        "heading": "2. Current Status",
+        "table": {
+          "headers": ["Field", "Previous", "Current", "Change?"],
+          "rows": [
+            ["Inherent Score", "", "", "☐ Yes ☐ No"],
+            ["Residual Score", "", "", "☐ Yes ☐ No"],
+            ["Risk Level", "", "", "☐ Yes ☐ No"],
+            ["Appetite Status", "", "", "☐ Yes ☐ No"],
+            ["Treatment Progress", "", "", "☐ Yes ☐ No"]
+          ]
+        }
+      },
+      {
+        "heading": "3. Control Review",
+        "table": {
+          "headers": ["Control", "Previous Effectiveness", "Current Effectiveness", "Comments"],
+          "rows": [
+            ["C1: [name]", "", "", ""],
+            ["C2: [name]", "", "", ""],
+            ["C3: [name]", "", "", ""]
+          ]
+        }
+      },
+      {
+        "heading": "4. KRI Review",
+        "table": {
+          "headers": ["KRI Name", "Current Status", "Trend", "Comments"],
+          "rows": [
+            ["", "☐ G ☐ A ☐ R", "☐ Improving ☐ Stable ☐ Deteriorating", ""],
+            ["", "☐ G ☐ A ☐ R", "☐ Improving ☐ Stable ☐ Deteriorating", ""]
+          ]
+        }
+      },
+      {
+        "heading": "5. Treatment Plan Progress",
+        "table": {
+          "headers": ["Action", "Due Date", "Status", "Comments"],
+          "rows": [
+            ["", "", "☐ Open ☐ In Progress ☐ Completed ☐ Overdue", ""],
+            ["", "", "☐ Open ☐ In Progress ☐ Completed ☐ Overdue", ""],
+            ["", "", "☐ Open ☐ In Progress ☐ Completed ☐ Overdue", ""]
+          ]
+        }
+      },
+      {
+        "heading": "6. Review Outcome",
+        "table": {
+          "headers": ["Field", "Entry"],
+          "rows": [
+            ["Risk Still Relevant?", "☐ Yes  ☐ No — close risk"],
+            ["Risk Description Changed?", "☐ Yes  ☐ No"],
+            ["Controls Changed?", "☐ Yes  ☐ No"],
+            ["Score Changed?", "☐ Yes  ☐ No"],
+            ["Recommendations", "[Any new actions or recommendations]"],
+            ["Next Review Date", "[DD/MM/YYYY]"]
+          ]
+        }
+      },
+      {
+        "heading": "7. Approval",
+        "table": {
+          "headers": ["Role", "Name", "Signature", "Date"],
+          "rows": [
+            ["Reviewer", "", "", ""],
+            ["Risk Owner", "", "", ""]
+          ]
+        }
+      }
     ]
   },
   {
@@ -265,11 +1538,85 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31000:2018 Clause 6.5",
     "sections": [
-      { "heading": "1. Risk Details", "table": { "headers": ["Field", "Entry"], "rows": [["Risk Reference", "RISK-____-____"], ["Risk Title", ""], ["Current Residual Score", ""], ["Treatment Option", "☐ Avoid  ☐ Reduce Likelihood  ☐ Reduce Consequence  ☐ Share/Transfer  ☐ Accept  ☐ Exploit"], ["Target Residual Score", ""]] } },
-      { "heading": "2. Treatment Actions", "table": { "headers": ["Action #", "Action Title", "Description", "Owner", "Priority", "Target Date"], "rows": [["A1", "", "", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""], ["A2", "", "", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""], ["A3", "", "", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""], ["A4", "", "", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""], ["A5", "", "", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""]] } },
-      { "heading": "3. Action Completion Record", "table": { "headers": ["Action #", "Completion Date", "Evidence Provided", "Verified By", "Effective?"], "rows": [["A1", "", "☐ Yes ☐ No", "", "☐ Yes ☐ No ☐ Partial"], ["A2", "", "☐ Yes ☐ No", "", "☐ Yes ☐ No ☐ Partial"], ["A3", "", "☐ Yes ☐ No", "", "☐ Yes ☐ No ☐ Partial"], ["A4", "", "☐ Yes ☐ No", "", "☐ Yes ☐ No ☐ Partial"], ["A5", "", "☐ Yes ☐ No", "", "☐ Yes ☐ No ☐ Partial"]] } },
-      { "heading": "4. Post-Treatment Assessment", "table": { "headers": ["Field", "Entry"], "rows": [["Revised Residual Likelihood", "☐ 1 ☐ 2 ☐ 3 ☐ 4 ☐ 5"], ["Revised Residual Consequence", "☐ 1 ☐ 2 ☐ 3 ☐ 4 ☐ 5"], ["Revised Residual Score", ""], ["Target Achieved?", "☐ Yes  ☐ No — further action required"], ["Further Actions Required", "[If target not achieved]"]] } },
-      { "heading": "5. Approval", "table": { "headers": ["Role", "Name", "Signature", "Date"], "rows": [["Action Owner", "", "", ""], ["Risk Owner", "", "", ""], ["Risk Manager", "", "", ""]] } }
+      {
+        "heading": "1. Risk Details",
+        "table": {
+          "headers": ["Field", "Entry"],
+          "rows": [
+            ["Risk Reference", "RISK-____-____"],
+            ["Risk Title", ""],
+            ["Current Residual Score", ""],
+            [
+              "Treatment Option",
+              "☐ Avoid  ☐ Reduce Likelihood  ☐ Reduce Consequence  ☐ Share/Transfer  ☐ Accept  ☐ Exploit"
+            ],
+            ["Target Residual Score", ""]
+          ]
+        }
+      },
+      {
+        "heading": "2. Treatment Actions",
+        "table": {
+          "headers": [
+            "Action #",
+            "Action Title",
+            "Description",
+            "Owner",
+            "Priority",
+            "Target Date"
+          ],
+          "rows": [
+            ["A1", "", "", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""],
+            ["A2", "", "", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""],
+            ["A3", "", "", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""],
+            ["A4", "", "", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""],
+            ["A5", "", "", "", "☐ Critical ☐ High ☐ Medium ☐ Low", ""]
+          ]
+        }
+      },
+      {
+        "heading": "3. Action Completion Record",
+        "table": {
+          "headers": [
+            "Action #",
+            "Completion Date",
+            "Evidence Provided",
+            "Verified By",
+            "Effective?"
+          ],
+          "rows": [
+            ["A1", "", "☐ Yes ☐ No", "", "☐ Yes ☐ No ☐ Partial"],
+            ["A2", "", "☐ Yes ☐ No", "", "☐ Yes ☐ No ☐ Partial"],
+            ["A3", "", "☐ Yes ☐ No", "", "☐ Yes ☐ No ☐ Partial"],
+            ["A4", "", "☐ Yes ☐ No", "", "☐ Yes ☐ No ☐ Partial"],
+            ["A5", "", "☐ Yes ☐ No", "", "☐ Yes ☐ No ☐ Partial"]
+          ]
+        }
+      },
+      {
+        "heading": "4. Post-Treatment Assessment",
+        "table": {
+          "headers": ["Field", "Entry"],
+          "rows": [
+            ["Revised Residual Likelihood", "☐ 1 ☐ 2 ☐ 3 ☐ 4 ☐ 5"],
+            ["Revised Residual Consequence", "☐ 1 ☐ 2 ☐ 3 ☐ 4 ☐ 5"],
+            ["Revised Residual Score", ""],
+            ["Target Achieved?", "☐ Yes  ☐ No — further action required"],
+            ["Further Actions Required", "[If target not achieved]"]
+          ]
+        }
+      },
+      {
+        "heading": "5. Approval",
+        "table": {
+          "headers": ["Role", "Name", "Signature", "Date"],
+          "rows": [
+            ["Action Owner", "", "", ""],
+            ["Risk Owner", "", "", ""],
+            ["Risk Manager", "", "", ""]
+          ]
+        }
+      }
     ]
   },
   {
@@ -281,15 +1628,120 @@
     "approvedBy": "[Board of Directors]",
     "isoRef": "ISO 31000:2018 Clause 6.7",
     "sections": [
-      { "heading": "1. Executive Summary", "content": "This report provides a comprehensive overview of the organisation's risk profile for the period [DD/MM/YYYY] to [DD/MM/YYYY]. It summarises key risk metrics, material changes, and recommendations for the Board's attention.\n\nReporting Period: [Quarter/Year]\nReport Date: [DD/MM/YYYY]\nPrepared By: [Chief Risk Officer]" },
-      { "heading": "2. Risk Profile Summary", "table": { "headers": ["Metric", "Current Period", "Previous Period", "Trend"], "rows": [["Total Risks in Register", "", "", "☐ ↑ ☐ → ☐ ↓"], ["Critical Risks", "", "", "☐ ↑ ☐ → ☐ ↓"], ["Very High Risks", "", "", "☐ ↑ ☐ → ☐ ↓"], ["Risks Exceeding Appetite", "", "", "☐ ↑ ☐ → ☐ ↓"], ["Average Residual Score", "", "", "☐ ↑ ☐ → ☐ ↓"], ["Open Treatment Actions", "", "", "☐ ↑ ☐ → ☐ ↓"], ["Overdue Actions", "", "", "☐ ↑ ☐ → ☐ ↓"], ["KRI Breaches (RED)", "", "", "☐ ↑ ☐ → ☐ ↓"], ["KRI Warnings (AMBER)", "", "", "☐ ↑ ☐ → ☐ ↓"], ["Overdue Reviews", "", "", "☐ ↑ ☐ → ☐ ↓"], ["New Risks Identified", "", "", ""], ["Risks Closed/Removed", "", "", ""]] } },
-      { "heading": "3. Risk Heat Map", "content": "[Insert 5×5 risk heat map from Nexara IMS dashboard showing the distribution of risks by residual likelihood and consequence]\n\nThe heat map above shows the current distribution of [N] risks across the 5×5 risk matrix. Key observations:\n\n[Commentary on risk distribution, clusters, changes from previous period]" },
-      { "heading": "4. Top 10 Risks", "table": { "headers": ["Rank", "Ref", "Risk Title", "Category", "Inherent Score", "Residual Score", "Level", "Appetite", "Trend"], "rows": [["1", "", "", "", "", "", "", "", ""], ["2", "", "", "", "", "", "", "", ""], ["3", "", "", "", "", "", "", "", ""], ["4", "", "", "", "", "", "", "", ""], ["5", "", "", "", "", "", "", "", ""], ["6", "", "", "", "", "", "", "", ""], ["7", "", "", "", "", "", "", "", ""], ["8", "", "", "", "", "", "", "", ""], ["9", "", "", "", "", "", "", "", ""], ["10", "", "", "", "", "", "", "", ""]] } },
-      { "heading": "5. Risks by Category", "table": { "headers": ["Category", "Total", "Critical", "Very High", "High", "Medium", "Low", "Exceeds Appetite"], "rows": [["Health & Safety", "", "", "", "", "", "", ""], ["Environmental", "", "", "", "", "", "", ""], ["Financial", "", "", "", "", "", "", ""], ["Operational", "", "", "", "", "", "", ""], ["Compliance/Legal", "", "", "", "", "", "", ""], ["Technology/Cyber", "", "", "", "", "", "", ""], ["Strategic", "", "", "", "", "", "", ""], ["Reputational", "", "", "", "", "", "", ""], ["People/HR", "", "", "", "", "", "", ""], ["Total", "", "", "", "", "", "", ""]] } },
-      { "heading": "6. KRI Dashboard Summary", "table": { "headers": ["KRI Name", "Risk", "Current Value", "Status", "Trend", "Action Taken"], "rows": [["", "", "", "", "", ""], ["", "", "", "", "", ""], ["", "", "", "", "", ""], ["", "", "", "", "", ""], ["", "", "", "", "", ""]] } },
-      { "heading": "7. Material Changes", "content": "[Describe any significant changes to the risk profile during the reporting period, including:\n- New risks identified\n- Risks with materially changed scores\n- Risks closed or removed\n- Control failures or incidents\n- External environment changes]" },
-      { "heading": "8. Recommendations", "content": "[List specific recommendations for the Board's consideration:\n\n1. [Recommendation]\n2. [Recommendation]\n3. [Recommendation]]" },
-      { "heading": "9. Approval", "table": { "headers": ["Role", "Name", "Signature", "Date"], "rows": [["Chief Risk Officer", "", "", ""], ["Risk Committee Chair", "", "", ""]] } }
+      {
+        "heading": "1. Executive Summary",
+        "content": "This report provides a comprehensive overview of the organisation's risk profile for the period [DD/MM/YYYY] to [DD/MM/YYYY]. It summarises key risk metrics, material changes, and recommendations for the Board's attention.\n\nReporting Period: [Quarter/Year]\nReport Date: [DD/MM/YYYY]\nPrepared By: [Chief Risk Officer]"
+      },
+      {
+        "heading": "2. Risk Profile Summary",
+        "table": {
+          "headers": ["Metric", "Current Period", "Previous Period", "Trend"],
+          "rows": [
+            ["Total Risks in Register", "", "", "☐ ↑ ☐ → ☐ ↓"],
+            ["Critical Risks", "", "", "☐ ↑ ☐ → ☐ ↓"],
+            ["Very High Risks", "", "", "☐ ↑ ☐ → ☐ ↓"],
+            ["Risks Exceeding Appetite", "", "", "☐ ↑ ☐ → ☐ ↓"],
+            ["Average Residual Score", "", "", "☐ ↑ ☐ → ☐ ↓"],
+            ["Open Treatment Actions", "", "", "☐ ↑ ☐ → ☐ ↓"],
+            ["Overdue Actions", "", "", "☐ ↑ ☐ → ☐ ↓"],
+            ["KRI Breaches (RED)", "", "", "☐ ↑ ☐ → ☐ ↓"],
+            ["KRI Warnings (AMBER)", "", "", "☐ ↑ ☐ → ☐ ↓"],
+            ["Overdue Reviews", "", "", "☐ ↑ ☐ → ☐ ↓"],
+            ["New Risks Identified", "", "", ""],
+            ["Risks Closed/Removed", "", "", ""]
+          ]
+        }
+      },
+      {
+        "heading": "3. Risk Heat Map",
+        "content": "[Insert 5×5 risk heat map from Nexara IMS dashboard showing the distribution of risks by residual likelihood and consequence]\n\nThe heat map above shows the current distribution of [N] risks across the 5×5 risk matrix. Key observations:\n\n[Commentary on risk distribution, clusters, changes from previous period]"
+      },
+      {
+        "heading": "4. Top 10 Risks",
+        "table": {
+          "headers": [
+            "Rank",
+            "Ref",
+            "Risk Title",
+            "Category",
+            "Inherent Score",
+            "Residual Score",
+            "Level",
+            "Appetite",
+            "Trend"
+          ],
+          "rows": [
+            ["1", "", "", "", "", "", "", "", ""],
+            ["2", "", "", "", "", "", "", "", ""],
+            ["3", "", "", "", "", "", "", "", ""],
+            ["4", "", "", "", "", "", "", "", ""],
+            ["5", "", "", "", "", "", "", "", ""],
+            ["6", "", "", "", "", "", "", "", ""],
+            ["7", "", "", "", "", "", "", "", ""],
+            ["8", "", "", "", "", "", "", "", ""],
+            ["9", "", "", "", "", "", "", "", ""],
+            ["10", "", "", "", "", "", "", "", ""]
+          ]
+        }
+      },
+      {
+        "heading": "5. Risks by Category",
+        "table": {
+          "headers": [
+            "Category",
+            "Total",
+            "Critical",
+            "Very High",
+            "High",
+            "Medium",
+            "Low",
+            "Exceeds Appetite"
+          ],
+          "rows": [
+            ["Health & Safety", "", "", "", "", "", "", ""],
+            ["Environmental", "", "", "", "", "", "", ""],
+            ["Financial", "", "", "", "", "", "", ""],
+            ["Operational", "", "", "", "", "", "", ""],
+            ["Compliance/Legal", "", "", "", "", "", "", ""],
+            ["Technology/Cyber", "", "", "", "", "", "", ""],
+            ["Strategic", "", "", "", "", "", "", ""],
+            ["Reputational", "", "", "", "", "", "", ""],
+            ["People/HR", "", "", "", "", "", "", ""],
+            ["Total", "", "", "", "", "", "", ""]
+          ]
+        }
+      },
+      {
+        "heading": "6. KRI Dashboard Summary",
+        "table": {
+          "headers": ["KRI Name", "Risk", "Current Value", "Status", "Trend", "Action Taken"],
+          "rows": [
+            ["", "", "", "", "", ""],
+            ["", "", "", "", "", ""],
+            ["", "", "", "", "", ""],
+            ["", "", "", "", "", ""],
+            ["", "", "", "", "", ""]
+          ]
+        }
+      },
+      {
+        "heading": "7. Material Changes",
+        "content": "[Describe any significant changes to the risk profile during the reporting period, including:\n- New risks identified\n- Risks with materially changed scores\n- Risks closed or removed\n- Control failures or incidents\n- External environment changes]"
+      },
+      {
+        "heading": "8. Recommendations",
+        "content": "[List specific recommendations for the Board's consideration:\n\n1. [Recommendation]\n2. [Recommendation]\n3. [Recommendation]]"
+      },
+      {
+        "heading": "9. Approval",
+        "table": {
+          "headers": ["Role", "Name", "Signature", "Date"],
+          "rows": [
+            ["Chief Risk Officer", "", "", ""],
+            ["Risk Committee Chair", "", "", ""]
+          ]
+        }
+      }
     ]
   },
   {
@@ -301,13 +1753,68 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31000:2018 Clause 6.4.3",
     "sections": [
-      { "heading": "1. Report Details", "table": { "headers": ["Field", "Detail"], "rows": [["Report Date", "[DD/MM/YYYY]"], ["Prepared By", ""], ["Reporting Period", ""], ["Total Risks Mapped", ""], ["Matrix Type", "5×5 (Likelihood × Consequence)"]] } },
-      { "heading": "2. Inherent Risk Heat Map", "content": "The inherent risk heat map shows the distribution of risks before considering existing controls:\n\n[Insert heat map from Nexara IMS — GET /api/risk/risks/heatmap]\n\nKey: Number in each cell = count of risks at that position" },
-      { "heading": "3. Residual Risk Heat Map", "content": "The residual risk heat map shows the distribution of risks after existing controls are applied:\n\n[Insert residual heat map]\n\nComparison: The shift from inherent to residual demonstrates the effectiveness of existing controls." },
-      { "heading": "4. Heat Map Analysis", "table": { "headers": ["Risk Level", "Inherent Count", "Residual Count", "Reduction", "% of Total"], "rows": [["CRITICAL (20-25)", "", "", "", ""], ["VERY HIGH (15-19)", "", "", "", ""], ["HIGH (8-12)", "", "", "", ""], ["MEDIUM (4-6)", "", "", "", ""], ["LOW (1-3)", "", "", "", ""], ["Total", "", "", "", "100%"]] } },
-      { "heading": "5. Risk Clusters", "content": "Identify any clusters of risks in specific heat map cells:\n\n[Document cells with 3+ risks, indicating potential systemic issues or common root causes]" },
-      { "heading": "6. Movement Analysis", "content": "Risks that have moved position since the previous reporting period:", "table": { "headers": ["Risk Ref", "Risk Title", "Previous Position", "Current Position", "Direction", "Reason"], "rows": [["", "", "L×C = Score", "L×C = Score", "☐ Improved ☐ Deteriorated", ""], ["", "", "L×C = Score", "L×C = Score", "☐ Improved ☐ Deteriorated", ""], ["", "", "L×C = Score", "L×C = Score", "☐ Improved ☐ Deteriorated", ""]] } },
-      { "heading": "7. Recommendations", "content": "[Commentary on heat map findings and recommendations for risk treatment focus areas]" }
+      {
+        "heading": "1. Report Details",
+        "table": {
+          "headers": ["Field", "Detail"],
+          "rows": [
+            ["Report Date", "[DD/MM/YYYY]"],
+            ["Prepared By", ""],
+            ["Reporting Period", ""],
+            ["Total Risks Mapped", ""],
+            ["Matrix Type", "5×5 (Likelihood × Consequence)"]
+          ]
+        }
+      },
+      {
+        "heading": "2. Inherent Risk Heat Map",
+        "content": "The inherent risk heat map shows the distribution of risks before considering existing controls:\n\n[Insert heat map from Nexara IMS — GET /api/risk/risks/heatmap]\n\nKey: Number in each cell = count of risks at that position"
+      },
+      {
+        "heading": "3. Residual Risk Heat Map",
+        "content": "The residual risk heat map shows the distribution of risks after existing controls are applied:\n\n[Insert residual heat map]\n\nComparison: The shift from inherent to residual demonstrates the effectiveness of existing controls."
+      },
+      {
+        "heading": "4. Heat Map Analysis",
+        "table": {
+          "headers": ["Risk Level", "Inherent Count", "Residual Count", "Reduction", "% of Total"],
+          "rows": [
+            ["CRITICAL (20-25)", "", "", "", ""],
+            ["VERY HIGH (15-19)", "", "", "", ""],
+            ["HIGH (8-12)", "", "", "", ""],
+            ["MEDIUM (4-6)", "", "", "", ""],
+            ["LOW (1-3)", "", "", "", ""],
+            ["Total", "", "", "", "100%"]
+          ]
+        }
+      },
+      {
+        "heading": "5. Risk Clusters",
+        "content": "Identify any clusters of risks in specific heat map cells:\n\n[Document cells with 3+ risks, indicating potential systemic issues or common root causes]"
+      },
+      {
+        "heading": "6. Movement Analysis",
+        "content": "Risks that have moved position since the previous reporting period:",
+        "table": {
+          "headers": [
+            "Risk Ref",
+            "Risk Title",
+            "Previous Position",
+            "Current Position",
+            "Direction",
+            "Reason"
+          ],
+          "rows": [
+            ["", "", "L×C = Score", "L×C = Score", "☐ Improved ☐ Deteriorated", ""],
+            ["", "", "L×C = Score", "L×C = Score", "☐ Improved ☐ Deteriorated", ""],
+            ["", "", "L×C = Score", "L×C = Score", "☐ Improved ☐ Deteriorated", ""]
+          ]
+        }
+      },
+      {
+        "heading": "7. Recommendations",
+        "content": "[Commentary on heat map findings and recommendations for risk treatment focus areas]"
+      }
     ]
   },
   {
@@ -319,13 +1826,98 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31000:2018 Clause 6.6",
     "sections": [
-      { "heading": "1. Report Details", "table": { "headers": ["Field", "Detail"], "rows": [["Report Date", "[DD/MM/YYYY]"], ["Reporting Period", ""], ["Prepared By", ""], ["Total KRIs Monitored", ""], ["KRIs in GREEN", ""], ["KRIs in AMBER", ""], ["KRIs in RED", ""]] } },
-      { "heading": "2. KRI Status Summary", "table": { "headers": ["KRI Name", "Risk Ref", "Risk Title", "Category", "Current Value", "Status", "Previous Status", "Trend"], "rows": [["", "", "", "", "", "☐ G ☐ A ☐ R", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓"], ["", "", "", "", "", "☐ G ☐ A ☐ R", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓"], ["", "", "", "", "", "☐ G ☐ A ☐ R", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓"], ["", "", "", "", "", "☐ G ☐ A ☐ R", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓"], ["", "", "", "", "", "☐ G ☐ A ☐ R", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓"]] } },
-      { "heading": "3. Breach Details", "content": "The following KRIs have breached AMBER or RED thresholds during the reporting period:", "table": { "headers": ["KRI Name", "Breach Level", "Date Breached", "Duration", "Actions Taken", "Current Status", "Responsible"], "rows": [["", "☐ AMBER ☐ RED", "", "", "", "", ""], ["", "☐ AMBER ☐ RED", "", "", "", "", ""], ["", "☐ AMBER ☐ RED", "", "", "", "", ""]] } },
-      { "heading": "4. Trend Analysis", "content": "[Include trend charts/descriptions for key KRIs showing readings over the last 6-12 months. Identify:\n- KRIs with deteriorating trends (even if still GREEN)\n- KRIs showing improvement\n- KRIs with high volatility]" },
-      { "heading": "5. KRI Effectiveness Review", "table": { "headers": ["KRI Name", "Still Relevant?", "Thresholds Appropriate?", "Frequency Appropriate?", "Recommendation"], "rows": [["", "☐ Yes ☐ No", "☐ Yes ☐ No", "☐ Yes ☐ No", ""], ["", "☐ Yes ☐ No", "☐ Yes ☐ No", "☐ Yes ☐ No", ""], ["", "☐ Yes ☐ No", "☐ Yes ☐ No", "☐ Yes ☐ No", ""]] } },
-      { "heading": "6. Recommendations", "content": "[Specific recommendations arising from KRI monitoring:\n\n1. [Recommendation]\n2. [Recommendation]\n3. [Recommendation]]" },
-      { "heading": "7. Approval", "table": { "headers": ["Role", "Name", "Signature", "Date"], "rows": [["Risk Manager", "", "", ""], ["Chief Risk Officer", "", "", ""]] } }
+      {
+        "heading": "1. Report Details",
+        "table": {
+          "headers": ["Field", "Detail"],
+          "rows": [
+            ["Report Date", "[DD/MM/YYYY]"],
+            ["Reporting Period", ""],
+            ["Prepared By", ""],
+            ["Total KRIs Monitored", ""],
+            ["KRIs in GREEN", ""],
+            ["KRIs in AMBER", ""],
+            ["KRIs in RED", ""]
+          ]
+        }
+      },
+      {
+        "heading": "2. KRI Status Summary",
+        "table": {
+          "headers": [
+            "KRI Name",
+            "Risk Ref",
+            "Risk Title",
+            "Category",
+            "Current Value",
+            "Status",
+            "Previous Status",
+            "Trend"
+          ],
+          "rows": [
+            ["", "", "", "", "", "☐ G ☐ A ☐ R", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓"],
+            ["", "", "", "", "", "☐ G ☐ A ☐ R", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓"],
+            ["", "", "", "", "", "☐ G ☐ A ☐ R", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓"],
+            ["", "", "", "", "", "☐ G ☐ A ☐ R", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓"],
+            ["", "", "", "", "", "☐ G ☐ A ☐ R", "☐ G ☐ A ☐ R", "☐ ↑ ☐ → ☐ ↓"]
+          ]
+        }
+      },
+      {
+        "heading": "3. Breach Details",
+        "content": "The following KRIs have breached AMBER or RED thresholds during the reporting period:",
+        "table": {
+          "headers": [
+            "KRI Name",
+            "Breach Level",
+            "Date Breached",
+            "Duration",
+            "Actions Taken",
+            "Current Status",
+            "Responsible"
+          ],
+          "rows": [
+            ["", "☐ AMBER ☐ RED", "", "", "", "", ""],
+            ["", "☐ AMBER ☐ RED", "", "", "", "", ""],
+            ["", "☐ AMBER ☐ RED", "", "", "", "", ""]
+          ]
+        }
+      },
+      {
+        "heading": "4. Trend Analysis",
+        "content": "[Include trend charts/descriptions for key KRIs showing readings over the last 6-12 months. Identify:\n- KRIs with deteriorating trends (even if still GREEN)\n- KRIs showing improvement\n- KRIs with high volatility]"
+      },
+      {
+        "heading": "5. KRI Effectiveness Review",
+        "table": {
+          "headers": [
+            "KRI Name",
+            "Still Relevant?",
+            "Thresholds Appropriate?",
+            "Frequency Appropriate?",
+            "Recommendation"
+          ],
+          "rows": [
+            ["", "☐ Yes ☐ No", "☐ Yes ☐ No", "☐ Yes ☐ No", ""],
+            ["", "☐ Yes ☐ No", "☐ Yes ☐ No", "☐ Yes ☐ No", ""],
+            ["", "☐ Yes ☐ No", "☐ Yes ☐ No", "☐ Yes ☐ No", ""]
+          ]
+        }
+      },
+      {
+        "heading": "6. Recommendations",
+        "content": "[Specific recommendations arising from KRI monitoring:\n\n1. [Recommendation]\n2. [Recommendation]\n3. [Recommendation]]"
+      },
+      {
+        "heading": "7. Approval",
+        "table": {
+          "headers": ["Role", "Name", "Signature", "Date"],
+          "rows": [
+            ["Risk Manager", "", "", ""],
+            ["Chief Risk Officer", "", "", ""]
+          ]
+        }
+      }
     ]
   },
   {
@@ -337,16 +1929,153 @@
     "approvedBy": "[Chief Risk Officer]",
     "isoRef": "ISO 31000:2018 Clause 6.5",
     "sections": [
-      { "heading": "1. Plan Overview", "table": { "headers": ["Field", "Detail"], "rows": [["Plan Reference", "RTP-YYYY-NNN"], ["Reporting Period", "[Q_ YYYY]"], ["Prepared By", ""], ["Date Prepared", "[DD/MM/YYYY]"], ["Total Risks Requiring Treatment", ""], ["Risks Exceeding Appetite", ""], ["Total Active Treatment Actions", ""], ["Overdue Actions", ""]] } },
-      { "heading": "2. Prioritised Treatment List", "content": "Risks requiring treatment, prioritised by residual risk score and appetite status:", "table": { "headers": ["Priority", "Risk Ref", "Risk Title", "Category", "Residual Score", "Appetite Status", "Treatment Option", "Owner", "Target Date"], "rows": [["1", "", "", "", "", "☐ EXCEEDS", "", "", ""], ["2", "", "", "", "", "☐ EXCEEDS ☐ AT_LIMIT", "", "", ""], ["3", "", "", "", "", "☐ EXCEEDS ☐ AT_LIMIT", "", "", ""], ["4", "", "", "", "", "☐ EXCEEDS ☐ AT_LIMIT", "", "", ""], ["5", "", "", "", "", "☐ EXCEEDS ☐ AT_LIMIT", "", "", ""]] } },
-      { "heading": "3. Detailed Treatment Plans", "content": "For each risk requiring treatment, complete the following:" },
-      { "heading": "3.1 Risk 1: [Title]", "level": 2, "table": { "headers": ["Field", "Detail"], "rows": [["Risk Reference", "RISK-____-____"], ["Current Residual Score", ""], ["Target Residual Score", ""], ["Treatment Option", ""], ["Treatment Description", ""], ["Expected Completion", ""], ["Budget Required", ""], ["Resource Requirements", ""]] } },
-      { "heading": "Treatment Actions — Risk 1", "level": 2, "table": { "headers": ["#", "Action", "Owner", "Priority", "Start Date", "Target Date", "Status", "Evidence"], "rows": [["1.1", "", "", "", "", "", "☐ Not Started ☐ In Progress ☐ Complete", ""], ["1.2", "", "", "", "", "", "☐ Not Started ☐ In Progress ☐ Complete", ""], ["1.3", "", "", "", "", "", "☐ Not Started ☐ In Progress ☐ Complete", ""]] } },
-      { "heading": "3.2 Risk 2: [Title]", "level": 2, "table": { "headers": ["Field", "Detail"], "rows": [["Risk Reference", "RISK-____-____"], ["Current Residual Score", ""], ["Target Residual Score", ""], ["Treatment Option", ""], ["Treatment Description", ""], ["Expected Completion", ""], ["Budget Required", ""], ["Resource Requirements", ""]] } },
-      { "heading": "Treatment Actions — Risk 2", "level": 2, "table": { "headers": ["#", "Action", "Owner", "Priority", "Start Date", "Target Date", "Status", "Evidence"], "rows": [["2.1", "", "", "", "", "", "☐ Not Started ☐ In Progress ☐ Complete", ""], ["2.2", "", "", "", "", "", "☐ Not Started ☐ In Progress ☐ Complete", ""], ["2.3", "", "", "", "", "", "☐ Not Started ☐ In Progress ☐ Complete", ""]] } },
-      { "heading": "4. Resource Summary", "table": { "headers": ["Resource Type", "Estimated", "Allocated", "Gap"], "rows": [["Budget (£)", "", "", ""], ["Personnel (FTE)", "", "", ""], ["External Support", "", "", ""], ["Technology/Tools", "", "", ""]] } },
-      { "heading": "5. Monitoring Arrangements", "content": "Treatment plan progress shall be monitored through:\n\na) Weekly action tracking by risk owners\nb) Monthly progress review by Risk Manager\nc) Quarterly reporting to Risk Committee\nd) Post-treatment effectiveness review\n\nThe Risk Manager shall report any blocked or overdue actions to the CRO within 5 working days." },
-      { "heading": "6. Approval", "table": { "headers": ["Role", "Name", "Signature", "Date"], "rows": [["Risk Manager", "", "", ""], ["Chief Risk Officer", "", "", ""], ["Risk Committee Chair", "", "", ""]] } }
+      {
+        "heading": "1. Plan Overview",
+        "table": {
+          "headers": ["Field", "Detail"],
+          "rows": [
+            ["Plan Reference", "RTP-YYYY-NNN"],
+            ["Reporting Period", "[Q_ YYYY]"],
+            ["Prepared By", ""],
+            ["Date Prepared", "[DD/MM/YYYY]"],
+            ["Total Risks Requiring Treatment", ""],
+            ["Risks Exceeding Appetite", ""],
+            ["Total Active Treatment Actions", ""],
+            ["Overdue Actions", ""]
+          ]
+        }
+      },
+      {
+        "heading": "2. Prioritised Treatment List",
+        "content": "Risks requiring treatment, prioritised by residual risk score and appetite status:",
+        "table": {
+          "headers": [
+            "Priority",
+            "Risk Ref",
+            "Risk Title",
+            "Category",
+            "Residual Score",
+            "Appetite Status",
+            "Treatment Option",
+            "Owner",
+            "Target Date"
+          ],
+          "rows": [
+            ["1", "", "", "", "", "☐ EXCEEDS", "", "", ""],
+            ["2", "", "", "", "", "☐ EXCEEDS ☐ AT_LIMIT", "", "", ""],
+            ["3", "", "", "", "", "☐ EXCEEDS ☐ AT_LIMIT", "", "", ""],
+            ["4", "", "", "", "", "☐ EXCEEDS ☐ AT_LIMIT", "", "", ""],
+            ["5", "", "", "", "", "☐ EXCEEDS ☐ AT_LIMIT", "", "", ""]
+          ]
+        }
+      },
+      {
+        "heading": "3. Detailed Treatment Plans",
+        "content": "For each risk requiring treatment, complete the following:"
+      },
+      {
+        "heading": "3.1 Risk 1: [Title]",
+        "level": 2,
+        "table": {
+          "headers": ["Field", "Detail"],
+          "rows": [
+            ["Risk Reference", "RISK-____-____"],
+            ["Current Residual Score", ""],
+            ["Target Residual Score", ""],
+            ["Treatment Option", ""],
+            ["Treatment Description", ""],
+            ["Expected Completion", ""],
+            ["Budget Required", ""],
+            ["Resource Requirements", ""]
+          ]
+        }
+      },
+      {
+        "heading": "Treatment Actions — Risk 1",
+        "level": 2,
+        "table": {
+          "headers": [
+            "#",
+            "Action",
+            "Owner",
+            "Priority",
+            "Start Date",
+            "Target Date",
+            "Status",
+            "Evidence"
+          ],
+          "rows": [
+            ["1.1", "", "", "", "", "", "☐ Not Started ☐ In Progress ☐ Complete", ""],
+            ["1.2", "", "", "", "", "", "☐ Not Started ☐ In Progress ☐ Complete", ""],
+            ["1.3", "", "", "", "", "", "☐ Not Started ☐ In Progress ☐ Complete", ""]
+          ]
+        }
+      },
+      {
+        "heading": "3.2 Risk 2: [Title]",
+        "level": 2,
+        "table": {
+          "headers": ["Field", "Detail"],
+          "rows": [
+            ["Risk Reference", "RISK-____-____"],
+            ["Current Residual Score", ""],
+            ["Target Residual Score", ""],
+            ["Treatment Option", ""],
+            ["Treatment Description", ""],
+            ["Expected Completion", ""],
+            ["Budget Required", ""],
+            ["Resource Requirements", ""]
+          ]
+        }
+      },
+      {
+        "heading": "Treatment Actions — Risk 2",
+        "level": 2,
+        "table": {
+          "headers": [
+            "#",
+            "Action",
+            "Owner",
+            "Priority",
+            "Start Date",
+            "Target Date",
+            "Status",
+            "Evidence"
+          ],
+          "rows": [
+            ["2.1", "", "", "", "", "", "☐ Not Started ☐ In Progress ☐ Complete", ""],
+            ["2.2", "", "", "", "", "", "☐ Not Started ☐ In Progress ☐ Complete", ""],
+            ["2.3", "", "", "", "", "", "☐ Not Started ☐ In Progress ☐ Complete", ""]
+          ]
+        }
+      },
+      {
+        "heading": "4. Resource Summary",
+        "table": {
+          "headers": ["Resource Type", "Estimated", "Allocated", "Gap"],
+          "rows": [
+            ["Budget (£)", "", "", ""],
+            ["Personnel (FTE)", "", "", ""],
+            ["External Support", "", "", ""],
+            ["Technology/Tools", "", "", ""]
+          ]
+        }
+      },
+      {
+        "heading": "5. Monitoring Arrangements",
+        "content": "Treatment plan progress shall be monitored through:\n\na) Weekly action tracking by risk owners\nb) Monthly progress review by Risk Manager\nc) Quarterly reporting to Risk Committee\nd) Post-treatment effectiveness review\n\nThe Risk Manager shall report any blocked or overdue actions to the CRO within 5 working days."
+      },
+      {
+        "heading": "6. Approval",
+        "table": {
+          "headers": ["Role", "Name", "Signature", "Date"],
+          "rows": [
+            ["Risk Manager", "", "", ""],
+            ["Chief Risk Officer", "", "", ""],
+            ["Risk Committee Chair", "", "", ""]
+          ]
+        }
+      }
     ]
   }
 ]

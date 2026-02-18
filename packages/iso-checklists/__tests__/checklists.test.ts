@@ -107,7 +107,7 @@ describe('Checklist Registry', () => {
 
     it('should return array of strings', () => {
       const standards = getAvailableStandards();
-      standards.forEach(s => {
+      standards.forEach((s) => {
         expect(typeof s).toBe('string');
       });
     });
@@ -132,7 +132,7 @@ describe('ISO 9001:2015 Checklist', () => {
   });
 
   it('should have clauses from sections 4 through 10', () => {
-    const clauseNumbers = iso9001Checklist.clauses.map(c => c.clause.split('.')[0]);
+    const clauseNumbers = iso9001Checklist.clauses.map((c) => c.clause.split('.')[0]);
     expect(clauseNumbers).toContain('4');
     expect(clauseNumbers).toContain('5');
     expect(clauseNumbers).toContain('6');
@@ -143,39 +143,39 @@ describe('ISO 9001:2015 Checklist', () => {
   });
 
   it('should have non-empty questions for every clause', () => {
-    iso9001Checklist.clauses.forEach(clause => {
+    iso9001Checklist.clauses.forEach((clause) => {
       expect(clause.questions.length).toBeGreaterThan(0);
-      clause.questions.forEach(q => {
+      clause.questions.forEach((q) => {
         expect(q.length).toBeGreaterThan(0);
       });
     });
   });
 
   it('should have non-empty evidence for every clause', () => {
-    iso9001Checklist.clauses.forEach(clause => {
+    iso9001Checklist.clauses.forEach((clause) => {
       expect(clause.evidence.length).toBeGreaterThan(0);
     });
   });
 
   it('should have mandatory field set for all clauses', () => {
-    iso9001Checklist.clauses.forEach(clause => {
+    iso9001Checklist.clauses.forEach((clause) => {
       expect(typeof clause.mandatory).toBe('boolean');
     });
   });
 
   it('should have all mandatory clauses', () => {
-    const mandatory = iso9001Checklist.clauses.filter(c => c.mandatory);
+    const mandatory = iso9001Checklist.clauses.filter((c) => c.mandatory);
     expect(mandatory.length).toBeGreaterThan(0);
   });
 
   it('should include clause 4.1 (Context)', () => {
-    const c = iso9001Checklist.clauses.find(c => c.clause === '4.1');
+    const c = iso9001Checklist.clauses.find((c) => c.clause === '4.1');
     expect(c).toBeDefined();
     expect(c!.title).toContain('context');
   });
 
   it('should include clause 10.2 (Corrective action)', () => {
-    const c = iso9001Checklist.clauses.find(c => c.clause === '10.2');
+    const c = iso9001Checklist.clauses.find((c) => c.clause === '10.2');
     expect(c).toBeDefined();
     expect(c!.title).toContain('corrective');
   });
@@ -199,13 +199,13 @@ describe('ISO 14001:2015 Checklist', () => {
   });
 
   it('should have non-empty questions for all clauses', () => {
-    iso14001Checklist.clauses.forEach(clause => {
+    iso14001Checklist.clauses.forEach((clause) => {
       expect(clause.questions.length).toBeGreaterThan(0);
     });
   });
 
   it('should have evidence for all clauses', () => {
-    iso14001Checklist.clauses.forEach(clause => {
+    iso14001Checklist.clauses.forEach((clause) => {
       expect(clause.evidence.length).toBeGreaterThan(0);
     });
   });
@@ -221,7 +221,7 @@ describe('ISO 45001 Checklist', () => {
   });
 
   it('should have non-empty questions and evidence', () => {
-    iso45001Checklist.clauses.forEach(clause => {
+    iso45001Checklist.clauses.forEach((clause) => {
       expect(clause.questions.length).toBeGreaterThan(0);
       expect(clause.evidence.length).toBeGreaterThan(0);
     });
@@ -238,7 +238,7 @@ describe('IATF 16949 Checklist', () => {
   });
 
   it('should have non-empty questions and evidence', () => {
-    iatf16949Checklist.clauses.forEach(clause => {
+    iatf16949Checklist.clauses.forEach((clause) => {
       expect(clause.questions.length).toBeGreaterThan(0);
       expect(clause.evidence.length).toBeGreaterThan(0);
     });
@@ -280,34 +280,34 @@ describe('Checklist Clause Structure', () => {
   ];
 
   it('should have unique clause numbers within each checklist', () => {
-    allChecklists.forEach(cl => {
-      const clauseNumbers = cl.clauses.map(c => c.clause);
+    allChecklists.forEach((cl) => {
+      const clauseNumbers = cl.clauses.map((c) => c.clause);
       const unique = new Set(clauseNumbers);
       expect(unique.size).toBe(clauseNumbers.length);
     });
   });
 
   it('should have non-empty titles for all clauses', () => {
-    allChecklists.forEach(cl => {
-      cl.clauses.forEach(c => {
+    allChecklists.forEach((cl) => {
+      cl.clauses.forEach((c) => {
         expect(c.title.length).toBeGreaterThan(0);
       });
     });
   });
 
   it('should have non-empty clause numbers', () => {
-    allChecklists.forEach(cl => {
-      cl.clauses.forEach(c => {
+    allChecklists.forEach((cl) => {
+      cl.clauses.forEach((c) => {
         expect(c.clause.length).toBeGreaterThan(0);
       });
     });
   });
 
   it('should have questions as arrays of strings', () => {
-    allChecklists.forEach(cl => {
-      cl.clauses.forEach(c => {
+    allChecklists.forEach((cl) => {
+      cl.clauses.forEach((c) => {
         expect(Array.isArray(c.questions)).toBe(true);
-        c.questions.forEach(q => {
+        c.questions.forEach((q) => {
           expect(typeof q).toBe('string');
         });
       });
@@ -315,10 +315,10 @@ describe('Checklist Clause Structure', () => {
   });
 
   it('should have evidence as arrays of strings', () => {
-    allChecklists.forEach(cl => {
-      cl.clauses.forEach(c => {
+    allChecklists.forEach((cl) => {
+      cl.clauses.forEach((c) => {
         expect(Array.isArray(c.evidence)).toBe(true);
-        c.evidence.forEach(e => {
+        c.evidence.forEach((e) => {
           expect(typeof e).toBe('string');
         });
       });

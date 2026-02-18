@@ -16,7 +16,7 @@ import { calculateCAFederal } from './canada';
 export function calculateTax(
   jurisdiction: TaxJurisdiction,
   grossPay: number,
-  options: Partial<TaxConfig> = {},
+  options: Partial<TaxConfig> = {}
 ): TaxResult {
   const period = options.period ?? 'annual';
 
@@ -24,7 +24,11 @@ export function calculateTax(
     case 'UK':
       return calculateUKIncomeTax(grossPay, options.taxCode ?? '1257L', period);
     case 'UAE':
-      return calculateUAEPayroll(grossPay, options.nationality ?? 'OTHER', options.yearsOfService ?? 0);
+      return calculateUAEPayroll(
+        grossPay,
+        options.nationality ?? 'OTHER',
+        options.yearsOfService ?? 0
+      );
     case 'AU':
       return calculateAUPayroll(grossPay, period);
     case 'US':

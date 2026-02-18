@@ -25,10 +25,10 @@ k6 run --env SERVICE=health-safety packages/performance/k6/individual-services.j
 
 ### k6 Scripts
 
-| Script | Description |
-|--------|-------------|
+| Script                   | Description                                    |
+| ------------------------ | ---------------------------------------------- |
 | `individual-services.js` | Tests all 41 API services with CRUD operations |
-| `large-dataset.js` | 25 stress scenarios with large payloads |
+| `large-dataset.js`       | 25 stress scenarios with large payloads        |
 
 ## Accessibility
 

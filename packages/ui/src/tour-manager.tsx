@@ -32,19 +32,22 @@ export const TOURS: Record<string, TourConfig> = {
       {
         targetSelector: '[data-tour="ncr-create-btn"]',
         title: 'Create New NCR',
-        content: 'Click here to raise a new non-conformance report. You can classify it by severity, assign owners, and link to ISO clause references.',
+        content:
+          'Click here to raise a new non-conformance report. You can classify it by severity, assign owners, and link to ISO clause references.',
         placement: 'bottom',
       },
       {
         targetSelector: '[data-tour="ncr-filters"]',
         title: 'Filter & Search',
-        content: 'Use these filters to narrow down NCRs by status, severity, or assigned department. The search bar supports full-text search across all fields.',
+        content:
+          'Use these filters to narrow down NCRs by status, severity, or assigned department. The search bar supports full-text search across all fields.',
         placement: 'bottom',
       },
       {
         targetSelector: '[data-tour="ncr-list"]',
         title: 'NCR Register',
-        content: 'All non-conformances appear here with real-time status updates. Click any row to view details, add root-cause analysis, or attach corrective actions.',
+        content:
+          'All non-conformances appear here with real-time status updates. Click any row to view details, add root-cause analysis, or attach corrective actions.',
         placement: 'top',
       },
     ],
@@ -56,19 +59,22 @@ export const TOURS: Record<string, TourConfig> = {
       {
         targetSelector: '[data-tour="dashboard-stats"]',
         title: 'Key Metrics',
-        content: 'These cards show your organisation\'s compliance score, open actions, overdue items, and audit readiness at a glance.',
+        content:
+          "These cards show your organisation's compliance score, open actions, overdue items, and audit readiness at a glance.",
         placement: 'bottom',
       },
       {
         targetSelector: '[data-tour="dashboard-charts"]',
         title: 'Trend Analysis',
-        content: 'Interactive charts show compliance trends over time. Hover for details or click to drill down into specific modules.',
+        content:
+          'Interactive charts show compliance trends over time. Hover for details or click to drill down into specific modules.',
         placement: 'bottom',
       },
       {
         targetSelector: '[data-tour="dashboard-actions"]',
         title: 'Quick Actions',
-        content: 'Jump straight to common tasks: raise an NCR, log an incident, schedule an audit, or generate a management review report.',
+        content:
+          'Jump straight to common tasks: raise an NCR, log an incident, schedule an audit, or generate a management review report.',
         placement: 'left',
       },
     ],
@@ -80,19 +86,22 @@ export const TOURS: Record<string, TourConfig> = {
       {
         targetSelector: '[data-tour="ai-systems"]',
         title: 'AI System Register',
-        content: 'Register and classify all AI systems in your organisation. Each entry tracks risk level, purpose, data sources, and responsible parties.',
+        content:
+          'Register and classify all AI systems in your organisation. Each entry tracks risk level, purpose, data sources, and responsible parties.',
         placement: 'bottom',
       },
       {
         targetSelector: '[data-tour="ai-impact"]',
         title: 'Impact Assessments',
-        content: 'Conduct AI impact assessments following ISO 42001 Annex B. Evaluate fairness, transparency, accountability, and societal impact.',
+        content:
+          'Conduct AI impact assessments following ISO 42001 Annex B. Evaluate fairness, transparency, accountability, and societal impact.',
         placement: 'bottom',
       },
       {
         targetSelector: '[data-tour="ai-controls"]',
         title: 'AI Controls',
-        content: 'Map and monitor controls specific to AI governance. Track implementation status and link evidence for audit readiness.',
+        content:
+          'Map and monitor controls specific to AI governance. Track implementation status and link evidence for audit readiness.',
         placement: 'top',
       },
     ],
@@ -104,25 +113,29 @@ export const TOURS: Record<string, TourConfig> = {
       {
         targetSelector: '[data-tour="quality-stats"]',
         title: 'Quality Metrics',
-        content: 'View key quality KPIs including open NCRs, CAPA progress, first pass yield, and audit schedule status.',
+        content:
+          'View key quality KPIs including open NCRs, CAPA progress, first pass yield, and audit schedule status.',
         placement: 'bottom',
       },
       {
         targetSelector: '[data-tour="quality-ncrs"]',
         title: 'Non-Conformance Register',
-        content: 'Track all non-conformances from detection through root cause analysis to corrective action closure.',
+        content:
+          'Track all non-conformances from detection through root cause analysis to corrective action closure.',
         placement: 'bottom',
       },
       {
         targetSelector: '[data-tour="quality-capas"]',
         title: 'CAPA Management',
-        content: 'Corrective and preventive actions linked to NCRs, audits, and customer complaints. Track effectiveness verification.',
+        content:
+          'Corrective and preventive actions linked to NCRs, audits, and customer complaints. Track effectiveness verification.',
         placement: 'bottom',
       },
       {
         targetSelector: '[data-tour="quality-documents"]',
         title: 'Document Control',
-        content: 'Manage controlled documents with version history, review cycles, and distribution records. Integrated with ISO 9001 clause mapping.',
+        content:
+          'Manage controlled documents with version history, review cycles, and distribution records. Integrated with ISO 9001 clause mapping.',
         placement: 'top',
       },
     ],
@@ -134,25 +147,29 @@ export const TOURS: Record<string, TourConfig> = {
       {
         targetSelector: '[data-tour="hs-stats"]',
         title: 'Safety Dashboard',
-        content: 'Real-time safety metrics including incident rates, LTIFR, open actions, and days since last lost-time incident.',
+        content:
+          'Real-time safety metrics including incident rates, LTIFR, open actions, and days since last lost-time incident.',
         placement: 'bottom',
       },
       {
         targetSelector: '[data-tour="hs-incidents"]',
         title: 'Incident Reporting',
-        content: 'Report and investigate workplace incidents. Supports near-miss reporting, RIDDOR classification, and root cause analysis.',
+        content:
+          'Report and investigate workplace incidents. Supports near-miss reporting, RIDDOR classification, and root cause analysis.',
         placement: 'bottom',
       },
       {
         targetSelector: '[data-tour="hs-risks"]',
         title: 'Risk Assessments',
-        content: 'Create and manage workplace risk assessments with 5x5 risk matrices. Link to control measures and monitor residual risk.',
+        content:
+          'Create and manage workplace risk assessments with 5x5 risk matrices. Link to control measures and monitor residual risk.',
         placement: 'bottom',
       },
       {
         targetSelector: '[data-tour="hs-actions"]',
         title: 'Safety Actions',
-        content: 'Track corrective and preventive safety actions. Set priorities, assign owners, and monitor completion against due dates.',
+        content:
+          'Track corrective and preventive safety actions. Set priorities, assign owners, and monitor completion against due dates.',
         placement: 'top',
       },
     ],
@@ -164,19 +181,22 @@ export const TOURS: Record<string, TourConfig> = {
       {
         targetSelector: '[data-tour="risk-register"]',
         title: 'Risk Register',
-        content: 'View all identified risks with their likelihood, consequence, and residual risk ratings. Colour-coded by severity for quick triage.',
+        content:
+          'View all identified risks with their likelihood, consequence, and residual risk ratings. Colour-coded by severity for quick triage.',
         placement: 'bottom',
       },
       {
         targetSelector: '[data-tour="risk-matrix"]',
         title: 'Risk Matrix',
-        content: 'The 5x5 risk matrix visualises your risk landscape. Click any cell to see risks at that intersection of likelihood and consequence.',
+        content:
+          'The 5x5 risk matrix visualises your risk landscape. Click any cell to see risks at that intersection of likelihood and consequence.',
         placement: 'bottom',
       },
       {
         targetSelector: '[data-tour="risk-controls"]',
         title: 'Control Measures',
-        content: 'Assign and track control measures for each risk. Link to procedures, training records, and monitoring schedules.',
+        content:
+          'Assign and track control measures for each risk. Link to procedures, training records, and monitoring schedules.',
         placement: 'top',
       },
     ],
@@ -277,14 +297,7 @@ export interface TourStepProps {
   onSkip: () => void;
 }
 
-export function TourStep({
-  step,
-  stepIndex,
-  totalSteps,
-  onNext,
-  onBack,
-  onSkip,
-}: TourStepProps) {
+export function TourStep({ step, stepIndex, totalSteps, onNext, onBack, onSkip }: TourStepProps) {
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [visible, setVisible] = useState(false);
@@ -329,7 +342,8 @@ export function TourStep({
       // Add highlight ring to target
       (target as HTMLElement).style.position = 'relative';
       (target as HTMLElement).style.zIndex = '60';
-      (target as HTMLElement).style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.5), 0 0 0 8px rgba(59, 130, 246, 0.15)';
+      (target as HTMLElement).style.boxShadow =
+        '0 0 0 4px rgba(59, 130, 246, 0.5), 0 0 0 8px rgba(59, 130, 246, 0.15)';
       (target as HTMLElement).style.borderRadius = '8px';
 
       setVisible(true);

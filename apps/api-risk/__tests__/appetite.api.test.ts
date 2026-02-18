@@ -3,18 +3,34 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    riskAppetiteStatement: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn() },
+    riskAppetiteStatement: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
     riskFramework: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
   },
   Prisma: {},
 }));
-jest.mock('@ims/auth', () => ({ authenticate: jest.fn((_req: any, _res: any, next: any) => { _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' }; next(); }) }));
-jest.mock('@ims/monitoring', () => ({ createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }) }));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
 
 import router from '../src/routes/appetite';
 import { prisma } from '../src/prisma';
-const app = express(); app.use(express.json()); app.use('/api/risks', router);
-beforeEach(() => { jest.clearAllMocks(); });
+const app = express();
+app.use(express.json());
+app.use('/api/risks', router);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('GET /api/risks/appetite', () => {
   it('should return appetite statements', async () => {
@@ -30,10 +46,18 @@ describe('GET /api/risks/appetite', () => {
 describe('POST /api/risks/appetite', () => {
   it('should create new appetite statement', async () => {
     (prisma as any).riskAppetiteStatement.findFirst.mockResolvedValue(null);
-    (prisma as any).riskAppetiteStatement.create.mockResolvedValue({ id: '1', category: 'FINANCIAL', appetiteLevel: 'MODERATE_APPETITE' });
+    (prisma as any).riskAppetiteStatement.create.mockResolvedValue({
+      id: '1',
+      category: 'FINANCIAL',
+      appetiteLevel: 'MODERATE_APPETITE',
+    });
     const res = await request(app).post('/api/risks/appetite').send({
-      category: 'FINANCIAL', appetiteLevel: 'MODERATE_APPETITE', statement: 'Balanced approach',
-      maximumTolerableScore: 12, acceptableResidualScore: 8, escalationThreshold: 15,
+      category: 'FINANCIAL',
+      appetiteLevel: 'MODERATE_APPETITE',
+      statement: 'Balanced approach',
+      maximumTolerableScore: 12,
+      acceptableResidualScore: 8,
+      escalationThreshold: 15,
       reviewDate: '2026-12-01T00:00:00Z',
     });
     expect(res.status).toBe(201);
@@ -41,11 +65,21 @@ describe('POST /api/risks/appetite', () => {
   });
 
   it('should update existing appetite statement', async () => {
-    (prisma as any).riskAppetiteStatement.findFirst.mockResolvedValue({ id: '1', category: 'FINANCIAL' });
-    (prisma as any).riskAppetiteStatement.update.mockResolvedValue({ id: '1', appetiteLevel: 'HIGH_APPETITE' });
+    (prisma as any).riskAppetiteStatement.findFirst.mockResolvedValue({
+      id: '1',
+      category: 'FINANCIAL',
+    });
+    (prisma as any).riskAppetiteStatement.update.mockResolvedValue({
+      id: '1',
+      appetiteLevel: 'HIGH_APPETITE',
+    });
     const res = await request(app).post('/api/risks/appetite').send({
-      category: 'FINANCIAL', appetiteLevel: 'HIGH_APPETITE', statement: 'Aggressive',
-      maximumTolerableScore: 16, acceptableResidualScore: 12, escalationThreshold: 20,
+      category: 'FINANCIAL',
+      appetiteLevel: 'HIGH_APPETITE',
+      statement: 'Aggressive',
+      maximumTolerableScore: 16,
+      acceptableResidualScore: 12,
+      escalationThreshold: 20,
       reviewDate: '2026-12-01T00:00:00Z',
     });
     expect(res.status).toBe(200);
@@ -59,7 +93,10 @@ describe('POST /api/risks/appetite', () => {
 
 describe('GET /api/risks/framework', () => {
   it('should return framework config', async () => {
-    (prisma as any).riskFramework.findUnique.mockResolvedValue({ id: 'f1', frameworkVersion: 'ISO 31000:2018' });
+    (prisma as any).riskFramework.findUnique.mockResolvedValue({
+      id: 'f1',
+      frameworkVersion: 'ISO 31000:2018',
+    });
     const res = await request(app).get('/api/risks/framework');
     expect(res.status).toBe(200);
     expect(res.body.data.frameworkVersion).toBe('ISO 31000:2018');
@@ -77,12 +114,17 @@ describe('PUT /api/risks/framework', () => {
   it('should create framework if not exists', async () => {
     (prisma as any).riskFramework.findUnique.mockResolvedValue(null);
     (prisma as any).riskFramework.create.mockResolvedValue({ id: 'f1', organisationId: 'org-1' });
-    const res = await request(app).put('/api/risks/framework').send({ riskCommitteeExists: true, riskCommitteeName: 'Risk Board' });
+    const res = await request(app)
+      .put('/api/risks/framework')
+      .send({ riskCommitteeExists: true, riskCommitteeName: 'Risk Board' });
     expect(res.status).toBe(200);
   });
 
   it('should update existing framework', async () => {
-    (prisma as any).riskFramework.findUnique.mockResolvedValue({ id: 'f1', organisationId: 'org-1' });
+    (prisma as any).riskFramework.findUnique.mockResolvedValue({
+      id: 'f1',
+      organisationId: 'org-1',
+    });
     (prisma as any).riskFramework.update.mockResolvedValue({ id: 'f1', maturityLevel: 'Defined' });
     const res = await request(app).put('/api/risks/framework').send({ maturityLevel: 'Defined' });
     expect(res.status).toBe(200);

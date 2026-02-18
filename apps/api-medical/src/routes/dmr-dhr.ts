@@ -92,10 +92,20 @@ router.post('/dmr', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: dmr });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create DMR error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create device master record' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create device master record' },
+    });
   }
 });
 
@@ -134,79 +144,111 @@ router.get('/dmr', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List DMRs error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list device master records' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list device master records' },
+    });
   }
 });
 
 // ============================================
 // 3. GET /dmr/:id - Get DMR with DHR records
 // ============================================
-router.get('/dmr/:id', checkOwnership(prisma.deviceMasterRecord), async (req: AuthRequest, res: Response) => {
-  try {
-    const dmr = await prisma.deviceMasterRecord.findUnique({
-      where: { id: req.params.id },
-      include: {
-        dhrs: {
-          where: { deletedAt: null } as any,
-          orderBy: { createdAt: 'desc' },
+router.get(
+  '/dmr/:id',
+  checkOwnership(prisma.deviceMasterRecord),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const dmr = await prisma.deviceMasterRecord.findUnique({
+        where: { id: req.params.id },
+        include: {
+          dhrs: {
+            where: { deletedAt: null } as any,
+            orderBy: { createdAt: 'desc' },
+          },
+          _count: {
+            select: { dhrs: true },
+          },
         },
-        _count: {
-          select: { dhrs: true },
-        },
-      },
-    });
+      });
 
-    if (!dmr || dmr.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Device master record not found' } });
+      if (!dmr || dmr.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Device master record not found' },
+        });
+      }
+
+      res.json({ success: true, data: dmr });
+    } catch (error) {
+      logger.error('Get DMR error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get device master record' },
+      });
     }
-
-    res.json({ success: true, data: dmr });
-  } catch (error) {
-    logger.error('Get DMR error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get device master record' } });
   }
-});
+);
 
 // ============================================
 // 4. PUT /dmr/:id - Update DMR
 // ============================================
-router.put('/dmr/:id', checkOwnership(prisma.deviceMasterRecord), async (req: AuthRequest, res: Response) => {
-  try {
-    const existing = await prisma.deviceMasterRecord.findUnique({ where: { id: req.params.id } });
-    if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Device master record not found' } });
+router.put(
+  '/dmr/:id',
+  checkOwnership(prisma.deviceMasterRecord),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const existing = await prisma.deviceMasterRecord.findUnique({ where: { id: req.params.id } });
+      if (!existing || existing.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Device master record not found' },
+        });
+      }
+
+      const schema = z.object({
+        deviceName: z.string().trim().min(1).max(200).optional(),
+        deviceClass: z
+          .enum(['CLASS_I', 'CLASS_II', 'CLASS_III', 'CLASS_IIA', 'CLASS_IIB'])
+          .optional(),
+        description: z.string().optional(),
+        specifications: z.string().optional(),
+        productionProcesses: z.string().optional(),
+        qualityProcedures: z.string().optional(),
+        acceptanceCriteria: z.string().optional(),
+        labellingSpecs: z.string().optional(),
+        packagingSpecs: z.string().optional(),
+        installationProcs: z.string().optional(),
+        servicingProcs: z.string().optional(),
+      });
+
+      const data = schema.parse(req.body);
+
+      const dmr = await prisma.deviceMasterRecord.update({
+        where: { id: req.params.id },
+        data,
+      });
+
+      res.json({ success: true, data: dmr });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: error.errors.map((e) => e.path.join('.')),
+          },
+        });
+      }
+      logger.error('Update DMR error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update device master record' },
+      });
     }
-
-    const schema = z.object({
-      deviceName: z.string().trim().min(1).max(200).optional(),
-      deviceClass: z.enum(['CLASS_I', 'CLASS_II', 'CLASS_III', 'CLASS_IIA', 'CLASS_IIB']).optional(),
-      description: z.string().optional(),
-      specifications: z.string().optional(),
-      productionProcesses: z.string().optional(),
-      qualityProcedures: z.string().optional(),
-      acceptanceCriteria: z.string().optional(),
-      labellingSpecs: z.string().optional(),
-      packagingSpecs: z.string().optional(),
-      installationProcs: z.string().optional(),
-      servicingProcs: z.string().optional(),
-    });
-
-    const data = schema.parse(req.body);
-
-    const dmr = await prisma.deviceMasterRecord.update({
-      where: { id: req.params.id },
-      data,
-    });
-
-    res.json({ success: true, data: dmr });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
-    }
-    logger.error('Update DMR error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update device master record' } });
   }
-});
+);
 
 // ============================================
 // 5. POST /dmr/:id/approve - Approve DMR
@@ -215,7 +257,10 @@ router.post('/dmr/:id/approve', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.deviceMasterRecord.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Device master record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Device master record not found' },
+      });
     }
 
     // Bump version if already approved (re-approval after revision)
@@ -239,7 +284,10 @@ router.post('/dmr/:id/approve', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: dmr });
   } catch (error) {
     logger.error('Approve DMR error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve device master record' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to approve device master record' },
+    });
   }
 });
 
@@ -255,7 +303,12 @@ router.post('/dhr', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       dmrId: z.string().trim().min(1).max(200),
       batchNumber: z.string().trim().min(1).max(200),
-      manufacturingDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      manufacturingDate: z
+        .string()
+        .trim()
+        .min(1)
+        .max(200)
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       quantityManufactured: z.number().int().positive(),
       labelsUsed: z.string().optional(),
       primaryId: z.string().optional(),
@@ -266,7 +319,10 @@ router.post('/dhr', async (req: AuthRequest, res: Response) => {
     // Validate DMR exists
     const dmr = await prisma.deviceMasterRecord.findUnique({ where: { id: data.dmrId } });
     if (!dmr || dmr.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Referenced device master record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Referenced device master record not found' },
+      });
     }
 
     const refNumber = await generateDHRRefNumber();
@@ -288,10 +344,20 @@ router.post('/dhr', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: dhr });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create DHR error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create device history record' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create device history record' },
+    });
   }
 });
 
@@ -333,41 +399,54 @@ router.get('/dhr', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List DHRs error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list device history records' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list device history records' },
+    });
   }
 });
 
 // ============================================
 // 8. GET /dhr/:id - Get DHR with production records
 // ============================================
-router.get('/dhr/:id', checkOwnership(prisma.deviceHistoryRecord), async (req: AuthRequest, res: Response) => {
-  try {
-    const dhr = await prisma.deviceHistoryRecord.findUnique({
-      where: { id: req.params.id },
-      include: {
-        productionRecords: { orderBy: { createdAt: 'desc' } },
-        dmr: {
-          select: {
-            id: true,
-            refNumber: true,
-            deviceName: true,
-            deviceClass: true,
-            currentVersion: true,
+router.get(
+  '/dhr/:id',
+  checkOwnership(prisma.deviceHistoryRecord),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const dhr = await prisma.deviceHistoryRecord.findUnique({
+        where: { id: req.params.id },
+        include: {
+          productionRecords: { orderBy: { createdAt: 'desc' } },
+          dmr: {
+            select: {
+              id: true,
+              refNumber: true,
+              deviceName: true,
+              deviceClass: true,
+              currentVersion: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    if (!dhr || dhr.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Device history record not found' } });
+      if (!dhr || dhr.deletedAt) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Device history record not found' },
+        });
+      }
+
+      res.json({ success: true, data: dhr });
+    } catch (error) {
+      logger.error('Get DHR error', { error: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get device history record' },
+      });
     }
-
-    res.json({ success: true, data: dhr });
-  } catch (error) {
-    logger.error('Get DHR error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get device history record' } });
   }
-});
+);
 
 // ============================================
 // 9. POST /dhr/:id/records - Add production record
@@ -376,14 +455,24 @@ router.post('/dhr/:id/records', async (req: AuthRequest, res: Response) => {
   try {
     const dhr = await prisma.deviceHistoryRecord.findUnique({ where: { id: req.params.id } });
     if (!dhr || dhr.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Device history record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Device history record not found' },
+      });
     }
 
     const schema = z.object({
       recordType: z.enum([
-        'INCOMING_INSPECTION', 'IN_PROCESS_INSPECTION', 'FINAL_INSPECTION',
-        'ENVIRONMENTAL_MONITORING', 'EQUIPMENT_CALIBRATION', 'STERILIZATION',
-        'PACKAGING', 'LABELLING', 'ACCEPTANCE_TEST', 'OTHER',
+        'INCOMING_INSPECTION',
+        'IN_PROCESS_INSPECTION',
+        'FINAL_INSPECTION',
+        'ENVIRONMENTAL_MONITORING',
+        'EQUIPMENT_CALIBRATION',
+        'STERILIZATION',
+        'PACKAGING',
+        'LABELLING',
+        'ACCEPTANCE_TEST',
+        'OTHER',
       ]),
       title: z.string().trim().min(1).max(200),
       description: z.string().optional(),
@@ -391,7 +480,10 @@ router.post('/dhr/:id/records', async (req: AuthRequest, res: Response) => {
       pass: z.boolean().optional(),
       documentRef: z.string().optional(),
       performedBy: z.string().optional(),
-      performedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      performedDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
     });
 
     const data = schema.parse(req.body);
@@ -413,10 +505,20 @@ router.post('/dhr/:id/records', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: record });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create DHR record error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create production record' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create production record' },
+    });
   }
 });
 
@@ -431,19 +533,25 @@ router.post('/dhr/:id/release', async (req: AuthRequest, res: Response) => {
     });
 
     if (!dhr || dhr.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Device history record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Device history record not found' },
+      });
     }
 
     // Validate: at least 1 production record exists
     if (dhr.productionRecords.length === 0) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Cannot release batch: no production records exist' },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Cannot release batch: no production records exist',
+        },
       });
     }
 
     // Validate: no records with pass=false
-    const failedRecords = dhr.productionRecords.filter(r => r.pass === false);
+    const failedRecords = dhr.productionRecords.filter((r) => r.pass === false);
     if (failedRecords.length > 0) {
       return res.status(400).json({
         success: false,
@@ -466,7 +574,10 @@ router.post('/dhr/:id/release', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: updatedDhr });
   } catch (error) {
     logger.error('Release DHR error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to release batch' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to release batch' },
+    });
   }
 });
 

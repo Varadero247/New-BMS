@@ -396,7 +396,9 @@ describe('Automotive Control Plans API Routes', () => {
 
     it('should handle database errors during creation', async () => {
       (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.controlPlan.create as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.controlPlan.create as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
       const response = await request(app)
         .post('/api/control-plans')
@@ -410,7 +412,9 @@ describe('Automotive Control Plans API Routes', () => {
     });
 
     it('should handle ref number generation failure', async () => {
-      (mockPrisma.controlPlan.count as jest.Mock).mockRejectedValueOnce(new Error('Count query failed'));
+      (mockPrisma.controlPlan.count as jest.Mock).mockRejectedValueOnce(
+        new Error('Count query failed')
+      );
 
       const response = await request(app)
         .post('/api/control-plans')
@@ -427,7 +431,10 @@ describe('Automotive Control Plans API Routes', () => {
   // ==========================================
   describe('GET /api/control-plans', () => {
     it('should return a list of control plans with default pagination', async () => {
-      (mockPrisma.controlPlan.findMany as jest.Mock).mockResolvedValueOnce([mockControlPlan, mockControlPlan2]);
+      (mockPrisma.controlPlan.findMany as jest.Mock).mockResolvedValueOnce([
+        mockControlPlan,
+        mockControlPlan2,
+      ]);
       (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app)
@@ -574,9 +581,7 @@ describe('Automotive Control Plans API Routes', () => {
       (mockPrisma.controlPlan.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/control-plans')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/control-plans').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.controlPlan.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -591,9 +596,7 @@ describe('Automotive Control Plans API Routes', () => {
       (mockPrisma.controlPlan.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/control-plans')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/control-plans').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.controlPlan.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -617,7 +620,9 @@ describe('Automotive Control Plans API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.controlPlan.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB connection failed'));
+      (mockPrisma.controlPlan.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('DB connection failed')
+      );
 
       const response = await request(app)
         .get('/api/control-plans')
@@ -635,7 +640,9 @@ describe('Automotive Control Plans API Routes', () => {
   // ==========================================
   describe('GET /api/control-plans/:id', () => {
     it('should return a control plan with characteristics', async () => {
-      (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValueOnce(mockPlanWithCharacteristics);
+      (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockPlanWithCharacteristics
+      );
 
       const response = await request(app)
         .get('/api/control-plans/20000000-0000-4000-a000-000000000001')
@@ -974,7 +981,9 @@ describe('Automotive Control Plans API Routes', () => {
   describe('PUT /api/control-plans/:id/characteristics/:charId', () => {
     it('should update a characteristic successfully', async () => {
       (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValueOnce(mockControlPlan);
-      (mockPrisma.controlPlanChar.findUnique as jest.Mock).mockResolvedValueOnce(mockCharacteristic);
+      (mockPrisma.controlPlanChar.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockCharacteristic
+      );
       (mockPrisma.controlPlanChar.update as jest.Mock).mockResolvedValueOnce({
         ...mockCharacteristic,
         specification: '26.00 mm',
@@ -982,7 +991,9 @@ describe('Automotive Control Plans API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ specification: '26.00 mm', tolerance: '+/- 0.02 mm' });
 
@@ -999,14 +1010,18 @@ describe('Automotive Control Plans API Routes', () => {
 
     it('should update characteristicType from PRODUCT to PROCESS', async () => {
       (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValueOnce(mockControlPlan);
-      (mockPrisma.controlPlanChar.findUnique as jest.Mock).mockResolvedValueOnce(mockCharacteristic);
+      (mockPrisma.controlPlanChar.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockCharacteristic
+      );
       (mockPrisma.controlPlanChar.update as jest.Mock).mockResolvedValueOnce({
         ...mockCharacteristic,
         characteristicType: 'PROCESS',
       });
 
       const response = await request(app)
-        .put('/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ characteristicType: 'PROCESS' });
 
@@ -1016,7 +1031,9 @@ describe('Automotive Control Plans API Routes', () => {
 
     it('should update multiple fields at once', async () => {
       (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValueOnce(mockControlPlan);
-      (mockPrisma.controlPlanChar.findUnique as jest.Mock).mockResolvedValueOnce(mockCharacteristic);
+      (mockPrisma.controlPlanChar.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockCharacteristic
+      );
       (mockPrisma.controlPlanChar.update as jest.Mock).mockResolvedValueOnce({
         ...mockCharacteristic,
         processName: 'Updated Process',
@@ -1026,7 +1043,9 @@ describe('Automotive Control Plans API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({
           processName: 'Updated Process',
@@ -1049,14 +1068,18 @@ describe('Automotive Control Plans API Routes', () => {
 
     it('should only include defined fields in update data', async () => {
       (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValueOnce(mockControlPlan);
-      (mockPrisma.controlPlanChar.findUnique as jest.Mock).mockResolvedValueOnce(mockCharacteristic);
+      (mockPrisma.controlPlanChar.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockCharacteristic
+      );
       (mockPrisma.controlPlanChar.update as jest.Mock).mockResolvedValueOnce({
         ...mockCharacteristic,
         processName: 'Only This Field',
       });
 
       await request(app)
-        .put('/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ processName: 'Only This Field' });
 
@@ -1070,7 +1093,9 @@ describe('Automotive Control Plans API Routes', () => {
       (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/control-plans/00000000-0000-4000-a000-ffffffffffff/characteristics/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/control-plans/00000000-0000-4000-a000-ffffffffffff/characteristics/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ specification: 'Updated' });
 
@@ -1086,7 +1111,9 @@ describe('Automotive Control Plans API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ specification: 'Updated' });
 
@@ -1100,7 +1127,9 @@ describe('Automotive Control Plans API Routes', () => {
       (mockPrisma.controlPlanChar.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000099')
+        .put(
+          '/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000099'
+        )
         .set('Authorization', 'Bearer token')
         .send({ specification: 'Updated' });
 
@@ -1117,7 +1146,9 @@ describe('Automotive Control Plans API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ specification: 'Updated' });
 
@@ -1128,10 +1159,14 @@ describe('Automotive Control Plans API Routes', () => {
 
     it('should return 400 for invalid characteristicType', async () => {
       (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValueOnce(mockControlPlan);
-      (mockPrisma.controlPlanChar.findUnique as jest.Mock).mockResolvedValueOnce(mockCharacteristic);
+      (mockPrisma.controlPlanChar.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockCharacteristic
+      );
 
       const response = await request(app)
-        .put('/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ characteristicType: 'INVALID' });
 
@@ -1144,7 +1179,9 @@ describe('Automotive Control Plans API Routes', () => {
       (mockPrisma.controlPlan.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ specification: 'Updated' });
 
@@ -1155,11 +1192,17 @@ describe('Automotive Control Plans API Routes', () => {
 
     it('should handle update database errors gracefully', async () => {
       (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValueOnce(mockControlPlan);
-      (mockPrisma.controlPlanChar.findUnique as jest.Mock).mockResolvedValueOnce(mockCharacteristic);
-      (mockPrisma.controlPlanChar.update as jest.Mock).mockRejectedValueOnce(new Error('Update failed'));
+      (mockPrisma.controlPlanChar.findUnique as jest.Mock).mockResolvedValueOnce(
+        mockCharacteristic
+      );
+      (mockPrisma.controlPlanChar.update as jest.Mock).mockRejectedValueOnce(
+        new Error('Update failed')
+      );
 
       const response = await request(app)
-        .put('/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001')
+        .put(
+          '/api/control-plans/20000000-0000-4000-a000-000000000001/characteristics/00000000-0000-0000-0000-000000000001'
+        )
         .set('Authorization', 'Bearer token')
         .send({ specification: 'Updated' });
 
@@ -1280,7 +1323,9 @@ describe('Automotive Control Plans API Routes', () => {
 
     it('should handle update database errors gracefully', async () => {
       (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValueOnce(mockControlPlan);
-      (mockPrisma.controlPlan.update as jest.Mock).mockRejectedValueOnce(new Error('Update failed'));
+      (mockPrisma.controlPlan.update as jest.Mock).mockRejectedValueOnce(
+        new Error('Update failed')
+      );
 
       const response = await request(app)
         .post('/api/control-plans/20000000-0000-4000-a000-000000000001/approve')

@@ -16,14 +16,26 @@ jest.mock('@ims/monitoring', () => ({
 }));
 
 const mockCreateComment = jest.fn().mockResolvedValue({
-  id: '00000000-0000-0000-0000-000000000001', body: 'Test comment', mentions: [], authorId: 'user-1', authorName: 'Admin',
+  id: '00000000-0000-0000-0000-000000000001',
+  body: 'Test comment',
+  mentions: [],
+  authorId: 'user-1',
+  authorName: 'Admin',
 });
 const mockGetComments = jest.fn().mockResolvedValue({ comments: [], total: 0 });
-const mockUpdateComment = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', body: 'Updated' });
+const mockUpdateComment = jest
+  .fn()
+  .mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', body: 'Updated' });
 const mockDeleteComment = jest.fn().mockResolvedValue(undefined);
-const mockAddReaction = jest.fn().mockResolvedValue({ id: 'r1', commentId: 'c1', userId: 'user-1', emoji: '👍' });
+const mockAddReaction = jest
+  .fn()
+  .mockResolvedValue({ id: 'r1', commentId: 'c1', userId: 'user-1', emoji: '👍' });
 const mockRemoveReaction = jest.fn().mockResolvedValue(undefined);
-const mockGetCommentById = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', authorId: 'user-1', createdAt: new Date().toISOString() });
+const mockGetCommentById = jest.fn().mockResolvedValue({
+  id: '00000000-0000-0000-0000-000000000001',
+  authorId: 'user-1',
+  createdAt: new Date().toISOString(),
+});
 
 jest.mock('@ims/comments', () => ({
   createComment: (...args: any[]) => mockCreateComment(...args),
@@ -57,21 +69,17 @@ describe('Comments Routes', () => {
     });
 
     it('rejects missing recordType', async () => {
-      const res = await request(app)
-        .post('/api/comments')
-        .send({ recordId: 'r1', body: 'Test' });
+      const res = await request(app).post('/api/comments').send({ recordId: 'r1', body: 'Test' });
       expect(res.status).toBe(400);
     });
 
     it('supports parentId for threading', async () => {
-      const res = await request(app)
-        .post('/api/comments')
-        .send({
-          recordType: 'ncr',
-          recordId: 'r1',
-          body: 'Reply',
-          parentId: '00000000-0000-0000-0000-000000000001',
-        });
+      const res = await request(app).post('/api/comments').send({
+        recordType: 'ncr',
+        recordId: 'r1',
+        body: 'Reply',
+        parentId: '00000000-0000-0000-0000-000000000001',
+      });
       expect(res.status).toBe(201);
     });
   });
@@ -93,7 +101,9 @@ describe('Comments Routes', () => {
     });
 
     it('supports pagination', async () => {
-      const res = await request(app).get('/api/comments?recordType=ncr&recordId=r1&page=2&limit=10');
+      const res = await request(app).get(
+        '/api/comments?recordType=ncr&recordId=r1&page=2&limit=10'
+      );
       expect(res.status).toBe(200);
     });
   });
@@ -149,7 +159,9 @@ describe('Comments Routes', () => {
 
   describe('DELETE /api/comments/:id/reactions/:emoji', () => {
     it('removes a reaction', async () => {
-      const res = await request(app).delete('/api/comments/00000000-0000-0000-0000-000000000001/reactions/%F0%9F%91%8D');
+      const res = await request(app).delete(
+        '/api/comments/00000000-0000-0000-0000-000000000001/reactions/%F0%9F%91%8D'
+      );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });

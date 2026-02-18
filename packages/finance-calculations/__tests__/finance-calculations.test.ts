@@ -84,7 +84,9 @@ describe('finance-calculations', () => {
     });
 
     it('should throw for zero total units', () => {
-      expect(() => unitsOfProduction(50000, 5000, 0, 100)).toThrow('Total units must be greater than 0');
+      expect(() => unitsOfProduction(50000, 5000, 0, 100)).toThrow(
+        'Total units must be greater than 0'
+      );
     });
   });
 
@@ -169,17 +171,17 @@ describe('finance-calculations', () => {
   describe('calculateFxGainLoss', () => {
     it('should calculate FX gain', () => {
       // 1000 USD bought at 0.75 GBP/USD, now 0.80 GBP/USD
-      const result = calculateFxGainLoss(1000, 0.75, 0.80);
+      const result = calculateFxGainLoss(1000, 0.75, 0.8);
       expect(result).toBeCloseTo(50, 2);
     });
 
     it('should calculate FX loss', () => {
-      const result = calculateFxGainLoss(1000, 0.80, 0.75);
+      const result = calculateFxGainLoss(1000, 0.8, 0.75);
       expect(result).toBeCloseTo(-50, 2);
     });
 
     it('should return zero when rates are equal', () => {
-      expect(calculateFxGainLoss(1000, 0.80, 0.80)).toBe(0);
+      expect(calculateFxGainLoss(1000, 0.8, 0.8)).toBe(0);
     });
   });
 

@@ -40,7 +40,9 @@ beforeEach(() => {
 
 describe('GET /api/sites', () => {
   it('should return a list of sites with pagination', async () => {
-    const sites = [{ id: '00000000-0000-0000-0000-000000000001', name: 'HQ', customer: { name: 'Acme' } }];
+    const sites = [
+      { id: '00000000-0000-0000-0000-000000000001', name: 'HQ', customer: { name: 'Acme' } },
+    ];
     (prisma as any).fsSvcSite.findMany.mockResolvedValue(sites);
     (prisma as any).fsSvcSite.count.mockResolvedValue(1);
 
@@ -75,21 +77,28 @@ describe('GET /api/sites', () => {
 
 describe('POST /api/sites', () => {
   it('should create a site', async () => {
-    const created = { id: 'site-new', name: 'New Site', customerId: 'cust-1', address: { city: 'Manchester' } };
+    const created = {
+      id: 'site-new',
+      name: 'New Site',
+      customerId: 'cust-1',
+      address: { city: 'Manchester' },
+    };
     (prisma as any).fsSvcSite.create.mockResolvedValue(created);
 
     const res = await request(app)
       .post('/api/sites')
-      .send({ customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', name: 'New Site', address: { city: 'Manchester' } });
+      .send({
+        customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+        name: 'New Site',
+        address: { city: 'Manchester' },
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });
 
   it('should reject invalid data', async () => {
-    const res = await request(app)
-      .post('/api/sites')
-      .send({ name: '' });
+    const res = await request(app).post('/api/sites').send({ name: '' });
 
     expect(res.status).toBe(400);
   });
@@ -97,7 +106,11 @@ describe('POST /api/sites', () => {
 
 describe('GET /api/sites/:id', () => {
   it('should return a site by id', async () => {
-    (prisma as any).fsSvcSite.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'HQ', customer: {} });
+    (prisma as any).fsSvcSite.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'HQ',
+      customer: {},
+    });
 
     const res = await request(app).get('/api/sites/00000000-0000-0000-0000-000000000001');
 
@@ -116,8 +129,13 @@ describe('GET /api/sites/:id', () => {
 
 describe('PUT /api/sites/:id', () => {
   it('should update a site', async () => {
-    (prisma as any).fsSvcSite.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcSite.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    (prisma as any).fsSvcSite.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcSite.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Updated',
+    });
 
     const res = await request(app)
       .put('/api/sites/00000000-0000-0000-0000-000000000001')
@@ -140,8 +158,13 @@ describe('PUT /api/sites/:id', () => {
 
 describe('DELETE /api/sites/:id', () => {
   it('should soft delete a site', async () => {
-    (prisma as any).fsSvcSite.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
-    (prisma as any).fsSvcSite.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    (prisma as any).fsSvcSite.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma as any).fsSvcSite.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
 
     const res = await request(app).delete('/api/sites/00000000-0000-0000-0000-000000000001');
 

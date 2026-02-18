@@ -40,7 +40,11 @@ jest.mock('@ims/auth', () => ({
     req.user = { id: 'user-1', email: 'test@test.com', role: 'ADMIN' };
     next();
   }),
-  requireRole: jest.fn((..._roles: string[]) => (_req: any, _res: any, next: any) => next()),
+  requireRole: jest.fn(
+    (..._roles: string[]) =>
+      (_req: any, _res: any, next: any) =>
+        next()
+  ),
 }));
 
 jest.mock('@ims/monitoring', () => ({
@@ -298,13 +302,15 @@ describe('Reports API Routes', () => {
   // =========================================================================
   describe('POST /api/reports/audit/:auditId', () => {
     it('should generate an audit report', async () => {
-      (mockPrisma.auditLog.findMany as jest.Mock).mockResolvedValue([{
-        id: 'al-1',
-        action: 'CREATE',
-        entity: 'Risk',
-        createdAt: new Date(),
-        userId: 'user-1',
-      }]);
+      (mockPrisma.auditLog.findMany as jest.Mock).mockResolvedValue([
+        {
+          id: 'al-1',
+          action: 'CREATE',
+          entity: 'Risk',
+          createdAt: new Date(),
+          userId: 'user-1',
+        },
+      ]);
       (mockPrisma.enhancedAuditTrail.findMany as jest.Mock).mockResolvedValue([]);
       (mockPrisma.generatedReport.create as jest.Mock).mockResolvedValue({
         ...mockGeneratedReport,
@@ -341,13 +347,15 @@ describe('Reports API Routes', () => {
 
     it('should include enhanced audit trail entries', async () => {
       (mockPrisma.auditLog.findMany as jest.Mock).mockResolvedValue([]);
-      (mockPrisma.enhancedAuditTrail.findMany as jest.Mock).mockResolvedValue([{
-        id: 'eat-1',
-        action: 'APPROVE',
-        resourceType: 'DeviceMasterRecord',
-        userFullName: 'John Doe',
-        createdAt: new Date(),
-      }]);
+      (mockPrisma.enhancedAuditTrail.findMany as jest.Mock).mockResolvedValue([
+        {
+          id: 'eat-1',
+          action: 'APPROVE',
+          resourceType: 'DeviceMasterRecord',
+          userFullName: 'John Doe',
+          createdAt: new Date(),
+        },
+      ]);
       (mockPrisma.generatedReport.create as jest.Mock).mockResolvedValue({
         ...mockGeneratedReport,
         type: 'AUDIT',
@@ -600,20 +608,20 @@ describe('Reports API Routes', () => {
   // =========================================================================
   describe('GET /api/reports', () => {
     it('should list generated reports', async () => {
-      (mockPrisma.generatedReport.findMany as jest.Mock).mockResolvedValue([{
-        id: '00000000-0000-0000-0000-000000000001',
-        title: 'Test Report',
-        type: 'KPI_PACK',
-        module: null,
-        format: 'JSON',
-        generatedBy: 'user-1',
-        createdAt: new Date(),
-      }]);
+      (mockPrisma.generatedReport.findMany as jest.Mock).mockResolvedValue([
+        {
+          id: '00000000-0000-0000-0000-000000000001',
+          title: 'Test Report',
+          type: 'KPI_PACK',
+          module: null,
+          format: 'JSON',
+          generatedBy: 'user-1',
+          createdAt: new Date(),
+        },
+      ]);
       (mockPrisma.generatedReport.count as jest.Mock).mockResolvedValue(1);
 
-      const response = await request(app)
-        .get('/api/reports')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/reports').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -625,9 +633,7 @@ describe('Reports API Routes', () => {
       (mockPrisma.generatedReport.findMany as jest.Mock).mockResolvedValue([]);
       (mockPrisma.generatedReport.count as jest.Mock).mockResolvedValue(0);
 
-      await request(app)
-        .get('/api/reports?type=KPI_PACK')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/reports?type=KPI_PACK').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.generatedReport.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -678,9 +684,7 @@ describe('Reports API Routes', () => {
       (mockPrisma.generatedReport.findMany as jest.Mock).mockResolvedValue([]);
       (mockPrisma.generatedReport.count as jest.Mock).mockResolvedValue(0);
 
-      const response = await request(app)
-        .get('/api/reports')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/reports').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.data).toEqual([]);
@@ -689,9 +693,7 @@ describe('Reports API Routes', () => {
     it('should handle database errors', async () => {
       (mockPrisma.generatedReport.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/reports')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/reports').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
     });

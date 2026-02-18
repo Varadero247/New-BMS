@@ -16,7 +16,7 @@ const GCC_NATIONALITIES = ['UAE', 'SA', 'KW', 'BH', 'OM', 'QA'];
 export function calculateUAEPayroll(
   grossPay: number,
   nationality: string = 'OTHER',
-  yearsOfService: number = 0,
+  yearsOfService: number = 0
 ): UAETaxResult {
   // No income tax in UAE
   const tax = 0;
@@ -29,7 +29,7 @@ export function calculateUAEPayroll(
     if (yearsOfService <= 5) {
       gratuityDays = yearsOfService * 21;
     } else {
-      gratuityDays = (5 * 21) + ((yearsOfService - 5) * 30);
+      gratuityDays = 5 * 21 + (yearsOfService - 5) * 30;
     }
   }
   // Daily rate = monthly / 30

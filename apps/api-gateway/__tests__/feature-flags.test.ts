@@ -26,12 +26,23 @@ jest.mock('@ims/monitoring', () => ({
 
 const mockGetAllFlags = jest.fn().mockReturnValue([]);
 const mockGetAllOrgOverrides = jest.fn().mockReturnValue([]);
-const mockCreateFlag = jest.fn().mockImplementation((name: string, desc: string, enabled: boolean = false) => ({
-  id: 'flag-1', name, description: desc, enabled, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
-}));
-const mockUpdateFlag = jest.fn().mockReturnValue({ id: 'flag-1', name: 'test_flag', description: 'Updated', enabled: true });
+const mockCreateFlag = jest
+  .fn()
+  .mockImplementation((name: string, desc: string, enabled: boolean = false) => ({
+    id: 'flag-1',
+    name,
+    description: desc,
+    enabled,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }));
+const mockUpdateFlag = jest
+  .fn()
+  .mockReturnValue({ id: 'flag-1', name: 'test_flag', description: 'Updated', enabled: true });
 const mockDeleteFlag = jest.fn().mockReturnValue(true);
-const mockSetOrgOverride = jest.fn().mockReturnValue({ id: 'ov-1', orgId: 'org-1', flagName: 'test_flag', enabled: true });
+const mockSetOrgOverride = jest
+  .fn()
+  .mockReturnValue({ id: 'ov-1', orgId: 'org-1', flagName: 'test_flag', enabled: true });
 const mockRemoveOrgOverride = jest.fn().mockReturnValue(true);
 const mockSeedInitialFlags = jest.fn().mockReturnValue([]);
 const mockIsEnabled = jest.fn().mockResolvedValue(false);
@@ -67,9 +78,16 @@ describe('Feature Flags Routes', () => {
   describe('GET /api/admin/feature-flags', () => {
     it('returns all flags', async () => {
       mockGetAllFlags.mockReturnValue([
-        { id: 'f1', name: 'workflow_visual_builder', description: 'Visual builder', enabled: false },
+        {
+          id: 'f1',
+          name: 'workflow_visual_builder',
+          description: 'Visual builder',
+          enabled: false,
+        },
       ]);
-      mockGetAllOrgOverrides.mockReturnValue([{ orgId: 'org-1', flagName: 'workflow_visual_builder', enabled: true }]);
+      mockGetAllOrgOverrides.mockReturnValue([
+        { orgId: 'org-1', flagName: 'workflow_visual_builder', enabled: true },
+      ]);
 
       const res = await request(app).get('/api/admin/feature-flags');
       expect(res.status).toBe(200);
@@ -96,9 +114,7 @@ describe('Feature Flags Routes', () => {
     });
 
     it('rejects missing description', async () => {
-      const res = await request(app)
-        .post('/api/admin/feature-flags')
-        .send({ name: 'valid_name' });
+      const res = await request(app).post('/api/admin/feature-flags').send({ name: 'valid_name' });
       expect(res.status).toBe(400);
     });
   });
@@ -130,7 +146,9 @@ describe('Feature Flags Routes', () => {
 
     it('returns 404 when flag not found', async () => {
       mockDeleteFlag.mockReturnValueOnce(false);
-      const res = await request(app).delete('/api/admin/feature-flags/00000000-0000-0000-0000-000000000099');
+      const res = await request(app).delete(
+        '/api/admin/feature-flags/00000000-0000-0000-0000-000000000099'
+      );
       expect(res.status).toBe(404);
     });
   });
@@ -154,7 +172,9 @@ describe('Feature Flags Routes', () => {
 
   describe('DELETE /api/admin/feature-flags/:name/orgs/:orgId', () => {
     it('removes an org override', async () => {
-      const res = await request(app).delete('/api/admin/feature-flags/test_flag/orgs/00000000-0000-0000-0000-000000000001');
+      const res = await request(app).delete(
+        '/api/admin/feature-flags/test_flag/orgs/00000000-0000-0000-0000-000000000001'
+      );
       expect(res.status).toBe(200);
     });
   });

@@ -21,13 +21,33 @@ export function NavigationGuard({ module, children, fallback = null }: GuardProp
   return React.createElement(React.Fragment, null, children);
 }
 
-export function PageGuard({ module, level = PermissionLevel.VIEW, children, fallback }: LevelGuardProps) {
+export function PageGuard({
+  module,
+  level = PermissionLevel.VIEW,
+  children,
+  fallback,
+}: LevelGuardProps) {
   const allowed = usePermission(module, level);
   if (!allowed) {
-    return React.createElement(React.Fragment, null, fallback || React.createElement('div', { className: 'p-8 text-center' },
-      React.createElement('h2', { className: 'text-xl font-semibold text-gray-700' }, 'Access Denied'),
-      React.createElement('p', { className: 'text-gray-500 mt-2' }, 'You do not have permission to view this page.')
-    ));
+    return React.createElement(
+      React.Fragment,
+      null,
+      fallback ||
+        React.createElement(
+          'div',
+          { className: 'p-8 text-center' },
+          React.createElement(
+            'h2',
+            { className: 'text-xl font-semibold text-gray-700' },
+            'Access Denied'
+          ),
+          React.createElement(
+            'p',
+            { className: 'text-gray-500 mt-2' },
+            'You do not have permission to view this page.'
+          )
+        )
+    );
   }
   return React.createElement(React.Fragment, null, children);
 }

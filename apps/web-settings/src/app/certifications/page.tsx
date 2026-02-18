@@ -45,7 +45,8 @@ const statusColors: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
   SUSPENDED: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
   WITHDRAWN: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-  EXPIRED: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-700 dark:text-gray-300',
+  EXPIRED:
+    'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-700 dark:text-gray-300',
   IN_RENEWAL: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
 };
 
@@ -105,7 +106,15 @@ export default function CertificationsPage() {
   }, [fetchCerts]);
 
   const handleAdd = async () => {
-    if (!form.standard || !form.scope || !form.certificationBody || !form.certificateNumber || !form.issueDate || !form.expiryDate) return;
+    if (
+      !form.standard ||
+      !form.scope ||
+      !form.certificationBody ||
+      !form.certificateNumber ||
+      !form.issueDate ||
+      !form.expiryDate
+    )
+      return;
     try {
       const res = await fetch(`${API_URL}/api/admin/certifications`, {
         method: 'POST',
@@ -118,7 +127,15 @@ export default function CertificationsPage() {
       const json = await res.json();
       if (json.success) {
         setShowAdd(false);
-        setForm({ standard: '', scope: '', certificationBody: '', certificateNumber: '', issueDate: '', expiryDate: '', status: 'ACTIVE' });
+        setForm({
+          standard: '',
+          scope: '',
+          certificationBody: '',
+          certificateNumber: '',
+          issueDate: '',
+          expiryDate: '',
+          status: 'ACTIVE',
+        });
         fetchCerts();
       }
     } catch {
@@ -153,7 +170,9 @@ export default function CertificationsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Certifications</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage ISO certifications and monitor audit readiness</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Manage ISO certifications and monitor audit readiness
+          </p>
         </div>
         <button
           onClick={() => setShowAdd(true)}
@@ -171,28 +190,44 @@ export default function CertificationsPage() {
           const isExpired = days <= 0;
 
           return (
-            <div key={cert.id} className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 overflow-hidden">
+            <div
+              key={cert.id}
+              className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 overflow-hidden"
+            >
               <div className="p-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{cert.standard}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{cert.certificationBody} -- {cert.certificateNumber}</p>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                      {cert.standard}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                      {cert.certificationBody} -- {cert.certificateNumber}
+                    </p>
                   </div>
-                  <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[cert.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}>
+                  <span
+                    className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[cert.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}
+                  >
                     {cert.status}
                   </span>
                 </div>
 
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 line-clamp-2">{cert.scope}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 line-clamp-2">
+                  {cert.scope}
+                </p>
 
                 {/* Expiry countdown */}
-                <div className={`mt-3 px-3 py-2 rounded-md text-sm font-medium ${
-                  isExpired ? 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300' :
-                  isExpiring ? 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300' :
-                  'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300'
-                }`}>
-                  {isExpired ? `Expired ${Math.abs(days)} days ago` :
-                   `${days} days until expiry (${new Date(cert.expiryDate).toLocaleDateString()})`}
+                <div
+                  className={`mt-3 px-3 py-2 rounded-md text-sm font-medium ${
+                    isExpired
+                      ? 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300'
+                      : isExpiring
+                        ? 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300'
+                        : 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300'
+                  }`}
+                >
+                  {isExpired
+                    ? `Expired ${Math.abs(days)} days ago`
+                    : `${days} days until expiry (${new Date(cert.expiryDate).toLocaleDateString()})`}
                 </div>
 
                 {/* Readiness gauge */}
@@ -210,13 +245,21 @@ export default function CertificationsPage() {
                           <path
                             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                             fill="none"
-                            stroke={cert.readinessScore.score >= 80 ? '#10B981' : cert.readinessScore.score >= 60 ? '#F59E0B' : '#DC2626'}
+                            stroke={
+                              cert.readinessScore.score >= 80
+                                ? '#10B981'
+                                : cert.readinessScore.score >= 60
+                                  ? '#F59E0B'
+                                  : '#DC2626'
+                            }
                             strokeWidth="3"
                             strokeDasharray={`${cert.readinessScore.score}, 100`}
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className={`text-sm font-bold ${gradeColors[cert.readinessScore.grade] || 'text-gray-600'}`}>
+                          <span
+                            className={`text-sm font-bold ${gradeColors[cert.readinessScore.grade] || 'text-gray-600'}`}
+                          >
                             {cert.readinessScore.grade}
                           </span>
                         </div>
@@ -226,7 +269,8 @@ export default function CertificationsPage() {
                           Readiness: {cert.readinessScore.score}/100
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {cert.readinessScore.blockers.length} blocker{cert.readinessScore.blockers.length !== 1 ? 's' : ''} found
+                          {cert.readinessScore.blockers.length} blocker
+                          {cert.readinessScore.blockers.length !== 1 ? 's' : ''} found
                         </div>
                       </div>
                     </div>
@@ -235,7 +279,9 @@ export default function CertificationsPage() {
                     {cert.readinessScore.blockers.length > 0 && (
                       <div className="mt-3">
                         <button
-                          onClick={() => setExpandedBlockers(expandedBlockers === cert.id ? null : cert.id)}
+                          onClick={() =>
+                            setExpandedBlockers(expandedBlockers === cert.id ? null : cert.id)
+                          }
                           className="text-xs text-blue-600 hover:underline"
                         >
                           {expandedBlockers === cert.id ? 'Hide blockers' : 'View blockers'}
@@ -243,13 +289,22 @@ export default function CertificationsPage() {
                         {expandedBlockers === cert.id && (
                           <div className="mt-2 space-y-2">
                             {cert.readinessScore.blockers.map((b, i) => (
-                              <div key={i} className="flex items-start gap-2 bg-gray-50 dark:bg-gray-700 rounded p-2">
-                                <span className={`inline-flex rounded-full px-1.5 py-0.5 text-[10px] font-medium mt-0.5 shrink-0 ${severityColors[b.severity]}`}>
+                              <div
+                                key={i}
+                                className="flex items-start gap-2 bg-gray-50 dark:bg-gray-700 rounded p-2"
+                              >
+                                <span
+                                  className={`inline-flex rounded-full px-1.5 py-0.5 text-[10px] font-medium mt-0.5 shrink-0 ${severityColors[b.severity]}`}
+                                >
                                   {b.severity}
                                 </span>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs text-gray-700 dark:text-gray-300">{b.description}</p>
-                                  <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">-{b.deduction} points | {b.module}</p>
+                                  <p className="text-xs text-gray-700 dark:text-gray-300">
+                                    {b.description}
+                                  </p>
+                                  <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+                                    -{b.deduction} points | {b.module}
+                                  </p>
                                 </div>
                               </div>
                             ))}
@@ -263,12 +318,18 @@ export default function CertificationsPage() {
                 {/* Surveillance dates */}
                 <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-gray-500 dark:text-gray-400">
                   <div>
-                    <span className="font-medium">Last surveillance:</span><br />
-                    {cert.lastSurveillanceDate ? new Date(cert.lastSurveillanceDate).toLocaleDateString() : 'N/A'}
+                    <span className="font-medium">Last surveillance:</span>
+                    <br />
+                    {cert.lastSurveillanceDate
+                      ? new Date(cert.lastSurveillanceDate).toLocaleDateString()
+                      : 'N/A'}
                   </div>
                   <div>
-                    <span className="font-medium">Next surveillance:</span><br />
-                    {cert.nextSurveillanceDate ? new Date(cert.nextSurveillanceDate).toLocaleDateString() : 'N/A'}
+                    <span className="font-medium">Next surveillance:</span>
+                    <br />
+                    {cert.nextSurveillanceDate
+                      ? new Date(cert.nextSurveillanceDate).toLocaleDateString()
+                      : 'N/A'}
                   </div>
                 </div>
 
@@ -289,30 +350,44 @@ export default function CertificationsPage() {
 
       {certs.length === 0 && (
         <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700">
-          <p className="text-gray-500 dark:text-gray-400">No certifications yet. Add your first ISO certificate.</p>
+          <p className="text-gray-500 dark:text-gray-400">
+            No certifications yet. Add your first ISO certificate.
+          </p>
         </div>
       )}
 
       {/* Add Certificate Modal */}
       {showAdd && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowAdd(false)}>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4" onClick={e => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setShowAdd(false)}
+        >
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-6 space-y-4">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Add Certificate</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                Add Certificate
+              </h2>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Standard *</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Standard *
+                </label>
                 <input
                   value={form.standard}
-                  onChange={e => setForm(f => ({ ...f, standard: e.target.value }))}
+                  onChange={(e) => setForm((f) => ({ ...f, standard: e.target.value }))}
                   placeholder="e.g. ISO 9001:2015"
                   className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Scope *</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Scope *
+                </label>
                 <textarea
                   value={form.scope}
-                  onChange={e => setForm(f => ({ ...f, scope: e.target.value }))}
+                  onChange={(e) => setForm((f) => ({ ...f, scope: e.target.value }))}
                   placeholder="Scope of certification..."
                   className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                   rows={2}
@@ -320,19 +395,23 @@ export default function CertificationsPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Certification Body *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Certification Body *
+                  </label>
                   <input
                     value={form.certificationBody}
-                    onChange={e => setForm(f => ({ ...f, certificationBody: e.target.value }))}
+                    onChange={(e) => setForm((f) => ({ ...f, certificationBody: e.target.value }))}
                     placeholder="e.g. BSI"
                     className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Certificate # *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Certificate # *
+                  </label>
                   <input
                     value={form.certificateNumber}
-                    onChange={e => setForm(f => ({ ...f, certificateNumber: e.target.value }))}
+                    onChange={(e) => setForm((f) => ({ ...f, certificateNumber: e.target.value }))}
                     placeholder="e.g. FS 123456"
                     className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                   />
@@ -340,29 +419,35 @@ export default function CertificationsPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Issue Date *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Issue Date *
+                  </label>
                   <input
                     type="date"
                     value={form.issueDate}
-                    onChange={e => setForm(f => ({ ...f, issueDate: e.target.value }))}
+                    onChange={(e) => setForm((f) => ({ ...f, issueDate: e.target.value }))}
                     className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expiry Date *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Expiry Date *
+                  </label>
                   <input
                     type="date"
                     value={form.expiryDate}
-                    onChange={e => setForm(f => ({ ...f, expiryDate: e.target.value }))}
+                    onChange={(e) => setForm((f) => ({ ...f, expiryDate: e.target.value }))}
                     className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Status
+                </label>
                 <select
                   value={form.status}
-                  onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
+                  onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
                   className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                 >
                   <option value="ACTIVE">Active</option>
@@ -373,10 +458,22 @@ export default function CertificationsPage() {
                 </select>
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <button onClick={() => setShowAdd(false)} className="px-4 py-2 text-sm rounded-md border dark:border-gray-600 text-gray-700 dark:text-gray-300">Cancel</button>
+                <button
+                  onClick={() => setShowAdd(false)}
+                  className="px-4 py-2 text-sm rounded-md border dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                >
+                  Cancel
+                </button>
                 <button
                   onClick={handleAdd}
-                  disabled={!form.standard || !form.scope || !form.certificationBody || !form.certificateNumber || !form.issueDate || !form.expiryDate}
+                  disabled={
+                    !form.standard ||
+                    !form.scope ||
+                    !form.certificationBody ||
+                    !form.certificateNumber ||
+                    !form.issueDate ||
+                    !form.expiryDate
+                  }
                   className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
                 >
                   Add Certificate

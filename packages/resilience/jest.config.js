@@ -9,8 +9,11 @@ module.exports = {
   coverageReporters: ['text', 'lcov'],
   verbose: true,
   transform: {
-    '^.+\\.ts$': ['ts-jest', {
-      diagnostics: false,
-    }],
+    '^.+\\.ts$': [
+      'ts-jest',
+      {
+        diagnostics: false,
+      },
+    ],
   },
 };

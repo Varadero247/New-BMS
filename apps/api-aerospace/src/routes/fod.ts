@@ -45,10 +45,16 @@ const createFodIncidentSchema = z.object({
   location: z.string().min(1, 'Location is required'),
   area: z.string().optional(),
   workCenter: z.string().optional(),
-  fodType: z.enum(['METALLIC', 'NON_METALLIC', 'HARDWARE', 'TOOLING', 'UNKNOWN']).optional().default('UNKNOWN'),
+  fodType: z
+    .enum(['METALLIC', 'NON_METALLIC', 'HARDWARE', 'TOOLING', 'UNKNOWN'])
+    .optional()
+    .default('UNKNOWN'),
   severity: z.enum(['CRITICAL', 'MAJOR', 'MINOR']).optional().default('MINOR'),
   foundBy: z.string().optional(),
-  dateFound: z.string().min(1, 'Date found is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  dateFound: z
+    .string()
+    .min(1, 'Date found is required')
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   affectedEquipment: z.string().optional(),
   partNumberAffected: z.string().optional(),
   immediateAction: z.string().optional(),
@@ -72,7 +78,10 @@ const updateFodIncidentSchema = z.object({
   rootCause: z.string().optional(),
   preventiveAction: z.string().optional(),
   status: z.enum(['OPEN', 'INVESTIGATING', 'CORRECTIVE_ACTION', 'CLOSED', 'CANCELLED']).optional(),
-  closedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  closedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   closedBy: z.string().optional(),
   safetyImpact: z.boolean().optional(),
   notes: z.string().optional(),
@@ -81,8 +90,14 @@ const updateFodIncidentSchema = z.object({
 const createFodInspectionSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   area: z.string().min(1, 'Area is required'),
-  inspectionType: z.enum(['SCHEDULED', 'POST_MAINTENANCE', 'SHIFT_CHANGE', 'SPECIAL']).optional().default('SCHEDULED'),
-  scheduledDate: z.string().min(1, 'Scheduled date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  inspectionType: z
+    .enum(['SCHEDULED', 'POST_MAINTENANCE', 'SHIFT_CHANGE', 'SPECIAL'])
+    .optional()
+    .default('SCHEDULED'),
+  scheduledDate: z
+    .string()
+    .min(1, 'Scheduled date is required')
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   inspector: z.string().min(1, 'Inspector is required'),
   checklistItems: z.array(z.string()).optional().default([]),
   notes: z.string().optional(),
@@ -139,7 +154,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List FOD incidents error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list FOD incidents' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list FOD incidents' },
+    });
   }
 });
 
@@ -180,7 +198,10 @@ router.get('/inspections', scopeToUser, async (req: AuthRequest, res: Response) 
     });
   } catch (error) {
     logger.error('List FOD inspections error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list FOD inspections' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list FOD inspections' },
+    });
   }
 });
 
@@ -192,13 +213,18 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!incident || incident.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FOD incident not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FOD incident not found' } });
     }
 
     res.json({ success: true, data: incident });
   } catch (error) {
     logger.error('Get FOD incident error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get FOD incident' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get FOD incident' },
+    });
   }
 });
 
@@ -237,11 +263,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create FOD incident error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to report FOD incident' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to report FOD incident' },
+    });
   }
 });
 
@@ -250,7 +283,9 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroFodIncident.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FOD incident not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FOD incident not found' } });
     }
 
     const data = updateFodIncidentSchema.parse(req.body);
@@ -268,11 +303,18 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Update FOD incident error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update FOD incident' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update FOD incident' },
+    });
   }
 });
 
@@ -281,7 +323,9 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.aeroFodIncident.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FOD incident not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'FOD incident not found' } });
     }
 
     await prisma.aeroFodIncident.update({
@@ -292,7 +336,10 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     res.status(204).send();
   } catch (error) {
     logger.error('Delete FOD incident error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete FOD incident' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete FOD incident' },
+    });
   }
 });
 
@@ -326,11 +373,18 @@ router.post('/inspections', async (req: AuthRequest, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Create FOD inspection error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to schedule FOD inspection' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to schedule FOD inspection' },
+    });
   }
 });
 
@@ -339,7 +393,10 @@ router.put('/inspections/:id/complete', async (req: AuthRequest, res: Response) 
   try {
     const existing = await prisma.aeroFodInspection.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FOD inspection not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'FOD inspection not found' },
+      });
     }
 
     const data = completeFodInspectionSchema.parse(req.body);
@@ -354,7 +411,9 @@ router.put('/inspections/:id/complete', async (req: AuthRequest, res: Response) 
         completedBy: data.completedBy || req.user?.id,
         completedDate: new Date(),
         status: 'COMPLETED',
-        notes: data.notes ? `${existing.notes ? existing.notes + '\n' : ''}${data.notes}` : existing.notes,
+        notes: data.notes
+          ? `${existing.notes ? existing.notes + '\n' : ''}${data.notes}`
+          : existing.notes,
       } as any,
     });
 
@@ -363,11 +422,18 @@ router.put('/inspections/:id/complete', async (req: AuthRequest, res: Response) 
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
       });
     }
     logger.error('Complete FOD inspection error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete FOD inspection' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete FOD inspection' },
+    });
   }
 });
 

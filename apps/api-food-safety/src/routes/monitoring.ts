@@ -17,7 +17,11 @@ router.param('id', validateIdParam());
 const monitoringCreateSchema = z.object({
   ccpId: z.string().trim().uuid(),
   monitoredBy: z.string().max(200).optional().nullable(),
-  monitoredAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  monitoredAt: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   value: z.string().trim().min(1).max(200),
   unit: z.string().max(50).optional().nullable(),
   withinLimits: z.boolean(),
@@ -29,7 +33,12 @@ const monitoringCreateSchema = z.object({
 
 const monitoringUpdateSchema = z.object({
   monitoredBy: z.string().max(200).optional().nullable(),
-  monitoredAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  monitoredAt: z
+    .string()
+    .trim()
+    .datetime({ offset: true })
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional(),
   value: z.string().trim().min(1).max(200).optional(),
   unit: z.string().max(50).optional().nullable(),
   withinLimits: z.boolean().optional(),
@@ -60,7 +69,13 @@ router.get('/deviations', async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { deletedAt: null, withinLimits: false };
 
     const [data, total] = await Promise.all([
-      prisma.fsMonitoringRecord.findMany({ where, skip, take: limit, orderBy: { monitoredAt: 'desc' }, include: { ccp: true } }),
+      prisma.fsMonitoringRecord.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { monitoredAt: 'desc' },
+        include: { ccp: true },
+      }),
       prisma.fsMonitoringRecord.count({ where }),
     ]);
 
@@ -70,8 +85,13 @@ router.get('/deviations', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error fetching deviations', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch deviations' } });
+    logger.error('Error fetching deviations', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch deviations' },
+    });
   }
 });
 
@@ -95,7 +115,13 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [data, total] = await Promise.all([
-      prisma.fsMonitoringRecord.findMany({ where, skip, take: limit, orderBy: { monitoredAt: 'desc' }, include: { ccp: true } }),
+      prisma.fsMonitoringRecord.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { monitoredAt: 'desc' },
+        include: { ccp: true },
+      }),
       prisma.fsMonitoringRecord.count({ where }),
     ]);
 
@@ -105,8 +131,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Error listing monitoring records', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list monitoring records' } });
+    logger.error('Error listing monitoring records', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list monitoring records' },
+    });
   }
 });
 
@@ -117,7 +148,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = monitoringCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -135,8 +169,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Monitoring record created', { id: record.id });
     res.status(201).json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Error creating monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create monitoring record' } });
+    logger.error('Error creating monitoring record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create monitoring record' },
+    });
   }
 });
 
@@ -151,13 +190,21 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!record) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Monitoring record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Monitoring record not found' },
+      });
     }
 
     res.json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Error fetching monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch monitoring record' } });
+    logger.error('Error fetching monitoring record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch monitoring record' },
+    });
   }
 });
 
@@ -166,14 +213,22 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsMonitoringRecord.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsMonitoringRecord.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Monitoring record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Monitoring record not found' },
+      });
     }
 
     const parsed = monitoringUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() },
+      });
     }
 
     const body = parsed.data;
@@ -189,8 +244,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.info('Monitoring record updated', { id: record.id });
     res.json({ success: true, data: record });
   } catch (error: unknown) {
-    logger.error('Error updating monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update monitoring record' } });
+    logger.error('Error updating monitoring record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update monitoring record' },
+    });
   }
 });
 
@@ -199,9 +259,14 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsMonitoringRecord.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsMonitoringRecord.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Monitoring record not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Monitoring record not found' },
+      });
     }
 
     await prisma.fsMonitoringRecord.update({
@@ -212,8 +277,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     logger.info('Monitoring record deleted', { id: req.params.id });
     res.json({ success: true, data: { message: 'Monitoring record deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Error deleting monitoring record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete monitoring record' } });
+    logger.error('Error deleting monitoring record', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete monitoring record' },
+    });
   }
 });
 

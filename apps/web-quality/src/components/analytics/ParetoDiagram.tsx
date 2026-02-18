@@ -37,13 +37,13 @@ export function ParetoDiagram({
     // Calculate cumulative percentages
     const total = sortedData.reduce((sum, item) => sum + item.count, 0);
     let cumulative = 0;
-    const cumulativePercentages = sortedData.map(item => {
+    const cumulativePercentages = sortedData.map((item) => {
       cumulative += item.count;
       return (cumulative / total) * 100;
     });
 
     // Find the vital few (items that make up threshold%)
-    const vitalFewIndex = cumulativePercentages.findIndex(p => p >= threshold);
+    const vitalFewIndex = cumulativePercentages.findIndex((p) => p >= threshold);
 
     // Destroy existing chart
     if (chartInstance.current) {
@@ -56,12 +56,12 @@ export function ParetoDiagram({
     chartInstance.current = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: sortedData.map(d => d.category),
+        labels: sortedData.map((d) => d.category),
         datasets: [
           {
             type: 'bar',
             label: 'Count',
-            data: sortedData.map(d => d.count),
+            data: sortedData.map((d) => d.count),
             backgroundColor: sortedData.map((_, i) =>
               i <= vitalFewIndex ? barColor : 'rgba(156, 163, 175, 0.5)'
             ),

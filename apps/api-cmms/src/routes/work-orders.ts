@@ -85,12 +85,18 @@ router.get('/overdue', async (req: Request, res: Response) => {
       },
       include: { asset: { select: { id: true, name: true, code: true } } },
       orderBy: { scheduledEnd: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: workOrders });
   } catch (error: unknown) {
-    logger.error('Failed to list overdue work orders', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list overdue work orders' } });
+    logger.error('Failed to list overdue work orders', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list overdue work orders' },
+    });
   }
 });
 
@@ -110,12 +116,18 @@ router.get('/upcoming', async (req: Request, res: Response) => {
       },
       include: { asset: { select: { id: true, name: true, code: true } } },
       orderBy: { scheduledStart: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: workOrders });
   } catch (error: unknown) {
-    logger.error('Failed to list upcoming work orders', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list upcoming work orders' } });
+    logger.error('Failed to list upcoming work orders', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list upcoming work orders' },
+    });
   }
 });
 
@@ -157,8 +169,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list work orders', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list work orders' } });
+    logger.error('Failed to list work orders', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list work orders' },
+    });
   }
 });
 
@@ -167,7 +184,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = workOrderCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -195,8 +215,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: workOrder });
   } catch (error: unknown) {
-    logger.error('Failed to create work order', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create work order' } });
+    logger.error('Failed to create work order', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create work order' },
+    });
   }
 });
 
@@ -214,13 +239,20 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!workOrder) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
     res.json({ success: true, data: workOrder });
   } catch (error: unknown) {
-    logger.error('Failed to get work order', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get work order' } });
+    logger.error('Failed to get work order', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get work order' },
+    });
   }
 });
 
@@ -230,44 +262,77 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = workOrderUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
-    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsWorkOrder.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
     const data = parsed.data;
     const updateData: Record<string, unknown> = { ...data };
-    if (data.scheduledStart !== undefined) updateData.scheduledStart = data.scheduledStart ? new Date(data.scheduledStart) : null;
-    if (data.scheduledEnd !== undefined) updateData.scheduledEnd = data.scheduledEnd ? new Date(data.scheduledEnd) : null;
-    if (data.laborHours !== undefined) updateData.laborHours = data.laborHours != null ? new Prisma.Decimal(data.laborHours) : null;
-    if (data.laborCost !== undefined) updateData.laborCost = data.laborCost != null ? new Prisma.Decimal(data.laborCost) : null;
-    if (data.partsCost !== undefined) updateData.partsCost = data.partsCost != null ? new Prisma.Decimal(data.partsCost) : null;
-    if (data.totalCost !== undefined) updateData.totalCost = data.totalCost != null ? new Prisma.Decimal(data.totalCost) : null;
+    if (data.scheduledStart !== undefined)
+      updateData.scheduledStart = data.scheduledStart ? new Date(data.scheduledStart) : null;
+    if (data.scheduledEnd !== undefined)
+      updateData.scheduledEnd = data.scheduledEnd ? new Date(data.scheduledEnd) : null;
+    if (data.laborHours !== undefined)
+      updateData.laborHours = data.laborHours != null ? new Prisma.Decimal(data.laborHours) : null;
+    if (data.laborCost !== undefined)
+      updateData.laborCost = data.laborCost != null ? new Prisma.Decimal(data.laborCost) : null;
+    if (data.partsCost !== undefined)
+      updateData.partsCost = data.partsCost != null ? new Prisma.Decimal(data.partsCost) : null;
+    if (data.totalCost !== undefined)
+      updateData.totalCost = data.totalCost != null ? new Prisma.Decimal(data.totalCost) : null;
 
-    const workOrder = await prisma.cmmsWorkOrder.update({ where: { id: req.params.id }, data: updateData });
+    const workOrder = await prisma.cmmsWorkOrder.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
     res.json({ success: true, data: workOrder });
   } catch (error: unknown) {
-    logger.error('Failed to update work order', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update work order' } });
+    logger.error('Failed to update work order', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update work order' },
+    });
   }
 });
 
 // DELETE /:id — Soft delete work order
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsWorkOrder.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
-    await prisma.cmmsWorkOrder.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.cmmsWorkOrder.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Work order deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete work order', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete work order' } });
+    logger.error('Failed to delete work order', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete work order' },
+    });
   }
 });
 
@@ -276,15 +341,26 @@ router.put('/:id/assign', async (req: Request, res: Response) => {
   try {
     const _schema = z.object({ assignedTo: z.string().trim().min(1) });
     const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    if (!_parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+      });
     const { assignedTo } = _parsed.data;
     if (!assignedTo) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'assignedTo is required' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'assignedTo is required' },
+      });
     }
 
-    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsWorkOrder.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
     const workOrder = await prisma.cmmsWorkOrder.update({
@@ -294,17 +370,26 @@ router.put('/:id/assign', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: workOrder });
   } catch (error: unknown) {
-    logger.error('Failed to assign work order', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to assign work order' } });
+    logger.error('Failed to assign work order', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to assign work order' },
+    });
   }
 });
 
 // PUT /:id/start — Start work order
 router.put('/:id/start', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsWorkOrder.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
     const workOrder = await prisma.cmmsWorkOrder.update({
@@ -314,22 +399,39 @@ router.put('/:id/start', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: workOrder });
   } catch (error: unknown) {
-    logger.error('Failed to start work order', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to start work order' } });
+    logger.error('Failed to start work order', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to start work order' },
+    });
   }
 });
 
 // PUT /:id/complete — Complete work order
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
-    const _schema = z.object({ completionNotes: z.string().trim().optional(), laborHours: z.number().nonnegative().optional(), partsCost: z.number().nonnegative().optional() });
+    const _schema = z.object({
+      completionNotes: z.string().trim().optional(),
+      laborHours: z.number().nonnegative().optional(),
+      partsCost: z.number().nonnegative().optional(),
+    });
     const _parsed = _schema.safeParse(req.body);
-    if (!_parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message } });
+    if (!_parsed.success)
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
+      });
     const { completionNotes, laborHours, partsCost } = _parsed.data;
 
-    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsWorkOrder.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
     const updateData: Record<string, unknown> = {
@@ -347,21 +449,33 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: workOrder });
   } catch (error: unknown) {
-    logger.error('Failed to complete work order', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete work order' } });
+    logger.error('Failed to complete work order', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete work order' },
+    });
   }
 });
 
 // PUT /:id/close — Supervisor sign-off
 router.put('/:id/close', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsWorkOrder.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
 
     if (existing.status !== 'COMPLETED') {
-      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Work order must be completed before closing' } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATE', message: 'Work order must be completed before closing' },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -377,8 +491,13 @@ router.put('/:id/close', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: workOrder });
   } catch (error: unknown) {
-    logger.error('Failed to close work order', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close work order' } });
+    logger.error('Failed to close work order', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to close work order' },
+    });
   }
 });
 

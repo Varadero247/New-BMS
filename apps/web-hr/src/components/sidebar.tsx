@@ -56,7 +56,15 @@ const externalLinks = [
   { name: 'Settings', href: `${APP_BASE}:3004`, icon: Settings },
 ];
 
-function NavSection({ title, items, pathname }: { title?: string; items: typeof mainNavigation; pathname: string }) {
+function NavSection({
+  title,
+  items,
+  pathname,
+}: {
+  title?: string;
+  items: typeof mainNavigation;
+  pathname: string;
+}) {
   return (
     <div className={title ? 'mt-4 pt-4 border-t border-border' : ''}>
       {title && (
@@ -79,7 +87,9 @@ function NavSection({ title, items, pathname }: { title?: string; items: typeof 
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
               >
-                <Icon className={`h-5 w-5 ${isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                <Icon
+                  className={`h-5 w-5 ${isActive ? 'text-brand-600 dark:text-gold-400' : 'text-gray-500 dark:text-gray-400'}`}
+                />
                 <span className="text-sm font-medium">{item.name}</span>
               </Link>
             </li>
@@ -97,7 +107,9 @@ export function Sidebar() {
     <aside className="w-64 bg-card border-r border-border flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-border bg-emerald-50 dark:bg-emerald-900/10">
-        <h1 className="text-xl font-bold font-display text-emerald-900 dark:text-emerald-100">HR Management</h1>
+        <h1 className="text-xl font-bold font-display text-emerald-900 dark:text-emerald-100">
+          HR Management
+        </h1>
         <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">People & Talent</p>
       </div>
 

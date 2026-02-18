@@ -80,9 +80,7 @@ describe('Inventory Products API Routes', () => {
       mockPrisma.product.findMany.mockResolvedValueOnce(mockProducts as any);
       mockPrisma.product.count.mockResolvedValueOnce(2);
 
-      const response = await request(app)
-        .get('/api/products')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/products').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -113,9 +111,7 @@ describe('Inventory Products API Routes', () => {
       mockPrisma.product.findMany.mockResolvedValueOnce([]);
       mockPrisma.product.count.mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/products?status=INACTIVE')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/products?status=INACTIVE').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.product.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -167,9 +163,7 @@ describe('Inventory Products API Routes', () => {
       mockPrisma.product.findMany.mockResolvedValueOnce([]);
       mockPrisma.product.count.mockResolvedValueOnce(0);
 
-      await request(app)
-        .get('/api/products?search=widget')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/products?search=widget').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.product.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -206,9 +200,7 @@ describe('Inventory Products API Routes', () => {
     it('should handle database errors', async () => {
       mockPrisma.product.findMany.mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app)
-        .get('/api/products')
-        .set('Authorization', 'Bearer token');
+      const response = await request(app).get('/api/products').set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -225,7 +217,9 @@ describe('Inventory Products API Routes', () => {
           reorderPoint: 10,
           reorderQuantity: 50,
           category: { id: '4d000000-0000-4000-a000-000000000001', name: 'Widgets' },
-          inventoryItems: [{ quantityOnHand: 5, warehouseId: '28000000-0000-4000-a000-000000000001' }],
+          inventoryItems: [
+            { quantityOnHand: 5, warehouseId: '28000000-0000-4000-a000-000000000001' },
+          ],
         },
       ] as any);
 
@@ -242,9 +236,7 @@ describe('Inventory Products API Routes', () => {
     it('should only include active products', async () => {
       mockPrisma.product.findMany.mockResolvedValueOnce([]);
 
-      await request(app)
-        .get('/api/products/low-stock')
-        .set('Authorization', 'Bearer token');
+      await request(app).get('/api/products/low-stock').set('Authorization', 'Bearer token');
 
       expect(mockPrisma.product.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -340,7 +332,10 @@ describe('Inventory Products API Routes', () => {
       category: { id: '4d000000-0000-4000-a000-000000000001', name: 'Widgets' },
       supplier: { id: '25000000-0000-4000-a000-000000000001', name: 'Acme' },
       inventoryItems: [
-        { quantityOnHand: 50, warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main' } },
+        {
+          quantityOnHand: 50,
+          warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main' },
+        },
       ],
     };
 
@@ -538,7 +533,10 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should support optimistic locking', async () => {
-      mockPrisma.product.findUnique.mockResolvedValueOnce({ ...existingProduct, version: 2 } as any);
+      mockPrisma.product.findUnique.mockResolvedValueOnce({
+        ...existingProduct,
+        version: 2,
+      } as any);
 
       const response = await request(app)
         .patch('/api/products/27000000-0000-4000-a000-000000000001')

@@ -115,8 +115,13 @@ router.get('/dashboard', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Error generating dashboard KPIs', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate dashboard' } });
+    logger.error('Error generating dashboard KPIs', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate dashboard' },
+    });
   }
 });
 
@@ -134,7 +139,10 @@ router.get('/budgets', async (req: Request, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (fiscalYear) { const n = parseInt(fiscalYear as string, 10); if (!isNaN(n)) where.fiscalYear = n; }
+    if (fiscalYear) {
+      const n = parseInt(fiscalYear as string, 10);
+      if (!isNaN(n)) where.fiscalYear = n;
+    }
     if (accountId) where.accountId = accountId;
 
     const [budgets, total] = await Promise.all([
@@ -151,11 +159,21 @@ router.get('/budgets', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: budgets,
-      pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
     });
   } catch (error: unknown) {
-    logger.error('Error listing budgets', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list budgets' } });
+    logger.error('Error listing budgets', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list budgets' },
+    });
   }
 });
 
@@ -168,13 +186,19 @@ router.get('/budgets/:id', async (req: Request, res: Response) => {
     });
 
     if (!budget) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
     }
 
     res.json({ success: true, data: budget });
   } catch (error: unknown) {
-    logger.error('Error getting budget', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get budget' } });
+    logger.error('Error getting budget', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get budget' } });
   }
 });
 
@@ -186,7 +210,9 @@ router.post('/budgets', async (req: Request, res: Response) => {
 
     const account = await prisma.finAccount.findUnique({ where: { id: data.accountId } });
     if (!account) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     const budget = await prisma.finBudget.create({
@@ -200,13 +226,32 @@ router.post('/budgets', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: budget });
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
-    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'DUPLICATE', message: 'Budget already exists for this account/year/month' } });
+    if (
+      error != null &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as any).code === 'P2002'
+    ) {
+      return res.status(409).json({
+        success: false,
+        error: {
+          code: 'DUPLICATE',
+          message: 'Budget already exists for this account/year/month',
+        },
+      });
     }
-    logger.error('Error creating budget', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create budget' } });
+    logger.error('Error creating budget', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create budget' },
+    });
   }
 });
 
@@ -217,16 +262,19 @@ router.put('/budgets/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.finBudget.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
     }
 
     const budget = await prisma.finBudget.update({
       where: { id: req.params.id },
       data: {
         ...data,
-        variance: data.budgetAmount !== undefined
-          ? data.budgetAmount - Number(existing.actualAmount)
-          : undefined,
+        variance:
+          data.budgetAmount !== undefined
+            ? data.budgetAmount - Number(existing.actualAmount)
+            : undefined,
       },
       include: { account: { select: { id: true, code: true, name: true, type: true } } },
     });
@@ -234,10 +282,18 @@ router.put('/budgets/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: budget });
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors },
+      });
     }
-    logger.error('Error updating budget', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update budget' } });
+    logger.error('Error updating budget', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update budget' },
+    });
   }
 });
 
@@ -246,7 +302,9 @@ router.delete('/budgets/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.finBudget.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
     }
 
     await prisma.finBudget.update({
@@ -256,8 +314,13 @@ router.delete('/budgets/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { message: 'Budget deleted' } });
   } catch (error: unknown) {
-    logger.error('Error deleting budget', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete budget' } });
+    logger.error('Error deleting budget', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete budget' },
+    });
   }
 });
 
@@ -275,10 +338,19 @@ router.get('/budget-vs-actual', async (req: Request, res: Response) => {
       where: { fiscalYear: year, deletedAt: null } as any,
       include: { account: { select: { id: true, code: true, name: true, type: true } } },
       orderBy: [{ account: { code: 'asc' } }, { month: 'asc' }],
-      take: 1000});
+      take: 1000,
+    });
 
     // Group by account
-    const byAccount: Record<string, { account: Record<string, unknown>; months: Record<string, unknown>[]; totalBudget: number; totalActual: number }> = {};
+    const byAccount: Record<
+      string,
+      {
+        account: Record<string, unknown>;
+        months: Record<string, unknown>[];
+        totalBudget: number;
+        totalActual: number;
+      }
+    > = {};
     for (const b of budgets) {
       if (!byAccount[b.accountId]) {
         byAccount[b.accountId] = {
@@ -294,9 +366,10 @@ router.get('/budget-vs-actual', async (req: Request, res: Response) => {
         budget: Number(b.budgetAmount),
         actual: Number(b.actualAmount),
         variance: Number(b.variance),
-        variancePercent: Number(b.budgetAmount) > 0
-          ? ((Number(b.actualAmount) - Number(b.budgetAmount)) / Number(b.budgetAmount) * 100)
-          : 0,
+        variancePercent:
+          Number(b.budgetAmount) > 0
+            ? ((Number(b.actualAmount) - Number(b.budgetAmount)) / Number(b.budgetAmount)) * 100
+            : 0,
       });
       byAccount[b.accountId].totalBudget += Number(b.budgetAmount);
       byAccount[b.accountId].totalActual += Number(b.actualAmount);
@@ -310,8 +383,13 @@ router.get('/budget-vs-actual', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Error generating budget vs actual report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate report' } });
+    logger.error('Error generating budget vs actual report', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate report' },
+    });
   }
 });
 
@@ -328,17 +406,23 @@ router.get('/revenue-breakdown', async (req: Request, res: Response) => {
       status: { in: ['PAID', 'PARTIALLY_PAID'] },
       deletedAt: null,
     };
-    if (dateFrom) where.issueDate = { ...(where.issueDate as any ?? {}), gte: new Date(dateFrom as string) };
-    if (dateTo) where.issueDate = { ...(where.issueDate as any ?? {}), lte: new Date(dateTo as string) };
+    if (dateFrom)
+      where.issueDate = { ...((where.issueDate as any) ?? {}), gte: new Date(dateFrom as string) };
+    if (dateTo)
+      where.issueDate = { ...((where.issueDate as any) ?? {}), lte: new Date(dateTo as string) };
 
     const invoices = await prisma.finInvoice.findMany({
       where,
       include: { customer: { select: { id: true, name: true, code: true } } },
       orderBy: { issueDate: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Group by customer
-    const byCustomer: Record<string, { customer: Record<string, unknown>; total: number; count: number }> = {};
+    const byCustomer: Record<
+      string,
+      { customer: Record<string, unknown>; total: number; count: number }
+    > = {};
     for (const inv of invoices) {
       if (!byCustomer[inv.customerId]) {
         byCustomer[inv.customerId] = { customer: inv.customer, total: 0, count: 0 };
@@ -356,8 +440,13 @@ router.get('/revenue-breakdown', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Error generating revenue breakdown', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate report' } });
+    logger.error('Error generating revenue breakdown', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate report' },
+    });
   }
 });
 
@@ -370,17 +459,23 @@ router.get('/expense-breakdown', async (req: Request, res: Response) => {
       status: { in: ['PAID', 'PARTIALLY_PAID'] },
       deletedAt: null,
     };
-    if (dateFrom) where.billDate = { ...(where.billDate as any ?? {}), gte: new Date(dateFrom as string) };
-    if (dateTo) where.billDate = { ...(where.billDate as any ?? {}), lte: new Date(dateTo as string) };
+    if (dateFrom)
+      where.billDate = { ...((where.billDate as any) ?? {}), gte: new Date(dateFrom as string) };
+    if (dateTo)
+      where.billDate = { ...((where.billDate as any) ?? {}), lte: new Date(dateTo as string) };
 
     const bills = await prisma.finBill.findMany({
       where,
       include: { supplier: { select: { id: true, name: true, code: true } } },
       orderBy: { billDate: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Group by supplier
-    const bySupplier: Record<string, { supplier: Record<string, unknown>; total: number; count: number }> = {};
+    const bySupplier: Record<
+      string,
+      { supplier: Record<string, unknown>; total: number; count: number }
+    > = {};
     for (const bill of bills) {
       if (!bySupplier[bill.supplierId]) {
         bySupplier[bill.supplierId] = { supplier: bill.supplier, total: 0, count: 0 };
@@ -398,8 +493,13 @@ router.get('/expense-breakdown', async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Error generating expense breakdown', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate report' } });
+    logger.error('Error generating expense breakdown', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate report' },
+    });
   }
 });
 
@@ -429,7 +529,8 @@ router.get('/cash-forecast', async (req: Request, res: Response) => {
       },
       select: { dueDate: true, amountDue: true },
       orderBy: { dueDate: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     // Expected outflows (outstanding bills by due date)
     const outflows = await prisma.finBill.findMany({
@@ -443,7 +544,8 @@ router.get('/cash-forecast', async (req: Request, res: Response) => {
       },
       select: { dueDate: true, amountDue: true },
       orderBy: { dueDate: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     const totalInflows = inflows.reduce((sum, i) => sum + Number(i.amountDue), 0);
     const totalOutflows = outflows.reduce((sum, o) => sum + Number(o.amountDue), 0);
@@ -456,13 +558,18 @@ router.get('/cash-forecast', async (req: Request, res: Response) => {
         totalExpectedInflows: totalInflows,
         totalExpectedOutflows: totalOutflows,
         forecastMonths: numMonths,
-        inflows: inflows.map(i => ({ dueDate: i.dueDate, amount: Number(i.amountDue) })),
-        outflows: outflows.map(o => ({ dueDate: o.dueDate, amount: Number(o.amountDue) })),
+        inflows: inflows.map((i) => ({ dueDate: i.dueDate, amount: Number(i.amountDue) })),
+        outflows: outflows.map((o) => ({ dueDate: o.dueDate, amount: Number(o.amountDue) })),
       },
     });
   } catch (error: unknown) {
-    logger.error('Error generating cash forecast', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate forecast' } });
+    logger.error('Error generating cash forecast', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate forecast' },
+    });
   }
 });
 

@@ -176,15 +176,21 @@ export default function DashboardPreview() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-sm bg-brand-700 flex-shrink-0" />
-                    <span className="text-gray-400 dark:text-gray-500 text-xs font-body">Active (75%)</span>
+                    <span className="text-gray-400 dark:text-gray-500 text-xs font-body">
+                      Active (75%)
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-sm bg-teal flex-shrink-0" />
-                    <span className="text-gray-400 dark:text-gray-500 text-xs font-body">In Progress (15%)</span>
+                    <span className="text-gray-400 dark:text-gray-500 text-xs font-body">
+                      In Progress (15%)
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-sm bg-white/10 flex-shrink-0" />
-                    <span className="text-gray-400 dark:text-gray-500 text-xs font-body">Planned (10%)</span>
+                    <span className="text-gray-400 dark:text-gray-500 text-xs font-body">
+                      Planned (10%)
+                    </span>
                   </div>
                 </div>
               </div>
@@ -203,7 +209,9 @@ export default function DashboardPreview() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-white text-xs font-body">ISO 9001 audit completed</p>
-                    <p className="text-gray-500 dark:text-gray-400 text-xs font-mono mt-0.5">2 hours ago</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs font-mono mt-0.5">
+                      2 hours ago
+                    </p>
                   </div>
                 </div>
                 {/* Activity 2 */}
@@ -213,7 +221,9 @@ export default function DashboardPreview() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-white text-xs font-body">3 risks escalated to HIGH</p>
-                    <p className="text-gray-500 dark:text-gray-400 text-xs font-mono mt-0.5">4 hours ago</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs font-mono mt-0.5">
+                      4 hours ago
+                    </p>
                   </div>
                 </div>
                 {/* Activity 3 */}
@@ -223,7 +233,9 @@ export default function DashboardPreview() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-white text-xs font-body">Document approved</p>
-                    <p className="text-gray-500 dark:text-gray-400 text-xs font-mono mt-0.5">Yesterday</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs font-mono mt-0.5">
+                      Yesterday
+                    </p>
                   </div>
                 </div>
               </div>

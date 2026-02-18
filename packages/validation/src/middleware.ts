@@ -184,7 +184,10 @@ export function formatZodErrors(error: ZodError): Record<string, string[]> {
  * Create Express middleware that validates and sanitizes specific fields
  */
 export function validateFieldsMiddleware(
-  fieldValidators: Record<string, (value: unknown) => { valid: boolean; message?: string; value?: unknown }>
+  fieldValidators: Record<
+    string,
+    (value: unknown) => { valid: boolean; message?: string; value?: unknown }
+  >
 ): (req: Request, res: Response, next: NextFunction) => void {
   return (req: Request, res: Response, next: NextFunction) => {
     const errors: Record<string, string> = {};

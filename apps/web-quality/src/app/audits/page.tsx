@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@ims/ui';
-import { Plus, ClipboardCheck, Calendar, AlertCircle, CheckCircle, Clock, Users } from 'lucide-react';
+import {
+  Plus,
+  ClipboardCheck,
+  Calendar,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Users,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
 
@@ -79,16 +87,16 @@ export default function AuditsPage() {
 
   const stats = {
     total: audits.length,
-    planned: audits.filter(a => a.status === 'PLANNED').length,
-    inProgress: audits.filter(a => a.status === 'IN_PROGRESS').length,
-    completed: audits.filter(a => a.status === 'COMPLETED').length,
+    planned: audits.filter((a) => a.status === 'PLANNED').length,
+    inProgress: audits.filter((a) => a.status === 'IN_PROGRESS').length,
+    completed: audits.filter((a) => a.status === 'COMPLETED').length,
     totalFindings: audits.reduce((sum, a) => sum + a.totalFindings, 0),
     majorNCs: audits.reduce((sum, a) => sum + a.majorNCs, 0),
   };
 
   // Calendar view of upcoming audits
   const upcomingAudits = audits
-    .filter(a => a.status === 'PLANNED' && new Date(a.plannedStartDate) > new Date())
+    .filter((a) => a.status === 'PLANNED' && new Date(a.plannedStartDate) > new Date())
     .sort((a, b) => new Date(a.plannedStartDate).getTime() - new Date(b.plannedStartDate).getTime())
     .slice(0, 5);
 
@@ -98,7 +106,7 @@ export default function AuditsPage() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4" />
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-24 bg-gray-200 rounded" />
             ))}
           </div>
@@ -113,8 +121,12 @@ export default function AuditsPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Audit Management</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Internal and external audit scheduling and findings</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Audit Management
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Internal and external audit scheduling and findings
+            </p>
           </div>
           <div className="flex gap-2">
             <Link href="/audits/schedule">
@@ -211,11 +223,16 @@ export default function AuditsPage() {
             <CardContent>
               <div className="space-y-3">
                 {upcomingAudits.map((audit) => (
-                  <div key={audit.id} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                  <div
+                    key={audit.id}
+                    className="flex items-center justify-between p-3 bg-blue-50 rounded-lg"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="text-center bg-white dark:bg-gray-900 p-2 rounded-lg shadow-sm">
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(audit.plannedStartDate).toLocaleDateString('en-US', { month: 'short' })}
+                          {new Date(audit.plannedStartDate).toLocaleDateString('en-US', {
+                            month: 'short',
+                          })}
                         </p>
                         <p className="text-lg font-bold">
                           {new Date(audit.plannedStartDate).getDate()}
@@ -228,7 +245,9 @@ export default function AuditsPage() {
                         </p>
                       </div>
                     </div>
-                    <Badge className={typeColors[audit.auditType] || 'bg-gray-100 dark:bg-gray-800'}>
+                    <Badge
+                      className={typeColors[audit.auditType] || 'bg-gray-100 dark:bg-gray-800'}
+                    >
                       {audit.auditType}
                     </Badge>
                   </div>
@@ -285,14 +304,24 @@ export default function AuditsPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium">{audit.title}</span>
-                          <Badge className={statusColors[audit.status] || 'bg-gray-100 dark:bg-gray-800'}>
+                          <Badge
+                            className={statusColors[audit.status] || 'bg-gray-100 dark:bg-gray-800'}
+                          >
                             {audit.status.replace('_', ' ')}
                           </Badge>
-                          <Badge className={typeColors[audit.auditType] || 'bg-gray-100 dark:bg-gray-800'}>
+                          <Badge
+                            className={
+                              typeColors[audit.auditType] || 'bg-gray-100 dark:bg-gray-800'
+                            }
+                          >
                             {audit.auditType}
                           </Badge>
                           {audit.overallRating && (
-                            <Badge className={ratingColors[audit.overallRating] || 'bg-gray-100 dark:bg-gray-800'}>
+                            <Badge
+                              className={
+                                ratingColors[audit.overallRating] || 'bg-gray-100 dark:bg-gray-800'
+                              }
+                            >
                               {audit.overallRating.replace('_', ' ')}
                             </Badge>
                           )}
@@ -301,7 +330,8 @@ export default function AuditsPage() {
                           <span>{audit.auditNumber}</span>
                           <span>•</span>
                           <span>
-                            {new Date(audit.plannedStartDate).toLocaleDateString()} - {new Date(audit.plannedEndDate).toLocaleDateString()}
+                            {new Date(audit.plannedStartDate).toLocaleDateString()} -{' '}
+                            {new Date(audit.plannedEndDate).toLocaleDateString()}
                           </span>
                           {audit.auditeeDepartment && (
                             <>

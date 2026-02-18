@@ -26,7 +26,10 @@ const createSchema = z.object({
   acceptanceCriteria: z.string().trim().min(1).max(200),
   results: z.string().optional(),
   pass: z.boolean().optional(),
-  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  completedDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   completedBy: z.string().optional(),
   traceToInput: z.string().optional(),
   traceToOutput: z.string().optional(),
@@ -74,7 +77,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('List design verifications error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list design verifications' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list design verifications' },
+    });
   }
 });
 
@@ -90,11 +96,20 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
 
     res.json({
       success: true,
-      data: { total, passed, failed, pending, passRate: total > 0 ? Math.round((passed / (passed + failed)) * 100) : 0 },
+      data: {
+        total,
+        passed,
+        failed,
+        pending,
+        passRate: total > 0 ? Math.round((passed / (passed + failed)) * 100) : 0,
+      },
     });
   } catch (error) {
     logger.error('Verification stats error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get verification stats' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get verification stats' },
+    });
   }
 });
 
@@ -107,13 +122,19 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (!verification) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design verification not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design verification not found' },
+      });
     }
 
     res.json({ success: true, data: verification });
   } catch (error) {
     logger.error('Get design verification error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get design verification' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get design verification' },
+    });
   }
 });
 
@@ -124,7 +145,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
     const project = await prisma.designProject.findUnique({ where: { id: data.projectId } });
     if (!project) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design project not found' },
+      });
     }
 
     const verification = await prisma.designVerification.create({
@@ -147,10 +171,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data: verification });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Create design verification error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create design verification' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create design verification' },
+    });
   }
 });
 
@@ -159,7 +193,10 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.designVerification.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design verification not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design verification not found' },
+      });
     }
 
     const data = updateSchema.parse(req.body);
@@ -175,10 +212,20 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     res.json({ success: true, data: verification });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: error.errors.map(e => e.path.join('.')) } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          fields: error.errors.map((e) => e.path.join('.')),
+        },
+      });
     }
     logger.error('Update design verification error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update design verification' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update design verification' },
+    });
   }
 });
 
@@ -187,14 +234,20 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.designVerification.findUnique({ where: { id: req.params.id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design verification not found' } });
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Design verification not found' },
+      });
     }
 
     await prisma.designVerification.delete({ where: { id: req.params.id } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete design verification error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete design verification' } });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete design verification' },
+    });
   }
 });
 

@@ -44,8 +44,8 @@ const contractCreateSchema = z.object({
   contractNumber: z.string().trim().min(1).max(50),
   title: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional().nullable(),
-  startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  endDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   value: z.number().optional().nullable(),
   type: z.enum(['FULL_SERVICE', 'PARTS_ONLY', 'LABOR_ONLY', 'WARRANTY', 'SLA']),
   status: z.enum(['ACTIVE', 'EXPIRED', 'CANCELLED', 'PENDING']).optional(),
@@ -56,8 +56,14 @@ const contractCreateSchema = z.object({
 const contractUpdateSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
-  startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  startDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
+  endDate: z
+    .string()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+    .optional(),
   value: z.number().optional().nullable(),
   type: z.enum(['FULL_SERVICE', 'PARTS_ONLY', 'LABOR_ONLY', 'WARRANTY', 'SLA']).optional(),
   status: z.enum(['ACTIVE', 'EXPIRED', 'CANCELLED', 'PENDING']).optional(),
@@ -87,7 +93,8 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (specialization) where.specialization = { contains: String(specialization), mode: 'insensitive' };
+    if (specialization)
+      where.specialization = { contains: String(specialization), mode: 'insensitive' };
     if (isPreferred !== undefined) where.isPreferred = isPreferred === 'true';
     if (search) {
       where.OR = [
@@ -107,8 +114,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list vendors', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list vendors' } });
+    logger.error('Failed to list vendors', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list vendors' },
+    });
   }
 });
 
@@ -117,7 +129,10 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = vendorCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -142,10 +157,18 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: vendor });
   } catch (error: unknown) {
     if ((error as any)?.code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Vendor code already exists' } });
+      return res.status(409).json({
+        success: false,
+        error: { code: 'CONFLICT', message: 'Vendor code already exists' },
+      });
     }
-    logger.error('Failed to create vendor', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create vendor' } });
+    logger.error('Failed to create vendor', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create vendor' },
+    });
   }
 });
 
@@ -158,13 +181,19 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!vendor) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
     }
 
     res.json({ success: true, data: vendor });
   } catch (error: unknown) {
-    logger.error('Failed to get vendor', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get vendor' } });
+    logger.error('Failed to get vendor', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get vendor' } });
   }
 });
 
@@ -173,60 +202,99 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const parsed = vendorUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
-    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsVendor.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
     }
 
     const data = parsed.data;
     const updateData: Record<string, unknown> = { ...data };
-    if (data.rating !== undefined) updateData.rating = data.rating != null ? new Prisma.Decimal(data.rating) : null;
-    if (data.contractExpiry !== undefined) updateData.contractExpiry = data.contractExpiry ? new Date(data.contractExpiry) : null;
+    if (data.rating !== undefined)
+      updateData.rating = data.rating != null ? new Prisma.Decimal(data.rating) : null;
+    if (data.contractExpiry !== undefined)
+      updateData.contractExpiry = data.contractExpiry ? new Date(data.contractExpiry) : null;
 
-    const vendor = await prisma.cmmsVendor.update({ where: { id: req.params.id }, data: updateData });
+    const vendor = await prisma.cmmsVendor.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
     res.json({ success: true, data: vendor });
   } catch (error: unknown) {
-    logger.error('Failed to update vendor', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update vendor' } });
+    logger.error('Failed to update vendor', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update vendor' },
+    });
   }
 });
 
 // DELETE /vendors/:id — Soft delete vendor
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsVendor.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
     }
 
-    await prisma.cmmsVendor.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.cmmsVendor.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Vendor deleted successfully' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete vendor', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete vendor' } });
+    logger.error('Failed to delete vendor', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to delete vendor' },
+    });
   }
 });
 
 // GET /vendors/:id/contracts — List vendor contracts
 router.get('/:id/contracts', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsVendor.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
     }
 
     const contracts = await prisma.cmmsServiceContract.findMany({
       where: { vendorId: req.params.id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: contracts });
   } catch (error: unknown) {
-    logger.error('Failed to list vendor contracts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list vendor contracts' } });
+    logger.error('Failed to list vendor contracts', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list vendor contracts' },
+    });
   }
 });
 
@@ -235,12 +303,19 @@ router.post('/:id/contracts', async (req: Request, res: Response) => {
   try {
     const parsed = contractCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
-    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsVendor.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -267,10 +342,18 @@ router.post('/:id/contracts', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: contract });
   } catch (error: unknown) {
     if ((error as any)?.code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Contract number already exists' } });
+      return res.status(409).json({
+        success: false,
+        error: { code: 'CONFLICT', message: 'Contract number already exists' },
+      });
     }
-    logger.error('Failed to create contract', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create contract' } });
+    logger.error('Failed to create contract', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create contract' },
+    });
   }
 });
 
@@ -279,25 +362,41 @@ router.put('/contracts/:id', async (req: Request, res: Response) => {
   try {
     const parsed = contractUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', details: parsed.error.errors },
+      });
     }
 
-    const existing = await prisma.cmmsServiceContract.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.cmmsServiceContract.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contract not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Contract not found' } });
     }
 
     const data = parsed.data;
     const updateData: Record<string, unknown> = { ...data };
     if (data.startDate !== undefined) updateData.startDate = new Date(data.startDate);
     if (data.endDate !== undefined) updateData.endDate = new Date(data.endDate);
-    if (data.value !== undefined) updateData.value = data.value != null ? new Prisma.Decimal(data.value) : null;
+    if (data.value !== undefined)
+      updateData.value = data.value != null ? new Prisma.Decimal(data.value) : null;
 
-    const contract = await prisma.cmmsServiceContract.update({ where: { id: req.params.id }, data: updateData });
+    const contract = await prisma.cmmsServiceContract.update({
+      where: { id: req.params.id },
+      data: updateData,
+    });
     res.json({ success: true, data: contract });
   } catch (error: unknown) {
-    logger.error('Failed to update contract', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update contract' } });
+    logger.error('Failed to update contract', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to update contract' },
+    });
   }
 });
 

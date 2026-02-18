@@ -19,7 +19,11 @@ jest.mock('../src/prisma', () => ({
 
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    req.user = { id: '00000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'ADMIN' };
+    req.user = {
+      id: '00000000-0000-4000-a000-000000000123',
+      email: 'test@test.com',
+      role: 'ADMIN',
+    };
     next();
   }),
 }));
@@ -41,7 +45,9 @@ beforeEach(() => {
 
 describe('GET /api/targets', () => {
   it('should return paginated targets', async () => {
-    (prisma.energyTarget.findMany as jest.Mock).mockResolvedValue([{ id: 'e3000000-0000-4000-a000-000000000001', name: '10% Reduction' }]);
+    (prisma.energyTarget.findMany as jest.Mock).mockResolvedValue([
+      { id: 'e3000000-0000-4000-a000-000000000001', name: '10% Reduction' },
+    ]);
     (prisma.energyTarget.count as jest.Mock).mockResolvedValue(1);
 
     const res = await request(app).get('/api/targets');
@@ -96,7 +102,11 @@ describe('POST /api/targets', () => {
   };
 
   it('should create a target', async () => {
-    (prisma.energyTarget.create as jest.Mock).mockResolvedValue({ id: 'new-id', ...validBody, status: 'ON_TRACK' });
+    (prisma.energyTarget.create as jest.Mock).mockResolvedValue({
+      id: 'new-id',
+      ...validBody,
+      status: 'ON_TRACK',
+    });
 
     const res = await request(app).post('/api/targets').send(validBody);
 
@@ -107,7 +117,9 @@ describe('POST /api/targets', () => {
   it('should validate baseline if provided', async () => {
     (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).post('/api/targets').send({ ...validBody, baselineId: '00000000-0000-0000-0000-000000000099' });
+    const res = await request(app)
+      .post('/api/targets')
+      .send({ ...validBody, baselineId: '00000000-0000-0000-0000-000000000099' });
 
     expect(res.status).toBe(404);
     expect(res.body.error.message).toContain('Baseline');
@@ -122,7 +134,10 @@ describe('POST /api/targets', () => {
 
 describe('GET /api/targets/:id', () => {
   it('should return a target', async () => {
-    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({ id: 'e3000000-0000-4000-a000-000000000001', name: 'Target 1' });
+    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e3000000-0000-4000-a000-000000000001',
+      name: 'Target 1',
+    });
 
     const res = await request(app).get('/api/targets/e3000000-0000-4000-a000-000000000001');
 
@@ -141,10 +156,17 @@ describe('GET /api/targets/:id', () => {
 
 describe('PUT /api/targets/:id', () => {
   it('should update a target', async () => {
-    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({ id: 'e3000000-0000-4000-a000-000000000001' });
-    (prisma.energyTarget.update as jest.Mock).mockResolvedValue({ id: 'e3000000-0000-4000-a000-000000000001', name: 'Updated' });
+    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e3000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyTarget.update as jest.Mock).mockResolvedValue({
+      id: 'e3000000-0000-4000-a000-000000000001',
+      name: 'Updated',
+    });
 
-    const res = await request(app).put('/api/targets/e3000000-0000-4000-a000-000000000001').send({ name: 'Updated' });
+    const res = await request(app)
+      .put('/api/targets/e3000000-0000-4000-a000-000000000001')
+      .send({ name: 'Updated' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.name).toBe('Updated');
@@ -153,7 +175,9 @@ describe('PUT /api/targets/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/targets/00000000-0000-0000-0000-000000000099').send({ name: 'X' });
+    const res = await request(app)
+      .put('/api/targets/00000000-0000-0000-0000-000000000099')
+      .send({ name: 'X' });
 
     expect(res.status).toBe(404);
   });
@@ -161,8 +185,12 @@ describe('PUT /api/targets/:id', () => {
 
 describe('DELETE /api/targets/:id', () => {
   it('should soft delete a target', async () => {
-    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({ id: 'e3000000-0000-4000-a000-000000000001' });
-    (prisma.energyTarget.update as jest.Mock).mockResolvedValue({ id: 'e3000000-0000-4000-a000-000000000001' });
+    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e3000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyTarget.update as jest.Mock).mockResolvedValue({
+      id: 'e3000000-0000-4000-a000-000000000001',
+    });
 
     const res = await request(app).delete('/api/targets/e3000000-0000-4000-a000-000000000001');
 
@@ -189,7 +217,9 @@ describe('GET /api/targets/:id/progress', () => {
       baseline: { id: 'b1', name: 'Baseline 2024', totalConsumption: 55000 },
     });
 
-    const res = await request(app).get('/api/targets/e3000000-0000-4000-a000-000000000001/progress');
+    const res = await request(app).get(
+      '/api/targets/e3000000-0000-4000-a000-000000000001/progress'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.target).toBe(50000);
@@ -202,7 +232,9 @@ describe('GET /api/targets/:id/progress', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/targets/00000000-0000-0000-0000-000000000099/progress');
+    const res = await request(app).get(
+      '/api/targets/00000000-0000-0000-0000-000000000099/progress'
+    );
 
     expect(res.status).toBe(404);
   });
@@ -216,7 +248,9 @@ describe('GET /api/targets/:id/progress', () => {
       baseline: null,
     });
 
-    const res = await request(app).get('/api/targets/e3000000-0000-4000-a000-000000000001/progress');
+    const res = await request(app).get(
+      '/api/targets/e3000000-0000-4000-a000-000000000001/progress'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.data.progress).toBe(0);

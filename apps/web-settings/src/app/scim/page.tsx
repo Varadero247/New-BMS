@@ -121,8 +121,12 @@ export default function ScimPage() {
       {/* Generated token banner */}
       {generatedToken && (
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-green-800 dark:text-green-300 mb-2">SCIM Bearer Token Generated</h3>
-          <p className="text-xs text-green-600 dark:text-green-400 mb-2">Copy this token now -- you will not be able to see it again.</p>
+          <h3 className="text-sm font-semibold text-green-800 dark:text-green-300 mb-2">
+            SCIM Bearer Token Generated
+          </h3>
+          <p className="text-xs text-green-600 dark:text-green-400 mb-2">
+            Copy this token now -- you will not be able to see it again.
+          </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 bg-white dark:bg-gray-800 rounded-md border border-green-300 dark:border-green-700 px-3 py-2 text-sm font-mono text-green-900 dark:text-green-200 break-all">
               {generatedToken}
@@ -142,11 +146,16 @@ export default function ScimPage() {
                 onChange={(e) => setConfirmed(e.target.checked)}
                 className="h-4 w-4 text-green-600 rounded"
               />
-              <span className="text-xs text-green-700 dark:text-green-300">I have copied this token</span>
+              <span className="text-xs text-green-700 dark:text-green-300">
+                I have copied this token
+              </span>
             </label>
             {confirmed && (
               <button
-                onClick={() => { setGeneratedToken(null); setConfirmed(false); }}
+                onClick={() => {
+                  setGeneratedToken(null);
+                  setConfirmed(false);
+                }}
                 className="text-xs text-green-600 hover:underline ml-2"
               >
                 Dismiss
@@ -163,7 +172,9 @@ export default function ScimPage() {
           Configure your Identity Provider with this SCIM base URL and a Bearer token.
         </p>
         <div>
-          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">SCIM Base URL</label>
+          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+            SCIM Base URL
+          </label>
           <div className="flex items-center gap-2">
             <code className="flex-1 bg-gray-50 dark:bg-gray-700 rounded-md border dark:border-gray-600 px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
               {scimBaseUrl}
@@ -177,7 +188,9 @@ export default function ScimPage() {
           </div>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Authentication</label>
+          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+            Authentication
+          </label>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Bearer Token (OAuth 2.0 Bearer Token) — generate a token below
           </p>
@@ -188,7 +201,9 @@ export default function ScimPage() {
       <div className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Bearer Tokens</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Bearer Tokens
+            </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               Generate tokens for your Identity Provider to authenticate SCIM requests
             </p>
@@ -206,15 +221,21 @@ export default function ScimPage() {
             {tokens.map((token) => (
               <div key={token.id} className="flex items-center justify-between py-3">
                 <div>
-                  <div className="font-mono text-sm text-gray-700 dark:text-gray-300">{token.tokenPrefix}...</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Created {new Date(token.createdAt).toLocaleDateString()}</div>
+                  <div className="font-mono text-sm text-gray-700 dark:text-gray-300">
+                    {token.tokenPrefix}...
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Created {new Date(token.createdAt).toLocaleDateString()}
+                  </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                    token.active
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                      : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-                  }`}>
+                  <span
+                    className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                      token.active
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                    }`}
+                  >
                     {token.active ? 'Active' : 'Revoked'}
                   </span>
                   {token.active && (
@@ -239,39 +260,60 @@ export default function ScimPage() {
       {/* Provisioned Users */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 overflow-hidden">
         <div className="p-4 border-b dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Provisioned Users</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Users managed by SCIM provisioning</p>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Provisioned Users
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Users managed by SCIM provisioning
+          </p>
         </div>
         <table className="w-full text-sm">
           <thead className="bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600">
             <tr>
               <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">User</th>
               <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Email</th>
-              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Provisioned</th>
+              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                Provisioned
+              </th>
               <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y dark:divide-gray-700">
             {loading ? (
-              <tr><td colSpan={4} className="p-6 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
+              <tr>
+                <td colSpan={4} className="p-6 text-center text-gray-500 dark:text-gray-400">
+                  Loading...
+                </td>
+              </tr>
             ) : users.length === 0 ? (
-              <tr><td colSpan={4} className="p-6 text-center text-gray-500 dark:text-gray-400">No SCIM-provisioned users yet. Connect your IdP to get started.</td></tr>
+              <tr>
+                <td colSpan={4} className="p-6 text-center text-gray-500 dark:text-gray-400">
+                  No SCIM-provisioned users yet. Connect your IdP to get started.
+                </td>
+              </tr>
             ) : (
               users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-750">
+                <tr
+                  key={user.id}
+                  className="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-750"
+                >
                   <td className="p-3">
-                    <div className="font-medium text-gray-900 dark:text-gray-100">{user.displayName}</div>
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                      {user.displayName}
+                    </div>
                   </td>
                   <td className="p-3 text-gray-600 dark:text-gray-400">{user.userName}</td>
                   <td className="p-3 text-gray-600 dark:text-gray-400 text-xs">
                     {new Date(user.meta.created).toLocaleDateString()}
                   </td>
                   <td className="p-3">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                      user.active
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-                    }`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                        user.active
+                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                      }`}
+                    >
                       {user.active ? 'Active' : 'Deactivated'}
                     </span>
                   </td>
@@ -284,10 +326,18 @@ export default function ScimPage() {
 
       {/* Info */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">About SCIM Provisioning</h3>
+        <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">
+          About SCIM Provisioning
+        </h3>
         <ul className="text-xs text-blue-600 dark:text-blue-400 space-y-1 list-disc list-inside">
-          <li>SCIM 2.0 (RFC 7644) enables automatic user provisioning and deprovisioning from your Identity Provider</li>
-          <li>Supported IdPs: Okta, Azure AD, OneLogin, JumpCloud, and any SCIM 2.0 compatible provider</li>
+          <li>
+            SCIM 2.0 (RFC 7644) enables automatic user provisioning and deprovisioning from your
+            Identity Provider
+          </li>
+          <li>
+            Supported IdPs: Okta, Azure AD, OneLogin, JumpCloud, and any SCIM 2.0 compatible
+            provider
+          </li>
           <li>User attributes synced: name, email, display name, active status</li>
           <li>Groups map to IMS roles for automatic role assignment</li>
         </ul>

@@ -38,10 +38,18 @@ const ModalWrapper = ({
   return (
     <div>
       <Button onClick={() => setOpen(true)}>Open Modal</Button>
-      <Modal isOpen={open} onClose={() => setOpen(false)} title={title} description={description} size={size}>
+      <Modal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        title={title}
+        description={description}
+        size={size}
+      >
         {children ?? <p>Modal content goes here.</p>}
         <ModalFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
           <Button onClick={() => setOpen(false)}>Confirm</Button>
         </ModalFooter>
       </Modal>
@@ -77,10 +85,7 @@ export const Large: Story = {
 
 export const ExtraLarge: Story = {
   render: () => (
-    <ModalWrapper
-      title="Extra Large Modal"
-      size="xl"
-    >
+    <ModalWrapper title="Extra Large Modal" size="xl">
       <p>Extra large modals are great for tables and multi-step workflows.</p>
     </ModalWrapper>
   ),
@@ -104,7 +109,9 @@ export const WithForm: Story = {
             </div>
           </div>
           <ModalFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
             <Button onClick={() => setOpen(false)}>Save</Button>
           </ModalFooter>
         </Modal>
@@ -118,7 +125,9 @@ export const Confirmation: Story = {
     const [open, setOpen] = useState(false);
     return (
       <div>
-        <Button variant="destructive" onClick={() => setOpen(true)}>Delete Item</Button>
+        <Button variant="destructive" onClick={() => setOpen(true)}>
+          Delete Item
+        </Button>
         <Modal
           isOpen={open}
           onClose={() => setOpen(false)}
@@ -127,8 +136,12 @@ export const Confirmation: Story = {
           size="sm"
         >
           <ModalFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={() => setOpen(false)}>Delete</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={() => setOpen(false)}>
+              Delete
+            </Button>
           </ModalFooter>
         </Modal>
       </div>
@@ -139,7 +152,9 @@ export const Confirmation: Story = {
 export const WithoutTitle: Story = {
   render: () => (
     <ModalWrapper>
-      <p style={{ padding: '8px 0' }}>This modal has no title or description — just plain content.</p>
+      <p style={{ padding: '8px 0' }}>
+        This modal has no title or description — just plain content.
+      </p>
     </ModalWrapper>
   ),
 };

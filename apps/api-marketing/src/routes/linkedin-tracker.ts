@@ -15,12 +15,26 @@ const outreachSchema = z.object({
   prospectTitle: z.string().optional(),
   company: z.string().trim().min(1).max(200),
   linkedinUrl: z.string().trim().url('Invalid URL').trim().min(1),
-  template: z.enum(['ISO_CONSULTANT', 'QUALITY_MANAGER', 'EHS_MANAGER', 'GCC_PROCUREMENT', 'CERTIFICATION_BODY']),
+  template: z.enum([
+    'ISO_CONSULTANT',
+    'QUALITY_MANAGER',
+    'EHS_MANAGER',
+    'GCC_PROCUREMENT',
+    'CERTIFICATION_BODY',
+  ]),
   customContext: z.string().optional(),
 });
 
 const statusUpdateSchema = z.object({
-  status: z.enum(['PENDING', 'SENT', 'CONNECTED', 'REPLIED', 'MEETING', 'CLOSED_WON', 'CLOSED_LOST']),
+  status: z.enum([
+    'PENDING',
+    'SENT',
+    'CONNECTED',
+    'REPLIED',
+    'MEETING',
+    'CLOSED_WON',
+    'CLOSED_LOST',
+  ]),
   notes: z.string().optional(),
 });
 
@@ -92,7 +106,7 @@ Return only the message text, nothing else.`;
         });
 
         if (resp.ok) {
-          const aiData = await resp.json() as any;
+          const aiData = (await resp.json()) as any;
           const text = aiData.content?.[0]?.text || '';
           if (text.length > 0 && text.length <= 300) {
             generatedMsg = text.trim();
@@ -113,7 +127,11 @@ Return only the message text, nothing else.`;
 
     res.status(201).json({
       success: true,
-      data: { ...outreach, dailyCount: todayCount + 1, dailyLimit: AutomationConfig.linkedin.dailyOutreachLimit },
+      data: {
+        ...outreach,
+        dailyCount: todayCount + 1,
+        dailyLimit: AutomationConfig.linkedin.dailyOutreachLimit,
+      },
     });
   } catch (error) {
     logger.error('LinkedIn outreach creation failed', { error: String(error) });
@@ -191,12 +209,22 @@ router.patch('/outreach/:id', authenticate, async (req: Request, res: Response) 
     // Set timestamp fields based on status
     const now = new Date();
     switch (parsed.data.status) {
-      case 'SENT': updateData.sentAt = now; break;
-      case 'CONNECTED': updateData.connectedAt = now; break;
-      case 'REPLIED': updateData.repliedAt = now; break;
-      case 'MEETING': updateData.meetingAt = now; break;
+      case 'SENT':
+        updateData.sentAt = now;
+        break;
+      case 'CONNECTED':
+        updateData.connectedAt = now;
+        break;
+      case 'REPLIED':
+        updateData.repliedAt = now;
+        break;
+      case 'MEETING':
+        updateData.meetingAt = now;
+        break;
       case 'CLOSED_WON':
-      case 'CLOSED_LOST': updateData.closedAt = now; break;
+      case 'CLOSED_LOST':
+        updateData.closedAt = now;
+        break;
     }
 
     const updated = await prisma.mktLinkedInOutreach.update({

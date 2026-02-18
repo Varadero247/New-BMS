@@ -12,14 +12,70 @@ interface NotificationChannel {
 }
 
 const defaultChannels: NotificationChannel[] = [
-  { id: 'incidents', label: 'Incidents', description: 'New incidents, severity changes, assignments', email: true, inApp: true, webhook: false },
-  { id: 'audits', label: 'Audit Reminders', description: 'Upcoming audits, overdue findings', email: true, inApp: true, webhook: false },
-  { id: 'capa', label: 'CAPA Actions', description: 'New CAPAs, deadlines, completion alerts', email: true, inApp: true, webhook: false },
-  { id: 'documents', label: 'Document Reviews', description: 'Approval requests, expiring documents', email: true, inApp: true, webhook: false },
-  { id: 'compliance', label: 'Compliance Alerts', description: 'Regulatory changes, deadline reminders', email: true, inApp: true, webhook: true },
-  { id: 'training', label: 'Training', description: 'Training due, certifications expiring', email: true, inApp: true, webhook: false },
-  { id: 'system', label: 'System Alerts', description: 'Maintenance windows, downtime, updates', email: false, inApp: true, webhook: true },
-  { id: 'reports', label: 'Reports', description: 'Scheduled report delivery, export completions', email: true, inApp: false, webhook: false },
+  {
+    id: 'incidents',
+    label: 'Incidents',
+    description: 'New incidents, severity changes, assignments',
+    email: true,
+    inApp: true,
+    webhook: false,
+  },
+  {
+    id: 'audits',
+    label: 'Audit Reminders',
+    description: 'Upcoming audits, overdue findings',
+    email: true,
+    inApp: true,
+    webhook: false,
+  },
+  {
+    id: 'capa',
+    label: 'CAPA Actions',
+    description: 'New CAPAs, deadlines, completion alerts',
+    email: true,
+    inApp: true,
+    webhook: false,
+  },
+  {
+    id: 'documents',
+    label: 'Document Reviews',
+    description: 'Approval requests, expiring documents',
+    email: true,
+    inApp: true,
+    webhook: false,
+  },
+  {
+    id: 'compliance',
+    label: 'Compliance Alerts',
+    description: 'Regulatory changes, deadline reminders',
+    email: true,
+    inApp: true,
+    webhook: true,
+  },
+  {
+    id: 'training',
+    label: 'Training',
+    description: 'Training due, certifications expiring',
+    email: true,
+    inApp: true,
+    webhook: false,
+  },
+  {
+    id: 'system',
+    label: 'System Alerts',
+    description: 'Maintenance windows, downtime, updates',
+    email: false,
+    inApp: true,
+    webhook: true,
+  },
+  {
+    id: 'reports',
+    label: 'Reports',
+    description: 'Scheduled report delivery, export completions',
+    email: true,
+    inApp: false,
+    webhook: false,
+  },
 ];
 
 export default function NotificationsPage() {
@@ -32,7 +88,7 @@ export default function NotificationsPage() {
   const [saved, setSaved] = useState(false);
 
   const toggleChannel = (id: string, field: 'email' | 'inApp' | 'webhook') => {
-    setChannels(prev => prev.map(c => c.id === id ? { ...c, [field]: !c[field] } : c));
+    setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, [field]: !c[field] } : c)));
   };
 
   const handleSave = () => {
@@ -43,32 +99,46 @@ export default function NotificationsPage() {
   return (
     <div className="p-6 space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Notification Preferences</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Configure how and when you receive notifications</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Notification Preferences
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Configure how and when you receive notifications
+        </p>
       </div>
 
       {/* Channel Matrix */}
       <div className="bg-white dark:bg-gray-900 rounded-lg border overflow-hidden">
         <div className="px-4 py-3 border-b bg-gray-50 dark:bg-gray-800">
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Notification Channels</h2>
+          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            Notification Channels
+          </h2>
         </div>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b">
-              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">Event Type</th>
-              <th className="text-center p-3 font-medium text-gray-700 dark:text-gray-300 w-24">Email</th>
-              <th className="text-center p-3 font-medium text-gray-700 dark:text-gray-300 w-24">In-App</th>
-              <th className="text-center p-3 font-medium text-gray-700 dark:text-gray-300 w-24">Webhook</th>
+              <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                Event Type
+              </th>
+              <th className="text-center p-3 font-medium text-gray-700 dark:text-gray-300 w-24">
+                Email
+              </th>
+              <th className="text-center p-3 font-medium text-gray-700 dark:text-gray-300 w-24">
+                In-App
+              </th>
+              <th className="text-center p-3 font-medium text-gray-700 dark:text-gray-300 w-24">
+                Webhook
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y">
-            {channels.map(ch => (
+            {channels.map((ch) => (
               <tr key={ch.id} className="hover:bg-gray-50 dark:bg-gray-800">
                 <td className="p-3">
                   <div className="font-medium text-gray-900 dark:text-gray-100">{ch.label}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">{ch.description}</div>
                 </td>
-                {(['email', 'inApp', 'webhook'] as const).map(field => (
+                {(['email', 'inApp', 'webhook'] as const).map((field) => (
                   <td key={field} className="p-3 text-center">
                     <button
                       type="button"
@@ -77,9 +147,11 @@ export default function NotificationsPage() {
                         ch[field] ? 'bg-blue-600' : 'bg-gray-200'
                       }`}
                     >
-                      <span className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white dark:bg-gray-900 shadow transform transition-transform ${
-                        ch[field] ? 'translate-x-4' : 'translate-x-0'
-                      }`} />
+                      <span
+                        className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white dark:bg-gray-900 shadow transform transition-transform ${
+                          ch[field] ? 'translate-x-4' : 'translate-x-0'
+                        }`}
+                      />
                     </button>
                   </td>
                 ))}
@@ -98,18 +170,23 @@ export default function NotificationsPage() {
               { value: 'realtime', label: 'Real-time', desc: 'Receive emails immediately' },
               { value: 'daily', label: 'Daily digest', desc: 'One email per day at 9:00 AM' },
               { value: 'weekly', label: 'Weekly digest', desc: 'One email per week on Monday' },
-            ].map(opt => (
-              <label key={opt.value} className="flex items-start gap-3 p-2 rounded-md hover:bg-gray-50 dark:bg-gray-800 cursor-pointer">
+            ].map((opt) => (
+              <label
+                key={opt.value}
+                className="flex items-start gap-3 p-2 rounded-md hover:bg-gray-50 dark:bg-gray-800 cursor-pointer"
+              >
                 <input
                   type="radio"
                   name="digest"
                   value={opt.value}
                   checked={digestFrequency === opt.value}
-                  onChange={e => setDigestFrequency(e.target.value)}
+                  onChange={(e) => setDigestFrequency(e.target.value)}
                   className="mt-1 h-4 w-4 text-blue-600"
                 />
                 <div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{opt.label}</div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {opt.label}
+                  </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">{opt.desc}</div>
                 </div>
               </label>
@@ -127,22 +204,36 @@ export default function NotificationsPage() {
                 quietHoursEnabled ? 'bg-blue-600' : 'bg-gray-200'
               }`}
             >
-              <span className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white dark:bg-gray-900 shadow transform transition-transform ${
-                quietHoursEnabled ? 'translate-x-4' : 'translate-x-0'
-              }`} />
+              <span
+                className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white dark:bg-gray-900 shadow transform transition-transform ${
+                  quietHoursEnabled ? 'translate-x-4' : 'translate-x-0'
+                }`}
+              />
             </button>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Pause non-critical notifications during these hours</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Pause non-critical notifications during these hours
+          </p>
           {quietHoursEnabled && (
             <div className="flex items-center gap-3">
               <div>
                 <label className="text-xs text-gray-500 dark:text-gray-400">From</label>
-                <input type="time" value={quietStart} onChange={e => setQuietStart(e.target.value)} className="block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" />
+                <input
+                  type="time"
+                  value={quietStart}
+                  onChange={(e) => setQuietStart(e.target.value)}
+                  className="block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm"
+                />
               </div>
               <span className="mt-4 text-gray-400 dark:text-gray-500">—</span>
               <div>
                 <label className="text-xs text-gray-500 dark:text-gray-400">To</label>
-                <input type="time" value={quietEnd} onChange={e => setQuietEnd(e.target.value)} className="block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" />
+                <input
+                  type="time"
+                  value={quietEnd}
+                  onChange={(e) => setQuietEnd(e.target.value)}
+                  className="block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm"
+                />
               </div>
             </div>
           )}
@@ -152,11 +243,13 @@ export default function NotificationsPage() {
       {/* Webhook */}
       <div className="bg-white dark:bg-gray-900 rounded-lg border p-4 space-y-3">
         <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Webhook URL</h2>
-        <p className="text-xs text-gray-500 dark:text-gray-400">Events with webhook enabled will be POSTed to this URL as JSON</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Events with webhook enabled will be POSTed to this URL as JSON
+        </p>
         <input
           type="url"
           value={webhookUrl}
-          onChange={e => setWebhookUrl(e.target.value)}
+          onChange={(e) => setWebhookUrl(e.target.value)}
           placeholder="https://your-service.com/webhooks/ims"
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
         />

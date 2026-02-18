@@ -20,12 +20,12 @@ describe('@ims/status', () => {
     });
 
     it('should have unique names', () => {
-      const names = SERVICE_REGISTRY.map(s => s.name);
+      const names = SERVICE_REGISTRY.map((s) => s.name);
       expect(new Set(names).size).toBe(names.length);
     });
 
     it('should have unique ports', () => {
-      const ports = SERVICE_REGISTRY.map(s => s.port);
+      const ports = SERVICE_REGISTRY.map((s) => s.port);
       expect(new Set(ports).size).toBe(ports.length);
     });
 
@@ -37,7 +37,7 @@ describe('@ims/status', () => {
     });
 
     it('should include API Gateway at 4000', () => {
-      const gateway = SERVICE_REGISTRY.find(s => s.port === 4000);
+      const gateway = SERVICE_REGISTRY.find((s) => s.port === 4000);
       expect(gateway).toBeDefined();
       expect(gateway!.name).toBe('API Gateway');
     });
@@ -64,7 +64,7 @@ describe('@ims/status', () => {
     it('should persist the status', () => {
       setServiceHealth('API Gateway', 4000, 'operational', 5);
       const all = getAllServiceStatus();
-      const gateway = all.find(s => s.name === 'API Gateway');
+      const gateway = all.find((s) => s.name === 'API Gateway');
       expect(gateway!.status).toBe('operational');
       expect(gateway!.latencyMs).toBe(5);
     });

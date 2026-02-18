@@ -100,7 +100,9 @@ describe('Audit Log Routes', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             OR: expect.arrayContaining([
-              expect.objectContaining({ description: { contains: 'approval', mode: 'insensitive' } }),
+              expect.objectContaining({
+                description: { contains: 'approval', mode: 'insensitive' },
+              }),
             ]),
           }),
         })
@@ -131,15 +133,13 @@ describe('Audit Log Routes', () => {
     it('should create an audit log entry', async () => {
       (prisma.aiAuditLog.create as jest.Mock).mockResolvedValue(mockEntry);
 
-      const res = await request(app)
-        .post('/api/audit-log')
-        .send({
-          action: 'DECISION',
-          description: 'AI system recommended approval',
-          inputSummary: 'Application data for user XYZ',
-          outputSummary: 'Approved with 95% confidence',
-          riskScore: 15,
-        });
+      const res = await request(app).post('/api/audit-log').send({
+        action: 'DECISION',
+        description: 'AI system recommended approval',
+        inputSummary: 'Application data for user XYZ',
+        outputSummary: 'Approved with 95% confidence',
+        riskScore: 15,
+      });
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -164,9 +164,7 @@ describe('Audit Log Routes', () => {
     });
 
     it('should reject missing description', async () => {
-      const res = await request(app)
-        .post('/api/audit-log')
-        .send({ action: 'DECISION' });
+      const res = await request(app).post('/api/audit-log').send({ action: 'DECISION' });
 
       expect(res.status).toBe(400);
     });
@@ -193,9 +191,7 @@ describe('Audit Log Routes', () => {
         .mockResolvedValueOnce([
           { userId: 'user-123', userName: 'test@test.com', _count: { id: 42 } },
         ])
-        .mockResolvedValueOnce([
-          { createdAt: new Date('2026-02-14'), _count: { id: 5 } },
-        ]);
+        .mockResolvedValueOnce([{ createdAt: new Date('2026-02-14'), _count: { id: 5 } }]);
       (prisma.aiAuditLog.findMany as jest.Mock).mockResolvedValue([mockEntry]);
 
       const res = await request(app).get('/api/audit-log/stats');

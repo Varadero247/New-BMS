@@ -94,7 +94,9 @@ export default function ScopePage() {
       if (stored) setScope(JSON.parse(stored));
       const storedVersions = localStorage.getItem(VERSIONS_KEY);
       if (storedVersions) setVersions(JSON.parse(storedVersions));
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   // ── Save ─────────────────────────────────────────────────────────────────
@@ -127,7 +129,13 @@ export default function ScopePage() {
     const parts = scope.version.split('.');
     const major = parseInt(parts[0] || '1', 10);
     const newVersion = `${major + 1}.0`;
-    setScope(prev => ({ ...prev, version: newVersion, status: 'DRAFT', updatedAt: new Date().toISOString(), approvedBy: '' }));
+    setScope((prev) => ({
+      ...prev,
+      version: newVersion,
+      status: 'DRAFT',
+      updatedAt: new Date().toISOString(),
+      approvedBy: '',
+    }));
   }, [scope.version]);
 
   // ── Restore version ──────────────────────────────────────────────────────
@@ -151,15 +159,19 @@ export default function ScopePage() {
     lines.push('');
     lines.push('=== INCLUSIONS ===');
     if (scope.inclusions.length === 0) lines.push('  (none)');
-    scope.inclusions.forEach(inc => lines.push(`  [${inc.clause}] ${inc.description}`));
+    scope.inclusions.forEach((inc) => lines.push(`  [${inc.clause}] ${inc.description}`));
     lines.push('');
     lines.push('=== EXCLUSIONS ===');
     if (scope.exclusions.length === 0) lines.push('  (none)');
-    scope.exclusions.forEach(exc => lines.push(`  [${exc.clause}] Justification: ${exc.justification}`));
+    scope.exclusions.forEach((exc) =>
+      lines.push(`  [${exc.clause}] Justification: ${exc.justification}`)
+    );
     lines.push('');
     lines.push('=== APPLICABLE SITES ===');
     if (scope.sites.length === 0) lines.push('  (none)');
-    scope.sites.forEach(s => lines.push(`  ${s.inScope ? '[IN SCOPE]' : '[EXCLUDED]'} ${s.name} -- ${s.address}`));
+    scope.sites.forEach((s) =>
+      lines.push(`  ${s.inScope ? '[IN SCOPE]' : '[EXCLUDED]'} ${s.name} -- ${s.address}`)
+    );
 
     const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -176,22 +188,46 @@ export default function ScopePage() {
   }, []);
 
   // ── Inclusion helpers ────────────────────────────────────────────────────
-  const addInclusion = () => setScope(p => ({ ...p, inclusions: [...p.inclusions, { id: newId(), clause: '', description: '' }] }));
-  const removeInclusion = (id: string) => setScope(p => ({ ...p, inclusions: p.inclusions.filter(i => i.id !== id) }));
+  const addInclusion = () =>
+    setScope((p) => ({
+      ...p,
+      inclusions: [...p.inclusions, { id: newId(), clause: '', description: '' }],
+    }));
+  const removeInclusion = (id: string) =>
+    setScope((p) => ({ ...p, inclusions: p.inclusions.filter((i) => i.id !== id) }));
   const updateInclusion = (id: string, field: keyof ScopeInclusion, value: string) =>
-    setScope(p => ({ ...p, inclusions: p.inclusions.map(i => i.id === id ? { ...i, [field]: value } : i) }));
+    setScope((p) => ({
+      ...p,
+      inclusions: p.inclusions.map((i) => (i.id === id ? { ...i, [field]: value } : i)),
+    }));
 
   // ── Exclusion helpers ────────────────────────────────────────────────────
-  const addExclusion = () => setScope(p => ({ ...p, exclusions: [...p.exclusions, { id: newId(), clause: '', justification: '' }] }));
-  const removeExclusion = (id: string) => setScope(p => ({ ...p, exclusions: p.exclusions.filter(e => e.id !== id) }));
+  const addExclusion = () =>
+    setScope((p) => ({
+      ...p,
+      exclusions: [...p.exclusions, { id: newId(), clause: '', justification: '' }],
+    }));
+  const removeExclusion = (id: string) =>
+    setScope((p) => ({ ...p, exclusions: p.exclusions.filter((e) => e.id !== id) }));
   const updateExclusion = (id: string, field: keyof ScopeExclusion, value: string) =>
-    setScope(p => ({ ...p, exclusions: p.exclusions.map(e => e.id === id ? { ...e, [field]: value } : e) }));
+    setScope((p) => ({
+      ...p,
+      exclusions: p.exclusions.map((e) => (e.id === id ? { ...e, [field]: value } : e)),
+    }));
 
   // ── Site helpers ─────────────────────────────────────────────────────────
-  const addSite = () => setScope(p => ({ ...p, sites: [...p.sites, { id: newId(), name: '', address: '', inScope: true }] }));
-  const removeSite = (id: string) => setScope(p => ({ ...p, sites: p.sites.filter(s => s.id !== id) }));
+  const addSite = () =>
+    setScope((p) => ({
+      ...p,
+      sites: [...p.sites, { id: newId(), name: '', address: '', inScope: true }],
+    }));
+  const removeSite = (id: string) =>
+    setScope((p) => ({ ...p, sites: p.sites.filter((s) => s.id !== id) }));
   const updateSite = (id: string, field: string, value: string | boolean) =>
-    setScope(p => ({ ...p, sites: p.sites.map(s => s.id === id ? { ...s, [field]: value } : s) }));
+    setScope((p) => ({
+      ...p,
+      sites: p.sites.map((s) => (s.id === id ? { ...s, [field]: value } : s)),
+    }));
 
   // ── Section nav ──────────────────────────────────────────────────────────
   const sections = [
@@ -209,43 +245,70 @@ export default function ScopePage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">QMS Scope</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            ISO 9001:2015 &mdash; Clause 4.3 &mdash; Determining the scope of the quality management system
+            ISO 9001:2015 &mdash; Clause 4.3 &mdash; Determining the scope of the quality management
+            system
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-            scope.status === 'APPROVED'
-              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-              : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
-          }`}>
-            {scope.status === 'APPROVED' ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+              scope.status === 'APPROVED'
+                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+            }`}
+          >
+            {scope.status === 'APPROVED' ? (
+              <CheckCircle className="h-3 w-3" />
+            ) : (
+              <Clock className="h-3 w-3" />
+            )}
             {scope.status} &mdash; v{scope.version}
           </span>
-          <button onClick={() => setShowVersions(!showVersions)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 transition-colors">
+          <button
+            onClick={() => setShowVersions(!showVersions)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 transition-colors"
+          >
             <History className="h-4 w-4" />
             History
           </button>
-          <button onClick={handlePrint} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 transition-colors">
+          <button
+            onClick={handlePrint}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 transition-colors"
+          >
             <Printer className="h-4 w-4" />
           </button>
-          <button onClick={handleExport} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 transition-colors">
+          <button
+            onClick={handleExport}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800 transition-colors"
+          >
             <Download className="h-4 w-4" />
             Export
           </button>
-          <button onClick={handleSave} className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
-            saved ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700' : 'bg-card border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800'
-          }`}>
+          <button
+            onClick={handleSave}
+            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+              saved
+                ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700'
+                : 'bg-card border-border text-foreground hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800'
+            }`}
+          >
             <Save className="h-4 w-4" />
             {saved ? 'Saved!' : 'Save Draft'}
           </button>
           {scope.status === 'DRAFT' && (
-            <button onClick={handleApprove} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-colors">
+            <button
+              onClick={handleApprove}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-colors"
+            >
               <CheckCircle className="h-4 w-4" />
               Approve
             </button>
           )}
           {scope.status === 'APPROVED' && (
-            <button onClick={handleNewDraft} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+            <button
+              onClick={handleNewDraft}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            >
               New Draft
             </button>
           )}
@@ -263,13 +326,23 @@ export default function ScopePage() {
           ) : (
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {versions.map((v, idx) => (
-                <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-background border border-border text-sm">
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-2 rounded-lg bg-background border border-border text-sm"
+                >
                   <div>
                     <span className="font-medium text-foreground">v{v.version}</span>
                     <span className="ml-2 text-muted-foreground">{formatDate(v.updatedAt)}</span>
-                    {v.approvedBy && <span className="ml-2 text-muted-foreground">by {v.approvedBy}</span>}
+                    {v.approvedBy && (
+                      <span className="ml-2 text-muted-foreground">by {v.approvedBy}</span>
+                    )}
                   </div>
-                  <button onClick={() => handleRestore(v)} className="text-xs text-blue-600 hover:underline dark:text-blue-400">Restore</button>
+                  <button
+                    onClick={() => handleRestore(v)}
+                    className="text-xs text-blue-600 hover:underline dark:text-blue-400"
+                  >
+                    Restore
+                  </button>
                 </div>
               ))}
             </div>
@@ -280,13 +353,20 @@ export default function ScopePage() {
       {/* ── Print header ───────────────────────────────────────────────── */}
       <div className="hidden print:block mb-8">
         <h1 className="text-xl font-bold">QMS Scope Document</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">ISO 9001:2015 Clause 4.3 | Version {scope.version} | Status: {scope.status} | {formatDate(scope.updatedAt)}</p>
-        {scope.approvedBy && <p className="text-sm text-gray-500 dark:text-gray-400">Approved by: {scope.approvedBy}</p>}
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          ISO 9001:2015 Clause 4.3 | Version {scope.version} | Status: {scope.status} |{' '}
+          {formatDate(scope.updatedAt)}
+        </p>
+        {scope.approvedBy && (
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Approved by: {scope.approvedBy}
+          </p>
+        )}
       </div>
 
       {/* ── Section Tabs ───────────────────────────────────────────────── */}
       <div className="flex gap-1 border-b border-border overflow-x-auto print:hidden">
-        {sections.map(s => {
+        {sections.map((s) => {
           const Icon = s.icon;
           return (
             <button
@@ -306,16 +386,18 @@ export default function ScopePage() {
       </div>
 
       {/* ── Scope Statement ────────────────────────────────────────────── */}
-      {(activeSection === 'statement' || typeof window !== 'undefined' && window.matchMedia?.('print')?.matches) && (
+      {(activeSection === 'statement' ||
+        (typeof window !== 'undefined' && window.matchMedia?.('print')?.matches)) && (
         <div className="bg-card border border-border rounded-xl p-6 space-y-4">
           <h2 className="text-lg font-semibold text-foreground">Scope Statement</h2>
           <p className="text-xs text-muted-foreground">
-            Define the boundaries and applicability of the QMS. Consider external and internal issues (4.1) and requirements of interested parties (4.2).
+            Define the boundaries and applicability of the QMS. Consider external and internal
+            issues (4.1) and requirements of interested parties (4.2).
           </p>
           <textarea
             className="w-full min-h-[200px] text-sm border border-border rounded-lg px-4 py-3 bg-background text-foreground placeholder:text-muted-foreground resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={scope.statement}
-            onChange={e => setScope(p => ({ ...p, statement: e.target.value }))}
+            onChange={(e) => setScope((p) => ({ ...p, statement: e.target.value }))}
             placeholder="The scope of the Quality Management System covers..."
           />
           {scope.status === 'DRAFT' && (
@@ -325,7 +407,7 @@ export default function ScopePage() {
                 type="text"
                 className="flex-1 text-sm border border-border rounded-lg px-3 py-2 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={scope.approvedBy}
-                onChange={e => setScope(p => ({ ...p, approvedBy: e.target.value }))}
+                onChange={(e) => setScope((p) => ({ ...p, approvedBy: e.target.value }))}
                 placeholder="Name of approving authority (e.g., Quality Director)"
               />
             </div>
@@ -339,33 +421,46 @@ export default function ScopePage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-foreground">Inclusions</h2>
-              <p className="text-xs text-muted-foreground mt-1">ISO 9001 clauses and processes included within the QMS scope.</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                ISO 9001 clauses and processes included within the QMS scope.
+              </p>
             </div>
-            <button onClick={addInclusion} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+            <button
+              onClick={addInclusion}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            >
               <Plus className="h-4 w-4" /> Add Inclusion
             </button>
           </div>
           {scope.inclusions.length === 0 ? (
-            <p className="text-sm text-muted-foreground italic py-4">No inclusions defined. Click "Add Inclusion" to begin.</p>
+            <p className="text-sm text-muted-foreground italic py-4">
+              No inclusions defined. Click "Add Inclusion" to begin.
+            </p>
           ) : (
             <div className="space-y-3">
-              {scope.inclusions.map(inc => (
-                <div key={inc.id} className="group flex items-start gap-3 p-3 rounded-lg border border-border bg-background">
+              {scope.inclusions.map((inc) => (
+                <div
+                  key={inc.id}
+                  className="group flex items-start gap-3 p-3 rounded-lg border border-border bg-background"
+                >
                   <input
                     type="text"
                     className="w-28 shrink-0 text-sm border border-border rounded px-2 py-1.5 bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
                     value={inc.clause}
-                    onChange={e => updateInclusion(inc.id, 'clause', e.target.value)}
+                    onChange={(e) => updateInclusion(inc.id, 'clause', e.target.value)}
                     placeholder="Clause #"
                   />
                   <input
                     type="text"
                     className="flex-1 text-sm border border-border rounded px-2 py-1.5 bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
                     value={inc.description}
-                    onChange={e => updateInclusion(inc.id, 'description', e.target.value)}
+                    onChange={(e) => updateInclusion(inc.id, 'description', e.target.value)}
                     placeholder="Description of included scope element"
                   />
-                  <button onClick={() => removeInclusion(inc.id)} className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 transition-opacity mt-1">
+                  <button
+                    onClick={() => removeInclusion(inc.id)}
+                    className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 transition-opacity mt-1"
+                  >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
@@ -381,28 +476,44 @@ export default function ScopePage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-foreground">Exclusions</h2>
-              <p className="text-xs text-muted-foreground mt-1">ISO 9001 clauses excluded from scope with justified rationale (must not affect conformity).</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                ISO 9001 clauses excluded from scope with justified rationale (must not affect
+                conformity).
+              </p>
             </div>
-            <button onClick={addExclusion} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-amber-600 text-white hover:bg-amber-700 transition-colors">
+            <button
+              onClick={addExclusion}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-amber-600 text-white hover:bg-amber-700 transition-colors"
+            >
               <Plus className="h-4 w-4" /> Add Exclusion
             </button>
           </div>
           {scope.exclusions.length === 0 ? (
-            <p className="text-sm text-muted-foreground italic py-4">No exclusions. All ISO 9001 clauses are applicable.</p>
+            <p className="text-sm text-muted-foreground italic py-4">
+              No exclusions. All ISO 9001 clauses are applicable.
+            </p>
           ) : (
             <div className="space-y-3">
-              {scope.exclusions.map(exc => (
-                <div key={exc.id} className="group p-3 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/10 space-y-2">
+              {scope.exclusions.map((exc) => (
+                <div
+                  key={exc.id}
+                  className="group p-3 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/10 space-y-2"
+                >
                   <div className="flex items-center gap-3">
                     <input
                       type="text"
                       className="w-28 shrink-0 text-sm border border-border rounded px-2 py-1.5 bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-amber-500"
                       value={exc.clause}
-                      onChange={e => updateExclusion(exc.id, 'clause', e.target.value)}
+                      onChange={(e) => updateExclusion(exc.id, 'clause', e.target.value)}
                       placeholder="Clause #"
                     />
-                    <span className="text-xs font-medium text-amber-700 dark:text-amber-300 uppercase">Excluded</span>
-                    <button onClick={() => removeExclusion(exc.id)} className="ml-auto opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 transition-opacity">
+                    <span className="text-xs font-medium text-amber-700 dark:text-amber-300 uppercase">
+                      Excluded
+                    </span>
+                    <button
+                      onClick={() => removeExclusion(exc.id)}
+                      className="ml-auto opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 transition-opacity"
+                    >
                       <X className="h-4 w-4" />
                     </button>
                   </div>
@@ -410,7 +521,7 @@ export default function ScopePage() {
                     className="w-full text-sm border border-border rounded px-2 py-1.5 bg-card text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-amber-500"
                     rows={2}
                     value={exc.justification}
-                    onChange={e => updateExclusion(exc.id, 'justification', e.target.value)}
+                    onChange={(e) => updateExclusion(exc.id, 'justification', e.target.value)}
                     placeholder="Justification for exclusion (must demonstrate no impact on product/service conformity or customer satisfaction)"
                   />
                 </div>
@@ -426,14 +537,21 @@ export default function ScopePage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-foreground">Applicable Sites</h2>
-              <p className="text-xs text-muted-foreground mt-1">Physical locations and facilities covered by the QMS.</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Physical locations and facilities covered by the QMS.
+              </p>
             </div>
-            <button onClick={addSite} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+            <button
+              onClick={addSite}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            >
               <Plus className="h-4 w-4" /> Add Site
             </button>
           </div>
           {scope.sites.length === 0 ? (
-            <p className="text-sm text-muted-foreground italic py-4">No sites defined. Click "Add Site" to add locations.</p>
+            <p className="text-sm text-muted-foreground italic py-4">
+              No sites defined. Click "Add Site" to add locations.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -446,14 +564,14 @@ export default function ScopePage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {scope.sites.map(site => (
+                  {scope.sites.map((site) => (
                     <tr key={site.id} className="group">
                       <td className="p-2">
                         <input
                           type="text"
                           className="w-full text-sm border border-border rounded px-2 py-1.5 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
                           value={site.name}
-                          onChange={e => updateSite(site.id, 'name', e.target.value)}
+                          onChange={(e) => updateSite(site.id, 'name', e.target.value)}
                           placeholder="Site name"
                         />
                       </td>
@@ -462,7 +580,7 @@ export default function ScopePage() {
                           type="text"
                           className="w-full text-sm border border-border rounded px-2 py-1.5 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
                           value={site.address}
-                          onChange={e => updateSite(site.id, 'address', e.target.value)}
+                          onChange={(e) => updateSite(site.id, 'address', e.target.value)}
                           placeholder="Full address"
                         />
                       </td>
@@ -470,12 +588,15 @@ export default function ScopePage() {
                         <input
                           type="checkbox"
                           checked={site.inScope}
-                          onChange={e => updateSite(site.id, 'inScope', e.target.checked)}
+                          onChange={(e) => updateSite(site.id, 'inScope', e.target.checked)}
                           className="h-4 w-4 rounded border-border text-blue-600 focus:ring-blue-500"
                         />
                       </td>
                       <td className="p-2">
-                        <button onClick={() => removeSite(site.id)} className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 transition-opacity">
+                        <button
+                          onClick={() => removeSite(site.id)}
+                          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 transition-opacity"
+                        >
                           <X className="h-4 w-4" />
                         </button>
                       </td>
@@ -486,8 +607,8 @@ export default function ScopePage() {
             </div>
           )}
           <div className="flex gap-4 text-xs text-muted-foreground pt-2 border-t border-border">
-            <span>{scope.sites.filter(s => s.inScope).length} in scope</span>
-            <span>{scope.sites.filter(s => !s.inScope).length} excluded</span>
+            <span>{scope.sites.filter((s) => s.inScope).length} in scope</span>
+            <span>{scope.sites.filter((s) => !s.inScope).length} excluded</span>
           </div>
         </div>
       )}
@@ -500,23 +621,37 @@ export default function ScopePage() {
             The scope determination considers outputs from the following related analyses:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a href="/context" className="flex items-center gap-3 p-4 rounded-xl border border-border bg-background hover:border-blue-300 dark:hover:border-blue-700 transition-colors group">
+            <a
+              href="/context"
+              className="flex items-center gap-3 p-4 rounded-xl border border-border bg-background hover:border-blue-300 dark:hover:border-blue-700 transition-colors group"
+            >
               <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
                 <FileText className="h-5 w-5" />
               </div>
               <div>
-                <div className="font-medium text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Context of the Organisation</div>
-                <div className="text-xs text-muted-foreground">ISO 9001:2015 Clause 4.1 -- SWOT & PESTLE Analysis</div>
+                <div className="font-medium text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  Context of the Organisation
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  ISO 9001:2015 Clause 4.1 -- SWOT & PESTLE Analysis
+                </div>
               </div>
               <Link2 className="h-4 w-4 text-muted-foreground ml-auto" />
             </a>
-            <a href="/interested-parties" className="flex items-center gap-3 p-4 rounded-xl border border-border bg-background hover:border-purple-300 dark:hover:border-purple-700 transition-colors group">
+            <a
+              href="/interested-parties"
+              className="flex items-center gap-3 p-4 rounded-xl border border-border bg-background hover:border-purple-300 dark:hover:border-purple-700 transition-colors group"
+            >
               <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
                 <Building2 className="h-5 w-5" />
               </div>
               <div>
-                <div className="font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Interested Parties</div>
-                <div className="text-xs text-muted-foreground">ISO 9001:2015 Clause 4.2 -- Needs and expectations</div>
+                <div className="font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                  Interested Parties
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  ISO 9001:2015 Clause 4.2 -- Needs and expectations
+                </div>
               </div>
               <Link2 className="h-4 w-4 text-muted-foreground ml-auto" />
             </a>
@@ -526,9 +661,15 @@ export default function ScopePage() {
 
       {/* ── Summary bar ────────────────────────────────────────────────── */}
       <div className="flex items-center gap-6 text-xs text-muted-foreground bg-card border border-border rounded-xl px-4 py-3 print:hidden">
-        <span>Inclusions: <strong className="text-foreground">{scope.inclusions.length}</strong></span>
-        <span>Exclusions: <strong className="text-foreground">{scope.exclusions.length}</strong></span>
-        <span>Sites: <strong className="text-foreground">{scope.sites.length}</strong></span>
+        <span>
+          Inclusions: <strong className="text-foreground">{scope.inclusions.length}</strong>
+        </span>
+        <span>
+          Exclusions: <strong className="text-foreground">{scope.exclusions.length}</strong>
+        </span>
+        <span>
+          Sites: <strong className="text-foreground">{scope.sites.length}</strong>
+        </span>
         <span className="ml-auto">Last updated: {formatDate(scope.updatedAt)}</span>
       </div>
     </div>

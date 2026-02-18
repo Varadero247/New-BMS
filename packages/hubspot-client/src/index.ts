@@ -12,7 +12,7 @@ export class HubSpotClient {
       const resp = await fetch(`${this.baseUrl}${path}`, {
         ...options,
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
           ...options.headers,
         },

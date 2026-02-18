@@ -57,7 +57,9 @@ export default function ScheduledReportsPage() {
       const res = await fetch(`${API_URL}/api/admin/reports/schedules`, { headers: getHeaders() });
       const data = await res.json();
       if (data.success) setSchedules(data.data);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   const fetchTypes = useCallback(async () => {
@@ -65,7 +67,9 @@ export default function ScheduledReportsPage() {
       const res = await fetch(`${API_URL}/api/admin/reports/types`, { headers: getHeaders() });
       const data = await res.json();
       if (data.success) setReportTypes(data.data);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   useEffect(() => {
@@ -75,7 +79,10 @@ export default function ScheduledReportsPage() {
   const handleCreate = async () => {
     if (!formName || !formType || !formSchedule || !formRecipients) return;
 
-    const recipients = formRecipients.split(',').map(e => e.trim()).filter(Boolean);
+    const recipients = formRecipients
+      .split(',')
+      .map((e) => e.trim())
+      .filter(Boolean);
 
     try {
       const res = await fetch(`${API_URL}/api/admin/reports/schedules`, {
@@ -91,7 +98,7 @@ export default function ScheduledReportsPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setSchedules(prev => [...prev, data.data]);
+        setSchedules((prev) => [...prev, data.data]);
         setShowCreate(false);
         setFormName('');
         setFormType('');
@@ -99,7 +106,9 @@ export default function ScheduledReportsPage() {
         setFormRecipients('');
         setFormFormat('pdf');
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   };
 
   const handleToggle = async (id: string, enabled: boolean) => {
@@ -111,9 +120,11 @@ export default function ScheduledReportsPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setSchedules(prev => prev.map(s => s.id === id ? data.data : s));
+        setSchedules((prev) => prev.map((s) => (s.id === id ? data.data : s)));
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   };
 
   const handleRunNow = async (id: string) => {
@@ -124,9 +135,11 @@ export default function ScheduledReportsPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setSchedules(prev => prev.map(s => s.id === id ? { ...data.data } : s));
+        setSchedules((prev) => prev.map((s) => (s.id === id ? { ...data.data } : s)));
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -138,12 +151,15 @@ export default function ScheduledReportsPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setSchedules(prev => prev.filter(s => s.id !== id));
+        setSchedules((prev) => prev.filter((s) => s.id !== id));
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   };
 
-  const getTypeLabel = (value: string) => reportTypes.find(t => t.value === value)?.label || value;
+  const getTypeLabel = (value: string) =>
+    reportTypes.find((t) => t.value === value)?.label || value;
 
   if (loading) {
     return (
@@ -173,11 +189,15 @@ export default function ScheduledReportsPage() {
       {/* Create Form */}
       {showCreate && (
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Create Report Schedule</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Create Report Schedule
+          </h2>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Name
+              </label>
               <input
                 type="text"
                 value={formName}
@@ -187,33 +207,43 @@ export default function ScheduledReportsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Report Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Report Type
+              </label>
               <select
                 value={formType}
                 onChange={(e) => setFormType(e.target.value)}
                 className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100"
               >
                 <option value="">Select type...</option>
-                {reportTypes.map(rt => (
-                  <option key={rt.value} value={rt.value}>{rt.label}</option>
+                {reportTypes.map((rt) => (
+                  <option key={rt.value} value={rt.value}>
+                    {rt.label}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Schedule (Cron)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Schedule (Cron)
+              </label>
               <select
                 value={formSchedule}
                 onChange={(e) => setFormSchedule(e.target.value)}
                 className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100"
               >
                 <option value="">Select schedule...</option>
-                {CRON_PRESETS.map(p => (
-                  <option key={p.value} value={p.value}>{p.label}</option>
+                {CRON_PRESETS.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Format</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Format
+              </label>
               <select
                 value={formFormat}
                 onChange={(e) => setFormFormat(e.target.value as 'pdf' | 'excel' | 'csv')}
@@ -256,35 +286,65 @@ export default function ScheduledReportsPage() {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Schedule</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Format</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Recipients</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Last Run</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Type
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Schedule
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Format
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Recipients
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Last Run
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {schedules.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                <td
+                  colSpan={8}
+                  className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400"
+                >
                   No scheduled reports. Create one to get started.
                 </td>
               </tr>
             ) : (
               schedules.map((s) => (
-                <tr key={s.id} className="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800/50">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{s.name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{getTypeLabel(s.reportType)}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 font-mono text-xs">{s.schedule}</td>
+                <tr
+                  key={s.id}
+                  className="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-800/50"
+                >
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {s.name}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                    {getTypeLabel(s.reportType)}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 font-mono text-xs">
+                    {s.schedule}
+                  </td>
                   <td className="px-6 py-4">
                     <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 uppercase">
                       {s.format}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{s.recipients.length}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                    {s.recipients.length}
+                  </td>
                   <td className="px-6 py-4">
                     <button
                       onClick={() => handleToggle(s.id, s.enabled)}

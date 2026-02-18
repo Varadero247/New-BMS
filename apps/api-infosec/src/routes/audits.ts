@@ -51,16 +51,23 @@ const RESERVED_PATHS = new Set(['vulnerability-scans', 'penetration-tests']);
 const auditCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
   description: z.string().max(5000).optional(),
-  auditDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  auditDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   leadAuditor: z.string().trim().min(1).max(200),
   auditTeam: z.array(z.string()).optional(),
   scope: z.string().max(5000).optional(),
-  auditType: z.enum(['INTERNAL', 'EXTERNAL', 'SURVEILLANCE', 'CERTIFICATION', 'RECERTIFICATION']).optional(),
+  auditType: z
+    .enum(['INTERNAL', 'EXTERNAL', 'SURVEILLANCE', 'CERTIFICATION', 'RECERTIFICATION'])
+    .optional(),
 });
 
 const findingCreateSchema = z.object({
   clause: z.string().trim().min(1).max(50),
-  type: z.enum(['NONCONFORMITY_MAJOR', 'NONCONFORMITY_MINOR', 'OBSERVATION', 'OPPORTUNITY_FOR_IMPROVEMENT']),
+  type: z.enum([
+    'NONCONFORMITY_MAJOR',
+    'NONCONFORMITY_MINOR',
+    'OBSERVATION',
+    'OPPORTUNITY_FOR_IMPROVEMENT',
+  ]),
   description: z.string().trim().min(1).max(5000),
   evidence: z.string().max(5000).optional(),
   recommendation: z.string().max(5000).optional(),
@@ -73,7 +80,7 @@ const auditCompleteSchema = z.object({
 
 const vulnScanCreateSchema = z.object({
   scanName: z.string().trim().min(1).max(300),
-  scanDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  scanDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   scanner: z.string().max(200).optional(),
   targetSystems: z.array(z.string()).optional(),
   criticalCount: z.number().int().min(0).optional().default(0),
@@ -87,7 +94,7 @@ const vulnScanCreateSchema = z.object({
 
 const penTestCreateSchema = z.object({
   testName: z.string().trim().min(1).max(300),
-  testDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  testDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   tester: z.string().max(200).optional(),
   methodology: z.string().max(1000).optional(),
   scope: z.string().max(5000).optional(),
@@ -110,7 +117,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = auditCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -134,8 +148,13 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('ISMS audit created', { auditId: audit.id, refNumber });
     res.status(201).json({ success: true, data: audit });
   } catch (error: unknown) {
-    logger.error('Failed to create ISMS audit', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create ISMS audit' } });
+    logger.error('Failed to create ISMS audit', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to create ISMS audit' },
+    });
   }
 });
 
@@ -180,8 +199,13 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list ISMS audits', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list ISMS audits' } });
+    logger.error('Failed to list ISMS audits', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list ISMS audits' },
+    });
   }
 });
 
@@ -210,8 +234,13 @@ router.get('/vulnerability-scans', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list vulnerability scans', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list vulnerability scans' } });
+    logger.error('Failed to list vulnerability scans', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list vulnerability scans' },
+    });
   }
 });
 
@@ -222,7 +251,14 @@ router.post('/vulnerability-scans', async (req: Request, res: Response) => {
   try {
     const parsed = vulnScanCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -249,8 +285,13 @@ router.post('/vulnerability-scans', async (req: Request, res: Response) => {
     logger.info('Vulnerability scan logged', { scanId: scan.id, refNumber });
     res.status(201).json({ success: true, data: scan });
   } catch (error: unknown) {
-    logger.error('Failed to log vulnerability scan', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log vulnerability scan' } });
+    logger.error('Failed to log vulnerability scan', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to log vulnerability scan' },
+    });
   }
 });
 
@@ -279,8 +320,13 @@ router.get('/penetration-tests', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list penetration tests', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list penetration tests' } });
+    logger.error('Failed to list penetration tests', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to list penetration tests' },
+    });
   }
 });
 
@@ -291,7 +337,14 @@ router.post('/penetration-tests', async (req: Request, res: Response) => {
   try {
     const parsed = penTestCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const authReq = req as AuthRequest;
@@ -318,8 +371,13 @@ router.post('/penetration-tests', async (req: Request, res: Response) => {
     logger.info('Penetration test logged', { testId: test.id, refNumber });
     res.status(201).json({ success: true, data: test });
   } catch (error: unknown) {
-    logger.error('Failed to log penetration test', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log penetration test' } });
+    logger.error('Failed to log penetration test', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to log penetration test' },
+    });
   }
 });
 
@@ -341,13 +399,21 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!audit) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'ISMS audit not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'ISMS audit not found' } });
     }
 
     res.json({ success: true, data: audit });
   } catch (error: unknown) {
-    logger.error('Failed to get ISMS audit', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get ISMS audit' } });
+    logger.error('Failed to get ISMS audit', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get ISMS audit' },
+    });
   }
 });
 
@@ -361,19 +427,45 @@ router.get('/:id/checklist', async (req: Request, res: Response, next) => {
 
     const audit = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!audit) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'ISMS audit not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'ISMS audit not found' } });
     }
 
     const ISO_27001_CLAUSES = [
-      { clause: '4.1', title: 'Understanding the organization and its context', category: 'Context of the Organization' },
-      { clause: '4.2', title: 'Understanding the needs and expectations of interested parties', category: 'Context of the Organization' },
-      { clause: '4.3', title: 'Determining the scope of the ISMS', category: 'Context of the Organization' },
-      { clause: '4.4', title: 'Information security management system', category: 'Context of the Organization' },
+      {
+        clause: '4.1',
+        title: 'Understanding the organization and its context',
+        category: 'Context of the Organization',
+      },
+      {
+        clause: '4.2',
+        title: 'Understanding the needs and expectations of interested parties',
+        category: 'Context of the Organization',
+      },
+      {
+        clause: '4.3',
+        title: 'Determining the scope of the ISMS',
+        category: 'Context of the Organization',
+      },
+      {
+        clause: '4.4',
+        title: 'Information security management system',
+        category: 'Context of the Organization',
+      },
       { clause: '5.1', title: 'Leadership and commitment', category: 'Leadership' },
       { clause: '5.2', title: 'Policy', category: 'Leadership' },
-      { clause: '5.3', title: 'Organizational roles, responsibilities and authorities', category: 'Leadership' },
+      {
+        clause: '5.3',
+        title: 'Organizational roles, responsibilities and authorities',
+        category: 'Leadership',
+      },
       { clause: '6.1', title: 'Actions to address risks and opportunities', category: 'Planning' },
-      { clause: '6.2', title: 'Information security objectives and planning to achieve them', category: 'Planning' },
+      {
+        clause: '6.2',
+        title: 'Information security objectives and planning to achieve them',
+        category: 'Planning',
+      },
       { clause: '6.3', title: 'Planning of changes', category: 'Planning' },
       { clause: '7.1', title: 'Resources', category: 'Support' },
       { clause: '7.2', title: 'Competence', category: 'Support' },
@@ -383,7 +475,11 @@ router.get('/:id/checklist', async (req: Request, res: Response, next) => {
       { clause: '8.1', title: 'Operational planning and control', category: 'Operation' },
       { clause: '8.2', title: 'Information security risk assessment', category: 'Operation' },
       { clause: '8.3', title: 'Information security risk treatment', category: 'Operation' },
-      { clause: '9.1', title: 'Monitoring, measurement, analysis and evaluation', category: 'Performance Evaluation' },
+      {
+        clause: '9.1',
+        title: 'Monitoring, measurement, analysis and evaluation',
+        category: 'Performance Evaluation',
+      },
       { clause: '9.2', title: 'Internal audit', category: 'Performance Evaluation' },
       { clause: '9.3', title: 'Management review', category: 'Performance Evaluation' },
       { clause: '10.1', title: 'Continual improvement', category: 'Improvement' },
@@ -393,7 +489,8 @@ router.get('/:id/checklist', async (req: Request, res: Response, next) => {
     // Enrich each clause with finding counts from this specific audit
     const findings = await prisma.isAuditFinding.findMany({
       where: { auditId: id } as any,
-      take: 1000});
+      take: 1000,
+    });
     const findingsByClause = new Map<string, { count: number; hasOpen: boolean }>();
     for (const f of findings || []) {
       const clause = (f as any).clause as string | undefined;
@@ -420,8 +517,14 @@ router.get('/:id/checklist', async (req: Request, res: Response, next) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to get audit checklist', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit checklist' } });
+    logger.error('Failed to get audit checklist', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit checklist' },
+    });
   }
 });
 
@@ -434,12 +537,21 @@ router.post('/:id/findings', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = findingCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const audit = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!audit) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'ISMS audit not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'ISMS audit not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -456,11 +568,21 @@ router.post('/:id/findings', async (req: Request, res: Response, next) => {
       } as any,
     });
 
-    logger.info('Audit finding added', { auditId: id, findingId: finding.id, type: parsed.data.type });
+    logger.info('Audit finding added', {
+      auditId: id,
+      findingId: finding.id,
+      type: parsed.data.type,
+    });
     res.status(201).json({ success: true, data: finding });
   } catch (error: unknown) {
-    logger.error('Failed to add audit finding', { error: error instanceof Error ? error.message : 'Unknown error', auditId: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add audit finding' } });
+    logger.error('Failed to add audit finding', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      auditId: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to add audit finding' },
+    });
   }
 });
 
@@ -473,12 +595,21 @@ router.put('/:id/complete', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = auditCompleteSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: parsed.error.flatten(),
+        },
+      });
     }
 
     const existing = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'ISMS audit not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'ISMS audit not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -500,8 +631,14 @@ router.put('/:id/complete', async (req: Request, res: Response, next) => {
     logger.info('ISMS audit completed', { auditId: id });
     res.json({ success: true, data: audit });
   } catch (error: unknown) {
-    logger.error('Failed to complete ISMS audit', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete ISMS audit' } });
+    logger.error('Failed to complete ISMS audit', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      id: req.params.id,
+    });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to complete ISMS audit' },
+    });
   }
 });
 

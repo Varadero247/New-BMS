@@ -41,10 +41,22 @@ export const WithNotificationSlot: Story = {
     orgName: 'Test Organisation',
     notificationSlot: (
       <button style={{ position: 'relative', padding: '8px' }}>
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        >
           <path d="M10 2a6 6 0 016 6v3l2 2H2l2-2V8a6 6 0 016-6zM8 17h4" />
         </svg>
-        <Badge variant="danger" style={{ position: 'absolute', top: 0, right: 0, fontSize: '10px' }}>3</Badge>
+        <Badge
+          variant="danger"
+          style={{ position: 'absolute', top: 0, right: 0, fontSize: '10px' }}
+        >
+          3
+        </Badge>
       </button>
     ),
   },
