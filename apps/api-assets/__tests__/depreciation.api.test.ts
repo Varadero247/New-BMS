@@ -41,6 +41,6 @@ describe('GET /api/depreciation', () => {
     const res = await request(app).get('/api/depreciation');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

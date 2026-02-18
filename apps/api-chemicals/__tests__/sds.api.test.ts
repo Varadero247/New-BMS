@@ -78,7 +78,7 @@ describe('GET /api/sds', () => {
     const res = await request(app).get('/api/sds');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -109,7 +109,7 @@ describe('GET /api/sds/overdue', () => {
     const res = await request(app).get('/api/sds/overdue');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -138,7 +138,7 @@ describe('GET /api/sds/:id', () => {
     const res = await request(app).get('/api/sds/00000000-0000-0000-0000-000000000010');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -251,6 +251,6 @@ describe('PUT /api/sds/:id', () => {
     });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

@@ -41,7 +41,7 @@ router.get('/overdue', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to fetch overdue monitoring', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch overdue monitoring' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue monitoring' } });
   }
 });
 
@@ -59,7 +59,7 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data: { total, aboveWel, atWel, belowWel, overdue } });
   } catch (error: unknown) {
     logger.error('Failed to fetch monitoring dashboard', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch monitoring dashboard' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch monitoring dashboard' } });
   }
 });
 
@@ -83,7 +83,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
   } catch (error: unknown) {
     logger.error('Failed to fetch monitoring records', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch monitoring records' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch monitoring records' } });
   }
 });
 
@@ -137,7 +137,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to update monitoring record', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' } });
   }
 });
 

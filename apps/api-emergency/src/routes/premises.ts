@@ -51,7 +51,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       prisma.femPremises.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
-  } catch (error: unknown) { logger.error('Failed to fetch premises', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch premises' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch premises', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch premises' } }); }
 });
 
 // POST /api/premises — create premises
@@ -85,7 +85,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Premises not found' } });
     res.json({ success: true, data: item });
-  } catch (error: unknown) { logger.error('Failed to fetch premises', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch premises' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch premises', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch premises' } }); }
 });
 
 // PUT /api/premises/:id — update
@@ -98,7 +98,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Premises not found' } });
     const data = await prisma.femPremises.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update premises', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update premises' } }); }
+  } catch (error: unknown) { logger.error('Failed to update premises', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update premises' } }); }
 });
 
 // GET /api/premises/:id/dashboard — full premises safety dashboard
@@ -133,7 +133,7 @@ router.get('/:id/dashboard', authenticate, async (req: Request, res: Response) =
         drillOverdue: !lastDrill || new Date(lastDrill.drillDate).getTime() < now.getTime() - 6 * 30 * 24 * 60 * 60 * 1000,
       },
     });
-  } catch (error: unknown) { logger.error('Failed to fetch premises dashboard', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch premises dashboard' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch premises dashboard', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch premises dashboard' } }); }
 });
 
 export default router;

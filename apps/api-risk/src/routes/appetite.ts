@@ -51,7 +51,7 @@ router.get('/appetite', authenticate, async (req: Request, res: Response) => {
       orderBy: { category: 'asc' },
     });
     res.json({ success: true, data: statements });
-  } catch (error: unknown) { logger.error('Failed to fetch appetite', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch appetite statements' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch appetite', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch appetite statements' } }); }
 });
 
 // POST /api/risks/appetite
@@ -75,7 +75,7 @@ router.post('/appetite', authenticate, async (req: Request, res: Response) => {
       });
     }
     res.status(existing ? 200 : 201).json({ success: true, data: statement });
-  } catch (error: unknown) { logger.error('Failed to save appetite', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to save appetite statement' } }); }
+  } catch (error: unknown) { logger.error('Failed to save appetite', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to save appetite statement' } }); }
 });
 
 // GET /api/risks/framework
@@ -84,7 +84,7 @@ router.get('/framework', authenticate, async (req: Request, res: Response) => {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const framework = await prisma.riskFramework.findUnique({ where: { organisationId: orgId } });
     res.json({ success: true, data: framework });
-  } catch (error: unknown) { logger.error('Failed to fetch framework', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch framework' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch framework', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch framework' } }); }
 });
 
 // PUT /api/risks/framework
@@ -127,7 +127,7 @@ router.put('/framework', authenticate, async (req: Request, res: Response) => {
       });
     }
     res.json({ success: true, data: framework });
-  } catch (error: unknown) { logger.error('Failed to save framework', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to save framework' } }); }
+  } catch (error: unknown) { logger.error('Failed to save framework', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to save framework' } }); }
 });
 
 export default router;

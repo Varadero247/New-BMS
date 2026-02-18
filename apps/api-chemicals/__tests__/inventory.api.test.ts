@@ -92,7 +92,7 @@ describe('GET /api/inventory', () => {
     const res = await request(app).get('/api/inventory');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -121,7 +121,7 @@ describe('GET /api/inventory/:id', () => {
     const res = await request(app).get('/api/inventory/00000000-0000-0000-0000-000000000030');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -162,7 +162,7 @@ describe('GET /api/inventory/low-stock', () => {
     const res = await request(app).get('/api/inventory/low-stock');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -193,7 +193,7 @@ describe('GET /api/inventory/expiring', () => {
     const res = await request(app).get('/api/inventory/expiring');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -318,7 +318,7 @@ describe('PUT /api/inventory/:id', () => {
     });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -383,6 +383,6 @@ describe('POST /api/inventory/:id/inspect', () => {
     });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

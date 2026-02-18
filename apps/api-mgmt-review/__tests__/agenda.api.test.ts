@@ -87,7 +87,7 @@ describe('POST /api/agenda/:id/generate', () => {
 
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('GENERATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
     expect(res.body.error.message).toBe('Failed to generate resource');
   });
 
@@ -101,7 +101,7 @@ describe('POST /api/agenda/:id/generate', () => {
 
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('GENERATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
     expect(res.body.error.message).toBe('Failed to generate resource');
   });
 

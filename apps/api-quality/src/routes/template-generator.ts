@@ -285,7 +285,7 @@ router.get('/', authenticate as any, async (req: Request, res: Response) => {
     res.json({ success: true, data: templates, pagination: { page: Number(page), limit: Number(limit), total } });
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch resource' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch resource' } });
   }
 });
 
@@ -402,7 +402,7 @@ router.get('/:id', authenticate as any, async (req: Request, res: Response) => {
     res.json({ success: true, data: { ...template, configJson: JSON.parse(template.configJson) } });
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch resource' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch resource' } });
   }
 });
 
@@ -413,7 +413,7 @@ router.delete('/:id', authenticate as any, requirePermission('quality', (Permiss
     res.json({ success: true, data: { message: 'Template deleted' } });
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: 'Failed to delete resource' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete resource' } });
   }
 });
 

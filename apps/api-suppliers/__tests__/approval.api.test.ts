@@ -27,7 +27,7 @@ describe('POST /api/approval/:id/approve', () => {
     const res = await request(app).post('/api/approval/1/approve');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -45,6 +45,6 @@ describe('POST /api/approval/:id/suspend', () => {
     const res = await request(app).post('/api/approval/1/suspend');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

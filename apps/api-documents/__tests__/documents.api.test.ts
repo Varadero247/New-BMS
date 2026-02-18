@@ -44,7 +44,7 @@ describe('GET /api/documents', () => {
     const res = await request(app).get('/api/documents');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -70,7 +70,7 @@ describe('GET /api/documents/:id', () => {
     const res = await request(app).get('/api/documents/1');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -130,7 +130,7 @@ describe('PUT /api/documents/:id', () => {
     const res = await request(app).put('/api/documents/1').send({ title: 'Updated' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -157,6 +157,6 @@ describe('DELETE /api/documents/:id', () => {
     const res = await request(app).delete('/api/documents/1');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('DELETE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

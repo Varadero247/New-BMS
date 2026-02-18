@@ -46,7 +46,7 @@ describe('GET /api/search', () => {
     const res = await request(app).get('/api/search?q=test');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 
   it('should call findMany with correct orgId filter', async () => {

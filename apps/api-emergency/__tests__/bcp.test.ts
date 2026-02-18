@@ -101,7 +101,7 @@ describe('GET /api/bcp', () => {
     const res = await request(app).get('/api/bcp');
 
     expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 

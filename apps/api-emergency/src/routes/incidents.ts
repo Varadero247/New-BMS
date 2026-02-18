@@ -79,7 +79,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       prisma.femEmergencyIncident.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
-  } catch (error: unknown) { logger.error('Failed to fetch incidents', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch incidents' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch incidents', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch incidents' } }); }
 });
 
 // GET /api/incidents/active — currently active incidents ONLY (before /:id)
@@ -92,7 +92,7 @@ router.get('/active', authenticate, async (req: Request, res: Response) => {
       orderBy: { reportedAt: 'desc' },
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch active incidents', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch active incidents' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch active incidents', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch active incidents' } }); }
 });
 
 // POST /api/incidents — declare new emergency incident (FAST — cardinal rule #4)
@@ -145,7 +145,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     res.json({ success: true, data: item });
-  } catch (error: unknown) { logger.error('Failed to fetch incident', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch incident' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch incident', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch incident' } }); }
 });
 
 // PUT /api/incidents/:id — update incident
@@ -168,7 +168,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
       notifyIncidentStatusChange(existing.incidentNumber, parsed.data.status);
     }
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update incident', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update incident' } }); }
+  } catch (error: unknown) { logger.error('Failed to update incident', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update incident' } }); }
 });
 
 // POST /api/incidents/:id/close — close incident and trigger review
@@ -285,7 +285,7 @@ router.get('/:id/timeline', authenticate, async (req: Request, res: Response) =>
       orderBy: { timestamp: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch timeline', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch timeline' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch timeline', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch timeline' } }); }
 });
 
 export default router;

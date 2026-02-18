@@ -52,6 +52,6 @@ describe('POST /api/pre-audit/:id/generate', () => {
     const res = await request(app).post('/api/pre-audit/audit-1/generate');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('GENERATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

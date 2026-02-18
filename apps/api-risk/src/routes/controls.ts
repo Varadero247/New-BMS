@@ -36,7 +36,7 @@ router.post('/:id/controls', authenticate, async (req: Request, res: Response) =
     const overall = getControlEffectivenessOverall(allControls);
     await prisma.riskRegister.update({ where: { id: req.params.id }, data: { controlEffectiveness: overall as any } });
     res.status(201).json({ success: true, data: control });
-  } catch (error: unknown) { logger.error('Failed to add control', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to add control', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // GET /api/risks/:id/controls
@@ -44,7 +44,7 @@ router.get('/:id/controls', authenticate, async (req: Request, res: Response) =>
   try {
     const controls = await prisma.riskControl.findMany({ where: { riskId: req.params.id, isActive: true }, orderBy: { createdAt: 'desc' } });
     res.json({ success: true, data: controls });
-  } catch (error: unknown) { logger.error('Failed to fetch controls', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch controls' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch controls', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch controls' } }); }
 });
 
 // PUT /api/risks/:riskId/controls/:id
@@ -59,7 +59,7 @@ router.put('/:riskId/controls/:id', authenticate, async (req: Request, res: Resp
     const overall = getControlEffectivenessOverall(allControls);
     await prisma.riskRegister.update({ where: { id: req.params.riskId }, data: { controlEffectiveness: overall as any } });
     res.json({ success: true, data: control });
-  } catch (error: unknown) { logger.error('Failed to update control', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to update control', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // DELETE /api/risks/:riskId/controls/:id
@@ -69,7 +69,7 @@ router.delete('/:riskId/controls/:id', authenticate, async (req: Request, res: R
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control not found' } });
     await prisma.riskControl.update({ where: { id: req.params.id }, data: { isActive: false } });
     res.json({ success: true, data: { message: 'Control removed' } });
-  } catch (error: unknown) { logger.error('Failed to delete control', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to delete control', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // POST /api/risks/:riskId/controls/:id/test
@@ -85,7 +85,7 @@ router.post('/:riskId/controls/:id/test', authenticate, async (req: Request, res
     if (effectiveness) data.effectiveness = effectiveness;
     const control = await prisma.riskControl.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: control });
-  } catch (error: unknown) { logger.error('Failed to test control', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to test control', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 export default router;

@@ -46,7 +46,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       prisma.riskReview.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
-  } catch (error: unknown) { logger.error('Failed to fetch reviews', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch reviews' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch reviews', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch reviews' } }); }
 });
 
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
@@ -55,7 +55,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     const item = await prisma.riskReview.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'review not found' } });
     res.json({ success: true, data: item });
-  } catch (error: unknown) { logger.error('Failed to fetch review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch review' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch review' } }); }
 });
 
 router.post('/', authenticate, async (req: Request, res: Response) => {
@@ -80,7 +80,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     const { riskId, reviewer, reviewerName, scheduledDate, completedDate, status, previousScore, newLikelihood, newConsequence, newScore, findings, recommendations, notes } = parsed.data;
     const data = await prisma.riskReview.update({ where: { id: req.params.id }, data: { riskId, reviewer, reviewerName, scheduledDate, completedDate, status, previousScore, newLikelihood, newConsequence, newScore, findings, recommendations, notes, updatedBy: (req as AuthRequest).user?.id } });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to update review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
@@ -90,7 +90,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'review not found' } });
     await prisma.riskReview.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
     res.json({ success: true, data: { message: 'review deleted successfully' } });
-  } catch (error: unknown) { logger.error('Failed to delete review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to delete review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 export default router;

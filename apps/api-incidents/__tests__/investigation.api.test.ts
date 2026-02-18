@@ -54,7 +54,7 @@ describe('POST /api/investigation/:id/assign', () => {
       .send({ investigator: 'user-2' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -109,6 +109,6 @@ describe('PUT /api/investigation/:id/report', () => {
       .send({ rootCause: 'Equipment failure' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

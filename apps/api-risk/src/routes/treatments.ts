@@ -9,6 +9,6 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const counts: Record<string, number> = {};
     for (const r of risks) { counts[r.treatment] = (counts[r.treatment] || 0) + 1; }
     res.json({ success: true, data: Object.entries(counts).map(([treatment, count]) => ({ treatment, count })) });
-  } catch (error: unknown) { res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch treatments' } }); }
+  } catch (error: unknown) { res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch treatments' } }); }
 });
 export default router;

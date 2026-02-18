@@ -45,7 +45,7 @@ describe('GET /api/records', () => {
     const res = await request(app).get('/api/records');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -71,7 +71,7 @@ describe('GET /api/records/:id', () => {
     const res = await request(app).get('/api/records/1');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -132,7 +132,7 @@ describe('PUT /api/records/:id', () => {
     const res = await request(app).put('/api/records/1').send({ courseId: 'course-2' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -159,6 +159,6 @@ describe('DELETE /api/records/:id', () => {
     const res = await request(app).delete('/api/records/1');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('DELETE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

@@ -58,7 +58,7 @@ describe('GET /api/toolbox-talks', () => {
     const res = await request(app).get('/api/toolbox-talks');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -84,7 +84,7 @@ describe('GET /api/toolbox-talks/:id', () => {
     const res = await request(app).get('/api/toolbox-talks/1');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -162,7 +162,7 @@ describe('PUT /api/toolbox-talks/:id', () => {
     const res = await request(app).put('/api/toolbox-talks/1').send({ topic: 'New Topic' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -190,6 +190,6 @@ describe('DELETE /api/toolbox-talks/:id', () => {
     const res = await request(app).delete('/api/toolbox-talks/1');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('DELETE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

@@ -7,6 +7,6 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const risks = await prisma.riskRegister.findMany({ where: { orgId, deletedAt: null, status: { not: 'CLOSED' } as any }, select: { id: true, title: true, likelihood: true, consequence: true, inherentScore: true }, take: 500 });
     res.json({ success: true, data: { risks, total: risks.length } });
-  } catch (error: unknown) { res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to generate heat map' } }); }
+  } catch (error: unknown) { res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate heat map' } }); }
 });
 export default router;

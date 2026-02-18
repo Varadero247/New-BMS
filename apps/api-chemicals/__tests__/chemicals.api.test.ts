@@ -83,7 +83,7 @@ describe('GET /api/chemicals', () => {
     const res = await request(app).get('/api/chemicals');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -112,7 +112,7 @@ describe('GET /api/chemicals/:id', () => {
     const res = await request(app).get('/api/chemicals/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -266,7 +266,7 @@ describe('PUT /api/chemicals/:id', () => {
     });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -300,7 +300,7 @@ describe('DELETE /api/chemicals/:id', () => {
     const res = await request(app).delete('/api/chemicals/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('DELETE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -333,7 +333,7 @@ describe('GET /api/chemicals/alerts/expiry', () => {
     const res = await request(app).get('/api/chemicals/alerts/expiry');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -366,6 +366,6 @@ describe('GET /api/chemicals/alerts/incompatible', () => {
     const res = await request(app).get('/api/chemicals/alerts/incompatible');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

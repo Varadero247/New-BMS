@@ -45,7 +45,7 @@ describe('GET /api/suppliers', () => {
     const res = await request(app).get('/api/suppliers');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -71,7 +71,7 @@ describe('GET /api/suppliers/:id', () => {
     const res = await request(app).get('/api/suppliers/1');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -132,7 +132,7 @@ describe('PUT /api/suppliers/:id', () => {
     const res = await request(app).put('/api/suppliers/1').send({ name: 'Updated' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -159,6 +159,6 @@ describe('DELETE /api/suppliers/:id', () => {
     const res = await request(app).delete('/api/suppliers/1');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('DELETE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

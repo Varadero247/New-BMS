@@ -27,7 +27,7 @@ router.get('/:id/actions', authenticate, async (req: Request, res: Response) => 
       orderBy: { targetDate: 'asc' },
     });
     res.json({ success: true, data: actions });
-  } catch (error: unknown) { logger.error('Failed to fetch actions', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch actions' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch actions', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch actions' } }); }
 });
 
 // POST /api/risks/:id/actions
@@ -42,7 +42,7 @@ router.post('/:id/actions', authenticate, async (req: Request, res: Response) =>
       data: { ...parsed.data, riskId: req.params.id, createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data: action });
-  } catch (error: unknown) { logger.error('Failed to create action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to create action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // PUT /api/risks/:riskId/actions/:id
@@ -54,7 +54,7 @@ router.put('/:riskId/actions/:id', authenticate, async (req: Request, res: Respo
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
     const action = await prisma.riskAction.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data: action });
-  } catch (error: unknown) { logger.error('Failed to update action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to update action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // POST /api/risks/:riskId/actions/:id/complete
@@ -71,7 +71,7 @@ router.post('/:riskId/actions/:id/complete', authenticate, async (req: Request, 
       data: { status: 'COMPLETED', completedDate: new Date(), evidenceOfCompletion, effectiveness },
     });
     res.json({ success: true, data: action });
-  } catch (error: unknown) { logger.error('Failed to complete action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to complete action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // GET /api/risks/actions/overdue
@@ -83,7 +83,7 @@ router.get('/actions/overdue', authenticate, async (req: Request, res: Response)
       orderBy: { targetDate: 'asc' },
     });
     res.json({ success: true, data: actions });
-  } catch (error: unknown) { logger.error('Failed to fetch overdue actions', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch overdue actions' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch overdue actions', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue actions' } }); }
 });
 
 // GET /api/risks/actions/due-soon
@@ -97,7 +97,7 @@ router.get('/actions/due-soon', authenticate, async (req: Request, res: Response
       orderBy: { targetDate: 'asc' },
     });
     res.json({ success: true, data: actions });
-  } catch (error: unknown) { logger.error('Failed to fetch due-soon actions', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch due-soon actions' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch due-soon actions', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch due-soon actions' } }); }
 });
 
 export default router;

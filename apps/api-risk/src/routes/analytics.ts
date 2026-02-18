@@ -83,7 +83,7 @@ router.get('/analytics/dashboard', authenticate, async (req: Request, res: Respo
     });
   } catch (error: unknown) {
     logger.error('Failed to generate analytics', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to generate analytics dashboard' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate analytics dashboard' } });
   }
 });
 
@@ -98,7 +98,7 @@ router.get('/analytics/by-module', authenticate, async (req: Request, res: Respo
     });
     const result = raw.map((r: Record<string, unknown>) => ({ module: r.sourceModule, count: (r as any)._count }));
     res.json({ success: true, data: result });
-  } catch (error: unknown) { logger.error('Failed to fetch by-module', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch module breakdown' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch by-module', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch module breakdown' } }); }
 });
 
 export default router;

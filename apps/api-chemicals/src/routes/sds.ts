@@ -107,7 +107,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
   } catch (error: unknown) {
     logger.error('Failed to fetch SDS records', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch SDS records' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch SDS records' } });
   }
 });
 
@@ -123,7 +123,7 @@ router.get('/overdue', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to fetch overdue SDS', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch overdue SDS' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue SDS' } });
   }
 });
 
@@ -139,7 +139,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data: item });
   } catch (error: unknown) {
     logger.error('Failed to fetch SDS', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch SDS' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch SDS' } });
   }
 });
 
@@ -179,7 +179,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to update SDS', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' } });
   }
 });
 

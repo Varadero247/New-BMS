@@ -30,7 +30,7 @@ router.get('/:id/bowtie', authenticate, async (req: Request, res: Response) => {
   try {
     const bowtie = await prisma.riskBowtie.findUnique({ where: { riskId: req.params.id } });
     res.json({ success: true, data: bowtie });
-  } catch (error: unknown) { logger.error('Failed to fetch bowtie', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch bowtie' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch bowtie', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch bowtie' } }); }
 });
 
 // POST /api/risks/:id/bowtie
@@ -59,7 +59,7 @@ router.post('/:id/bowtie', authenticate, async (req: Request, res: Response) => 
       });
     }
     res.status(existing ? 200 : 201).json({ success: true, data: bowtie });
-  } catch (error: unknown) { logger.error('Failed to save bowtie', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to save bowtie analysis' } }); }
+  } catch (error: unknown) { logger.error('Failed to save bowtie', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to save bowtie analysis' } }); }
 });
 
 // GET /api/risks/bowtie/all
@@ -70,7 +70,7 @@ router.get('/bowtie/all', authenticate, async (req: Request, res: Response) => {
       orderBy: { updatedAt: 'desc' },
     });
     res.json({ success: true, data: bowties });
-  } catch (error: unknown) { logger.error('Failed to fetch bowties', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch bowties' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch bowties', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch bowties' } }); }
 });
 
 export default router;

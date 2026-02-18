@@ -38,7 +38,7 @@ describe('GET /api/clauses', () => {
     const res = await request(app).get('/api/clauses');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -124,7 +124,7 @@ describe('PUT /api/clauses/:id', () => {
     const res = await request(app).put('/api/clauses/1').send({ title: 'New' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -152,6 +152,6 @@ describe('DELETE /api/clauses/:id', () => {
     const res = await request(app).delete('/api/clauses/1');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('DELETE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

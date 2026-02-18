@@ -55,7 +55,7 @@ router.get('/analytics', authenticate, async (_req: Request, res: Response) => {
       delete s.targetsMet;
     }
     res.json({ success: true, data: { totalDrills: drills.length, recentDrills: drills.slice(0, 10), premisesStats } });
-  } catch (error: unknown) { logger.error('Failed to fetch drill analytics', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch drill analytics' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch drill analytics', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch drill analytics' } }); }
 });
 
 // GET /api/drills/premises/:id — drill history for premises
@@ -66,7 +66,7 @@ router.get('/premises/:id', authenticate, async (req: Request, res: Response) =>
       orderBy: { drillDate: 'desc' },
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch drills', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch drills' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch drills', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch drills' } }); }
 });
 
 // POST /api/drills/premises/:id — record new drill
@@ -93,7 +93,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     if (parsed.data.drillDate) updateData.drillDate = new Date(parsed.data.drillDate);
     const data = await prisma.femEvacuationDrill.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update drill', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update drill' } }); }
+  } catch (error: unknown) { logger.error('Failed to update drill', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update drill' } }); }
 });
 
 export default router;

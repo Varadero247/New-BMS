@@ -94,7 +94,7 @@ describe('GET /api/equipment/service-due', () => {
     const res = await request(app).get('/api/equipment/service-due');
 
     expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -125,7 +125,7 @@ describe('GET /api/equipment/premises/:id', () => {
     const res = await request(app).get(`/api/equipment/premises/${PREMISES_ID}`);
 
     expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -230,7 +230,7 @@ describe('PUT /api/equipment/:id', () => {
     const res = await request(app).put(`/api/equipment/${EQUIPMENT_ID}`).send({ location: 'Kitchen' });
 
     expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 

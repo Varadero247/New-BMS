@@ -73,7 +73,7 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
         criticalAlerts,
       },
     });
-  } catch (error: unknown) { logger.error('Failed to fetch analytics dashboard', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch analytics dashboard' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch analytics dashboard', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch analytics dashboard' } }); }
 });
 
 export default router;

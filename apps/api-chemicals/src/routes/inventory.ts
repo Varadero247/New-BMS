@@ -34,7 +34,7 @@ router.get('/low-stock', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data: lowStock });
   } catch (error: unknown) {
     logger.error('Failed to fetch low stock', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch low stock' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch low stock' } });
   }
 });
 
@@ -53,7 +53,7 @@ router.get('/expiring', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to fetch expiring stock', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch expiring stock' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch expiring stock' } });
   }
 });
 
@@ -82,7 +82,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
   } catch (error: unknown) {
     logger.error('Failed to fetch inventory', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch inventory' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch inventory' } });
   }
 });
 
@@ -98,7 +98,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data: item });
   } catch (error: unknown) {
     logger.error('Failed to fetch inventory record', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch inventory record' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch inventory record' } });
   }
 });
 
@@ -159,7 +159,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to update inventory', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' } });
   }
 });
 
@@ -182,7 +182,7 @@ router.post('/:id/inspect', authenticate, async (req: Request, res: Response) =>
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to record inspection', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' } });
   }
 });
 

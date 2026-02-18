@@ -36,7 +36,7 @@ describe('GET /api/assets', () => {
     const res = await request(app).get('/api/assets');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -62,7 +62,7 @@ describe('GET /api/assets/:id', () => {
     const res = await request(app).get('/api/assets/1');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -122,7 +122,7 @@ describe('PUT /api/assets/:id', () => {
     const res = await request(app).put('/api/assets/1').send({ name: 'Updated' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -149,6 +149,6 @@ describe('DELETE /api/assets/:id', () => {
     const res = await request(app).delete('/api/assets/1');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('DELETE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

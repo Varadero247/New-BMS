@@ -9,6 +9,6 @@ router.get('/stats', authenticate, async (req: Request, res: Response) => {
     const [totalIncidents, ] = await Promise.all([
       prisma.incIncident.count({ where }),    ]);
     res.json({ success: true, data: { totalIncidents,  } });
-  } catch (error: unknown) { logger.error('Stats error', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch stats' } }); }
+  } catch (error: unknown) { logger.error('Stats error', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' } }); }
 });
 export default router;

@@ -33,7 +33,7 @@ router.get('/service-due', authenticate, async (_req: Request, res: Response) =>
       orderBy: { nextServiceDue: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch service-due equipment', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch service-due equipment' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch service-due equipment', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch service-due equipment' } }); }
 });
 
 // GET /api/equipment/premises/:id — all equipment for premises
@@ -44,7 +44,7 @@ router.get('/premises/:id', authenticate, async (req: Request, res: Response) =>
       orderBy: { location: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch equipment', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch equipment' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch equipment', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch equipment' } }); }
 });
 
 // POST /api/equipment/premises/:id — add equipment
@@ -79,7 +79,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     if (parsed.data.lastServiceDate) updateData.lastServiceDate = new Date(parsed.data.lastServiceDate);
     const data = await prisma.femEmergencyEquipment.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update equipment', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update equipment' } }); }
+  } catch (error: unknown) { logger.error('Failed to update equipment', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update equipment' } }); }
 });
 
 // POST /api/equipment/:id/inspect — record inspection

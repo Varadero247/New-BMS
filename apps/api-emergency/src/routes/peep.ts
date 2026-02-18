@@ -40,7 +40,7 @@ router.get('/due-review', authenticate, async (_req: Request, res: Response) => 
       orderBy: { reviewDate: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch PEEPs due review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch PEEPs due review' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch PEEPs due review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch PEEPs due review' } }); }
 });
 
 // GET /api/peep/premises/:id — all PEEPs for premises
@@ -51,7 +51,7 @@ router.get('/premises/:id', authenticate, async (req: Request, res: Response) =>
       orderBy: { personName: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch PEEPs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch PEEPs' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch PEEPs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch PEEPs' } }); }
 });
 
 // POST /api/peep/premises/:id — create PEEP
@@ -78,7 +78,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     if (parsed.data.reviewDate) updateData.reviewDate = new Date(parsed.data.reviewDate);
     const data = await prisma.femPeep.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update PEEP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update PEEP' } }); }
+  } catch (error: unknown) { logger.error('Failed to update PEEP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update PEEP' } }); }
 });
 
 export default router;

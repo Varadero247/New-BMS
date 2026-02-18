@@ -144,7 +144,7 @@ router.get('/register', authenticate, async (req: Request, res: Response) => {
       prisma.riskRegister.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
-  } catch (error: unknown) { logger.error('Failed to fetch register', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch register' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch register', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch register' } }); }
 });
 
 // GET /api/risks/heatmap
@@ -176,7 +176,7 @@ router.get('/heatmap', authenticate, async (req: Request, res: Response) => {
       }
     }
     res.json({ success: true, data: { heatmapData, total: risks.length } });
-  } catch (error: unknown) { logger.error('Failed to generate heatmap', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to generate heatmap' } }); }
+  } catch (error: unknown) { logger.error('Failed to generate heatmap', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate heatmap' } }); }
 });
 
 // GET /api/risks/overdue-review
@@ -189,7 +189,7 @@ router.get('/overdue-review', authenticate, async (req: Request, res: Response) 
       select: { id: true, referenceNumber: true, title: true, ownerName: true, nextReviewDate: true, residualRiskLevel: true, category: true },
     });
     res.json({ success: true, data: risks });
-  } catch (error: unknown) { logger.error('Failed to fetch overdue reviews', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch overdue reviews' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch overdue reviews', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue reviews' } }); }
 });
 
 // GET /api/risks/exceeds-appetite
@@ -202,7 +202,7 @@ router.get('/exceeds-appetite', authenticate, async (req: Request, res: Response
       select: { id: true, referenceNumber: true, title: true, category: true, residualRiskLevel: true, residualScore: true, ownerName: true },
     });
     res.json({ success: true, data: risks });
-  } catch (error: unknown) { logger.error('Failed to fetch exceeds-appetite', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch risks exceeding appetite' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch exceeds-appetite', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch risks exceeding appetite' } }); }
 });
 
 // GET /api/risks/by-category
@@ -213,7 +213,7 @@ router.get('/by-category', authenticate, async (req: Request, res: Response) => 
       by: ['category'], where: { orgId, deletedAt: null } as any, _count: true,
     });
     res.json({ success: true, data: raw.map((r: Record<string, unknown>) => ({ category: r.category, count: (r as any)._count })) });
-  } catch (error: unknown) { logger.error('Failed to fetch by-category', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch category breakdown' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch by-category', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch category breakdown' } }); }
 });
 
 // GET /api/risks/aggregate
@@ -227,7 +227,7 @@ router.get('/aggregate', authenticate, async (req: Request, res: Response) => {
       by: [field] as any, where: { orgId, deletedAt: null } as any, _count: true,
     });
     res.json({ success: true, data: raw.map((r: Record<string, unknown>) => ({ group: r[field], count: (r as any)._count })) });
-  } catch (error: unknown) { logger.error('Failed to aggregate', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to aggregate risks' } }); }
+  } catch (error: unknown) { logger.error('Failed to aggregate', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to aggregate risks' } }); }
 });
 
 // POST /api/risks/from-coshh/:coshhId
@@ -244,7 +244,7 @@ router.post('/from-coshh/:coshhId', authenticate, async (req: Request, res: Resp
       data: { ...mapped, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create risk from COSHH', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to create risk from COSHH', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // POST /api/risks/from-fra/:fraId
@@ -261,7 +261,7 @@ router.post('/from-fra/:fraId', authenticate, async (req: Request, res: Response
       data: { ...mapped, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create risk from FRA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to create risk from FRA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // POST /api/risks/from-incident/:id
@@ -278,7 +278,7 @@ router.post('/from-incident/:id', authenticate, async (req: Request, res: Respon
       data: { ...mapped, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create risk from incident', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to create risk from incident', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // POST /api/risks/from-audit/:id
@@ -302,7 +302,7 @@ router.post('/from-audit/:id', authenticate, async (req: Request, res: Response)
       } as any,
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create risk from audit', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to create risk from audit', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // GET /api/risks — list all with filters
@@ -329,7 +329,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       prisma.riskRegister.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
-  } catch (error: unknown) { logger.error('Failed to fetch risks', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch risks' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch risks', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch risks' } }); }
 });
 
 // GET /api/risks/:id — get risk with all relations
@@ -348,7 +348,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'risk not found' } });
     res.json({ success: true, data: item });
-  } catch (error: unknown) { logger.error('Failed to fetch risk', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch risk' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch risk', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch risk' } }); }
 });
 
 // POST /api/risks — create risk (manual entry)
@@ -406,7 +406,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
       data: { ...calculated, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update risk', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to update risk', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // DELETE /api/risks/:id — soft delete
@@ -417,7 +417,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'risk not found' } });
     await prisma.riskRegister.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
     res.json({ success: true, data: { message: 'risk deleted successfully' } });
-  } catch (error: unknown) { logger.error('Failed to delete risk', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to delete risk', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 export default router;

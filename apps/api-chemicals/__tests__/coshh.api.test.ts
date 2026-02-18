@@ -111,7 +111,7 @@ describe('GET /api/coshh', () => {
     const res = await request(app).get('/api/coshh');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -142,7 +142,7 @@ describe('GET /api/coshh/due-review', () => {
     const res = await request(app).get('/api/coshh/due-review');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -171,7 +171,7 @@ describe('GET /api/coshh/:id', () => {
     const res = await request(app).get('/api/coshh/00000000-0000-0000-0000-000000000020');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -342,7 +342,7 @@ describe('PUT /api/coshh/:id', () => {
     });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -440,6 +440,6 @@ describe('POST /api/coshh/:id/sign-off', () => {
     });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

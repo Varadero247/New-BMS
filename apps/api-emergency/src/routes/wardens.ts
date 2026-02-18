@@ -37,7 +37,7 @@ router.get('/training-expiring', authenticate, async (_req: Request, res: Respon
       orderBy: { trainingExpiryDate: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch expiring wardens', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch expiring training' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch expiring wardens', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch expiring training' } }); }
 });
 
 // GET /api/wardens/premises/:id — all wardens for premises
@@ -48,7 +48,7 @@ router.get('/premises/:id', authenticate, async (req: Request, res: Response) =>
       orderBy: { name: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch wardens', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch wardens' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch wardens', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch wardens' } }); }
 });
 
 // POST /api/wardens/premises/:id — add warden
@@ -81,7 +81,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     if (parsed.data.trainingExpiryDate) updateData.trainingExpiryDate = new Date(parsed.data.trainingExpiryDate);
     const data = await prisma.femFireWarden.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update warden', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update warden' } }); }
+  } catch (error: unknown) { logger.error('Failed to update warden', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update warden' } }); }
 });
 
 export default router;

@@ -41,7 +41,7 @@ router.get('/:id/kri', authenticate, async (req: Request, res: Response) => {
       include: { readings: { orderBy: { recordedAt: 'desc' }, take: 10 } },
     });
     res.json({ success: true, data: kris });
-  } catch (error: unknown) { logger.error('Failed to fetch KRIs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch KRIs' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch KRIs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch KRIs' } }); }
 });
 
 // POST /api/risks/:id/kri
@@ -54,7 +54,7 @@ router.post('/:id/kri', authenticate, async (req: Request, res: Response) => {
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const kri = await prisma.riskKri.create({ data: { ...parsed.data, riskId: req.params.id } });
     res.status(201).json({ success: true, data: kri });
-  } catch (error: unknown) { logger.error('Failed to create KRI', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to create KRI', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // PUT /api/risks/:riskId/kri/:id
@@ -66,7 +66,7 @@ router.put('/:riskId/kri/:id', authenticate, async (req: Request, res: Response)
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KRI not found' } });
     const kri = await prisma.riskKri.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data: kri });
-  } catch (error: unknown) { logger.error('Failed to update KRI', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to update KRI', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // POST /api/risks/:riskId/kri/:id/reading
@@ -87,7 +87,7 @@ router.post('/:riskId/kri/:id/reading', authenticate, async (req: Request, res: 
       data: { currentValue: value, currentStatus: status as any, lastMeasuredAt: new Date(), measuredBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data: reading });
-  } catch (error: unknown) { logger.error('Failed to record KRI reading', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to record KRI reading', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // GET /api/risks/kri/breaches
@@ -99,7 +99,7 @@ router.get('/kri/breaches', authenticate, async (req: Request, res: Response) =>
       orderBy: { updatedAt: 'desc' },
     });
     res.json({ success: true, data: kris });
-  } catch (error: unknown) { logger.error('Failed to fetch KRI breaches', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch KRI breaches' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch KRI breaches', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch KRI breaches' } }); }
 });
 
 // GET /api/risks/kri/due
@@ -113,7 +113,7 @@ router.get('/kri/due', authenticate, async (req: Request, res: Response) => {
       orderBy: { nextMeasurementDue: 'asc' },
     });
     res.json({ success: true, data: kris });
-  } catch (error: unknown) { logger.error('Failed to fetch due KRIs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch due KRIs' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch due KRIs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch due KRIs' } }); }
 });
 
 export default router;

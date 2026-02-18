@@ -115,7 +115,7 @@ describe('GET /api/fra', () => {
     const res = await request(app).get('/api/fra');
 
     expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 

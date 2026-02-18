@@ -105,7 +105,7 @@ describe('GET /api/incidents', () => {
     const res = await request(app).get('/api/incidents');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -136,7 +136,7 @@ describe('GET /api/incidents/:id', () => {
     const res = await request(app).get('/api/incidents/00000000-0000-0000-0000-000000000050');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -277,6 +277,6 @@ describe('PUT /api/incidents/:id', () => {
     });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

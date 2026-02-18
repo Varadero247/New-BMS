@@ -57,7 +57,7 @@ describe('GET /api/programmes', () => {
     const res = await request(app).get('/api/programmes');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -160,7 +160,7 @@ describe('PUT /api/programmes/:id', () => {
     const res = await request(app).put('/api/programmes/1').send({ title: 'Updated' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -188,6 +188,6 @@ describe('DELETE /api/programmes/:id', () => {
     const res = await request(app).delete('/api/programmes/1');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('DELETE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

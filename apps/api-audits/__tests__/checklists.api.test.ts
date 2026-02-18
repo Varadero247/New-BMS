@@ -47,7 +47,7 @@ describe('GET /api/checklists', () => {
     const res = await request(app).get('/api/checklists');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -143,7 +143,7 @@ describe('PUT /api/checklists/:id', () => {
     const res = await request(app).put('/api/checklists/1').send({ title: 'Updated' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -171,6 +171,6 @@ describe('DELETE /api/checklists/:id', () => {
     const res = await request(app).delete('/api/checklists/1');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('DELETE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

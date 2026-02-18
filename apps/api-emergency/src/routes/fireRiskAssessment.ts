@@ -66,7 +66,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       prisma.femFireRiskAssessment.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
-  } catch (error: unknown) { logger.error('Failed to fetch FRAs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch fire risk assessments' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch FRAs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch fire risk assessments' } }); }
 });
 
 // GET /api/fra/overdue — FRAs past review date (MUST be before /:id)
@@ -79,7 +79,7 @@ router.get('/overdue', authenticate, async (req: Request, res: Response) => {
       orderBy: { nextReviewDate: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch overdue FRAs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch overdue FRAs' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch overdue FRAs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue FRAs' } }); }
 });
 
 // POST /api/fra — create FRA
@@ -120,7 +120,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FRA not found' } });
     res.json({ success: true, data: item });
-  } catch (error: unknown) { logger.error('Failed to fetch FRA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch FRA' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch FRA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch FRA' } }); }
 });
 
 // PUT /api/fra/:id — update
@@ -140,7 +140,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     }
     const data = await prisma.femFireRiskAssessment.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update FRA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update fire risk assessment' } }); }
+  } catch (error: unknown) { logger.error('Failed to update FRA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update fire risk assessment' } }); }
 });
 
 // POST /api/fra/:id/approve — approve and sign off
@@ -166,7 +166,7 @@ router.get('/:id/action-plan', authenticate, async (req: Request, res: Response)
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FRA not found' } });
     res.json({ success: true, data: item });
-  } catch (error: unknown) { logger.error('Failed to fetch action plan', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch action plan' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch action plan', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch action plan' } }); }
 });
 
 export default router;

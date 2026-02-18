@@ -116,7 +116,7 @@ describe('GET /api/drills/analytics', () => {
     const res = await request(app).get('/api/drills/analytics');
 
     expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -147,7 +147,7 @@ describe('GET /api/drills/premises/:id', () => {
     const res = await request(app).get(`/api/drills/premises/${PREMISES_ID}`);
 
     expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -282,7 +282,7 @@ describe('PUT /api/drills/:id', () => {
     });
 
     expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 
   it('rejects invalid evacuationType on update', async () => {

@@ -63,7 +63,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       prisma.femBusinessContinuityPlan.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
-  } catch (error: unknown) { logger.error('Failed to fetch BCPs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch BCPs' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch BCPs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch BCPs' } }); }
 });
 
 // GET /api/bcp/due-review — BCPs approaching review date (before /:id)
@@ -76,7 +76,7 @@ router.get('/due-review', authenticate, async (req: Request, res: Response) => {
       orderBy: { reviewDate: 'asc' },
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to fetch BCPs due review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch BCPs due review' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch BCPs due review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch BCPs due review' } }); }
 });
 
 // POST /api/bcp — create BCP
@@ -110,7 +110,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'BCP not found' } });
     res.json({ success: true, data: item });
-  } catch (error: unknown) { logger.error('Failed to fetch BCP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch BCP' } }); }
+  } catch (error: unknown) { logger.error('Failed to fetch BCP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch BCP' } }); }
 });
 
 // PUT /api/bcp/:id — update BCP
@@ -125,7 +125,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     if (parsed.data.biaCompletedDate) updateData.biaCompletedDate = new Date(parsed.data.biaCompletedDate);
     const data = await prisma.femBusinessContinuityPlan.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update BCP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update business continuity plan' } }); }
+  } catch (error: unknown) { logger.error('Failed to update BCP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update business continuity plan' } }); }
 });
 
 // POST /api/bcp/:id/activate — activate BCP
@@ -196,7 +196,7 @@ router.put('/:bcpId/exercise/:id', authenticate, async (req: Request, res: Respo
       });
     }
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update exercise', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update exercise' } }); }
+  } catch (error: unknown) { logger.error('Failed to update exercise', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update exercise' } }); }
 });
 
 export default router;

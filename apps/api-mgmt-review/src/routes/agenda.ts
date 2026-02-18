@@ -56,7 +56,7 @@ router.post('/:id/generate', authenticate, async (req: Request, res: Response) =
     res.json({ success: true, data: agenda });
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'GENERATE_ERROR', message: 'Failed to generate resource' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate resource' } });
   }
 });
 

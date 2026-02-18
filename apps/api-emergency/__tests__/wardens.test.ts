@@ -90,7 +90,7 @@ describe('GET /api/wardens/training-expiring', () => {
     const res = await request(app).get('/api/wardens/training-expiring');
 
     expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -121,7 +121,7 @@ describe('GET /api/wardens/premises/:id', () => {
     const res = await request(app).get(`/api/wardens/premises/${PREMISES_ID}`);
 
     expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -251,6 +251,6 @@ describe('PUT /api/wardens/:id', () => {
     });
 
     expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

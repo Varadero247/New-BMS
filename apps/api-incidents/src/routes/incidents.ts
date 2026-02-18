@@ -73,7 +73,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Fetch failed', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch incidents' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch incidents' } });
   }
 });
 
@@ -85,7 +85,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data: item });
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch incident' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch incident' } });
   }
 });
 
@@ -134,7 +134,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' } });
   }
 });
 
@@ -150,7 +150,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data: { message: 'incident deleted successfully' } });
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: 'Failed to delete resource' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete resource' } });
   }
 });
 

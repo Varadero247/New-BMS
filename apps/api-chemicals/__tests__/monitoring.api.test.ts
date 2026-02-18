@@ -96,7 +96,7 @@ describe('GET /api/monitoring', () => {
     const res = await request(app).get('/api/monitoring');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -127,7 +127,7 @@ describe('GET /api/monitoring/overdue', () => {
     const res = await request(app).get('/api/monitoring/overdue');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -167,7 +167,7 @@ describe('GET /api/monitoring/dashboard', () => {
     const res = await request(app).get('/api/monitoring/dashboard');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -319,6 +319,6 @@ describe('PUT /api/monitoring/:id', () => {
     });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

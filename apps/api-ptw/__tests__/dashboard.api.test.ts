@@ -49,7 +49,7 @@ describe('GET /api/dashboard/stats', () => {
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 
   it('should return 404 for unknown dashboard routes', async () => {

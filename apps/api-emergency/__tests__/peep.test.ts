@@ -95,7 +95,7 @@ describe('GET /api/peep/due-review', () => {
     const res = await request(app).get('/api/peep/due-review');
 
     expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -126,7 +126,7 @@ describe('GET /api/peep/premises/:id', () => {
     const res = await request(app).get(`/api/peep/premises/${PREMISES_ID}`);
 
     expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('FETCH_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -262,7 +262,7 @@ describe('PUT /api/peep/:id', () => {
     });
 
     expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('UPDATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 
   it('rejects invalid mobilityLevel on update', async () => {

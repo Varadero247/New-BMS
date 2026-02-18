@@ -149,7 +149,7 @@ router.post('/:id/generate', authenticate, async (req: Request, res: Response) =
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({
       success: false,
-      error: { code: 'GENERATE_ERROR', message: 'Internal server error' },
+      error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
     });
   }
 });

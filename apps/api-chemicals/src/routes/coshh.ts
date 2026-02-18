@@ -85,7 +85,7 @@ router.get('/due-review', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to fetch due reviews', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch due reviews' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch due reviews' } });
   }
 });
 
@@ -116,7 +116,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
   } catch (error: unknown) {
     logger.error('Failed to fetch COSHH assessments', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch COSHH assessments' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch COSHH assessments' } });
   }
 });
 
@@ -132,7 +132,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data: item });
   } catch (error: unknown) {
     logger.error('Failed to fetch COSHH assessment', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch COSHH assessment' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch COSHH assessment' } });
   }
 });
 
@@ -204,7 +204,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to update COSHH assessment', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' } });
   }
 });
 
@@ -232,7 +232,7 @@ router.post('/:id/sign-off', authenticate, async (req: Request, res: Response) =
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to sign off COSHH', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update resource' } });
   }
 });
 
