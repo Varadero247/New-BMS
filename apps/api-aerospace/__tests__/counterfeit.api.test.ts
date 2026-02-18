@@ -255,16 +255,14 @@ describe('Aerospace Counterfeit Parts API', () => {
 
   // =============================================
   // GET /suspect-parts
-  // NOTE: This route is defined after GET /:id in the router, so in Express route ordering
-  // the /:id handler intercepts it. The GET /suspect-parts endpoint returns 404 because
-  // findUnique('suspect-parts') is not mocked. POST /suspect-parts is reachable.
   // =============================================
-  describe('GET /api/counterfeit/suspect-parts (intercepted by /:id)', () => {
-    it('should return 404 because /:id route intercepts the path', async () => {
-      // aeroCounterfeitReport.findUnique not mocked, returns undefined → 404
+  describe('GET /api/counterfeit/suspect-parts', () => {
+    it('should list suspect parts', async () => {
+      mockPrisma.aeroSuspectPart.findMany.mockResolvedValueOnce([]);
+      mockPrisma.aeroSuspectPart.count.mockResolvedValueOnce(0);
       const res = await request(app).get('/api/counterfeit/suspect-parts').set('Authorization', 'Bearer token');
-      expect(res.status).toBe(404);
-      expect(res.body.error.code).toBe('NOT_FOUND');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
     });
   });
 

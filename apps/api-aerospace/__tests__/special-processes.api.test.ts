@@ -270,16 +270,14 @@ describe('Aerospace Special Processes API', () => {
 
   // =============================================
   // GET /nadcap
-  // NOTE: This route is defined after GET /:id in the router, so in Express route ordering
-  // the /:id handler intercepts it. GET /nadcap returns 404 because
-  // findUnique('nadcap') is not mocked. POST /nadcap and PUT /nadcap/:id are reachable.
   // =============================================
-  describe('GET /api/special-processes/nadcap (intercepted by /:id)', () => {
-    it('should return 404 because /:id route intercepts the path', async () => {
-      // aeroSpecialProcess.findUnique not mocked, returns undefined → 404
+  describe('GET /api/special-processes/nadcap', () => {
+    it('should list NADCAP approvals', async () => {
+      mockPrisma.aeroNadcapApproval.findMany.mockResolvedValueOnce([]);
+      mockPrisma.aeroNadcapApproval.count.mockResolvedValueOnce(0);
       const res = await request(app).get('/api/special-processes/nadcap').set('Authorization', 'Bearer token');
-      expect(res.status).toBe(404);
-      expect(res.body.error.code).toBe('NOT_FOUND');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
     });
   });
 

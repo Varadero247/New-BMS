@@ -143,6 +143,47 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// GET /inspections - List FOD inspections
+router.get('/inspections', scopeToUser, async (req: AuthRequest, res: Response) => {
+  try {
+    const { page = '1', limit = '20', result, inspectionType, search } = req.query;
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
+
+    const where: Record<string, unknown> = { deletedAt: null };
+    if (result) where.result = result as any;
+    if (inspectionType) where.inspectionType = inspectionType as any;
+    if (search) {
+      where.OR = [
+        { title: { contains: search as string, mode: 'insensitive' } },
+        { refNumber: { contains: search as string, mode: 'insensitive' } },
+        { area: { contains: search as string, mode: 'insensitive' } },
+        { inspector: { contains: search as string, mode: 'insensitive' } },
+      ];
+    }
+
+    const [inspections, total] = await Promise.all([
+      prisma.aeroFodInspection.findMany({
+        where,
+        skip,
+        take: limitNum,
+        orderBy: { scheduledDate: 'desc' },
+      }),
+      prisma.aeroFodInspection.count({ where }),
+    ]);
+
+    res.json({
+      success: true,
+      data: inspections,
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
+    });
+  } catch (error) {
+    logger.error('List FOD inspections error', { error: (error as Error).message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list FOD inspections' } });
+  }
+});
+
 // GET /:id - Get FOD incident
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
@@ -258,47 +299,6 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 // ============================================
 // FOD INSPECTIONS
 // ============================================
-
-// GET /inspections - List FOD inspections
-router.get('/inspections', scopeToUser, async (req: AuthRequest, res: Response) => {
-  try {
-    const { page = '1', limit = '20', result, inspectionType, search } = req.query;
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
-    const skip = (pageNum - 1) * limitNum;
-
-    const where: Record<string, unknown> = { deletedAt: null };
-    if (result) where.result = result as any;
-    if (inspectionType) where.inspectionType = inspectionType as any;
-    if (search) {
-      where.OR = [
-        { title: { contains: search as string, mode: 'insensitive' } },
-        { refNumber: { contains: search as string, mode: 'insensitive' } },
-        { area: { contains: search as string, mode: 'insensitive' } },
-        { inspector: { contains: search as string, mode: 'insensitive' } },
-      ];
-    }
-
-    const [inspections, total] = await Promise.all([
-      prisma.aeroFodInspection.findMany({
-        where,
-        skip,
-        take: limitNum,
-        orderBy: { scheduledDate: 'desc' },
-      }),
-      prisma.aeroFodInspection.count({ where }),
-    ]);
-
-    res.json({
-      success: true,
-      data: inspections,
-      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
-    });
-  } catch (error) {
-    logger.error('List FOD inspections error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list FOD inspections' } });
-  }
-});
 
 // POST /inspections - Schedule FOD inspection
 router.post('/inspections', async (req: AuthRequest, res: Response) => {

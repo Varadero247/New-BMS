@@ -170,6 +170,57 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// GET /nadcap - List Nadcap approvals
+router.get('/nadcap', scopeToUser, async (req: AuthRequest, res: Response) => {
+  try {
+    const { page = '1', limit = '20', approvalStatus, search } = req.query;
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
+
+    const where: Record<string, unknown> = { deletedAt: null };
+    if (approvalStatus) where.approvalStatus = approvalStatus as any;
+    if (search) {
+      where.OR = [
+        { supplier: { contains: search as string, mode: 'insensitive' } },
+        { commodity: { contains: search as string, mode: 'insensitive' } },
+        { refNumber: { contains: search as string, mode: 'insensitive' } },
+        { certificateNumber: { contains: search as string, mode: 'insensitive' } },
+      ];
+    }
+
+    const [approvals, total] = await Promise.all([
+      prisma.aeroNadcapApproval.findMany({
+        where,
+        skip,
+        take: limitNum,
+        orderBy: { expiryDate: 'asc' },
+      }),
+      prisma.aeroNadcapApproval.count({ where }),
+    ]);
+
+    // Flag approvals expiring within 90 days
+    const now = new Date();
+    const ninetyDays = new Date();
+    ninetyDays.setDate(ninetyDays.getDate() + 90);
+
+    const enriched = approvals.map((approval: any) => ({
+      ...approval,
+      expiringSoon: approval.expiryDate && new Date(approval.expiryDate) <= ninetyDays && new Date(approval.expiryDate) > now,
+      expired: approval.expiryDate && new Date(approval.expiryDate) <= now,
+    }));
+
+    res.json({
+      success: true,
+      data: enriched,
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
+    });
+  } catch (error) {
+    logger.error('List Nadcap approvals error', { error: (error as Error).message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list Nadcap approvals' } });
+  }
+});
+
 // GET /:id - Get special process
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
@@ -279,57 +330,6 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 // ============================================
 // NADCAP APPROVALS
 // ============================================
-
-// GET /nadcap - List Nadcap approvals
-router.get('/nadcap', scopeToUser, async (req: AuthRequest, res: Response) => {
-  try {
-    const { page = '1', limit = '20', approvalStatus, search } = req.query;
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
-    const skip = (pageNum - 1) * limitNum;
-
-    const where: Record<string, unknown> = { deletedAt: null };
-    if (approvalStatus) where.approvalStatus = approvalStatus as any;
-    if (search) {
-      where.OR = [
-        { supplier: { contains: search as string, mode: 'insensitive' } },
-        { commodity: { contains: search as string, mode: 'insensitive' } },
-        { refNumber: { contains: search as string, mode: 'insensitive' } },
-        { certificateNumber: { contains: search as string, mode: 'insensitive' } },
-      ];
-    }
-
-    const [approvals, total] = await Promise.all([
-      prisma.aeroNadcapApproval.findMany({
-        where,
-        skip,
-        take: limitNum,
-        orderBy: { expiryDate: 'asc' },
-      }),
-      prisma.aeroNadcapApproval.count({ where }),
-    ]);
-
-    // Flag approvals expiring within 90 days
-    const now = new Date();
-    const ninetyDays = new Date();
-    ninetyDays.setDate(ninetyDays.getDate() + 90);
-
-    const enriched = approvals.map((approval: any) => ({
-      ...approval,
-      expiringSoon: approval.expiryDate && new Date(approval.expiryDate) <= ninetyDays && new Date(approval.expiryDate) > now,
-      expired: approval.expiryDate && new Date(approval.expiryDate) <= now,
-    }));
-
-    res.json({
-      success: true,
-      data: enriched,
-      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
-    });
-  } catch (error) {
-    logger.error('List Nadcap approvals error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list Nadcap approvals' } });
-  }
-});
 
 // POST /nadcap - Record Nadcap approval
 router.post('/nadcap', async (req: AuthRequest, res: Response) => {

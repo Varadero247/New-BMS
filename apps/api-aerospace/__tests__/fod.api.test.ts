@@ -267,16 +267,14 @@ describe('Aerospace FOD (Foreign Object Debris) API', () => {
 
   // =============================================
   // GET /inspections
-  // NOTE: This route is defined after GET /:id in the router, so in Express route ordering
-  // the /:id handler intercepts it. GET /inspections returns 404 because
-  // findUnique('inspections') is not mocked. POST /inspections is reachable.
   // =============================================
-  describe('GET /api/fod/inspections (intercepted by /:id)', () => {
-    it('should return 404 because /:id route intercepts the path', async () => {
-      // aeroFodIncident.findUnique not mocked, returns undefined → 404
+  describe('GET /api/fod/inspections', () => {
+    it('should list FOD inspections', async () => {
+      mockPrisma.aeroFodInspection.findMany.mockResolvedValueOnce([]);
+      mockPrisma.aeroFodInspection.count.mockResolvedValueOnce(0);
       const res = await request(app).get('/api/fod/inspections').set('Authorization', 'Bearer token');
-      expect(res.status).toBe(404);
-      expect(res.body.error.code).toBe('NOT_FOUND');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
     });
   });
 

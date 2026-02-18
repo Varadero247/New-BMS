@@ -139,6 +139,46 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// GET /reviews - List safety reviews
+router.get('/reviews', scopeToUser, async (req: AuthRequest, res: Response) => {
+  try {
+    const { page = '1', limit = '20', reviewType, result, search } = req.query;
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
+
+    const where: Record<string, unknown> = { deletedAt: null };
+    if (reviewType) where.reviewType = reviewType as any;
+    if (result) where.result = result as any;
+    if (search) {
+      where.OR = [
+        { title: { contains: search as string, mode: 'insensitive' } },
+        { refNumber: { contains: search as string, mode: 'insensitive' } },
+        { scope: { contains: search as string, mode: 'insensitive' } },
+      ];
+    }
+
+    const [reviews, total] = await Promise.all([
+      prisma.aeroSafetyReview.findMany({
+        where,
+        skip,
+        take: limitNum,
+        orderBy: { scheduledDate: 'desc' },
+      }),
+      prisma.aeroSafetyReview.count({ where }),
+    ]);
+
+    res.json({
+      success: true,
+      data: reviews,
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
+    });
+  } catch (error) {
+    logger.error('List safety reviews error', { error: (error as Error).message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list safety reviews' } });
+  }
+});
+
 // GET /:id - Get product safety item
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
@@ -252,46 +292,6 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 // ============================================
 // SAFETY REVIEWS
 // ============================================
-
-// GET /reviews - List safety reviews
-router.get('/reviews', scopeToUser, async (req: AuthRequest, res: Response) => {
-  try {
-    const { page = '1', limit = '20', reviewType, result, search } = req.query;
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
-    const skip = (pageNum - 1) * limitNum;
-
-    const where: Record<string, unknown> = { deletedAt: null };
-    if (reviewType) where.reviewType = reviewType as any;
-    if (result) where.result = result as any;
-    if (search) {
-      where.OR = [
-        { title: { contains: search as string, mode: 'insensitive' } },
-        { refNumber: { contains: search as string, mode: 'insensitive' } },
-        { scope: { contains: search as string, mode: 'insensitive' } },
-      ];
-    }
-
-    const [reviews, total] = await Promise.all([
-      prisma.aeroSafetyReview.findMany({
-        where,
-        skip,
-        take: limitNum,
-        orderBy: { scheduledDate: 'desc' },
-      }),
-      prisma.aeroSafetyReview.count({ where }),
-    ]);
-
-    res.json({
-      success: true,
-      data: reviews,
-      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
-    });
-  } catch (error) {
-    logger.error('List safety reviews error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list safety reviews' } });
-  }
-});
 
 // POST /reviews - Create safety review
 router.post('/reviews', async (req: AuthRequest, res: Response) => {

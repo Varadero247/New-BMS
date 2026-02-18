@@ -266,16 +266,14 @@ describe('Aerospace Product Safety API', () => {
 
   // =============================================
   // GET /reviews
-  // NOTE: This route is defined after GET /:id in the router, so in Express route ordering
-  // the /:id handler intercepts it. GET /reviews returns 404 because
-  // findUnique('reviews') is not mocked. POST /reviews is reachable.
   // =============================================
-  describe('GET /api/product-safety/reviews (intercepted by /:id)', () => {
-    it('should return 404 because /:id route intercepts the path', async () => {
-      // aeroProductSafetyItem.findUnique not mocked, returns undefined → 404
+  describe('GET /api/product-safety/reviews', () => {
+    it('should list safety reviews', async () => {
+      mockPrisma.aeroSafetyReview.findMany.mockResolvedValueOnce([]);
+      mockPrisma.aeroSafetyReview.count.mockResolvedValueOnce(0);
       const res = await request(app).get('/api/product-safety/reviews').set('Authorization', 'Bearer token');
-      expect(res.status).toBe(404);
-      expect(res.body.error.code).toBe('NOT_FOUND');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
     });
   });
 

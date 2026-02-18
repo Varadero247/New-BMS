@@ -128,6 +128,46 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// GET /suspect-parts - List suspect parts
+router.get('/suspect-parts', scopeToUser, async (req: AuthRequest, res: Response) => {
+  try {
+    const { page = '1', limit = '20', riskLevel, search } = req.query;
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
+
+    const where: Record<string, unknown> = { deletedAt: null };
+    if (riskLevel) where.riskLevel = riskLevel as any;
+    if (search) {
+      where.OR = [
+        { partNumber: { contains: search as string, mode: 'insensitive' } },
+        { nomenclature: { contains: search as string, mode: 'insensitive' } },
+        { manufacturer: { contains: search as string, mode: 'insensitive' } },
+        { refNumber: { contains: search as string, mode: 'insensitive' } },
+      ];
+    }
+
+    const [parts, total] = await Promise.all([
+      prisma.aeroSuspectPart.findMany({
+        where,
+        skip,
+        take: limitNum,
+        orderBy: [{ riskLevel: 'asc' }, { createdAt: 'desc' }],
+      }),
+      prisma.aeroSuspectPart.count({ where }),
+    ]);
+
+    res.json({
+      success: true,
+      data: parts,
+      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
+    });
+  } catch (error) {
+    logger.error('List suspect parts error', { error: (error as Error).message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list suspect parts' } });
+  }
+});
+
 // GET /:id - Get counterfeit report
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
@@ -239,46 +279,6 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 // ============================================
 // SUSPECT PARTS DATABASE
 // ============================================
-
-// GET /suspect-parts - List suspect parts
-router.get('/suspect-parts', scopeToUser, async (req: AuthRequest, res: Response) => {
-  try {
-    const { page = '1', limit = '20', riskLevel, search } = req.query;
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
-    const skip = (pageNum - 1) * limitNum;
-
-    const where: Record<string, unknown> = { deletedAt: null };
-    if (riskLevel) where.riskLevel = riskLevel as any;
-    if (search) {
-      where.OR = [
-        { partNumber: { contains: search as string, mode: 'insensitive' } },
-        { nomenclature: { contains: search as string, mode: 'insensitive' } },
-        { manufacturer: { contains: search as string, mode: 'insensitive' } },
-        { refNumber: { contains: search as string, mode: 'insensitive' } },
-      ];
-    }
-
-    const [parts, total] = await Promise.all([
-      prisma.aeroSuspectPart.findMany({
-        where,
-        skip,
-        take: limitNum,
-        orderBy: [{ riskLevel: 'asc' }, { createdAt: 'desc' }],
-      }),
-      prisma.aeroSuspectPart.count({ where }),
-    ]);
-
-    res.json({
-      success: true,
-      data: parts,
-      meta: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
-    });
-  } catch (error) {
-    logger.error('List suspect parts error', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list suspect parts' } });
-  }
-});
 
 // POST /suspect-parts - Add suspect part to database
 router.post('/suspect-parts', async (req: AuthRequest, res: Response) => {
