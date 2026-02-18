@@ -115,36 +115,47 @@ router.get('/:id', checkOwnership(prisma.projectTask), async (req: AuthRequest, 
   }
 });
 
+const createTaskSchema = z.object({
+  projectId: z.string().trim().min(1).max(200),
+  taskCode: z.string().trim().min(1).max(200),
+  taskName: z.string().trim().min(1).max(200),
+  taskDescription: z.string().optional(),
+  parentTaskId: z.string().optional(),
+  wbsLevel: z.number().optional(),
+  sortOrder: z.number().int().nonnegative().optional(),
+  taskType: z.enum(['TASK', 'MILESTONE', 'PHASE', 'DELIVERABLE']).optional(),
+  assignedToId: z.string().optional(),
+  assignedDepartment: z.string().optional(),
+  plannedStartDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  plannedEndDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  plannedDuration: z.number().nonnegative().optional(),
+  plannedEffort: z.number().optional(),
+  predecessorIds: z.string().optional(),
+  dependencyType: z.string().optional(),
+  lagDays: z.number().optional(),
+  isCriticalPath: z.boolean().optional(),
+  plannedCost: z.number().nonnegative().optional(),
+  acceptanceCriteria: z.string().optional(),
+  priority: z.string().optional(),
+  tags: z.string().optional(),
+  status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'BLOCKED', 'CANCELLED']).optional(),
+});
+const updateTaskSchema = createTaskSchema.extend({
+  actualStartDate: z.string().optional(),
+  actualEndDate: z.string().optional(),
+  baselineStartDate: z.string().optional(),
+  baselineEndDate: z.string().optional(),
+  progressPercentage: z.number().min(0).max(100).optional(),
+  actualDuration: z.number().nonnegative().optional(),
+  actualEffort: z.number().nonnegative().optional(),
+  actualCost: z.number().nonnegative().optional(),
+  slack: z.number().optional(),
+}).partial();
+
 // POST /api/tasks - Create task
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
-    const schema = z.object({
-      projectId: z.string().trim().min(1).max(200),
-      taskCode: z.string().trim().min(1).max(200),
-      taskName: z.string().trim().min(1).max(200),
-      taskDescription: z.string().optional(),
-      parentTaskId: z.string().optional(),
-      wbsLevel: z.number().optional(),
-      sortOrder: z.number().int().nonnegative().optional(),
-      taskType: z.enum(['TASK', 'MILESTONE', 'PHASE', 'DELIVERABLE']).optional(),
-      assignedToId: z.string().optional(),
-      assignedDepartment: z.string().optional(),
-      plannedStartDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      plannedEndDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      plannedDuration: z.number().nonnegative().optional(),
-      plannedEffort: z.number().optional(),
-      predecessorIds: z.string().optional(),
-      dependencyType: z.string().optional(),
-      lagDays: z.number().optional(),
-      isCriticalPath: z.boolean().optional(),
-      plannedCost: z.number().nonnegative().optional(),
-      acceptanceCriteria: z.string().optional(),
-      priority: z.string().optional(),
-      tags: z.string().optional(),
-      status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'BLOCKED', 'CANCELLED']).optional(),
-    });
-
-    const data = schema.parse(req.body);
+    const data = createTaskSchema.parse(req.body);
 
     const task = await prisma.projectTask.create({
       data: {
@@ -192,7 +203,9 @@ router.put('/:id', checkOwnership(prisma.projectTask), async (req: AuthRequest, 
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Task not found' } });
     }
 
-    const data = req.body;
+    const parsed = updateTaskSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    const data = parsed.data;
     const updateData = { ...data } as Record<string, unknown>;
 
     // Handle date conversions

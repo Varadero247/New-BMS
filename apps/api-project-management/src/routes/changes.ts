@@ -49,29 +49,32 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   }
 });
 
+const createChangeSchema = z.object({
+  projectId: z.string().trim().min(1).max(200),
+  changeCode: z.string().trim().min(1).max(200),
+  changeTitle: z.string().trim().min(1).max(200),
+  changeDescription: z.string().trim().min(1).max(2000),
+  changeReason: z.string().trim().min(1).max(2000),
+  changeType: z.enum(['SCOPE', 'SCHEDULE', 'BUDGET', 'QUALITY', 'RESOURCE', 'PROCESS']),
+  impactOnScope: z.string().optional(),
+  impactOnSchedule: z.number().optional(),
+  impactOnBudget: z.number().nonnegative().optional(),
+  impactOnQuality: z.string().optional(),
+  impactOnRisk: z.string().optional(),
+  impactOnResources: z.string().optional(),
+  benefits: z.string().optional(),
+  implementationPlan: z.string().optional(),
+  priority: z.string().optional(),
+  urgency: z.string().optional(),
+});
+const updateChangeSchema = createChangeSchema.extend({
+  implementedAt: z.string().optional(),
+}).partial();
+
 // POST /api/changes - Create change request
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
-    const schema = z.object({
-      projectId: z.string().trim().min(1).max(200),
-      changeCode: z.string().trim().min(1).max(200),
-      changeTitle: z.string().trim().min(1).max(200),
-      changeDescription: z.string().trim().min(1).max(2000),
-      changeReason: z.string().trim().min(1).max(2000),
-      changeType: z.enum(['SCOPE', 'SCHEDULE', 'BUDGET', 'QUALITY', 'RESOURCE', 'PROCESS']),
-      impactOnScope: z.string().optional(),
-      impactOnSchedule: z.number().optional(),
-      impactOnBudget: z.number().nonnegative().optional(),
-      impactOnQuality: z.string().optional(),
-      impactOnRisk: z.string().optional(),
-      impactOnResources: z.string().optional(),
-      benefits: z.string().optional(),
-      implementationPlan: z.string().optional(),
-      priority: z.string().optional(),
-      urgency: z.string().optional(),
-    });
-
-    const data = schema.parse(req.body);
+    const data = createChangeSchema.parse(req.body);
 
     const change = await prisma.projectChange.create({
       data: {
@@ -115,7 +118,9 @@ router.put('/:id', checkOwnership(prisma.projectChange), async (req: AuthRequest
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Change request not found' } });
     }
 
-    const data = req.body;
+    const parsed = updateChangeSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    const data = parsed.data;
     const updateData = { ...data } as Record<string, unknown>;
 
     if (data.implementedAt) updateData.implementedAt = new Date(data.implementedAt);

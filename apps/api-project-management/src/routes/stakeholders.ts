@@ -57,30 +57,31 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   }
 });
 
+const createStakeholderSchema = z.object({
+  projectId: z.string().trim().min(1).max(200),
+  stakeholderName: z.string().trim().min(1).max(200),
+  stakeholderOrg: z.string().optional(),
+  stakeholderRole: z.string().trim().min(1).max(200),
+  stakeholderType: z.enum(['INTERNAL', 'EXTERNAL', 'SPONSOR', 'CUSTOMER', 'SUPPLIER', 'REGULATOR']),
+  email: z.string().trim().email('Invalid email').optional(),
+  phone: z.string().optional(),
+  powerLevel: z.number().min(1).max(5),
+  interestLevel: z.number().min(1).max(5),
+  currentEngagement: z.string().optional(),
+  desiredEngagement: z.string().optional(),
+  engagementStrategy: z.string().optional(),
+  communicationFrequency: z.string().optional(),
+  communicationMethod: z.string().optional(),
+  requirements: z.string().optional(),
+  expectations: z.string().optional(),
+  status: z.string().optional(),
+});
+const updateStakeholderSchema = createStakeholderSchema.partial();
+
 // POST /api/stakeholders - Create stakeholder
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
-    const schema = z.object({
-      projectId: z.string().trim().min(1).max(200),
-      stakeholderName: z.string().trim().min(1).max(200),
-      stakeholderOrg: z.string().optional(),
-      stakeholderRole: z.string().trim().min(1).max(200),
-      stakeholderType: z.enum(['INTERNAL', 'EXTERNAL', 'SPONSOR', 'CUSTOMER', 'SUPPLIER', 'REGULATOR']),
-      email: z.string().trim().email('Invalid email').optional(),
-      phone: z.string().optional(),
-      powerLevel: z.number().min(1).max(5),
-      interestLevel: z.number().min(1).max(5),
-      currentEngagement: z.string().optional(),
-      desiredEngagement: z.string().optional(),
-      engagementStrategy: z.string().optional(),
-      communicationFrequency: z.string().optional(),
-      communicationMethod: z.string().optional(),
-      requirements: z.string().optional(),
-      expectations: z.string().optional(),
-      status: z.string().optional(),
-    });
-
-    const data = schema.parse(req.body);
+    const data = createStakeholderSchema.parse(req.body);
 
     const stakeholderCategory = getStakeholderCategory(data.powerLevel, data.interestLevel);
 
@@ -125,7 +126,9 @@ router.put('/:id', checkOwnership(prisma.projectStakeholder), async (req: AuthRe
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Stakeholder not found' } });
     }
 
-    const data = req.body;
+    const parsed = updateStakeholderSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    const data = parsed.data;
     const updateData = { ...data } as Record<string, unknown>;
 
     // Recalculate stakeholder category if power/interest changed

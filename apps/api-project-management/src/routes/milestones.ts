@@ -49,22 +49,26 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   }
 });
 
+const createMilestoneSchema = z.object({
+  projectId: z.string().trim().min(1).max(200),
+  milestoneName: z.string().trim().min(1).max(200),
+  milestoneDescription: z.string().optional(),
+  plannedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  baselineDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  deliverables: z.string().optional(),
+  requiresApproval: z.boolean().optional(),
+  isCritical: z.boolean().optional(),
+  status: z.string().optional(),
+});
+const updateMilestoneSchema = createMilestoneSchema.extend({
+  actualDate: z.string().optional(),
+  achievementPercentage: z.number().min(0).max(100).optional(),
+}).partial();
+
 // POST /api/milestones - Create milestone
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
-    const schema = z.object({
-      projectId: z.string().trim().min(1).max(200),
-      milestoneName: z.string().trim().min(1).max(200),
-      milestoneDescription: z.string().optional(),
-      plannedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-      baselineDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      deliverables: z.string().optional(),
-      requiresApproval: z.boolean().optional(),
-      isCritical: z.boolean().optional(),
-      status: z.string().optional(),
-    });
-
-    const data = schema.parse(req.body);
+    const data = createMilestoneSchema.parse(req.body);
 
     const milestone = await prisma.projectMilestone.create({
       data: {
@@ -100,7 +104,9 @@ router.put('/:id', checkOwnership(prisma.projectMilestone), async (req: AuthRequ
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Milestone not found' } });
     }
 
-    const data = req.body;
+    const parsed = updateMilestoneSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    const data = parsed.data;
     const updateData = { ...data } as Record<string, unknown>;
 
     if (data.plannedDate) updateData.plannedDate = new Date(data.plannedDate);

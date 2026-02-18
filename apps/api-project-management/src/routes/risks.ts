@@ -60,30 +60,35 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   }
 });
 
+const createProjectRiskSchema = z.object({
+  projectId: z.string().trim().min(1).max(200),
+  riskCode: z.string().trim().min(1).max(200),
+  riskTitle: z.string().trim().min(1).max(200),
+  riskDescription: z.string().trim().min(1).max(2000),
+  riskCategory: z.enum(['TECHNICAL', 'RESOURCE', 'SCHEDULE', 'BUDGET', 'QUALITY', 'EXTERNAL']),
+  riskTrigger: z.string().optional(),
+  probability: z.number().min(1).max(5),
+  impact: z.number().min(1).max(5),
+  expectedMonetaryValue: z.number().optional(),
+  contingencyAmount: z.number().nonnegative().optional(),
+  responseStrategy: z.string().optional(),
+  responsePlan: z.string().optional(),
+  responseOwner: z.string().optional(),
+  mitigationActions: z.string().optional(),
+  contingencyPlan: z.string().optional(),
+  status: z.string().optional(),
+  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+});
+const updateProjectRiskSchema = createProjectRiskSchema.extend({
+  residualProbability: z.number().min(1).max(5).optional(),
+  residualImpact: z.number().min(1).max(5).optional(),
+  closedDate: z.string().optional(),
+}).partial();
+
 // POST /api/risks - Create project risk
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
-    const schema = z.object({
-      projectId: z.string().trim().min(1).max(200),
-      riskCode: z.string().trim().min(1).max(200),
-      riskTitle: z.string().trim().min(1).max(200),
-      riskDescription: z.string().trim().min(1).max(2000),
-      riskCategory: z.enum(['TECHNICAL', 'RESOURCE', 'SCHEDULE', 'BUDGET', 'QUALITY', 'EXTERNAL']),
-      riskTrigger: z.string().optional(),
-      probability: z.number().min(1).max(5),
-      impact: z.number().min(1).max(5),
-      expectedMonetaryValue: z.number().optional(),
-      contingencyAmount: z.number().nonnegative().optional(),
-      responseStrategy: z.string().optional(),
-      responsePlan: z.string().optional(),
-      responseOwner: z.string().optional(),
-      mitigationActions: z.string().optional(),
-      contingencyPlan: z.string().optional(),
-      status: z.string().optional(),
-      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-    });
-
-    const data = schema.parse(req.body);
+    const data = createProjectRiskSchema.parse(req.body);
 
     const riskScore = data.probability * data.impact;
     const riskLevel = getRiskLevel(data.probability, data.impact);
@@ -132,7 +137,9 @@ router.put('/:id', checkOwnership(prisma.projectRisk), async (req: AuthRequest, 
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project risk not found' } });
     }
 
-    const data = req.body;
+    const parsed = updateProjectRiskSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    const data = parsed.data;
     const updateData = { ...data } as Record<string, unknown>;
 
     // Recalculate risk score if probability or impact changed

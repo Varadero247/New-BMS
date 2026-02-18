@@ -49,26 +49,30 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   }
 });
 
+const createDocumentSchema = z.object({
+  projectId: z.string().trim().min(1).max(200),
+  documentCode: z.string().trim().min(1).max(200),
+  documentTitle: z.string().trim().min(1).max(200),
+  documentType: z.enum(['CHARTER', 'PLAN', 'REPORT', 'SPECIFICATION', 'DESIGN', 'DRAWING', 'CONTRACT']),
+  documentCategory: z.string().optional(),
+  version: z.string().optional(),
+  fileUrl: z.string().trim().url('Invalid URL').optional(),
+  fileSize: z.number().nonnegative().optional(),
+  fileType: z.string().optional(),
+  description: z.string().optional(),
+  keywords: z.string().optional(),
+  accessLevel: z.string().optional(),
+  status: z.string().optional(),
+});
+const updateDocumentSchema = createDocumentSchema.extend({
+  reviewedAt: z.string().optional(),
+  approvedAt: z.string().optional(),
+}).partial();
+
 // POST /api/documents - Create document
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
-    const schema = z.object({
-      projectId: z.string().trim().min(1).max(200),
-      documentCode: z.string().trim().min(1).max(200),
-      documentTitle: z.string().trim().min(1).max(200),
-      documentType: z.enum(['CHARTER', 'PLAN', 'REPORT', 'SPECIFICATION', 'DESIGN', 'DRAWING', 'CONTRACT']),
-      documentCategory: z.string().optional(),
-      version: z.string().optional(),
-      fileUrl: z.string().trim().url('Invalid URL').optional(),
-      fileSize: z.number().nonnegative().optional(),
-      fileType: z.string().optional(),
-      description: z.string().optional(),
-      keywords: z.string().optional(),
-      accessLevel: z.string().optional(),
-      status: z.string().optional(),
-    });
-
-    const data = schema.parse(req.body);
+    const data = createDocumentSchema.parse(req.body);
 
     const document = await prisma.projectDocument.create({
       data: {
@@ -107,7 +111,9 @@ router.put('/:id', checkOwnership(prisma.projectDocument), async (req: AuthReque
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
     }
 
-    const data = req.body;
+    const parsed = updateDocumentSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    const data = parsed.data;
     const updateData = { ...data, updatedBy: req.user?.id } as Record<string, unknown>;
 
     if (data.reviewedAt) updateData.reviewedAt = new Date(data.reviewedAt);

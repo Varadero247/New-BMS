@@ -78,7 +78,7 @@ router.post('/:snapshotId/approve', async (req: Request, res: Response) => {
     const { snapshotId } = req.params;
     const parsed = approveSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.message } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
 
     const snapshot = await prisma.monthlySnapshot.findUnique({ where: { id: snapshotId } });

@@ -54,24 +54,25 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   }
 });
 
+const createTimesheetSchema = z.object({
+  projectId: z.string().trim().min(1).max(200),
+  taskId: z.string().optional(),
+  employeeId: z.string().trim().min(1).max(200),
+  workDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  hoursWorked: z.number().min(0),
+  overtime: z.number().optional(),
+  activityType: z.enum(['DEVELOPMENT', 'TESTING', 'DESIGN', 'MEETING', 'DOCUMENTATION', 'ADMIN']),
+  description: z.string().optional(),
+  isBillable: z.boolean().optional(),
+  billableHours: z.number().nonnegative().optional(),
+  hourlyRate: z.number().nonnegative().optional(),
+});
+const updateTimesheetSchema = createTimesheetSchema.partial();
+
 // POST /api/timesheets - Create timesheet entry
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
-    const schema = z.object({
-      projectId: z.string().trim().min(1).max(200),
-      taskId: z.string().optional(),
-      employeeId: z.string().trim().min(1).max(200),
-      workDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-      hoursWorked: z.number().min(0),
-      overtime: z.number().optional(),
-      activityType: z.enum(['DEVELOPMENT', 'TESTING', 'DESIGN', 'MEETING', 'DOCUMENTATION', 'ADMIN']),
-      description: z.string().optional(),
-      isBillable: z.boolean().optional(),
-      billableHours: z.number().nonnegative().optional(),
-      hourlyRate: z.number().nonnegative().optional(),
-    });
-
-    const data = schema.parse(req.body);
+    const data = createTimesheetSchema.parse(req.body);
 
     // Calculate total cost if hourly rate provided
     const billableHours = data.billableHours ?? data.hoursWorked;
@@ -113,7 +114,9 @@ router.put('/:id', checkOwnership(prisma.projectTimesheet), async (req: AuthRequ
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Timesheet not found' } });
     }
 
-    const data = req.body;
+    const parsed = updateTimesheetSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
+    const data = parsed.data;
     const updateData = { ...data } as Record<string, unknown>;
 
     if (data.workDate) updateData.workDate = new Date(data.workDate);
