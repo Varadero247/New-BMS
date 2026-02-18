@@ -87,7 +87,7 @@ router.get('/:id', checkOwnership(prisma.productCategory), async (req: AuthReque
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      name: z.string().min(1),
+      name: z.string().trim().min(1),
       description: z.string().optional(),
       parentId: z.string().optional(),
       code: z.string().optional(),
@@ -142,7 +142,7 @@ router.patch('/:id', checkOwnership(prisma.productCategory), async (req: AuthReq
     }
 
     const schema = z.object({
-      name: z.string().min(1).optional(),
+      name: z.string().trim().min(1).optional(),
       description: z.string().optional().nullable(),
       parentId: z.string().optional().nullable(),
       code: z.string().optional().nullable(),

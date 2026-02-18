@@ -29,7 +29,7 @@ const widgetTypeEnum = z.enum(['CHART', 'TABLE', 'KPI', 'MAP', 'GAUGE', 'HEATMAP
 const dataSourceEnum = z.enum(['HEALTH_SAFETY', 'ENVIRONMENT', 'QUALITY', 'HR', 'FINANCE', 'CRM', 'INVENTORY', 'CMMS', 'ALL']);
 
 const dashboardCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   description: z.string().max(1000).optional().nullable(),
   layout: z.record(z.any()).default({}),
   widgets: z.array(z.any()).default([]),
@@ -39,7 +39,7 @@ const dashboardCreateSchema = z.object({
 });
 
 const dashboardUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(1000).optional().nullable(),
   layout: z.record(z.any()).optional(),
   widgets: z.array(z.any()).optional(),
@@ -49,7 +49,7 @@ const dashboardUpdateSchema = z.object({
 });
 
 const widgetCreateSchema = z.object({
-  title: z.string().min(1).max(200),
+  title: z.string().trim().min(1).max(200),
   type: widgetTypeEnum,
   config: z.record(z.any()).default({}),
   dataSource: dataSourceEnum,
@@ -59,7 +59,7 @@ const widgetCreateSchema = z.object({
 });
 
 const widgetUpdateSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   type: widgetTypeEnum.optional(),
   config: z.record(z.any()).optional(),
   dataSource: dataSourceEnum.optional(),

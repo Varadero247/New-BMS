@@ -18,11 +18,11 @@ async function generateRefNumber(): Promise<string> {
 }
 
 const createSchema = z.object({
-  employeeName: z.string().min(1).max(200),
+  employeeName: z.string().trim().min(1).max(200),
   employeeId: z.string().max(100).optional().nullable(),
   role: z.string().max(200).optional().nullable(),
   department: z.string().max(200).optional().nullable(),
-  competencyArea: z.string().min(1).max(300),
+  competencyArea: z.string().trim().min(1).max(300),
   requiredLevel: z.string().max(100).optional().nullable(),
   currentLevel: z.string().max(100).optional().nullable(),
   status: z.enum(['COMPETENT', 'IN_TRAINING', 'NOT_COMPETENT', 'EXPIRED']).optional(),

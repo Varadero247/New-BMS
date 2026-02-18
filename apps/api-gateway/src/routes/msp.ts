@@ -46,7 +46,7 @@ const mspLinks = new Map<string, MspLink>();
 
 const linkSchema = z.object({
   clientOrganisationId: z.string().uuid(),
-  clientOrganisationName: z.string().min(1).max(200),
+  clientOrganisationName: z.string().trim().min(1).max(200),
   permissions: z.array(z.enum(['READ', 'AUDIT', 'MANAGE', 'BILLING'])).min(1),
   whiteLabel: z.object({
     brandName: z.string().max(100).optional(),

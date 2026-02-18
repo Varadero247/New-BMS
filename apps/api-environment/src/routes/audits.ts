@@ -84,10 +84,10 @@ router.get('/schedule', scopeToUser, async (req: AuthRequest, res: Response) => 
 router.post('/schedule', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       type: z.enum(['SYSTEM', 'COMPLIANCE', 'SITE', 'SUPPLIER', 'MANAGEMENT_REVIEW']),
-      frequency: z.string().min(1),
-      nextDueDate: z.string().min(1),
+      frequency: z.string().trim().min(1),
+      nextDueDate: z.string().trim().min(1),
       iso14001Clauses: z.array(z.string()).min(1),
       description: z.string().optional(),
       assignedAuditor: z.string().optional(),
@@ -138,11 +138,11 @@ router.get('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       type: z.enum(['SYSTEM', 'COMPLIANCE', 'SITE', 'SUPPLIER', 'MANAGEMENT_REVIEW']),
-      scope: z.string().min(1),
-      auditDate: z.string().min(1),
-      leadAuditor: z.string().min(1),
+      scope: z.string().trim().min(1),
+      auditDate: z.string().trim().min(1),
+      leadAuditor: z.string().trim().min(1),
       iso14001Clauses: z.array(z.string()).min(1),
       department: z.string().optional(),
       auditTeam: z.array(z.string()).optional().default([]),
@@ -212,9 +212,9 @@ router.put('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
 
     const schema = z.object({
-      title: z.string().min(1).optional(),
+      title: z.string().trim().min(1).optional(),
       type: z.enum(['SYSTEM', 'COMPLIANCE', 'SITE', 'SUPPLIER', 'MANAGEMENT_REVIEW']).optional(),
-      scope: z.string().min(1).optional(),
+      scope: z.string().trim().min(1).optional(),
       auditDate: z.string().optional(),
       leadAuditor: z.string().optional(),
       iso14001Clauses: z.array(z.string()).optional(),
@@ -287,9 +287,9 @@ router.post('/:id/findings', async (req: AuthRequest, res: Response) => {
     if (!audit) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
 
     const schema = z.object({
-      clause: z.string().min(1),
+      clause: z.string().trim().min(1),
       type: z.enum(['CONFORMITY', 'MINOR_NC', 'MAJOR_NC', 'OBSERVATION', 'OFI']),
-      description: z.string().min(1),
+      description: z.string().trim().min(1),
       evidence: z.string().optional(),
       requirement: z.string().optional(),
       correctiveAction: z.string().optional(),
@@ -424,7 +424,7 @@ router.post('/:id/complete', async (req: AuthRequest, res: Response) => {
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
 
     const schema = z.object({
-      summary: z.string().min(1),
+      summary: z.string().trim().min(1),
       conclusions: z.string().optional(),
       recommendations: z.string().optional(),
     });

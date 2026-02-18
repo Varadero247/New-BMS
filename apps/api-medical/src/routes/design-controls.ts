@@ -114,15 +114,15 @@ router.get('/:id', checkOwnership(prisma.designProject), async (req: AuthRequest
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
-      deviceName: z.string().min(1),
+      title: z.string().trim().min(1),
+      deviceName: z.string().trim().min(1),
       deviceClass: z.enum(['CLASS_I', 'CLASS_II', 'CLASS_III', 'CLASS_IIA', 'CLASS_IIB']),
-      intendedUse: z.string().min(1),
+      intendedUse: z.string().trim().min(1),
       patientPopulation: z.string().optional(),
       regulatoryPathway: z.string().optional(),
-      projectLead: z.string().min(1),
+      projectLead: z.string().trim().min(1),
       teamMembers: z.array(z.string()).optional().default([]),
-      startDate: z.string().min(1),
+      startDate: z.string().trim().min(1),
       targetDate: z.string().optional(),
       status: z.enum(['ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
     });
@@ -170,15 +170,15 @@ router.put('/:id', checkOwnership(prisma.designProject), async (req: AuthRequest
     }
 
     const schema = z.object({
-      title: z.string().min(1).optional(),
-      deviceName: z.string().min(1).optional(),
+      title: z.string().trim().min(1).optional(),
+      deviceName: z.string().trim().min(1).optional(),
       deviceClass: z.enum(['CLASS_I', 'CLASS_II', 'CLASS_III', 'CLASS_IIA', 'CLASS_IIB']).optional(),
-      intendedUse: z.string().min(1).optional(),
+      intendedUse: z.string().trim().min(1).optional(),
       patientPopulation: z.string().optional(),
       regulatoryPathway: z.string().optional(),
       currentStage: z.enum(['PLANNING', 'INPUTS', 'OUTPUTS', 'REVIEW', 'VERIFICATION', 'VALIDATION', 'TRANSFER', 'COMPLETE']).optional(),
       status: z.enum(['ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
-      projectLead: z.string().min(1).optional(),
+      projectLead: z.string().trim().min(1).optional(),
       teamMembers: z.array(z.string()).optional(),
       startDate: z.string().optional(),
       targetDate: z.string().optional(),
@@ -241,8 +241,8 @@ router.post('/:id/inputs', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       category: z.enum(['FUNCTIONAL', 'PERFORMANCE', 'SAFETY', 'REGULATORY', 'USER_NEED', 'ENVIRONMENTAL', 'INTERFACE', 'STANDARDS']),
-      requirement: z.string().min(1),
-      source: z.string().min(1),
+      requirement: z.string().trim().min(1),
+      source: z.string().trim().min(1),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
       traceToOutput: z.string().optional(),
       traceToVerification: z.string().optional(),
@@ -284,9 +284,9 @@ router.post('/:id/outputs', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       category: z.enum(['DRAWING', 'SPECIFICATION', 'SOFTWARE', 'LABELLING', 'MANUFACTURING', 'ACCEPTANCE_CRITERIA', 'PACKAGING', 'RISK_ANALYSIS']),
-      description: z.string().min(1),
+      description: z.string().trim().min(1),
       documentRef: z.string().optional(),
-      acceptanceCriteria: z.string().min(1),
+      acceptanceCriteria: z.string().trim().min(1),
       traceToInput: z.string().optional(),
       status: z.enum(['DRAFT', 'REVIEWED', 'APPROVED', 'SUPERSEDED']).optional(),
     });
@@ -327,7 +327,7 @@ router.post('/:id/reviews', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       stage: z.enum(['PLANNING', 'INPUTS', 'OUTPUTS', 'REVIEW', 'VERIFICATION', 'VALIDATION', 'TRANSFER', 'COMPLETE']),
-      reviewDate: z.string().min(1),
+      reviewDate: z.string().trim().min(1),
       reviewers: z.array(z.string()).min(1),
       decision: z.enum(['APPROVED', 'APPROVED_WITH_CONDITIONS', 'NEEDS_REWORK', 'REJECTED']),
       minutes: z.string().optional(),
@@ -371,10 +371,10 @@ router.post('/:id/verifications', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       protocol: z.string().optional(),
-      testMethod: z.string().min(1),
-      acceptanceCriteria: z.string().min(1),
+      testMethod: z.string().trim().min(1),
+      acceptanceCriteria: z.string().trim().min(1),
       results: z.string().optional(),
       pass: z.boolean().optional(),
       completedDate: z.string().optional(),
@@ -422,9 +422,9 @@ router.post('/:id/validations', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       protocol: z.string().optional(),
-      testMethod: z.string().min(1),
+      testMethod: z.string().trim().min(1),
       intendedUseConfirmed: z.boolean().optional(),
       results: z.string().optional(),
       pass: z.boolean().optional(),
@@ -716,14 +716,14 @@ router.post('/:id/dhf', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       category: z.enum([
         'DESIGN_PLAN', 'USER_NEEDS', 'DESIGN_INPUT', 'DESIGN_OUTPUT',
         'DESIGN_REVIEW', 'VERIFICATION_PROTOCOL', 'VERIFICATION_RESULT',
         'VALIDATION_PROTOCOL', 'VALIDATION_RESULT', 'RISK_MANAGEMENT',
         'TRANSFER_RECORD', 'CHANGE_ORDER', 'OTHER',
       ]),
-      documentRef: z.string().min(1),
+      documentRef: z.string().trim().min(1),
       version: z.string().optional(),
     });
 

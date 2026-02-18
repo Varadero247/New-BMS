@@ -86,7 +86,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 router.post('/:id/inspect', authenticate, async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      inspectionResult: z.string().min(1),
+      inspectionResult: z.string().trim().min(1),
       defects: z.string().optional(),
       isOperational: z.boolean().optional(),
     });

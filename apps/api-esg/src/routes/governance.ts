@@ -19,8 +19,8 @@ function generateReference(prefix: string): string {
 
 const governanceCreateSchema = z.object({
   category: z.enum(['BOARD', 'ETHICS', 'RISK', 'COMPLIANCE', 'TRANSPARENCY', 'ANTI_CORRUPTION']),
-  metric: z.string().min(1).max(200),
-  value: z.string().min(1).max(1000),
+  metric: z.string().trim().min(1).max(200),
+  value: z.string().trim().min(1).max(1000),
   periodStart: z.string(),
   periodEnd: z.string(),
   notes: z.string().max(2000).optional().nullable(),
@@ -28,8 +28,8 @@ const governanceCreateSchema = z.object({
 
 const governanceUpdateSchema = z.object({
   category: z.enum(['BOARD', 'ETHICS', 'RISK', 'COMPLIANCE', 'TRANSPARENCY', 'ANTI_CORRUPTION']).optional(),
-  metric: z.string().min(1).max(200).optional(),
-  value: z.string().min(1).max(1000).optional(),
+  metric: z.string().trim().min(1).max(200).optional(),
+  value: z.string().trim().min(1).max(1000).optional(),
   periodStart: z.string().optional(),
   periodEnd: z.string().optional(),
   notes: z.string().max(2000).optional().nullable(),

@@ -22,7 +22,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const ncrResponseSchema = z.object({
-  resolution: z.string().min(1).max(5000),
+  resolution: z.string().trim().min(1).max(5000),
   attachments: z.any().optional().nullable(),
 });
 

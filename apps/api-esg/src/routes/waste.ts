@@ -20,7 +20,7 @@ function generateReference(prefix: string): string {
 const wasteCreateSchema = z.object({
   wasteType: z.enum(['HAZARDOUS', 'NON_HAZARDOUS', 'RECYCLABLE', 'ORGANIC', 'ELECTRONIC']),
   quantity: z.number().positive(),
-  unit: z.string().min(1).max(50),
+  unit: z.string().trim().min(1).max(50),
   disposalMethod: z.enum(['LANDFILL', 'RECYCLED', 'INCINERATED', 'COMPOSTED', 'REUSED']),
   periodStart: z.string(),
   periodEnd: z.string(),
@@ -30,7 +30,7 @@ const wasteCreateSchema = z.object({
 const wasteUpdateSchema = z.object({
   wasteType: z.enum(['HAZARDOUS', 'NON_HAZARDOUS', 'RECYCLABLE', 'ORGANIC', 'ELECTRONIC']).optional(),
   quantity: z.number().positive().optional(),
-  unit: z.string().min(1).max(50).optional(),
+  unit: z.string().trim().min(1).max(50).optional(),
   disposalMethod: z.enum(['LANDFILL', 'RECYCLED', 'INCINERATED', 'COMPOSTED', 'REUSED']).optional(),
   periodStart: z.string().optional(),
   periodEnd: z.string().optional(),

@@ -122,7 +122,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       process: z.enum(['STRATEGIC', 'FINANCE', 'HR', 'OPERATIONS', 'MARKETING_SALES', 'IT', 'COMPLIANCE_LEGAL', 'ALL_PROCESSES']),
-      riskDescription: z.string().min(1),
+      riskDescription: z.string().trim().min(1),
       reportedBy: z.string().optional(),
       likelihood: z.number().int().min(1).max(6).default(1),
       previousOccurrences: z.string().optional(),
@@ -191,7 +191,7 @@ router.put('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res
 
     const schema = z.object({
       process: z.enum(['STRATEGIC', 'FINANCE', 'HR', 'OPERATIONS', 'MARKETING_SALES', 'IT', 'COMPLIANCE_LEGAL', 'ALL_PROCESSES']).optional(),
-      riskDescription: z.string().min(1).optional(),
+      riskDescription: z.string().trim().min(1).optional(),
       reportedBy: z.string().nullable().optional(),
       likelihood: z.number().int().min(1).max(6).optional(),
       previousOccurrences: z.string().nullable().optional(),

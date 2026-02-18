@@ -10,7 +10,7 @@ const router: IRouter = Router();
 // Validation schemas
 const createCourseSchema = z.object({
   standard: z.enum(['ISO_45001', 'ISO_14001', 'ISO_9001']).optional(),
-  title: z.string().min(1).max(200),
+  title: z.string().trim().min(1).max(200),
   description: z.string().optional(),
   provider: z.string().optional(),
   duration: z.string().optional(),

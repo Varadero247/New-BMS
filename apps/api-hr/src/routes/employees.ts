@@ -14,10 +14,10 @@ router.param('id', validateIdParam());
 
 // Validation schemas
 const createEmployeeSchema = z.object({
-  employeeNumber: z.string().min(1),
-  firstName: z.string().min(1),
+  employeeNumber: z.string().trim().min(1),
+  firstName: z.string().trim().min(1),
   middleName: z.string().optional(),
-  lastName: z.string().min(1),
+  lastName: z.string().trim().min(1),
   dateOfBirth: z.string().optional(),
   gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']).optional(),
   personalEmail: z.string().email().optional(),

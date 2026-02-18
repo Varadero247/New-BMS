@@ -89,7 +89,7 @@ router.get('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, r
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       changeType: z.enum([
         'DOCUMENT_UPDATE', 'PROCESS_CHANGE', 'PRODUCT_CHANGE', 'SYSTEM_CHANGE',
         'REGULATORY_RESPONSE', 'CUSTOMER_REQUIREMENT', 'CORRECTIVE_ACTION',
@@ -97,13 +97,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       ]),
       priority: z.enum(['ROUTINE', 'URGENT', 'EMERGENCY']).optional(),
       isoClause: z.string().optional(),
-      requestedBy: z.string().min(1),
-      department: z.string().min(1),
+      requestedBy: z.string().trim().min(1),
+      department: z.string().trim().min(1),
       dateRequested: z.string().optional(),
       // Description
-      currentState: z.string().min(1),
-      proposedChange: z.string().min(1),
-      reasonForChange: z.string().min(1),
+      currentState: z.string().trim().min(1),
+      proposedChange: z.string().trim().min(1),
+      reasonForChange: z.string().trim().min(1),
       linkedDocument: z.string().optional(),
       linkedProcess: z.string().optional(),
       linkedNcCapa: z.string().optional(),
@@ -236,7 +236,7 @@ router.put('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, r
     }
 
     const schema = z.object({
-      title: z.string().min(1).optional(),
+      title: z.string().trim().min(1).optional(),
       changeType: z.enum([
         'DOCUMENT_UPDATE', 'PROCESS_CHANGE', 'PRODUCT_CHANGE', 'SYSTEM_CHANGE',
         'REGULATORY_RESPONSE', 'CUSTOMER_REQUIREMENT', 'CORRECTIVE_ACTION',

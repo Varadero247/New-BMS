@@ -22,7 +22,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const announcementCreateSchema = z.object({
-  title: z.string().min(1).max(200),
+  title: z.string().trim().min(1).max(200),
   content: z.string().min(1).max(10000),
   portalType: z.enum(['CUSTOMER', 'SUPPLIER']),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']),
@@ -31,7 +31,7 @@ const announcementCreateSchema = z.object({
 });
 
 const announcementUpdateSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   content: z.string().min(1).max(10000).optional(),
   portalType: z.enum(['CUSTOMER', 'SUPPLIER']).optional(),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),

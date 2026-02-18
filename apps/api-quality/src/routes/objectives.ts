@@ -91,8 +91,8 @@ router.get('/:id', checkOwnership(prisma.qualObjective), async (req: AuthRequest
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
-      objectiveStatement: z.string().min(1),
+      title: z.string().trim().min(1),
+      objectiveStatement: z.string().trim().min(1),
       category: z.enum([
         'CUSTOMER_SATISFACTION', 'PRODUCT_QUALITY', 'PROCESS_EFFICIENCY',
         'SUPPLIER_PERFORMANCE', 'COMPLIANCE', 'DEFECT_REDUCTION',
@@ -109,14 +109,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       linkedRisks: z.string().optional(),
       linkedOpportunities: z.string().optional(),
       // KPI
-      kpiDescription: z.string().min(1),
+      kpiDescription: z.string().trim().min(1),
       baselineValue: z.number(),
       targetValue: z.number(),
       currentValue: z.number().optional(),
-      unit: z.string().min(1),
+      unit: z.string().trim().min(1),
       // Ownership
-      owner: z.string().min(1),
-      department: z.string().min(1),
+      owner: z.string().trim().min(1),
+      department: z.string().trim().min(1),
       targetDate: z.string(),
       resourcesRequired: z.string().optional(),
       // Progress
@@ -184,7 +184,7 @@ router.put('/:id', checkOwnership(prisma.qualObjective), async (req: AuthRequest
     }
 
     const schema = z.object({
-      title: z.string().min(1).optional(),
+      title: z.string().trim().min(1).optional(),
       objectiveStatement: z.string().optional(),
       category: z.enum([
         'CUSTOMER_SATISFACTION', 'PRODUCT_QUALITY', 'PROCESS_EFFICIENCY',
@@ -270,7 +270,7 @@ router.post('/:id/milestones', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       targetDate: z.string(),
       status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'OVERDUE', 'CANCELLED']).optional(),
       notes: z.string().optional(),
@@ -311,7 +311,7 @@ router.put('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Respons
     }
 
     const schema = z.object({
-      title: z.string().min(1).optional(),
+      title: z.string().trim().min(1).optional(),
       targetDate: z.string().optional(),
       status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'OVERDUE', 'CANCELLED']).optional(),
       notes: z.string().optional(),

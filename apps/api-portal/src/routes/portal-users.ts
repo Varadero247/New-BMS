@@ -24,8 +24,8 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 
 const userCreateSchema = z.object({
   email: z.string().email(),
-  name: z.string().min(1).max(200),
-  company: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
+  company: z.string().trim().min(1).max(200),
   role: z.enum(['CUSTOMER_ADMIN', 'CUSTOMER_USER', 'SUPPLIER_ADMIN', 'SUPPLIER_USER']),
   portalType: z.enum(['CUSTOMER', 'SUPPLIER']),
   phone: z.string().max(50).optional().nullable(),
@@ -33,8 +33,8 @@ const userCreateSchema = z.object({
 });
 
 const userUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
-  company: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
+  company: z.string().trim().min(1).max(200).optional(),
   role: z.enum(['CUSTOMER_ADMIN', 'CUSTOMER_USER', 'SUPPLIER_ADMIN', 'SUPPLIER_USER']).optional(),
   phone: z.string().max(50).optional().nullable(),
   status: z.enum(['ACTIVE', 'INACTIVE', 'PENDING', 'SUSPENDED']).optional(),
@@ -42,8 +42,8 @@ const userUpdateSchema = z.object({
 
 const inviteSchema = z.object({
   email: z.string().email(),
-  name: z.string().min(1).max(200),
-  company: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
+  company: z.string().trim().min(1).max(200),
   role: z.enum(['CUSTOMER_ADMIN', 'CUSTOMER_USER', 'SUPPLIER_ADMIN', 'SUPPLIER_USER']),
   portalType: z.enum(['CUSTOMER', 'SUPPLIER']),
 });

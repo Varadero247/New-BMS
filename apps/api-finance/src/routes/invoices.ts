@@ -33,8 +33,8 @@ function getAgingBucket(daysOverdue: number): string {
 // ---------------------------------------------------------------------------
 
 const customerCreateSchema = z.object({
-  code: z.string().min(1).max(50),
-  name: z.string().min(1).max(200),
+  code: z.string().trim().min(1).max(50),
+  name: z.string().trim().min(1).max(200),
   email: z.string().email().optional(),
   phone: z.string().max(50).optional(),
   contactPerson: z.string().max(200).optional(),
@@ -53,7 +53,7 @@ const customerCreateSchema = z.object({
 const customerUpdateSchema = customerCreateSchema.partial().omit({ code: true });
 
 const invoiceLineSchema = z.object({
-  description: z.string().min(1).max(500),
+  description: z.string().trim().min(1).max(500),
   quantity: z.number().positive(),
   unitPrice: z.number().min(0),
   taxRateId: z.string().uuid().optional(),
@@ -81,7 +81,7 @@ const paymentCreateSchema = z.object({
   invoiceId: z.string().uuid().optional(),
   date: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }),
   amount: z.number().positive(),
-  method: z.string().min(1).max(50),
+  method: z.string().trim().min(1).max(50),
   bankAccountId: z.string().uuid().optional(),
   notes: z.string().max(2000).optional(),
 });
@@ -90,7 +90,7 @@ const creditNoteCreateSchema = z.object({
   customerId: z.string().uuid(),
   date: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }),
   amount: z.number().positive(),
-  reason: z.string().min(1).max(2000),
+  reason: z.string().trim().min(1).max(2000),
   invoiceId: z.string().uuid().optional(),
 });
 
@@ -943,7 +943,7 @@ router.post('/:id/void', async (req: AuthRequest, res: Response) => {
     }
 
     const voidReasonSchema = z.object({
-      reason: z.string().min(1).max(500),
+      reason: z.string().trim().min(1).max(500),
     });
     const { reason } = voidReasonSchema.parse(req.body);
 

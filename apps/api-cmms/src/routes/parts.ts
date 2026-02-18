@@ -13,8 +13,8 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const partCreateSchema = z.object({
-  name: z.string().min(1).max(200),
-  partNumber: z.string().min(1).max(50),
+  name: z.string().trim().min(1).max(200),
+  partNumber: z.string().trim().min(1).max(50),
   description: z.string().max(2000).optional().nullable(),
   category: z.string().max(100).optional().nullable(),
   manufacturer: z.string().max(200).optional().nullable(),
@@ -29,7 +29,7 @@ const partCreateSchema = z.object({
 });
 
 const partUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
   category: z.string().max(100).optional().nullable(),
   manufacturer: z.string().max(200).optional().nullable(),

@@ -8,9 +8,9 @@ const router = Router();
 const logger = createLogger('chem-disposal');
 
 const createDisposalSchema = z.object({
-  chemicalId: z.string().min(1),
+  chemicalId: z.string().trim().min(1),
   quantityDisposed: z.number().min(0),
-  unit: z.string().min(1),
+  unit: z.string().trim().min(1),
   disposalDate: z.string().datetime({ offset: true }).or(z.string().datetime()),
   disposalMethod: z.string().min(1, 'disposalMethod is required'),
   wasteContractorName: z.string().optional(),

@@ -28,7 +28,7 @@ function generateReference(prefix: string): string {
 const dataSourceEnum = z.enum(['HEALTH_SAFETY', 'ENVIRONMENT', 'QUALITY', 'HR', 'FINANCE', 'CRM', 'INVENTORY', 'CMMS', 'ALL']);
 
 const datasetCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   description: z.string().max(1000).optional().nullable(),
   source: dataSourceEnum,
   query: z.string().min(1),
@@ -38,7 +38,7 @@ const datasetCreateSchema = z.object({
 });
 
 const datasetUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(1000).optional().nullable(),
   source: dataSourceEnum.optional(),
   query: z.string().min(1).optional(),

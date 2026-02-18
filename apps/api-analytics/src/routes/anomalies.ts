@@ -189,7 +189,7 @@ const SEED_MONITORED_KPIS: MonitoredKpi[] = [
 // ---------------------------------------------------------------------------
 
 const dismissSchema = z.object({
-  reason: z.string().min(1).max(500),
+  reason: z.string().trim().min(1).max(500),
 });
 
 // ===================================================================

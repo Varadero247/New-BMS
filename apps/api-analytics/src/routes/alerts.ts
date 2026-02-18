@@ -16,8 +16,8 @@ const conditionEnum = z.enum(['ABOVE', 'BELOW', 'EQUALS', 'CHANGE_PERCENT', 'ANO
 const alertStatusEnum = z.enum(['ACTIVE', 'TRIGGERED', 'ACKNOWLEDGED', 'RESOLVED']);
 
 const alertCreateSchema = z.object({
-  name: z.string().min(1).max(200),
-  metric: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
+  metric: z.string().trim().min(1).max(200),
   condition: conditionEnum,
   threshold: z.number(),
   status: alertStatusEnum.optional().default('ACTIVE'),
@@ -26,8 +26,8 @@ const alertCreateSchema = z.object({
 });
 
 const alertUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
-  metric: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
+  metric: z.string().trim().min(1).max(200).optional(),
   condition: conditionEnum.optional(),
   threshold: z.number().optional(),
   status: alertStatusEnum.optional(),

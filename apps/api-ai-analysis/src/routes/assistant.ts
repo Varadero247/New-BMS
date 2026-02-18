@@ -8,7 +8,7 @@ const router: IRouter = Router();
 router.use(authenticate);
 
 const assistantSchema = z.object({
-  question: z.string().min(1).max(1000),
+  question: z.string().trim().min(1).max(1000),
   context: z.string().max(500).optional(),
 });
 

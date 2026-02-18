@@ -15,7 +15,7 @@ router.use(authenticate);
 const auditLogCreateSchema = z.object({
   systemId: z.string().max(100).optional().nullable(),
   action: z.enum(['DECISION', 'OVERRIDE', 'REVIEW', 'APPROVAL', 'REJECTION', 'ESCALATION', 'CONFIG_CHANGE']),
-  description: z.string().min(1).max(2000),
+  description: z.string().trim().min(1).max(2000),
   inputSummary: z.string().max(5000).optional().nullable(),
   outputSummary: z.string().max(5000).optional().nullable(),
   metadata: z.record(z.unknown()).optional().nullable(),

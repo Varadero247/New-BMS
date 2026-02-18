@@ -10,8 +10,8 @@ const router: IRouter = Router();
 // Validation schemas
 const createObjectiveSchema = z.object({
   standard: z.enum(['ISO_45001', 'ISO_14001', 'ISO_9001']),
-  title: z.string().min(1).max(200),
-  description: z.string().min(1),
+  title: z.string().trim().min(1).max(200),
+  description: z.string().trim().min(1),
   targetValue: z.number().optional(),
   unit: z.string().optional(),
   baselineValue: z.number().optional(),

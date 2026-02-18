@@ -28,12 +28,12 @@ async function generateRefNumber(): Promise<string> {
 }
 
 const createSchema = z.object({
-  title: z.string().min(1),
+  title: z.string().trim().min(1),
   deviceId: z.string().optional(),
-  deviceName: z.string().min(1),
+  deviceName: z.string().trim().min(1),
   version: z.string().optional(),
   scope: z.string().optional(),
-  preparedBy: z.string().min(1),
+  preparedBy: z.string().trim().min(1),
   reviewedBy: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -45,8 +45,8 @@ const updateSchema = createSchema.partial().extend({
 });
 
 const linkCreateSchema = z.object({
-  userNeedRef: z.string().min(1),
-  userNeedDesc: z.string().min(1),
+  userNeedRef: z.string().trim().min(1),
+  userNeedDesc: z.string().trim().min(1),
   designInputRef: z.string().optional(),
   designInputDesc: z.string().optional(),
   designOutputRef: z.string().optional(),

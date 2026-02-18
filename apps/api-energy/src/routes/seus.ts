@@ -13,25 +13,25 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const seuCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional().nullable(),
   facility: z.string().max(200).optional().nullable(),
   process: z.string().max(200).optional().nullable(),
   consumptionPercentage: z.number().min(0).max(100),
   annualConsumption: z.number().min(0),
-  unit: z.string().min(1).max(50),
+  unit: z.string().trim().min(1).max(50),
   variables: z.any().optional().nullable(),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional().default('MEDIUM'),
 });
 
 const seuUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
   facility: z.string().max(200).optional().nullable(),
   process: z.string().max(200).optional().nullable(),
   consumptionPercentage: z.number().min(0).max(100).optional(),
   annualConsumption: z.number().min(0).optional(),
-  unit: z.string().min(1).max(50).optional(),
+  unit: z.string().trim().min(1).max(50).optional(),
   variables: z.any().optional().nullable(),
   status: z.enum(['IDENTIFIED', 'ANALYZED', 'OPTIMIZED']).optional(),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),

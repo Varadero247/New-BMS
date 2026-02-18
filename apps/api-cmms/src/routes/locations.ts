@@ -13,8 +13,8 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const locationCreateSchema = z.object({
-  name: z.string().min(1).max(200),
-  code: z.string().min(1).max(50),
+  name: z.string().trim().min(1).max(200),
+  code: z.string().trim().min(1).max(50),
   description: z.string().max(2000).optional().nullable(),
   parentLocationId: z.string().uuid().optional().nullable(),
   type: z.enum(['SITE', 'BUILDING', 'FLOOR', 'ROOM', 'AREA', 'ZONE']),
@@ -23,7 +23,7 @@ const locationCreateSchema = z.object({
 });
 
 const locationUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
   parentLocationId: z.string().uuid().optional().nullable(),
   type: z.enum(['SITE', 'BUILDING', 'FLOOR', 'ROOM', 'AREA', 'ZONE']).optional(),

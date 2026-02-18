@@ -29,18 +29,18 @@ async function generateRefNumber(): Promise<string> {
 }
 
 const createSchema = z.object({
-  title: z.string().min(1),
-  problemStatement: z.string().min(1),
+  title: z.string().trim().min(1),
+  problemStatement: z.string().trim().min(1),
   customer: z.string().optional(),
   partNumber: z.string().optional(),
   partName: z.string().optional(),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
-  teamLeader: z.string().min(1),
+  teamLeader: z.string().trim().min(1),
   teamMembers: z.array(z.string()).optional().default([]),
 });
 
 const updateSchema = z.object({
-  title: z.string().min(1).optional(),
+  title: z.string().trim().min(1).optional(),
   problemStatement: z.string().optional(),
   customer: z.string().optional(),
   partNumber: z.string().optional(),

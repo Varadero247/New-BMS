@@ -28,7 +28,7 @@ async function generateAssetRef(): Promise<string> {
 // ---------------------------------------------------------------------------
 
 const assetCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   type: z.enum(['HARDWARE', 'SOFTWARE', 'DATA', 'PERSONNEL', 'SERVICE', 'FACILITY', 'NETWORK', 'OTHER']),
   classification: z.enum(['PUBLIC', 'INTERNAL', 'CONFIDENTIAL', 'RESTRICTED']),
   description: z.string().max(2000).optional(),
@@ -40,7 +40,7 @@ const assetCreateSchema = z.object({
 });
 
 const assetUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   type: z.enum(['HARDWARE', 'SOFTWARE', 'DATA', 'PERSONNEL', 'SERVICE', 'FACILITY', 'NETWORK', 'OTHER']).optional(),
   classification: z.enum(['PUBLIC', 'INTERNAL', 'CONFIDENTIAL', 'RESTRICTED']).optional(),
   description: z.string().max(2000).optional(),

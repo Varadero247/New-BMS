@@ -27,7 +27,7 @@ function generateReference(prefix: string): string {
 
 const complaintCreateSchema = z.object({
   reportType: z.literal('COMPLAINT').default('COMPLAINT'),
-  description: z.string().min(1).max(5000),
+  description: z.string().trim().min(1).max(5000),
   severity: z.enum(['CRITICAL', 'MAJOR', 'MINOR']),
   attachments: z.any().optional().nullable(),
 });

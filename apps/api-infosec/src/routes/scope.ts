@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const scopeUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(5000).optional(),
   boundaries: z.string().max(5000).optional(),
   inclusions: z.string().max(5000).optional(),

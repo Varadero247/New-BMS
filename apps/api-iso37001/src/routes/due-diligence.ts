@@ -35,7 +35,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const dueDiligenceCreateSchema = z.object({
-  thirdPartyName: z.string().min(1).max(300),
+  thirdPartyName: z.string().trim().min(1).max(300),
   thirdPartyType: z.enum([
     'SUPPLIER',
     'AGENT',
@@ -48,7 +48,7 @@ const dueDiligenceCreateSchema = z.object({
     'OTHER',
   ]),
   level: z.enum(['BASIC', 'STANDARD', 'ENHANCED']),
-  country: z.string().min(1).max(100),
+  country: z.string().trim().min(1).max(100),
   industry: z.string().max(200).optional(),
   contactName: z.string().max(200).optional(),
   contactEmail: z.string().email().optional(),
@@ -60,7 +60,7 @@ const dueDiligenceCreateSchema = z.object({
 });
 
 const dueDiligenceUpdateSchema = z.object({
-  thirdPartyName: z.string().min(1).max(300).optional(),
+  thirdPartyName: z.string().trim().min(1).max(300).optional(),
   thirdPartyType: z.enum([
     'SUPPLIER',
     'AGENT',
@@ -73,7 +73,7 @@ const dueDiligenceUpdateSchema = z.object({
     'OTHER',
   ]).optional(),
   level: z.enum(['BASIC', 'STANDARD', 'ENHANCED']).optional(),
-  country: z.string().min(1).max(100).optional(),
+  country: z.string().trim().min(1).max(100).optional(),
   industry: z.string().max(200).optional(),
   contactName: z.string().max(200).optional(),
   contactEmail: z.string().email().optional(),
@@ -85,7 +85,7 @@ const dueDiligenceUpdateSchema = z.object({
 });
 
 const completeSchema = z.object({
-  findings: z.string().min(1).max(5000),
+  findings: z.string().trim().min(1).max(5000),
   riskLevel: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
   recommendation: z.enum(['APPROVE', 'APPROVE_WITH_CONDITIONS', 'REJECT', 'FURTHER_REVIEW']).optional(),
   conditions: z.string().max(2000).optional(),

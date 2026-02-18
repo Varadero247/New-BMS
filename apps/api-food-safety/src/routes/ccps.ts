@@ -13,11 +13,11 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const ccpCreateSchema = z.object({
-  name: z.string().min(1).max(200),
-  processStep: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
+  processStep: z.string().trim().min(1).max(200),
   hazardId: z.string().uuid().optional().nullable(),
-  criticalLimit: z.string().min(1).max(500),
-  monitoringMethod: z.string().min(1).max(500),
+  criticalLimit: z.string().trim().min(1).max(500),
+  monitoringMethod: z.string().trim().min(1).max(500),
   monitoringFrequency: z.enum(['CONTINUOUS', 'HOURLY', 'PER_BATCH', 'DAILY', 'WEEKLY']),
   correctiveAction: z.string().max(2000).optional().nullable(),
   verificationMethod: z.string().max(500).optional().nullable(),
@@ -26,11 +26,11 @@ const ccpCreateSchema = z.object({
 });
 
 const ccpUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
-  processStep: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
+  processStep: z.string().trim().min(1).max(200).optional(),
   hazardId: z.string().uuid().optional().nullable(),
-  criticalLimit: z.string().min(1).max(500).optional(),
-  monitoringMethod: z.string().min(1).max(500).optional(),
+  criticalLimit: z.string().trim().min(1).max(500).optional(),
+  monitoringMethod: z.string().trim().min(1).max(500).optional(),
   monitoringFrequency: z.enum(['CONTINUOUS', 'HOURLY', 'PER_BATCH', 'DAILY', 'WEEKLY']).optional(),
   correctiveAction: z.string().max(2000).optional().nullable(),
   verificationMethod: z.string().max(500).optional().nullable(),
@@ -41,7 +41,7 @@ const ccpUpdateSchema = z.object({
 const monitoringRecordCreateSchema = z.object({
   monitoredBy: z.string().max(200).optional().nullable(),
   monitoredAt: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-  value: z.string().min(1).max(200),
+  value: z.string().trim().min(1).max(200),
   unit: z.string().max(50).optional().nullable(),
   withinLimits: z.boolean(),
   deviation: z.string().max(2000).optional().nullable(),

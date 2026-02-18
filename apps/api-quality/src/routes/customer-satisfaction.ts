@@ -83,7 +83,7 @@ router.post('/public/:token/respond', async (req: AuthRequest, res: Response) =>
       respondentEmail: z.string().email().optional(),
       respondentCompany: z.string().optional(),
       answers: z.array(z.object({
-        questionId: z.string().min(1),
+        questionId: z.string().trim().min(1),
         textValue: z.string().optional(),
         numericValue: z.number().optional(),
         selectedOptions: z.array(z.string()).optional(),
@@ -151,12 +151,12 @@ router.use(authenticate);
 router.post('/surveys', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       description: z.string().optional(),
       type: z.enum(['NPS', 'CSAT', 'CUSTOM', 'POST_DELIVERY', 'ANNUAL']),
       isPublic: z.boolean().optional(),
       questions: z.array(z.object({
-        text: z.string().min(1),
+        text: z.string().trim().min(1),
         type: z.enum(['RATING', 'TEXT', 'MULTIPLE_CHOICE', 'YES_NO', 'NPS_SCALE']),
         required: z.boolean().optional(),
         options: z.array(z.string()).optional(),
@@ -284,12 +284,12 @@ router.get('/surveys/:id', async (req: AuthRequest, res: Response) => {
 router.post('/responses', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      surveyId: z.string().min(1),
+      surveyId: z.string().trim().min(1),
       respondentName: z.string().optional(),
       respondentEmail: z.string().email().optional(),
       respondentCompany: z.string().optional(),
       answers: z.array(z.object({
-        questionId: z.string().min(1),
+        questionId: z.string().trim().min(1),
         textValue: z.string().optional(),
         numericValue: z.number().optional(),
         selectedOptions: z.array(z.string()).optional(),

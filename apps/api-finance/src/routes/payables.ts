@@ -22,8 +22,8 @@ function generateReference(prefix: string): string {
 // ============================================
 
 const supplierCreateSchema = z.object({
-  code: z.string().min(1).max(20),
-  name: z.string().min(1).max(200),
+  code: z.string().trim().min(1).max(20),
+  name: z.string().trim().min(1).max(200),
   email: z.string().email().optional().nullable(),
   phone: z.string().max(30).optional().nullable(),
   contactPerson: z.string().max(200).optional().nullable(),
@@ -42,7 +42,7 @@ const supplierCreateSchema = z.object({
 const supplierUpdateSchema = supplierCreateSchema.partial();
 
 const poLineSchema = z.object({
-  description: z.string().min(1).max(500),
+  description: z.string().trim().min(1).max(500),
   quantity: z.number().positive(),
   unitPrice: z.number().min(0),
   taxRateId: z.string().uuid().optional().nullable(),
@@ -69,7 +69,7 @@ const poUpdateSchema = z.object({
 });
 
 const billLineSchema = z.object({
-  description: z.string().min(1).max(500),
+  description: z.string().trim().min(1).max(500),
   quantity: z.number().positive(),
   unitPrice: z.number().min(0),
   taxRateId: z.string().uuid().optional().nullable(),

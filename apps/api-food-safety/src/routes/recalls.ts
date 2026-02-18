@@ -14,9 +14,9 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const recallCreateSchema = z.object({
-  productName: z.string().min(1).max(200),
-  batchNumber: z.string().min(1).max(100),
-  reason: z.string().min(1).max(2000),
+  productName: z.string().trim().min(1).max(200),
+  batchNumber: z.string().trim().min(1).max(100),
+  reason: z.string().trim().min(1).max(2000),
   type: z.enum(['VOLUNTARY', 'MANDATORY', 'MARKET_WITHDRAWAL']),
   severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']),
   initiatedDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
@@ -34,9 +34,9 @@ const recallCompleteSchema = z.object({
 });
 
 const recallUpdateSchema = z.object({
-  productName: z.string().min(1).max(200).optional(),
-  batchNumber: z.string().min(1).max(100).optional(),
-  reason: z.string().min(1).max(2000).optional(),
+  productName: z.string().trim().min(1).max(200).optional(),
+  batchNumber: z.string().trim().min(1).max(100).optional(),
+  reason: z.string().trim().min(1).max(2000).optional(),
   type: z.enum(['VOLUNTARY', 'MANDATORY', 'MARKET_WITHDRAWAL']).optional(),
   severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   status: z.enum(['INITIATED', 'IN_PROGRESS', 'COMPLETED', 'CLOSED']).optional(),

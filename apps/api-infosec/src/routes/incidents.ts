@@ -31,7 +31,7 @@ function generateIncidentRef(): string {
 // ---------------------------------------------------------------------------
 
 const incidentCreateSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   description: z.string().max(5000).optional(),
   type: z.enum(['DATA_BREACH', 'UNAUTHORIZED_ACCESS', 'MALWARE', 'PHISHING', 'DENIAL_OF_SERVICE', 'INSIDER_THREAT', 'PHYSICAL_SECURITY', 'SOCIAL_ENGINEERING', 'OTHER']),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
@@ -43,14 +43,14 @@ const incidentCreateSchema = z.object({
 });
 
 const investigateSchema = z.object({
-  investigationNotes: z.string().min(1).max(10000),
+  investigationNotes: z.string().trim().min(1).max(10000),
   rootCause: z.string().max(5000).optional(),
   containmentActions: z.string().max(5000).optional(),
   assignedTo: z.string().max(200).optional(),
 });
 
 const closeSchema = z.object({
-  lessonsLearned: z.string().min(1).max(5000),
+  lessonsLearned: z.string().trim().min(1).max(5000),
   correctiveActions: z.string().max(5000).optional(),
   preventiveActions: z.string().max(5000).optional(),
 });

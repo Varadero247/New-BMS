@@ -18,7 +18,7 @@ function generateReference(prefix: string): string {
 }
 
 const reportCreateSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   reportType: z.enum(['ANNUAL', 'QUARTERLY', 'SUSTAINABILITY', 'GRI', 'SASB', 'TCFD', 'CDP']),
   year: z.number().int().min(2000).max(2100),
   quarter: z.number().int().min(1).max(4).optional().nullable(),
@@ -28,7 +28,7 @@ const reportCreateSchema = z.object({
 });
 
 const reportUpdateSchema = z.object({
-  title: z.string().min(1).max(300).optional(),
+  title: z.string().trim().min(1).max(300).optional(),
   reportType: z.enum(['ANNUAL', 'QUARTERLY', 'SUSTAINABILITY', 'GRI', 'SASB', 'TCFD', 'CDP']).optional(),
   year: z.number().int().min(2000).max(2100).optional(),
   quarter: z.number().int().min(1).max(4).optional().nullable(),

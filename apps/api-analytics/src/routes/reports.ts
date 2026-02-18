@@ -26,7 +26,7 @@ function generateReference(prefix: string): string {
 // ---------------------------------------------------------------------------
 
 const reportCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   description: z.string().max(1000).optional().nullable(),
   type: z.enum(['SCHEDULED', 'AD_HOC', 'TEMPLATE']),
   format: z.enum(['PDF', 'EXCEL', 'CSV', 'HTML']),
@@ -42,7 +42,7 @@ const reportRunSchema = z.object({
 });
 
 const reportUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(1000).optional().nullable(),
   type: z.enum(['SCHEDULED', 'AD_HOC', 'TEMPLATE']).optional(),
   format: z.enum(['PDF', 'EXCEL', 'CSV', 'HTML']).optional(),

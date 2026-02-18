@@ -32,7 +32,7 @@ const lineSchema = z.object({
 const createSchema = z.object({
   date: z.string(),
   periodId: z.string().uuid(),
-  description: z.string().min(1).max(1000),
+  description: z.string().trim().min(1).max(1000),
   memo: z.string().max(2000).optional().nullable(),
   source: z.string().max(100).optional().nullable(),
   sourceId: z.string().uuid().optional().nullable(),
@@ -41,7 +41,7 @@ const createSchema = z.object({
 
 const updateSchema = z.object({
   date: z.string().optional(),
-  description: z.string().min(1).max(1000).optional(),
+  description: z.string().trim().min(1).max(1000).optional(),
   memo: z.string().max(2000).optional().nullable(),
   lines: z.array(lineSchema).min(2).optional(),
 });

@@ -13,8 +13,8 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const productCreateSchema = z.object({
-  name: z.string().min(1).max(200),
-  code: z.string().min(1).max(50),
+  name: z.string().trim().min(1).max(200),
+  code: z.string().trim().min(1).max(50),
   description: z.string().max(2000).optional().nullable(),
   category: z.string().max(100).optional().nullable(),
   allergens: z.any().optional().nullable(),
@@ -26,7 +26,7 @@ const productCreateSchema = z.object({
 });
 
 const productUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
   category: z.string().max(100).optional().nullable(),
   allergens: z.any().optional().nullable(),

@@ -18,7 +18,7 @@ function generateReference(prefix: string): string {
 }
 
 const initiativeCreateSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   description: z.string().max(2000).optional().nullable(),
   category: z.enum(['ENVIRONMENTAL', 'SOCIAL', 'GOVERNANCE']),
   status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
@@ -31,7 +31,7 @@ const initiativeCreateSchema = z.object({
 });
 
 const initiativeUpdateSchema = z.object({
-  title: z.string().min(1).max(300).optional(),
+  title: z.string().trim().min(1).max(300).optional(),
   description: z.string().max(2000).optional().nullable(),
   category: z.enum(['ENVIRONMENTAL', 'SOCIAL', 'GOVERNANCE']).optional(),
   status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),

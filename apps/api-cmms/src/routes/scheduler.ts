@@ -35,8 +35,8 @@ const scheduleCompleteSchema = z.object({
 });
 
 const scheduleSchema = z.object({
-  assetId: z.string().min(1),
-  name: z.string().min(1).max(300),
+  assetId: z.string().trim().min(1),
+  name: z.string().trim().min(1).max(300),
   description: z.string().max(2000).optional().nullable(),
   frequency: z.enum(['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'BIANNUAL', 'ANNUAL', 'AS_NEEDED']).default('MONTHLY'),
   tasks: z.array(z.string()).default([]),

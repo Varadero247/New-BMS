@@ -23,7 +23,7 @@ const likelihoodScores: Record<string, number> = {
 // ---------------------------------------------------------------------------
 
 const hazardCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   type: z.enum(['BIOLOGICAL', 'CHEMICAL', 'PHYSICAL', 'ALLERGEN', 'RADIOLOGICAL']),
   description: z.string().max(2000).optional().nullable(),
   source: z.string().max(500).optional().nullable(),
@@ -36,7 +36,7 @@ const hazardCreateSchema = z.object({
 });
 
 const hazardUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   type: z.enum(['BIOLOGICAL', 'CHEMICAL', 'PHYSICAL', 'ALLERGEN', 'RADIOLOGICAL']).optional(),
   description: z.string().max(2000).optional().nullable(),
   source: z.string().max(500).optional().nullable(),

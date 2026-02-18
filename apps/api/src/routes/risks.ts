@@ -10,8 +10,8 @@ const router: IRouter = Router();
 // Validation schemas
 const createRiskSchema = z.object({
   standard: z.enum(['ISO_45001', 'ISO_14001', 'ISO_9001']),
-  title: z.string().min(1).max(200),
-  description: z.string().min(1),
+  title: z.string().trim().min(1).max(200),
+  description: z.string().trim().min(1),
   category: z.string().optional(),
   source: z.string().optional(),
   likelihood: z.number().min(1).max(5).default(1),

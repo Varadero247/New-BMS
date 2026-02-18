@@ -74,12 +74,12 @@ router.get('/:id', checkOwnership(prisma.envEvent), async (req: AuthRequest, res
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      eventType: z.string().min(1),
-      severity: z.string().min(1),
-      dateOfEvent: z.string().min(1),
-      location: z.string().min(1),
-      department: z.string().min(1),
-      reportedBy: z.string().min(1),
+      eventType: z.string().trim().min(1),
+      severity: z.string().trim().min(1),
+      dateOfEvent: z.string().trim().min(1),
+      location: z.string().trim().min(1),
+      department: z.string().trim().min(1),
+      reportedBy: z.string().trim().min(1),
       description: z.string().min(10),
       regulatoryNotification: z.boolean().optional(),
       regulatoryBody: z.string().optional(),

@@ -193,8 +193,8 @@ router.post('/', async (req: Request, res: Response) => {
 
 // PUT /api/instances/:id/advance - Advance to next node
 const advanceInstanceSchema = z.object({
-  nextStepId: z.string().min(1),
-  actionBy: z.string().min(1).optional(),
+  nextStepId: z.string().trim().min(1),
+  actionBy: z.string().trim().min(1).optional(),
   comments: z.string().max(2000).optional(),
 });
 
@@ -288,7 +288,7 @@ router.put('/:id/complete', checkOwnership(prisma.workflowInstance), async (req:
 // PUT /api/instances/:id/cancel - Cancel workflow
 const cancelInstanceSchema = z.object({
   cancelledById: z.string().uuid(),
-  cancellationReason: z.string().min(1).max(2000).optional(),
+  cancellationReason: z.string().trim().min(1).max(2000).optional(),
 });
 
 router.put('/:id/cancel', checkOwnership(prisma.workflowInstance), async (req: AuthRequest, res: Response) => {

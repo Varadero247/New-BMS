@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const foodDefenseCreateSchema = z.object({
-  title: z.string().min(1).max(200),
+  title: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional().nullable(),
   threatType: z.enum(['INTENTIONAL_CONTAMINATION', 'SABOTAGE', 'TAMPERING', 'BIOTERRORISM', 'CYBER']),
   vulnerabilityAssessment: z.string().max(2000).optional().nullable(),
@@ -25,7 +25,7 @@ const foodDefenseCreateSchema = z.object({
 });
 
 const foodDefenseUpdateSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
   threatType: z.enum(['INTENTIONAL_CONTAMINATION', 'SABOTAGE', 'TAMPERING', 'BIOTERRORISM', 'CYBER']).optional(),
   vulnerabilityAssessment: z.string().max(2000).optional().nullable(),

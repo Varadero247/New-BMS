@@ -11,7 +11,7 @@ const router: IRouter = Router();
 const createDeviceSchema = z.object({
   buildingId: z.string(),
   zoneId: z.string().optional(),
-  name: z.string().min(1),
+  name: z.string().trim().min(1),
   type: z.enum([
     'HVAC', 'THERMOSTAT', 'LIGHTING', 'MOTION_SENSOR', 'DOOR_SENSOR',
     'WINDOW_SENSOR', 'SMOKE_DETECTOR', 'CO_DETECTOR', 'WATER_LEAK',
@@ -30,7 +30,7 @@ const createDeviceSchema = z.object({
 const updateDeviceSchema = createDeviceSchema.partial();
 
 const controlDeviceSchema = z.object({
-  command: z.string().min(1),
+  command: z.string().trim().min(1),
   parameters: z.record(z.unknown()).optional(),
 });
 

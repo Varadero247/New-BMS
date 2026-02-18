@@ -18,7 +18,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 const createSchema = z.object({
-  equipmentName: z.string().min(1).max(300),
+  equipmentName: z.string().trim().min(1).max(300),
   equipmentId: z.string().max(100).optional().nullable(),
   manufacturer: z.string().max(200).optional().nullable(),
   modelNumber: z.string().max(200).optional().nullable(),

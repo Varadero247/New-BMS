@@ -20,21 +20,21 @@ const router = Router();
 // ============================================
 
 const createTaskSchema = z.object({
-  title: z.string().min(1).max(500),
+  title: z.string().trim().min(1).max(500),
   description: z.string().max(5000).optional(),
   recordType: z.string().max(100).optional(),
   recordId: z.string().max(100).optional(),
-  assigneeId: z.string().min(1),
-  assigneeName: z.string().min(1),
+  assigneeId: z.string().trim().min(1),
+  assigneeName: z.string().trim().min(1),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional().default('MEDIUM'),
   dueDate: z.string().optional(),
 });
 
 const updateTaskSchema = z.object({
-  title: z.string().min(1).max(500).optional(),
+  title: z.string().trim().min(1).max(500).optional(),
   description: z.string().max(5000).optional(),
-  assigneeId: z.string().min(1).optional(),
-  assigneeName: z.string().min(1).optional(),
+  assigneeId: z.string().trim().min(1).optional(),
+  assigneeName: z.string().trim().min(1).optional(),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
   dueDate: z.string().optional(),
   status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETE', 'CANCELLED']).optional(),

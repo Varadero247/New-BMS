@@ -35,9 +35,9 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const trainingCreateSchema = z.object({
-  employeeId: z.string().min(1).max(100),
-  employeeName: z.string().min(1).max(200),
-  courseName: z.string().min(1).max(300),
+  employeeId: z.string().trim().min(1).max(100),
+  employeeName: z.string().trim().min(1).max(200),
+  courseName: z.string().trim().min(1).max(300),
   courseType: z.enum([
     'GENERAL_AWARENESS',
     'ROLE_SPECIFIC',
@@ -49,8 +49,8 @@ const trainingCreateSchema = z.object({
     'SPECIALIST',
     'OTHER',
   ]),
-  assignedDate: z.string().min(1),
-  dueDate: z.string().min(1),
+  assignedDate: z.string().trim().min(1),
+  dueDate: z.string().trim().min(1),
   department: z.string().max(200).optional(),
   position: z.string().max(200).optional(),
   deliveryMethod: z.enum(['ONLINE', 'CLASSROOM', 'WORKSHOP', 'WEBINAR', 'SELF_STUDY', 'BLENDED']).optional(),
@@ -61,8 +61,8 @@ const trainingCreateSchema = z.object({
 });
 
 const trainingUpdateSchema = z.object({
-  employeeName: z.string().min(1).max(200).optional(),
-  courseName: z.string().min(1).max(300).optional(),
+  employeeName: z.string().trim().min(1).max(200).optional(),
+  courseName: z.string().trim().min(1).max(300).optional(),
   courseType: z.enum([
     'GENERAL_AWARENESS',
     'ROLE_SPECIFIC',

@@ -70,7 +70,7 @@ async function generateAnomalyRefNumber(): Promise<string> {
 router.post('/projects', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       description: z.string().optional(),
       safetyClass: z.enum(SOFTWARE_SAFETY_CLASSES),
       currentPhase: z.enum(SOFTWARE_PHASES).optional(),
@@ -181,9 +181,9 @@ router.post('/projects/:id/soup', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       vendor: z.string().optional(),
-      version: z.string().min(1),
+      version: z.string().trim().min(1),
       intendedUse: z.string().optional(),
       knownAnomalies: z.string().optional(),
       riskAcceptable: z.boolean().optional(),
@@ -294,8 +294,8 @@ router.post('/projects/:id/anomalies', async (req: AuthRequest, res: Response) =
     }
 
     const schema = z.object({
-      title: z.string().min(1),
-      description: z.string().min(1),
+      title: z.string().trim().min(1),
+      description: z.string().trim().min(1),
       severity: z.enum(ANOMALY_SEVERITIES).optional(),
       status: z.enum(ANOMALY_STATUSES).optional(),
       resolution: z.string().optional(),

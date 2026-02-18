@@ -13,9 +13,9 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const auditCreateSchema = z.object({
-  title: z.string().min(1).max(200),
+  title: z.string().trim().min(1).max(200),
   type: z.enum(['INTERNAL', 'EXTERNAL', 'REGULATORY', 'CERTIFICATION', 'SUPPLIER']),
-  auditor: z.string().min(1).max(200),
+  auditor: z.string().trim().min(1).max(200),
   scope: z.string().max(2000).optional().nullable(),
   scheduledDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   score: z.number().min(0).max(100).optional().nullable(),
@@ -29,9 +29,9 @@ const auditCompleteSchema = z.object({
 });
 
 const auditUpdateSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   type: z.enum(['INTERNAL', 'EXTERNAL', 'REGULATORY', 'CERTIFICATION', 'SUPPLIER']).optional(),
-  auditor: z.string().min(1).max(200).optional(),
+  auditor: z.string().trim().min(1).max(200).optional(),
   scope: z.string().max(2000).optional().nullable(),
   scheduledDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
   status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),

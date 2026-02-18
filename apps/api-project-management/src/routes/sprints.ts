@@ -78,9 +78,9 @@ router.get('/:id/stories', async (req: AuthRequest, res: Response) => {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      projectId: z.string().min(1),
+      projectId: z.string().trim().min(1),
       sprintNumber: z.number().min(1),
-      sprintName: z.string().min(1),
+      sprintName: z.string().trim().min(1),
       sprintGoal: z.string().optional(),
       startDate: z.string(),
       endDate: z.string(),

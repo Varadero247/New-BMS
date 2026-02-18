@@ -14,8 +14,8 @@ router.use(authenticate);
 
 const partUsedCreateSchema = z.object({
   jobId: z.string().uuid(),
-  partName: z.string().min(1).max(200),
-  partNumber: z.string().min(1).max(100),
+  partName: z.string().trim().min(1).max(200),
+  partNumber: z.string().trim().min(1).max(100),
   quantity: z.number().int().min(1),
   unitCost: z.number().min(0),
   totalCost: z.number().min(0),
@@ -24,8 +24,8 @@ const partUsedCreateSchema = z.object({
 });
 
 const partUsedUpdateSchema = z.object({
-  partName: z.string().min(1).max(200).optional(),
-  partNumber: z.string().min(1).max(100).optional(),
+  partName: z.string().trim().min(1).max(200).optional(),
+  partNumber: z.string().trim().min(1).max(100).optional(),
   quantity: z.number().int().min(1).optional(),
   unitCost: z.number().min(0).optional(),
   totalCost: z.number().min(0).optional(),

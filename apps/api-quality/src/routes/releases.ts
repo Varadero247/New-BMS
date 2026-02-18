@@ -18,7 +18,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 const createSchema = z.object({
-  productName: z.string().min(1).max(300),
+  productName: z.string().trim().min(1).max(300),
   productId: z.string().max(100).optional().nullable(),
   batchNumber: z.string().max(200).optional().nullable(),
   releaseStage: z.string().max(200).optional().nullable(),

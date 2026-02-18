@@ -18,7 +18,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 const createSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   meetingDate: z.string(),
   chairperson: z.string().max(200).optional().nullable(),
   attendees: z.string().max(5000).optional().nullable(),

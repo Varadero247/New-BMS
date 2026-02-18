@@ -26,7 +26,7 @@ function generateReference(prefix: string): string {
 // ---------------------------------------------------------------------------
 
 const policyCreateSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   content: z.string().min(1).max(50000),
   policyType: z.enum([
     'AI_GOVERNANCE',
@@ -54,7 +54,7 @@ const policyCreateSchema = z.object({
 });
 
 const policyUpdateSchema = z.object({
-  title: z.string().min(1).max(300).optional(),
+  title: z.string().trim().min(1).max(300).optional(),
   content: z.string().min(1).max(50000).optional(),
   policyType: z.enum([
     'AI_GOVERNANCE',

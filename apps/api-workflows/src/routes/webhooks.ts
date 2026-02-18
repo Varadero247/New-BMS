@@ -33,7 +33,7 @@ const webhookEventTypeEnum = z.enum(WEBHOOK_EVENT_TYPES);
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      name: z.string().min(1).max(255),
+      name: z.string().trim().min(1).max(255),
       url: z.string().url(),
       events: z.array(webhookEventTypeEnum).min(1),
       headers: z.record(z.string()).optional(),
@@ -143,7 +143,7 @@ router.get('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res:
 router.put('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      name: z.string().min(1).max(255).optional(),
+      name: z.string().trim().min(1).max(255).optional(),
       url: z.string().url().optional(),
       events: z.array(webhookEventTypeEnum).min(1).optional(),
       isActive: z.boolean().optional(),

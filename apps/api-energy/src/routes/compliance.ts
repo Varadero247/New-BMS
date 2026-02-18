@@ -13,21 +13,21 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const complianceCreateSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   description: z.string().max(2000).optional().nullable(),
-  regulation: z.string().min(1).max(200),
+  regulation: z.string().trim().min(1).max(200),
   jurisdiction: z.string().max(200).optional().nullable(),
-  requirement: z.string().min(1).max(2000),
+  requirement: z.string().trim().min(1).max(2000),
   evidenceRequired: z.string().max(2000).optional().nullable(),
   dueDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
 });
 
 const complianceUpdateSchema = z.object({
-  title: z.string().min(1).max(300).optional(),
+  title: z.string().trim().min(1).max(300).optional(),
   description: z.string().max(2000).optional().nullable(),
-  regulation: z.string().min(1).max(200).optional(),
+  regulation: z.string().trim().min(1).max(200).optional(),
   jurisdiction: z.string().max(200).optional().nullable(),
-  requirement: z.string().min(1).max(2000).optional(),
+  requirement: z.string().trim().min(1).max(2000).optional(),
   evidenceRequired: z.string().max(2000).optional().nullable(),
   status: z.enum(['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NOT_ASSESSED']).optional(),
   dueDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),

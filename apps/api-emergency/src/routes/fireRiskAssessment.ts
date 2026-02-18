@@ -11,10 +11,10 @@ const logger = createLogger('emergency-fra');
 const riskLevelEnum = z.enum(['TRIVIAL', 'LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH', 'INTOLERABLE']);
 
 const createFraSchema = z.object({
-  premisesId: z.string().min(1),
+  premisesId: z.string().trim().min(1),
   assessmentDate: z.string(),
   nextReviewDate: z.string(),
-  assessorName: z.string().min(1),
+  assessorName: z.string().trim().min(1),
   assessorCompany: z.string().optional(),
   assessorQualification: z.string().optional(),
   assessorIsCompetent: z.boolean().optional(),

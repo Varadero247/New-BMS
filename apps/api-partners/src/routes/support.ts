@@ -9,8 +9,8 @@ const logger = createLogger('api-partners:support');
 const router = Router();
 
 const createTicketSchema = z.object({
-  subject: z.string().min(1).max(200),
-  description: z.string().min(1),
+  subject: z.string().trim().min(1).max(200),
+  description: z.string().trim().min(1),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional().default('MEDIUM'),
 });
 

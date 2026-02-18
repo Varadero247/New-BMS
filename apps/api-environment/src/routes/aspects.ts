@@ -86,15 +86,15 @@ router.get('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest, re
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      activityProcess: z.string().min(1),
+      activityProcess: z.string().trim().min(1),
       activityCategory: z.enum(['ENERGY_USE', 'WATER_USE', 'WASTE_GENERATION', 'EMISSIONS_TO_AIR', 'DISCHARGES_TO_WATER', 'LAND_CONTAMINATION', 'RESOURCE_USE', 'NOISE_VIBRATION', 'BIODIVERSITY', 'TRANSPORT', 'PROCUREMENT', 'PRODUCT_DESIGN', 'OTHER']),
-      department: z.string().min(1),
+      department: z.string().trim().min(1),
       location: z.string().optional(),
       lifecyclePhases: z.array(z.string()).optional().default([]),
       operatingCondition: z.string().default('NORMAL'),
       description: z.string().optional(),
-      aspect: z.string().min(1),
-      impact: z.string().min(1),
+      aspect: z.string().trim().min(1),
+      impact: z.string().trim().min(1),
       impactDirection: z.string().default('ADVERSE'),
       environmentalMedia: z.array(z.string()).optional().default([]),
       scaleOfImpact: z.string().default('LOCAL'),
@@ -195,15 +195,15 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
 // PUT /:id
 const aspectUpdateSchema = z.object({
-  activityProcess: z.string().min(1).optional(),
+  activityProcess: z.string().trim().min(1).optional(),
   activityCategory: z.enum(['ENERGY_USE', 'WATER_USE', 'WASTE_GENERATION', 'EMISSIONS_TO_AIR', 'DISCHARGES_TO_WATER', 'LAND_CONTAMINATION', 'RESOURCE_USE', 'NOISE_VIBRATION', 'BIODIVERSITY', 'TRANSPORT', 'PROCUREMENT', 'PRODUCT_DESIGN', 'OTHER']).optional(),
-  department: z.string().min(1).optional(),
+  department: z.string().trim().min(1).optional(),
   location: z.string().optional(),
   lifecyclePhases: z.array(z.string()).optional(),
   operatingCondition: z.string().optional(),
   description: z.string().optional(),
-  aspect: z.string().min(1).optional(),
-  impact: z.string().min(1).optional(),
+  aspect: z.string().trim().min(1).optional(),
+  impact: z.string().trim().min(1).optional(),
   impactDirection: z.string().optional(),
   environmentalMedia: z.array(z.string()).optional(),
   scaleOfImpact: z.string().optional(),

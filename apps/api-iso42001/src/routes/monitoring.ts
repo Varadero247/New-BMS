@@ -17,9 +17,9 @@ const METRIC_TYPES = ['PERFORMANCE', 'ACCURACY', 'BIAS', 'DRIFT', 'AVAILABILITY'
 const STATUSES = ['NORMAL', 'WARNING', 'ALERT', 'CRITICAL', 'RESOLVED'] as const;
 
 const createSchema = z.object({
-  systemId: z.string().min(1).max(100),
+  systemId: z.string().trim().min(1).max(100),
   metricType: z.enum(METRIC_TYPES).default('PERFORMANCE'),
-  metricName: z.string().min(1).max(300),
+  metricName: z.string().trim().min(1).max(300),
   description: z.string().max(2000).optional().nullable(),
   value: z.number().optional().nullable(),
   unit: z.string().max(100).optional().nullable(),

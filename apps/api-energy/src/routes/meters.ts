@@ -13,23 +13,23 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const meterCreateSchema = z.object({
-  name: z.string().min(1).max(200),
-  code: z.string().min(1).max(50),
+  name: z.string().trim().min(1).max(200),
+  code: z.string().trim().min(1).max(50),
   type: z.enum(['ELECTRICITY', 'GAS', 'WATER', 'STEAM', 'COMPRESSED_AIR', 'FUEL']),
   location: z.string().max(200).optional().nullable(),
   facility: z.string().max(200).optional().nullable(),
-  unit: z.string().min(1).max(50),
+  unit: z.string().trim().min(1).max(50),
   multiplier: z.number().min(0).optional().default(1),
   isVirtual: z.boolean().optional().default(false),
   parentMeterId: z.string().uuid().optional().nullable(),
 });
 
 const meterUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   type: z.enum(['ELECTRICITY', 'GAS', 'WATER', 'STEAM', 'COMPRESSED_AIR', 'FUEL']).optional(),
   location: z.string().max(200).optional().nullable(),
   facility: z.string().max(200).optional().nullable(),
-  unit: z.string().min(1).max(50).optional(),
+  unit: z.string().trim().min(1).max(50).optional(),
   multiplier: z.number().min(0).optional(),
   isVirtual: z.boolean().optional(),
   parentMeterId: z.string().uuid().optional().nullable(),

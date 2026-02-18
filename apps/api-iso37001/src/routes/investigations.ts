@@ -35,7 +35,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const investigationCreateSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   description: z.string().max(5000).optional(),
   allegationType: z.enum([
     'BRIBERY',
@@ -51,8 +51,8 @@ const investigationCreateSchema = z.object({
     'POLICY_VIOLATION',
     'OTHER',
   ]),
-  reportedBy: z.string().min(1).max(200),
-  reportedDate: z.string().min(1),
+  reportedBy: z.string().trim().min(1).max(200),
+  reportedDate: z.string().trim().min(1),
   anonymous: z.boolean().default(false),
   department: z.string().max(200).optional(),
   location: z.string().max(300).optional(),
@@ -64,7 +64,7 @@ const investigationCreateSchema = z.object({
 });
 
 const investigationUpdateSchema = z.object({
-  title: z.string().min(1).max(300).optional(),
+  title: z.string().trim().min(1).max(300).optional(),
   description: z.string().max(5000).optional(),
   allegationType: z.enum([
     'BRIBERY',
@@ -104,7 +104,7 @@ const closeSchema = z.object({
     'REFERRED_TO_AUTHORITIES',
     'DISMISSED',
   ]),
-  findings: z.string().min(1).max(5000),
+  findings: z.string().trim().min(1).max(5000),
   actions: z.string().max(5000).optional(),
   lessonsLearned: z.string().max(2000).optional(),
   disciplinaryAction: z.string().max(2000).optional(),

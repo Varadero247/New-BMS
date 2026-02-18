@@ -26,22 +26,22 @@ function generateReference(prefix: string): string {
 // ---------------------------------------------------------------------------
 
 const baselineCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   year: z.number().int().min(2000).max(2100),
   description: z.string().max(2000).optional().nullable(),
   totalConsumption: z.number().min(0),
-  unit: z.string().min(1).max(50),
-  methodology: z.string().min(1).max(500),
+  unit: z.string().trim().min(1).max(50),
+  methodology: z.string().trim().min(1).max(500),
   adjustmentFactors: z.any().optional().nullable(),
 });
 
 const baselineUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   year: z.number().int().min(2000).max(2100).optional(),
   description: z.string().max(2000).optional().nullable(),
   totalConsumption: z.number().min(0).optional(),
-  unit: z.string().min(1).max(50).optional(),
-  methodology: z.string().min(1).max(500).optional(),
+  unit: z.string().trim().min(1).max(50).optional(),
+  methodology: z.string().trim().min(1).max(500).optional(),
   adjustmentFactors: z.any().optional().nullable(),
   status: z.enum(['DRAFT', 'ACTIVE', 'SUPERSEDED']).optional(),
 });

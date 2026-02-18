@@ -549,8 +549,8 @@ router.get('/access-log', (req: AuthRequest, res: Response) => {
 router.post('/access-log', (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      module: z.string().min(1),
-      action: z.string().min(1),
+      module: z.string().trim().min(1),
+      action: z.string().trim().min(1),
       resource: z.string().optional(),
       details: z.string().optional(),
     });

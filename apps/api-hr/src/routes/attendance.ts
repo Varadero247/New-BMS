@@ -464,8 +464,8 @@ router.get('/shifts/all', async (_req: Request, res: Response) => {
 router.post('/shifts', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      name: z.string().min(1),
-      code: z.string().min(1),
+      name: z.string().trim().min(1),
+      code: z.string().trim().min(1),
       description: z.string().optional(),
       startTime: z.string().regex(/^\d{2}:\d{2}$/),
       endTime: z.string().regex(/^\d{2}:\d{2}$/),

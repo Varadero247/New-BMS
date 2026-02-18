@@ -15,19 +15,19 @@ router.use(authenticate);
 const scheduleTypeEnum = z.enum(['REPORT', 'EXPORT', 'REFRESH', 'ALERT_CHECK']);
 
 const scheduleCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   type: scheduleTypeEnum,
   referenceId: z.string().uuid(),
-  cronExpression: z.string().min(1).max(100),
+  cronExpression: z.string().trim().min(1).max(100),
   isActive: z.boolean().optional().default(true),
   timezone: z.string().max(50).optional().default('UTC'),
 });
 
 const scheduleUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   type: scheduleTypeEnum.optional(),
   referenceId: z.string().uuid().optional(),
-  cronExpression: z.string().min(1).max(100).optional(),
+  cronExpression: z.string().trim().min(1).max(100).optional(),
   isActive: z.boolean().optional(),
   timezone: z.string().max(50).optional(),
 });

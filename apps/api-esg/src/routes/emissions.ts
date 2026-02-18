@@ -19,10 +19,10 @@ function generateReference(prefix: string): string {
 
 const emissionCreateSchema = z.object({
   scope: z.enum(['SCOPE_1', 'SCOPE_2', 'SCOPE_3']),
-  category: z.string().min(1).max(200),
-  source: z.string().min(1).max(200),
+  category: z.string().trim().min(1).max(200),
+  source: z.string().trim().min(1).max(200),
   quantity: z.number().positive(),
-  unit: z.string().min(1).max(50),
+  unit: z.string().trim().min(1).max(50),
   co2Equivalent: z.number().min(0),
   periodStart: z.string(),
   periodEnd: z.string(),
@@ -32,10 +32,10 @@ const emissionCreateSchema = z.object({
 
 const emissionUpdateSchema = z.object({
   scope: z.enum(['SCOPE_1', 'SCOPE_2', 'SCOPE_3']).optional(),
-  category: z.string().min(1).max(200).optional(),
-  source: z.string().min(1).max(200).optional(),
+  category: z.string().trim().min(1).max(200).optional(),
+  source: z.string().trim().min(1).max(200).optional(),
   quantity: z.number().positive().optional(),
-  unit: z.string().min(1).max(50).optional(),
+  unit: z.string().trim().min(1).max(50).optional(),
   co2Equivalent: z.number().min(0).optional(),
   periodStart: z.string().optional(),
   periodEnd: z.string().optional(),

@@ -27,26 +27,26 @@ function generateReference(prefix: string): string {
 
 const billCreateSchema = z.object({
   meterId: z.string().uuid().optional().nullable(),
-  provider: z.string().min(1).max(200),
+  provider: z.string().trim().min(1).max(200),
   accountNumber: z.string().max(100).optional().nullable(),
   invoiceNumber: z.string().max(100).optional().nullable(),
   periodStart: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   periodEnd: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   consumption: z.number().min(0),
-  unit: z.string().min(1).max(50),
+  unit: z.string().trim().min(1).max(50),
   cost: z.number().min(0),
   currency: z.string().length(3).optional().default('GBP'),
 });
 
 const billUpdateSchema = z.object({
   meterId: z.string().uuid().optional().nullable(),
-  provider: z.string().min(1).max(200).optional(),
+  provider: z.string().trim().min(1).max(200).optional(),
   accountNumber: z.string().max(100).optional().nullable(),
   invoiceNumber: z.string().max(100).optional().nullable(),
   periodStart: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
   periodEnd: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
   consumption: z.number().min(0).optional(),
-  unit: z.string().min(1).max(50).optional(),
+  unit: z.string().trim().min(1).max(50).optional(),
   cost: z.number().min(0).optional(),
   currency: z.string().length(3).optional(),
   status: z.enum(['PENDING', 'VERIFIED', 'DISPUTED', 'PAID']).optional(),

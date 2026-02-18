@@ -10,8 +10,8 @@ const router: IRouter = Router();
 // Validation schemas
 const createIncidentSchema = z.object({
   standard: z.enum(['ISO_45001', 'ISO_14001', 'ISO_9001']),
-  title: z.string().min(1).max(200),
-  description: z.string().min(1),
+  title: z.string().trim().min(1).max(200),
+  description: z.string().trim().min(1),
   type: z.enum([
     'INJURY', 'NEAR_MISS', 'DANGEROUS_OCCURRENCE', 'OCCUPATIONAL_ILLNESS', 'PROPERTY_DAMAGE',
     'SPILL', 'EMISSION', 'WASTE_INCIDENT', 'ENVIRONMENTAL_COMPLAINT', 'REGULATORY_BREACH',

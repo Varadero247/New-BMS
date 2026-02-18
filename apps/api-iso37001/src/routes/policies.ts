@@ -35,7 +35,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const policyCreateSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   content: z.string().min(1),
   policyType: z.enum([
     'ANTI_BRIBERY_POLICY',
@@ -58,7 +58,7 @@ const policyCreateSchema = z.object({
 });
 
 const policyUpdateSchema = z.object({
-  title: z.string().min(1).max(300).optional(),
+  title: z.string().trim().min(1).max(300).optional(),
   content: z.string().min(1).optional(),
   policyType: z.enum([
     'ANTI_BRIBERY_POLICY',

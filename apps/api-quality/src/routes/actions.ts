@@ -132,15 +132,15 @@ router.get('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest, r
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       actionType: z.enum(['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT', 'AUDIT_FINDING', 'RISK_TREATMENT', 'OBJECTIVE_SUPPORT', 'LEGAL_COMPLIANCE', 'OTHER']),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
       source: z.enum(['NC_REPORT', 'CAPA', 'INTERNAL_AUDIT', 'MANAGEMENT_REVIEW', 'RISK_REGISTER', 'FMEA', 'CUSTOMER_COMPLAINT', 'SUPPLIER_AUDIT', 'CONTINUAL_IMPROVEMENT', 'OBJECTIVE', 'OTHER']),
       sourceReference: z.string().optional(),
-      description: z.string().min(1),
-      expectedOutcome: z.string().min(1),
-      assignedTo: z.string().min(1),
-      department: z.string().min(1),
+      description: z.string().trim().min(1),
+      expectedOutcome: z.string().trim().min(1),
+      assignedTo: z.string().trim().min(1),
+      department: z.string().trim().min(1),
       dueDate: z.string(),
       progressNotes: z.string().optional(),
       verificationMethod: z.enum(['DOCUMENT_REVIEW', 'INSPECTION', 'AUDIT', 'TEST', 'SIGN_OFF']).optional(),
@@ -182,7 +182,7 @@ router.put('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest, r
     }
 
     const schema = z.object({
-      title: z.string().min(1).optional(),
+      title: z.string().trim().min(1).optional(),
       actionType: z.enum(['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT', 'AUDIT_FINDING', 'RISK_TREATMENT', 'OBJECTIVE_SUPPORT', 'LEGAL_COMPLIANCE', 'OTHER']).optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
       source: z.enum(['NC_REPORT', 'CAPA', 'INTERNAL_AUDIT', 'MANAGEMENT_REVIEW', 'RISK_REGISTER', 'FMEA', 'CUSTOMER_COMPLAINT', 'SUPPLIER_AUDIT', 'CONTINUAL_IMPROVEMENT', 'OBJECTIVE', 'OTHER']).optional(),

@@ -11,7 +11,7 @@ const logger = createLogger('chem-monitoring');
 const monitoringTypeEnum = z.enum(['AIR_SAMPLE', 'BIOLOGICAL', 'WIPE_SAMPLE']);
 
 const createMonitoringSchema = z.object({
-  chemicalId: z.string().min(1),
+  chemicalId: z.string().trim().min(1),
   coshhAssessmentId: z.string().optional(),
   monitoringType: monitoringTypeEnum,
   location: z.string().optional(),

@@ -146,7 +146,7 @@ router.post('/:id/exercise', authenticate, async (req: Request, res: Response) =
   try {
     const schema = z.object({
       exerciseType: exerciseTypeEnum,
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       scheduledDate: z.string(),
       scope: z.string().optional(),
       participantsCount: z.number().int().optional(),

@@ -87,7 +87,7 @@ router.post('/', async (req: Request, res: Response) => {
         'EDUCATION_CERTIFICATE', 'EXPERIENCE_LETTER', 'BACKGROUND_CHECK', 'MEDICAL_CERTIFICATE',
         'TAX_FORM', 'BANK_DETAILS', 'PERFORMANCE_LETTER', 'WARNING_LETTER', 'TERMINATION_LETTER', 'OTHER'
       ]),
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       description: z.string().optional(),
       fileName: z.string(),
       fileUrl: z.string().url(),

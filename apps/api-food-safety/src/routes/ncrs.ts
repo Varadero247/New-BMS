@@ -14,7 +14,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const ncrCreateSchema = z.object({
-  title: z.string().min(1).max(200),
+  title: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional().nullable(),
   area: z.string().max(200).optional().nullable(),
   category: z.enum(['PROCESS', 'PRODUCT', 'DOCUMENTATION', 'FACILITY', 'SUPPLIER']),
@@ -33,7 +33,7 @@ const ncrCloseSchema = z.object({
 });
 
 const ncrUpdateSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
   area: z.string().max(200).optional().nullable(),
   category: z.enum(['PROCESS', 'PRODUCT', 'DOCUMENTATION', 'FACILITY', 'SUPPLIER']).optional(),

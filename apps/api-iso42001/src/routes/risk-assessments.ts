@@ -60,7 +60,7 @@ function getRiskLevel(score: number): string {
 
 const riskCreateSchema = z.object({
   systemId: z.string().uuid(),
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   description: z.string().max(4000).optional().nullable(),
   category: z.enum([
     'BIAS_DISCRIMINATION',
@@ -86,7 +86,7 @@ const riskCreateSchema = z.object({
 });
 
 const riskUpdateSchema = z.object({
-  title: z.string().min(1).max(300).optional(),
+  title: z.string().trim().min(1).max(300).optional(),
   description: z.string().max(4000).optional().nullable(),
   category: z.enum([
     'BIAS_DISCRIMINATION',

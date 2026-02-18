@@ -26,7 +26,7 @@ function generateContractNumber(): string {
 
 const contractCreateSchema = z.object({
   customerId: z.string().uuid(),
-  title: z.string().min(1).max(200),
+  title: z.string().trim().min(1).max(200),
   type: z.enum(['WARRANTY', 'SLA', 'PREVENTIVE', 'FULL_SERVICE', 'TIME_AND_MATERIAL']),
   status: z.enum(['ACTIVE', 'EXPIRED', 'CANCELLED', 'PENDING']).optional(),
   startDate: z.string(),
@@ -39,7 +39,7 @@ const contractCreateSchema = z.object({
 });
 
 const contractUpdateSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   type: z.enum(['WARRANTY', 'SLA', 'PREVENTIVE', 'FULL_SERVICE', 'TIME_AND_MATERIAL']).optional(),
   status: z.enum(['ACTIVE', 'EXPIRED', 'CANCELLED', 'PENDING']).optional(),
   startDate: z.string().optional(),

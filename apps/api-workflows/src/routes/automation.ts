@@ -15,9 +15,9 @@ router.param('id', validateIdParam());
 
 // Validation schemas
 const createRuleSchema = z.object({
-  name: z.string().min(1).max(255),
+  name: z.string().trim().min(1).max(255),
   description: z.string().optional(),
-  code: z.string().min(1).max(100),
+  code: z.string().trim().min(1).max(100),
   triggerType: z.enum(['EVENT', 'SCHEDULED', 'CONDITION', 'WORKFLOW_EVENT', 'API', 'WEBHOOK']),
   triggerEvent: z.string().optional(),
   triggerSchedule: z.string().optional(),
@@ -208,7 +208,7 @@ router.delete('/rules/:id', checkOwnership(prisma.automationRule), async (req: A
 // POST /api/automation/rules/:id/execute - Execute rule manually
 const executeRuleSchema = z.object({
   triggerData: z.record(z.unknown()).optional(),
-  entityType: z.string().min(1).max(100).optional(),
+  entityType: z.string().trim().min(1).max(100).optional(),
   entityId: z.string().uuid().optional(),
 });
 

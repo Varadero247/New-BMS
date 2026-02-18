@@ -18,7 +18,7 @@ function generateReference(prefix: string): string {
 }
 
 const auditCreateSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   auditType: z.enum(['INTERNAL', 'EXTERNAL', 'REGULATORY']),
   framework: z.string().max(200).optional().nullable(),
   auditor: z.string().max(200).optional().nullable(),
@@ -30,7 +30,7 @@ const auditCreateSchema = z.object({
 });
 
 const auditUpdateSchema = z.object({
-  title: z.string().min(1).max(300).optional(),
+  title: z.string().trim().min(1).max(300).optional(),
   auditType: z.enum(['INTERNAL', 'EXTERNAL', 'REGULATORY']).optional(),
   framework: z.string().max(200).optional().nullable(),
   auditor: z.string().max(200).optional().nullable(),

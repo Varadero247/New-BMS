@@ -42,8 +42,8 @@ async function generateRefNumber(): Promise<string> {
 router.post('/assessments', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
-      productProcess: z.string().min(1),
+      title: z.string().trim().min(1),
+      productProcess: z.string().trim().min(1),
       description: z.string().optional(),
       status: z.enum(['DRAFT', 'IN_PROGRESS', 'COMPLETED', 'ARCHIVED']).optional(),
     });

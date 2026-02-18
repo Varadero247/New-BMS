@@ -16,7 +16,7 @@ const categoryEnum = z.enum([
 const appetiteSchema = z.object({
   category: categoryEnum,
   appetiteLevel: z.enum(['VERY_LOW', 'LOW', 'MODERATE_APPETITE', 'HIGH_APPETITE', 'VERY_HIGH']),
-  statement: z.string().min(1),
+  statement: z.string().trim().min(1),
   maximumTolerableScore: z.number().min(1).max(25),
   acceptableResidualScore: z.number().min(1).max(25),
   escalationThreshold: z.number().min(1).max(25),

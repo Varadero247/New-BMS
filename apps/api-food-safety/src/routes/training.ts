@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const trainingCreateSchema = z.object({
-  title: z.string().min(1).max(200),
+  title: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional().nullable(),
   type: z.enum(['INDUCTION', 'REFRESHER', 'HACCP', 'GMP', 'HYGIENE', 'ALLERGEN', 'FOOD_DEFENSE']),
   trainer: z.string().max(200).optional().nullable(),
@@ -30,7 +30,7 @@ const trainingCompleteSchema = z.object({
 });
 
 const trainingUpdateSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
   type: z.enum(['INDUCTION', 'REFRESHER', 'HACCP', 'GMP', 'HYGIENE', 'ALLERGEN', 'FOOD_DEFENSE']).optional(),
   trainer: z.string().max(200).optional().nullable(),

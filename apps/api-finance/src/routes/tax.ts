@@ -19,8 +19,8 @@ function generateReference(prefix: string): string {
 
 // Validation schemas
 const createTaxRateSchema = z.object({
-  name: z.string().min(1),
-  code: z.string().min(1),
+  name: z.string().trim().min(1),
+  code: z.string().trim().min(1),
   rate: z.number().min(0).max(100),
   jurisdiction: z.enum(['UK_VAT', 'US_SALES', 'EU_VAT', 'CANADA_GST', 'AUSTRALIA_GST', 'OTHER']).default('UK_VAT'),
   isDefault: z.boolean().optional(),

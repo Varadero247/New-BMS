@@ -509,7 +509,7 @@ const headstartSchema = z.object({
   certificationStatus: z.enum([
     'WORKING_TOWARDS', 'ALREADY_CERTIFIED', 'UPGRADING', 'MULTI_STANDARD',
   ]),
-  organisationName: z.string().min(1).max(200).optional(),
+  organisationName: z.string().trim().min(1).max(200).optional(),
 });
 
 // In-memory store for headstart assessments

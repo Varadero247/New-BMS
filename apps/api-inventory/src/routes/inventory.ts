@@ -178,7 +178,7 @@ router.post('/adjust', async (req: AuthRequest, res: Response) => {
       warehouseId: z.string(),
       adjustmentType: z.enum(['ADJUSTMENT_IN', 'ADJUSTMENT_OUT', 'CYCLE_COUNT', 'DAMAGE', 'EXPIRED']),
       quantity: z.number().int(),
-      reason: z.string().min(1),
+      reason: z.string().trim().min(1),
       notes: z.string().optional(),
       binLocation: z.string().optional(),
       lotNumber: z.string().optional(),

@@ -20,8 +20,8 @@ const router = Router();
 // ============================================
 
 const createCommentSchema = z.object({
-  recordType: z.string().min(1).max(100),
-  recordId: z.string().min(1).max(100),
+  recordType: z.string().trim().min(1).max(100),
+  recordId: z.string().trim().min(1).max(100),
   parentId: z.string().uuid().nullable().optional(),
   body: z.string().min(1).max(5000),
 });
@@ -31,7 +31,7 @@ const updateCommentSchema = z.object({
 });
 
 const reactionSchema = z.object({
-  emoji: z.string().min(1).max(10),
+  emoji: z.string().trim().min(1).max(10),
 });
 
 // ============================================

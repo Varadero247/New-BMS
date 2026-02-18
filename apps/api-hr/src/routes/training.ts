@@ -69,8 +69,8 @@ router.get('/courses/:id', checkOwnership(prisma.hRTrainingCourse), async (req: 
 router.post('/courses', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      code: z.string().min(1),
-      name: z.string().min(1),
+      code: z.string().trim().min(1),
+      name: z.string().trim().min(1),
       description: z.string().optional(),
       category: z.string(),
       provider: z.string().optional(),
@@ -335,7 +335,7 @@ router.post('/certifications', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       employeeId: z.string().uuid(),
-      name: z.string().min(1),
+      name: z.string().trim().min(1),
       issuingOrganization: z.string(),
       credentialId: z.string().optional(),
       credentialUrl: z.string().url().optional(),

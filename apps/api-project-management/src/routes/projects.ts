@@ -270,7 +270,7 @@ router.get('/:id/dashboard', checkOwnership(prisma.project), async (req: AuthReq
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      projectName: z.string().min(1),
+      projectName: z.string().trim().min(1),
       projectDescription: z.string().optional(),
       projectType: z.enum(['INTERNAL', 'CLIENT', 'R_D', 'IMPROVEMENT', 'COMPLIANCE']),
       businessCase: z.string().optional(),
@@ -357,7 +357,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
 // PUT /api/projects/:id - Update project
 const projectUpdateSchema = z.object({
-  projectName: z.string().min(1).optional(),
+  projectName: z.string().trim().min(1).optional(),
   projectDescription: z.string().optional(),
   projectType: z.enum(['INTERNAL', 'CLIENT', 'R_D', 'IMPROVEMENT', 'COMPLIANCE']).optional(),
   status: z.enum(['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED', 'CLOSED']).optional(),

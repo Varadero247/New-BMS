@@ -29,8 +29,8 @@ const VALID_ACTIONS = [
 ] as const;
 
 const postActivitySchema = z.object({
-  recordType: z.string().min(1),
-  recordId: z.string().min(1),
+  recordType: z.string().trim().min(1),
+  recordId: z.string().trim().min(1),
   action: z.enum(VALID_ACTIONS),
   field: z.string().optional(),
   oldValue: z.unknown().optional(),

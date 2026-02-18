@@ -13,21 +13,21 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const kpiCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   metricType: z.enum(['MTBF', 'MTTR', 'OEE', 'AVAILABILITY', 'COMPLIANCE', 'COST']),
   assetId: z.string().uuid().optional().nullable(),
   value: z.number(),
-  unit: z.string().min(1).max(50),
+  unit: z.string().trim().min(1).max(50),
   periodStart: z.string(),
   periodEnd: z.string(),
   target: z.number().optional().nullable(),
 });
 
 const kpiUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   metricType: z.enum(['MTBF', 'MTTR', 'OEE', 'AVAILABILITY', 'COMPLIANCE', 'COST']).optional(),
   value: z.number().optional(),
-  unit: z.string().min(1).max(50).optional(),
+  unit: z.string().trim().min(1).max(50).optional(),
   periodStart: z.string().optional(),
   periodEnd: z.string().optional(),
   target: z.number().optional().nullable(),

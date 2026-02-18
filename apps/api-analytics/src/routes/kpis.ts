@@ -16,9 +16,9 @@ const trendEnum = z.enum(['UP', 'DOWN', 'STABLE']);
 const frequencyEnum = z.enum(['REALTIME', 'DAILY', 'WEEKLY', 'MONTHLY']);
 
 const kpiCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   description: z.string().max(1000).optional().nullable(),
-  module: z.string().min(1).max(100),
+  module: z.string().trim().min(1).max(100),
   formula: z.string().max(500).optional().nullable(),
   unit: z.string().max(50).optional().nullable(),
   currentValue: z.number().optional().nullable(),
@@ -29,9 +29,9 @@ const kpiCreateSchema = z.object({
 });
 
 const kpiUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(1000).optional().nullable(),
-  module: z.string().min(1).max(100).optional(),
+  module: z.string().trim().min(1).max(100).optional(),
   formula: z.string().max(500).optional().nullable(),
   unit: z.string().max(50).optional().nullable(),
   currentValue: z.number().optional().nullable(),

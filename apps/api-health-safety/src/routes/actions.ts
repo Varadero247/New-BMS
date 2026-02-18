@@ -28,14 +28,14 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 }
 
 const createSchema = z.object({
-  title: z.string().min(1).max(300),
-  description: z.string().min(1).max(5000),
+  title: z.string().trim().min(1).max(300),
+  description: z.string().trim().min(1).max(5000),
   type: z.enum(ACTION_TYPES),
   priority: z.enum(PRIORITIES).default('MEDIUM'),
-  ownerId: z.string().min(1).max(200),
+  ownerId: z.string().trim().min(1).max(200),
   incidentId: z.string().optional().nullable(),
   riskId: z.string().optional().nullable(),
-  dueDate: z.string().min(1),
+  dueDate: z.string().trim().min(1),
   estimatedCost: z.number().optional().nullable(),
   verificationMethod: z.string().max(500).optional().nullable(),
 });

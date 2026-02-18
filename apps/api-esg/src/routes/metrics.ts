@@ -12,7 +12,7 @@ const dataPointCreateSchema = z.object({
   periodStart: z.string(),
   periodEnd: z.string(),
   value: z.number(),
-  unit: z.string().min(1).max(50),
+  unit: z.string().trim().min(1).max(50),
   source: z.string().max(200).optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
   status: z.enum(['DRAFT', 'SUBMITTED', 'VERIFIED', 'REJECTED']).optional(),

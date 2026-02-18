@@ -32,8 +32,8 @@ router.get('/types', async (_req: Request, res: Response) => {
 router.post('/types', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      code: z.string().min(1),
-      name: z.string().min(1),
+      code: z.string().trim().min(1),
+      name: z.string().trim().min(1),
       description: z.string().optional(),
       category: z.enum(['ANNUAL', 'SICK', 'MATERNITY', 'PATERNITY', 'BEREAVEMENT', 'UNPAID', 'COMPENSATORY', 'STUDY', 'SABBATICAL', 'OTHER']),
       color: z.string().optional(),
@@ -475,7 +475,7 @@ router.get('/holidays', async (req: Request, res: Response) => {
 router.post('/holidays', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      name: z.string().min(1),
+      name: z.string().trim().min(1),
       date: z.string(),
       type: z.enum(['PUBLIC', 'COMPANY', 'OPTIONAL', 'RESTRICTED']),
       isFloating: z.boolean().default(false),

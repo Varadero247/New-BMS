@@ -19,10 +19,10 @@ router.param('id', validateIdParam());
 // ============================================
 
 const createSchema = z.object({
-  projectId: z.string().min(1),
-  title: z.string().min(1),
+  projectId: z.string().trim().min(1),
+  title: z.string().trim().min(1),
   protocol: z.string().optional(),
-  testMethod: z.string().min(1),
+  testMethod: z.string().trim().min(1),
   intendedUseConfirmed: z.boolean().optional(),
   results: z.string().optional(),
   pass: z.boolean().optional(),

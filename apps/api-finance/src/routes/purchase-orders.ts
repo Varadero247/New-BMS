@@ -23,7 +23,7 @@ function generateReference(): string {
 }
 
 const poLineSchema = z.object({
-  description: z.string().min(1).max(500),
+  description: z.string().trim().min(1).max(500),
   quantity: z.number().min(0.01),
   unitPrice: z.number().min(0),
   taxRateId: z.string().uuid().optional().nullable(),

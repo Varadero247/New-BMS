@@ -8,7 +8,7 @@ const router = Router();
 const logger = createLogger('risk-kri');
 
 const kriSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().trim().min(1),
   description: z.string().optional(),
   unit: z.string().optional(),
   greenThreshold: z.number().optional(),

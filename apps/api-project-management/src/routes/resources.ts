@@ -53,10 +53,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      projectId: z.string().min(1),
+      projectId: z.string().trim().min(1),
       resourceType: z.enum(['HUMAN', 'EQUIPMENT', 'MATERIAL', 'FACILITY']),
       resourceId: z.string().optional(),
-      resourceName: z.string().min(1),
+      resourceName: z.string().trim().min(1),
       resourceRole: z.string().optional(),
       responsibility: z.enum(['RESPONSIBLE', 'ACCOUNTABLE', 'CONSULTED', 'INFORMED']).optional(),
       allocationPercentage: z.number().min(0).max(100).optional(),

@@ -44,8 +44,8 @@ function generateDsarRef(): string {
 // ---------------------------------------------------------------------------
 
 const ropaCreateSchema = z.object({
-  name: z.string().min(1).max(300),
-  purpose: z.string().min(1).max(2000),
+  name: z.string().trim().min(1).max(300),
+  purpose: z.string().trim().min(1).max(2000),
   lawfulBasis: z.enum(['CONSENT', 'CONTRACT', 'LEGAL_OBLIGATION', 'VITAL_INTERESTS', 'PUBLIC_TASK', 'LEGITIMATE_INTERESTS']),
   dataCategories: z.array(z.string()).optional(),
   dataSubjects: z.array(z.string()).optional(),
@@ -59,8 +59,8 @@ const ropaCreateSchema = z.object({
 });
 
 const ropaUpdateSchema = z.object({
-  name: z.string().min(1).max(300).optional(),
-  purpose: z.string().min(1).max(2000).optional(),
+  name: z.string().trim().min(1).max(300).optional(),
+  purpose: z.string().trim().min(1).max(2000).optional(),
   lawfulBasis: z.enum(['CONSENT', 'CONTRACT', 'LEGAL_OBLIGATION', 'VITAL_INTERESTS', 'PUBLIC_TASK', 'LEGITIMATE_INTERESTS']).optional(),
   dataCategories: z.array(z.string()).optional(),
   dataSubjects: z.array(z.string()).optional(),
@@ -75,7 +75,7 @@ const ropaUpdateSchema = z.object({
 });
 
 const dpiaCreateSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   description: z.string().max(5000).optional(),
   processingDescription: z.string().max(5000).optional(),
   necessity: z.string().max(5000).optional(),
@@ -89,7 +89,7 @@ const dpiaApproveSchema = z.object({
 });
 
 const dsarCreateSchema = z.object({
-  subjectName: z.string().min(1).max(200),
+  subjectName: z.string().trim().min(1).max(200),
   subjectEmail: z.string().email().max(200),
   requestType: z.enum(['ACCESS', 'RECTIFICATION', 'ERASURE', 'RESTRICTION', 'PORTABILITY', 'OBJECTION']),
   description: z.string().max(5000).optional(),
@@ -97,7 +97,7 @@ const dsarCreateSchema = z.object({
 });
 
 const dsarRespondSchema = z.object({
-  responseNotes: z.string().min(1).max(10000),
+  responseNotes: z.string().trim().min(1).max(10000),
   actionTaken: z.string().max(5000).optional(),
 });
 

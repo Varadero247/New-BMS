@@ -18,17 +18,17 @@ function generateReference(prefix: string): string {
 }
 
 const frameworkCreateSchema = z.object({
-  name: z.string().min(1).max(200),
-  code: z.string().min(1).max(50),
-  version: z.string().min(1).max(50),
+  name: z.string().trim().min(1).max(200),
+  code: z.string().trim().min(1).max(50),
+  version: z.string().trim().min(1).max(50),
   description: z.string().max(2000).optional().nullable(),
   isActive: z.boolean().optional(),
   modules: z.any().optional().nullable(),
 });
 
 const frameworkUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
-  version: z.string().min(1).max(50).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
+  version: z.string().trim().min(1).max(50).optional(),
   description: z.string().max(2000).optional().nullable(),
   isActive: z.boolean().optional(),
   modules: z.any().optional().nullable(),
@@ -36,10 +36,10 @@ const frameworkUpdateSchema = z.object({
 
 const metricCreateSchema = z.object({
   category: z.enum(['ENVIRONMENTAL', 'SOCIAL', 'GOVERNANCE']),
-  subcategory: z.string().min(1).max(200),
-  name: z.string().min(1).max(200),
-  code: z.string().min(1).max(50),
-  unit: z.string().min(1).max(50),
+  subcategory: z.string().trim().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
+  code: z.string().trim().min(1).max(50),
+  unit: z.string().trim().min(1).max(50),
   targetValue: z.number().optional().nullable(),
   description: z.string().max(2000).optional().nullable(),
   frequency: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY']),
@@ -50,7 +50,7 @@ const dataPointCreateSchema = z.object({
   periodStart: z.string(),
   periodEnd: z.string(),
   value: z.number(),
-  unit: z.string().min(1).max(50),
+  unit: z.string().trim().min(1).max(50),
   source: z.string().max(200).optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
   status: z.enum(['DRAFT', 'SUBMITTED', 'VERIFIED', 'REJECTED']).optional(),

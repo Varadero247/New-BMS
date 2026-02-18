@@ -18,7 +18,7 @@ function generateReference(prefix: string): string {
 }
 
 const stakeholderCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   type: z.enum(['INVESTOR', 'CUSTOMER', 'EMPLOYEE', 'REGULATOR', 'COMMUNITY', 'SUPPLIER', 'NGO']),
   contactEmail: z.string().email().max(200).optional().nullable(),
   engagementLevel: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
@@ -27,7 +27,7 @@ const stakeholderCreateSchema = z.object({
 });
 
 const stakeholderUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   type: z.enum(['INVESTOR', 'CUSTOMER', 'EMPLOYEE', 'REGULATOR', 'COMMUNITY', 'SUPPLIER', 'NGO']).optional(),
   contactEmail: z.string().email().max(200).optional().nullable(),
   engagementLevel: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),

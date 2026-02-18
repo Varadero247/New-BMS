@@ -31,11 +31,11 @@ async function generateRefNumber(): Promise<string> {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       studyType: z.enum(['GRR_CROSSED', 'GRR_NESTED', 'BIAS', 'LINEARITY', 'STABILITY', 'ATTRIBUTE']),
-      gageName: z.string().min(1),
+      gageName: z.string().trim().min(1),
       gageId: z.string().optional(),
-      characteristic: z.string().min(1),
+      characteristic: z.string().trim().min(1),
       specification: z.string().optional(),
       tolerance: z.string().optional(),
       operatorCount: z.number().int().min(1),
@@ -143,7 +143,7 @@ router.post('/:id/data', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       measurements: z.array(z.object({
-        operator: z.string().min(1),
+        operator: z.string().trim().min(1),
         partNumber: z.number().int().min(1),
         trial: z.number().int().min(1),
         value: z.number(),

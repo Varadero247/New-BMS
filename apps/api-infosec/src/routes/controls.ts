@@ -141,7 +141,7 @@ function buildSoaPdf(controls: any[], generatedAt: string): Buffer {
 
 const statusUpdateSchema = z.object({
   applicability: z.enum(['APPLICABLE', 'NOT_APPLICABLE']),
-  justification: z.string().min(1).max(2000),
+  justification: z.string().trim().min(1).max(2000),
 });
 
 const implementationUpdateSchema = z.object({

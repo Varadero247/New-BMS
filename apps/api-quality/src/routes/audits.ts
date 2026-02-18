@@ -23,12 +23,12 @@ async function generateRefNumber(): Promise<string> {
 }
 
 const createSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   auditType: z.enum(['INTERNAL', 'EXTERNAL', 'SUPPLIER', 'REGULATORY', 'CERTIFICATION', 'SURVEILLANCE']).default('INTERNAL'),
-  scope: z.string().min(1).max(2000),
+  scope: z.string().trim().min(1).max(2000),
   isoClause: z.string().max(200).optional().nullable(),
   department: z.string().max(200).optional().nullable(),
-  leadAuditor: z.string().min(1).max(200),
+  leadAuditor: z.string().trim().min(1).max(200),
   auditTeam: z.string().max(2000).optional().nullable(),
   auditee: z.string().max(200).optional().nullable(),
   scheduledDate: z.string().optional().nullable(),

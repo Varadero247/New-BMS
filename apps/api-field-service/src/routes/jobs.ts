@@ -25,7 +25,7 @@ function generateJobNumber(): string {
 // ---------------------------------------------------------------------------
 
 const jobCreateSchema = z.object({
-  title: z.string().min(1).max(200),
+  title: z.string().trim().min(1).max(200),
   description: z.string().max(5000).optional().nullable(),
   customerId: z.string().uuid(),
   siteId: z.string().uuid(),
@@ -41,7 +41,7 @@ const jobCreateSchema = z.object({
 });
 
 const jobUpdateSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(5000).optional().nullable(),
   technicianId: z.string().uuid().optional().nullable(),
   contractId: z.string().uuid().optional().nullable(),

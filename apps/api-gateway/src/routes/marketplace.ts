@@ -19,10 +19,10 @@ const pluginCategoryEnum = z.enum([
 ]);
 
 const registerPluginSchema = z.object({
-  name: z.string().min(1).max(200),
-  slug: z.string().min(1).max(200).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens'),
-  description: z.string().min(1).max(5000),
-  author: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
+  slug: z.string().trim().min(1).max(200).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens'),
+  description: z.string().trim().min(1).max(5000),
+  author: z.string().trim().min(1).max(200),
   authorEmail: z.string().email().optional(),
   category: pluginCategoryEnum,
   iconUrl: z.string().url().optional(),
@@ -35,9 +35,9 @@ const registerPluginSchema = z.object({
 });
 
 const updatePluginSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
-  description: z.string().min(1).max(5000).optional(),
-  author: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
+  description: z.string().trim().min(1).max(5000).optional(),
+  author: z.string().trim().min(1).max(200).optional(),
   authorEmail: z.string().email().optional().nullable(),
   category: pluginCategoryEnum.optional(),
   iconUrl: z.string().url().optional().nullable(),
@@ -51,7 +51,7 @@ const updatePluginSchema = z.object({
 });
 
 const publishVersionSchema = z.object({
-  version: z.string().min(1).max(50).regex(/^\d+\.\d+\.\d+/, 'Version must follow semver (e.g. 1.0.0)'),
+  version: z.string().trim().min(1).max(50).regex(/^\d+\.\d+\.\d+/, 'Version must follow semver (e.g. 1.0.0)'),
   changelog: z.string().max(10000).optional(),
   manifest: z.record(z.unknown()),
   entryPoint: z.string().optional(),
@@ -63,7 +63,7 @@ const installSchema = z.object({
 });
 
 const webhookSchema = z.object({
-  event: z.string().min(1).max(100),
+  event: z.string().trim().min(1).max(100),
   targetUrl: z.string().url(),
 });
 

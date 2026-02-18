@@ -8,7 +8,7 @@ const router = Router();
 const logger = createLogger('risk-bowtie');
 
 const bowtieSchema = z.object({
-  topEvent: z.string().min(1),
+  topEvent: z.string().trim().min(1),
   threats: z.array(z.object({ id: z.string(), description: z.string(), likelihood: z.number().min(1).max(5).optional() })),
   preventionBarriers: z.array(z.object({
     id: z.string(), description: z.string(), type: z.string().optional(), effectiveness: z.string().optional(),

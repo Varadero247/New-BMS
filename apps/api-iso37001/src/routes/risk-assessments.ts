@@ -46,7 +46,7 @@ function determineRiskLevel(score: number): string {
 // ---------------------------------------------------------------------------
 
 const riskAssessmentCreateSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   description: z.string().max(5000).optional(),
   category: z.enum([
     'BRIBERY_OF_PUBLIC_OFFICIALS',
@@ -63,7 +63,7 @@ const riskAssessmentCreateSchema = z.object({
     'CUSTOMS_CLEARANCE',
     'OTHER',
   ]),
-  businessFunction: z.string().min(1).max(200),
+  businessFunction: z.string().trim().min(1).max(200),
   likelihood: z.number().int().min(1).max(5),
   impact: z.number().int().min(1).max(5),
   country: z.string().max(100).optional(),
@@ -74,7 +74,7 @@ const riskAssessmentCreateSchema = z.object({
 });
 
 const riskAssessmentUpdateSchema = z.object({
-  title: z.string().min(1).max(300).optional(),
+  title: z.string().trim().min(1).max(300).optional(),
   description: z.string().max(5000).optional(),
   category: z.enum([
     'BRIBERY_OF_PUBLIC_OFFICIALS',
@@ -91,7 +91,7 @@ const riskAssessmentUpdateSchema = z.object({
     'CUSTOMS_CLEARANCE',
     'OTHER',
   ]).optional(),
-  businessFunction: z.string().min(1).max(200).optional(),
+  businessFunction: z.string().trim().min(1).max(200).optional(),
   likelihood: z.number().int().min(1).max(5).optional(),
   impact: z.number().int().min(1).max(5).optional(),
   country: z.string().max(100).optional(),
@@ -102,7 +102,7 @@ const riskAssessmentUpdateSchema = z.object({
 });
 
 const mitigateSchema = z.object({
-  mitigationPlan: z.string().min(1).max(5000),
+  mitigationPlan: z.string().trim().min(1).max(5000),
   residualLikelihood: z.number().int().min(1).max(5),
   residualImpact: z.number().int().min(1).max(5),
   controlsAdded: z.string().max(5000).optional(),

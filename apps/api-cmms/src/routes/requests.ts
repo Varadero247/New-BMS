@@ -26,9 +26,9 @@ function generateRequestNumber(): string {
 // ---------------------------------------------------------------------------
 
 const requestCreateSchema = z.object({
-  title: z.string().min(1).max(200),
+  title: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional().nullable(),
-  requestedBy: z.string().min(1).max(200),
+  requestedBy: z.string().trim().min(1).max(200),
   assetId: z.string().uuid().optional().nullable(),
   locationId: z.string().uuid().optional().nullable(),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
@@ -36,7 +36,7 @@ const requestCreateSchema = z.object({
 });
 
 const requestUpdateSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   status: z.enum(['NEW', 'APPROVED', 'REJECTED', 'CONVERTED']).optional(),

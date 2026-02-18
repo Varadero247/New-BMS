@@ -15,7 +15,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 const managementReviewSchema = z.object({
   period: z.string().min(1, 'Period is required').max(50), // e.g., "2026-Q1"
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   includeRisks: z.boolean().optional().default(true),
   includeIncidents: z.boolean().optional().default(true),
   includeActions: z.boolean().optional().default(true),
@@ -25,12 +25,12 @@ const managementReviewSchema = z.object({
 const kpiPackSchema = z.object({
   period: z.string().min(1, 'Period is required').max(50),
   modules: z.array(z.string()).optional(),
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
 });
 
 const complianceSummarySchema = z.object({
   standards: z.array(z.string()).min(1, 'At least one standard is required'),
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   includeGaps: z.boolean().optional().default(true),
   includeActions: z.boolean().optional().default(true),
 });

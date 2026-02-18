@@ -13,9 +13,9 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const benchmarkCreateSchema = z.object({
-  name: z.string().min(1).max(200),
-  module: z.string().min(1).max(100),
-  metric: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
+  module: z.string().trim().min(1).max(100),
+  metric: z.string().trim().min(1).max(200),
   industryAverage: z.number(),
   topPerformer: z.number(),
   currentValue: z.number().optional().nullable(),

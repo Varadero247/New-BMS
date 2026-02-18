@@ -169,14 +169,14 @@ router.get('/:id', checkOwnership(prisma.apqpProject), async (req: AuthRequest, 
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
-      partNumber: z.string().min(1),
-      partName: z.string().min(1),
-      customer: z.string().min(1),
+      title: z.string().trim().min(1),
+      partNumber: z.string().trim().min(1),
+      partName: z.string().trim().min(1),
+      customer: z.string().trim().min(1),
       programName: z.string().optional(),
       startDate: z.string(),
       targetDate: z.string(),
-      teamLeader: z.string().min(1),
+      teamLeader: z.string().trim().min(1),
       teamMembers: z.array(z.string()).optional().default([]),
       status: z.enum(['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
     });
@@ -263,15 +263,15 @@ router.put('/:id', checkOwnership(prisma.apqpProject), async (req: AuthRequest, 
     }
 
     const schema = z.object({
-      title: z.string().min(1).optional(),
-      partNumber: z.string().min(1).optional(),
-      partName: z.string().min(1).optional(),
-      customer: z.string().min(1).optional(),
+      title: z.string().trim().min(1).optional(),
+      partNumber: z.string().trim().min(1).optional(),
+      partName: z.string().trim().min(1).optional(),
+      customer: z.string().trim().min(1).optional(),
       programName: z.string().optional(),
       status: z.enum(['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
       targetDate: z.string().optional(),
       completedDate: z.string().optional(),
-      teamLeader: z.string().min(1).optional(),
+      teamLeader: z.string().trim().min(1).optional(),
       teamMembers: z.array(z.string()).optional(),
     });
 

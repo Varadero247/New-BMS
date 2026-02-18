@@ -88,7 +88,7 @@ router.get('/:id', checkOwnership(prisma.qualDocument), async (req: AuthRequest,
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       documentType: z.enum(['POLICY', 'PROCEDURE', 'WORK_INSTRUCTION', 'FORM', 'RECORD', 'SPECIFICATION', 'DRAWING', 'EXTERNAL', 'PLAN', 'REPORT']),
       isoClause: z.string().optional(),
       linkedProcess: z.string().optional(),
@@ -98,8 +98,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       scope: z.string().optional(),
       summary: z.string().optional(),
       keyChanges: z.string().optional(),
-      author: z.string().min(1),
-      ownerCustodian: z.string().min(1),
+      author: z.string().trim().min(1),
+      ownerCustodian: z.string().trim().min(1),
       reviewer: z.string().optional(),
       approvedBy: z.string().optional(),
       issueDate: z.string().optional(),
@@ -148,7 +148,7 @@ router.put('/:id', checkOwnership(prisma.qualDocument), async (req: AuthRequest,
     }
 
     const schema = z.object({
-      title: z.string().min(1).optional(),
+      title: z.string().trim().min(1).optional(),
       documentType: z.enum(['POLICY', 'PROCEDURE', 'WORK_INSTRUCTION', 'FORM', 'RECORD', 'SPECIFICATION', 'DRAWING', 'EXTERNAL', 'PLAN', 'REPORT']).optional(),
       isoClause: z.string().nullable().optional(),
       linkedProcess: z.string().nullable().optional(),

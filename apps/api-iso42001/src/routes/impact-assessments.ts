@@ -27,7 +27,7 @@ function generateReference(prefix: string): string {
 
 const impactCreateSchema = z.object({
   systemId: z.string().uuid(),
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   description: z.string().max(10000).optional().nullable(),
   impactLevel: z.enum(['MINIMAL', 'LIMITED', 'SIGNIFICANT', 'HIGH', 'UNACCEPTABLE']).optional().default('LIMITED'),
   assessmentType: z.enum(['INITIAL', 'PERIODIC', 'CHANGE_TRIGGERED', 'INCIDENT_TRIGGERED']).optional().default('INITIAL'),
@@ -46,7 +46,7 @@ const impactCreateSchema = z.object({
 });
 
 const impactUpdateSchema = z.object({
-  title: z.string().min(1).max(300).optional(),
+  title: z.string().trim().min(1).max(300).optional(),
   description: z.string().max(10000).optional().nullable(),
   impactLevel: z.enum(['MINIMAL', 'LIMITED', 'SIGNIFICANT', 'HIGH', 'UNACCEPTABLE']).optional(),
   status: z.enum(['DRAFT', 'IN_PROGRESS', 'REVIEW', 'APPROVED', 'ARCHIVED']).optional(),

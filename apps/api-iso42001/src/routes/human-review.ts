@@ -26,10 +26,10 @@ function generateReference(prefix: string): string {
 // ---------------------------------------------------------------------------
 
 const reviewCreateSchema = z.object({
-  systemId: z.string().min(1).max(100),
-  title: z.string().min(1).max(300),
+  systemId: z.string().trim().min(1).max(100),
+  title: z.string().trim().min(1).max(300),
   description: z.string().max(5000).optional().nullable(),
-  aiDecision: z.string().min(1).max(5000),
+  aiDecision: z.string().trim().min(1).max(5000),
   aiConfidence: z.number().min(0).max(1).optional().nullable(),
   aiReasoning: z.string().max(10000).optional().nullable(),
   expiresAt: z.string().optional().nullable(),
@@ -38,7 +38,7 @@ const reviewCreateSchema = z.object({
 
 const reviewDecisionSchema = z.object({
   decision: z.enum(['APPROVED', 'REJECTED', 'ESCALATED']),
-  justification: z.string().min(1).max(5000),
+  justification: z.string().trim().min(1).max(5000),
 });
 
 // ---------------------------------------------------------------------------

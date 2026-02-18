@@ -71,7 +71,7 @@ router.get('/chains/:id', checkOwnership(prisma.approvalChain), async (req: Auth
 router.post('/chains', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      name: z.string().min(1),
+      name: z.string().trim().min(1),
       description: z.string().optional(),
       chainType: z.enum(['SEQUENTIAL', 'PARALLEL', 'HIERARCHICAL', 'DYNAMIC']),
       levels: z.array(z.record(z.unknown())),
@@ -114,7 +114,7 @@ router.post('/chains', async (req: Request, res: Response) => {
 router.put('/chains/:id', checkOwnership(prisma.approvalChain), async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      name: z.string().min(1).optional(),
+      name: z.string().trim().min(1).optional(),
       description: z.string().optional(),
       chainType: z.enum(['SEQUENTIAL', 'PARALLEL', 'HIERARCHICAL', 'DYNAMIC']).optional(),
       levels: z.array(z.record(z.unknown())).optional(),
@@ -316,7 +316,7 @@ router.get('/requests/:id', checkOwnership(prisma.approvalRequest), async (req: 
 router.post('/requests', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1).max(255),
+      title: z.string().trim().min(1).max(255),
       description: z.string().optional(),
       requestType: z.enum([
         'DOCUMENT_APPROVAL', 'PURCHASE_REQUEST', 'LEAVE_REQUEST', 'EXPENSE_CLAIM',
@@ -502,7 +502,7 @@ router.put('/requests/:id/respond', checkOwnership(prisma.approvalRequest), asyn
 
 // PUT /api/approvals/requests/:id/cancel - Cancel approval request
 const cancelApprovalSchema = z.object({
-  reason: z.string().min(1).max(2000).optional(),
+  reason: z.string().trim().min(1).max(2000).optional(),
 });
 
 router.put('/requests/:id/cancel', checkOwnership(prisma.approvalRequest), async (req: AuthRequest, res: Response) => {

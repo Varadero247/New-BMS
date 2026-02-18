@@ -108,8 +108,8 @@ router.get('/:id', checkOwnership(prisma.hSManagementReview), async (req: AuthRe
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      reviewDate: z.string().min(1),
-      chair: z.string().min(1),
+      reviewDate: z.string().trim().min(1),
+      chair: z.string().trim().min(1),
       attendees: z.array(z.string()).min(1),
       // ISO 45001 Clause 9.3 mandatory inputs (all optional at creation)
       prevActionStatus: z.string().optional(),
@@ -175,7 +175,7 @@ router.put('/:id', checkOwnership(prisma.hSManagementReview), async (req: AuthRe
 
     const schema = z.object({
       reviewDate: z.string().optional(),
-      chair: z.string().min(1).optional(),
+      chair: z.string().trim().min(1).optional(),
       attendees: z.array(z.string()).optional(),
       status: z.enum(REVIEW_STATUSES).optional(),
       prevActionStatus: z.string().optional(),
@@ -247,9 +247,9 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      action: z.string().min(1),
-      owner: z.string().min(1),
-      dueDate: z.string().min(1),
+      action: z.string().trim().min(1),
+      owner: z.string().trim().min(1),
+      dueDate: z.string().trim().min(1),
     });
 
     const data = schema.parse(req.body);
@@ -284,8 +284,8 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
     }
 
     const schema = z.object({
-      action: z.string().min(1).optional(),
-      owner: z.string().min(1).optional(),
+      action: z.string().trim().min(1).optional(),
+      owner: z.string().trim().min(1).optional(),
       dueDate: z.string().optional(),
       status: z.enum(MR_ACTION_STATUSES).optional(),
     });

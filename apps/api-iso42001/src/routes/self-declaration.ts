@@ -26,9 +26,9 @@ function generateReference(prefix: string): string {
 // ---------------------------------------------------------------------------
 
 const declarationCreateSchema = z.object({
-  title: z.string().min(1).max(300),
-  scope: z.string().min(1).max(4000),
-  conformanceStatement: z.string().min(1).max(10000),
+  title: z.string().trim().min(1).max(300),
+  scope: z.string().trim().min(1).max(4000),
+  conformanceStatement: z.string().trim().min(1).max(10000),
   standard: z.string().max(100).optional().default('ISO 42001:2023'),
   declarationDate: z.string(),
   validUntil: z.string().optional().nullable(),
@@ -39,9 +39,9 @@ const declarationCreateSchema = z.object({
 });
 
 const declarationUpdateSchema = z.object({
-  title: z.string().min(1).max(300).optional(),
-  scope: z.string().min(1).max(4000).optional(),
-  conformanceStatement: z.string().min(1).max(10000).optional(),
+  title: z.string().trim().min(1).max(300).optional(),
+  scope: z.string().trim().min(1).max(4000).optional(),
+  conformanceStatement: z.string().trim().min(1).max(10000).optional(),
   standard: z.string().max(100).optional(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'EXPIRED']).optional(),
   declarationDate: z.string().optional(),

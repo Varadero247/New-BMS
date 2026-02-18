@@ -137,11 +137,11 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       capaType: z.enum(['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT']),
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL']).default('MINOR'),
       triggerSource: z.enum(['NC_REPORT', 'CUSTOMER_COMPLAINT', 'INTERNAL_AUDIT', 'EXTERNAL_AUDIT', 'MANAGEMENT_REVIEW', 'SUPPLIER_AUDIT', 'PROCESS_FAILURE', 'FMEA', 'RISK_REGISTER', 'OTHER']),
       sourceReference: z.string().optional(),
-      description: z.string().min(1),
+      description: z.string().trim().min(1),
       isoClause: z.string().optional(),
       immediateActionRequired: z.boolean().default(false),
       actionsTaken: z.string().optional(),
@@ -221,7 +221,7 @@ router.put('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
 
     const schema = z.object({
       capaType: z.enum(['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT']).optional(),
-      title: z.string().min(1).optional(),
+      title: z.string().trim().min(1).optional(),
       severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL']).optional(),
       triggerSource: z.enum(['NC_REPORT', 'CUSTOMER_COMPLAINT', 'INTERNAL_AUDIT', 'EXTERNAL_AUDIT', 'MANAGEMENT_REVIEW', 'SUPPLIER_AUDIT', 'PROCESS_FAILURE', 'FMEA', 'RISK_REGISTER', 'OTHER']).optional(),
       sourceReference: z.string().nullable().optional(),
@@ -347,8 +347,8 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      action: z.string().min(1),
-      assignedTo: z.string().min(1),
+      action: z.string().trim().min(1),
+      assignedTo: z.string().trim().min(1),
       dueDate: z.string(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
       status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED']).default('OPEN'),
@@ -386,7 +386,7 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
     }
 
     const schema = z.object({
-      action: z.string().min(1).optional(),
+      action: z.string().trim().min(1).optional(),
       assignedTo: z.string().optional(),
       dueDate: z.string().optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),

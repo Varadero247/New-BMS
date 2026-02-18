@@ -8,7 +8,7 @@ const router = Router();
 
 const captureSchema = z.object({
   email: z.string().email(),
-  name: z.string().min(1),
+  name: z.string().trim().min(1),
   company: z.string().optional(),
   jobTitle: z.string().optional(),
   source: z.enum(['ROI_CALCULATOR', 'CHATBOT', 'LANDING_PAGE', 'PARTNER_REFERRAL', 'ORGANIC_SEARCH', 'PAID_ADS', 'DIRECT', 'LINKEDIN']),

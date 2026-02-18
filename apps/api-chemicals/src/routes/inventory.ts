@@ -8,12 +8,12 @@ const router = Router();
 const logger = createLogger('chem-inventory');
 
 const createInventorySchema = z.object({
-  chemicalId: z.string().min(1),
+  chemicalId: z.string().trim().min(1),
   location: z.string().min(1, 'location is required'),
   storageArea: z.string().optional(),
   containerRef: z.string().optional(),
   quantityOnhand: z.number().min(0),
-  unit: z.string().min(1),
+  unit: z.string().trim().min(1),
   minStockLevel: z.number().optional(),
   maxStockLevel: z.number().optional(),
   expiryDate: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),

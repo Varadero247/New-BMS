@@ -60,7 +60,7 @@ async function generateReportRefNumber(reportType: string): Promise<string> {
 router.post('/plans', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      deviceName: z.string().min(1),
+      deviceName: z.string().trim().min(1),
       deviceClass: z.string().optional(),
       dataSources: z.array(z.string()).optional(),
       reviewFrequency: z.string().optional(),
@@ -174,7 +174,7 @@ router.put('/plans/:id', checkOwnership(prisma.pmsPlan), async (req: AuthRequest
     }
 
     const schema = z.object({
-      deviceName: z.string().min(1).optional(),
+      deviceName: z.string().trim().min(1).optional(),
       deviceClass: z.string().optional(),
       dataSources: z.array(z.string()).optional(),
       reviewFrequency: z.string().optional(),
@@ -217,9 +217,9 @@ router.put('/plans/:id', checkOwnership(prisma.pmsPlan), async (req: AuthRequest
 router.post('/reports/psur', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      planId: z.string().min(1),
-      periodStart: z.string().min(1),
-      periodEnd: z.string().min(1),
+      planId: z.string().trim().min(1),
+      periodStart: z.string().trim().min(1),
+      periodEnd: z.string().trim().min(1),
       complaintCount: z.number().int().min(0).optional(),
       mdrCount: z.number().int().min(0).optional(),
       adverseEvents: z.number().int().min(0).optional(),
@@ -277,9 +277,9 @@ router.post('/reports/psur', async (req: AuthRequest, res: Response) => {
 router.post('/reports/pmcf', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      planId: z.string().min(1),
-      periodStart: z.string().min(1),
-      periodEnd: z.string().min(1),
+      planId: z.string().trim().min(1),
+      periodStart: z.string().trim().min(1),
+      periodEnd: z.string().trim().min(1),
       complaintCount: z.number().int().min(0).optional(),
       mdrCount: z.number().int().min(0).optional(),
       adverseEvents: z.number().int().min(0).optional(),

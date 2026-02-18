@@ -10,8 +10,8 @@ const router: IRouter = Router();
 // Validation schemas
 const createLegalSchema = z.object({
   standard: z.enum(['ISO_45001', 'ISO_14001', 'ISO_9001']),
-  title: z.string().min(1).max(200),
-  description: z.string().min(1),
+  title: z.string().trim().min(1).max(200),
+  description: z.string().trim().min(1),
   type: z.enum([
     'LEGISLATION', 'REGULATION', 'CODE_OF_PRACTICE', 'PERMIT', 'LICENSE',
     'STANDARD', 'CUSTOMER_REQUIREMENT', 'INTERNAL_REQUIREMENT', 'OTHER',

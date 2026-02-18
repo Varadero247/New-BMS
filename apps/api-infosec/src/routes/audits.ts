@@ -49,30 +49,30 @@ const RESERVED_PATHS = new Set(['vulnerability-scans', 'penetration-tests']);
 // ---------------------------------------------------------------------------
 
 const auditCreateSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   description: z.string().max(5000).optional(),
   auditDate: z.string(),
-  leadAuditor: z.string().min(1).max(200),
+  leadAuditor: z.string().trim().min(1).max(200),
   auditTeam: z.array(z.string()).optional(),
   scope: z.string().max(5000).optional(),
   auditType: z.enum(['INTERNAL', 'EXTERNAL', 'SURVEILLANCE', 'CERTIFICATION', 'RECERTIFICATION']).optional(),
 });
 
 const findingCreateSchema = z.object({
-  clause: z.string().min(1).max(50),
+  clause: z.string().trim().min(1).max(50),
   type: z.enum(['NONCONFORMITY_MAJOR', 'NONCONFORMITY_MINOR', 'OBSERVATION', 'OPPORTUNITY_FOR_IMPROVEMENT']),
-  description: z.string().min(1).max(5000),
+  description: z.string().trim().min(1).max(5000),
   evidence: z.string().max(5000).optional(),
   recommendation: z.string().max(5000).optional(),
 });
 
 const auditCompleteSchema = z.object({
-  summary: z.string().min(1).max(10000),
+  summary: z.string().trim().min(1).max(10000),
   overallConclusion: z.string().max(5000).optional(),
 });
 
 const vulnScanCreateSchema = z.object({
-  scanName: z.string().min(1).max(300),
+  scanName: z.string().trim().min(1).max(300),
   scanDate: z.string(),
   scanner: z.string().max(200).optional(),
   targetSystems: z.array(z.string()).optional(),
@@ -86,7 +86,7 @@ const vulnScanCreateSchema = z.object({
 });
 
 const penTestCreateSchema = z.object({
-  testName: z.string().min(1).max(300),
+  testName: z.string().trim().min(1).max(300),
   testDate: z.string(),
   tester: z.string().max(200).optional(),
   methodology: z.string().max(1000).optional(),

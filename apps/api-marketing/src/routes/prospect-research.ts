@@ -9,7 +9,7 @@ const logger = createLogger('api-marketing:prospect');
 const router = Router();
 
 const researchSchema = z.object({
-  companyName: z.string().min(1),
+  companyName: z.string().trim().min(1),
   website: z.string().url().optional(),
   linkedinUrl: z.string().url('Invalid URL').optional(),
   industry: z.string().optional(),

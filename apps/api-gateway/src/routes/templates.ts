@@ -16,7 +16,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const createTemplateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional(),
   module: z.enum([
     'HEALTH_SAFETY', 'ENVIRONMENT', 'QUALITY', 'AUTOMOTIVE', 'MEDICAL',
@@ -37,7 +37,7 @@ const createTemplateSchema = z.object({
 });
 
 const updateTemplateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
   category: z.enum([
     'RISK_ASSESSMENT', 'INCIDENT_INVESTIGATION', 'AUDIT', 'MANAGEMENT_REVIEW',

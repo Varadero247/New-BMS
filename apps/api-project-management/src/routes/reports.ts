@@ -73,10 +73,10 @@ router.get('/:id', checkOwnership(prisma.projectStatusReport), async (req: AuthR
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      projectId: z.string().min(1),
-      reportPeriod: z.string().min(1),
+      projectId: z.string().trim().min(1),
+      reportPeriod: z.string().trim().min(1),
       reportType: z.string().optional(),
-      executiveSummary: z.string().min(1),
+      executiveSummary: z.string().trim().min(1),
       progressSummary: z.string().optional(),
       milestonesAchieved: z.string().optional(),
       upcomingMilestones: z.string().optional(),

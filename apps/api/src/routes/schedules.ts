@@ -11,7 +11,7 @@ const router: IRouter = Router();
 const createScheduleSchema = z.object({
   buildingId: z.string(),
   zoneId: z.string().optional(),
-  name: z.string().min(1),
+  name: z.string().trim().min(1),
   description: z.string().optional(),
   type: z.enum(['HVAC', 'LIGHTING', 'ACCESS', 'MAINTENANCE', 'CUSTOM']),
   config: z.object({

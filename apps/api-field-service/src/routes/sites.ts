@@ -14,7 +14,7 @@ router.use(authenticate);
 
 const siteCreateSchema = z.object({
   customerId: z.string().uuid(),
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   address: z.record(z.any()),
   coordinates: z.record(z.any()).optional().nullable(),
   accessInstructions: z.string().max(2000).optional().nullable(),
@@ -25,7 +25,7 @@ const siteCreateSchema = z.object({
 });
 
 const siteUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   address: z.record(z.any()).optional(),
   coordinates: z.record(z.any()).optional().nullable(),
   accessInstructions: z.string().max(2000).optional().nullable(),

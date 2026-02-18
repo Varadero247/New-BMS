@@ -13,8 +13,8 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const sanitationCreateSchema = z.object({
-  area: z.string().min(1).max(200),
-  procedure: z.string().min(1).max(2000),
+  area: z.string().trim().min(1).max(200),
+  procedure: z.string().trim().min(1).max(2000),
   frequency: z.enum(['CONTINUOUS', 'HOURLY', 'PER_BATCH', 'DAILY', 'WEEKLY']),
   scheduledDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   completedBy: z.string().max(200).optional().nullable(),
@@ -30,8 +30,8 @@ const sanitationCompleteSchema = z.object({
 });
 
 const sanitationUpdateSchema = z.object({
-  area: z.string().min(1).max(200).optional(),
-  procedure: z.string().min(1).max(2000).optional(),
+  area: z.string().trim().min(1).max(200).optional(),
+  procedure: z.string().trim().min(1).max(2000).optional(),
   frequency: z.enum(['CONTINUOUS', 'HOURLY', 'PER_BATCH', 'DAILY', 'WEEKLY']).optional(),
   scheduledDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
   status: z.enum(['SCHEDULED', 'COMPLETED', 'OVERDUE', 'FAILED']).optional(),

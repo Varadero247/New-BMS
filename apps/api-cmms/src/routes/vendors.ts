@@ -13,8 +13,8 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const vendorCreateSchema = z.object({
-  name: z.string().min(1).max(200),
-  code: z.string().min(1).max(50),
+  name: z.string().trim().min(1).max(200),
+  code: z.string().trim().min(1).max(50),
   contactName: z.string().max(200).optional().nullable(),
   email: z.string().email().optional().nullable(),
   phone: z.string().max(50).optional().nullable(),
@@ -26,7 +26,7 @@ const vendorCreateSchema = z.object({
 });
 
 const vendorUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   contactName: z.string().max(200).optional().nullable(),
   email: z.string().email().optional().nullable(),
   phone: z.string().max(50).optional().nullable(),
@@ -39,8 +39,8 @@ const vendorUpdateSchema = z.object({
 
 const contractCreateSchema = z.object({
   assetId: z.string().uuid().optional().nullable(),
-  contractNumber: z.string().min(1).max(50),
-  title: z.string().min(1).max(200),
+  contractNumber: z.string().trim().min(1).max(50),
+  title: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional().nullable(),
   startDate: z.string(),
   endDate: z.string(),
@@ -52,7 +52,7 @@ const contractCreateSchema = z.object({
 });
 
 const contractUpdateSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),

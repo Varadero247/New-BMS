@@ -35,16 +35,16 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const ticketCreateSchema = z.object({
-  subject: z.string().min(1).max(200),
-  description: z.string().min(1).max(5000),
+  subject: z.string().trim().min(1).max(200),
+  description: z.string().trim().min(1).max(5000),
   category: z.enum(['TECHNICAL', 'BILLING', 'ORDER', 'QUALITY', 'DELIVERY', 'OTHER']),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']),
   portalType: z.enum(['CUSTOMER', 'SUPPLIER']),
 });
 
 const ticketUpdateSchema = z.object({
-  subject: z.string().min(1).max(200).optional(),
-  description: z.string().min(1).max(5000).optional(),
+  subject: z.string().trim().min(1).max(200).optional(),
+  description: z.string().trim().min(1).max(5000).optional(),
   category: z.enum(['TECHNICAL', 'BILLING', 'ORDER', 'QUALITY', 'DELIVERY', 'OTHER']).optional(),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
   status: z.enum(['OPEN', 'IN_PROGRESS', 'WAITING', 'RESOLVED', 'CLOSED']).optional(),
@@ -52,7 +52,7 @@ const ticketUpdateSchema = z.object({
 });
 
 const messageCreateSchema = z.object({
-  message: z.string().min(1).max(5000),
+  message: z.string().trim().min(1).max(5000),
   authorType: z.enum(['PORTAL_USER', 'INTERNAL_STAFF']).default('PORTAL_USER'),
   attachments: z.any().optional().nullable(),
 });

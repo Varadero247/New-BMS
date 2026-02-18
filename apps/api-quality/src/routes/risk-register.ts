@@ -31,8 +31,8 @@ function calcRiskScore(likelihood: string, impact: string): number {
 }
 
 const createSchema = z.object({
-  title: z.string().min(1).max(300),
-  description: z.string().min(1).max(5000),
+  title: z.string().trim().min(1).max(300),
+  description: z.string().trim().min(1).max(5000),
   category: z.string().max(200).optional().nullable(),
   source: z.string().max(200).optional().nullable(),
   isoClause: z.string().max(200).optional().nullable(),

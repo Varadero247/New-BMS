@@ -20,7 +20,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 }
 
 const createSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   email: z.string().email().optional().nullable(),
   phone: z.string().max(50).optional().nullable(),
   contactPerson: z.string().max(100).optional().nullable(),

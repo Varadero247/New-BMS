@@ -20,7 +20,7 @@ function generateReference(prefix: string): string {
 const energyCreateSchema = z.object({
   energyType: z.enum(['ELECTRICITY', 'NATURAL_GAS', 'SOLAR', 'WIND', 'DIESEL', 'OTHER']),
   quantity: z.number().positive(),
-  unit: z.string().min(1).max(50),
+  unit: z.string().trim().min(1).max(50),
   renewable: z.boolean().optional(),
   periodStart: z.string(),
   periodEnd: z.string(),
@@ -31,7 +31,7 @@ const energyCreateSchema = z.object({
 const energyUpdateSchema = z.object({
   energyType: z.enum(['ELECTRICITY', 'NATURAL_GAS', 'SOLAR', 'WIND', 'DIESEL', 'OTHER']).optional(),
   quantity: z.number().positive().optional(),
-  unit: z.string().min(1).max(50).optional(),
+  unit: z.string().trim().min(1).max(50).optional(),
   renewable: z.boolean().optional(),
   periodStart: z.string().optional(),
   periodEnd: z.string().optional(),

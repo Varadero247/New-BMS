@@ -104,8 +104,8 @@ router.get('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, res
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
-      description: z.string().min(1),
+      title: z.string().trim().min(1),
+      description: z.string().trim().min(1),
       type: z.enum(INCIDENT_TYPES),
       severity: z.enum(SEVERITIES).default('MODERATE'),
       category: z.string().optional(),
@@ -215,7 +215,7 @@ router.patch('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, r
     }
 
     const schema = z.object({
-      title: z.string().min(1).optional(),
+      title: z.string().trim().min(1).optional(),
       description: z.string().optional(),
       type: z.enum(INCIDENT_TYPES).optional(),
       severity: z.enum(SEVERITIES).optional(),

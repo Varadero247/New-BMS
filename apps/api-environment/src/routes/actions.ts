@@ -75,13 +75,13 @@ router.get('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest, re
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
-      actionType: z.string().min(1),
-      priority: z.string().min(1),
-      source: z.string().min(1),
-      description: z.string().min(1),
-      assignedTo: z.string().min(1),
-      dueDate: z.string().min(1),
+      title: z.string().trim().min(1),
+      actionType: z.string().trim().min(1),
+      priority: z.string().trim().min(1),
+      source: z.string().trim().min(1),
+      description: z.string().trim().min(1),
+      assignedTo: z.string().trim().min(1),
+      dueDate: z.string().trim().min(1),
       sourceReference: z.string().optional(),
       expectedOutcome: z.string().optional(),
       linkedAspectId: z.string().optional(),

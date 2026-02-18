@@ -13,20 +13,20 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const enpiCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional().nullable(),
-  formula: z.string().min(1).max(500),
-  unit: z.string().min(1).max(50),
+  formula: z.string().trim().min(1).max(500),
+  unit: z.string().trim().min(1).max(50),
   baselineValue: z.number().optional().nullable(),
   targetValue: z.number().optional().nullable(),
   frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY']).optional().default('MONTHLY'),
 });
 
 const enpiUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
-  formula: z.string().min(1).max(500).optional(),
-  unit: z.string().min(1).max(50).optional(),
+  formula: z.string().trim().min(1).max(500).optional(),
+  unit: z.string().trim().min(1).max(50).optional(),
   baselineValue: z.number().optional().nullable(),
   currentValue: z.number().optional().nullable(),
   targetValue: z.number().optional().nullable(),

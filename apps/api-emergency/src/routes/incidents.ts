@@ -197,10 +197,10 @@ router.post('/:id/close', authenticate, async (req: Request, res: Response) => {
 router.post('/:id/decision', authenticate, async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      decisionMaker: z.string().min(1),
+      decisionMaker: z.string().trim().min(1),
       decisionMakerRole: z.string().optional(),
-      situationSummary: z.string().min(1),
-      decisionMade: z.string().min(1),
+      situationSummary: z.string().trim().min(1),
+      decisionMade: z.string().trim().min(1),
       rationaleForDecision: z.string().optional(),
       resourcesAllocated: z.string().optional(),
     });
@@ -221,8 +221,8 @@ router.post('/:id/decision', authenticate, async (req: Request, res: Response) =
 router.post('/:id/resource', authenticate, async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      resourceType: z.string().min(1),
-      resourceName: z.string().min(1),
+      resourceType: z.string().trim().min(1),
+      resourceName: z.string().trim().min(1),
       deployedBy: z.string().optional(),
       location: z.string().optional(),
       notes: z.string().optional(),
@@ -244,9 +244,9 @@ router.post('/:id/resource', authenticate, async (req: Request, res: Response) =
 router.post('/:id/communication', authenticate, async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      communicationType: z.string().min(1),
-      recipient: z.string().min(1),
-      method: z.string().min(1),
+      communicationType: z.string().trim().min(1),
+      recipient: z.string().trim().min(1),
+      method: z.string().trim().min(1),
       messageContent: z.string().min(1),
       sentBy: z.string().optional(),
     });
@@ -266,7 +266,7 @@ router.post('/:id/communication', authenticate, async (req: Request, res: Respon
 // POST /api/incidents/:id/timeline — add timeline event
 router.post('/:id/timeline', authenticate, async (req: Request, res: Response) => {
   try {
-    const schema = z.object({ eventType: z.string().min(1), description: z.string().min(1) });
+    const schema = z.object({ eventType: z.string().trim().min(1), description: z.string().trim().min(1) });
     const parsed = schema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const existingOrgId = (req as any).user?.orgId || 'default';

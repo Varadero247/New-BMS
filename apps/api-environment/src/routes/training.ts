@@ -26,14 +26,14 @@ const TRAINING_TYPES = ['ENVIRONMENTAL_AWARENESS', 'ASPECT_IMPACT', 'EMERGENCY_R
 const STATUSES = ['ASSIGNED', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'OVERDUE', 'CANCELLED'] as const;
 
 const createSchema = z.object({
-  employeeId: z.string().min(1).max(100),
-  employeeName: z.string().min(1).max(200),
+  employeeId: z.string().trim().min(1).max(100),
+  employeeName: z.string().trim().min(1).max(200),
   department: z.string().max(200).optional().nullable(),
   position: z.string().max(200).optional().nullable(),
-  courseName: z.string().min(1).max(300),
+  courseName: z.string().trim().min(1).max(300),
   trainingType: z.enum(TRAINING_TYPES).default('ENVIRONMENTAL_AWARENESS'),
-  assignedDate: z.string().min(1),
-  dueDate: z.string().min(1),
+  assignedDate: z.string().trim().min(1),
+  dueDate: z.string().trim().min(1),
   deliveryMethod: z.enum(['ONLINE', 'CLASSROOM', 'WORKSHOP', 'WEBINAR', 'SELF_STUDY', 'BLENDED']).optional().nullable(),
   provider: z.string().max(300).optional().nullable(),
   duration: z.number().int().min(0).optional().nullable(),

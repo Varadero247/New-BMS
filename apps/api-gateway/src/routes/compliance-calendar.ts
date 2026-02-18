@@ -81,7 +81,7 @@ const createEventSchema = z.object({
 });
 
 const updateEventSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional(),
   type: z.enum(VALID_EVENT_TYPES).optional(),
   standard: z.enum(VALID_STANDARDS).optional(),

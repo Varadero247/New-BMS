@@ -18,10 +18,10 @@ async function generateRefNumber(): Promise<string> {
 }
 
 const createSchema = z.object({
-  processName: z.string().min(1).max(300),
+  processName: z.string().trim().min(1).max(300),
   processId: z.string().max(100).optional().nullable(),
-  activityName: z.string().min(1).max(300),
-  roleName: z.string().min(1).max(200),
+  activityName: z.string().trim().min(1).max(300),
+  roleName: z.string().trim().min(1).max(200),
   personName: z.string().max(200).optional().nullable(),
   raciType: z.enum(['RESPONSIBLE', 'ACCOUNTABLE', 'CONSULTED', 'INFORMED']),
   notes: z.string().max(5000).optional().nullable(),

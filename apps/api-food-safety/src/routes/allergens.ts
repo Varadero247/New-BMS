@@ -14,7 +14,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const allergenCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   type: z.enum(['MAJOR', 'MINOR']),
   description: z.string().max(2000).optional().nullable(),
   controlMeasures: z.string().max(2000).optional().nullable(),
@@ -23,7 +23,7 @@ const allergenCreateSchema = z.object({
 });
 
 const allergenUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   type: z.enum(['MAJOR', 'MINOR']).optional(),
   description: z.string().max(2000).optional().nullable(),
   controlMeasures: z.string().max(2000).optional().nullable(),

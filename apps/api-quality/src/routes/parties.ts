@@ -93,9 +93,9 @@ router.get('/:id', checkOwnership(prisma.qualInterestedParty), async (req: AuthR
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      partyName: z.string().min(1),
+      partyName: z.string().trim().min(1),
       partyType: z.enum(['INTERNAL', 'EXTERNAL']),
-      reasonForInclusion: z.string().min(1),
+      reasonForInclusion: z.string().trim().min(1),
       needsExpectations: z.string().optional(),
       communicationMethod: z.string().optional(),
       reviewFrequency: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE']).default('ANNUALLY'),
@@ -132,9 +132,9 @@ router.put('/:id', checkOwnership(prisma.qualInterestedParty), async (req: AuthR
     }
 
     const schema = z.object({
-      partyName: z.string().min(1).optional(),
+      partyName: z.string().trim().min(1).optional(),
       partyType: z.enum(['INTERNAL', 'EXTERNAL']).optional(),
-      reasonForInclusion: z.string().min(1).optional(),
+      reasonForInclusion: z.string().trim().min(1).optional(),
       needsExpectations: z.string().nullable().optional(),
       communicationMethod: z.string().nullable().optional(),
       reviewFrequency: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE']).optional(),

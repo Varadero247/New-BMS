@@ -73,8 +73,8 @@ router.get('/:id', checkOwnership(prisma.workflowDefinition), async (req: AuthRe
 router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      code: z.string().min(1),
-      name: z.string().min(1),
+      code: z.string().trim().min(1),
+      name: z.string().trim().min(1),
       description: z.string().optional(),
       category: z.enum([
         'APPROVAL', 'REVIEW', 'CHANGE_MANAGEMENT', 'INCIDENT', 'REQUEST',
@@ -124,7 +124,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:id', checkOwnership(prisma.workflowDefinition), async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      name: z.string().min(1).optional(),
+      name: z.string().trim().min(1).optional(),
       description: z.string().optional(),
       triggerType: triggerTypeEnum.optional(),
       triggerConfig: z.record(z.unknown()).optional(),

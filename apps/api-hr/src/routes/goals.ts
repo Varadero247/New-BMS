@@ -22,11 +22,11 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 const createSchema = z.object({
   cycleId: z.string().uuid(),
   employeeId: z.string().uuid(),
-  title: z.string().min(1),
-  description: z.string().min(1),
+  title: z.string().trim().min(1),
+  description: z.string().trim().min(1),
   category: z.enum(['PERFORMANCE', 'DEVELOPMENT', 'BEHAVIORAL', 'TEAM', 'STRATEGIC', 'OPERATIONAL', 'INNOVATION']),
   weight: z.number().min(0).max(100).optional(),
-  measurementCriteria: z.string().min(1),
+  measurementCriteria: z.string().trim().min(1),
   targetValue: z.string().optional(),
   unit: z.string().optional(),
   startDate: z.string().optional(),
@@ -266,7 +266,7 @@ router.post('/:id/updates', async (req: Request, res: Response) => {
 
     const schema = z.object({
       progressAfter: z.number().int().min(0).max(100),
-      updateNotes: z.string().min(1),
+      updateNotes: z.string().trim().min(1),
       evidence: z.record(z.unknown()).optional(),
     });
 

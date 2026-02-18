@@ -25,7 +25,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 const updateSchema = z.object({
-  policyStatement: z.string().min(1).max(20000),
+  policyStatement: z.string().trim().min(1).max(20000),
   purpose: z.string().max(5000).optional().nullable(),
   commitments: z.string().max(10000).optional().nullable(),
   objectives: z.string().max(10000).optional().nullable(),

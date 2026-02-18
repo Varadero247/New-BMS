@@ -13,10 +13,10 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const envMonCreateSchema = z.object({
-  location: z.string().min(1).max(200),
+  location: z.string().trim().min(1).max(200),
   testType: z.enum(['SWAB', 'AIR', 'WATER', 'SURFACE']),
-  parameter: z.string().min(1).max(200),
-  result: z.string().min(1).max(200),
+  parameter: z.string().trim().min(1).max(200),
+  result: z.string().trim().min(1).max(200),
   unit: z.string().max(50).optional().nullable(),
   limit: z.string().max(200).optional().nullable(),
   withinSpec: z.boolean(),
@@ -26,10 +26,10 @@ const envMonCreateSchema = z.object({
 });
 
 const envMonUpdateSchema = z.object({
-  location: z.string().min(1).max(200).optional(),
+  location: z.string().trim().min(1).max(200).optional(),
   testType: z.enum(['SWAB', 'AIR', 'WATER', 'SURFACE']).optional(),
-  parameter: z.string().min(1).max(200).optional(),
-  result: z.string().min(1).max(200).optional(),
+  parameter: z.string().trim().min(1).max(200).optional(),
+  result: z.string().trim().min(1).max(200).optional(),
   unit: z.string().max(50).optional().nullable(),
   limit: z.string().max(200).optional().nullable(),
   withinSpec: z.boolean().optional(),

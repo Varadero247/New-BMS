@@ -18,7 +18,7 @@ function generateReference(prefix: string): string {
 }
 
 const materialityCreateSchema = z.object({
-  topic: z.string().min(1).max(300),
+  topic: z.string().trim().min(1).max(300),
   category: z.enum(['ENVIRONMENTAL', 'SOCIAL', 'GOVERNANCE']),
   importanceToStakeholders: z.number().min(0).max(10),
   importanceToBusiness: z.number().min(0).max(10),
@@ -27,7 +27,7 @@ const materialityCreateSchema = z.object({
 });
 
 const materialityUpdateSchema = z.object({
-  topic: z.string().min(1).max(300).optional(),
+  topic: z.string().trim().min(1).max(300).optional(),
   category: z.enum(['ENVIRONMENTAL', 'SOCIAL', 'GOVERNANCE']).optional(),
   importanceToStakeholders: z.number().min(0).max(10).optional(),
   importanceToBusiness: z.number().min(0).max(10).optional(),

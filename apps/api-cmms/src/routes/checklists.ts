@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const checklistCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional().nullable(),
   assetType: z.enum(['EQUIPMENT', 'VEHICLE', 'BUILDING', 'INFRASTRUCTURE', 'IT_ASSET', 'TOOL']).optional().nullable(),
   items: z.any(),
@@ -21,7 +21,7 @@ const checklistCreateSchema = z.object({
 });
 
 const checklistUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
   assetType: z.enum(['EQUIPMENT', 'VEHICLE', 'BUILDING', 'INFRASTRUCTURE', 'IT_ASSET', 'TOOL']).optional().nullable(),
   items: z.any().optional(),
@@ -31,7 +31,7 @@ const checklistUpdateSchema = z.object({
 const checklistResultSchema = z.object({
   workOrderId: z.string().uuid().optional().nullable(),
   assetId: z.string().uuid(),
-  completedBy: z.string().min(1).max(200),
+  completedBy: z.string().trim().min(1).max(200),
   completedAt: z.string(),
   results: z.any(),
   overallResult: z.enum(['PASS', 'FAIL', 'CONDITIONAL', 'NA']),

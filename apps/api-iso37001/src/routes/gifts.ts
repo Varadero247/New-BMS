@@ -35,7 +35,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const giftCreateSchema = z.object({
-  description: z.string().min(1).max(500),
+  description: z.string().trim().min(1).max(500),
   giftType: z.enum([
     'GIFT',
     'HOSPITALITY',
@@ -49,8 +49,8 @@ const giftCreateSchema = z.object({
   direction: z.enum(['GIVEN', 'RECEIVED']),
   value: z.number().min(0),
   currency: z.string().length(3).default('USD'),
-  recipientOrGiver: z.string().min(1).max(300),
-  date: z.string().min(1),
+  recipientOrGiver: z.string().trim().min(1).max(300),
+  date: z.string().trim().min(1),
   organization: z.string().max(300).optional(),
   position: z.string().max(200).optional(),
   governmentOfficial: z.boolean().default(false),
@@ -62,7 +62,7 @@ const giftCreateSchema = z.object({
 });
 
 const giftUpdateSchema = z.object({
-  description: z.string().min(1).max(500).optional(),
+  description: z.string().trim().min(1).max(500).optional(),
   giftType: z.enum([
     'GIFT',
     'HOSPITALITY',
@@ -76,7 +76,7 @@ const giftUpdateSchema = z.object({
   direction: z.enum(['GIVEN', 'RECEIVED']).optional(),
   value: z.number().min(0).optional(),
   currency: z.string().length(3).optional(),
-  recipientOrGiver: z.string().min(1).max(300).optional(),
+  recipientOrGiver: z.string().trim().min(1).max(300).optional(),
   date: z.string().optional(),
   organization: z.string().max(300).optional(),
   position: z.string().max(200).optional(),

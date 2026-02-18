@@ -26,7 +26,7 @@ function generateReference(prefix: string): string {
 // ---------------------------------------------------------------------------
 
 const projectCreateSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   description: z.string().max(2000).optional().nullable(),
   type: z.enum(['EFFICIENCY', 'RENEWABLE', 'BEHAVIORAL', 'PROCESS', 'EQUIPMENT']),
   estimatedSavings: z.number().optional().nullable(),
@@ -37,7 +37,7 @@ const projectCreateSchema = z.object({
 });
 
 const projectUpdateSchema = z.object({
-  title: z.string().min(1).max(300).optional(),
+  title: z.string().trim().min(1).max(300).optional(),
   description: z.string().max(2000).optional().nullable(),
   type: z.enum(['EFFICIENCY', 'RENEWABLE', 'BEHAVIORAL', 'PROCESS', 'EQUIPMENT']).optional(),
   status: z.enum(['PROPOSED', 'APPROVED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),

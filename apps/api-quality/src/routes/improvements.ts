@@ -103,7 +103,7 @@ router.get('/:id', checkOwnership(prisma.qualImprovement), async (req: AuthReque
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
+      title: z.string().trim().min(1),
       category: z.enum([
         'PROCESS_IMPROVEMENT', 'PRODUCT_ENHANCEMENT', 'CUSTOMER_EXPERIENCE',
         'COST_REDUCTION', 'EFFICIENCY', 'QUALITY_IMPROVEMENT', 'SAFETY',
@@ -113,13 +113,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         'EMPLOYEE_SUGGESTION', 'CUSTOMER_FEEDBACK', 'AUDIT', 'MANAGEMENT_REVIEW',
         'BENCHMARKING', 'NEAR_MISS', 'DATA_ANALYSIS', 'EXTERNAL_RESEARCH', 'OTHER',
       ]),
-      submittedBy: z.string().min(1),
+      submittedBy: z.string().trim().min(1),
       department: z.string().optional(),
       dateSubmitted: z.string().optional(),
-      description: z.string().min(1),
+      description: z.string().trim().min(1),
       currentState: z.string().optional(),
-      proposedSolution: z.string().min(1),
-      expectedBenefits: z.string().min(1),
+      proposedSolution: z.string().trim().min(1),
+      expectedBenefits: z.string().trim().min(1),
       estimatedCost: z.number().optional(),
       estimatedTime: z.string().optional(),
       estimatedSaving: z.number().optional(),
@@ -230,7 +230,7 @@ router.put('/:id', checkOwnership(prisma.qualImprovement), async (req: AuthReque
     }
 
     const schema = z.object({
-      title: z.string().min(1).optional(),
+      title: z.string().trim().min(1).optional(),
       category: z.enum([
         'PROCESS_IMPROVEMENT', 'PRODUCT_ENHANCEMENT', 'CUSTOMER_EXPERIENCE',
         'COST_REDUCTION', 'EFFICIENCY', 'QUALITY_IMPROVEMENT', 'SAFETY',

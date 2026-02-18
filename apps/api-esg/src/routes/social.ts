@@ -19,7 +19,7 @@ function generateReference(prefix: string): string {
 
 const socialCreateSchema = z.object({
   category: z.enum(['DIVERSITY', 'HEALTH_SAFETY', 'TRAINING', 'COMMUNITY', 'HUMAN_RIGHTS', 'LABOR']),
-  metric: z.string().min(1).max(200),
+  metric: z.string().trim().min(1).max(200),
   value: z.number(),
   unit: z.string().max(50).optional().nullable(),
   periodStart: z.string(),
@@ -29,7 +29,7 @@ const socialCreateSchema = z.object({
 
 const socialUpdateSchema = z.object({
   category: z.enum(['DIVERSITY', 'HEALTH_SAFETY', 'TRAINING', 'COMMUNITY', 'HUMAN_RIGHTS', 'LABOR']).optional(),
-  metric: z.string().min(1).max(200).optional(),
+  metric: z.string().trim().min(1).max(200).optional(),
   value: z.number().optional(),
   unit: z.string().max(50).optional().nullable(),
   periodStart: z.string().optional(),

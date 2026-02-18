@@ -27,7 +27,7 @@ function generateReference(prefix: string): string {
 
 const incidentCreateSchema = z.object({
   systemId: z.string().uuid(),
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   description: z.string().max(10000).optional().nullable(),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
   incidentDate: z.string(),
@@ -51,7 +51,7 @@ const incidentCreateSchema = z.object({
 });
 
 const incidentUpdateSchema = z.object({
-  title: z.string().min(1).max(300).optional(),
+  title: z.string().trim().min(1).max(300).optional(),
   description: z.string().max(10000).optional().nullable(),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   status: z.enum(['REPORTED', 'INVESTIGATING', 'MITIGATING', 'RESOLVED', 'CLOSED']).optional(),
@@ -82,7 +82,7 @@ const investigateSchema = z.object({
 });
 
 const closeSchema = z.object({
-  resolution: z.string().min(1).max(10000),
+  resolution: z.string().trim().min(1).max(10000),
   lessonsLearned: z.string().max(10000).optional().nullable(),
   preventiveActions: z.string().max(4000).optional().nullable(),
   closedBy: z.string().max(200).optional().nullable(),

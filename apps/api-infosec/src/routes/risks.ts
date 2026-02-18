@@ -41,10 +41,10 @@ const RESERVED_PATHS = new Set(['heat-map']);
 // ---------------------------------------------------------------------------
 
 const riskCreateSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   description: z.string().max(5000).optional(),
-  threat: z.string().min(1).max(500),
-  vulnerability: z.string().min(1).max(500),
+  threat: z.string().trim().min(1).max(500),
+  vulnerability: z.string().trim().min(1).max(500),
   likelihood: z.number().int().min(1).max(5),
   impact: z.number().int().min(1).max(5),
   assetId: z.string().uuid().optional(),
@@ -53,10 +53,10 @@ const riskCreateSchema = z.object({
 });
 
 const riskUpdateSchema = z.object({
-  title: z.string().min(1).max(300).optional(),
+  title: z.string().trim().min(1).max(300).optional(),
   description: z.string().max(5000).optional(),
-  threat: z.string().min(1).max(500).optional(),
-  vulnerability: z.string().min(1).max(500).optional(),
+  threat: z.string().trim().min(1).max(500).optional(),
+  vulnerability: z.string().trim().min(1).max(500).optional(),
   likelihood: z.number().int().min(1).max(5).optional(),
   impact: z.number().int().min(1).max(5).optional(),
   assetId: z.string().uuid().optional().nullable(),
@@ -67,7 +67,7 @@ const riskUpdateSchema = z.object({
 
 const treatmentSchema = z.object({
   treatment: z.enum(['MITIGATE', 'TRANSFER', 'AVOID', 'ACCEPT']),
-  treatmentPlan: z.string().min(1).max(5000),
+  treatmentPlan: z.string().trim().min(1).max(5000),
   controlIds: z.array(z.string()).optional(),
   residualLikelihood: z.number().int().min(1).max(5).optional(),
   residualImpact: z.number().int().min(1).max(5).optional(),

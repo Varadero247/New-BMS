@@ -26,7 +26,7 @@ function generateReference(prefix: string): string {
 // ---------------------------------------------------------------------------
 
 const exportCreateSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   type: z.enum(['FULL', 'FILTERED', 'CUSTOM']),
   format: z.enum(['PDF', 'EXCEL', 'CSV', 'HTML']),
   filters: z.record(z.any()).optional().nullable(),

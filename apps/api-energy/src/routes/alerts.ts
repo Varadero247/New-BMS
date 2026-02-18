@@ -16,14 +16,14 @@ const alertCreateSchema = z.object({
   meterId: z.string().uuid().optional().nullable(),
   type: z.enum(['OVERCONSUMPTION', 'ANOMALY', 'THRESHOLD_BREACH', 'EQUIPMENT_FAULT', 'BILLING_DISCREPANCY']),
   severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional().default('MEDIUM'),
-  message: z.string().min(1).max(1000),
+  message: z.string().trim().min(1).max(1000),
   details: z.any().optional().nullable(),
 });
 
 const alertUpdateSchema = z.object({
   type: z.enum(['OVERCONSUMPTION', 'ANOMALY', 'THRESHOLD_BREACH', 'EQUIPMENT_FAULT', 'BILLING_DISCREPANCY']).optional(),
   severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
-  message: z.string().min(1).max(1000).optional(),
+  message: z.string().trim().min(1).max(1000).optional(),
   details: z.any().optional().nullable(),
 });
 

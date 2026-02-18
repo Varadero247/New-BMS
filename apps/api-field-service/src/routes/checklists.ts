@@ -13,15 +13,15 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const checklistCreateSchema = z.object({
-  name: z.string().min(1).max(200),
-  category: z.string().min(1).max(100),
+  name: z.string().trim().min(1).max(200),
+  category: z.string().trim().min(1).max(100),
   items: z.array(z.any()),
   isActive: z.boolean().optional(),
 });
 
 const checklistUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
-  category: z.string().min(1).max(100).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
+  category: z.string().trim().min(1).max(100).optional(),
   items: z.array(z.any()).optional(),
   isActive: z.boolean().optional(),
 });

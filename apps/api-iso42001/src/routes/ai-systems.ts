@@ -26,8 +26,8 @@ function generateReference(prefix: string): string {
 // ---------------------------------------------------------------------------
 
 const aiSystemCreateSchema = z.object({
-  name: z.string().min(1).max(200),
-  description: z.string().min(1).max(4000),
+  name: z.string().trim().min(1).max(200),
+  description: z.string().trim().min(1).max(4000),
   category: z.enum([
     'MACHINE_LEARNING',
     'DEEP_LEARNING',
@@ -53,8 +53,8 @@ const aiSystemCreateSchema = z.object({
 });
 
 const aiSystemUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
-  description: z.string().min(1).max(4000).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
+  description: z.string().trim().min(1).max(4000).optional(),
   category: z.enum([
     'MACHINE_LEARNING',
     'DEEP_LEARNING',

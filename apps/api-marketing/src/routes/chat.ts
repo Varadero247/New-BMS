@@ -29,7 +29,7 @@ const chatStartSchema = z.object({
 
 const chatMessageSchema = z.object({
   sessionId: z.string(),
-  message: z.string().min(1).max(2000),
+  message: z.string().trim().min(1).max(2000),
 });
 
 // POST /api/chat/start

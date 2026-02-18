@@ -22,11 +22,11 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const documentUploadSchema = z.object({
-  title: z.string().min(1).max(200),
+  title: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional().nullable(),
-  fileName: z.string().min(1).max(500),
+  fileName: z.string().trim().min(1).max(500),
   fileSize: z.number().int().positive(),
-  mimeType: z.string().min(1).max(100),
+  mimeType: z.string().trim().min(1).max(100),
   category: z.enum(['CONTRACT', 'CERTIFICATE', 'REPORT', 'SPECIFICATION', 'MANUAL', 'OTHER']),
   tags: z.any().optional().nullable(),
 });

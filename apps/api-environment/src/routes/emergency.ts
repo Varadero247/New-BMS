@@ -43,10 +43,10 @@ async function generateIncidentRefNumber(): Promise<string> {
 router.post('/plans', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
-      scenario: z.string().min(1),
-      triggerConditions: z.string().min(1),
-      immediateResponse: z.string().min(1),
+      title: z.string().trim().min(1),
+      scenario: z.string().trim().min(1),
+      triggerConditions: z.string().trim().min(1),
+      immediateResponse: z.string().trim().min(1),
       notificationReqs: z.string().optional(),
       containmentProcs: z.string().optional(),
       impactMitigation: z.string().optional(),
@@ -186,8 +186,8 @@ router.put('/plans/:id', checkOwnership(prisma.envEmergencyPlan as any), async (
 router.post('/drills', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      planId: z.string().min(1),
-      drillDate: z.string().min(1),
+      planId: z.string().trim().min(1),
+      drillDate: z.string().trim().min(1),
       drillType: z.enum(['TABLETOP', 'FUNCTIONAL', 'FULL_SCALE']),
       participants: z.array(z.string()).min(1),
       scenario: z.string().optional(),
@@ -277,9 +277,9 @@ router.get('/drills', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.post('/incidents', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1),
-      description: z.string().min(1),
-      incidentDate: z.string().min(1),
+      title: z.string().trim().min(1),
+      description: z.string().trim().min(1),
+      incidentDate: z.string().trim().min(1),
       location: z.string().optional(),
       environmentalImpact: z.string().optional(),
       containmentActions: z.string().optional(),

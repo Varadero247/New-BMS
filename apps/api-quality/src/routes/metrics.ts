@@ -23,7 +23,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 const createSchema = z.object({
-  name: z.string().min(1).max(300),
+  name: z.string().trim().min(1).max(300),
   description: z.string().max(2000).optional().nullable(),
   category: z.enum(['CUSTOMER_SATISFACTION', 'PRODUCT_QUALITY', 'PROCESS_PERFORMANCE', 'SUPPLIER_PERFORMANCE', 'AUDIT_RESULTS', 'NONCONFORMANCE', 'DELIVERY', 'SAFETY', 'FINANCIAL', 'OTHER']).default('OTHER'),
   unit: z.string().max(100).optional().nullable(),

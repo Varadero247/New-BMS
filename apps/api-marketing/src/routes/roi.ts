@@ -8,8 +8,8 @@ const logger = createLogger('api-marketing:roi');
 const router = Router();
 
 const roiCalculateSchema = z.object({
-  companyName: z.string().min(1),
-  name: z.string().min(1),
+  companyName: z.string().trim().min(1),
+  name: z.string().trim().min(1),
   email: z.string().email(),
   jobTitle: z.string().optional(),
   employeeCount: z.string().optional(),

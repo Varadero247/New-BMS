@@ -14,8 +14,8 @@ router.use(authenticate);
 
 const inspectionCreateSchema = z.object({
   assetId: z.string().uuid(),
-  inspectionType: z.string().min(1).max(100),
-  inspector: z.string().min(1).max(200),
+  inspectionType: z.string().trim().min(1).max(100),
+  inspector: z.string().trim().min(1).max(200),
   scheduledDate: z.string(),
   completedDate: z.string().optional().nullable(),
   status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'OVERDUE']).optional(),
@@ -25,8 +25,8 @@ const inspectionCreateSchema = z.object({
 });
 
 const inspectionUpdateSchema = z.object({
-  inspectionType: z.string().min(1).max(100).optional(),
-  inspector: z.string().min(1).max(200).optional(),
+  inspectionType: z.string().trim().min(1).max(100).optional(),
+  inspector: z.string().trim().min(1).max(200).optional(),
   scheduledDate: z.string().optional(),
   completedDate: z.string().optional().nullable(),
   status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'OVERDUE']).optional(),

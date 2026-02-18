@@ -26,7 +26,7 @@ const CATEGORIES = ['POLICY', 'PROCEDURE', 'CONTROL', 'TRAINING', 'DUE_DILIGENCE
 const STATUSES = ['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NOT_APPLICABLE', 'UNDER_REVIEW'] as const;
 
 const createSchema = z.object({
-  title: z.string().min(1).max(300),
+  title: z.string().trim().min(1).max(300),
   description: z.string().max(5000).optional().nullable(),
   isoClause: z.string().max(200).optional().nullable(),
   category: z.enum(CATEGORIES).default('OTHER'),
